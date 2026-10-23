@@ -3,9 +3,9 @@ import {
   validateStateIndexDefinition
 } from "./definition.ts";
 import { failure } from "./diagnostics.ts";
-import { createStateIndexReaderFromSnapshot } from "./reader.ts";
+import { createStateIndexReaderFromPrepared } from "./reader.ts";
 import type { StateIndexReader } from "./runtime.ts";
-import { loadCurrentStateIndex, loadStateIndex } from "./storage-load.ts";
+import { loadPreparedStateIndex } from "./prepared.ts";
 import type {
   JsonObject,
   StateIndexContext,
@@ -25,15 +25,16 @@ export async function loadStateIndexReader<
 }): Promise<StateIndexResult<StateIndexReader<State, Metadata>>> {
   const definition = readerDefinition(options.definition, options.indexPath);
   if (definition.status === "error") return definition;
-  const loaded = await loadStateIndex({
+  const loaded = await loadPreparedStateIndex({
     ...options,
     definition: definition.value
   });
   return loaded.status === "error"
     ? loaded
-    : createStateIndexReaderFromSnapshot({
+    : createStateIndexReaderFromPrepared({
         definition: definition.value,
-        index: loaded.value,
+        context: options.context,
+        prepared: loaded.value,
         indexPath: options.indexPath
       });
 }
@@ -48,15 +49,17 @@ export async function loadCurrentStateIndexReader<
 }): Promise<StateIndexResult<StateIndexReader<State, Metadata>>> {
   const definition = readerDefinition(options.definition, options.indexPath);
   if (definition.status === "error") return definition;
-  const loaded = await loadCurrentStateIndex({
+  const loaded = await loadPreparedStateIndex({
+    current: true,
     ...options,
     definition: definition.value
   });
   return loaded.status === "error"
     ? loaded
-    : createStateIndexReaderFromSnapshot({
+    : createStateIndexReaderFromPrepared({
         definition: definition.value,
-        index: loaded.value,
+        context: options.context,
+        prepared: loaded.value,
         indexPath: options.indexPath
       });
 }

@@ -1,183 +1,24 @@
-import fs from "node:fs/promises";
-import { prepareCandidateResources } from "./candidate-read-resources.ts";
-import path from "node:path";
-import { hasEntry } from "../../index-runtime/src/index.ts";
 import {
-  inspectInvestigationCollectionLayout,
-  readInvestigationSources,
-  type InvestigationCollectionLayout
-} from "./investigation-index-source.ts";
-import { isInvestigationSourcePath } from "./report-path.ts";
-import { loadInvestigationIndex } from "./investigation-state-index.ts";
-import type { ResourceRootPreparation } from "./resource-root.ts";
+  prepareCandidateReadContext,
+  type CandidateReadContext
+} from "./candidate-read-context.ts";
+export { prepareCandidateReadContext } from "./candidate-read-context.ts";
+export type { CandidateReadContext } from "./candidate-read-context.ts";
+import { discoverInvestigationCandidates } from "./candidate-discovery.ts";
+import path from "node:path";
 import {
   diagnosticFromError,
   type InvestigationDiagnostic
 } from "./diagnostics.ts";
-import { parseInvestigationReport } from "./markdown.ts";
 import { validateInvestigationBody } from "./markdown-body.ts";
 import { normalizeMarkdownNewlines } from "./markdown-values.ts";
-import {
-  validateCandidateInvestigationResources,
-  type InvestigationResourceReferencesByReport
-} from "./resources.ts";
+import { validateCandidateInvestigationResources } from "./resources.ts";
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 import { errorText, uniqueSorted } from "./candidate-support.ts";
 import type {
   InvestigationCandidate,
-  InvestigationSource,
   ParsedInvestigationReport
 } from "./types.ts";
-
-export type CandidateReadContext = Readonly<{
-  sources: ReadonlyMap<string, InvestigationSource>;
-  formalSources: readonly InvestigationSource[];
-  parsed: ReadonlyMap<string, ParsedInvestigationReport>;
-  references: InvestigationResourceReferencesByReport;
-  resources: ResourceRootPreparation | undefined;
-  ownerWarnings: readonly string[];
-}>;
-
-export async function prepareCandidateReadContext(
-  investigationsDirectory: string,
-  layout: InvestigationCollectionLayout,
-  ids: readonly string[] = layout.candidateIds
-): Promise<CandidateReadContext> {
-  const sources = new Map(
-    layout.candidateSources.map((source) => [source.id, source])
-  );
-  const parsed = parseCandidateScaffolds(layout.candidateSources);
-  const references = new Map<string, ReadonlySet<string>>();
-  for (const [id, document] of parsed)
-    appendParsedReferences(references, id, document);
-  const selectedResources = ids.flatMap((id) => [
-    ...(references.get(id) ?? [])
-  ]);
-  const owners = [...new Set(selectedResources.map((id) => id.split("/")[0]!))];
-  const formalSources = await readCandidateFormalOwners(
-    investigationsDirectory,
-    layout,
-    ids,
-    references,
-    owners
-  );
-  for (const source of formalSources)
-    appendParsedReferences(
-      references,
-      source.id,
-      parseInvestigationReport(source.text, source.id)
-    );
-  const { resources, ownerWarnings } = await prepareCandidateResources(
-    investigationsDirectory,
-    selectedResources.length > 0,
-    references,
-    ids
-  );
-  return {
-    formalSources,
-    sources,
-    parsed,
-    references,
-    resources,
-    ownerWarnings
-  };
-}
-
-function appendParsedReferences(
-  references: Map<string, ReadonlySet<string>>,
-  id: string,
-  document: ParsedInvestigationReport
-): void {
-  if (document.report !== null && document.errors.length === 0)
-    references.set(id, new Set(document.report.resourceIds));
-}
-
-function parseCandidateScaffolds(
-  sources: readonly InvestigationSource[]
-): CandidateReadContext["parsed"] {
-  return new Map(
-    sources.map((source) => [
-      source.id,
-      parseInvestigationReport(source.text, source.id, {
-        allowEmptyCoreSections: true
-      })
-    ])
-  );
-}
-
-async function readCandidateFormalOwners(
-  investigationsDirectory: string,
-  layout: InvestigationCollectionLayout,
-  ids: readonly string[],
-  references: InvestigationResourceReferencesByReport,
-  owners: readonly string[]
-): Promise<InvestigationSource[]> {
-  const { layout: formalLayout, ids: formalIds } =
-    await candidateFormalIdentity(
-      investigationsDirectory,
-      layout,
-      references,
-      owners
-    );
-  const formalIdentity = new Set(formalIds);
-  for (const id of ids) {
-    if (formalIdentity.has(id))
-      throw new Error(
-        `${id} exists as both a formal investigation report and an authoring candidate`
-      );
-  }
-  const formalOwners = owners.filter((id) => formalIdentity.has(id));
-  const selectedOwners = new Set(formalOwners);
-  const formalSources =
-    formalLayout.formalSources.length > 0
-      ? formalLayout.formalSources.filter((source) =>
-          selectedOwners.has(source.id)
-        )
-      : await readInvestigationSources(investigationsDirectory, formalOwners);
-  const ownerCounts = new Map<string, number>();
-  for (const source of formalSources)
-    ownerCounts.set(source.id, (ownerCounts.get(source.id) ?? 0) + 1);
-  if (formalOwners.some((id) => ownerCounts.get(id) !== 1))
-    throw new Error(
-      "required formal resource owners must resolve to unique current sources"
-    );
-  return formalSources;
-}
-
-async function candidateFormalIdentity(
-  investigationsDirectory: string,
-  layout: InvestigationCollectionLayout,
-  references: InvestigationResourceReferencesByReport,
-  owners: readonly string[]
-): Promise<
-  Readonly<{
-    layout: InvestigationCollectionLayout;
-    ids: readonly string[];
-  }>
-> {
-  if (layout.formalSources.length > 0) return { layout, ids: layout.reportIds };
-  const loaded = await loadInvestigationIndex({ investigationsDirectory });
-  const needsDiscovery =
-    (owners.length > 0 && loaded.status === "error") ||
-    owners.some((id) => !references.has(id) && !hasEntry(loaded.value, id));
-  if (
-    needsDiscovery &&
-    (await fs.readdir(investigationsDirectory)).some(isInvestigationSourcePath)
-  ) {
-    const discovered = await inspectInvestigationCollectionLayout(
-      investigationsDirectory,
-      { readCandidateSources: false }
-    );
-    return { layout: discovered, ids: discovered.reportIds };
-  }
-  return {
-    layout,
-    ids:
-      loaded.status === "ok"
-        ? Object.keys(loaded.value.entries)
-        : layout.reportIds
-  };
-}
 
 type CandidateReadFailure = Readonly<{
   kind: "scaffold-invalid" | "operation";
@@ -197,9 +38,7 @@ export async function readInvestigationCandidate(
       context ??
       (await prepareCandidateReadContext(
         investigationsDirectory,
-        await inspectInvestigationCollectionLayout(investigationsDirectory, {
-          readFormalSources: false
-        }),
+        await discoverInvestigationCandidates(investigationsDirectory),
         [id]
       ));
     const source = prepared.sources.get(id);

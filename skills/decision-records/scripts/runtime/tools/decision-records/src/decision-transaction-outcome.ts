@@ -16,6 +16,7 @@ import {
 import { DecisionCollectionLockError } from "./decision-collection-mutation-lock.ts";
 import { transactionFileSystemDiagnostic } from "./decision-transaction.ts";
 import type {
+  DecisionTransactionFacts,
   DecisionTransactionIssue,
   DecisionTransactionResult
 } from "./decision-transaction.ts";
@@ -55,6 +56,7 @@ function releasedTransactionFailure(
     return null;
   const diagnostic = collectionLockDiagnostic(error, operationResult.outcome);
   return {
+    ...operationResult,
     diagnostics: [...operationResult.diagnostics, diagnostic],
     errors: [...operationResult.errors, diagnostic.reason],
     outcome: operationResult.outcome,
@@ -70,7 +72,13 @@ function collectionLockFailure(
   const outcome = lockFailureOutcome(error, operationResult);
   const diagnostic = collectionLockDiagnostic(error, outcome);
   return {
-    diagnostics: [diagnostic],
+    changed: operationResult?.changed ?? false,
+    committed:
+      operationResult?.status === "ok"
+        ? operationResult.changed
+        : operationResult?.committed,
+    sourcePaths: operationResult?.sourcePaths,
+    diagnostics: [diagnostic, ...mutationDiagnostics(operationResult, outcome)],
     errors: [diagnostic.reason],
     outcome,
     scope: decisionMutationScope,
@@ -91,8 +99,9 @@ function lockFailureOutcome(
 
 export function transactionFailure(
   errors: readonly DecisionTransactionIssue[],
-  outcome: DecisionMutationOutcome
-): DecisionTransactionResult {
+  outcome: DecisionMutationOutcome,
+  facts?: DecisionTransactionFacts
+): Extract<DecisionTransactionResult, { status: "error" }> {
   const diagnostics = errors.map((error) =>
     typeof error === "string"
       ? decisionDiagnosticFromReason(
@@ -118,7 +127,9 @@ export function transactionFailure(
           scope: decisionMutationScope
         }
   );
+  diagnostics.push(...mutationDiagnostics(facts, outcome));
   return {
+    ...facts,
     diagnostics,
     errors: diagnostics.map((diagnostic) =>
       diagnostic.detail === undefined || diagnostic.detail === null
@@ -191,8 +202,30 @@ function failedTransactionResult(
 
 function validFailureOutcome(value: unknown): value is DecisionMutationOutcome {
   return (
+    value === "committed-cleanup-pending" ||
     value === "no-change" ||
     value === "rolled-back" ||
     value === "partial-or-unknown"
   );
+}
+
+function mutationDiagnostics(
+  facts: DecisionTransactionFacts | null | undefined,
+  outcome: DecisionMutationOutcome
+): DecisionDiagnostic[] {
+  if (facts?.changed !== true) return [];
+  return [
+    decisionDiagnostic({
+      code: "decision-records.transaction-mutation-observed",
+      outcome,
+      scope: decisionMutationScope,
+      target: facts.sourcePaths?.join(", ") || "Decision transaction",
+      reason:
+        facts.committed === true
+          ? "Decision mutation crossed its commit point; inspect the affected sourcePath and index state."
+          : "Decision writes were observed; use the reported outcome to reconcile the affected sourcePath and index state.",
+      recovery:
+        "Inspect the actual files and remaining cleanup state before running another mutation."
+    })
+  ];
 }

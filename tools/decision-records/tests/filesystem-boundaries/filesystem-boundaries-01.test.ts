@@ -38,16 +38,16 @@ test("indexed source loading rejects symlink and non-regular decision files befo
         }
 
         let reads = 0;
-        const readFile = fs.readFile;
+        const open = fs.open;
         const guard = t.mock.method(
           fs,
-          "readFile",
-          (...args: Parameters<typeof fs.readFile>) => {
+          "open",
+          (...args: Parameters<typeof fs.open>) => {
             if (args[0] === sourcePath || args[0] === outsidePath) {
               reads += 1;
               throw new Error("unsafe source must not be read");
             }
-            return readFile(...args);
+            return open(...args);
           }
         );
         try {
@@ -81,16 +81,16 @@ test("decision show rejects symlink and non-regular bodies without reading outsi
       }
 
       let reads = 0;
-      const readFile = fs.readFile;
+      const open = fs.open;
       const guard = t.mock.method(
         fs,
-        "readFile",
-        (...args: Parameters<typeof fs.readFile>) => {
+        "open",
+        (...args: Parameters<typeof fs.open>) => {
           if (args[0] === sourcePath || args[0] === outsidePath) {
             reads += 1;
             throw new Error("unsafe source must not be read");
           }
-          return readFile(...args);
+          return open(...args);
         }
       );
       try {
@@ -154,19 +154,16 @@ test("decision transactions reject symlink and non-regular sources before writin
               )
             }
           ],
-          originalScan,
-          scanOptions: { workspaceRoot }
+          originalScan
         });
         assert.ok(
-          result.errors.some(
-            (error) =>
-              error.includes(
-                "Failed to verify decision source before update"
-              ) &&
-              error.includes("regular non-symbolic-link file") &&
-              error.includes("No files were written")
+          result.errors.some((error) =>
+            error.includes("regular non-symbolic-link file")
           )
         );
+        assert.equal(result.status, "error");
+        if (result.status === "error")
+          assert.equal(result.outcome, "no-change");
         assert.equal(await fs.readFile(indexPath, "utf8"), indexText);
         assert.equal(await fs.readFile(outsidePath, "utf8"), outsideText);
         const sourceEntry = await fs.lstat(sourcePath);

@@ -53,35 +53,65 @@ test("Decision scan reuse preserves stable source and index diagnostics", async 
   }
 });
 
-test("Decision scan reuse detects source drift before comparing a damaged index", async () => {
+test("Decision full check keeps first-acquired sources while reporting a subsequently damaged index", async () => {
   await withFixtureWorkspace("scan-index-drift", async (root) => {
     const file = decisionFilePath(root, currentSourcePath);
-    const readFile = fs.readFile;
+    const open = fs.open;
     let sourceReads = 0;
-    Object.defineProperty(fs, "readFile", {
-      configurable: true,
-      value: async (...args: Parameters<typeof fs.readFile>) => {
-        const result = await readFile(...args);
-        if (args[0] === file && ++sourceReads === 1) {
-          await fs.appendFile(file, "\n");
-          await fs.writeFile(
-            path.join(root, "docs/decisions/decision-index.json"),
-            "damaged after scan"
-          );
-        }
-        return result;
+    fs.open = (async (...args: Parameters<typeof fs.open>) => {
+      const handle = await open(...args);
+      if (args[0] === file) {
+        const close = handle.close.bind(handle);
+        handle.close = async () => {
+          await close();
+          if (++sourceReads === 1) {
+            await fs.appendFile(file, "\n");
+            await fs.writeFile(
+              path.join(root, "docs/decisions/decision-index.json"),
+              "damaged after scan"
+            );
+          }
+        };
       }
-    });
+      return handle;
+    }) as typeof fs.open;
     try {
       const result = await validateDecisionRecords({ workspaceRoot: root });
       assert.deepEqual(result.scan.sourceErrors, []);
-      assert.equal(sourceReads, 2);
-      assert.equal(result.errors.length, 1);
-      assert.match(result.errors[0]!, /source revision changed/u);
-      assert.doesNotMatch(result.errors[0]!, /out of sync/u);
+      assert.equal(sourceReads, 1);
+      assert.match(result.errors.join("\n"), /out of sync/u);
+      assert.doesNotMatch(result.errors.join("\n"), /source revision changed/u);
     } finally {
-      fs.readFile = readFile;
+      fs.open = open;
     }
+  });
+});
+
+test("Decision full check does not claim freshness after its source acquisition", async () => {
+  await withFixtureWorkspace("scan-first-acquisition", async (root) => {
+    const file = decisionFilePath(root, currentSourcePath);
+    const open = fs.open;
+    let reads = 0;
+    fs.open = (async (...args: Parameters<typeof fs.open>) => {
+      const handle = await open(...args);
+      if (args[0] === file) {
+        const close = handle.close.bind(handle);
+        handle.close = async () => {
+          await close();
+          if (++reads === 1) await fs.appendFile(file, "\n");
+        };
+      }
+      return handle;
+    }) as typeof fs.open;
+    try {
+      const result = await validateDecisionRecords({ workspaceRoot: root });
+      assert.deepEqual(result.errors, []);
+      assert.equal(reads, 1);
+    } finally {
+      fs.open = open;
+    }
+    const next = await validateDecisionRecords({ workspaceRoot: root });
+    assert.match(next.errors.join("\n"), /out of sync/u);
   });
 });
 

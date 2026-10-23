@@ -1,0 +1,1466 @@
+{
+  "label": "separate-instrumented-work-counts",
+  "warning": "插桩 wall/CPU/RSS 仅为现场事实，禁止加入正常性能结果或计算加速；fs调用不是物理I/O，open/readFile不相加。",
+  "sets": [
+    {
+      "label": "baseline-hotspots",
+      "rawPath": "/tmp/unify-record-operations-baseline/baseline-hotspot-counts/results.json",
+      "rawSha256": "9d2ba29cf50ae0c1b8383220810c408e54b3b5dcb3beda3ea84dd1fb1edc8531",
+      "instrumentedSource": "/tmp/unify-record-operations-baseline/instrumented-hotspots-v2",
+      "instrumentation": [
+        {
+          "skill": "decision-records",
+          "file": "decision-records/src/decision-metadata.ts",
+          "function": "parseDecisionMarkdown",
+          "status": "instrumented",
+          "sourceSha256": "be4e6454b7d282e989406e4147fbc8a7805689068cc7baf7b9ffd567caac22de"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/snapshot-parser.ts",
+          "function": "parseStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "4558d8685fd998556ab9c1aa4186bf7f6b50c06f4f4f8d1e710ad70fda48f294"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/snapshot-parser.ts",
+          "function": "parseStateIndexEnvelope",
+          "status": "instrumented",
+          "sourceSha256": "4558d8685fd998556ab9c1aa4186bf7f6b50c06f4f4f8d1e710ad70fda48f294"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/snapshot-builder.ts",
+          "function": "buildStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "338639ca3e441f3ab892a7705bc4ddfbd20a3629699b9c86f32648f099d3f4be"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/snapshot-builder.ts",
+          "function": "buildStateIndexFromSnapshot",
+          "status": "instrumented",
+          "sourceSha256": "338639ca3e441f3ab892a7705bc4ddfbd20a3629699b9c86f32648f099d3f4be"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/reader.ts",
+          "function": "createStateIndexReader",
+          "status": "instrumented",
+          "sourceSha256": "84f10e8e826c1ad619b0c7625717a63c1c62d3fa8f938d6dd9a913cdea47a21e"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/reader.ts",
+          "function": "createStateIndexReaderFromSnapshot",
+          "status": "instrumented",
+          "sourceSha256": "84f10e8e826c1ad619b0c7625717a63c1c62d3fa8f938d6dd9a913cdea47a21e"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/reader.ts",
+          "function": "createStateIndexReaderFromPrepared",
+          "status": "absent-in-revision",
+          "sourceSha256": "84f10e8e826c1ad619b0c7625717a63c1c62d3fa8f938d6dd9a913cdea47a21e"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/query-fields.ts",
+          "function": "materializeStateIndexEntry",
+          "status": "instrumented",
+          "sourceSha256": "58b80f3d81ff356c5224cee41fa093239733be23bed74508011206baf5365832"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/projection.ts",
+          "function": "projectStateIndexState",
+          "status": "instrumented",
+          "sourceSha256": "67ebea5408bdd2002d97f359d53a65037358d111f9daacf9dde91dc6d2b9b9f4"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/projection.ts",
+          "function": "validateCompleteStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "67ebea5408bdd2002d97f359d53a65037358d111f9daacf9dde91dc6d2b9b9f4"
+        },
+        {
+          "skill": "decision-records",
+          "file": "shared/src/graph/relations.ts",
+          "function": "buildRelationGraph",
+          "status": "instrumented",
+          "sourceSha256": "6bed2cce2bff03868c1e81bbeada73da131084f089b6ca12dd70bb2802b29701"
+        },
+        {
+          "skill": "decision-records",
+          "file": "decision-records/src/relation-graph.ts",
+          "function": "decisionRelationConsistencyIssues",
+          "status": "instrumented",
+          "sourceSha256": "cb644e2b4f287794cbc7084460a8281fbece05b6db522efaef86bb10667e854b"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "investigation-report/src/markdown.ts",
+          "function": "parseInvestigationReport",
+          "status": "instrumented",
+          "sourceSha256": "fe79389f7a458e27d3d413a98fa840115fb971b303c6b92dd1e6527f6b312922"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/snapshot-parser.ts",
+          "function": "parseStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "01914ad362379923415291e463cb26ea7f248ba89758ebd44fca4cd2a86d660e"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/snapshot-parser.ts",
+          "function": "parseStateIndexEnvelope",
+          "status": "instrumented",
+          "sourceSha256": "01914ad362379923415291e463cb26ea7f248ba89758ebd44fca4cd2a86d660e"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/snapshot-builder.ts",
+          "function": "buildStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "7b404a73c4fa28c913c32c9ed7a1e30c0ad35d310b89fc31439b4e1a38162f7d"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/snapshot-builder.ts",
+          "function": "buildStateIndexFromSnapshot",
+          "status": "instrumented",
+          "sourceSha256": "7b404a73c4fa28c913c32c9ed7a1e30c0ad35d310b89fc31439b4e1a38162f7d"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/reader.ts",
+          "function": "createStateIndexReader",
+          "status": "instrumented",
+          "sourceSha256": "5a2a54de6d92098861bc67416fef0e78496baf861887cece581eb66cfe22dfd2"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/reader.ts",
+          "function": "createStateIndexReaderFromSnapshot",
+          "status": "instrumented",
+          "sourceSha256": "5a2a54de6d92098861bc67416fef0e78496baf861887cece581eb66cfe22dfd2"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/reader.ts",
+          "function": "createStateIndexReaderFromPrepared",
+          "status": "absent-in-revision",
+          "sourceSha256": "5a2a54de6d92098861bc67416fef0e78496baf861887cece581eb66cfe22dfd2"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/query-fields.ts",
+          "function": "materializeStateIndexEntry",
+          "status": "instrumented",
+          "sourceSha256": "d29aef8f9c81542b24b0f611a1704be20995fb765c881104d1ad80b683e6bc44"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/projection.ts",
+          "function": "projectStateIndexState",
+          "status": "instrumented",
+          "sourceSha256": "4c2a3c9e48609e6139964dc61db07719c539ccb4836bfafae41bfdc13a964c14"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/projection.ts",
+          "function": "validateCompleteStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "4c2a3c9e48609e6139964dc61db07719c539ccb4836bfafae41bfdc13a964c14"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "shared/src/graph/relations.ts",
+          "function": "buildRelationGraph",
+          "status": "instrumented",
+          "sourceSha256": "a49a0cf0ac9dc8c43b068e3dd710c749cfd412d330418260712bbb91dff6c287"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "investigation-report/src/relation-validation.ts",
+          "function": "validateInvestigationRelationGraph",
+          "status": "instrumented",
+          "sourceSha256": "0204d5ba42d668de3b1f6222c427e3fb6a9a1fa4ec57ea6738d786586d50e9f0"
+        }
+      ],
+      "samples": [
+        {
+          "key": "dr-sync-full-api-1",
+          "domain": "dr",
+          "scenario": "sync-full",
+          "mode": "api",
+          "repeat": 1,
+          "argv": [
+            "node",
+            "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+            "/tmp/unify-record-operations-baseline/instrumented-hotspots-v2",
+            "dr",
+            "/tmp/unify-record-operations-baseline/fixture-v3",
+            "sync-full",
+            "[\"sync-index\"]",
+            "/tmp/unify-record-operations-baseline/baseline-hotspot-counts/dr-sync-full-api-1.metrics.json"
+          ],
+          "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+          "inputDomainSha256": "c92acb921aa2d709e17b5ba333e00debacaf8f2dab07ecd0955c7004dd1f39be",
+          "exit": 0,
+          "wallMs": 10711.730818,
+          "userMs": 7910.499,
+          "systemMs": 3757.976,
+          "maxRssKiB": 374288,
+          "counts": {
+            "fs.open": 1,
+            "fs.open.write": 1,
+            "fs.readFile": 30009,
+            "parseStateIndex": 1,
+            "parseStateIndexEnvelope": 1,
+            "projectStateIndexState": 20000,
+            "materializeStateIndexEntry": 20000,
+            "validateCompleteStateIndex": 2,
+            "decisionRelationConsistencyIssues": 3,
+            "buildRelationGraph": 3,
+            "parseDecisionMarkdown": 20002,
+            "buildStateIndex": 1,
+            "buildStateIndexFromSnapshot": 1
+          },
+          "stdoutBytes": 73,
+          "stderrBytes": 520,
+          "postverify": {
+            "fileDelta": {
+              "docs/decisions/decision-index.json": {
+                "before": {
+                  "sha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+                  "bytes": 6303257,
+                  "mode": "0o664"
+                },
+                "after": {
+                  "sha256": "4ef8ab516ac8dffca7398fe5ba8c6c4d31e1c14d46a3c21b8f7c1be87a7166cc",
+                  "bytes": 6303257,
+                  "mode": "0o664"
+                }
+              }
+            },
+            "relationCount": 9000,
+            "sourceRevisionMembershipExact": true,
+            "changedFiles": [
+              "docs/decisions/decision-index.json"
+            ],
+            "entryCount": 10000,
+            "unselectedBytesModesEntriesPreserved": true,
+            "identityLocatorChecked": 10000,
+            "stdoutSha256": "09626edfee7b174dc12f191bcdf72ba1f19b7b7d8679630afd4f4246aa4dcd0c",
+            "indexSha256": "4ef8ab516ac8dffca7398fe5ba8c6c4d31e1c14d46a3c21b8f7c1be87a7166cc",
+            "fullCheckExit": 0
+          },
+          "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+        },
+        {
+          "key": "dr-sync-selected-api-1",
+          "domain": "dr",
+          "scenario": "sync-selected",
+          "mode": "api",
+          "repeat": 1,
+          "argv": [
+            "node",
+            "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+            "/tmp/unify-record-operations-baseline/instrumented-hotspots-v2",
+            "dr",
+            "/tmp/unify-record-operations-baseline/fixture-v3",
+            "sync-selected",
+            "[\"sync-index\", \"--select\", \"261001-record-10000\"]",
+            "/tmp/unify-record-operations-baseline/baseline-hotspot-counts/dr-sync-selected-api-1.metrics.json"
+          ],
+          "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+          "inputDomainSha256": "c92acb921aa2d709e17b5ba333e00debacaf8f2dab07ecd0955c7004dd1f39be",
+          "exit": 0,
+          "wallMs": 11016.104557,
+          "userMs": 8460.061,
+          "systemMs": 3557.978,
+          "maxRssKiB": 393856,
+          "counts": {
+            "fs.open": 1,
+            "fs.open.write": 1,
+            "fs.readFile": 30010,
+            "parseStateIndex": 3,
+            "parseStateIndexEnvelope": 3,
+            "projectStateIndexState": 40000,
+            "materializeStateIndexEntry": 50000,
+            "validateCompleteStateIndex": 4,
+            "decisionRelationConsistencyIssues": 4,
+            "buildRelationGraph": 4,
+            "parseDecisionMarkdown": 20002,
+            "createStateIndexReaderFromSnapshot": 1,
+            "buildStateIndex": 1,
+            "buildStateIndexFromSnapshot": 1
+          },
+          "stdoutBytes": 138,
+          "stderrBytes": 520,
+          "postverify": {
+            "fileDelta": {
+              "docs/decisions/decision-index.json": {
+                "before": {
+                  "sha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+                  "bytes": 6303257,
+                  "mode": "0o664"
+                },
+                "after": {
+                  "sha256": "4ef8ab516ac8dffca7398fe5ba8c6c4d31e1c14d46a3c21b8f7c1be87a7166cc",
+                  "bytes": 6303257,
+                  "mode": "0o664"
+                }
+              }
+            },
+            "relationCount": 9000,
+            "sourceRevisionMembershipExact": true,
+            "changedFiles": [
+              "docs/decisions/decision-index.json"
+            ],
+            "entryCount": 10000,
+            "unselectedBytesModesEntriesPreserved": true,
+            "identityLocatorChecked": 10000,
+            "stdoutSha256": "61ade78327735e99f0f61f7b2218f03c2b62955712d5c871855fc4ea273662d9",
+            "indexSha256": "4ef8ab516ac8dffca7398fe5ba8c6c4d31e1c14d46a3c21b8f7c1be87a7166cc",
+            "fullCheckExit": 0
+          },
+          "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+        },
+        {
+          "key": "dr-metadata-api-1",
+          "domain": "dr",
+          "scenario": "metadata",
+          "mode": "api",
+          "repeat": 1,
+          "argv": [
+            "node",
+            "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+            "/tmp/unify-record-operations-baseline/instrumented-hotspots-v2",
+            "dr",
+            "/tmp/unify-record-operations-baseline/fixture-v3",
+            "metadata",
+            "[\"search\", \"benchmark\", \"--in\", \"metadata\", \"--limit\", \"5\", \"--status\", \"all\"]",
+            "/tmp/unify-record-operations-baseline/baseline-hotspot-counts/dr-metadata-api-1.metrics.json"
+          ],
+          "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+          "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+          "exit": 0,
+          "wallMs": 2693.608231,
+          "userMs": 1664.642,
+          "systemMs": 172.455,
+          "maxRssKiB": 243628,
+          "counts": {
+            "fs.readFile": 1,
+            "parseStateIndex": 1,
+            "parseStateIndexEnvelope": 1,
+            "projectStateIndexState": 10000,
+            "materializeStateIndexEntry": 20000,
+            "validateCompleteStateIndex": 1,
+            "createStateIndexReaderFromSnapshot": 1,
+            "decisionRelationConsistencyIssues": 1,
+            "buildRelationGraph": 1
+          },
+          "stdoutBytes": 1470,
+          "stderrBytes": 69,
+          "postverify": {
+            "fileDelta": {},
+            "relationCount": 9000,
+            "sourceRevisionMembershipExact": true,
+            "changedFiles": [],
+            "entryCount": 10000,
+            "unselectedBytesModesEntriesPreserved": true,
+            "identityLocatorChecked": 10000,
+            "stdoutSha256": "a01ca584f5f7c1034f72a03cf06e44363a7c7d357b6ba536c9f5fdb52b1d951b",
+            "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+            "fullCheckExit": 0
+          },
+          "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+        },
+        {
+          "key": "dr-relations-api-1",
+          "domain": "dr",
+          "scenario": "relations",
+          "mode": "api",
+          "repeat": 1,
+          "argv": [
+            "node",
+            "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+            "/tmp/unify-record-operations-baseline/instrumented-hotspots-v2",
+            "dr",
+            "/tmp/unify-record-operations-baseline/fixture-v3",
+            "relations",
+            "[\"list\", \"--related-to\", \"261001-record-09000\", \"--direction\", \"successors\", \"--limit\", \"5\"]",
+            "/tmp/unify-record-operations-baseline/baseline-hotspot-counts/dr-relations-api-1.metrics.json"
+          ],
+          "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+          "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+          "exit": 0,
+          "wallMs": 520.1448479999999,
+          "userMs": 695.398,
+          "systemMs": 50.057,
+          "maxRssKiB": 227384,
+          "counts": {
+            "fs.readFile": 1,
+            "parseStateIndex": 1,
+            "parseStateIndexEnvelope": 1,
+            "projectStateIndexState": 10000,
+            "materializeStateIndexEntry": 20000,
+            "validateCompleteStateIndex": 1,
+            "createStateIndexReaderFromSnapshot": 1,
+            "decisionRelationConsistencyIssues": 1,
+            "buildRelationGraph": 1
+          },
+          "stdoutBytes": 682,
+          "stderrBytes": 0,
+          "postverify": {
+            "fileDelta": {},
+            "relationCount": 9000,
+            "sourceRevisionMembershipExact": true,
+            "changedFiles": [],
+            "entryCount": 10000,
+            "unselectedBytesModesEntriesPreserved": true,
+            "identityLocatorChecked": 10000,
+            "stdoutSha256": "c1e141d7253191bddc08a8830e0fe40286ee6524a9b55d7f6fc66094239cfbb7",
+            "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+            "fullCheckExit": 0
+          },
+          "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+        },
+        {
+          "key": "ir-sync-full-api-1",
+          "domain": "ir",
+          "scenario": "sync-full",
+          "mode": "api",
+          "repeat": 1,
+          "argv": [
+            "node",
+            "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+            "/tmp/unify-record-operations-baseline/instrumented-hotspots-v2",
+            "ir",
+            "/tmp/unify-record-operations-baseline/fixture-v3",
+            "sync-full",
+            "[\"sync-index\"]",
+            "/tmp/unify-record-operations-baseline/baseline-hotspot-counts/ir-sync-full-api-1.metrics.json"
+          ],
+          "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+          "inputDomainSha256": "8ee31760c9587a84b33cb459ffa12e82236459a0993290fa0bf6382dbf923382",
+          "exit": 0,
+          "wallMs": 3008.07447,
+          "userMs": 1825.003,
+          "systemMs": 1527.768,
+          "maxRssKiB": 289324,
+          "counts": {
+            "fs.open": 2,
+            "fs.open.write": 1,
+            "fs.readFile": 20006,
+            "parseInvestigationReport": 10002,
+            "validateInvestigationRelationGraph": 1,
+            "buildRelationGraph": 1,
+            "fs.open.read": 1,
+            "buildStateIndex": 1,
+            "buildStateIndexFromSnapshot": 1,
+            "projectStateIndexState": 10000,
+            "materializeStateIndexEntry": 10000,
+            "validateCompleteStateIndex": 1
+          },
+          "stdoutBytes": 267,
+          "stderrBytes": 0,
+          "postverify": {
+            "fileDelta": {
+              "docs/investigations/investigation-index.json": {
+                "before": {
+                  "sha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+                  "bytes": 5193312,
+                  "mode": "0o664"
+                },
+                "after": {
+                  "sha256": "5690ce69159f23aae21a284c97fa59f02de03b6a6311ce625b73a3784c13a1f9",
+                  "bytes": 5193312,
+                  "mode": "0o664"
+                }
+              }
+            },
+            "relationCount": 9000,
+            "sourceRevisionMembershipExact": true,
+            "changedFiles": [
+              "docs/investigations/investigation-index.json"
+            ],
+            "entryCount": 10000,
+            "unselectedBytesModesEntriesPreserved": true,
+            "identityLocatorChecked": 10000,
+            "stdoutSha256": "7b864b90840760429d0064295877023f60bfc7d87fb83039c281fc45441c1f1a",
+            "indexSha256": "5690ce69159f23aae21a284c97fa59f02de03b6a6311ce625b73a3784c13a1f9",
+            "fullCheckExit": 0
+          },
+          "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+        },
+        {
+          "key": "ir-sync-selected-api-1",
+          "domain": "ir",
+          "scenario": "sync-selected",
+          "mode": "api",
+          "repeat": 1,
+          "argv": [
+            "node",
+            "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+            "/tmp/unify-record-operations-baseline/instrumented-hotspots-v2",
+            "ir",
+            "/tmp/unify-record-operations-baseline/fixture-v3",
+            "sync-selected",
+            "[\"sync-index\", \"--select\", \"261001-record-10000\"]",
+            "/tmp/unify-record-operations-baseline/baseline-hotspot-counts/ir-sync-selected-api-1.metrics.json"
+          ],
+          "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+          "inputDomainSha256": "8ee31760c9587a84b33cb459ffa12e82236459a0993290fa0bf6382dbf923382",
+          "exit": 0,
+          "wallMs": 3605.441753,
+          "userMs": 2635.618,
+          "systemMs": 1525.03,
+          "maxRssKiB": 334888,
+          "counts": {
+            "fs.open": 2,
+            "fs.open.write": 1,
+            "fs.readFile": 20007,
+            "parseInvestigationReport": 10002,
+            "validateInvestigationRelationGraph": 1,
+            "buildRelationGraph": 1,
+            "fs.open.read": 1,
+            "parseStateIndex": 2,
+            "parseStateIndexEnvelope": 2,
+            "projectStateIndexState": 30000,
+            "materializeStateIndexEntry": 30000,
+            "validateCompleteStateIndex": 3,
+            "buildStateIndex": 1,
+            "buildStateIndexFromSnapshot": 1
+          },
+          "stdoutBytes": 335,
+          "stderrBytes": 0,
+          "postverify": {
+            "fileDelta": {
+              "docs/investigations/investigation-index.json": {
+                "before": {
+                  "sha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+                  "bytes": 5193312,
+                  "mode": "0o664"
+                },
+                "after": {
+                  "sha256": "5690ce69159f23aae21a284c97fa59f02de03b6a6311ce625b73a3784c13a1f9",
+                  "bytes": 5193312,
+                  "mode": "0o664"
+                }
+              }
+            },
+            "relationCount": 9000,
+            "sourceRevisionMembershipExact": true,
+            "changedFiles": [
+              "docs/investigations/investigation-index.json"
+            ],
+            "entryCount": 10000,
+            "unselectedBytesModesEntriesPreserved": true,
+            "identityLocatorChecked": 10000,
+            "stdoutSha256": "818f72fcb5e8942371d2b0cdfbeb32b25ebdf0180635e67f19ec29dde2f3f610",
+            "indexSha256": "5690ce69159f23aae21a284c97fa59f02de03b6a6311ce625b73a3784c13a1f9",
+            "fullCheckExit": 0
+          },
+          "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+        },
+        {
+          "key": "ir-metadata-api-1",
+          "domain": "ir",
+          "scenario": "metadata",
+          "mode": "api",
+          "repeat": 1,
+          "argv": [
+            "node",
+            "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+            "/tmp/unify-record-operations-baseline/instrumented-hotspots-v2",
+            "ir",
+            "/tmp/unify-record-operations-baseline/fixture-v3",
+            "metadata",
+            "[\"search\", \"benchmark\", \"--in\", \"metadata\", \"--limit\", \"5\"]",
+            "/tmp/unify-record-operations-baseline/baseline-hotspot-counts/ir-metadata-api-1.metrics.json"
+          ],
+          "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+          "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+          "exit": 0,
+          "wallMs": 821.8993679999999,
+          "userMs": 975.087,
+          "systemMs": 102.866,
+          "maxRssKiB": 248552,
+          "counts": {
+            "fs.readFile": 1,
+            "parseStateIndex": 1,
+            "parseStateIndexEnvelope": 1,
+            "projectStateIndexState": 10000,
+            "materializeStateIndexEntry": 10000,
+            "validateCompleteStateIndex": 1
+          },
+          "stdoutBytes": 1910,
+          "stderrBytes": 0,
+          "postverify": {
+            "fileDelta": {},
+            "relationCount": 9000,
+            "sourceRevisionMembershipExact": true,
+            "changedFiles": [],
+            "entryCount": 10000,
+            "unselectedBytesModesEntriesPreserved": true,
+            "identityLocatorChecked": 10000,
+            "stdoutSha256": "da216be1a880b586d17c354fb04e2a2a8f8bfb4274a27529c46be164e628661e",
+            "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+            "searchInfo": {
+              "query": {
+                "text": "benchmark",
+                "in": "metadata",
+                "match": "all",
+                "filters": {
+                  "tags": []
+                },
+                "limits": {
+                  "maxRecords": 5,
+                  "resources": null,
+                  "preview": null
+                }
+              },
+              "source": {
+                "kind": "published-index",
+                "currentness": "unchecked",
+                "fallback": false
+              },
+              "counts": {
+                "matched": {
+                  "value": 10000,
+                  "precision": "exact"
+                },
+                "returned": 5
+              },
+              "coverage": {
+                "scanComplete": true,
+                "resultsComplete": false,
+                "previewsComplete": null,
+                "reasons": [
+                  "max-records"
+                ]
+              }
+            },
+            "fullCheckExit": 0
+          },
+          "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+        },
+        {
+          "key": "ir-relations-api-1",
+          "domain": "ir",
+          "scenario": "relations",
+          "mode": "api",
+          "repeat": 1,
+          "argv": [
+            "node",
+            "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+            "/tmp/unify-record-operations-baseline/instrumented-hotspots-v2",
+            "ir",
+            "/tmp/unify-record-operations-baseline/fixture-v3",
+            "relations",
+            "[\"list\", \"--related-to\", \"261001-record-09000\", \"--direction\", \"successors\", \"--limit\", \"5\"]",
+            "/tmp/unify-record-operations-baseline/baseline-hotspot-counts/ir-relations-api-1.metrics.json"
+          ],
+          "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+          "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+          "exit": 0,
+          "wallMs": 579.2884449999999,
+          "userMs": 759.199,
+          "systemMs": 80.902,
+          "maxRssKiB": 222252,
+          "counts": {
+            "fs.readFile": 1,
+            "parseStateIndex": 1,
+            "parseStateIndexEnvelope": 1,
+            "projectStateIndexState": 10000,
+            "materializeStateIndexEntry": 20000,
+            "validateCompleteStateIndex": 1,
+            "createStateIndexReaderFromSnapshot": 1,
+            "buildRelationGraph": 1
+          },
+          "stdoutBytes": 891,
+          "stderrBytes": 0,
+          "postverify": {
+            "fileDelta": {},
+            "relationCount": 9000,
+            "sourceRevisionMembershipExact": true,
+            "changedFiles": [],
+            "entryCount": 10000,
+            "unselectedBytesModesEntriesPreserved": true,
+            "identityLocatorChecked": 10000,
+            "stdoutSha256": "34aae78a5734633c8a588cc0240ed3aef52e9954598f2dfebd3d2c126e6de157",
+            "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+            "fullCheckExit": 0
+          },
+          "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+        }
+      ]
+    },
+    {
+      "label": "baseline-dr-candidates",
+      "rawPath": "/tmp/unify-record-operations-baseline/baseline-candidate-counts/results.json",
+      "rawSha256": "66ac100a638ae128633dc22a6c1c71fad2c4086a677a3340849ad057496f26ab",
+      "instrumentedSource": "/tmp/unify-record-operations-baseline/instrumented-candidates",
+      "instrumentation": [
+        {
+          "skill": "decision-records",
+          "file": "decision-records/src/decision-metadata.ts",
+          "function": "parseDecisionMarkdown",
+          "status": "instrumented",
+          "sourceSha256": "be4e6454b7d282e989406e4147fbc8a7805689068cc7baf7b9ffd567caac22de"
+        },
+        {
+          "skill": "decision-records",
+          "file": "decision-records/src/decision-candidate-context.ts",
+          "function": "loadCandidateIdentityContext",
+          "status": "instrumented",
+          "sourceSha256": "16be4b662ed0d245cef535ed403d4848a9c38acc13e4733f1be4d19e488f1fe3"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/snapshot-parser.ts",
+          "function": "parseStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "4558d8685fd998556ab9c1aa4186bf7f6b50c06f4f4f8d1e710ad70fda48f294"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/snapshot-parser.ts",
+          "function": "parseStateIndexEnvelope",
+          "status": "instrumented",
+          "sourceSha256": "4558d8685fd998556ab9c1aa4186bf7f6b50c06f4f4f8d1e710ad70fda48f294"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/snapshot-builder.ts",
+          "function": "buildStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "338639ca3e441f3ab892a7705bc4ddfbd20a3629699b9c86f32648f099d3f4be"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/snapshot-builder.ts",
+          "function": "buildStateIndexFromSnapshot",
+          "status": "instrumented",
+          "sourceSha256": "338639ca3e441f3ab892a7705bc4ddfbd20a3629699b9c86f32648f099d3f4be"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/reader.ts",
+          "function": "createStateIndexReader",
+          "status": "instrumented",
+          "sourceSha256": "84f10e8e826c1ad619b0c7625717a63c1c62d3fa8f938d6dd9a913cdea47a21e"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/reader.ts",
+          "function": "createStateIndexReaderFromSnapshot",
+          "status": "instrumented",
+          "sourceSha256": "84f10e8e826c1ad619b0c7625717a63c1c62d3fa8f938d6dd9a913cdea47a21e"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/reader.ts",
+          "function": "createStateIndexReaderFromPrepared",
+          "status": "absent-in-revision",
+          "sourceSha256": "84f10e8e826c1ad619b0c7625717a63c1c62d3fa8f938d6dd9a913cdea47a21e"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/query-fields.ts",
+          "function": "materializeStateIndexEntry",
+          "status": "instrumented",
+          "sourceSha256": "58b80f3d81ff356c5224cee41fa093239733be23bed74508011206baf5365832"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/projection.ts",
+          "function": "projectStateIndexState",
+          "status": "instrumented",
+          "sourceSha256": "67ebea5408bdd2002d97f359d53a65037358d111f9daacf9dde91dc6d2b9b9f4"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/projection.ts",
+          "function": "validateCompleteStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "67ebea5408bdd2002d97f359d53a65037358d111f9daacf9dde91dc6d2b9b9f4"
+        },
+        {
+          "skill": "decision-records",
+          "file": "shared/src/graph/relations.ts",
+          "function": "buildRelationGraph",
+          "status": "instrumented",
+          "sourceSha256": "6bed2cce2bff03868c1e81bbeada73da131084f089b6ca12dd70bb2802b29701"
+        },
+        {
+          "skill": "decision-records",
+          "file": "decision-records/src/relation-graph.ts",
+          "function": "decisionRelationConsistencyIssues",
+          "status": "instrumented",
+          "sourceSha256": "cb644e2b4f287794cbc7084460a8281fbece05b6db522efaef86bb10667e854b"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "investigation-report/src/markdown.ts",
+          "function": "parseInvestigationReport",
+          "status": "instrumented",
+          "sourceSha256": "fe79389f7a458e27d3d413a98fa840115fb971b303c6b92dd1e6527f6b312922"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/snapshot-parser.ts",
+          "function": "parseStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "01914ad362379923415291e463cb26ea7f248ba89758ebd44fca4cd2a86d660e"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/snapshot-parser.ts",
+          "function": "parseStateIndexEnvelope",
+          "status": "instrumented",
+          "sourceSha256": "01914ad362379923415291e463cb26ea7f248ba89758ebd44fca4cd2a86d660e"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/snapshot-builder.ts",
+          "function": "buildStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "7b404a73c4fa28c913c32c9ed7a1e30c0ad35d310b89fc31439b4e1a38162f7d"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/snapshot-builder.ts",
+          "function": "buildStateIndexFromSnapshot",
+          "status": "instrumented",
+          "sourceSha256": "7b404a73c4fa28c913c32c9ed7a1e30c0ad35d310b89fc31439b4e1a38162f7d"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/reader.ts",
+          "function": "createStateIndexReader",
+          "status": "instrumented",
+          "sourceSha256": "5a2a54de6d92098861bc67416fef0e78496baf861887cece581eb66cfe22dfd2"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/reader.ts",
+          "function": "createStateIndexReaderFromSnapshot",
+          "status": "instrumented",
+          "sourceSha256": "5a2a54de6d92098861bc67416fef0e78496baf861887cece581eb66cfe22dfd2"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/reader.ts",
+          "function": "createStateIndexReaderFromPrepared",
+          "status": "absent-in-revision",
+          "sourceSha256": "5a2a54de6d92098861bc67416fef0e78496baf861887cece581eb66cfe22dfd2"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/query-fields.ts",
+          "function": "materializeStateIndexEntry",
+          "status": "instrumented",
+          "sourceSha256": "d29aef8f9c81542b24b0f611a1704be20995fb765c881104d1ad80b683e6bc44"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/projection.ts",
+          "function": "projectStateIndexState",
+          "status": "instrumented",
+          "sourceSha256": "4c2a3c9e48609e6139964dc61db07719c539ccb4836bfafae41bfdc13a964c14"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/projection.ts",
+          "function": "validateCompleteStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "4c2a3c9e48609e6139964dc61db07719c539ccb4836bfafae41bfdc13a964c14"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "shared/src/graph/relations.ts",
+          "function": "buildRelationGraph",
+          "status": "instrumented",
+          "sourceSha256": "a49a0cf0ac9dc8c43b068e3dd710c749cfd412d330418260712bbb91dff6c287"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "investigation-report/src/relation-validation.ts",
+          "function": "validateInvestigationRelationGraph",
+          "status": "instrumented",
+          "sourceSha256": "0204d5ba42d668de3b1f6222c427e3fb6a9a1fa4ec57ea6738d786586d50e9f0"
+        }
+      ],
+      "samples": [
+        {
+          "key": "dr-readiness-api-1",
+          "domain": "dr",
+          "scenario": "readiness",
+          "mode": "api",
+          "repeat": 1,
+          "argv": [
+            "node",
+            "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+            "/tmp/unify-record-operations-baseline/instrumented-candidates",
+            "dr",
+            "/tmp/unify-record-operations-baseline/fixture-v3",
+            "readiness",
+            "[\"show-candidate\", \"261001-candidate-1\"]",
+            "/tmp/unify-record-operations-baseline/baseline-candidate-counts/dr-readiness-api-1.metrics.json"
+          ],
+          "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+          "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+          "exit": 0,
+          "wallMs": 3784.926125,
+          "userMs": 2818.697,
+          "systemMs": 1453.784,
+          "maxRssKiB": 251220,
+          "counts": {
+            "fs.readFile": 10004,
+            "parseStateIndex": 1,
+            "parseStateIndexEnvelope": 1,
+            "projectStateIndexState": 10000,
+            "materializeStateIndexEntry": 20000,
+            "validateCompleteStateIndex": 1,
+            "createStateIndexReaderFromSnapshot": 1,
+            "decisionRelationConsistencyIssues": 1,
+            "buildRelationGraph": 1,
+            "parseDecisionMarkdown": 1
+          },
+          "stdoutBytes": 486,
+          "stderrBytes": 0,
+          "postverify": {
+            "fileDelta": {},
+            "relationCount": 9000,
+            "sourceRevisionMembershipExact": true,
+            "changedFiles": [],
+            "entryCount": 10000,
+            "unselectedBytesModesEntriesPreserved": true,
+            "identityLocatorChecked": 10000,
+            "stdoutSha256": "3d1d062d7bd97ace188a3f97d6ad79560fa7a5669a647219517b2ed93a50c985",
+            "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+            "fullCheckExit": 0
+          },
+          "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+        },
+        {
+          "key": "dr-new-api-1",
+          "domain": "dr",
+          "scenario": "new",
+          "mode": "api",
+          "repeat": 1,
+          "argv": [
+            "node",
+            "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+            "/tmp/unify-record-operations-baseline/instrumented-candidates",
+            "dr",
+            "/tmp/unify-record-operations-baseline/fixture-v3",
+            "new",
+            "[\"new\", \"new-candidate\", \"--title\", \"benchmark candidate\", \"--tag\", \"benchmark\", \"--purpose\", \"\\u56fa\\u5b9a\\u76ee\\u7684\", \"--background\", \"\\u56fa\\u5b9a\\u80cc\\u666f\", \"--decision\", \"\\u56fa\\u5b9a\\u51b3\\u5b9a\"]",
+            "/tmp/unify-record-operations-baseline/baseline-candidate-counts/dr-new-api-1.metrics.json"
+          ],
+          "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+          "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+          "exit": 0,
+          "wallMs": 9208.643767,
+          "userMs": 6761.49,
+          "systemMs": 3378.112,
+          "maxRssKiB": 297632,
+          "counts": {
+            "fs.open": 1,
+            "fs.open.write": 1,
+            "loadCandidateIdentityContext": 1,
+            "fs.readFile": 20007,
+            "parseStateIndex": 2,
+            "parseStateIndexEnvelope": 2,
+            "projectStateIndexState": 20000,
+            "materializeStateIndexEntry": 40000,
+            "validateCompleteStateIndex": 2,
+            "createStateIndexReaderFromSnapshot": 2,
+            "decisionRelationConsistencyIssues": 2,
+            "buildRelationGraph": 2,
+            "parseDecisionMarkdown": 2
+          },
+          "stdoutBytes": 323,
+          "stderrBytes": 0,
+          "postverify": {
+            "fileDelta": {
+              "docs/decisions/new-candidate.md": {
+                "before": null,
+                "after": {
+                  "sha256": "20bb22dfb76c33f13741c1cb832e4ecd6a4c3ced94f7e5162ad6adb05cfbe6e8",
+                  "bytes": 247,
+                  "mode": "0o664"
+                }
+              }
+            },
+            "relationCount": 9000,
+            "sourceRevisionMembershipExact": true,
+            "changedFiles": [
+              "docs/decisions/new-candidate.md"
+            ],
+            "entryCount": 10000,
+            "unselectedBytesModesEntriesPreserved": true,
+            "identityLocatorChecked": 10000,
+            "stdoutSha256": "a3bd5ae87a6526299f948084242e4351851636ee22621b64034acc46d1802a68",
+            "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+            "createdIdentityAudit": {
+              "id": "261023-new-candidate",
+              "sourcePath": "new-candidate.md"
+            },
+            "fullCheckExit": 0
+          },
+          "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+        }
+      ]
+    },
+    {
+      "label": "after-0-3-dr-candidates",
+      "rawPath": "/tmp/unify-record-operations-after-0-3/candidate-counts/results.json",
+      "rawSha256": "53100ecceceedab741cf0bc2e2acfc11dbf859f27ee47353a4bf4072402241be",
+      "instrumentedSource": "/tmp/unify-record-operations-after-0-3/instrumented-candidates",
+      "instrumentation": [
+        {
+          "skill": "decision-records",
+          "file": "decision-records/src/decision-metadata.ts",
+          "function": "parseDecisionMarkdown",
+          "status": "instrumented",
+          "sourceSha256": "be4e6454b7d282e989406e4147fbc8a7805689068cc7baf7b9ffd567caac22de"
+        },
+        {
+          "skill": "decision-records",
+          "file": "decision-records/src/decision-candidate-context.ts",
+          "function": "loadCandidateIdentityContext",
+          "status": "absent-in-revision",
+          "sourceSha256": "9f9c951dd59224a2e8d0799115a5d013c41eb121652727237a97aecc76b66e07"
+        },
+        {
+          "skill": "decision-records",
+          "file": "decision-records/src/decision-candidate-discovery.ts",
+          "function": "loadCandidateIdentityContext",
+          "status": "instrumented",
+          "sourceSha256": "a56e69cf2cad3e091a9f669dee3c6248e7fbc65736c61310d4e427d79ef10214"
+        },
+        {
+          "skill": "decision-records",
+          "file": "decision-records/src/decision-candidate-discovery.ts",
+          "function": "readDecisionCandidateHeader",
+          "status": "instrumented",
+          "sourceSha256": "a56e69cf2cad3e091a9f669dee3c6248e7fbc65736c61310d4e427d79ef10214"
+        },
+        {
+          "skill": "decision-records",
+          "file": "record-operations/src/candidate.ts",
+          "function": "prepareRecordCandidates",
+          "status": "instrumented",
+          "sourceSha256": "db3f53be19ee34811f6120c84ec244055a4bbf6dfffe257e9e3a309db250b3d3"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/snapshot-parser.ts",
+          "function": "parseStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "930228d7199f5619e1705f997997c53a12be70b20efbcfd7c10d0427a3f5f278"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/snapshot-parser.ts",
+          "function": "parseStateIndexEnvelope",
+          "status": "instrumented",
+          "sourceSha256": "930228d7199f5619e1705f997997c53a12be70b20efbcfd7c10d0427a3f5f278"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/snapshot-builder.ts",
+          "function": "buildStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "b7ff1ceea996a4087dec995b50c28eb97537c1a4832784d6c589e42984a2328e"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/snapshot-builder.ts",
+          "function": "buildStateIndexFromSnapshot",
+          "status": "instrumented",
+          "sourceSha256": "b7ff1ceea996a4087dec995b50c28eb97537c1a4832784d6c589e42984a2328e"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/reader.ts",
+          "function": "createStateIndexReader",
+          "status": "instrumented",
+          "sourceSha256": "f904a3f16d42fcb8f09d0b9e2746a09e3b3f7b3b7f7b8badea3c5f6bd1f36419"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/reader.ts",
+          "function": "createStateIndexReaderFromSnapshot",
+          "status": "absent-in-revision",
+          "sourceSha256": "f904a3f16d42fcb8f09d0b9e2746a09e3b3f7b3b7f7b8badea3c5f6bd1f36419"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/reader.ts",
+          "function": "createStateIndexReaderFromPrepared",
+          "status": "instrumented",
+          "sourceSha256": "f904a3f16d42fcb8f09d0b9e2746a09e3b3f7b3b7f7b8badea3c5f6bd1f36419"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/query-fields.ts",
+          "function": "materializeStateIndexEntry",
+          "status": "instrumented",
+          "sourceSha256": "be9ccda1c57a9dd46c613a2d34fac0279174712fa5b9a2eb8d75b01563276a77"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/prepared.ts",
+          "function": "prepareStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "747957e83a1cb98a258b757ffc2f9be2b0c295f8de05346de4d0bbc3b318a559"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/prepared.ts",
+          "function": "prepareStateIndexFromSnapshot",
+          "status": "instrumented",
+          "sourceSha256": "747957e83a1cb98a258b757ffc2f9be2b0c295f8de05346de4d0bbc3b318a559"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/prepared.ts",
+          "function": "loadPreparedStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "747957e83a1cb98a258b757ffc2f9be2b0c295f8de05346de4d0bbc3b318a559"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/prepared.ts",
+          "function": "consumePreparedStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "747957e83a1cb98a258b757ffc2f9be2b0c295f8de05346de4d0bbc3b318a559"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/prepared.ts",
+          "function": "prepareSelectedStateIndexBaseline",
+          "status": "instrumented",
+          "sourceSha256": "747957e83a1cb98a258b757ffc2f9be2b0c295f8de05346de4d0bbc3b318a559"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/prepared.ts",
+          "function": "consumePreparedSelectedBaseline",
+          "status": "instrumented",
+          "sourceSha256": "747957e83a1cb98a258b757ffc2f9be2b0c295f8de05346de4d0bbc3b318a559"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/projection.ts",
+          "function": "projectStateIndexState",
+          "status": "instrumented",
+          "sourceSha256": "8b0302fa815a435a8ece113fbe0083e8cdcacebfe7c92105f2df253f71ff616a"
+        },
+        {
+          "skill": "decision-records",
+          "file": "index-runtime/src/projection.ts",
+          "function": "validateCompleteStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "8b0302fa815a435a8ece113fbe0083e8cdcacebfe7c92105f2df253f71ff616a"
+        },
+        {
+          "skill": "decision-records",
+          "file": "shared/src/graph/relations.ts",
+          "function": "buildRelationGraph",
+          "status": "instrumented",
+          "sourceSha256": "6bed2cce2bff03868c1e81bbeada73da131084f089b6ca12dd70bb2802b29701"
+        },
+        {
+          "skill": "decision-records",
+          "file": "decision-records/src/relation-graph.ts",
+          "function": "decisionRelationConsistencyIssues",
+          "status": "instrumented",
+          "sourceSha256": "cb644e2b4f287794cbc7084460a8281fbece05b6db522efaef86bb10667e854b"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "record-operations/src/candidate.ts",
+          "function": "prepareRecordCandidates",
+          "status": "instrumented",
+          "sourceSha256": "85b490d1aa91691228c6e5783c18e08ddc682c4ddd2523a544b33acf3a3b740d"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "investigation-report/src/markdown.ts",
+          "function": "parseInvestigationReport",
+          "status": "instrumented",
+          "sourceSha256": "fe79389f7a458e27d3d413a98fa840115fb971b303c6b92dd1e6527f6b312922"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/snapshot-parser.ts",
+          "function": "parseStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "353bbb6e02815513a6c14f52bcd049cbfbd9cd1016a82af86ed94379e8036a36"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/snapshot-parser.ts",
+          "function": "parseStateIndexEnvelope",
+          "status": "instrumented",
+          "sourceSha256": "353bbb6e02815513a6c14f52bcd049cbfbd9cd1016a82af86ed94379e8036a36"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/snapshot-builder.ts",
+          "function": "buildStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "dfeacda57e5314934fe25d8b8b30b7d10386b147a8e20d3b1786412f129c2024"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/snapshot-builder.ts",
+          "function": "buildStateIndexFromSnapshot",
+          "status": "instrumented",
+          "sourceSha256": "dfeacda57e5314934fe25d8b8b30b7d10386b147a8e20d3b1786412f129c2024"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/reader.ts",
+          "function": "createStateIndexReader",
+          "status": "instrumented",
+          "sourceSha256": "e0f8ebdb34d8b18b054eaa5d21b314a146b168712d5570f7d46b3ae4c37a2ada"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/reader.ts",
+          "function": "createStateIndexReaderFromSnapshot",
+          "status": "absent-in-revision",
+          "sourceSha256": "e0f8ebdb34d8b18b054eaa5d21b314a146b168712d5570f7d46b3ae4c37a2ada"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/reader.ts",
+          "function": "createStateIndexReaderFromPrepared",
+          "status": "instrumented",
+          "sourceSha256": "e0f8ebdb34d8b18b054eaa5d21b314a146b168712d5570f7d46b3ae4c37a2ada"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/query-fields.ts",
+          "function": "materializeStateIndexEntry",
+          "status": "instrumented",
+          "sourceSha256": "dc8992e3f78f4278081a8070e1f519dd73261c8941d33ef41235473bdc117733"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/prepared.ts",
+          "function": "prepareStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "be6d3c8c4bcaec385a92cf6f1c8b2fec1713bf4853fb350a55d19e68775d62ff"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/prepared.ts",
+          "function": "prepareStateIndexFromSnapshot",
+          "status": "instrumented",
+          "sourceSha256": "be6d3c8c4bcaec385a92cf6f1c8b2fec1713bf4853fb350a55d19e68775d62ff"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/prepared.ts",
+          "function": "loadPreparedStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "be6d3c8c4bcaec385a92cf6f1c8b2fec1713bf4853fb350a55d19e68775d62ff"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/prepared.ts",
+          "function": "consumePreparedStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "be6d3c8c4bcaec385a92cf6f1c8b2fec1713bf4853fb350a55d19e68775d62ff"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/prepared.ts",
+          "function": "prepareSelectedStateIndexBaseline",
+          "status": "instrumented",
+          "sourceSha256": "be6d3c8c4bcaec385a92cf6f1c8b2fec1713bf4853fb350a55d19e68775d62ff"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/prepared.ts",
+          "function": "consumePreparedSelectedBaseline",
+          "status": "instrumented",
+          "sourceSha256": "be6d3c8c4bcaec385a92cf6f1c8b2fec1713bf4853fb350a55d19e68775d62ff"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/projection.ts",
+          "function": "projectStateIndexState",
+          "status": "instrumented",
+          "sourceSha256": "42c11499edbf87e03014c8a98293263429351a676ad4c3bab171cb404511a0d6"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "index-runtime/src/projection.ts",
+          "function": "validateCompleteStateIndex",
+          "status": "instrumented",
+          "sourceSha256": "42c11499edbf87e03014c8a98293263429351a676ad4c3bab171cb404511a0d6"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "shared/src/graph/relations.ts",
+          "function": "buildRelationGraph",
+          "status": "instrumented",
+          "sourceSha256": "a49a0cf0ac9dc8c43b068e3dd710c749cfd412d330418260712bbb91dff6c287"
+        },
+        {
+          "skill": "investigation-report",
+          "file": "investigation-report/src/relation-validation.ts",
+          "function": "validateInvestigationRelationGraph",
+          "status": "instrumented",
+          "sourceSha256": "0204d5ba42d668de3b1f6222c427e3fb6a9a1fa4ec57ea6738d786586d50e9f0"
+        }
+      ],
+      "samples": [
+        {
+          "key": "dr-readiness-api-1",
+          "domain": "dr",
+          "scenario": "readiness",
+          "mode": "api",
+          "repeat": 1,
+          "argv": [
+            "node",
+            "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+            "/tmp/unify-record-operations-after-0-3/instrumented-candidates",
+            "dr",
+            "/tmp/unify-record-operations-baseline/fixture-v3",
+            "readiness",
+            "[\"show-candidate\", \"261001-candidate-1\"]",
+            "/tmp/unify-record-operations-after-0-3/candidate-counts/dr-readiness-api-1.metrics.json"
+          ],
+          "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+          "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+          "exit": 0,
+          "wallMs": 24802.697223,
+          "userMs": 10380.067,
+          "systemMs": 14382.696,
+          "maxRssKiB": 236068,
+          "counts": {
+            "loadCandidateIdentityContext": 1,
+            "prepareRecordCandidates": 1,
+            "loadPreparedStateIndex": 1,
+            "fs.readFile": 1,
+            "parseStateIndex": 1,
+            "parseStateIndexEnvelope": 1,
+            "projectStateIndexState": 10000,
+            "materializeStateIndexEntry": 10000,
+            "validateCompleteStateIndex": 1,
+            "createStateIndexReaderFromPrepared": 1,
+            "consumePreparedStateIndex": 1,
+            "fs.open": 10002,
+            "fs.open.read": 10002,
+            "handle.readFile": 10002,
+            "readDecisionCandidateHeader": 10002,
+            "parseDecisionMarkdown": 1
+          },
+          "stdoutBytes": 486,
+          "stderrBytes": 0,
+          "postverify": {
+            "fileDelta": {},
+            "relationCount": 9000,
+            "sourceRevisionMembershipExact": true,
+            "changedFiles": [],
+            "entryCount": 10000,
+            "unselectedBytesModesEntriesPreserved": true,
+            "identityLocatorChecked": 10000,
+            "stdoutSha256": "3d1d062d7bd97ace188a3f97d6ad79560fa7a5669a647219517b2ed93a50c985",
+            "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+            "fullCheckExit": 0
+          },
+          "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+        },
+        {
+          "key": "dr-new-api-1",
+          "domain": "dr",
+          "scenario": "new",
+          "mode": "api",
+          "repeat": 1,
+          "argv": [
+            "node",
+            "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+            "/tmp/unify-record-operations-after-0-3/instrumented-candidates",
+            "dr",
+            "/tmp/unify-record-operations-baseline/fixture-v3",
+            "new",
+            "[\"new\", \"new-candidate\", \"--title\", \"benchmark candidate\", \"--tag\", \"benchmark\", \"--purpose\", \"\\u56fa\\u5b9a\\u76ee\\u7684\", \"--background\", \"\\u56fa\\u5b9a\\u80cc\\u666f\", \"--decision\", \"\\u56fa\\u5b9a\\u51b3\\u5b9a\"]",
+            "/tmp/unify-record-operations-after-0-3/candidate-counts/dr-new-api-1.metrics.json"
+          ],
+          "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+          "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+          "exit": 0,
+          "wallMs": 20673.054759,
+          "userMs": 7734.3,
+          "systemMs": 12854.886,
+          "maxRssKiB": 225848,
+          "counts": {
+            "fs.open": 10003,
+            "fs.open.write": 1,
+            "loadCandidateIdentityContext": 1,
+            "prepareRecordCandidates": 1,
+            "loadPreparedStateIndex": 1,
+            "fs.readFile": 1,
+            "parseStateIndex": 1,
+            "parseStateIndexEnvelope": 1,
+            "projectStateIndexState": 10000,
+            "materializeStateIndexEntry": 10000,
+            "validateCompleteStateIndex": 1,
+            "createStateIndexReaderFromPrepared": 1,
+            "consumePreparedStateIndex": 1,
+            "fs.open.read": 10002,
+            "handle.readFile": 10002,
+            "readDecisionCandidateHeader": 10002,
+            "parseDecisionMarkdown": 1
+          },
+          "stdoutBytes": 323,
+          "stderrBytes": 0,
+          "postverify": {
+            "fileDelta": {
+              "docs/decisions/new-candidate.md": {
+                "before": null,
+                "after": {
+                  "sha256": "20bb22dfb76c33f13741c1cb832e4ecd6a4c3ced94f7e5162ad6adb05cfbe6e8",
+                  "bytes": 247,
+                  "mode": "0o664"
+                }
+              }
+            },
+            "relationCount": 9000,
+            "sourceRevisionMembershipExact": true,
+            "changedFiles": [
+              "docs/decisions/new-candidate.md"
+            ],
+            "entryCount": 10000,
+            "unselectedBytesModesEntriesPreserved": true,
+            "identityLocatorChecked": 10000,
+            "stdoutSha256": "a3bd5ae87a6526299f948084242e4351851636ee22621b64034acc46d1802a68",
+            "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+            "createdIdentityAudit": {
+              "id": "261023-new-candidate",
+              "sourcePath": "new-candidate.md"
+            },
+            "fullCheckExit": 0
+          },
+          "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+        }
+      ]
+    }
+  ]
+}

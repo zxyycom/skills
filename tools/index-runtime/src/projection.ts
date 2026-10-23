@@ -7,7 +7,10 @@ import {
   readonlyFrozenStateIndex
 } from "./frozen-json.ts";
 import { isJsonObject } from "./json.ts";
-import { materializeStateIndexEntry } from "./query-fields.ts";
+import {
+  materializeStateIndexEntry,
+  type MaterializedStateIndexEntry
+} from "./query-fields.ts";
 import { isStateIndexText, stateIndexSchemaVersion } from "./schemas.ts";
 import type {
   DeepReadonly,
@@ -24,7 +27,8 @@ export function projectStateIndexState<
 >(
   definition: StateIndexDefinition<State, Metadata>,
   input: unknown,
-  context: StateIndexProjectionContext<Metadata>
+  context: StateIndexProjectionContext<Metadata>,
+  materializedEntries?: MaterializedStateIndexEntry<State>[]
 ): StateIndexResult<State> {
   if (!isStateIndexText(context.id)) {
     return failure("state-index.id-invalid", "state id must be valid text", {
@@ -55,6 +59,7 @@ export function projectStateIndexState<
   }
   const frozen = cloneAndFreezeTypedJsonObject(state, false);
   const extracted = materializeStateIndexEntry(definition, context.id, frozen);
+  if (extracted.status === "ok") materializedEntries?.push(extracted.value);
   return extracted.status === "error"
     ? extracted
     : { diagnostics: [], status: "ok", value: frozen };
@@ -66,7 +71,8 @@ export function normalizeStateIndex<
 >(
   index: StateIndex,
   definition: StateIndexDefinition<State, Metadata>,
-  sourcePath: string
+  sourcePath: string,
+  materializedEntries?: MaterializedStateIndexEntry<State>[]
 ): StateIndexResult<StateIndex<State, Metadata>> {
   const parsedMetadata = parseStateIndexMetadata(
     definition,
@@ -80,7 +86,8 @@ export function normalizeStateIndex<
     const projected = projectStateIndexState(
       definition,
       input,
-      createProjectionContext(id, metadata)
+      createProjectionContext(id, metadata),
+      materializedEntries
     );
     if (projected.status === "error") {
       return {

@@ -1,3 +1,4 @@
+import { decisionTransactionMembers } from "./decision-source-membership.ts";
 import type { FilesystemDecisionCandidates } from "./decision-stage-contracts.ts";
 import { relatedPublishedDecisionIds } from "./decision-source-dependencies.ts";
 import { ensureDecisionDirectoryPath } from "./decision-source-path-safety.ts";
@@ -47,6 +48,7 @@ export async function loadDecisionMaintenanceContext(
     options.decisionsDir ?? "docs/decisions"
   );
   await ensureDecisionDirectoryPath(workspaceRoot, decisionsDirectory);
+  const sourceMembers = await decisionTransactionMembers(decisionsDirectory);
   const indexPath = path.join(decisionsDirectory, decisionIndexFileName);
   const indexText = (await readStageFile(indexPath)).toString("utf8");
   const loaded = parseDecisionIndex(indexText, indexPath);
@@ -130,7 +132,8 @@ export async function loadDecisionMaintenanceContext(
     indexExists: true,
     records,
     sourceErrors,
-    publishedBaseline: baseline
+    publishedBaseline: baseline,
+    sourceMembers
   };
 }
 

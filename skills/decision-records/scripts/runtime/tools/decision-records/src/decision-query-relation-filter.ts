@@ -90,33 +90,15 @@ export function resolveDecisionRelationFilter(
     "Related decision"
   );
   if (target.status === "error") return target;
+  const errors = snapshot.relationErrors?.() ?? [];
+  if (errors.length > 0)
+    return { status: "error", failure: decisionFailure(errors) };
   const graph = snapshot.getRelationGraph();
-  const relationsByDecisionId = new Map<DecisionId, DecisionFilterRelation[]>();
-  const direction = request.direction ?? "both";
-  if (direction === "predecessors" || direction === "both") {
-    for (const relation of graph.edgesBySource.get(target.record.decisionId) ??
-      []) {
-      if (relationMatches(relation, request)) {
-        addRelation(
-          relationsByDecisionId,
-          relation.target,
-          filterRelation(relation)
-        );
-      }
-    }
-  }
-  if (direction === "successors" || direction === "both") {
-    for (const relation of graph.edgesByTarget.get(target.record.decisionId) ??
-      []) {
-      if (relationMatches(relation, request)) {
-        addRelation(
-          relationsByDecisionId,
-          relation.source,
-          filterRelation(relation)
-        );
-      }
-    }
-  }
+  const relationsByDecisionId = collectRelatedEdges(
+    graph,
+    target.record.decisionId,
+    request
+  );
   return {
     status: "ok",
     value: {
@@ -124,6 +106,41 @@ export function resolveDecisionRelationFilter(
       relatedTo: target.record.decisionId
     }
   };
+}
+
+function collectRelatedEdges(
+  graph: ReturnType<DecisionRelationRecordSnapshot["getRelationGraph"]>,
+  target: DecisionId,
+  request: RelationFilterRequest
+) {
+  const relationsByDecisionId = new Map<DecisionId, DecisionFilterRelation[]>();
+  const direction = request.direction ?? "both";
+  if (direction !== "successors")
+    appendRelatedEdges(
+      relationsByDecisionId,
+      graph.edgesBySource.get(target) ?? [],
+      request,
+      "target"
+    );
+  if (direction !== "predecessors")
+    appendRelatedEdges(
+      relationsByDecisionId,
+      graph.edgesByTarget.get(target) ?? [],
+      request,
+      "source"
+    );
+  return relationsByDecisionId;
+}
+
+function appendRelatedEdges(
+  result: Map<DecisionId, DecisionFilterRelation[]>,
+  edges: readonly DecisionRelationEdge[],
+  request: RelationFilterRequest,
+  neighbor: "source" | "target"
+): void {
+  for (const relation of edges)
+    if (relationMatches(relation, request))
+      addRelation(result, relation[neighbor], filterRelation(relation));
 }
 
 function relationFilterWithoutTarget(
@@ -148,6 +165,9 @@ function relationFilterWithoutTarget(
   }
   if (request.relationType === undefined)
     return { status: "ok", value: emptyRelationFilter() };
+  const errors = snapshot.relationErrors?.() ?? [];
+  if (errors.length > 0)
+    return { status: "error", failure: decisionFailure(errors) };
   const relationsByDecisionId = new Map<DecisionId, DecisionFilterRelation[]>();
   for (const edges of snapshot.getRelationGraph().edgesBySource.values()) {
     for (const relation of edges) {

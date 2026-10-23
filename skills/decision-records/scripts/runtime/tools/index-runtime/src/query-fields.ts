@@ -17,6 +17,7 @@ import {
 import { isStateIndexText } from "./schemas.ts";
 import type {
   JsonObject,
+  StateIndex,
   StateIndexDefinition,
   StateIndexEntry,
   StateIndexKeyScalar,
@@ -197,5 +198,24 @@ function isRelativePosixPath(value: string): boolean {
   const segments = value.split("/");
   return segments.every(
     (segment) => segment.length > 0 && segment !== "." && segment !== ".."
+  );
+}
+
+/** Rebind already verified field values to the equivalent canonical state objects. */
+export function bindMaterializedEntries<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  index: StateIndex<State, Metadata>,
+  entries: readonly MaterializedStateIndexEntry<State>[]
+): readonly MaterializedStateIndexEntry<State>[] {
+  const byId = new Map(entries.map((entry) => [entry.id, entry.queryValues]));
+  return Object.freeze(
+    Object.entries(index.entries).map(([id, state]) => {
+      const queryValues = byId.get(id);
+      if (queryValues === undefined)
+        throw new TypeError("missing materialized entry proof");
+      return Object.freeze({ id, queryValues, state });
+    })
   );
 }

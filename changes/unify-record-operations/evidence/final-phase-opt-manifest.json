@@ -1,0 +1,27 @@
+{
+  "label": "final-phase-deduplicated-reviewed-working-tree",
+  "capturedAt": "2026-10-23T12:15:10.181492+00:00",
+  "baseHead": "5d6a73fb51ef1d9c2b0311e160cbd42a04576f42",
+  "snapshot": "/tmp/unify-record-operations-final-phase-opt-20261023/source",
+  "capture": [
+    "tools",
+    "skills",
+    "scripts",
+    "package.json",
+    "pnpm-lock.yaml",
+    "tsconfig.json"
+  ],
+  "excludedDirectoryNames": [
+    ".codegraph",
+    ".git",
+    "__pycache__",
+    "node_modules"
+  ],
+  "verifiedFiles": 2435,
+  "bytes": 11783177,
+  "fileManifest": "/tmp/unify-record-operations-final-phase-opt-20261023/files-manifest.json",
+  "fileManifestSha256": "84104a6dc89b064c39ba4c16d3397868e42ebbb95d14852dcb72e218ed41edbb",
+  "verification": "before-current == copied == after-current: all paths, original bytes/hash/mode/symlink",
+  "measurementSourceModes": "After three-way verification, only write bits removed from copied regular files/directories; bytes/symlinks unchanged.",
+  "dependencyResolution": "/workspace/skills/node_modules symlink; source measurement only, no install/distribution proof"
+}

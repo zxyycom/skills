@@ -14,6 +14,7 @@ export type SourceFile = {
     decisionId?: DecisionId | null;
     sourcePath: string;
     sourceText?: string;
+    sourceReadFailed?: true;
 };
 export type SourceFileMembers = [SourceFile, ...SourceFile[]];
 export type DecisionScanLocation = {

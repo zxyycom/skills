@@ -31,7 +31,18 @@ export async function runNew(
     prepared.value.input,
     prepared.value.relationSummaries
   );
-  if (result.status !== "ok")
+  if (result.status !== "ok") {
+    if (result.changed) {
+      writeLine(
+        io.stdout,
+        `Investigation candidate created: ${result.candidate.id}`
+      );
+      writeLine(io.stdout, `path: ${result.candidate.path}`);
+      writeLine(
+        io.stdout,
+        "changed: true; inspect the reported verification, cleanup, or lock failure before another mutation"
+      );
+    }
     return printResultErrors({
       diagnostics: result.diagnostics,
       errors: result.errors,
@@ -43,6 +54,7 @@ export async function runNew(
           : "Investigation candidate creation failed:",
       warnings: result.warnings
     });
+  }
   writeLine(
     io.stdout,
     `Investigation candidate created: ${result.candidate.id}`

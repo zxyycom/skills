@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { executeDecisionQuery } from "../src/decision-query-service.ts";
 import { loadDecisionMaintenanceContext } from "../src/decision-maintenance-context.ts";
-import { applyDecisionMaintenanceChanges } from "../src/decision-maintenance-transaction.ts";
+import { applyPreparedDecisionTransaction } from "../src/decision-transaction.ts";
 import { prepareDecisionLifecycle } from "../src/decision-lifecycle-service.ts";
 import { isDecisionSourcePath } from "../src/decision-path.ts";
 import {
@@ -76,7 +76,7 @@ test("Decision published maintenance rechecks prepared dependency bytes before w
     await fs.appendFile(decisionFilePath(root, a), "\n- concurrent source\n");
     const current = await fs.readFile(decisionFilePath(root, a), "utf8");
     const index = await fs.readFile(context.indexPath, "utf8");
-    const result = await applyDecisionMaintenanceChanges({
+    const result = await applyPreparedDecisionTransaction({
       context,
       changes: prepared.changes
     });

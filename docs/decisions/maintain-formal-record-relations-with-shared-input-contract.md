@@ -31,7 +31,7 @@ relations:
 
 - 两域都维护从来源记录指向真实直接前序的完整关系集合，摘要绑定最终集合的一条边，预检与提交需要完整 before/after。
 - Decision 曾以 `evolve` 独占关系事务入口，导致原地关系修正被迫附带生命周期语义；Investigation 已有独立 `set-relations`。
-- 共同输入与审核协议不意味着共同 relation type、图形约束或生命周期，更不要求提取跨工具运行时组件。
+- 共同输入与审核协议不意味着共同 relation type、图形约束或生命周期；共同操作由窄 owner 维护编排，领域差异继续显式保留。
 
 ## 决策
 
@@ -40,4 +40,5 @@ relations:
 - 来源在请求内唯一，target 在组内唯一，摘要须命中该组最终关系；多来源形成单一事务。重复 source/target、空组、仅摘要、clear 混用及摘要失配使用一致错误分类：输入形态问题为参数错误，需要集合知识的解析与绑定为领域失败。
 - `--preflight` 与正式成功均以按规范 source ID 排序的 `relationReview` 返回 `phase`、`action` 和完整 `before`/`after`。预检零写入且不构成提交凭据；执行重新读取和验证，失败不附成功 review。
 - 候选初始关系在候选来源维护并在 `publish` 时审核。Decision 的 `evolve` 复用同一分组与完整 replacement 协议，复合生命周期与拓扑闭合由其领域规则承接。
-- 两域共享公开协议和行为测试；relation type、图闭合、生命周期与运行时实现各归本领域，不提取跨工具运行时组件。
+- 两域共享公开协议和行为测试；[共同记录操作](../../tools/record-operations/README.md)仅为 Decision Records 与 Investigation Report 维护操作顺序、同阶段证明交接和共同失败边界，依赖 Index Runtime 与 shared。领域提供各阶段事实与合法性，不重复拼装同形流程。
+- relation type、图闭合、生命周期、资源归属与对外结果映射仍归领域。两个 skill、CLI、公开程序化边界和持久格式保持独立；stage 协调继续由 Index Runtime 承接。共同实现限于这两个消费者，不建立通用记录平台或跨调用缓存。

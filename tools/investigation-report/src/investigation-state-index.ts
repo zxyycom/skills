@@ -1,8 +1,10 @@
+import { createInvestigationRelationContext } from "./relation-context.ts";
+import { loadRecordQuery } from "../../record-operations/src/query.ts";
+import { checkCollectedRecordIndex } from "../../record-operations/src/check.ts";
 import {
   expectationOf,
   loadCurrentStateIndex,
   loadStateIndex,
-  loadStateIndexReader,
   syncStateIndex,
   type StateIndex,
   type StateIndexContext,
@@ -88,14 +90,58 @@ export async function loadInvestigationIndexReader(options: {
   investigationsDirectory: string;
   indexPath?: string;
   signal?: AbortSignal;
+  requiresRelations?: boolean;
 }) {
   const definition = createInvestigationStateIndexDefinition();
-  return await loadStateIndexReader({
+  const loaded = await loadRecordQuery({
     context: stateIndexContext(options.investigationsDirectory, options.signal),
     definition,
     expectation: expectationOf(definition),
-    indexPath: options.indexPath ?? investigationIndexFileName
+    indexPath: options.indexPath ?? investigationIndexFileName,
+    project: (reader) => ({
+      status: "ok",
+      diagnostics: [],
+      value: {
+        reader,
+        relations: createInvestigationRelationContext(
+          Object.entries(reader.index.entries) as [
+            string,
+            InvestigationIndexState
+          ][]
+        )
+      }
+    }),
+    requiresRelations: options.requiresRelations === true,
+    relationErrors: (projection) => projection.relations.errors(),
+    relationFailureCode: "investigation-index.relation-invalid"
   });
+  return loaded.status === "error"
+    ? loaded
+    : {
+        status: "ok" as const,
+        diagnostics: [],
+        value: loaded.value.reader,
+        relations: loaded.value.relations
+      };
+}
+
+/** Query operation projection; no domain graph audit unless the consumer depends on it. */
+export async function loadInvestigationQueryIndex(options: {
+  investigationsDirectory: string;
+  requiresRelations?: boolean;
+}) {
+  const loaded = await loadInvestigationIndexReader(options);
+  return loaded.status === "error"
+    ? loaded
+    : {
+        diagnostics: loaded.diagnostics,
+        status: "ok" as const,
+        value: loaded.value.index as StateIndex<
+          InvestigationIndexState,
+          InvestigationIndexMetadata
+        >,
+        relations: loaded.relations
+      };
 }
 
 export async function syncInvestigationStateIndex(options: {
@@ -134,14 +180,11 @@ export async function checkInvestigationStateSnapshot(
   const definition = createInvestigationStateIndexDefinition({
     snapshot: options.snapshot
   });
-  return await syncStateIndex({
+  return await checkCollectedRecordIndex({
     context: { root: options.investigationsDirectory },
-    definition: {
-      ...definition,
-      readRevision: async () => options.snapshot.sourceRevision
-    },
+    definition,
     indexPath: investigationIndexFileName,
-    mode: "check"
+    snapshot: options.snapshot
   });
 }
 

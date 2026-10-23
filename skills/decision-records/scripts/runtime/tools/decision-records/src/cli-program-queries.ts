@@ -57,8 +57,8 @@ function registerCheckCommand(
   const check = createSubcommand(
     program,
     "check",
-    "Strictly validate Markdown metadata, tags, source locations, alignment, relations, " +
-      "candidate scaffold/body readiness, and the JSON index."
+    "Validate first-acquired Markdown metadata, tags, source locations, alignment, relations, " +
+      "candidate readiness, and the complete JSON index projection; no end-of-check freshness or atomic snapshot promise."
   );
   check.action(() => execute("check", check));
 }

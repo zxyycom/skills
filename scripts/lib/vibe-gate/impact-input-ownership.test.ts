@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { domainInputOwnershipCases } from "./impact-input-ownership-fixture.ts";
 import {
   prepareChangedFixtureActivation,
   prepareFixtureActivation,
@@ -114,6 +115,91 @@ test("incremental Gate closes lazy relation inputs through their existing capabi
       );
       const warm = await prepareFixtureActivation(fixture);
       assert.equal(warm.activeCheckIds.length, 0, group.input);
+    }
+  });
+});
+
+test("incremental Gate recognizes shared record operations only in actual domain consumers", async () => {
+  await withImpactFixture(async (fixture) => {
+    for (const input of [
+      "tools/record-operations/src/query.ts",
+      "tools/record-operations/src/synchronize.ts",
+      "tools/record-operations/src/candidate.ts",
+      "tools/record-operations/tests/query-contract.ts"
+    ]) {
+      const plan = await prepareChangedFixtureActivation(fixture, input);
+      assert.equal(plan.kind, "incremental");
+      assert.deepEqual(plan.snapshot.unclassifiedPaths, []);
+      for (const checkId of [
+        "test:decision-records:query-and-index-projection",
+        "test:decision-records:lifecycle-and-recovery",
+        "test:investigation-report:index-and-query",
+        "test:investigation-report:transactional-maintenance"
+      ])
+        assert.equal(
+          plan.decisions.find((decision) => decision.checkId === checkId)
+            ?.action,
+          "execute",
+          `${input}: ${checkId}`
+        );
+      for (const checkId of [
+        "script:test:index-runtime",
+        "test:task-graph:index-and-projection",
+        "test:novel-cards:card-and-query-contract"
+      ])
+        assert.equal(
+          plan.decisions.find((decision) => decision.checkId === checkId)
+            ?.action,
+          "reuse",
+          `${input}: ${checkId}`
+        );
+      assert.equal(
+        (await publishFixtureReceipts(fixture, plan)).published,
+        true
+      );
+      assert.equal(
+        (await prepareFixtureActivation(fixture)).activeCheckIds.length,
+        0
+      );
+    }
+    for (const [input, toolId, checkId] of domainInputOwnershipCases) {
+      const plan = await prepareChangedFixtureActivation(fixture, input);
+      assert.equal(plan.kind, "incremental");
+      assert.deepEqual(plan.snapshot.unclassifiedPaths, []);
+      assert.ok(plan.activeToolIds.includes(toolId), input);
+      assert.equal(
+        plan.decisions.find((decision) => decision.checkId === checkId)?.action,
+        "execute"
+      );
+      const otherDomainChecks = input.startsWith("tools/decision-records/")
+        ? [
+            "test:investigation-report:index-and-query",
+            "test:investigation-report:transactional-maintenance"
+          ]
+        : [
+            "test:decision-records:query-and-index-projection",
+            "test:decision-records:lifecycle-and-recovery"
+          ];
+      for (const unrelatedCheck of [
+        ...otherDomainChecks,
+        "script:test:index-runtime",
+        "test:task-graph:index-and-projection",
+        "test:novel-cards:card-and-query-contract"
+      ])
+        assert.equal(
+          plan.decisions.find(({ checkId }) => checkId === unrelatedCheck)
+            ?.action,
+          "reuse",
+          `${input}: ${unrelatedCheck}`
+        );
+      assert.equal(
+        (await publishFixtureReceipts(fixture, plan)).published,
+        true
+      );
+      assert.equal(
+        (await prepareFixtureActivation(fixture)).activeCheckIds.length,
+        0
+      );
     }
   });
 });

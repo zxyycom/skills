@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import { canonicalRecordCollection } from "../../record-operations/src/source.ts";
 import { decisionIdFromMarkdown } from "./decision-metadata.ts";
 import { loadDecisionIndexSnapshot } from "./decision-index-snapshot.ts";
 import {
@@ -27,10 +28,7 @@ import {
   decisionFailure,
   type DecisionApplicationFailure
 } from "./application-result.ts";
-import {
-  resolveDecisionLocation,
-  type DecisionLocation
-} from "./decision-query-context.ts";
+import { type DecisionLocation } from "./decision-query-context.ts";
 import type {
   DecisionContentSearchRecord,
   DecisionFilteredRecord,
@@ -54,48 +52,29 @@ const decisionSearchPreviewPolicy = {
 export async function searchDecisionContent(
   request: Extract<DecisionQueryRequest, { command: "search" }>
 ): Promise<DecisionQueryResult> {
-  const context = await loadDecisionSearchContext(request.location);
-  if (context.status === "error") return context.failure;
+  const context = await loadDecisionSearchContext(
+    request.location,
+    request.relatedTo !== undefined || request.relationType !== undefined
+  );
+  if (context.status === "error") {
+    return context.failure;
+  }
   const snapshot = context.value.snapshot;
   const selected = filterSearchRecords(context.value.records, request);
-  if (selected.status === "error") return selected.failure;
+  if (selected.status === "error") {
+    return selected.failure;
+  }
   try {
     const selectedBySourcePath = new Map<string, DecisionFilteredRecord>(
       selected.records.map((record) => [record.sourcePath, record])
     );
-    const searched = await searchRecordText(
-      {
-        preview: decisionSearchPreviewPolicy,
-        query: { mode: request.match, text: request.text },
-        root: resolveDecisionLocation(request.location).decisionsDirectory,
-        selection: {
-          kind: "files",
-          sourcePaths: selected.records.map((record) => record.sourcePath)
-        }
-      },
-      ({ sourcePath, content }) => {
-        if (
-          decisionIdFromMarkdown(content) !==
-          selectedBySourcePath.get(sourcePath)?.decisionId
-        )
-          throw new FileTextSearchError({
-            code: "invalid-file",
-            sourcePath,
-            message:
-              "Decision source identity does not match the published index."
-          });
-      }
+    const searched = await searchSelectedSources(
+      context.value.decisionsDirectory,
+      selectedBySourcePath,
+      request
     );
-    const records: DecisionContentSearchRecord[] = [];
-    for (const hit of searched.hits) {
-      const record = searchedDecisionRecord(
-        selectedBySourcePath,
-        hit.sourcePath,
-        hit.previews
-      );
-      if ("status" in record && record.status === "error") return record;
-      records.push(record);
-    }
+    const records = projectContentHits(searched, selectedBySourcePath);
+    if (!Array.isArray(records)) return records;
     return contentSearchSuccess(
       request,
       selected.filters,
@@ -106,6 +85,55 @@ export async function searchDecisionContent(
   } catch (error) {
     return searchFileFailure(error);
   }
+}
+
+function projectContentHits(
+  searched: RecordTextSearchResult,
+  selectedBySourcePath: ReadonlyMap<string, DecisionFilteredRecord>
+): DecisionContentSearchRecord[] | DecisionApplicationFailure {
+  const records: DecisionContentSearchRecord[] = [];
+  for (const hit of searched.hits) {
+    const record = searchedDecisionRecord(
+      selectedBySourcePath,
+      hit.sourcePath,
+      hit.previews
+    );
+    if ("status" in record && record.status === "error") {
+      return record;
+    }
+    records.push(record);
+  }
+  return records;
+}
+
+async function searchSelectedSources(
+  decisionsDirectory: string,
+  selectedBySourcePath: ReadonlyMap<string, DecisionFilteredRecord>,
+  request: Extract<DecisionQueryRequest, { command: "search" }>
+) {
+  return await searchRecordText(
+    {
+      preview: decisionSearchPreviewPolicy,
+      query: { mode: request.match, text: request.text },
+      root: decisionsDirectory,
+      selection: {
+        kind: "files",
+        sourcePaths: [...selectedBySourcePath.keys()]
+      }
+    },
+    ({ sourcePath, content }) => {
+      if (
+        decisionIdFromMarkdown(content) !==
+        selectedBySourcePath.get(sourcePath)?.decisionId
+      )
+        throw new FileTextSearchError({
+          code: "invalid-file",
+          sourcePath,
+          message:
+            "Decision source identity does not match the published index."
+        });
+    }
+  );
 }
 
 function contentSearchSuccess(
@@ -161,6 +189,7 @@ function searchedDecisionRecord(
 type DecisionSearchContext = Readonly<{
   snapshot: DecisionSearchSnapshot;
   records: DecisionRelationRecordSnapshot;
+  decisionsDirectory: string;
 }>;
 
 type DecisionSearchContextResult =
@@ -180,10 +209,31 @@ export async function loadDecisionSearchSnapshot(
 }
 
 async function loadDecisionSearchContext(
-  location: DecisionLocation
+  location: DecisionLocation,
+  requiresRelations = false
 ): Promise<DecisionSearchContextResult> {
-  const { decisionsDirectory } = resolveDecisionLocation(location);
-  const persisted = await loadDecisionIndexSnapshot({ decisionsDirectory });
+  let decisionsDirectory: string;
+  try {
+    decisionsDirectory = (
+      await canonicalRecordCollection(
+        location.workspaceRoot,
+        location.decisionsDir
+      )
+    ).collectionRoot;
+  } catch (error) {
+    return {
+      status: "error",
+      failure: decisionFailure([
+        error instanceof Error
+          ? error.message
+          : "Decision collection could not be safely resolved"
+      ])
+    };
+  }
+  const persisted = await loadDecisionIndexSnapshot({
+    decisionsDirectory,
+    queryOnly: !requiresRelations
+  });
   if (persisted.status === "error")
     return {
       status: "error",
@@ -198,6 +248,7 @@ async function loadDecisionSearchContext(
   return {
     status: "ok",
     value: {
+      decisionsDirectory,
       records: { ...records, records: entries },
       snapshot: {
         entries,

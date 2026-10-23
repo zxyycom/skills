@@ -12,7 +12,7 @@ export const investigationListHelp = [
 export const investigationSearchHelp = [
   "Semantics:",
   "  Searches formal report Markdown only; authoring candidates stay outside the index.",
-  "  --in content (default) verifies current sources and may serve the query from a read-only validated projection with a warning; --in metadata reads only the validated published index snapshot, always reports currentness=unchecked, and does not emit a freshness warning.",
+  "  --in content (default) reads current text in the strictly validated published-index range and verifies the same bytes' ID; --in metadata reads only published metadata. Both report currentness=unchecked, never fall back to source discovery, and audit the complete domain graph only when relation filters require it.",
   "  --related-to resolves first; --direction and --relation-type qualify its direct edges, while --relation-type alone matches any direct edge of that type.",
   "  --match all requires every term, any requires one term, phrase requires one contiguous phrase; structural filters apply before text matching.",
   "  The six-line summary reports applied query/filters, source, limits, counts, and independent scan/results/previews coverage; matched>=N is a lower bound.",

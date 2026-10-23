@@ -221,16 +221,20 @@ test("Decision index sync retains an independent final source revision guard", a
       .replace("alignment: null", "alignment: aligned")
       .replace("createdAt: null", "createdAt: 2026-10-20T00:00:00Z");
     await fs.writeFile(file, active);
-    const readFile = fs.readFile;
+    const open = fs.open;
     let sourceReads = 0;
-    Object.defineProperty(fs, "readFile", {
+    Object.defineProperty(fs, "open", {
       configurable: true,
-      value: async (...args: Parameters<typeof fs.readFile>) => {
-        const result = await readFile(...args);
+      value: async (...args: Parameters<typeof fs.open>) => {
+        const handle = await open(...args);
         if (args[0] === file && ++sourceReads === 1) {
-          await fs.writeFile(file, active + "\n");
+          const close = handle.close.bind(handle);
+          handle.close = async () => {
+            await close();
+            await fs.writeFile(file, active + "\n");
+          };
         }
-        return result;
+        return handle;
       }
     });
     try {
@@ -251,7 +255,7 @@ test("Decision index sync retains an independent final source revision guard", a
         { code: "ENOENT" }
       );
     } finally {
-      fs.readFile = readFile;
+      fs.open = open;
     }
   });
 });

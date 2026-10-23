@@ -1,3 +1,5 @@
+import type { InvestigationPreparation } from "./strict-preparation.ts";
+import type { InvestigationCollectionLayout } from "./investigation-layout.ts";
 import path from "node:path";
 import { findCandidatePathForInvestigationId } from "./candidate-path.ts";
 import { inspectInvestigationCollectionLayout } from "./investigation-index-source.ts";
@@ -21,7 +23,11 @@ import {
   renameStepFailure,
   type RenameStep
 } from "./rename-support.ts";
-import type { InvestigationSource } from "./types.ts";
+import type {
+  InvestigationIndexState,
+  InvestigationSource,
+  ParsedInvestigationReport
+} from "./types.ts";
 
 export function isNoOpRename(
   source: RenameSource,
@@ -32,12 +38,15 @@ export function isNoOpRename(
 
 export async function inspectLayout(
   root: string,
-  indexPath: string
+  indexPath: string,
+  preparation?: InvestigationPreparation
 ): Promise<
   RenameStep<Awaited<ReturnType<typeof inspectInvestigationCollectionLayout>>>
 > {
   try {
-    const layout = await inspectInvestigationCollectionLayout(root);
+    const layout = await inspectInvestigationCollectionLayout(root, {
+      preparation
+    });
     return layout.errors.length === 0
       ? { value: layout }
       : renameStepFailure(indexPath, layout.errors);
@@ -50,9 +59,11 @@ export async function inspectLayout(
 
 export function asFormalSource(
   root: string,
-  source: InvestigationSource
+  source: InvestigationSource,
+  validated?: ParsedInvestigationReport,
+  state?: InvestigationIndexState
 ): RenameSource {
-  const parsed = parseInvestigationReport(source.text, source.id);
+  const parsed = validated ?? parseInvestigationReport(source.text, source.id);
   if (parsed.report === null || parsed.errors.length > 0) {
     throw new Error(
       `validated formal Investigation ${source.id} became invalid`
@@ -60,6 +71,8 @@ export function asFormalSource(
   }
   return {
     candidate: false,
+    parsed,
+    state,
     document: parsed.report,
     filePath: path.join(root, source.sourcePath),
     id: source.id,
@@ -68,42 +81,103 @@ export function asFormalSource(
   };
 }
 
+type CapturedRenameCandidates = Readonly<{
+  layout: InvestigationCollectionLayout;
+  preparation: InvestigationPreparation;
+}>;
+
 export async function readCandidateSources(
   root: string,
-  candidateIds: readonly string[]
+  candidateIds: readonly string[],
+  captured?: CapturedRenameCandidates
 ): Promise<RenameStep<RenameSource[]>> {
   const candidates: RenameSource[] = [];
+  const sourcesById = new Map(
+    captured?.layout.candidateSources.map((source) => [source.id, source])
+  );
   for (const id of candidateIds) {
-    const filePath = await findCandidatePathForInvestigationId(root, id);
-    if (filePath === null) {
+    const loaded = await readRenameCandidate({
+      root,
+      id,
+      source: sourcesById.get(id),
+      captured
+    });
+    if ("result" in loaded) return loaded;
+    candidates.push(loaded.value);
+  }
+  return { value: candidates };
+}
+
+type RenameCandidateRead = Readonly<{
+  root: string;
+  id: string;
+  source: InvestigationSource | undefined;
+  captured: CapturedRenameCandidates | undefined;
+}>;
+
+/** Acquire and validate one candidate, preserving the failure boundary of its locator. */
+async function readRenameCandidate(
+  input: RenameCandidateRead
+): Promise<RenameStep<RenameSource>> {
+  const { root, id, source, captured } = input;
+  const filePath =
+    captured === undefined
+      ? await findCandidatePathForInvestigationId(root, id)
+      : source && path.join(root, source.sourcePath);
+  if (!filePath) {
+    return renameStepFailure(path.join(root, investigationIndexFileName), [
+      `Investigation candidate ${id} has no current source path`
+    ]);
+  }
+  try {
+    const { text, parsed } = await readRenameCandidateDocument(
+      filePath,
+      id,
+      source,
+      captured
+    );
+    if (parsed.report === null || parsed.frontmatterErrors.length > 0) {
       return renameStepFailure(path.join(root, investigationIndexFileName), [
-        `Investigation candidate ${id} has no current source path`
+        ...parsed.frontmatterErrors,
+        `${id} candidate frontmatter cannot be renamed`
       ]);
     }
-    try {
-      const text = await readRegularText(filePath);
-      const parsed = parseInvestigationReport(text, id);
-      if (parsed.report === null || parsed.frontmatterErrors.length > 0) {
-        return renameStepFailure(path.join(root, investigationIndexFileName), [
-          ...parsed.frontmatterErrors,
-          `${id} candidate frontmatter cannot be renamed`
-        ]);
-      }
-      candidates.push({
+    return {
+      value: {
         candidate: true,
+        parsed,
         document: parsed.report,
         filePath,
         id,
         sourcePath: path.basename(filePath),
         text
-      });
-    } catch (error) {
-      return renameStepFailure(path.join(root, investigationIndexFileName), [
-        `${id} candidate could not be read: ${errorText(error)}`
-      ]);
-    }
+      }
+    };
+  } catch (error) {
+    return renameStepFailure(path.join(root, investigationIndexFileName), [
+      `${id} candidate could not be read: ${errorText(error)}`
+    ]);
   }
-  return { value: candidates };
+}
+
+async function readRenameCandidateDocument(
+  filePath: string,
+  id: string,
+  source: InvestigationSource | undefined,
+  captured: CapturedRenameCandidates | undefined
+): Promise<Readonly<{ text: string; parsed: ParsedInvestigationReport }>> {
+  if (captured !== undefined) {
+    if (source === undefined)
+      throw new Error(
+        "Strict Investigation preparation has no candidate proof: " + id
+      );
+    return {
+      text: source.text,
+      parsed: captured.preparation.parsed(source, true)
+    };
+  }
+  const text = await readRegularText(filePath);
+  return { text, parsed: parseInvestigationReport(text, id) };
 }
 
 export function resolveRenameSource(
@@ -138,7 +212,7 @@ export type RenameTarget = Readonly<{
 
 export function resolveRenameTarget(
   source: RenameSource,
-  sources: readonly RenameSource[],
+  sources: readonly Pick<RenameSource, "id" | "sourcePath">[],
   rawTarget: string,
   indexPath: string
 ): RenameStep<RenameTarget> {
@@ -179,7 +253,7 @@ function targetIdentity(
 }
 
 function targetConflict(
-  sources: readonly RenameSource[],
+  sources: readonly Pick<RenameSource, "id" | "sourcePath">[],
   target: RenameIdentity,
   indexPath: string
 ): RenameStep<never> | null {
@@ -200,7 +274,7 @@ function targetConflict(
 
 function targetSourcePath(
   source: RenameSource,
-  others: readonly RenameSource[],
+  others: readonly Pick<RenameSource, "id" | "sourcePath">[],
   target: RenameIdentity,
   indexPath: string
 ): RenameStep<RenameTarget> {
@@ -239,6 +313,14 @@ export function rewriteSources(
     const id = current.id === source.id ? target.id : current.id;
     const sourcePath =
       current.id === source.id ? target.sourcePath : current.sourcePath;
+    if (
+      text === current.text &&
+      id === current.id &&
+      sourcePath === current.sourcePath
+    ) {
+      rewritten.push(current);
+      continue;
+    }
     const parsed = parseInvestigationReport(text, id);
     if (parsed.report === null || parsed.frontmatterErrors.length > 0) {
       return renameStepFailure("", [
@@ -248,6 +330,8 @@ export function rewriteSources(
     rewritten.push({
       ...current,
       document: parsed.report,
+      parsed,
+      state: undefined,
       id,
       sourcePath,
       text

@@ -10,4 +10,4 @@ Contract:
 - 同阶段已有完整非空正式来源时，候选准备直接复用身份和必需 owner 字节，不为同一身份依据额外读取索引或正文。
 
 Proves:
-- 完整 layout 后的候选准备与读取不再读取根目录文件；共享资源仍 ready，references 只包含候选及必需 owner，不包含无关正式报告。
+- 预先取得完整 layout 后，候选准备与读取的 fs.readFile 根直属路径观测为空，共享资源仍 ready，references 只包含候选及必需 owner；该读取计数本身不覆盖 fs.open／FileHandle。

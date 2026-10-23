@@ -62,23 +62,14 @@ export async function renameInvestigationRecordWithHooks(
       "preflight"
     );
   }
-  if (initial.value.noChange) {
-    return renameSuccess(false, indexPath, initial.value.plan, "no-change");
-  }
   try {
     return await withInvestigationCollectionMutationLock(
       indexPath,
       async () => {
         const prepared = await prepareRename(root, indexPath, options);
         if ("result" in prepared) return prepared.result;
-        if (prepared.value.noChange) {
-          return renameSuccess(
-            false,
-            indexPath,
-            prepared.value.plan,
-            "no-change"
-          );
-        }
+        if (prepared.value.noChange)
+          return await publishRename(root, prepared.value, hooks);
         const confirmation = await recordedRenameConfirmation(
           root,
           prepared.value.sourceBefore,

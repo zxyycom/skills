@@ -1,6 +1,7 @@
-import type { Dirent } from "node:fs";
-import fs from "node:fs/promises";
 import path from "node:path";
+import type { InvestigationPreparation } from "./strict-preparation.ts";
+import type { Dirent } from "node:fs";
+import { readRecordText } from "../../record-operations/src/source.ts";
 import { sanitizeInvestigationDiagnosticText } from "./diagnostics.ts";
 import {
   investigationCandidateIdFromFileName,
@@ -14,6 +15,12 @@ import {
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 import type { InvestigationSource } from "./types.ts";
 
+export type InvestigationLayoutOptions = Readonly<{
+  readFormalSources?: boolean;
+  readCandidateSources?: boolean;
+  preparation?: InvestigationPreparation;
+}>;
+
 export type InvestigationLayoutScan = Readonly<{
   candidateErrors: string[];
   candidateIds: string[];
@@ -26,10 +33,7 @@ export async function inspectInvestigationLayoutEntry(
   entry: Dirent<string>,
   investigationsDirectory: string,
   scan: InvestigationLayoutScan,
-  options: Readonly<{
-    readFormalSources?: boolean;
-    readCandidateSources?: boolean;
-  }> = {}
+  options: InvestigationLayoutOptions = {}
 ): Promise<void> {
   if (inspectReservedRootEntry(entry, scan.errors)) return;
   if (entry.isSymbolicLink()) {
@@ -46,7 +50,8 @@ export async function inspectInvestigationLayoutEntry(
       await inspectCandidateRootEntry(
         entry.name,
         investigationsDirectory,
-        scan
+        scan,
+        options.preparation
       );
     return;
   }
@@ -61,7 +66,12 @@ export async function inspectInvestigationLayoutEntry(
     return;
   }
   if (options.readFormalSources !== false)
-    await inspectFormalRootEntry(entry.name, investigationsDirectory, scan);
+    await inspectFormalRootEntry(
+      entry.name,
+      investigationsDirectory,
+      scan,
+      options.preparation
+    );
 }
 
 function inspectReservedRootEntry(
@@ -88,13 +98,14 @@ function inspectReservedRootEntry(
 async function inspectCandidateRootEntry(
   name: string,
   investigationsDirectory: string,
-  scan: InvestigationLayoutScan
+  scan: InvestigationLayoutScan,
+  preparation?: InvestigationPreparation
 ): Promise<void> {
   try {
-    const candidateText = await fs.readFile(
-      path.join(investigationsDirectory, name),
-      "utf8"
-    );
+    const candidateText =
+      preparation === undefined
+        ? await readRecordText(investigationsDirectory, name)
+        : await preparation.read(path.join(investigationsDirectory, name));
     const declaredId = investigationIdFromMarkdown(candidateText);
     if (declaredId === null) {
       recordCandidateError(
@@ -120,13 +131,14 @@ async function inspectCandidateRootEntry(
 async function inspectFormalRootEntry(
   name: string,
   investigationsDirectory: string,
-  scan: InvestigationLayoutScan
+  scan: InvestigationLayoutScan,
+  preparation?: InvestigationPreparation
 ): Promise<void> {
   try {
-    const text = await fs.readFile(
-      path.join(investigationsDirectory, name),
-      "utf8"
-    );
+    const text =
+      preparation === undefined
+        ? await readRecordText(investigationsDirectory, name)
+        : await preparation.read(path.join(investigationsDirectory, name));
     const id = investigationIdFromMarkdown(text);
     if (id === null) {
       scan.errors.push(

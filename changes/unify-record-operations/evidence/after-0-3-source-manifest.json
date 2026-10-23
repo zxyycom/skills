@@ -1,0 +1,19 @@
+{
+  "label": "after-0-3-working-tree",
+  "capturedAt": "2026-10-23T06:28:38.026865+00:00",
+  "baseHead": "5d6a73fb51ef1d9c2b0311e160cbd42a04576f42",
+  "snapshot": "/tmp/unify-record-operations-after-0-3/source",
+  "capture": "current tools/, skills/, scripts/ and root package.json/pnpm-lock.yaml/tsconfig.json, including untracked new tools and excluding retired paths; not git archive HEAD",
+  "verifiedFiles": 2359,
+  "bytes": 11442438,
+  "fileManifest": "/tmp/unify-record-operations-after-0-3/files-manifest.json",
+  "fileManifestSha256": "fe9e5e57c7c3f8ac83415605072502f55aa83855401b7cc1f93a61a38a8f67f6",
+  "verification": "before-current == copied == after-current for every path, bytes hash, mode and symlink identity",
+  "dependencyResolution": "symlink /workspace/skills/node_modules; measurement only, no install or distribution claim",
+  "skippedDirectoryNames": [
+    ".codegraph",
+    ".git",
+    "__pycache__",
+    "node_modules"
+  ]
+}

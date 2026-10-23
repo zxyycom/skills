@@ -1,0 +1,545 @@
+{
+  "status": "Frozen source-opt -> final strict-opt behavior reuse proof; not latest RSS/import equivalence",
+  "beforeManifest": "/tmp/unify-record-operations-final-source-opt-20261023/files-manifest.json",
+  "beforeManifestSha256": "c4911f3d7a8a523422440f6eea99fcda52e5ea56f6058eef1988071398037f6d",
+  "afterManifest": "/tmp/unify-record-operations-final-strict-opt-20261023/files-manifest.json",
+  "afterManifestSha256": "c5161210fd109dea5cc1d6faf22dbb3dbfdb215596699e67619012f94d1459fe",
+  "unchangedRuntimeOwners": [
+    {
+      "path": "tools/record-operations/src/source.ts",
+      "sha256": "921059250ba389e61f75321d32a8c1aafee2d8daa92edfe4db12800363f23666",
+      "sameBytesAndMode": true
+    },
+    {
+      "path": "tools/record-operations/src/check.ts",
+      "sha256": "99f691325add9d06b63ddf8e86c801cce5ea4c82a36da0252f562701466bb650",
+      "sameBytesAndMode": true
+    },
+    {
+      "path": "tools/record-operations/src/transaction.ts",
+      "sha256": "3dc80260b555afe93980838a31fc735dccdbcde37834266dc9efab35333af2e8",
+      "sameBytesAndMode": true
+    },
+    {
+      "path": "tools/record-operations/src/candidate.ts",
+      "sha256": "2bbf6686dfc77a4b48f95f3678f1f524ef0d8c2c5d4d78d7bc495b6e727f6f43",
+      "sameBytesAndMode": true
+    },
+    {
+      "path": "tools/index-runtime/src/storage-sync.ts",
+      "sha256": "c0e168b1a200e5c6d29d0288bade652ede2e0fd2d47caa718dd189f1691ac938",
+      "sameBytesAndMode": true
+    },
+    {
+      "path": "tools/decision-records/src/scan.ts",
+      "sha256": "bd08df4dd582097883c8dbab5aadbd6c95082bff62e5688ae6b9d59623b14c68",
+      "sameBytesAndMode": true
+    },
+    {
+      "path": "tools/decision-records/src/decision-state-index.ts",
+      "sha256": "0d76c6721a828c154266944a9c0d5fc43d4e74e4498c3a0dfe99cd09cadaef6a",
+      "sameBytesAndMode": true
+    },
+    {
+      "path": "tools/investigation-report/src/investigation-state-index.ts",
+      "sha256": "04cd657331a81ea443007e9c676e34f710b9ddb7e0c2005483bc120be1bcf9a6",
+      "sameBytesAndMode": true
+    },
+    {
+      "path": "tools/investigation-report/src/candidate-create-transaction.ts",
+      "sha256": "dce79f113d94eb30f5976225ae3a90cccf6a89b7488888b0c0d0adad7dca4d21",
+      "sameBytesAndMode": true
+    }
+  ],
+  "defaultBranchProofs": [
+    {
+      "operations": "DR full/selected sync, readonly check",
+      "facts": "scanDecisionRecords still calls scanDecisionSnapshot(options) without captureTransactionSources. New default false creates no Map; scan-index absent sourceCapture takes same readRecordText; scan-collection only adds braces. acquireDecisionCollection is the original acquisition sequence moved intact. Validation select/summary/check helpers moved from index.ts into decision-validation.ts with same body/diagnostic order."
+    },
+    {
+      "operations": "IR full/selected sync, readonly check",
+      "facts": "No InvestigationPreparation supplied. layout-entry uses same readRecordText; collectionStates uses same parseInvestigationReport; authoring resource helpers execute same former inline parse/build conditions. Added optional preparation branches are unreachable for these default operations."
+    },
+    {
+      "operations": "DR/IR new, readiness",
+      "facts": "Known-formal skip/header owner and common candidate logic unchanged. New strict capture is only supplied by rename/discard private path, not candidate preparation. Native creation modes and journal remain byte-identical source-opt paths. Default resource-reference helper extraction retains same parse options and result."
+    },
+    {
+      "operations": "DR ordinary publish/set-relations; IR ordinary publish/two-candidate batch/set-relations",
+      "facts": "No strict sourceCapture/InvestigationPreparation supplied. DR applyPreparedDecisionTransaction delegates to same run body with undefined capture; captureDecisionSource retains original readSnapshot/requireExpectedText; publishedBaseline projection returns before new validatedSources branch. isCandidateOnlyChange extracted unchanged. IR investigationFileWrite with absent captured still reads same snapshot; collection/resource default branches above unchanged. Common transaction/readRecordFileSnapshot bodies unchanged; snapshot file adds two unused functions."
+    },
+    {
+      "operations": "strict rename/discard",
+      "facts": "Actual capture/parsed-document/root-bound proof reuse changes executable work. Old four strict values stay historical, replaced by new four normal and two separate counts. Never reused as final strict results."
+    }
+  ],
+  "changedRuntimeFilesWithActualDiff": [
+    {
+      "path": "tools/decision-records/src/cli-lifecycle-execution.ts",
+      "before": {
+        "bytes": 9324,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "64aaa00d37b12e0f480df7e4a6f42e66dab855c74babcc6b5f7b13508939658a"
+      },
+      "after": {
+        "bytes": 10121,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "9f8813201ca7bb155d6ffce7247c84d337dee0c0f5da8daf0961ea82657d9ce3"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/decision-records/src/cli-lifecycle-execution.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/decision-records/src/cli-lifecycle-execution.ts\n@@ -1,3 +1,5 @@\n+import type { DecisionSourceCapture } from \"./decision-strict-preparation.ts\";\n+import { loadDecisionTransactionValidationContext } from \"./scan-snapshot.ts\";\n import { createDecisionRecordLookup } from \"./decision-record-lookup.ts\";\n import {\n   decisionDiagnosticFromReason,\n@@ -36,9 +38,11 @@\n } from \"./cli-output.ts\";\n import { printDecisionRelationReview } from \"./cli-output-relation-review.ts\";\n import type { DecisionRecordsCliIo } from \"./cli-io.ts\";\n-import type { DecisionLocationArgs } from \"./cli-location.ts\";\n+import {\n+  decisionScanOptions,\n+  type DecisionLocationArgs\n+} from \"./cli-location.ts\";\n import { resolveDecisionLifecycleRequest } from \"./cli-lifecycle-selection.ts\";\n-import { loadLifecycleScan } from \"./cli-lifecycle-commands.ts\";\n \n type LockedLifecycleOperationResult = {\n   committed: boolean;\n@@ -61,12 +65,9 @@\n     const result = await withDecisionCollectionMutationLock(\n       initialScan.indexPath,\n       async () => {\n-        const lockedScan = await loadLifecycleScan(\n-          args,\n-          { allowEmptyDecisionSet: true },\n-          io\n-        );\n-        if (lockedScan === null) return noChangeLifecycleResult();\n+        const locked = await loadLockedLifecycleScan(args, io);\n+        if (locked === null) return noChangeLifecycleResult();\n+        const lockedScan = locked.scan;\n         const resolved = resolveDecisionLifecycleRequest(lockedScan, request);\n         if (resolved.status === \"error\") {\n           printDecisionFailure(resolved.failure, io);\n@@ -94,7 +95,8 @@\n           io,\n           lockHeld: true,\n           prepared,\n-          scan: lockedScan\n+          scan: lockedScan,\n+          sourceCapture: locked.sourceCapture\n         });\n       }\n     );\n@@ -110,6 +112,24 @@\n   }\n }\n \n+async function loadLockedLifecycleScan(\n+  args: DecisionLocationArgs,\n+  io: DecisionRecordsCliIo\n+): Promise<{\n+  scan: DecisionScan;\n+  sourceCapture?: DecisionSourceCapture;\n+} | null> {\n+  const { result, sourceCapture } =\n+    await loadDecisionTransactionValidationContext(decisionScanOptions(args), {\n+      allowEmptyDecisionSet: true\n+    });\n+  if (result.errors.length > 0) {\n+    printDecisionFailure(lifecyclePreflightFailure(result.errors), io);\n+    return null;\n+  }\n+  return { scan: result.scan, sourceCapture };\n+}\n+\n export async function prepareLifecycleWithCurrentHistory(\n   scan: DecisionPreparationContext,\n   request: DecisionLifecycleRequest,\n@@ -162,9 +182,15 @@\n   lockHeld: boolean;\n   prepared: Extract<DecisionLifecyclePreparation, { status: \"ok\" }>;\n   scan: DecisionScan;\n+  sourceCapture?: DecisionSourceCapture;\n }): Promise<LockedLifecycleOperationResult> {\n   const { io, lockHeld, prepared, scan } = options;\n-  const transaction = await applyLifecycleTransaction(scan, prepared, lockHeld);\n+  const transaction = await applyLifecycleTransaction(\n+    scan,\n+    prepared,\n+    lockHeld,\n+    options.sourceCapture\n+  );\n   if (transaction.status === \"error\") {\n     printDecisionFailure(decisionFailure(transaction.diagnostics), io);\n     return {\n@@ -181,14 +207,15 @@\n function applyLifecycleTransaction(\n   scan: DecisionScan,\n   prepared: Extract<DecisionLifecyclePreparation, { status: \"ok\" }>,\n-  lockHeld: boolean\n+  lockHeld: boolean,\n+  sourceCapture?: DecisionSourceCapture\n ) {\n   const options = {\n     changes: prepared.changes,\n     originalScan: scan\n   };\n   return lockHeld\n-    ? applyLockedDecisionChanges(options)\n+    ? applyLockedDecisionChanges({ ...options, sourceCapture })\n     : applyDecisionChanges(options);\n }\n \n"
+    },
+    {
+      "path": "tools/decision-records/src/decision-rename.ts",
+      "before": {
+        "bytes": 9971,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "6f770613354c0250e092fe5820d789b08e970ee63968c4d7b0e9ca5daa2ae00d"
+      },
+      "after": {
+        "bytes": 10257,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "be207c0d12f5988f205859d36360be7987f344c476e7c004bc19f51c1549a984"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/decision-records/src/decision-rename.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/decision-records/src/decision-rename.ts\n@@ -1,3 +1,4 @@\n+import type { DecisionSourceCapture } from \"./decision-strict-preparation.ts\";\n import {\n   decisionAttention,\n   decisionDiagnostic,\n@@ -14,9 +15,8 @@\n import { decisionTransactionLockFailure } from \"./decision-transaction-outcome.ts\";\n import type { DecisionMutationOutcome } from \"./application-result.ts\";\n import { applyLockedDecisionChanges } from \"./decision-transaction.ts\";\n-import { loadDecisionValidationContext } from \"./index.ts\";\n-import { scanDecisionRecords } from \"./scan.ts\";\n-import { type DecisionScanOptions } from \"./types.ts\";\n+import { loadDecisionTransactionValidationContext } from \"./scan-snapshot.ts\";\n+import { type DecisionScan, type DecisionScanOptions } from \"./types.ts\";\n import {\n   prepareDecisionRename,\n   type PreparedRenameStep\n@@ -238,10 +238,10 @@\n       status: \"ok\"\n     };\n   }\n-  const current = await scanDecisionRecords(options);\n   const transaction = await applyLockedDecisionChanges({\n     changes: prepared.value.changes,\n-    originalScan: current\n+    originalScan: prepared.scan,\n+    sourceCapture: prepared.sourceCapture\n   });\n   if (transaction.status === \"error\") {\n     return {\n@@ -262,15 +262,22 @@\n   };\n }\n \n+type LockedRenamePreparation = Extract<\n+  PreparedRenameStep,\n+  { status: \"ready\" }\n+> & {\n+  scan: DecisionScan;\n+  sourceCapture?: DecisionSourceCapture;\n+};\n+\n async function prepareDecisionRenameAtCurrentState(\n   options: DecisionRenameOptions,\n   requireConfirmation: boolean\n-): Promise<\n-  DecisionRenameResult | Extract<PreparedRenameStep, { status: \"ready\" }>\n-> {\n-  const { result } = await loadDecisionValidationContext(options, {\n-    allowEmptyDecisionSet: true\n-  });\n+): Promise<DecisionRenameResult | LockedRenamePreparation> {\n+  const { result, sourceCapture } =\n+    await loadDecisionTransactionValidationContext(options, {\n+      allowEmptyDecisionSet: true\n+    });\n   if (result.errors.length > 0) {\n     return {\n       ...decisionFailure(\n@@ -291,7 +298,8 @@\n   }\n   const prepared = prepareDecisionRename(result.scan, options);\n   if (prepared.status !== \"ready\") return { ...prepared, plan: null };\n-  if (prepared.value.changes.length === 0) return prepared;\n+  const ready = { ...prepared, scan: result.scan, sourceCapture };\n+  if (prepared.value.changes.length === 0) return ready;\n   const history = await loadDecisionHistoryBaseline(result.scan);\n   if (history.status === \"error\") return { ...history, plan: null };\n   const pending = await pendingDecisionRenameFailure(result.scan);\n@@ -322,5 +330,5 @@\n       plan: prepared.value.plan\n     };\n   }\n-  return prepared;\n-}\n+  return ready;\n+}\n"
+    },
+    {
+      "path": "tools/decision-records/src/decision-strict-preparation.ts",
+      "before": null,
+      "after": {
+        "bytes": 1126,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "ceace713325521bde78690b720be21c4e0d6f86acbe7057f62a1889caeb0b3bc"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/decision-records/src/decision-strict-preparation.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/decision-records/src/decision-strict-preparation.ts\n@@ -0,0 +1,35 @@\n+import {\n+  readRecordTextSnapshot,\n+  type RecordTextSnapshot\n+} from \"../../record-operations/src/transaction-snapshot.ts\";\n+import { errorText } from \"./scan-support.ts\";\n+import type { SourceFile } from \"./scan-contracts.ts\";\n+\n+/** Acquisition sidecar belongs only to the current strict preparation, never the SDK DTOs. */\n+export type DecisionSourceCapture = Readonly<{\n+  root: string;\n+  sources: Map<string, RecordTextSnapshot>;\n+}>;\n+\n+/** Populate the existing same-call text/failed slots before normal identity and body parsing. */\n+export async function captureDecisionSourceFiles(\n+  sourceFiles: readonly SourceFile[],\n+  sourceErrors: string[],\n+  capture: DecisionSourceCapture\n+): Promise<void> {\n+  for (const source of sourceFiles) {\n+    try {\n+      const captured = await readRecordTextSnapshot(\n+        capture.root,\n+        source.decisionPath\n+      );\n+      capture.sources.set(captured.path, captured);\n+      source.sourceText = captured.text;\n+    } catch (error) {\n+      source.sourceReadFailed = true;\n+      sourceErrors.push(\n+        source.sourcePath + \" could not be read: \" + errorText(error)\n+      );\n+    }\n+  }\n+}\n"
+    },
+    {
+      "path": "tools/decision-records/src/decision-transaction-plan.ts",
+      "before": {
+        "bytes": 7681,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "5bc74446ca198b6d41a9f14f5b30aeab674c210b22291b10fc4bef4ea6efca7d"
+      },
+      "after": {
+        "bytes": 8009,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "0a3454652a44dd8dc695cca2886ad62a84a0f5eaa15b6b238bd94db81916c986"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/decision-records/src/decision-transaction-plan.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/decision-records/src/decision-transaction-plan.ts\n@@ -1,3 +1,4 @@\n+import type { DecisionSourceCapture } from \"./decision-strict-preparation.ts\";\n import path from \"node:path\";\n import { decisionTransactionMembers } from \"./decision-source-membership.ts\";\n import {\n@@ -36,23 +37,25 @@\n /** 来源保护、领域写集与最终索引投影依次准备，再交共同事务执行。 */\n export async function prepareDecisionTransactionPlan(\n   context: DecisionPreparationContext,\n-  changes: readonly DecisionFileChange[]\n+  changes: readonly DecisionFileChange[],\n+  sourceCapture?: DecisionSourceCapture\n ): Promise<RecordTransactionPlan<PreparedDecisionTransaction>> {\n-  const acquired = await captureDecisionTransactionSources(context);\n-  const candidateOnly =\n-    changes.length > 0 &&\n-    changes.every(\n-      (change) =>\n-        isCandidateText(change.expectedText) &&\n-        (change.nextText === null || isCandidateText(change.nextText))\n-    );\n+  const acquired = await captureDecisionTransactionSources(\n+    context,\n+    sourceCapture\n+  );\n+  const candidateOnly = isCandidateOnlyChange(changes);\n   const writeSet = await prepareDecisionWrites(\n     context,\n     changes,\n     acquired,\n     candidateOnly\n   );\n-  const next = await projectDecisionTransactionIndex(context, changes);\n+  const next = await projectDecisionTransactionIndex(\n+    context,\n+    changes,\n+    sourceCapture !== undefined\n+  );\n   const index = decisionIndexWrite(\n     context,\n     acquired.indexBefore,\n@@ -229,6 +232,19 @@\n     );\n }\n \n+function isCandidateOnlyChange(\n+  changes: readonly DecisionFileChange[]\n+): boolean {\n+  return (\n+    changes.length > 0 &&\n+    changes.every(\n+      (change) =>\n+        isCandidateText(change.expectedText) &&\n+        (change.nextText === null || isCandidateText(change.nextText))\n+    )\n+  );\n+}\n+\n function isCandidateText(text: string): boolean {\n   const identity = decisionSourceIdentityFromMarkdown(text);\n   return identity.decisionId !== null && identity.isCandidate;\n"
+    },
+    {
+      "path": "tools/decision-records/src/decision-transaction-projection.ts",
+      "before": {
+        "bytes": 4968,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "788611f42ac018de701d241cceb48700a49057bb1a986f9dcacced0db86dbb1a"
+      },
+      "after": {
+        "bytes": 8433,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "d45fdc3b75d146ef3654366da3c9418afeef8d1fa91edcdc2c0b734db2f53dd0"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/decision-records/src/decision-transaction-projection.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/decision-records/src/decision-transaction-projection.ts\n@@ -11,20 +11,25 @@\n import { decisionSourceRevision } from \"./decision-source-revision.ts\";\n import { validateDecisionBody } from \"./record.ts\";\n import { isDecisionSourcePath } from \"./decision-path.ts\";\n+import { decisionRelationConsistencyIssues } from \"./relation-graph.ts\";\n import type { DecisionFileChange } from \"./decision-transaction.ts\";\n+import { isEstablishedDecisionRecord } from \"./types.ts\";\n import type {\n   DecisionId,\n   DecisionIndex,\n+  DecisionIndexState,\n   DecisionPreparationContext,\n   DecisionSourcePath\n } from \"./types.ts\";\n \n export async function projectDecisionTransactionIndex(\n   context: DecisionPreparationContext,\n-  changes: readonly DecisionFileChange[]\n+  changes: readonly DecisionFileChange[],\n+  validatedSources = false\n ): Promise<DecisionIndex> {\n   if (context.publishedBaseline !== undefined)\n     return await projectedIndex(context, changes);\n+  if (validatedSources) return await projectValidatedSources(context, changes);\n   const byPath = new Map(\n     context.records.map((record) => {\n       if (record.source.kind === \"missing\")\n@@ -62,6 +67,102 @@\n   if (built.status === \"error\")\n     throw new Error(built.diagnostics.map((item) => item.message).join(\"; \"));\n   return built.value;\n+}\n+\n+type ProjectedSource = Readonly<{ id: DecisionId; text: string }> &\n+  (\n+    | Readonly<{ state: DecisionIndexState; change?: never }>\n+    | Readonly<{ state?: never; change: DecisionFileChange }>\n+  );\n+\n+/** 仅同次严格采集可复用已验证正文；改变的正文仍重新解析并校验最终全集关系。 */\n+async function projectValidatedSources(\n+  context: DecisionPreparationContext,\n+  changes: readonly DecisionFileChange[]\n+): Promise<DecisionIndex> {\n+  const sources = validatedSourcesAfterChanges(context, changes);\n+  const ids = new Set([...sources.values()].map((source) => source.id));\n+  const states: Record<string, DecisionIndexState> = {};\n+  for (const [filePath, source] of sources) {\n+    if (states[source.id] !== undefined) {\n+      throw new Error(\"Duplicate projected Decision identity: \" + filePath);\n+    }\n+    states[source.id] =\n+      source.change === undefined\n+        ? source.state\n+        : (\n+            await projectChangedDecision(\n+              context,\n+              source.change,\n+              source.id,\n+              source.text,\n+              ids\n+            )\n+          ).state;\n+  }\n+  const issues = decisionRelationConsistencyIssues(\n+    [...sources.values()].map(({ id }) => ({\n+      decisionId: id,\n+      projection: states[id]!,\n+      sourcePath: states[id]!.sourcePath,\n+      status: states[id]!.status\n+    }))\n+  );\n+  if (issues.length > 0)\n+    throw new Error(issues.map((issue) => issue.message).join(\"; \"));\n+  const built = await buildDecisionIndexFromSnapshot({\n+    metadata: {},\n+    sourceRevision: decisionSourceRevision(\n+      [...sources.values()].map((source) => ({\n+        decisionId: source.id,\n+        sourcePath: states[source.id]!.sourcePath,\n+        text: source.text\n+      }))\n+    ),\n+    states\n+  });\n+  if (built.status === \"error\")\n+    throw new Error(built.diagnostics.map((item) => item.message).join(\"; \"));\n+  return built.value;\n+}\n+\n+function validatedSourcesAfterChanges(\n+  context: DecisionPreparationContext,\n+  changes: readonly DecisionFileChange[]\n+): Map<string, ProjectedSource> {\n+  const sources = new Map<string, ProjectedSource>();\n+  for (const record of context.records) {\n+    if (record.source.kind === \"candidate\") continue;\n+    if (!isEstablishedDecisionRecord(record))\n+      throw new Error(\n+        \"Prepared Decision source is not validated: \" + record.sourcePath\n+      );\n+    sources.set(record.decisionPath, {\n+      id: record.decisionId,\n+      text: record.source.text,\n+      state: decisionIndexState(\n+        record.sourcePath,\n+        record.source.document,\n+        record.decisionId\n+      )\n+    });\n+  }\n+  for (const change of changes) {\n+    sources.delete(change.decisionPath);\n+    if (change.nextText === null) continue;\n+    const identity = decisionSourceIdentityFromMarkdown(change.nextText);\n+    if (identity.decisionId === null)\n+      throw new Error(\n+        \"Invalid projected Decision identity: \" + change.decisionPath\n+      );\n+    if (!identity.isCandidate)\n+      sources.set(change.targetPath ?? change.decisionPath, {\n+        id: identity.decisionId,\n+        text: change.nextText,\n+        change\n+      });\n+  }\n+  return sources;\n }\n \n async function projectedIndex(\n@@ -115,7 +216,7 @@\n   id: DecisionId,\n   text: string,\n   ids: ReadonlySet<string>\n-) {\n+): Promise<Readonly<{ state: DecisionIndexState; revision: string }>> {\n   const sourcePath = path\n     .relative(\n       context.decisionsDirectory,\n"
+    },
+    {
+      "path": "tools/decision-records/src/decision-transaction-source.ts",
+      "before": {
+        "bytes": 3117,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "2d3bb15f6e7adfc9ce7ad1a11f974854eb26207664bd22c7e74b621ae23c2444"
+      },
+      "after": {
+        "bytes": 4261,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "5ebea1bd8a9876e0baa4eabea3885a6f0dd3c9b8f77724d3a348b6948bb15065"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/decision-records/src/decision-transaction-source.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/decision-records/src/decision-transaction-source.ts\n@@ -1,10 +1,12 @@\n+import type { DecisionSourceCapture } from \"./decision-strict-preparation.ts\";\n+import { requireRecordTextSnapshot } from \"../../record-operations/src/transaction-snapshot.ts\";\n import path from \"node:path\";\n import { decisionTransactionMembers } from \"./decision-source-membership.ts\";\n import {\n   readRecordFileSnapshot,\n   type RecordFileSnapshot\n } from \"../../record-operations/src/transaction-files.ts\";\n-import type { DecisionPreparationContext } from \"./types.ts\";\n+import type { DecisionPreparationContext, DecisionRecord } from \"./types.ts\";\n \n export type DecisionTransactionSources = Readonly<{\n   originals: Map<string, RecordFileSnapshot | null>;\n@@ -14,29 +16,28 @@\n \n /** 把已验领域正文绑定本阶段实际文件快照与成员清单，不创建目录或写入。 */\n export async function captureDecisionTransactionSources(\n-  context: DecisionPreparationContext\n+  context: DecisionPreparationContext,\n+  sourceCapture?: DecisionSourceCapture\n ): Promise<DecisionTransactionSources> {\n   const originals = new Map<string, RecordFileSnapshot | null>();\n   for (const record of context.records) {\n-    if (record.source.kind === \"missing\")\n-      throw new Error(\n-        \"Prepared Decision source is missing: \" + record.sourcePath\n-      );\n-    const snapshot = await readRecordFileSnapshot(\n+    const snapshot = await captureDecisionSource(\n       context.workspaceRoot,\n-      record.decisionPath\n-    );\n-    requireExpectedDecisionText(\n-      snapshot,\n-      record.source.text,\n-      record.decisionPath\n+      record,\n+      sourceCapture\n     );\n     originals.set(record.decisionPath, snapshot);\n   }\n-  const indexBefore = await readRecordFileSnapshot(\n-    context.workspaceRoot,\n-    context.indexPath\n-  );\n+  const capturedIndex = sourceCapture?.sources.get(context.indexPath);\n+  const indexBefore =\n+    capturedIndex === undefined\n+      ? await readRecordFileSnapshot(context.workspaceRoot, context.indexPath)\n+      : requireRecordTextSnapshot(\n+          capturedIndex,\n+          context.workspaceRoot,\n+          context.indexPath,\n+          context.indexText\n+        );\n   if (context.indexExists)\n     requireExpectedDecisionText(\n       indexBefore,\n@@ -53,6 +54,37 @@\n   );\n   verifyPreparedDecisionMembers(context, beforeMembers);\n   return { originals, indexBefore, beforeMembers };\n+}\n+\n+async function captureDecisionSource(\n+  root: string,\n+  record: DecisionRecord,\n+  sourceCapture?: DecisionSourceCapture\n+): Promise<RecordFileSnapshot | null> {\n+  if (record.source.kind === \"missing\")\n+    throw new Error(\n+      \"Prepared Decision source is missing: \" + record.sourcePath\n+    );\n+  const captured = sourceCapture?.sources.get(record.decisionPath);\n+  if (sourceCapture !== undefined && captured === undefined)\n+    throw new Error(\n+      \"Current preparation has no source proof: \" + record.decisionPath\n+    );\n+  const snapshot =\n+    captured === undefined\n+      ? await readRecordFileSnapshot(root, record.decisionPath)\n+      : requireRecordTextSnapshot(\n+          captured,\n+          root,\n+          record.decisionPath,\n+          record.source.text\n+        );\n+  requireExpectedDecisionText(\n+    snapshot,\n+    record.source.text,\n+    record.decisionPath\n+  );\n+  return snapshot;\n }\n \n function verifyPreparedDecisionMembers(\n"
+    },
+    {
+      "path": "tools/decision-records/src/decision-transaction.ts",
+      "before": {
+        "bytes": 5178,
+        "kind": "file",
+        "mode": "0o600",
+        "sha256": "e946e1853ef5542d8d696de4fc9aaece973e1d3a0e8bc503cb4864c20772ca14"
+      },
+      "after": {
+        "bytes": 5651,
+        "kind": "file",
+        "mode": "0o600",
+        "sha256": "41bb921398d6738b2419493797036da3d4753b07b4c2d667f26dfecf66d5e8f3"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/decision-records/src/decision-transaction.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/decision-records/src/decision-transaction.ts\n@@ -1,3 +1,4 @@\n+import type { DecisionSourceCapture } from \"./decision-strict-preparation.ts\";\n import path from \"node:path\";\n import { RecordAtomicCleanupError } from \"../../record-operations/src/transaction-files.ts\";\n import {\n@@ -61,28 +62,44 @@\n }\n /** The caller prepared domain lifecycle/history while holding the collection lock. */\n export async function applyLockedDecisionChanges(\n-  options: DecisionChanges\n+  options: DecisionChanges & { sourceCapture?: DecisionSourceCapture }\n ): Promise<DecisionTransactionResult> {\n-  return await applyPreparedDecisionTransaction({\n-    context: options.originalScan,\n-    changes: options.changes,\n-    lockHeld: true\n-  });\n+  return await runDecisionTransaction(\n+    {\n+      context: options.originalScan,\n+      changes: options.changes,\n+      lockHeld: true\n+    },\n+    options.sourceCapture\n+  );\n }\n \n+type DecisionTransactionOptions = Readonly<{\n+  context: DecisionPreparationContext;\n+  changes: readonly DecisionFileChange[];\n+  lockHeld?: boolean;\n+  preflight?: boolean;\n+}>;\n+\n export async function applyPreparedDecisionTransaction(\n-  options: Readonly<{\n-    context: DecisionPreparationContext;\n-    changes: readonly DecisionFileChange[];\n-    lockHeld?: boolean;\n-    preflight?: boolean;\n-  }>\n+  options: DecisionTransactionOptions\n+): Promise<DecisionTransactionResult> {\n+  return await runDecisionTransaction(options);\n+}\n+\n+async function runDecisionTransaction(\n+  options: DecisionTransactionOptions,\n+  sourceCapture?: DecisionSourceCapture\n ): Promise<DecisionTransactionResult> {\n   const operation = async (): Promise<DecisionTransactionResult> => {\n     const result = await runRecordTransaction({\n       preflight: options.preflight,\n       prepare: () =>\n-        prepareDecisionTransactionPlan(options.context, options.changes),\n+        prepareDecisionTransactionPlan(\n+          options.context,\n+          options.changes,\n+          sourceCapture\n+        ),\n       fresh: (value) => verifyDecisionTransactionMembers(value, \"before\"),\n       verify: (value) => verifyDecisionTransactionMembers(value, \"after\"),\n       verifyRecovered: (value) =>\n"
+    },
+    {
+      "path": "tools/decision-records/src/decision-validation.ts",
+      "before": null,
+      "after": {
+        "bytes": 3679,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "61244a4015fd4bcc1ba2fcd6a4c51586ef85a804ce510d58790776d4f1c68ddc"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/decision-records/src/decision-validation.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/decision-records/src/decision-validation.ts\n@@ -0,0 +1,129 @@\n+import {\n+  decisionIndexDiagnosticMessages,\n+  syncDecisionIndex\n+} from \"./decision-state-index.ts\";\n+import {\n+  isEstablishedDecisionRecord,\n+  type DecisionId,\n+  type DecisionScan,\n+  type DecisionValidationResult\n+} from \"./types.ts\";\n+import type {\n+  DecisionValidationOptions,\n+  EstablishedDecisionIdSelection\n+} from \"./index.ts\";\n+\n+export function selectEstablishedDecisionIds(\n+  scan: DecisionScan\n+): EstablishedDecisionIdSelection {\n+  const errors: string[] = [];\n+  const decisionIds = scan.records\n+    .filter(isEstablishedDecisionRecord)\n+    .map((record) => record.decisionId);\n+\n+  if (decisionIds.length === 0) {\n+    errors.push(\"Cannot generate an empty decision index\");\n+  }\n+\n+  return { decisionIds, errors };\n+}\n+\n+type DecisionIndexCheck = () => ReturnType<typeof syncDecisionIndex>;\n+\n+export async function validateScannedDecisionRecords(\n+  scan: DecisionScan,\n+  options: DecisionValidationOptions,\n+  checkIndex: DecisionIndexCheck\n+): Promise<DecisionValidationResult> {\n+  const errors =\n+    options.scanErrorPolicy === \"omit\"\n+      ? []\n+      : options.scanErrorPolicy === \"source-only\"\n+        ? [...scan.sourceErrors]\n+        : [...scan.errors];\n+  const hasEstablishedDecision = scan.records.some(isEstablishedDecisionRecord);\n+  const selection =\n+    options.allowEmptyDecisionSet && !hasEstablishedDecision\n+      ? { decisionIds: [], errors: [] }\n+      : selectEstablishedDecisionIds(scan);\n+  errors.push(...selection.errors);\n+  await validateDecisionIndexText({\n+    scan,\n+    decisionIds: selection.decisionIds,\n+    options,\n+    errors,\n+    checkIndex\n+  });\n+\n+  const establishedRecords = scan.records.filter(\n+    (record) => record.document !== null\n+  );\n+\n+  return decisionValidationSummary(scan, establishedRecords, errors);\n+}\n+\n+async function validateDecisionIndexText(context: {\n+  scan: DecisionScan;\n+  decisionIds: readonly DecisionId[];\n+  options: DecisionValidationOptions;\n+  errors: string[];\n+  checkIndex: DecisionIndexCheck;\n+}): Promise<void> {\n+  const { scan, decisionIds, options, errors, checkIndex } = context;\n+  if (\n+    options.checkIndexText === false ||\n+    decisionIds.length === 0 ||\n+    scan.sourceErrors.length > 0\n+  ) {\n+    return;\n+  }\n+  const checked = await checkIndex();\n+  if (checked.status !== \"error\") return;\n+  if (\n+    checked.state === \"index-invalid\" ||\n+    checked.state === \"index-missing\" ||\n+    checked.state === \"index-stale\"\n+  ) {\n+    errors.push(scan.indexRelativePath + \" is out of sync; run sync-index\");\n+    return;\n+  }\n+  errors.push(\n+    ...decisionIndexDiagnosticMessages(\n+      checked.diagnostics,\n+      scan.indexRelativePath\n+    )\n+  );\n+}\n+\n+function decisionValidationSummary(\n+  scan: DecisionScan,\n+  establishedRecords: readonly DecisionScan[\"records\"][number][],\n+  errors: string[]\n+): DecisionValidationResult {\n+  return {\n+    activationCandidateCount: scan.records.filter(\n+      (record) => record.activationCandidate\n+    ).length,\n+    bodyReadyCandidateCount: scan.records.filter(\n+      (record) => record.scaffoldValid && record.bodyReady\n+    ).length,\n+    activeCount: establishedRecords.filter(\n+      (record) => record.status === \"active\"\n+    ).length,\n+    alignedCount: establishedRecords.filter(\n+      (record) => record.status === \"active\" && record.alignment === \"aligned\"\n+    ).length,\n+    archivedCount: establishedRecords.filter(\n+      (record) => record.status === \"archived\"\n+    ).length,\n+    decisionCount: establishedRecords.length,\n+    errors,\n+    scan,\n+    scaffoldCandidateCount: scan.records.filter(\n+      (record) => record.scaffoldValid\n+    ).length,\n+    unalignedCount: establishedRecords.filter(\n+      (record) => record.status === \"active\" && record.alignment === \"unaligned\"\n+    ).length\n+  };\n+}\n"
+    },
+    {
+      "path": "tools/decision-records/src/index.ts",
+      "before": {
+        "bytes": 4994,
+        "kind": "file",
+        "mode": "0o600",
+        "sha256": "b22b062f9e1832be39e46ee8587ec2e8c8b7f6787c1c2ed2f9952c9658dc7cd6"
+      },
+      "after": {
+        "bytes": 1872,
+        "kind": "file",
+        "mode": "0o600",
+        "sha256": "cb80897079e7c7eab5022dbcbecf36738b01d3c103d9c04fa48fffdbf0a869cb"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/decision-records/src/index.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/decision-records/src/index.ts\n@@ -1,11 +1,11 @@\n import {\n-  decisionIndexDiagnosticMessages,\n-  syncDecisionIndex\n-} from \"./decision-state-index.ts\";\n+  validateScannedDecisionRecords,\n+  selectEstablishedDecisionIds as selectValidatedDecisionIds\n+} from \"./decision-validation.ts\";\n+import { syncDecisionIndex } from \"./decision-state-index.ts\";\n import { scanDecisionRecords } from \"./scan.ts\";\n import { checkScannedDecisionIndex } from \"./scan-index-check.ts\";\n import {\n-  isEstablishedDecisionRecord,\n   type DecisionId,\n   type DecisionScan,\n   type DecisionScanOptions,\n@@ -30,16 +30,7 @@\n export function selectEstablishedDecisionIds(\n   scan: DecisionScan\n ): EstablishedDecisionIdSelection {\n-  const errors: string[] = [];\n-  const decisionIds = scan.records\n-    .filter(isEstablishedDecisionRecord)\n-    .map((record) => record.decisionId);\n-\n-  if (decisionIds.length === 0) {\n-    errors.push(\"Cannot generate an empty decision index\");\n-  }\n-\n-  return { decisionIds, errors };\n+  return selectValidatedDecisionIds(scan);\n }\n \n export async function validateDecisionRecords(\n@@ -75,103 +66,3 @@\n     })\n   );\n }\n-\n-type DecisionIndexCheck = () => ReturnType<typeof syncDecisionIndex>;\n-\n-async function validateScannedDecisionRecords(\n-  scan: DecisionScan,\n-  options: DecisionValidationOptions,\n-  checkIndex: DecisionIndexCheck\n-): Promise<DecisionValidationResult> {\n-  const errors =\n-    options.scanErrorPolicy === \"omit\"\n-      ? []\n-      : options.scanErrorPolicy === \"source-only\"\n-        ? [...scan.sourceErrors]\n-        : [...scan.errors];\n-  const hasEstablishedDecision = scan.records.some(isEstablishedDecisionRecord);\n-  const selection =\n-    options.allowEmptyDecisionSet && !hasEstablishedDecision\n-      ? { decisionIds: [], errors: [] }\n-      : selectEstablishedDecisionIds(scan);\n-  errors.push(...selection.errors);\n-  await validateDecisionIndexText({\n-    scan,\n-    decisionIds: selection.decisionIds,\n-    options,\n-    errors,\n-    checkIndex\n-  });\n-\n-  const establishedRecords = scan.records.filter(\n-    (record) => record.document !== null\n-  );\n-\n-  return decisionValidationSummary(scan, establishedRecords, errors);\n-}\n-\n-async function validateDecisionIndexText(context: {\n-  scan: DecisionScan;\n-  decisionIds: readonly DecisionId[];\n-  options: DecisionValidationOptions;\n-  errors: string[];\n-  checkIndex: DecisionIndexCheck;\n-}): Promise<void> {\n-  const { scan, decisionIds, options, errors, checkIndex } = context;\n-  if (\n-    options.checkIndexText === false ||\n-    decisionIds.length === 0 ||\n-    scan.sourceErrors.length > 0\n-  ) {\n-    return;\n-  }\n-  const checked = await checkIndex();\n-  if (checked.status !== \"error\") return;\n-  if (\n-    checked.state === \"index-invalid\" ||\n-    checked.state === \"index-missing\" ||\n-    checked.state === \"index-stale\"\n-  ) {\n-    errors.push(scan.indexRelativePath + \" is out of sync; run sync-index\");\n-    return;\n-  }\n-  errors.push(\n-    ...decisionIndexDiagnosticMessages(\n-      checked.diagnostics,\n-      scan.indexRelativePath\n-    )\n-  );\n-}\n-\n-function decisionValidationSummary(\n-  scan: DecisionScan,\n-  establishedRecords: readonly DecisionScan[\"records\"][number][],\n-  errors: string[]\n-): DecisionValidationResult {\n-  return {\n-    activationCandidateCount: scan.records.filter(\n-      (record) => record.activationCandidate\n-    ).length,\n-    bodyReadyCandidateCount: scan.records.filter(\n-      (record) => record.scaffoldValid && record.bodyReady\n-    ).length,\n-    activeCount: establishedRecords.filter(\n-      (record) => record.status === \"active\"\n-    ).length,\n-    alignedCount: establishedRecords.filter(\n-      (record) => record.status === \"active\" && record.alignment === \"aligned\"\n-    ).length,\n-    archivedCount: establishedRecords.filter(\n-      (record) => record.status === \"archived\"\n-    ).length,\n-    decisionCount: establishedRecords.length,\n-    errors,\n-    scan,\n-    scaffoldCandidateCount: scan.records.filter(\n-      (record) => record.scaffoldValid\n-    ).length,\n-    unalignedCount: establishedRecords.filter(\n-      (record) => record.status === \"active\" && record.alignment === \"unaligned\"\n-    ).length\n-  };\n-}\n"
+    },
+    {
+      "path": "tools/decision-records/src/scan-collection.ts",
+      "before": {
+        "bytes": 5946,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "07f8691a7408c61ba995253b6ee507de819ecbd7ece5fea76247ff809ba39cab"
+      },
+      "after": {
+        "bytes": 5966,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "6cdb3defabed4f19ef8fcf9388eeeb4cbab780127d41f3ab23f5fbcc5bee8404"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/decision-records/src/scan-collection.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/decision-records/src/scan-collection.ts\n@@ -172,8 +172,12 @@\n   sourceFile: SourceFile,\n   sourceErrors: string[]\n ): Promise<string | null> {\n-  if (sourceFile.sourceReadFailed === true) return null;\n-  if (sourceFile.sourceText !== undefined) return sourceFile.sourceText;\n+  if (sourceFile.sourceReadFailed === true) {\n+    return null;\n+  }\n+  if (sourceFile.sourceText !== undefined) {\n+    return sourceFile.sourceText;\n+  }\n   try {\n     const directory = sourceFile.sourcePath.startsWith(\"archive/\")\n       ? path.dirname(path.dirname(sourceFile.decisionPath))\n"
+    },
+    {
+      "path": "tools/decision-records/src/scan-index.ts",
+      "before": {
+        "bytes": 2661,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "126999c85b842e3ed3243efb1443864d1864cb68e177310372ff9d09675aaf07"
+      },
+      "after": {
+        "bytes": 3253,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "6905639e9d74db77fa02afb8930fa2e75d758633dccbe70aa0e46794b4128abf"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/decision-records/src/scan-index.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/decision-records/src/scan-index.ts\n@@ -1,3 +1,5 @@\n+import { readRecordTextSnapshot } from \"../../record-operations/src/transaction-snapshot.ts\";\n+import type { DecisionSourceCapture } from \"./decision-strict-preparation.ts\";\n import fs from \"node:fs/promises\";\n import path from \"node:path\";\n import { readRecordText } from \"../../record-operations/src/source.ts\";\n@@ -20,14 +22,15 @@\n \n export async function loadDecisionIndexForScan(\n   location: IndexLocation,\n-  indexErrors: string[]\n+  indexErrors: string[],\n+  sourceCapture?: DecisionSourceCapture\n ): Promise<LoadedDecisionIndex> {\n   const entryState = await inspectIndexEntry(location, indexErrors);\n   if (entryState === \"missing\")\n     return { index: null, indexExists: false, indexText: \"\" };\n   if (entryState === \"invalid\")\n     return { index: null, indexExists: true, indexText: \"\" };\n-  return readRegularDecisionIndex(location, indexErrors);\n+  return readRegularDecisionIndex(location, indexErrors, sourceCapture);\n }\n \n async function inspectIndexEntry(\n@@ -56,14 +59,24 @@\n \n async function readRegularDecisionIndex(\n   location: IndexLocation,\n-  indexErrors: string[]\n+  indexErrors: string[],\n+  sourceCapture?: DecisionSourceCapture\n ): Promise<LoadedDecisionIndex> {\n   let indexText: string;\n   try {\n-    indexText = await readRecordText(\n-      path.dirname(location.indexPath),\n-      path.basename(location.indexPath)\n-    );\n+    const captured =\n+      sourceCapture === undefined\n+        ? undefined\n+        : await readRecordTextSnapshot(sourceCapture.root, location.indexPath);\n+    if (sourceCapture !== undefined && captured !== undefined) {\n+      sourceCapture.sources.set(captured.path, captured);\n+    }\n+    indexText =\n+      captured?.text ??\n+      (await readRecordText(\n+        path.dirname(location.indexPath),\n+        path.basename(location.indexPath)\n+      ));\n   } catch (error) {\n     indexErrors.push(\n       location.indexRelativePath +\n"
+    },
+    {
+      "path": "tools/decision-records/src/scan-snapshot.ts",
+      "before": {
+        "bytes": 7886,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "11c80bf28aa868b5d2758ff2afb41935a103689038d358ad292c0c648bc76a61"
+      },
+      "after": {
+        "bytes": 9632,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "d4dc82a200849402d4a6a55cd8e1bda533ea777da1c21dc29b103ceb97260273"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/decision-records/src/scan-snapshot.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/decision-records/src/scan-snapshot.ts\n@@ -1,3 +1,13 @@\n+import { validateScannedDecisionRecords } from \"./decision-validation.ts\";\n+import { checkScannedDecisionIndex } from \"./scan-index-check.ts\";\n+import type {\n+  DecisionValidationContext,\n+  DecisionValidationOptions\n+} from \"./index.ts\";\n+import {\n+  captureDecisionSourceFiles,\n+  type DecisionSourceCapture\n+} from \"./decision-strict-preparation.ts\";\n import {\n   createDecisionRelationGraphProvider,\n   type DecisionRelationGraphProvider\n@@ -42,11 +52,13 @@\n \n export type DecisionScanSnapshot = Readonly<{\n   scan: DecisionScan;\n+  sourceCapture?: DecisionSourceCapture;\n   getRelationGraph: DecisionRelationGraphProvider;\n }>;\n \n export async function scanDecisionSnapshot(\n-  options: DecisionScanOptions = {}\n+  options: DecisionScanOptions = {},\n+  captureTransactionSources = false\n ): Promise<DecisionScanSnapshot> {\n   const resolution = resolveDecisionScanLocation(options);\n   if (resolution.error !== null) {\n@@ -56,27 +68,17 @@\n   const directoryError = await inspectDecisionsDirectory(location);\n   if (directoryError !== null)\n     return unavailableDecisionSnapshot(location, directoryError);\n-  const collectionErrors: string[] = [];\n-  const indexErrors: string[] = [];\n-  const sourceErrors: string[] = [];\n-  const loadedIndex = await loadDecisionIndexForScan(location, indexErrors);\n-  const sourceFiles = await collectScannedSourceFiles(\n-    location,\n-    collectionErrors,\n-    sourceErrors\n-  );\n-  const records = await scanCollectedSourceFiles({\n-    collectionErrors,\n-    indexErrors,\n-    loadedIndex,\n-    location,\n-    sourceErrors,\n-    sourceFiles\n-  });\n+  const sourceCapture: DecisionSourceCapture | undefined =\n+    captureTransactionSources\n+      ? { root: location.workspaceRoot, sources: new Map() }\n+      : undefined;\n+  const { collectionErrors, indexErrors, sourceErrors, loadedIndex, records } =\n+    await acquireDecisionCollection(location, sourceCapture);\n   records.sort(compareDecisionRecords);\n   const relations = createScannedRelationshipSnapshot(records);\n   validateScannedRelationshipSnapshot(relations, sourceErrors);\n   return {\n+    sourceCapture,\n     getRelationGraph: relations.getRelationGraph,\n     scan: successfulDecisionScan({\n       collectionErrors,\n@@ -87,6 +89,53 @@\n       sourceErrors\n     })\n   };\n+}\n+\n+/** Only the current locked strict operation consumes this acquisition sidecar. */\n+export async function loadDecisionTransactionValidationContext(\n+  options: DecisionScanOptions,\n+  validationOptions: DecisionValidationOptions\n+): Promise<\n+  DecisionValidationContext & { sourceCapture?: DecisionSourceCapture }\n+> {\n+  const { scan, sourceCapture } = await scanDecisionSnapshot(options, true);\n+  return {\n+    result: await validateScannedDecisionRecords(scan, validationOptions, () =>\n+      checkScannedDecisionIndex(scan)\n+    ),\n+    sourceCapture\n+  };\n+}\n+\n+/** Index and source acquisition share only this call's explicit transaction namespace. */\n+async function acquireDecisionCollection(\n+  location: DecisionScanLocation,\n+  sourceCapture?: DecisionSourceCapture\n+) {\n+  const collectionErrors: string[] = [];\n+  const indexErrors: string[] = [];\n+  const sourceErrors: string[] = [];\n+  const loadedIndex = await loadDecisionIndexForScan(\n+    location,\n+    indexErrors,\n+    sourceCapture\n+  );\n+  const sourceFiles = await collectScannedSourceFiles(\n+    location,\n+    collectionErrors,\n+    sourceErrors\n+  );\n+  if (sourceCapture !== undefined)\n+    await captureDecisionSourceFiles(sourceFiles, sourceErrors, sourceCapture);\n+  const records = await scanCollectedSourceFiles({\n+    collectionErrors,\n+    indexErrors,\n+    loadedIndex,\n+    location,\n+    sourceErrors,\n+    sourceFiles\n+  });\n+  return { collectionErrors, indexErrors, sourceErrors, loadedIndex, records };\n }\n \n async function collectScannedSourceFiles(\n"
+    },
+    {
+      "path": "tools/investigation-report/src/candidate-resource-references.ts",
+      "before": {
+        "bytes": 2176,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "7fbdf1e853a17a191562c0b7b4faa608cc3e8ebd4d60d582ee298c4c53458e8d"
+      },
+      "after": {
+        "bytes": 2865,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "5e47752f721dec5ae201ba66a32a00104bac9c440f5262970bb2d4287a334bf0"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/investigation-report/src/candidate-resource-references.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/investigation-report/src/candidate-resource-references.ts\n@@ -1,3 +1,5 @@\n+import type { InvestigationSource } from \"./types.ts\";\n+import type { InvestigationPreparation } from \"./strict-preparation.ts\";\n import {\n   inspectInvestigationCollectionLayout,\n   type InvestigationCollectionLayout\n@@ -6,13 +8,16 @@\n import { buildInvestigationReportState } from \"./report-validation.ts\";\n import type { InvestigationResourceReferencesByReport } from \"./resources.ts\";\n \n+type AuthoringReferenceOptions = Readonly<{\n+  failOnInvalidSources?: boolean;\n+  layout?: InvestigationCollectionLayout;\n+  formalReferences?: InvestigationResourceReferencesByReport;\n+  preparation?: InvestigationPreparation;\n+}>;\n+\n export async function readCandidateAuthoringResourceReferences(\n   investigationsDirectory: string,\n-  options: Readonly<{\n-    failOnInvalidSources?: boolean;\n-    layout?: InvestigationCollectionLayout;\n-    formalReferences?: InvestigationResourceReferencesByReport;\n-  }> = {}\n+  options: AuthoringReferenceOptions = {}\n ): Promise<InvestigationResourceReferencesByReport> {\n   const layout =\n     options.layout ??\n@@ -23,29 +28,19 @@\n   if (layout.errors.length > 0) return references;\n   if (options.formalReferences === undefined) {\n     for (const source of layout.formalSources) {\n-      const built = buildInvestigationReportState(\n-        source.id,\n-        parseInvestigationReport(source.text, source.id),\n-        source.sourcePath\n-      );\n       appendAuthoringReference(\n         references,\n         source.id,\n-        built.status === \"valid\" ? built.state.resourceIds : null,\n+        formalAuthoringResources(source, options.preparation),\n         options.failOnInvalidSources\n       );\n     }\n   }\n   for (const source of layout.candidateSources) {\n-    const parsed = parseInvestigationReport(source.text, source.id, {\n-      allowEmptyCoreSections: true\n-    });\n     appendAuthoringReference(\n       references,\n       source.id,\n-      parsed.errors.length === 0 && parsed.report !== null\n-        ? parsed.report.resourceIds\n-        : null,\n+      candidateAuthoringResources(source, options.preparation),\n       options.failOnInvalidSources\n     );\n   }\n@@ -64,3 +59,30 @@\n       `${id} authoring resource references could not be safely read`\n     );\n }\n+\n+function formalAuthoringResources(\n+  source: InvestigationSource,\n+  preparation?: InvestigationPreparation\n+): readonly string[] | null {\n+  const built = buildInvestigationReportState(\n+    source.id,\n+    preparation?.parsed(source) ??\n+      parseInvestigationReport(source.text, source.id),\n+    source.sourcePath\n+  );\n+  return built.status === \"valid\" ? built.state.resourceIds : null;\n+}\n+\n+function candidateAuthoringResources(\n+  source: InvestigationSource,\n+  preparation?: InvestigationPreparation\n+): readonly string[] | null {\n+  const parsed =\n+    preparation?.parsed(source, true) ??\n+    parseInvestigationReport(source.text, source.id, {\n+      allowEmptyCoreSections: true\n+    });\n+  return parsed.errors.length === 0 && parsed.report !== null\n+    ? parsed.report.resourceIds\n+    : null;\n+}\n"
+    },
+    {
+      "path": "tools/investigation-report/src/discard-loading-publication.ts",
+      "before": {
+        "bytes": 994,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "ac56bcb69a23dd68579cd30fe12380ef6a0a8209fc661681c07b35008500b37a"
+      },
+      "after": {
+        "bytes": 1147,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "c054503801023bae454ba49c42020059316efcb0a4499716f487c12fbc9de57e"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/investigation-report/src/discard-loading-publication.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/investigation-report/src/discard-loading-publication.ts\n@@ -1,3 +1,4 @@\n+import type { InvestigationPreparation } from \"./strict-preparation.ts\";\n import type {\n   DiscardCollectionOptions,\n   ValidatedInvestigationCollection\n@@ -10,6 +11,7 @@\n   loaded: Readonly<{\n     collection: ValidatedInvestigationCollection;\n     originalIndexText: string;\n+    preparation: InvestigationPreparation;\n   }>,\n   ownership: Readonly<{\n     ownedResources: ResourceTreeScan;\n@@ -21,6 +23,7 @@\n ) {\n   return await publishPreparedDiscard(options, {\n     indexText,\n+    preparation: loaded.preparation,\n     originalIndexText: loaded.originalIndexText,\n     originalSources: loaded.collection.sources,\n     resourceProgress: ownership.resourceProgress,\n"
+    },
+    {
+      "path": "tools/investigation-report/src/discard-loading.ts",
+      "before": {
+        "bytes": 10835,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "7af31ebe337de0a20012cce0b7794ca2ccf25476049bded3a35f39a00e586a4d"
+      },
+      "after": {
+        "bytes": 11742,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "39c3d3151ac4da3bcc86e573f232cf8df3778b2e2a5a307b93a351ae73e1af50"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/investigation-report/src/discard-loading.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/investigation-report/src/discard-loading.ts\n@@ -1,3 +1,8 @@\n+import { InvestigationPreparation } from \"./strict-preparation.ts\";\n+import {\n+  inspectInvestigationCollectionLayout,\n+  type InvestigationCollectionLayout\n+} from \"./investigation-layout.ts\";\n import path from \"node:path\";\n import { buildDiscardIndexText } from \"./discard-index-projection.ts\";\n import { prepareResourceSourceProof } from \"./rename-resource-proof.ts\";\n@@ -38,13 +43,14 @@\n   sharedOwnerResourceReferences,\n   type ResourceTreeScan\n } from \"./discard-history.ts\";\n-import { readRegularText } from \"./discard-files.ts\";\n import { discardIndexReadFailure } from \"./discard-loading-diagnostics.ts\";\n import { publishLoadedDiscard } from \"./discard-loading-publication.ts\";\n \n type LoadedDiscardCollection = Readonly<{\n   collection: ValidatedInvestigationCollection;\n   originalIndexText: string;\n+  preparation: InvestigationPreparation;\n+  layout: InvestigationCollectionLayout;\n }>;\n \n export function requiredReportSourcePath(\n@@ -61,7 +67,17 @@\n export async function discardFromCollection(\n   options: DiscardCollectionOptions\n ): Promise<InvestigationReportDiscardResult> {\n-  const current = await collectValidatedInvestigationCollection(options.root);\n+  const preparation = new InvestigationPreparation(\n+    path.dirname(options.root),\n+    options.root\n+  );\n+  const layout = await inspectInvestigationCollectionLayout(options.root, {\n+    preparation\n+  });\n+  const current = await collectValidatedInvestigationCollection(options.root, {\n+    layout,\n+    preparation\n+  });\n   if (current.errors.length > 0 || current.snapshot === null) {\n     return result(options, false, [], current.errors);\n   }\n@@ -76,7 +92,10 @@\n     return result(options, false, [], selected.errors);\n   }\n   options = { ...options, id: selected.id };\n-  const loaded = await loadDiscardCollection(options);\n+  const loaded = await loadDiscardCollection(options, current, {\n+    preparation,\n+    layout\n+  });\n   if (!loaded.ok) return loaded.result;\n   return await discardLoadedCollection(options, loaded.value);\n }\n@@ -96,7 +115,7 @@\n   loaded: LoadedDiscardCollection,\n   collection: ValidatedInvestigationCollection\n ): Promise<InvestigationReportDiscardResult> {\n-  const ownership = await prepareDiscardOwnership(options, collection);\n+  const ownership = await prepareDiscardOwnership(options, collection, loaded);\n   if (!ownership.ok) return ownership.result;\n   const candidate = prepareDiscardCandidate(options, collection);\n   if (!candidate.ok) return candidate.result;\n@@ -138,11 +157,12 @@\n }\n \n async function loadDiscardCollection(\n-  options: DiscardCollectionOptions\n+  options: DiscardCollectionOptions,\n+  collection: Awaited<\n+    ReturnType<typeof collectValidatedInvestigationCollection>\n+  >,\n+  facts: Pick<LoadedDiscardCollection, \"preparation\" | \"layout\">\n ): Promise<DiscardStep<LoadedDiscardCollection>> {\n-  const collection = await collectValidatedInvestigationCollection(\n-    options.root\n-  );\n   if (collection.errors.length > 0 || collection.snapshot === null) {\n     return discardStepFailure(result(options, false, [], collection.errors));\n   }\n@@ -163,7 +183,8 @@\n   try {\n     return discardStepValue({\n       collection: validatedCollection,\n-      originalIndexText: await readRegularText(options.indexPath)\n+      ...facts,\n+      originalIndexText: await facts.preparation.read(options.indexPath)\n     });\n   } catch (error) {\n     return discardStepFailure(discardIndexReadFailure(options, error));\n@@ -194,7 +215,8 @@\n \n async function prepareDiscardOwnership(\n   options: DiscardCollectionOptions,\n-  collection: ValidatedInvestigationCollection\n+  collection: ValidatedInvestigationCollection,\n+  loaded: LoadedDiscardCollection\n ): Promise<\n   DiscardStep<{\n     ownedResources: ResourceTreeScan;\n@@ -220,7 +242,8 @@\n   const errors = await discardOwnershipErrors(\n     options,\n     collection,\n-    ownedResources\n+    ownedResources,\n+    loaded\n   );\n   const resourceProgress = await prepareResourceSourceProof({\n     root: path.dirname(options.root),\n@@ -246,12 +269,21 @@\n async function discardOwnershipErrors(\n   options: DiscardCollectionOptions,\n   collection: ValidatedInvestigationCollection,\n-  ownedResources: ResourceTreeScan\n+  ownedResources: ResourceTreeScan,\n+  loaded: LoadedDiscardCollection\n ): Promise<string[]> {\n   const relationshipErrors = referencesToTarget(collection.states, options.id);\n   const resourceErrors = sharedOwnerResourceReferences(\n     await readCandidateAuthoringResourceReferences(options.root, {\n-      failOnInvalidSources: true\n+      failOnInvalidSources: true,\n+      layout: loaded.layout,\n+      preparation: loaded.preparation,\n+      formalReferences: new Map(\n+        [...collection.states].map(([id, state]) => [\n+          id,\n+          new Set(state.resourceIds)\n+        ])\n+      )\n     }),\n     options.id\n   );\n"
+    },
+    {
+      "path": "tools/investigation-report/src/discard-protection.ts",
+      "before": {
+        "bytes": 4978,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "091d76e82a96fde2a399c619498987bd5e64332126e2d801a45f2f2f6e474ff8"
+      },
+      "after": {
+        "bytes": 5134,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "a3e4ed70d3274a64f8e400880704ca7fa9abf86097f04ae2b74f70efda1f8def"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/investigation-report/src/discard-protection.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/investigation-report/src/discard-protection.ts\n@@ -1,3 +1,4 @@\n+import type { InvestigationPreparation } from \"./strict-preparation.ts\";\n import { collectValidatedInvestigationCollection } from \"./validation.ts\";\n import { sameInvestigationSources } from \"./investigation-index-source.ts\";\n import {\n@@ -117,6 +118,7 @@\n   options: DiscardCollectionOptions,\n   prepared: Readonly<{\n     indexText: string;\n+    preparation?: InvestigationPreparation;\n     originalIndexText: string;\n     originalSources: readonly import(\"./types.ts\").InvestigationSource[];\n     resourceProgress: import(\"./rename-contract.ts\").ResourceMoveProgress;\n@@ -127,6 +129,7 @@\n ): Promise<InvestigationReportDiscardResult> {\n   const publication = await publishDiscard({\n     afterResourceTombstone: options.afterResourceTombstone,\n+    preparation: prepared.preparation,\n     indexPath: options.indexPath,\n     indexText: prepared.indexText,\n     originalIndexText: prepared.originalIndexText,\n"
+    },
+    {
+      "path": "tools/investigation-report/src/discard-publication.ts",
+      "before": {
+        "bytes": 7587,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "b848380c9987ca8e28fabba076fecae0242e2ac53f04cbb6208ec2167a6331d5"
+      },
+      "after": {
+        "bytes": 7702,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "3d9b7b3adf9fd9f890e19eda8276f15ec05a5765bfcd324a87746b16c5840984"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/investigation-report/src/discard-publication.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/investigation-report/src/discard-publication.ts\n@@ -1,3 +1,4 @@\n+import type { InvestigationPreparation } from \"./strict-preparation.ts\";\n import fs from \"node:fs/promises\";\n import path from \"node:path\";\n import { runRecordTransaction } from \"../../record-operations/src/transaction.ts\";\n@@ -38,6 +39,7 @@\n import type { RecordWrittenFile } from \"../../record-operations/src/transaction-files.ts\";\n import type { RecordTransactionResult } from \"../../record-operations/src/transaction.ts\";\n export type DiscardPublicationOptions = Readonly<{\n+  preparation?: InvestigationPreparation;\n   afterResourceTombstone: AfterDiscardResourceTombstone;\n   indexPath: string;\n   indexText: string | null;\n"
+    },
+    {
+      "path": "tools/investigation-report/src/discard-transaction-plan.ts",
+      "before": {
+        "bytes": 4746,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "3b03f4c6a395d555a1493724617fc903e556f36c7edee50f9979d403279bd150"
+      },
+      "after": {
+        "bytes": 5936,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "d855b1dd1c00dbe3e0fafc764587be0812587983ffcf6beefef3713735a99b47"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/investigation-report/src/discard-transaction-plan.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/investigation-report/src/discard-transaction-plan.ts\n@@ -1,6 +1,7 @@\n import type { RecordTransactionPlan } from \"../../record-operations/src/transaction.ts\";\n import { randomUUID } from \"node:crypto\";\n import path from \"node:path\";\n+import { requireRecordTextSnapshot } from \"../../record-operations/src/transaction-snapshot.ts\";\n import { readRecordFileSnapshot } from \"../../record-operations/src/transaction-files.ts\";\n \n import { scanResourceOwner } from \"./rename-resource-snapshot.ts\";\n@@ -57,11 +58,7 @@\n ): Promise<RecordTransactionPlan<DiscardPublicationOptions>> {\n   const { options, transactionRoot, trashReport } = context;\n   const guards = await discardOriginalSourceGuards(context);\n-  const originalReport = await readRecordFileSnapshot(\n-    transactionRoot,\n-    options.reportPath\n-  );\n-  if (originalReport === null) throw new Error(\"Discard source disappeared\");\n+  const originalReport = await discardReportSnapshot(context);\n   context.resourceMove = await prepareDiscardResourceMove(context);\n   if (options.indexText === null)\n     guards.push({\n@@ -89,10 +86,40 @@\n             options.indexPath,\n             options.originalIndexText,\n             options.indexText,\n-            { writer: options.write, mode: 0o600 }\n+            {\n+              writer: options.write,\n+              mode: 0o600,\n+              captured:\n+                options.originalIndexText === null\n+                  ? undefined\n+                  : options.preparation?.captured(\n+                      options.indexPath,\n+                      options.originalIndexText\n+                    )\n+            }\n           )\n   };\n }\n+async function discardReportSnapshot(context: DiscardPublicationContext) {\n+  const { options, transactionRoot } = context;\n+  const source = options.originalSources.find(\n+    (value) => path.join(options.root, value.sourcePath) === options.reportPath\n+  );\n+  const originalReport =\n+    options.preparation === undefined\n+      ? await readRecordFileSnapshot(transactionRoot, options.reportPath)\n+      : source === undefined\n+        ? null\n+        : requireRecordTextSnapshot(\n+            options.preparation.captured(options.reportPath, source.text),\n+            transactionRoot,\n+            options.reportPath,\n+            source.text\n+          );\n+  if (originalReport === null) throw new Error(\"Discard source disappeared\");\n+  return originalReport;\n+}\n+\n async function prepareDiscardResourceMove(\n   context: DiscardPublicationContext\n ): Promise<ResourceMove | null> {\n@@ -136,7 +163,13 @@\n       transactionRoot,\n       path.join(options.root, source.sourcePath),\n       source.text,\n-      source.text\n+      source.text,\n+      {\n+        captured: options.preparation?.captured(\n+          path.join(options.root, source.sourcePath),\n+          source.text\n+        )\n+      }\n     );\n     guards.push({ path: file.path, before: file.before });\n   }\n"
+    },
+    {
+      "path": "tools/investigation-report/src/investigation-layout-entry.ts",
+      "before": {
+        "bytes": 4716,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "36fafe626aead7711da32ebc4de96b75739c8a9242ff202e3c632469fd15bdfe"
+      },
+      "after": {
+        "bytes": 5323,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "876a558e66d2a3f6c9e2022f730d7772e2e09ccefdf8ea67403e00dfa429e520"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/investigation-report/src/investigation-layout-entry.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/investigation-report/src/investigation-layout-entry.ts\n@@ -1,3 +1,5 @@\n+import path from \"node:path\";\n+import type { InvestigationPreparation } from \"./strict-preparation.ts\";\n import type { Dirent } from \"node:fs\";\n import { readRecordText } from \"../../record-operations/src/source.ts\";\n import { sanitizeInvestigationDiagnosticText } from \"./diagnostics.ts\";\n@@ -13,6 +15,12 @@\n import { investigationResourcesDirectoryName } from \"./resource-reference.ts\";\n import type { InvestigationSource } from \"./types.ts\";\n \n+export type InvestigationLayoutOptions = Readonly<{\n+  readFormalSources?: boolean;\n+  readCandidateSources?: boolean;\n+  preparation?: InvestigationPreparation;\n+}>;\n+\n export type InvestigationLayoutScan = Readonly<{\n   candidateErrors: string[];\n   candidateIds: string[];\n@@ -25,10 +33,7 @@\n   entry: Dirent<string>,\n   investigationsDirectory: string,\n   scan: InvestigationLayoutScan,\n-  options: Readonly<{\n-    readFormalSources?: boolean;\n-    readCandidateSources?: boolean;\n-  }> = {}\n+  options: InvestigationLayoutOptions = {}\n ): Promise<void> {\n   if (inspectReservedRootEntry(entry, scan.errors)) return;\n   if (entry.isSymbolicLink()) {\n@@ -45,7 +50,8 @@\n       await inspectCandidateRootEntry(\n         entry.name,\n         investigationsDirectory,\n-        scan\n+        scan,\n+        options.preparation\n       );\n     return;\n   }\n@@ -60,7 +66,12 @@\n     return;\n   }\n   if (options.readFormalSources !== false)\n-    await inspectFormalRootEntry(entry.name, investigationsDirectory, scan);\n+    await inspectFormalRootEntry(\n+      entry.name,\n+      investigationsDirectory,\n+      scan,\n+      options.preparation\n+    );\n }\n \n function inspectReservedRootEntry(\n@@ -87,10 +98,14 @@\n async function inspectCandidateRootEntry(\n   name: string,\n   investigationsDirectory: string,\n-  scan: InvestigationLayoutScan\n+  scan: InvestigationLayoutScan,\n+  preparation?: InvestigationPreparation\n ): Promise<void> {\n   try {\n-    const candidateText = await readRecordText(investigationsDirectory, name);\n+    const candidateText =\n+      preparation === undefined\n+        ? await readRecordText(investigationsDirectory, name)\n+        : await preparation.read(path.join(investigationsDirectory, name));\n     const declaredId = investigationIdFromMarkdown(candidateText);\n     if (declaredId === null) {\n       recordCandidateError(\n@@ -116,10 +131,14 @@\n async function inspectFormalRootEntry(\n   name: string,\n   investigationsDirectory: string,\n-  scan: InvestigationLayoutScan\n+  scan: InvestigationLayoutScan,\n+  preparation?: InvestigationPreparation\n ): Promise<void> {\n   try {\n-    const text = await readRecordText(investigationsDirectory, name);\n+    const text =\n+      preparation === undefined\n+        ? await readRecordText(investigationsDirectory, name)\n+        : await preparation.read(path.join(investigationsDirectory, name));\n     const id = investigationIdFromMarkdown(text);\n     if (id === null) {\n       scan.errors.push(\n"
+    },
+    {
+      "path": "tools/investigation-report/src/investigation-layout.ts",
+      "before": {
+        "bytes": 2995,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "dadd1565449b7498cede56b252d1463849a5b1e62cf755d1fe13b13e66981fcc"
+      },
+      "after": {
+        "bytes": 2972,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "48f6939d1abe1900f05ab07c4e2b79b052e9445ea248826d7f98ba5100102d87"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/investigation-report/src/investigation-layout.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/investigation-report/src/investigation-layout.ts\n@@ -3,6 +3,7 @@\n import { hasCandidateFormalIdentityConflict } from \"./candidate-path.ts\";\n import {\n   inspectInvestigationLayoutEntry,\n+  type InvestigationLayoutOptions,\n   type InvestigationLayoutScan\n } from \"./investigation-layout-entry.ts\";\n import {\n@@ -23,10 +24,7 @@\n \n export async function inspectInvestigationCollectionLayout(\n   investigationsDirectory: string,\n-  options: Readonly<{\n-    readFormalSources?: boolean;\n-    readCandidateSources?: boolean;\n-  }> = {}\n+  options: InvestigationLayoutOptions = {}\n ): Promise<InvestigationCollectionLayout> {\n   const scan: InvestigationLayoutScan = {\n     candidateErrors: [],\n"
+    },
+    {
+      "path": "tools/investigation-report/src/rename-contract.ts",
+      "before": {
+        "bytes": 3145,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "1c735c92f9da28b3610e0f1b46e8c4203e0bbec605c4aeb60f6ae6b088a91631"
+      },
+      "after": {
+        "bytes": 3423,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "02adccf7ceb5085e2fdc775b26536c8319ae0b868c43fcb63d789aa8756153fc"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/investigation-report/src/rename-contract.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/investigation-report/src/rename-contract.ts\n@@ -1,3 +1,8 @@\n+import type { InvestigationPreparation } from \"./strict-preparation.ts\";\n+import type {\n+  InvestigationIndexState,\n+  ParsedInvestigationReport\n+} from \"./types.ts\";\n import type {\n   InvestigationDiagnostic,\n   InvestigationMutationDiagnostic\n@@ -52,6 +57,8 @@\n }>;\n \n export type RenameSource = Readonly<{\n+  parsed?: ParsedInvestigationReport;\n+  state?: InvestigationIndexState;\n   candidate: boolean;\n   document: ParsedInvestigationReportDocument;\n   filePath: string;\n@@ -111,6 +118,7 @@\n };\n \n export type PreparedRename = Readonly<{\n+  preparation?: InvestigationPreparation;\n   indexPath: string;\n   noChange: boolean;\n   nextIndexText: string | null;\n"
+    },
+    {
+      "path": "tools/investigation-report/src/rename-index-projection.ts",
+      "before": {
+        "bytes": 3766,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "924f7a4738ceeaafb8881f31e41293c12b1ec68a815ee70d80b61e8f0aeaf289"
+      },
+      "after": {
+        "bytes": 4182,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "d5f1bcceaa5da405ae8d1e9993f67ca04a7099b1c07ce48d758e67b46c10833a"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/investigation-report/src/rename-index-projection.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/investigation-report/src/rename-index-projection.ts\n@@ -1,3 +1,4 @@\n+import type { InvestigationPreparation } from \"./strict-preparation.ts\";\n import {\n   buildStateIndex,\n   serializeStateIndex\n@@ -21,14 +22,15 @@\n export async function prepareNextIndex(\n   root: string,\n   indexPath: string,\n-  sources: readonly RenameSource[]\n+  sources: readonly RenameSource[],\n+  preparation?: InvestigationPreparation\n ): Promise<\n   RenameStep<\n     Readonly<{ nextIndexText: string | null; oldIndexText: string | null }>\n   >\n > {\n   const formal = sources.filter((source) => !source.candidate);\n-  const previous = await readRenameIndex(indexPath);\n+  const previous = await readRenameIndex(indexPath, preparation);\n   if (\"result\" in previous) return previous;\n   if (formal.length === 0)\n     return { value: { nextIndexText: null, oldIndexText: previous.value } };\n@@ -40,11 +42,17 @@\n }\n \n async function readRenameIndex(\n-  indexPath: string\n+  indexPath: string,\n+  preparation?: InvestigationPreparation\n ): Promise<RenameStep<string | null>> {\n   try {\n     if ((await lstatOrNull(indexPath)) === null) return { value: null };\n-    return { value: await readRegularText(indexPath) };\n+    return {\n+      value:\n+        preparation === undefined\n+          ? await readRegularText(indexPath)\n+          : await preparation.read(indexPath)\n+    };\n   } catch (error) {\n     return renameStepFailure(indexPath, [\n       \"Investigation index could not be read before rename: \" + errorText(error)\n@@ -60,11 +68,14 @@\n   const states = new Map<string, InvestigationIndexState>();\n   const formalSources: InvestigationSource[] = [];\n   for (const source of sources) {\n-    const built = buildInvestigationReportState(\n-      source.id,\n-      parseInvestigationReport(source.text, source.id),\n-      source.sourcePath\n-    );\n+    const built =\n+      source.state === undefined\n+        ? buildInvestigationReportState(\n+            source.id,\n+            source.parsed ?? parseInvestigationReport(source.text, source.id),\n+            source.sourcePath\n+          )\n+        : { status: \"valid\" as const, state: source.state };\n     if (built.status === \"invalid\")\n       return renameStepFailure(indexPath, built.errors);\n     states.set(source.id, built.state);\n"
+    },
+    {
+      "path": "tools/investigation-report/src/rename-plan.ts",
+      "before": {
+        "bytes": 2257,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "fe73dae15faa146beaacd3e5ed6e248e4e813737e6fa3ebaaa39d947cdf23b5b"
+      },
+      "after": {
+        "bytes": 3445,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "0161cd36118ad784b3db97c2691a8921931162e591f0a45228ff6e42d8efc731"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/investigation-report/src/rename-plan.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/investigation-report/src/rename-plan.ts\n@@ -1,7 +1,9 @@\n+import type { InvestigationPreparation } from \"./strict-preparation.ts\";\n import type {\n   InvestigationRenamePlan,\n   PreparedRename,\n-  RenameSource\n+  RenameSource,\n+  ResourceMove\n } from \"./rename-contract.ts\";\n import type { RenameTarget } from \"./rename-preparation-source.ts\";\n import { investigationNameFromId } from \"./report-path.ts\";\n@@ -25,6 +27,49 @@\n       sources,\n       targetSource: source\n     }\n+  };\n+}\n+\n+type ChangedRenameFacts = Readonly<{\n+  indexPath: string;\n+  preparation: InvestigationPreparation;\n+  sources: readonly RenameSource[];\n+  source: RenameSource;\n+  target: RenameTarget;\n+  rewritten: readonly RenameSource[];\n+  resourceMove: ResourceMove | null;\n+  index: Readonly<{\n+    nextIndexText: string | null;\n+    oldIndexText: string | null;\n+  }>;\n+}>;\n+\n+/** Project the validated rewrite into its complete publication plan, without I/O. */\n+export function changedRenamePreparation(\n+  facts: ChangedRenameFacts\n+): PreparedRename {\n+  const {\n+    indexPath,\n+    preparation,\n+    source,\n+    target,\n+    sources,\n+    rewritten,\n+    resourceMove,\n+    index\n+  } = facts;\n+  return {\n+    indexPath,\n+    preparation,\n+    noChange: false,\n+    nextIndexText: source.candidate ? null : index.nextIndexText,\n+    oldIndexText: index.oldIndexText,\n+    originalSources: sources,\n+    plan: renamePlan(sources, source, target, rewritten, resourceMove !== null),\n+    resourceMove,\n+    sourceBefore: source,\n+    sources: rewritten,\n+    targetSource: rewritten.find((candidate) => candidate.id === target.id)!\n   };\n }\n \n"
+    },
+    {
+      "path": "tools/investigation-report/src/rename-preparation-source.ts",
+      "before": {
+        "bytes": 8113,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "941371c83d823543740d8855008fce9fb035349875b17e469d7142b74923b9f7"
+      },
+      "after": {
+        "bytes": 10326,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "b2f57418cdab50dc556e7e99ceab181445060627dd3b11f00b7b544940dab4c2"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/investigation-report/src/rename-preparation-source.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/investigation-report/src/rename-preparation-source.ts\n@@ -1,3 +1,5 @@\n+import type { InvestigationPreparation } from \"./strict-preparation.ts\";\n+import type { InvestigationCollectionLayout } from \"./investigation-layout.ts\";\n import path from \"node:path\";\n import { findCandidatePathForInvestigationId } from \"./candidate-path.ts\";\n import { inspectInvestigationCollectionLayout } from \"./investigation-index-source.ts\";\n@@ -21,7 +23,11 @@\n   renameStepFailure,\n   type RenameStep\n } from \"./rename-support.ts\";\n-import type { InvestigationSource } from \"./types.ts\";\n+import type {\n+  InvestigationIndexState,\n+  InvestigationSource,\n+  ParsedInvestigationReport\n+} from \"./types.ts\";\n \n export function isNoOpRename(\n   source: RenameSource,\n@@ -32,12 +38,15 @@\n \n export async function inspectLayout(\n   root: string,\n-  indexPath: string\n+  indexPath: string,\n+  preparation?: InvestigationPreparation\n ): Promise<\n   RenameStep<Awaited<ReturnType<typeof inspectInvestigationCollectionLayout>>>\n > {\n   try {\n-    const layout = await inspectInvestigationCollectionLayout(root);\n+    const layout = await inspectInvestigationCollectionLayout(root, {\n+      preparation\n+    });\n     return layout.errors.length === 0\n       ? { value: layout }\n       : renameStepFailure(indexPath, layout.errors);\n@@ -50,9 +59,11 @@\n \n export function asFormalSource(\n   root: string,\n-  source: InvestigationSource\n+  source: InvestigationSource,\n+  validated?: ParsedInvestigationReport,\n+  state?: InvestigationIndexState\n ): RenameSource {\n-  const parsed = parseInvestigationReport(source.text, source.id);\n+  const parsed = validated ?? parseInvestigationReport(source.text, source.id);\n   if (parsed.report === null || parsed.errors.length > 0) {\n     throw new Error(\n       `validated formal Investigation ${source.id} became invalid`\n@@ -60,6 +71,8 @@\n   }\n   return {\n     candidate: false,\n+    parsed,\n+    state,\n     document: parsed.report,\n     filePath: path.join(root, source.sourcePath),\n     id: source.id,\n@@ -68,42 +81,103 @@\n   };\n }\n \n+type CapturedRenameCandidates = Readonly<{\n+  layout: InvestigationCollectionLayout;\n+  preparation: InvestigationPreparation;\n+}>;\n+\n export async function readCandidateSources(\n   root: string,\n-  candidateIds: readonly string[]\n+  candidateIds: readonly string[],\n+  captured?: CapturedRenameCandidates\n ): Promise<RenameStep<RenameSource[]>> {\n   const candidates: RenameSource[] = [];\n+  const sourcesById = new Map(\n+    captured?.layout.candidateSources.map((source) => [source.id, source])\n+  );\n   for (const id of candidateIds) {\n-    const filePath = await findCandidatePathForInvestigationId(root, id);\n-    if (filePath === null) {\n+    const loaded = await readRenameCandidate({\n+      root,\n+      id,\n+      source: sourcesById.get(id),\n+      captured\n+    });\n+    if (\"result\" in loaded) return loaded;\n+    candidates.push(loaded.value);\n+  }\n+  return { value: candidates };\n+}\n+\n+type RenameCandidateRead = Readonly<{\n+  root: string;\n+  id: string;\n+  source: InvestigationSource | undefined;\n+  captured: CapturedRenameCandidates | undefined;\n+}>;\n+\n+/** Acquire and validate one candidate, preserving the failure boundary of its locator. */\n+async function readRenameCandidate(\n+  input: RenameCandidateRead\n+): Promise<RenameStep<RenameSource>> {\n+  const { root, id, source, captured } = input;\n+  const filePath =\n+    captured === undefined\n+      ? await findCandidatePathForInvestigationId(root, id)\n+      : source && path.join(root, source.sourcePath);\n+  if (!filePath) {\n+    return renameStepFailure(path.join(root, investigationIndexFileName), [\n+      `Investigation candidate ${id} has no current source path`\n+    ]);\n+  }\n+  try {\n+    const { text, parsed } = await readRenameCandidateDocument(\n+      filePath,\n+      id,\n+      source,\n+      captured\n+    );\n+    if (parsed.report === null || parsed.frontmatterErrors.length > 0) {\n       return renameStepFailure(path.join(root, investigationIndexFileName), [\n-        `Investigation candidate ${id} has no current source path`\n+        ...parsed.frontmatterErrors,\n+        `${id} candidate frontmatter cannot be renamed`\n       ]);\n     }\n-    try {\n-      const text = await readRegularText(filePath);\n-      const parsed = parseInvestigationReport(text, id);\n-      if (parsed.report === null || parsed.frontmatterErrors.length > 0) {\n-        return renameStepFailure(path.join(root, investigationIndexFileName), [\n-          ...parsed.frontmatterErrors,\n-          `${id} candidate frontmatter cannot be renamed`\n-        ]);\n-      }\n-      candidates.push({\n+    return {\n+      value: {\n         candidate: true,\n+        parsed,\n         document: parsed.report,\n         filePath,\n         id,\n         sourcePath: path.basename(filePath),\n         text\n-      });\n-    } catch (error) {\n-      return renameStepFailure(path.join(root, investigationIndexFileName), [\n-        `${id} candidate could not be read: ${errorText(error)}`\n-      ]);\n-    }\n-  }\n-  return { value: candidates };\n+      }\n+    };\n+  } catch (error) {\n+    return renameStepFailure(path.join(root, investigationIndexFileName), [\n+      `${id} candidate could not be read: ${errorText(error)}`\n+    ]);\n+  }\n+}\n+\n+async function readRenameCandidateDocument(\n+  filePath: string,\n+  id: string,\n+  source: InvestigationSource | undefined,\n+  captured: CapturedRenameCandidates | undefined\n+): Promise<Readonly<{ text: string; parsed: ParsedInvestigationReport }>> {\n+  if (captured !== undefined) {\n+    if (source === undefined)\n+      throw new Error(\n+        \"Strict Investigation preparation has no candidate proof: \" + id\n+      );\n+    return {\n+      text: source.text,\n+      parsed: captured.preparation.parsed(source, true)\n+    };\n+  }\n+  const text = await readRegularText(filePath);\n+  return { text, parsed: parseInvestigationReport(text, id) };\n }\n \n export function resolveRenameSource(\n@@ -239,6 +313,14 @@\n     const id = current.id === source.id ? target.id : current.id;\n     const sourcePath =\n       current.id === source.id ? target.sourcePath : current.sourcePath;\n+    if (\n+      text === current.text &&\n+      id === current.id &&\n+      sourcePath === current.sourcePath\n+    ) {\n+      rewritten.push(current);\n+      continue;\n+    }\n     const parsed = parseInvestigationReport(text, id);\n     if (parsed.report === null || parsed.frontmatterErrors.length > 0) {\n       return renameStepFailure(\"\", [\n@@ -248,6 +330,8 @@\n     rewritten.push({\n       ...current,\n       document: parsed.report,\n+      parsed,\n+      state: undefined,\n       id,\n       sourcePath,\n       text\n"
+    },
+    {
+      "path": "tools/investigation-report/src/rename-preparation.ts",
+      "before": {
+        "bytes": 7904,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "212ded00f4a4062dce9d346bb4a29a0e71b8baa4cf16e18cb1fa764a832186c0"
+      },
+      "after": {
+        "bytes": 8242,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "67b9559ca8ad0571c4e94c483e1cfda4f120538f054487c3f8cf318880ea3b1b"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/investigation-report/src/rename-preparation.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/investigation-report/src/rename-preparation.ts\n@@ -1,5 +1,9 @@\n+import { InvestigationPreparation } from \"./strict-preparation.ts\";\n import { prepareLocalNoOp } from \"./rename-noop.ts\";\n-import { noChangePreparation, renamePlan } from \"./rename-plan.ts\";\n+import {\n+  noChangePreparation,\n+  changedRenamePreparation\n+} from \"./rename-plan.ts\";\n import path from \"node:path\";\n \n import {\n@@ -53,7 +57,8 @@\n ): Promise<RenameStep<PreparedRename>> {\n   const noOp = await prepareLocalNoOp(root, indexPath, options);\n   if (noOp !== null) return noOp;\n-  const sources = await loadRenameSources(root, indexPath);\n+  const preparation = new InvestigationPreparation(root);\n+  const sources = await loadRenameSources(root, indexPath, preparation);\n   if (\"result\" in sources) return sources;\n   const source = resolveRenameSource(sources.value, options.source, indexPath);\n   if (\"result\" in source) return source;\n@@ -69,7 +74,7 @@\n     : await changedPreparation(\n         root,\n         indexPath,\n-        sources.value,\n+        { sources: sources.value, preparation },\n         source.value,\n         target.value\n       );\n@@ -77,12 +82,15 @@\n \n async function loadRenameSources(\n   root: string,\n-  indexPath: string\n+  indexPath: string,\n+  preparation: InvestigationPreparation\n ): Promise<RenameStep<RenameSource[]>> {\n-  const layout = await inspectLayout(root, indexPath);\n+  const layout = await inspectLayout(root, indexPath, preparation);\n   if (\"result\" in layout) return layout;\n   const formal = await collectValidatedInvestigationCollection(root, {\n-    allowEmptyCollection: true\n+    allowEmptyCollection: true,\n+    layout: layout.value,\n+    preparation\n   });\n   if (formal.errors.length > 0 || formal.snapshot === null)\n     return renameStepFailure(indexPath, formal.errors);\n@@ -90,12 +98,20 @@\n   if (freshness !== null) return freshness;\n   const candidates = await readCandidateSources(\n     root,\n-    layout.value.candidateIds\n+    layout.value.candidateIds,\n+    { layout: layout.value, preparation }\n   );\n   if (\"result\" in candidates) return candidates;\n   return {\n     value: [\n-      ...formal.sources.map((source) => asFormalSource(root, source)),\n+      ...formal.sources.map((source) =>\n+        asFormalSource(\n+          root,\n+          source,\n+          preparation.parsed(source),\n+          formal.states.get(source.id)\n+        )\n+      ),\n       ...candidates.value\n     ].sort((left, right) => compareText(left.id, right.id))\n   };\n@@ -120,13 +136,19 @@\n     : null;\n }\n \n+type RenamePreparationCollection = Readonly<{\n+  sources: readonly RenameSource[];\n+  preparation: InvestigationPreparation;\n+}>;\n+\n async function changedPreparation(\n   root: string,\n   indexPath: string,\n-  sources: readonly RenameSource[],\n+  collection: RenamePreparationCollection,\n   source: RenameSource,\n   target: RenameTarget\n ): Promise<RenameStep<PreparedRename>> {\n+  const { sources, preparation } = collection;\n   const rewritten = rewriteSources(sources, source, target);\n   if (\"result\" in rewritten) return rewritten;\n   const resourceMove = await prepareResourceMove(\n@@ -136,30 +158,24 @@\n     indexPath\n   );\n   if (\"result\" in resourceMove) return resourceMove;\n-  const index = await prepareNextIndex(root, indexPath, rewritten.value);\n+  const index = await prepareNextIndex(\n+    root,\n+    indexPath,\n+    rewritten.value,\n+    preparation\n+  );\n   if (\"result\" in index) return index;\n-  const plan = renamePlan(\n-    sources,\n-    source,\n-    target,\n-    rewritten.value,\n-    resourceMove.value !== null\n-  );\n-  return {\n-    value: {\n+  return {\n+    value: changedRenamePreparation({\n       indexPath,\n-      noChange: false,\n-      nextIndexText: source.candidate ? null : index.value.nextIndexText,\n-      oldIndexText: index.value.oldIndexText,\n-      originalSources: sources,\n-      plan,\n+      preparation,\n+      sources,\n+      source,\n+      target,\n+      rewritten: rewritten.value,\n       resourceMove: resourceMove.value,\n-      sourceBefore: source,\n-      sources: rewritten.value,\n-      targetSource: rewritten.value.find(\n-        (candidate) => candidate.id === target.id\n-      )!\n-    }\n+      index: index.value\n+    })\n   };\n }\n \n"
+    },
+    {
+      "path": "tools/investigation-report/src/rename-transaction-plan.ts",
+      "before": {
+        "bytes": 3985,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "d9fc2be270dc329e6f9ba6138345c09d46df058e180baa244a87f8ca05c2b33c"
+      },
+      "after": {
+        "bytes": 5120,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "1cb6e73d6b7e1d75c1e24891aa2a20ae1610d919c8ed46ea66fcc54df9bfc4e7"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/investigation-report/src/rename-transaction-plan.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/investigation-report/src/rename-transaction-plan.ts\n@@ -51,7 +51,17 @@\n           prepared.indexPath,\n           prepared.oldIndexText,\n           prepared.nextIndexText,\n-          { writer: hooks.writeExisting, mode: 0o600 }\n+          {\n+            writer: hooks.writeExisting,\n+            mode: 0o600,\n+            captured:\n+              prepared.oldIndexText === null\n+                ? undefined\n+                : prepared.preparation?.captured(\n+                    prepared.indexPath,\n+                    prepared.oldIndexText\n+                  )\n+          }\n         );\n   return { value: prepared, root, writes, guards, index };\n }\n@@ -62,7 +72,8 @@\n       root,\n       source.filePath,\n       source.text,\n-      source.text\n+      source.text,\n+      { captured: prepared.preparation?.captured(source.filePath, source.text) }\n     );\n     guards.push({ path: unchanged.path, before: unchanged.before });\n   }\n@@ -76,7 +87,16 @@\n       root,\n       prepared.indexPath,\n       prepared.oldIndexText,\n-      prepared.oldIndexText\n+      prepared.oldIndexText,\n+      {\n+        captured:\n+          prepared.oldIndexText === null\n+            ? undefined\n+            : prepared.preparation?.captured(\n+                prepared.indexPath,\n+                prepared.oldIndexText\n+              )\n+      }\n     );\n     guards.push({\n       path: unchangedIndex.path,\n@@ -88,7 +108,7 @@\n async function renamedSourceWrites(\n   context: RenameTransactionContext\n ): Promise<RecordFileWrite[]> {\n-  const { root, prepared, hooks } = context;\n+  const { root, prepared } = context;\n   const originals = new Map(\n     prepared.originalSources.map((source) => [source.filePath, source])\n   );\n@@ -105,27 +125,44 @@\n         ? prepared.sourceBefore.filePath\n         : source.filePath;\n     const original = originals.get(originalPath)!;\n-    if (originalPath !== target) {\n-      const removal = await investigationFileWrite(\n-        root,\n-        originalPath,\n-        original.text,\n-        null\n-      );\n-      const addition = await investigationFileWrite(\n-        root,\n-        target,\n-        null,\n-        source.text,\n-        { writer: hooks.writeNew, mode: removal.before!.mode }\n-      );\n-      writes.push(addition, removal);\n-    } else\n-      writes.push(\n-        await investigationFileWrite(root, target, original.text, source.text, {\n-          writer: hooks.writeExisting\n-        })\n-      );\n+    writes.push(\n+      ...(await renamedSourceWrite(context, source, original, target))\n+    );\n   }\n   return writes;\n }\n+\n+async function renamedSourceWrite(\n+  context: RenameTransactionContext,\n+  source: import(\"./rename-contract.ts\").RenameSource,\n+  original: import(\"./rename-contract.ts\").RenameSource,\n+  target: string\n+): Promise<RecordFileWrite[]> {\n+  const { root, prepared, hooks } = context;\n+  const originalPath = original.filePath;\n+  if (originalPath !== target) {\n+    const removal = await investigationFileWrite(\n+      root,\n+      originalPath,\n+      original.text,\n+      null,\n+      {\n+        captured: prepared.preparation?.captured(originalPath, original.text)\n+      }\n+    );\n+    const addition = await investigationFileWrite(\n+      root,\n+      target,\n+      null,\n+      source.text,\n+      { writer: hooks.writeNew, mode: removal.before!.mode }\n+    );\n+    return [addition, removal];\n+  } else\n+    return [\n+      await investigationFileWrite(root, target, original.text, source.text, {\n+        writer: hooks.writeExisting,\n+        captured: prepared.preparation?.captured(originalPath, original.text)\n+      })\n+    ];\n+}\n"
+    },
+    {
+      "path": "tools/investigation-report/src/strict-preparation.ts",
+      "before": null,
+      "after": {
+        "bytes": 2257,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "1b385d1ee47aa1636389263e52bf67677bf4a1d9fb165c06ca149bec3100214d"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/investigation-report/src/strict-preparation.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/investigation-report/src/strict-preparation.ts\n@@ -0,0 +1,71 @@\n+import path from \"node:path\";\n+import {\n+  readRecordTextSnapshot,\n+  requireRecordTextSnapshot,\n+  type RecordTextSnapshot\n+} from \"../../record-operations/src/transaction-snapshot.ts\";\n+import { parseInvestigationReport } from \"./markdown.ts\";\n+import type {\n+  InvestigationSource,\n+  ParsedInvestigationReport\n+} from \"./types.ts\";\n+\n+/** Same-prepare facts only; a fresh phase creates its own acquisition. */\n+export class InvestigationPreparation {\n+  readonly root: string;\n+  readonly directory: string;\n+  private readonly snapshots = new Map<string, RecordTextSnapshot>();\n+  private readonly documents = new Map<\n+    string,\n+    Readonly<{ id: string; parsed: ParsedInvestigationReport }>\n+  >();\n+\n+  constructor(root: string, directory = root) {\n+    this.root = path.resolve(root);\n+    this.directory = path.resolve(directory);\n+  }\n+\n+  async read(target: string): Promise<string> {\n+    if (this.snapshots.has(path.resolve(target)))\n+      throw new Error(\n+        \"Strict Investigation source was already captured: \" + target\n+      );\n+    const captured = await readRecordTextSnapshot(this.root, target);\n+    this.snapshots.set(captured.path, captured);\n+    return captured.text;\n+  }\n+\n+  captured(target: string, text: string): RecordTextSnapshot {\n+    const captured = this.snapshots.get(path.resolve(target));\n+    if (captured === undefined)\n+      throw new Error(\n+        \"Strict Investigation preparation has no source proof: \" + target\n+      );\n+    requireRecordTextSnapshot(captured, this.root, target, text);\n+    return captured;\n+  }\n+\n+  parsed(\n+    source: InvestigationSource,\n+    candidate = false\n+  ): ParsedInvestigationReport {\n+    const target = path.resolve(this.directory, source.sourcePath);\n+    this.captured(target, source.text);\n+    const key = source.sourcePath;\n+    const previous = this.documents.get(key);\n+    if (previous !== undefined) {\n+      if (previous.id !== source.id)\n+        throw new Error(\n+          \"Strict Investigation document identity changed: \" + target\n+        );\n+      return previous.parsed;\n+    }\n+    const parsed = parseInvestigationReport(\n+      source.text,\n+      source.id,\n+      candidate ? { allowEmptyCoreSections: true } : {}\n+    );\n+    this.documents.set(key, { id: source.id, parsed });\n+    return parsed;\n+  }\n+}\n"
+    },
+    {
+      "path": "tools/investigation-report/src/transaction-files.ts",
+      "before": {
+        "bytes": 3932,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "18a8ad14c5c1513ea7289aff70023721ac32d49d1d65960478154a6edb3e18d1"
+      },
+      "after": {
+        "bytes": 4432,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "7dbbd69b88e83963c7c2c127c4166b830c35fab07b57596d61e5eecf755a0d0f"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/investigation-report/src/transaction-files.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/investigation-report/src/transaction-files.ts\n@@ -1,3 +1,7 @@\n+import {\n+  requireRecordTextSnapshot,\n+  type RecordTextSnapshot\n+} from \"../../record-operations/src/transaction-snapshot.ts\";\n import { randomUUID } from \"node:crypto\";\n import fs from \"node:fs/promises\";\n import path from \"node:path\";\n@@ -6,6 +10,7 @@\n   sameRecordBytes,\n   type RecordWriteIdentity,\n   type RecordWritePermissions,\n+  type RecordFileSnapshot,\n   type RecordFileWrite\n } from \"../../record-operations/src/transaction-files.ts\";\n \n@@ -17,6 +22,7 @@\n   next: string | null,\n   publication: Readonly<\n     {\n+      captured?: RecordTextSnapshot;\n       writer?: (\n         target: string,\n         text: string\n@@ -25,7 +31,19 @@\n   > = {}\n ): Promise<RecordFileWrite> {\n   const { writer, mode = 0o644, creationMode } = publication;\n-  const before = await readRecordFileSnapshot(root, target);\n+  let before: RecordFileSnapshot | null;\n+  if (publication.captured === undefined)\n+    before = await readRecordFileSnapshot(root, target);\n+  else {\n+    if (expected === null)\n+      throw new Error(\"A captured Investigation source cannot be absent\");\n+    before = requireRecordTextSnapshot(\n+      publication.captured,\n+      root,\n+      target,\n+      expected\n+    );\n+  }\n   if (\n     expected === null\n       ? before !== null\n"
+    },
+    {
+      "path": "tools/investigation-report/src/validation-collection.ts",
+      "before": {
+        "bytes": 3901,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "031dca350c349a9b521c026d9c5c82b15fea31bb268c96080248b429681124bb"
+      },
+      "after": {
+        "bytes": 4269,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "9020761d4b3ded7f38d0b9769d01c3c6ae7ac1f942f2ca93dc8cd5c93b09bb2d"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/investigation-report/src/validation-collection.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/investigation-report/src/validation-collection.ts\n@@ -1,3 +1,4 @@\n+import type { InvestigationPreparation } from \"./strict-preparation.ts\";\n import path from \"node:path\";\n import {\n   createInvestigationStateSnapshot,\n@@ -40,22 +41,27 @@\n   warnings: string[];\n }>;\n \n+type CollectionValidationOptions = Readonly<{\n+  allowEmptyCollection?: boolean;\n+  layout?: InvestigationCollectionLayout;\n+  preparation?: InvestigationPreparation;\n+}>;\n+\n export async function collectValidatedInvestigationCollection(\n   investigationRoot: string,\n-  options: Readonly<{\n-    allowEmptyCollection?: boolean;\n-    layout?: InvestigationCollectionLayout;\n-  }> = {}\n+  options: CollectionValidationOptions = {}\n ): Promise<ValidatedInvestigationCollection> {\n   const layout =\n     options.layout ??\n-    (await inspectInvestigationCollectionLayout(investigationRoot));\n+    (await inspectInvestigationCollectionLayout(investigationRoot, {\n+      preparation: options.preparation\n+    }));\n   const errors = [...layout.errors];\n   if (layout.reportIds.length === 0 && !options.allowEmptyCollection) {\n     errors.push(\"investigation collection must contain at least one report\");\n   }\n   const sources = layout.errors.length > 0 ? [] : layout.formalSources;\n-  const states = collectionStates(sources, errors);\n+  const states = collectionStates(sources, errors, options.preparation);\n   const relations = createInvestigationRelationContext(states);\n   if (errors.length === 0)\n     errors.push(...validateInvestigationRelationGraph(relations));\n@@ -69,6 +75,7 @@\n       authoringReferencesByReport:\n         await readCandidateAuthoringResourceReferences(investigationRoot, {\n           layout,\n+          preparation: options.preparation,\n           formalReferences: referencesByReport\n         })\n     }\n@@ -92,13 +99,15 @@\n \n function collectionStates(\n   sources: readonly InvestigationSource[],\n-  errors: string[]\n+  errors: string[],\n+  preparation?: InvestigationPreparation\n ): Map<string, InvestigationIndexState> {\n   const states = new Map<string, InvestigationIndexState>();\n   for (const source of sources) {\n     const built = buildInvestigationReportState(\n       source.id,\n-      parseInvestigationReport(source.text, source.id),\n+      preparation?.parsed(source) ??\n+        parseInvestigationReport(source.text, source.id),\n       source.sourcePath\n     );\n     if (built.status === \"invalid\") errors.push(...built.errors);\n"
+    },
+    {
+      "path": "tools/record-operations/src/transaction-snapshot.ts",
+      "before": {
+        "bytes": 5434,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "b48b2b75f3dc496667cbc3c10036b231c411a8f516c351a2ce7e10335e8cb960"
+      },
+      "after": {
+        "bytes": 6758,
+        "kind": "file",
+        "mode": "0o664",
+        "sha256": "b3f657bb9200e93198ed184917c2bada946f915b62bc7e1af187dc66e3418023"
+      },
+      "diff": "--- /tmp/unify-record-operations-final-source-opt-20261023/source/tools/record-operations/src/transaction-snapshot.ts\n+++ /tmp/unify-record-operations-final-strict-opt-20261023/source/tools/record-operations/src/transaction-snapshot.ts\n@@ -13,6 +13,53 @@\n   mode: number;\n   parents: readonly Readonly<{ dev: number; ino: number }>[];\n }>;\n+\n+/** Facts from one preparation read, explicitly anchored to the transaction namespace. */\n+export type RecordTextSnapshot = Readonly<{\n+  root: string;\n+  path: string;\n+  text: string;\n+  snapshot: RecordFileSnapshot;\n+}>;\n+\n+export async function readRecordTextSnapshot(\n+  root: string,\n+  target: string\n+): Promise<RecordTextSnapshot> {\n+  const snapshot = await readRecordFileSnapshot(root, target);\n+  if (snapshot === null)\n+    throw Object.assign(new Error(\"Record source is missing: \" + target), {\n+      code: \"ENOENT\"\n+    });\n+  return {\n+    root: path.resolve(root),\n+    path: path.resolve(target),\n+    text: new TextDecoder(\"utf-8\", { fatal: true, ignoreBOM: true }).decode(\n+      snapshot.bytes\n+    ),\n+    snapshot\n+  };\n+}\n+\n+/** Same-stage proof transfer never re-anchors parents or substitutes a later read. */\n+export function requireRecordTextSnapshot(\n+  captured: RecordTextSnapshot,\n+  root: string,\n+  target: string,\n+  expected: string\n+): RecordFileSnapshot {\n+  if (\n+    captured.root !== path.resolve(root) ||\n+    captured.path !== path.resolve(target) ||\n+    captured.text !== expected ||\n+    !sameRecordBytes(captured.snapshot.bytes, Buffer.from(expected))\n+  )\n+    throw new Error(\n+      \"Prepared source proof does not match its transaction root, path or text: \" +\n+        target\n+    );\n+  return captured.snapshot;\n+}\n \n export type RecordWriteIdentity = Readonly<{\n   dev: number;\n"
+    }
+  ],
+  "resourceBoundary": "New imported modules enlarge process/import closure. Prior API lifecycle maxRSS and startup are retained only under actual historical snapshot provenance. Latest CLI representatives measure current complete import/start/render; no global byte-identical import claim.",
+  "stage03Queries": "Earlier runtime-reuse-operation-proof.json and runtime-reuse-analysis.md document stage03 query path semantics. Compare additional strict-only diff above: no query/source/text-search owner changes; readonly default layout additions remain absent preparation. Metadata AB/BA preserved, content representatives explicitly remeasured."
+}

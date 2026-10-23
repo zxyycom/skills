@@ -207,7 +207,7 @@ test("evolve rejects incomplete, mismatched, and impure grouped replacements wit
   }
 });
 
-test("grouped evolve rolls back without printing a committed review after publication failure", () =>
+test("grouped evolve preserves committed sources and index without a success review when publication writer rejects", () =>
   withFixtureWorkspace("grouped-evolve-recovery", async (workspaceRoot) => {
     const established = await establishClosedSplit(workspaceRoot);
     const firstPath = decisionFilePath(
@@ -261,10 +261,39 @@ test("grouped evolve rolls back without printing a committed review after public
       assert.equal(result.stdout, "");
       assert.doesNotMatch(result.stdout, /Relation review \(committed\):/);
       assert.match(result.stderr, /grouped index publication failure/);
+      assert.match(result.stderr, /outcome: partial-or-unknown/);
     } finally {
       Object.defineProperty(fs, "rename", descriptor);
     }
-    assert.equal(await fs.readFile(firstPath, "utf8"), firstBefore);
-    assert.equal(await fs.readFile(secondPath, "utf8"), secondBefore);
-    assert.equal(await fs.readFile(established.indexPath, "utf8"), indexBefore);
+    const firstAfter = await fs.readFile(firstPath, "utf8");
+    const secondAfter = await fs.readFile(secondPath, "utf8");
+    assert.notEqual(firstAfter, firstBefore);
+    assert.notEqual(secondAfter, secondBefore);
+    assert.match(firstAfter, /summary: 恢复前摘要/);
+    assert.match(secondAfter, /summary: 恢复后摘要/);
+    assert.notEqual(
+      await fs.readFile(established.indexPath, "utf8"),
+      indexBefore
+    );
+    const index = await readIndex(established.indexPath);
+    assert.deepEqual(
+      findIndexEntry(index, established.alignedRelativePath).relations,
+      [
+        {
+          target: established.coarseRelativePath,
+          type: "拆分",
+          summary: "恢复前摘要"
+        }
+      ]
+    );
+    assert.deepEqual(
+      findIndexEntry(index, established.unalignedRelativePath).relations,
+      [
+        {
+          target: established.coarseRelativePath,
+          type: "拆分",
+          summary: "恢复后摘要"
+        }
+      ]
+    );
   }));

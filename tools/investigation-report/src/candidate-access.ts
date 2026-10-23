@@ -3,7 +3,13 @@ import {
   diagnosticFromError,
   type InvestigationDiagnostic
 } from "./diagnostics.ts";
-import type { InvestigationCollectionLayout } from "./investigation-index-source.ts";
+import type { CandidateCollectionLayout } from "./candidate-discovery.ts";
+import { readRecordCandidates } from "../../record-operations/src/candidate.ts";
+import {
+  investigationNameFromId,
+  normalizeInvestigationSelectorInput,
+  parseDatedInvestigationId
+} from "./report-path.ts";
 import {
   canonicalizeInvestigationsDirectory,
   resolveInvestigationsDirectory,
@@ -14,22 +20,15 @@ import {
   parseInvestigationCandidateShowOptions
 } from "./options.ts";
 import {
-  investigationSelectorEntries,
-  resolveInvestigationSelector
-} from "./investigation-selector.ts";
-import {
   candidateListFailure,
   candidateShowFailure,
-  safeCandidateLayout,
-  uniqueSorted
+  safeCandidateLayout
 } from "./candidate-support.ts";
 import {
   readInvestigationCandidate,
-  prepareCandidateReadContext,
-  type CandidateReadContext
+  prepareCandidateReadContext
 } from "./candidate-document.ts";
 import type {
-  InvestigationCandidate,
   InvestigationCandidateListResult,
   InvestigationCandidateShowResult
 } from "./types.ts";
@@ -41,7 +40,7 @@ type PreparedCandidateLocation = Readonly<{
 type PreparedCandidateAccess = Readonly<{
   directory: string;
   id?: string;
-  layout: InvestigationCollectionLayout;
+  layout: CandidateCollectionLayout;
 }>;
 type CandidatePreparationFailure = Readonly<{
   diagnostics: readonly InvestigationDiagnostic[];
@@ -53,37 +52,16 @@ export async function listInvestigationCandidates(
   const access = await prepareCandidateAccess(input, false);
   if (access.isErr())
     return candidateListFailure(access.error.errors, access.error.diagnostics);
-  const { directory, layout } = access.value;
-  const context = await prepareReadContext(directory, layout);
-  if (context.isErr())
-    return candidateListFailure(
-      context.error.errors,
-      context.error.diagnostics
-    );
-  const candidates: InvestigationCandidate[] = [];
-  const skippedWarnings: string[] = [];
-  const errors: string[] = [];
-  const diagnostics: InvestigationDiagnostic[] = [];
-  for (const id of layout.candidateIds) {
-    const read = await readInvestigationCandidate(directory, id, context.value);
-    if (read.status === "ok") candidates.push(read.value);
-    else if (read.kind === "scaffold-invalid")
-      skippedWarnings.push(...read.errors);
-    else {
-      errors.push(...read.errors);
-      diagnostics.push(...read.diagnostics);
-    }
-  }
-  const result = {
-    candidates,
-    warnings: [
-      ...skippedWarnings,
-      ...candidates.flatMap((candidate) => candidate.errors)
-    ]
-  };
-  return errors.length === 0
-    ? { ...result, diagnostics: [], errors: [], status: "ok" }
-    : { ...result, diagnostics, errors: uniqueSorted(errors), status: "error" };
+  const read = await readCandidateAccess(access.value);
+  return read.isErr()
+    ? candidateListFailure(read.error.errors, read.error.diagnostics)
+    : {
+        candidates: read.value.values,
+        warnings: read.value.warnings,
+        diagnostics: [],
+        errors: [],
+        status: "ok"
+      };
 }
 export async function showInvestigationCandidate(
   input: unknown
@@ -91,33 +69,77 @@ export async function showInvestigationCandidate(
   const access = await prepareCandidateAccess(input, true);
   if (access.isErr())
     return candidateShowFailure(access.error.errors, access.error.diagnostics);
-  const { directory, layout } = access.value;
-  const selected = resolveInvestigationSelector(
-    investigationSelectorEntries(layout.candidateIds),
-    access.value.id!,
-    "investigation candidate"
-  );
-  if (selected.status === "error") return candidateShowFailure(selected.errors);
-  const context = await prepareReadContext(directory, layout, [selected.id]);
-  if (context.isErr())
-    return candidateShowFailure(
-      context.error.errors,
-      context.error.diagnostics
-    );
-  const candidate = await readInvestigationCandidate(
-    directory,
-    selected.id,
-    context.value
-  );
-  return candidate.status === "ok"
-    ? {
-        candidate: candidate.value,
+  const read = await readCandidateAccess(access.value);
+  return read.isErr()
+    ? candidateShowFailure(read.error.errors, read.error.diagnostics)
+    : {
+        candidate: read.value.values[0]!,
+        warnings: read.value.warnings,
         diagnostics: [],
         errors: [],
-        status: "ok",
-        warnings: candidate.value.errors
+        status: "ok"
+      };
+}
+
+function readCandidateAccess(access: PreparedCandidateAccess) {
+  const { directory, layout } = access;
+  const selector =
+    access.id === undefined
+      ? undefined
+      : normalizeInvestigationSelectorInput(access.id);
+  return ResultAsync.fromPromise(
+    readRecordCandidates({
+      collection: layout.candidateCollection!,
+      ...(selector === undefined
+        ? {}
+        : {
+            selection: {
+              selector,
+              exactId: parseDatedInvestigationId(selector) !== null,
+              name: investigationNameFromId
+            }
+          }),
+      prepare: async (sources) =>
+        await prepareCandidateReadContext(
+          directory,
+          layout,
+          sources.map(({ id }) => id)
+        ),
+      read: async (source, context) => {
+        const read = await readInvestigationCandidate(
+          directory,
+          source.id,
+          context
+        );
+        if (read.status === "ok")
+          return {
+            status: "ok" as const,
+            value: read.value,
+            warnings: read.value.errors
+          };
+        if (read.kind === "scaffold-invalid")
+          return { status: "invalid" as const, errors: read.errors };
+        throw new Error(read.errors.join("; "));
       }
-    : candidateShowFailure(candidate.errors, candidate.diagnostics);
+    }),
+    (error): CandidatePreparationFailure => ({
+      errors: [
+        error instanceof Error
+          ? error.message
+          : "candidate preparation could not be completed"
+      ],
+      diagnostics: [
+        diagnosticFromError({
+          code: "investigation-report.candidate-read-failed",
+          error,
+          reason: "the investigation candidate read preparation failed",
+          recovery:
+            "restore access to the candidates and their required owners, then retry the read",
+          target: directory
+        })
+      ]
+    })
+  );
 }
 
 async function prepareCandidateAccess(
@@ -132,34 +154,9 @@ async function prepareCandidateAccess(
   if (canonical.isErr())
     return err({ errors: canonical.error, diagnostics: [] });
   const directory = canonical.value.investigationsDirectory;
-  const layout = await safeCandidateLayout(directory, {
-    readFormalSources: false
-  });
+  const layout = await safeCandidateLayout(directory);
   if (layout.status === "error") return err(layout);
   return ok({ directory, layout: layout.value, id: prepared.value.id });
-}
-
-function prepareReadContext(
-  investigationsDirectory: string,
-  layout: InvestigationCollectionLayout,
-  ids: readonly string[] = layout.candidateIds
-): ResultAsync<CandidateReadContext, CandidatePreparationFailure> {
-  return ResultAsync.fromPromise(
-    prepareCandidateReadContext(investigationsDirectory, layout, ids),
-    (error) => ({
-      errors: ["candidate preparation could not be completed"],
-      diagnostics: [
-        diagnosticFromError({
-          code: "investigation-report.candidate-read-failed",
-          error,
-          reason: "the investigation candidate read preparation failed",
-          recovery:
-            "restore access to the candidates and their required owners, then retry the read",
-          target: investigationsDirectory
-        })
-      ]
-    })
-  );
 }
 
 function prepareCandidateLocation(

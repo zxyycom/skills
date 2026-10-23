@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import type { MaterializedStateIndexEntry } from "./query-fields.ts";
 import { expectationOf, validateStateIndexDefinition } from "./definition.ts";
 import { canonicalizeStateIndex } from "./canonicalization.ts";
 import { filesystemFailure, failure } from "./diagnostics.ts";
@@ -38,7 +39,8 @@ export async function buildStateIndex<
   Metadata extends JsonObject
 >(
   definition: StateIndexDefinition<State, Metadata>,
-  context: StateIndexContext
+  context: StateIndexContext,
+  materializedEntries?: MaterializedStateIndexEntry<State>[]
 ): Promise<StateIndexResult<StateIndex<State, Metadata>>> {
   const definitionErrors = validateStateIndexDefinition(definition);
   if (definitionErrors.length > 0) {
@@ -67,7 +69,12 @@ export async function buildStateIndex<
       }
     );
   }
-  return buildStateIndexFromSnapshot(definition, snapshot);
+  return buildStateIndexFromSnapshot(
+    definition,
+    snapshot,
+    null,
+    materializedEntries
+  );
 }
 
 export function buildStateIndexFromSnapshot<
@@ -76,7 +83,8 @@ export function buildStateIndexFromSnapshot<
 >(
   definition: StateIndexDefinition<State, Metadata>,
   snapshot: unknown,
-  sourcePath: string | null = null
+  sourcePath: string | null = null,
+  materializedEntries?: MaterializedStateIndexEntry<State>[]
 ): StateIndexResult<StateIndex<State, Metadata>> {
   if (!isStateSnapshot(snapshot)) {
     return failure(
@@ -120,7 +128,8 @@ export function buildStateIndexFromSnapshot<
     const projected = projectStateIndexState(
       definition,
       state,
-      createProjectionContext(id, metadata)
+      createProjectionContext(id, metadata),
+      materializedEntries
     );
     diagnostics.push(
       ...projected.diagnostics.map((entry) => ({

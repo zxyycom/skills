@@ -8,6 +8,7 @@
  * Rebuild: bun run sync:decision-records-cli
  */
 import fs from "node:fs/promises";
+import { readRecordText } from "../../record-operations/src/source.ts";
 import path from "node:path";
 import type {
   StateSnapshot,
@@ -104,7 +105,7 @@ async function discoverDecisionSources(
     }
     const sourceFile = path.join(decisionsDirectory, ...sourcePath.split("/"));
     await requireRegularSourceFile(sourceFile, sourcePath);
-    const text = await fs.readFile(sourceFile, "utf8");
+    const text = await readRecordText(decisionsDirectory, sourcePath);
     const { decisionId, isCandidate } =
       decisionSourceIdentityFromMarkdown(text);
     if (decisionId === null) {

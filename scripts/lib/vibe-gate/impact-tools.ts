@@ -30,8 +30,13 @@ const repositoryValidationInputs = [
   "docs/{tooling.md,skills}",
   "scripts/{auto-push.ts,setup-git-hooks.js,setup-repository.js,task-graph.js,lint.ts,vibe-check.test.ts}"
 ];
+const recordOperationInputs = [
+  "tools/record-operations/src/**",
+  "tools/record-operations/tests/**"
+];
 const decisionRecordInputs = [
-  "tools/decision-records/src/{application-result,index,list-facets,markdown,projection,record,relation-*,scan*,types,decision-{history-baseline,index-*,location,metadata*,path,record-lookup,source-{revision,dependencies,path-safety},state-*,timestamp,trace-admission}}.ts",
+  ...recordOperationInputs,
+  "tools/decision-records/src/{application-result,index,list-facets,markdown,projection,record,relation-*,scan*,types,decision-{history-baseline,index-*,location,metadata*,path,record-lookup,source-{revision,dependencies,path-safety},state-*,timestamp,trace-admission,validation}}.ts",
   "tools/decision-records/src/decision-query-context.ts",
   "tools/decision-records/tests/{support,support-record-fixture,support-git-fixture,domain-fixture,run}.ts",
   "tools/decision-records/tests/fixtures/**",
@@ -41,21 +46,25 @@ const decisionRecordInputs = [
   "tools/decision-records/tests/checks/record-and-established-graph.ts"
 ];
 const decisionQueryInputs = [
+  ...recordOperationInputs,
   "tools/decision-records/src/decision-query*.ts",
-  "tools/decision-records/tests/{index-maintenance,list-facets,queries,cli-output-trace,query-snapshot,query-loaded-snapshot,relation-filter-complexity,index-schema,search-info,search-metadata-window}.test.ts",
+  "tools/decision-records/tests/{index-maintenance,list-facets,queries,cli-output-trace,query-snapshot,query-loaded-snapshot,relation-filter-complexity,index-schema,search-info,search-metadata-window,discovery-dependencies,acquisition-safety,sync-preflight-lock}.test.ts",
   "tools/decision-records/tests/{queries,index-maintenance,lazy-relation-graph}/**",
   "tools/decision-records/tests/search-metadata-window-fixture.ts",
   "tools/decision-records/tests/checks/query-and-index-projection.ts"
 ];
 const decisionMaintenanceInputs = [
-  "tools/decision-records/src/decision-{candidate*,collection*,discard*,lifecycle*,maintenance*,rename*,relation-*,transaction*}.ts",
-  "tools/decision-records/tests/{activation-archive,candidate-lifecycle,candidate-scaffold,evolution,lifecycle-relations,relation-maintenance,rename,transaction-recovery,unrecorded-history,filesystem-boundaries,batch-lookup,first-establishment,reallocation-member-complexity,successor-relation-overrides,local-operation-contracts}.test.ts",
+  ...recordOperationInputs,
+  "tools/decision-records/src/decision-{candidate*,collection*,discard*,lifecycle*,maintenance*,rename*,relation-*,strict-preparation,transaction*}.ts",
+  "tools/decision-records/src/decision-source-membership.ts",
+  "tools/decision-records/tests/{activation-archive,candidate-lifecycle,candidate-scaffold,candidate-operations,evolution,lifecycle-relations,relation-maintenance,rename,transaction-recovery,unrecorded-history,filesystem-boundaries,batch-lookup,first-establishment,reallocation-member-complexity,successor-relation-overrides,local-operation-contracts,candidate-transaction-boundaries,record-shared-transactions,transaction-boundaries,transaction-creation-modes,transaction-strict-preparation}.test.ts",
   "tools/decision-records/tests/reallocation-fixture.ts",
   "tools/decision-records/tests/support-local-contracts.ts",
-  "tools/decision-records/tests/{activation-archive,candidate-lifecycle,candidate-scaffold,evolution,lifecycle-relations,relation-maintenance,rename,transaction-recovery,unrecorded-history,filesystem-boundaries}/**",
+  "tools/decision-records/tests/{activation-archive,candidate-lifecycle,candidate-scaffold,candidate-operations,evolution,lifecycle-relations,relation-maintenance,rename,transaction-recovery,unrecorded-history,filesystem-boundaries}/**",
   "tools/decision-records/tests/checks/lifecycle-and-recovery.ts"
 ];
 const decisionStageInputs = [
+  ...recordOperationInputs,
   "tools/decision-records/src/decision-stage*.ts",
   "tools/decision-records/tests/{stage,stage-sources,stage-index-payload,local-stage-contracts}.test.ts",
   "tools/decision-records/tests/support-local-contracts.ts",
@@ -63,6 +72,7 @@ const decisionStageInputs = [
   "tools/decision-records/tests/stage/**"
 ];
 const decisionCliInputs = [
+  ...recordOperationInputs,
   "tools/decision-records/src/cli*.ts",
   "tools/decision-records/tests/cli-*.ts",
   "tools/decision-records/tests/search-{relations,modes,metadata}.test.ts",
@@ -71,25 +81,30 @@ const decisionCliInputs = [
   "tools/decision-records/tests/checks/public-distribution.ts"
 ];
 const investigationRecordInputs = [
+  ...recordOperationInputs,
   "tools/investigation-report/src/{cli-io,collection-mutation-lock,diagnostics,investigation-*,markdown*,options,relation-context,relation-summary,relation-validation,report*,resource*,timestamp,types,validation*}.ts",
   "tools/investigation-report/tests/{fixture-support,collection-support,git-support,run}.ts",
   "tools/investigation-report/tests/{candidate,candidate-timestamp,candidate-read-context,parsing-directory,resources,relations,history-prefix-contract,history-pathspec-batching,batch-source-discovery}.test.ts",
   "tools/investigation-report/tests/checks/collection-and-resources.ts"
 ];
 const investigationQueryInputs = [
+  ...recordOperationInputs,
   "tools/investigation-report/src/{index-staleness,list-*,query*,trace-output}.ts",
   "tools/investigation-report/tests/index-fixture.ts",
-  "tools/investigation-report/tests/{index-*,current-index,list-facets,acquisition-contract,identity-membership,candidate-read-failure,snapshot-check-contract,trace-output,search-info,relation-context,relation-order,relation-dedup}.test.ts",
+  "tools/investigation-report/tests/{index-*,current-index,list-facets,acquisition-contract,identity-membership,candidate-read-failure,snapshot-check-contract,trace-output,search-info,relation-context,relation-order,relation-dedup,discovery-dependencies}.test.ts",
   "tools/investigation-report/tests/relation-context-support.ts",
   "tools/investigation-report/tests/checks/index-and-query.ts"
 ];
 const investigationMaintenanceInputs = [
-  "tools/investigation-report/src/{candidate*,discard*,publish*,relation-review*,relation-transaction*,rename*}.ts",
+  ...recordOperationInputs,
+  "tools/investigation-report/src/{candidate*,discard*,publish*,relation-review*,relation-transaction*,rename*,strict-preparation,transaction-files}.ts",
   "tools/investigation-report/tests/publish-support.ts",
-  "tools/investigation-report/tests/{transaction*,relation-review,discard,publish,rename*,candidate-discard-transaction}.test.ts",
+  "tools/investigation-report/tests/rename-resource-fixture.ts",
+  "tools/investigation-report/tests/{transaction*,relation-review,discard,discard-recovery,publish,rename*,strict-preparation,candidate-discard-transaction,candidate-operations,result-integrity}.test.ts",
   "tools/investigation-report/tests/checks/transactional-maintenance.ts"
 ];
 const investigationStageInputs = [
+  ...recordOperationInputs,
   "tools/investigation-report/src/staging*.ts",
   "tools/investigation-report/tests/{staging*,local-stage-contract,phase-facts-contract,resource-*-contract,batch-stage-selectors}.test.ts",
   "tools/investigation-report/tests/resource-phase-test-support.ts",
@@ -98,6 +113,7 @@ const investigationStageInputs = [
   "tools/investigation-report/tests/checks/pending-stage.ts"
 ];
 const investigationCliInputs = [
+  ...recordOperationInputs,
   "tools/investigation-report/src/cli*.ts",
   "tools/investigation-report/tests/cli-*.ts",
   "tools/investigation-report/tests/checks/cli-contract.ts"

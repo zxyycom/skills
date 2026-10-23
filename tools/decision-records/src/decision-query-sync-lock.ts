@@ -18,7 +18,14 @@ export function collectionLockFailure(
       error.kind === "release-failed" &&
       operationResult?.status === "error"
     ) {
-      const diagnostic = collectionLockDiagnostic(error, "no-change");
+      const diagnostic = collectionLockDiagnostic(
+        error,
+        operationResult.diagnostics.some(
+          (diagnostic) => diagnostic.outcome === "partial-or-unknown"
+        )
+          ? "partial-or-unknown"
+          : "no-change"
+      );
       return {
         ...operationResult,
         diagnostics: [...operationResult.diagnostics, diagnostic],
@@ -49,7 +56,7 @@ export function collectionLockFailure(
 
 function collectionLockDiagnostic(
   error: DecisionCollectionLockError,
-  outcome: "committed-cleanup-pending" | "no-change"
+  outcome: "committed-cleanup-pending" | "no-change" | "partial-or-unknown"
 ) {
   return decisionDiagnostic({
     ...(error.kind === "access-denied"

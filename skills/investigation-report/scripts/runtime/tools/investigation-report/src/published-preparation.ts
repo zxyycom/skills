@@ -9,6 +9,7 @@
  */
 import fs from "node:fs/promises";
 import path from "node:path";
+import { readRecordText } from "../../record-operations/src/source.ts";
 import { isDeepStrictEqual } from "node:util";
 import type {
   StateIndex,
@@ -116,7 +117,7 @@ export async function readPublishedInvestigationDependencies(
     const text =
       prior?.sourcePath === state.sourcePath
         ? prior.text
-        : await fs.readFile(target, "utf8");
+        : await readRecordText(root, state.sourcePath);
     const source = { id, sourcePath: state.sourcePath, text };
     validatePublishedDependency(index, state, source);
     sources.push(source);

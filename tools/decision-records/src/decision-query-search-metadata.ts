@@ -1,3 +1,6 @@
+import { collectRecordMetadataWindow } from "../../record-operations/src/query.ts";
+import { canonicalRecordCollection } from "../../record-operations/src/source.ts";
+import { err, ok } from "neverthrow";
 import {
   loadDecisionIndexSnapshot,
   type DecisionIndexSnapshot
@@ -29,7 +32,6 @@ import {
   decisionIndexRecovery
 } from "./decision-state-index.ts";
 import { decisionNameFromId, displayDecisionPath } from "./decision-path.ts";
-import { resolveDecisionLocation } from "./decision-query-context.ts";
 import type {
   DecisionMetadataMatchedRelation,
   DecisionMetadataSearchField,
@@ -58,14 +60,31 @@ export async function searchDecisionMetadata(
 ): Promise<DecisionQueryResult> {
   const limit = metadataSearchLimit(request.limit);
   if (limit.status === "error") return limit.failure;
-  const { decisionsDirectory, workspaceRoot } = resolveDecisionLocation(
-    request.location
-  );
+  let decisionsDirectory: string;
+  let workspaceRoot: string;
+  try {
+    const canonical = await canonicalRecordCollection(
+      request.location.workspaceRoot,
+      request.location.decisionsDir
+    );
+    decisionsDirectory = canonical.collectionRoot;
+    workspaceRoot = canonical.workspaceRoot;
+  } catch (error) {
+    return decisionFailure([
+      error instanceof Error
+        ? error.message
+        : "Decision collection could not be safely resolved"
+    ]);
+  }
   const indexRelativePath = displayDecisionPath(
     workspaceRoot,
     path.join(decisionsDirectory, decisionIndexFileName)
   );
-  const persisted = await loadDecisionIndexSnapshot({ decisionsDirectory });
+  const persisted = await loadDecisionIndexSnapshot({
+    decisionsDirectory,
+    queryOnly:
+      request.relatedTo === undefined && request.relationType === undefined
+  });
   if (persisted.status === "error")
     return metadataIndexFailure(persisted, indexRelativePath);
   return projectMetadataWindow(persisted.value, request, limit.value);
@@ -91,24 +110,25 @@ function projectMetadataWindow(
   const snapshot = decisionIndexRecordSnapshot(source);
   const filtered = filterSearchRecords(snapshot, request);
   if (filtered.status === "error") return filtered.failure;
-  const records: DecisionMetadataSearchRecord[] = [];
-  let matchedCount = 0;
-  for (const record of [...filtered.records].sort((left, right) =>
-    left.sourcePath.localeCompare(right.sourcePath)
-  )) {
-    const matched = metadataRecordMatches(matcher.value, record);
-    if (matched.status === "error") return matched.failure;
-    if (matched.value.length === 0) continue;
-    matchedCount += 1;
-    if (records.length < limit) {
-      records.push(metadataSearchRecord(record, matched.value));
-    }
-  }
+  const window = collectRecordMetadataWindow({
+    entries: [...filtered.records].sort((left, right) =>
+      left.sourcePath.localeCompare(right.sourcePath)
+    ),
+    limit,
+    match: (record) => {
+      const matched = metadataRecordMatches(matcher.value, record);
+      return matched.status === "error"
+        ? err(matched.failure)
+        : ok(matched.value.length === 0 ? null : matched.value);
+    },
+    project: metadataSearchRecord
+  });
+  if (window.isErr()) return window.error;
   return metadataSearchSuccess(
     request,
     filtered.filters,
-    records,
-    matchedCount,
+    window.value.entries,
+    window.value.matched,
     limit
   );
 }

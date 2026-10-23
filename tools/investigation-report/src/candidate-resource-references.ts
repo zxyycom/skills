@@ -1,3 +1,5 @@
+import type { InvestigationSource } from "./types.ts";
+import type { InvestigationPreparation } from "./strict-preparation.ts";
 import {
   inspectInvestigationCollectionLayout,
   type InvestigationCollectionLayout
@@ -6,13 +8,16 @@ import { parseInvestigationReport } from "./markdown.ts";
 import { buildInvestigationReportState } from "./report-validation.ts";
 import type { InvestigationResourceReferencesByReport } from "./resources.ts";
 
+type AuthoringReferenceOptions = Readonly<{
+  failOnInvalidSources?: boolean;
+  layout?: InvestigationCollectionLayout;
+  formalReferences?: InvestigationResourceReferencesByReport;
+  preparation?: InvestigationPreparation;
+}>;
+
 export async function readCandidateAuthoringResourceReferences(
   investigationsDirectory: string,
-  options: Readonly<{
-    failOnInvalidSources?: boolean;
-    layout?: InvestigationCollectionLayout;
-    formalReferences?: InvestigationResourceReferencesByReport;
-  }> = {}
+  options: AuthoringReferenceOptions = {}
 ): Promise<InvestigationResourceReferencesByReport> {
   const layout =
     options.layout ??
@@ -23,29 +28,19 @@ export async function readCandidateAuthoringResourceReferences(
   if (layout.errors.length > 0) return references;
   if (options.formalReferences === undefined) {
     for (const source of layout.formalSources) {
-      const built = buildInvestigationReportState(
-        source.id,
-        parseInvestigationReport(source.text, source.id),
-        source.sourcePath
-      );
       appendAuthoringReference(
         references,
         source.id,
-        built.status === "valid" ? built.state.resourceIds : null,
+        formalAuthoringResources(source, options.preparation),
         options.failOnInvalidSources
       );
     }
   }
   for (const source of layout.candidateSources) {
-    const parsed = parseInvestigationReport(source.text, source.id, {
-      allowEmptyCoreSections: true
-    });
     appendAuthoringReference(
       references,
       source.id,
-      parsed.errors.length === 0 && parsed.report !== null
-        ? parsed.report.resourceIds
-        : null,
+      candidateAuthoringResources(source, options.preparation),
       options.failOnInvalidSources
     );
   }
@@ -63,4 +58,31 @@ function appendAuthoringReference(
     throw new Error(
       `${id} authoring resource references could not be safely read`
     );
+}
+
+function formalAuthoringResources(
+  source: InvestigationSource,
+  preparation?: InvestigationPreparation
+): readonly string[] | null {
+  const built = buildInvestigationReportState(
+    source.id,
+    preparation?.parsed(source) ??
+      parseInvestigationReport(source.text, source.id),
+    source.sourcePath
+  );
+  return built.status === "valid" ? built.state.resourceIds : null;
+}
+
+function candidateAuthoringResources(
+  source: InvestigationSource,
+  preparation?: InvestigationPreparation
+): readonly string[] | null {
+  const parsed =
+    preparation?.parsed(source, true) ??
+    parseInvestigationReport(source.text, source.id, {
+      allowEmptyCoreSections: true
+    });
+  return parsed.errors.length === 0 && parsed.report !== null
+    ? parsed.report.resourceIds
+    : null;
 }

@@ -1,0 +1,277 @@
+{
+  "status": "sampling-paused-by-root-for-mode-contract",
+  "source": "/tmp/unify-record-operations-final-20261023/source",
+  "normalAcceptance": "No samples from this final attempt have been consolidated as accepted final performance.",
+  "drNew": {
+    "wallMs": 1482.011534,
+    "modeBeforeBaseline": "0o664",
+    "modeAttempt": "0o644",
+    "raw": "/tmp/unify-record-operations-final-20261023/candidates-normal/results.json",
+    "byteAudit": "/tmp/unify-record-operations-final-20261023/candidates-normal/verified-results.json",
+    "verdict": "unapproved normal result difference; not a speedup or accepted sample"
+  },
+  "irNew": {
+    "wallMs": 2124.619494,
+    "modeAttempt": "0o600",
+    "modeBeforeBaseline": "0o600",
+    "raw": "/tmp/unify-record-operations-final-20261023/candidates-ir/results.json",
+    "sourceProof": "tools/investigation-report/src/candidate-create-transaction.ts explicitly createMode:0o600",
+    "verdict": "observed source/write-set postconditions retained; no final acceptance or stable-regression claim"
+  },
+  "otherObserved": {
+    "drReadinessMs": 509.70519199999995,
+    "irReadinessMs": 487.810187,
+    "note": "Raw values preserved; not consolidated as final acceptance."
+  },
+  "harnessCorrectionHistory": "0644 was briefly allowed for new selected files after writer inspection; root correctly rejected treating implementation as approved contract. That allowlist extension is reverted. Original failed postassertion and later independent bytes/check audit both retained, not accepted.",
+  "next": "Root/source owner first resolve DR creation-mode/umask. No further timing/instrumentation or fixture reset until root authorization. Final source manifest refers to pre-fix attempted snapshot; future snapshot must be distinct.",
+  "rawCandidateSamples": [
+    {
+      "path": "/tmp/unify-record-operations-final-20261023/candidates-normal/results.json",
+      "sha256": "3c1497c326066e7bb1c59416a5f4385cfd01b97b46faf9bd3abaf6a460d4770c",
+      "samples": [
+        {
+          "key": "dr-new-api-1",
+          "domain": "dr",
+          "scenario": "new",
+          "mode": "api",
+          "repeat": 1,
+          "argv": [
+            "node",
+            "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+            "/tmp/unify-record-operations-final-20261023/source",
+            "dr",
+            "/tmp/unify-record-operations-baseline/fixture-v3",
+            "new",
+            "[\"new\", \"new-candidate\", \"--title\", \"benchmark candidate\", \"--tag\", \"benchmark\", \"--purpose\", \"\\u56fa\\u5b9a\\u76ee\\u7684\", \"--background\", \"\\u56fa\\u5b9a\\u80cc\\u666f\", \"--decision\", \"\\u56fa\\u5b9a\\u51b3\\u5b9a\"]",
+            "/tmp/unify-record-operations-final-20261023/candidates-normal/dr-new-api-1.metrics.json"
+          ],
+          "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+          "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+          "exit": 0,
+          "wallMs": 1482.011534,
+          "userMs": 1680.884,
+          "systemMs": 280.215,
+          "maxRssKiB": 289412,
+          "counts": {},
+          "stdoutBytes": 323,
+          "stderrBytes": 0,
+          "verificationFailure": "AssertionError(('unexpected created mode', 'docs/decisions/new-candidate.md', '0o644'))"
+        }
+      ]
+    },
+    {
+      "path": "/tmp/unify-record-operations-final-20261023/candidates-normal/verified-results.json",
+      "sha256": "8455ddb89b77f4161d3142cf97518f70fb32739552be9a42783e6ccd7f7d2564",
+      "samples": [
+        {
+          "key": "dr-new-api-1",
+          "domain": "dr",
+          "scenario": "new",
+          "mode": "api",
+          "repeat": 1,
+          "argv": [
+            "node",
+            "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+            "/tmp/unify-record-operations-final-20261023/source",
+            "dr",
+            "/tmp/unify-record-operations-baseline/fixture-v3",
+            "new",
+            "[\"new\", \"new-candidate\", \"--title\", \"benchmark candidate\", \"--tag\", \"benchmark\", \"--purpose\", \"\\u56fa\\u5b9a\\u76ee\\u7684\", \"--background\", \"\\u56fa\\u5b9a\\u80cc\\u666f\", \"--decision\", \"\\u56fa\\u5b9a\\u51b3\\u5b9a\"]",
+            "/tmp/unify-record-operations-final-20261023/candidates-normal/dr-new-api-1.metrics.json"
+          ],
+          "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+          "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+          "exit": 0,
+          "wallMs": 1482.011534,
+          "userMs": 1680.884,
+          "systemMs": 280.215,
+          "maxRssKiB": 289412,
+          "counts": {},
+          "stdoutBytes": 323,
+          "stderrBytes": 0,
+          "postverify": {
+            "fileDelta": {
+              "docs/decisions/new-candidate.md": {
+                "before": null,
+                "after": {
+                  "sha256": "20bb22dfb76c33f13741c1cb832e4ecd6a4c3ced94f7e5162ad6adb05cfbe6e8",
+                  "bytes": 247,
+                  "mode": "0o644"
+                }
+              }
+            },
+            "relationCount": 9000,
+            "sourceRevisionMembershipExact": true,
+            "changedFiles": [
+              "docs/decisions/new-candidate.md"
+            ],
+            "entryCount": 10000,
+            "unselectedBytesModesEntriesPreserved": true,
+            "identityLocatorChecked": 10000,
+            "stdoutSha256": "a3bd5ae87a6526299f948084242e4351851636ee22621b64034acc46d1802a68",
+            "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+            "createdIdentityAudit": {
+              "id": "261023-new-candidate",
+              "sourcePath": "new-candidate.md"
+            },
+            "fullCheckExit": 0,
+            "exactCreatedScaffoldSha256": "20bb22dfb76c33f13741c1cb832e4ecd6a4c3ced94f7e5162ad6adb05cfbe6e8"
+          },
+          "methodCorrection": "AssertionError(('unexpected created mode', 'docs/decisions/new-candidate.md', '0o644')); actual writer default0644 independently verified, same scaffold bytes as frozen baseline; every other postcondition and full check repeated outside timing",
+          "acceptance": "not-accepted: DR new mode0664->0644 not authorized; independent byte/full-check audit is not behavior approval",
+          "verificationFailure": "Unapproved created mode0644 versus baseline0664 under umask0002"
+        }
+      ]
+    },
+    {
+      "path": "/tmp/unify-record-operations-final-20261023/candidates-readiness/results.json",
+      "sha256": "a759463975b82cda5b2ccb28ae304f92a4585d79f232bc7227e314340cc2bfef",
+      "samples": [
+        {
+          "key": "dr-readiness-api-1",
+          "domain": "dr",
+          "scenario": "readiness",
+          "mode": "api",
+          "repeat": 1,
+          "argv": [
+            "node",
+            "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+            "/tmp/unify-record-operations-final-20261023/source",
+            "dr",
+            "/tmp/unify-record-operations-baseline/fixture-v3",
+            "readiness",
+            "[\"show-candidate\", \"261001-candidate-1\"]",
+            "/tmp/unify-record-operations-final-20261023/candidates-readiness/dr-readiness-api-1.metrics.json"
+          ],
+          "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+          "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+          "exit": 0,
+          "wallMs": 509.70519199999995,
+          "userMs": 703.463,
+          "systemMs": 53.794,
+          "maxRssKiB": 222484,
+          "counts": {},
+          "stdoutBytes": 486,
+          "stderrBytes": 0,
+          "postverify": {
+            "fileDelta": {},
+            "relationCount": 9000,
+            "sourceRevisionMembershipExact": true,
+            "changedFiles": [],
+            "entryCount": 10000,
+            "unselectedBytesModesEntriesPreserved": true,
+            "identityLocatorChecked": 10000,
+            "stdoutSha256": "3d1d062d7bd97ace188a3f97d6ad79560fa7a5669a647219517b2ed93a50c985",
+            "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+            "fullCheckExit": 0
+          }
+        }
+      ]
+    },
+    {
+      "path": "/tmp/unify-record-operations-final-20261023/candidates-ir/results.json",
+      "sha256": "7bb7bff5ca6612f0a42993f12fd93a6dcb08f9d7b3b31a21f155c7e26e4986c2",
+      "samples": [
+        {
+          "key": "ir-new-api-1",
+          "domain": "ir",
+          "scenario": "new",
+          "mode": "api",
+          "repeat": 1,
+          "argv": [
+            "node",
+            "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+            "/tmp/unify-record-operations-final-20261023/source",
+            "ir",
+            "/tmp/unify-record-operations-baseline/fixture-v3",
+            "new",
+            "[\"new\", \"261001-new-candidate\", \"--title\", \"benchmark candidate\", \"--tag\", \"benchmark\", \"--question\", \"\\u56fa\\u5b9a\\u95ee\\u9898\", \"--formed-at\", \"2026-10-01T00:00:00Z\"]",
+            "/tmp/unify-record-operations-final-20261023/candidates-ir/ir-new-api-1.metrics.json"
+          ],
+          "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+          "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+          "exit": 0,
+          "wallMs": 2124.619494,
+          "userMs": 2407.593,
+          "systemMs": 304.213,
+          "maxRssKiB": 312488,
+          "counts": {},
+          "stdoutBytes": 1215,
+          "stderrBytes": 0,
+          "postverify": {
+            "fileDelta": {
+              "docs/investigations/_candidate.new-candidate": {
+                "before": null,
+                "after": {
+                  "sha256": "88b33bc143d106f52d002bbae8c940252b85a02767ecac5b94cbed648d641a6e",
+                  "bytes": 247,
+                  "mode": "0o600"
+                }
+              }
+            },
+            "relationCount": 9000,
+            "sourceRevisionMembershipExact": true,
+            "changedFiles": [
+              "docs/investigations/_candidate.new-candidate"
+            ],
+            "entryCount": 10000,
+            "unselectedBytesModesEntriesPreserved": true,
+            "identityLocatorChecked": 10000,
+            "stdoutSha256": "a43cf64d6720b5aa878ab1d8c60cd2557dff44258592f5f7aa95ce886a1a8c5b",
+            "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+            "createdIdentityAudit": {
+              "id": "261001-new-candidate",
+              "sourcePath": "_candidate.new-candidate",
+              "readiness": {
+                "scaffoldValid": true,
+                "bodyReady": false,
+                "resourceReady": true
+              }
+            },
+            "fullCheckExit": 0
+          }
+        },
+        {
+          "key": "ir-readiness-api-1",
+          "domain": "ir",
+          "scenario": "readiness",
+          "mode": "api",
+          "repeat": 1,
+          "argv": [
+            "node",
+            "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+            "/tmp/unify-record-operations-final-20261023/source",
+            "ir",
+            "/tmp/unify-record-operations-baseline/fixture-v3",
+            "readiness",
+            "[\"show-candidate\", \"261001-candidate-1\"]",
+            "/tmp/unify-record-operations-final-20261023/candidates-ir/ir-readiness-api-1.metrics.json"
+          ],
+          "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+          "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+          "exit": 0,
+          "wallMs": 487.810187,
+          "userMs": 641.614,
+          "systemMs": 101.394,
+          "maxRssKiB": 235708,
+          "counts": {},
+          "stdoutBytes": 694,
+          "stderrBytes": 0,
+          "postverify": {
+            "fileDelta": {},
+            "relationCount": 9000,
+            "sourceRevisionMembershipExact": true,
+            "changedFiles": [],
+            "entryCount": 10000,
+            "unselectedBytesModesEntriesPreserved": true,
+            "identityLocatorChecked": 10000,
+            "stdoutSha256": "9a2511aeddebe1136be09bf3e5e17b07db350c9cfd9a95f412f6122090b225ed",
+            "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+            "fullCheckExit": 0
+          }
+        }
+      ]
+    }
+  ]
+}

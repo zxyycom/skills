@@ -1,0 +1,31 @@
+{
+  "policy": "Reuse frozen-version per-domain full validation, retaining every reset/input/postverify. Initial baseline proof covers each exact frozen fixture; IR tag100 variant also retains its own initial strict fixture proof. No timer changed.",
+  "allowedSources": [
+    "/tmp/unify-record-operations-baseline/source",
+    "/tmp/unify-record-operations-baseline/instrumented-candidates"
+  ],
+  "domains": {
+    "dr": {
+      "exit": 0,
+      "rawPath": "/tmp/unify-record-operations-baseline/baseline-queries/verified-results.json",
+      "rawSha256": "583e376ef8e042f311c570b4c291bae0c0fb44c2493b67da1fdfbf556a3a73a0",
+      "sampleKey": "dr-list-api-1",
+      "validatedFixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7"
+    },
+    "ir": {
+      "exit": 0,
+      "rawPath": "/tmp/unify-record-operations-baseline/baseline-queries/verified-results.json",
+      "rawSha256": "583e376ef8e042f311c570b4c291bae0c0fb44c2493b67da1fdfbf556a3a73a0",
+      "sampleKey": "ir-list-api-1",
+      "validatedFixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e"
+    }
+  },
+  "checkExecutionHistory": {
+    "finalAttemptCompletedBeforePolicyChange": 0,
+    "newExtraChecksAfterPolicyChange": 0
+  },
+  "note": "Proof receipt preserves the actual fixture HEAD; another declared frozen variant does not pretend to share its HEAD.",
+  "instrumentedSourceJustification": "Exact original normal source copy plus previous named hooks; no product behavior changes."
+}

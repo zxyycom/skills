@@ -1,243 +1,164 @@
-import { Buffer } from "node:buffer";
+import {
+  prepareRenameTransaction,
+  type RenameTransactionContext
+} from "./rename-transaction-plan.ts";
 import path from "node:path";
+import {
+  runRecordTransaction,
+  type RecordTransactionResult
+} from "../../record-operations/src/transaction.ts";
+import { verifyRecordFile } from "../../record-operations/src/transaction-files.ts";
+import {
+  investigationMembers,
+  verifyInvestigationMembers,
+  type InvestigationMember
+} from "./transaction-files.ts";
 import type {
   InvestigationRenameHooks,
   InvestigationRenameResult,
   PreparedRename,
-  RenameSource,
-  ReportFileSnapshot,
   ResourceMoveProgress
 } from "./rename-contract.ts";
-import { moveResourceOwner } from "./rename-resource.ts";
 import {
-  captureRenameSourceSnapshots,
-  captureWrittenReportSnapshot,
-  removeReportFileIfUnchanged,
-  restoreRename,
-  sameReportBytes
-} from "./rename-recovery.ts";
+  moveResourceOwner,
+  restoreResourceOwnerMove
+} from "./rename-resource.ts";
+import { verifyResourceOwnerCopy } from "./rename-resource-move.ts";
 import {
   errorText,
-  noOp,
   renameFailure,
   renameMutation,
-  renameSuccess,
-  writeNewText,
-  writeTextAtomically
+  renameSuccess
 } from "./rename-support.ts";
 import {
   verifyCommittedRename,
   verifyPreparedRename
 } from "./rename-verification.ts";
+import { prepareRename } from "./rename-preparation.ts";
 
-type PublicationState = {
-  createdSourcePath: boolean;
-  originalByPath: Map<string, ReportFileSnapshot>;
-  resourceMoveProgress: ResourceMoveProgress;
-  sourceNewPath: string;
-  sourceOldPath: string;
-  writtenByPath: Map<string, ReportFileSnapshot>;
-  writtenPaths: Set<string>;
-};
-
+/** Strict domain preparation hands its real write set to the one shared transaction. */
 export async function publishRename(
   root: string,
   prepared: PreparedRename,
   hooks: InvestigationRenameHooks
 ): Promise<InvestigationRenameResult> {
-  if (prepared.noChange)
-    return renameSuccess(false, prepared.indexPath, prepared.plan, "no-change");
-  const preflight = await publishPreflight(root, prepared, hooks);
-  if ("result" in preflight) return preflight.result;
-  const state = createPublicationState(root, prepared, preflight.value);
-  try {
-    await publishSources(prepared, hooks, state);
-    await publishResourceMove(prepared, hooks, state.resourceMoveProgress);
-    await publishIndex(prepared, hooks, state.writtenPaths);
-    const errors = await verifyCommittedRename(root, prepared);
-    if (errors.length > 0) throw new Error(errors.join("; "));
-    return renameSuccess(true, prepared.indexPath, prepared.plan, "committed");
-  } catch (error) {
-    return await rollbackPublication(prepared, state, error);
-  }
+  const progress: ResourceMoveProgress = {
+    sourceRemovalStarted: false,
+    sourceRemoved: false,
+    targetClaimed: false
+  };
+  const members = await investigationMembers(root);
+  const changedPaths: string[] = [];
+  const context = { root, prepared, hooks, progress, changedPaths };
+  const transaction = await runRecordTransaction({
+    prepare: () => prepareRenameTransaction(context),
+    fresh: () => verifyFreshRename(context, members),
+    verify: async () => {
+      await verifyInvestigationMembers(root, members, changedPaths);
+      if (!prepared.noChange) {
+        const errors = await verifyCommittedRename(root, prepared);
+        if (errors.length > 0) throw new Error(errors.join("; "));
+        if (prepared.resourceMove !== null)
+          await verifyResourceOwnerCopy(prepared.resourceMove, progress);
+      }
+    },
+    verifyRecovered: async () =>
+      verifyInvestigationMembers(root, members, changedPaths),
+    resources: renameResourceLifecycle(context)
+  });
+  return renamePublicationResult(prepared, transaction);
 }
 
-type PublishPreflight =
-  | Readonly<{ value: Map<string, ReportFileSnapshot> }>
-  | Readonly<{ result: InvestigationRenameResult }>;
-
-async function publishPreflight(
-  root: string,
+function renamePublicationResult(
   prepared: PreparedRename,
-  hooks: InvestigationRenameHooks
-): Promise<PublishPreflight> {
-  const hookFailure = await publishHookFailure(prepared, hooks);
-  if (hookFailure !== null) return { result: hookFailure };
-  const verification = await verifyPreparedRename(root, prepared);
-  if (verification.length > 0)
-    return {
-      result: renameFailure(
-        prepared.indexPath,
-        prepared.plan,
-        verification,
-        renameMutation("no-change")
-      )
-    };
-  try {
-    return {
-      value: await captureRenameSourceSnapshots(prepared.originalSources)
-    };
-  } catch (error) {
-    return {
-      result: renameFailure(
-        prepared.indexPath,
-        prepared.plan,
-        [
-          "Investigation rename sources could not be snapshotted before publication: " +
-            errorText(error)
-        ],
-        renameMutation("no-change")
-      )
-    };
-  }
-}
-
-async function publishHookFailure(
-  prepared: PreparedRename,
-  hooks: InvestigationRenameHooks
-): Promise<InvestigationRenameResult | null> {
-  try {
-    await (hooks.beforePublish ?? noOp)();
-    return null;
-  } catch (error) {
-    return renameFailure(
+  transaction: RecordTransactionResult<PreparedRename>
+): InvestigationRenameResult {
+  if (transaction.status === "ok")
+    return renameSuccess(
+      transaction.changed,
       prepared.indexPath,
       prepared.plan,
-      ["Investigation rename publish preparation failed: " + errorText(error)],
-      renameMutation("no-change")
+      transaction.changed ? "committed" : "no-change"
     );
-  }
-}
-
-function createPublicationState(
-  root: string,
-  prepared: PreparedRename,
-  originalByPath: Map<string, ReportFileSnapshot>
-): PublicationState {
+  const errors = [...transaction.errors, ...transaction.cleanupErrors].map(
+    errorText
+  );
   return {
-    createdSourcePath: false,
-    originalByPath,
-    resourceMoveProgress: {
-      sourceRemovalStarted: false,
-      sourceRemoved: false,
-      targetClaimed: false
-    },
-    sourceNewPath: path.join(root, prepared.targetSource.sourcePath),
-    sourceOldPath: prepared.sourceBefore.filePath,
-    writtenByPath: new Map(),
-    writtenPaths: new Set()
+    ...renameFailure(
+      prepared.indexPath,
+      prepared.plan,
+      [
+        transaction.committed
+          ? "Investigation rename committed, but verification failed or is unknown"
+          : transaction.verification === "failed-or-unknown"
+            ? "Investigation rename commit state is unknown; reconcile actual writes"
+            : "Investigation rename publish failed",
+        ...errors
+      ],
+      renameMutation(transaction.outcome)
+    ),
+    changed: transaction.changed
   };
 }
 
-async function publishSources(
-  prepared: PreparedRename,
-  hooks: InvestigationRenameHooks,
-  state: PublicationState
-): Promise<void> {
-  for (const source of prepared.sources)
-    await publishSource(prepared, hooks, state, source);
+function renameResourceLifecycle(context: RenameTransactionContext) {
+  const { prepared, progress, hooks } = context;
+  const move = prepared.resourceMove;
+  if (move === null) return undefined;
+  return {
+    changed: () => progress.targetClaimed,
+    apply: async () => {
+      await hooks.beforeResourceMove?.();
+      await moveResourceOwner(
+        move,
+        prepared.plan.oldId,
+        prepared.plan.newId,
+        progress,
+        hooks.beforeSourceOwnerRemoval
+      );
+    },
+    recover: async () => {
+      const errors = await restoreResourceOwnerMove(
+        move,
+        prepared.plan.oldId,
+        prepared.plan.newId,
+        progress
+      );
+      if (errors.length > 0) throw new Error(errors.join("; "));
+    }
+  };
 }
 
-async function publishSource(
-  prepared: PreparedRename,
-  hooks: InvestigationRenameHooks,
-  state: PublicationState,
-  source: RenameSource
+async function verifyFreshRename(
+  context: RenameTransactionContext,
+  members: readonly InvestigationMember[]
 ): Promise<void> {
-  if (
-    source.id === prepared.plan.newId &&
-    state.sourceNewPath !== state.sourceOldPath
-  ) {
-    await publishMovedSource(hooks, state, source);
-    return;
+  const { root, prepared, progress, hooks } = context;
+
+  if (!prepared.noChange) await hooks.beforePublish?.();
+  const errors = await verifyPreparedRename(root, prepared);
+  if (errors.length > 0) throw new Error(errors.join("; "));
+  if (prepared.resourceMove !== null)
+    for (const [relative, before] of progress.sourceFiles ?? [])
+      await verifyRecordFile(
+        root,
+        path.join(prepared.resourceMove.from, relative),
+        before
+      );
+  if (prepared.noChange) {
+    const fresh = await prepareRename(root, prepared.indexPath, {
+      workspaceRoot: root,
+      source: prepared.plan.oldId,
+      target: prepared.plan.newId
+    });
+    if (
+      "result" in fresh ||
+      !fresh.value.noChange ||
+      fresh.value.sourceBefore.text !== prepared.sourceBefore.text
+    )
+      throw new Error(
+        "Investigation no-op identity or source changed during preparation"
+      );
   }
-  await publishRewrittenSource(hooks, state, source);
-}
-
-async function publishMovedSource(
-  hooks: InvestigationRenameHooks,
-  state: PublicationState,
-  source: RenameSource
-): Promise<void> {
-  const original = state.originalByPath.get(state.sourceOldPath)!;
-  await (hooks.writeNew ?? writeNewText)(state.sourceNewPath, source.text);
-  state.createdSourcePath = true;
-  state.writtenPaths.add(state.sourceNewPath);
-  state.writtenByPath.set(
-    state.sourceNewPath,
-    await captureWrittenReportSnapshot(state.sourceNewPath, source.text)
-  );
-  await removeReportFileIfUnchanged(state.sourceOldPath, original);
-}
-
-async function publishRewrittenSource(
-  hooks: InvestigationRenameHooks,
-  state: PublicationState,
-  source: RenameSource
-): Promise<void> {
-  const original = state.originalByPath.get(source.filePath)!;
-  if (sameReportBytes(original.bytes, Buffer.from(source.text))) return;
-  await (hooks.writeExisting ?? writeTextAtomically)(
-    source.filePath,
-    source.text
-  );
-  state.writtenPaths.add(source.filePath);
-  state.writtenByPath.set(
-    source.filePath,
-    await captureWrittenReportSnapshot(source.filePath, source.text)
-  );
-}
-
-async function publishResourceMove(
-  prepared: PreparedRename,
-  hooks: InvestigationRenameHooks,
-  progress: ResourceMoveProgress
-): Promise<void> {
-  if (prepared.resourceMove === null) return;
-  await (hooks.beforeResourceMove ?? noOp)();
-  await moveResourceOwner(
-    prepared.resourceMove,
-    prepared.plan.oldId,
-    prepared.plan.newId,
-    progress,
-    hooks.beforeSourceOwnerRemoval
-  );
-}
-
-async function publishIndex(
-  prepared: PreparedRename,
-  hooks: InvestigationRenameHooks,
-  writtenPaths: Set<string>
-): Promise<void> {
-  if (prepared.nextIndexText === null) return;
-  await (hooks.writeExisting ?? writeTextAtomically)(
-    prepared.indexPath,
-    prepared.nextIndexText
-  );
-  writtenPaths.add(prepared.indexPath);
-}
-
-async function rollbackPublication(
-  prepared: PreparedRename,
-  state: PublicationState,
-  error: unknown
-): Promise<InvestigationRenameResult> {
-  const restored = await restoreRename({ ...state, prepared });
-  const outcome = restored.length === 0 ? "rolled-back" : "partial-or-unknown";
-  return renameFailure(
-    prepared.indexPath,
-    null,
-    ["Investigation rename publish failed: " + errorText(error), ...restored],
-    renameMutation(outcome)
-  );
+  await verifyInvestigationMembers(root, members);
 }

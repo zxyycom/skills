@@ -1,0 +1,1415 @@
+{
+  "label": "partial-stage-0-3-comparison-not-acceptance",
+  "normalSamples": {
+    "before": 65,
+    "after": 30
+  },
+  "sameFixtureAndEnvelope": true,
+  "warning": "不同保证不称无损加速；非交错少量取样，不证明低幅差异稳定。DR候选范围问题待修；最终CLI import闭包尚未证明。",
+  "rows": [
+    {
+      "domain": "dr",
+      "scenario": "content",
+      "mode": "api",
+      "baseline": {
+        "domain": "dr",
+        "scenario": "content",
+        "mode": "api",
+        "n": 3,
+        "wallMs": {
+          "median": 20290.63608,
+          "min": 20167.328585,
+          "max": 20869.709297
+        },
+        "userMs": {
+          "median": 9581.646,
+          "min": 9482.285,
+          "max": 9749.552
+        },
+        "systemMs": {
+          "median": 12235.029,
+          "min": 12160.505,
+          "max": 12471.28
+        },
+        "maxRssKiB": {
+          "median": 227132,
+          "min": 225376,
+          "max": 231900
+        },
+        "stdoutBytes": {
+          "median": 731,
+          "min": 731,
+          "max": 731
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "afterStage03": {
+        "domain": "dr",
+        "scenario": "content",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 28825.299842,
+          "min": 28825.299842,
+          "max": 28825.299842
+        },
+        "userMs": {
+          "median": 12042.994,
+          "min": 12042.994,
+          "max": 12042.994
+        },
+        "systemMs": {
+          "median": 13427.669,
+          "min": 13427.669,
+          "max": 13427.669
+        },
+        "maxRssKiB": {
+          "median": 228856,
+          "min": 228856,
+          "max": 228856
+        },
+        "stdoutBytes": {
+          "median": 731,
+          "min": 731,
+          "max": 731
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "wallRatioAfterOverBefore": 1.4206208089460741
+    },
+    {
+      "domain": "dr",
+      "scenario": "list",
+      "mode": "api",
+      "baseline": {
+        "domain": "dr",
+        "scenario": "list",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 650.883581,
+          "min": 650.883581,
+          "max": 650.883581
+        },
+        "userMs": {
+          "median": 759.606,
+          "min": 759.606,
+          "max": 759.606
+        },
+        "systemMs": {
+          "median": 153.807,
+          "min": 153.807,
+          "max": 153.807
+        },
+        "maxRssKiB": {
+          "median": 224272,
+          "min": 224272,
+          "max": 224272
+        },
+        "stdoutBytes": {
+          "median": 924,
+          "min": 924,
+          "max": 924
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "afterStage03": {
+        "domain": "dr",
+        "scenario": "list",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 489.00619199999994,
+          "min": 489.00619199999994,
+          "max": 489.00619199999994
+        },
+        "userMs": {
+          "median": 635.521,
+          "min": 635.521,
+          "max": 635.521
+        },
+        "systemMs": {
+          "median": 96.489,
+          "min": 96.489,
+          "max": 96.489
+        },
+        "maxRssKiB": {
+          "median": 224452,
+          "min": 224452,
+          "max": 224452
+        },
+        "stdoutBytes": {
+          "median": 924,
+          "min": 924,
+          "max": 924
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "wallRatioAfterOverBefore": 0.7512959402796795
+    },
+    {
+      "domain": "dr",
+      "scenario": "metadata",
+      "mode": "api",
+      "baseline": {
+        "domain": "dr",
+        "scenario": "metadata",
+        "mode": "api",
+        "n": 3,
+        "wallMs": {
+          "median": 1007.776595,
+          "min": 1002.620455,
+          "max": 1052.604398
+        },
+        "userMs": {
+          "median": 1201.326,
+          "min": 1197.722,
+          "max": 1201.6
+        },
+        "systemMs": {
+          "median": 122.16,
+          "min": 116.67,
+          "max": 168.881
+        },
+        "maxRssKiB": {
+          "median": 244164,
+          "min": 243284,
+          "max": 245524
+        },
+        "stdoutBytes": {
+          "median": 1470,
+          "min": 1470,
+          "max": 1470
+        },
+        "stderrBytes": {
+          "median": 69,
+          "min": 69,
+          "max": 69
+        }
+      },
+      "afterStage03": {
+        "domain": "dr",
+        "scenario": "metadata",
+        "mode": "api",
+        "n": 3,
+        "wallMs": {
+          "median": 1075.484807,
+          "min": 931.553988,
+          "max": 1109.803448
+        },
+        "userMs": {
+          "median": 1328.032,
+          "min": 1138.605,
+          "max": 1349.281
+        },
+        "systemMs": {
+          "median": 123.651,
+          "min": 107.476,
+          "max": 125.064
+        },
+        "maxRssKiB": {
+          "median": 242500,
+          "min": 241844,
+          "max": 247992
+        },
+        "stdoutBytes": {
+          "median": 1470,
+          "min": 1470,
+          "max": 1470
+        },
+        "stderrBytes": {
+          "median": 69,
+          "min": 69,
+          "max": 69
+        }
+      },
+      "wallRatioAfterOverBefore": 1.067185735743347
+    },
+    {
+      "domain": "dr",
+      "scenario": "new",
+      "mode": "api",
+      "baseline": {
+        "domain": "dr",
+        "scenario": "new",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 6891.242289,
+          "min": 6891.242289,
+          "max": 6891.242289
+        },
+        "userMs": {
+          "median": 4803.324,
+          "min": 4803.324,
+          "max": 4803.324
+        },
+        "systemMs": {
+          "median": 2810.462,
+          "min": 2810.462,
+          "max": 2810.462
+        },
+        "maxRssKiB": {
+          "median": 266248,
+          "min": 266248,
+          "max": 266248
+        },
+        "stdoutBytes": {
+          "median": 323,
+          "min": 323,
+          "max": 323
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "afterStage03": {
+        "domain": "dr",
+        "scenario": "new",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 28636.269019,
+          "min": 28636.269019,
+          "max": 28636.269019
+        },
+        "userMs": {
+          "median": 12525.738,
+          "min": 12525.738,
+          "max": 12525.738
+        },
+        "systemMs": {
+          "median": 15805.507,
+          "min": 15805.507,
+          "max": 15805.507
+        },
+        "maxRssKiB": {
+          "median": 221372,
+          "min": 221372,
+          "max": 221372
+        },
+        "stdoutBytes": {
+          "median": 323,
+          "min": 323,
+          "max": 323
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "wallRatioAfterOverBefore": 4.15545816241435
+    },
+    {
+      "domain": "dr",
+      "scenario": "readiness",
+      "mode": "api",
+      "baseline": {
+        "domain": "dr",
+        "scenario": "readiness",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 3594.576423,
+          "min": 3594.576423,
+          "max": 3594.576423
+        },
+        "userMs": {
+          "median": 2759.403,
+          "min": 2759.403,
+          "max": 2759.403
+        },
+        "systemMs": {
+          "median": 1345.191,
+          "min": 1345.191,
+          "max": 1345.191
+        },
+        "maxRssKiB": {
+          "median": 243700,
+          "min": 243700,
+          "max": 243700
+        },
+        "stdoutBytes": {
+          "median": 486,
+          "min": 486,
+          "max": 486
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "afterStage03": {
+        "domain": "dr",
+        "scenario": "readiness",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 23567.155739,
+          "min": 23567.155739,
+          "max": 23567.155739
+        },
+        "userMs": {
+          "median": 9655.193,
+          "min": 9655.193,
+          "max": 9655.193
+        },
+        "systemMs": {
+          "median": 13809.291,
+          "min": 13809.291,
+          "max": 13809.291
+        },
+        "maxRssKiB": {
+          "median": 224256,
+          "min": 224256,
+          "max": 224256
+        },
+        "stdoutBytes": {
+          "median": 486,
+          "min": 486,
+          "max": 486
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "wallRatioAfterOverBefore": 6.556309552414822
+    },
+    {
+      "domain": "dr",
+      "scenario": "relations",
+      "mode": "api",
+      "baseline": {
+        "domain": "dr",
+        "scenario": "relations",
+        "mode": "api",
+        "n": 3,
+        "wallMs": {
+          "median": 542.8985460000001,
+          "min": 534.997914,
+          "max": 552.563412
+        },
+        "userMs": {
+          "median": 717.43,
+          "min": 710.028,
+          "max": 756.632
+        },
+        "systemMs": {
+          "median": 85.407,
+          "min": 49.455,
+          "max": 89.313
+        },
+        "maxRssKiB": {
+          "median": 225136,
+          "min": 221428,
+          "max": 225880
+        },
+        "stdoutBytes": {
+          "median": 682,
+          "min": 682,
+          "max": 682
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "afterStage03": {
+        "domain": "dr",
+        "scenario": "relations",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 533.706296,
+          "min": 533.706296,
+          "max": 533.706296
+        },
+        "userMs": {
+          "median": 706.062,
+          "min": 706.062,
+          "max": 706.062
+        },
+        "systemMs": {
+          "median": 101.631,
+          "min": 101.631,
+          "max": 101.631
+        },
+        "maxRssKiB": {
+          "median": 224000,
+          "min": 224000,
+          "max": 224000
+        },
+        "stdoutBytes": {
+          "median": 682,
+          "min": 682,
+          "max": 682
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "wallRatioAfterOverBefore": 0.9830681992653556
+    },
+    {
+      "domain": "dr",
+      "scenario": "show",
+      "mode": "api",
+      "baseline": {
+        "domain": "dr",
+        "scenario": "show",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 506.68059300000004,
+          "min": 506.68059300000004,
+          "max": 506.68059300000004
+        },
+        "userMs": {
+          "median": 658.731,
+          "min": 658.731,
+          "max": 658.731
+        },
+        "systemMs": {
+          "median": 76.231,
+          "min": 76.231,
+          "max": 76.231
+        },
+        "maxRssKiB": {
+          "median": 224844,
+          "min": 224844,
+          "max": 224844
+        },
+        "stdoutBytes": {
+          "median": 559,
+          "min": 559,
+          "max": 559
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "afterStage03": {
+        "domain": "dr",
+        "scenario": "show",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 582.5187930000001,
+          "min": 582.5187930000001,
+          "max": 582.5187930000001
+        },
+        "userMs": {
+          "median": 736.735,
+          "min": 736.735,
+          "max": 736.735
+        },
+        "systemMs": {
+          "median": 108.58,
+          "min": 108.58,
+          "max": 108.58
+        },
+        "maxRssKiB": {
+          "median": 221600,
+          "min": 221600,
+          "max": 221600
+        },
+        "stdoutBytes": {
+          "median": 560,
+          "min": 560,
+          "max": 560
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "wallRatioAfterOverBefore": 1.1496765438576804
+    },
+    {
+      "domain": "dr",
+      "scenario": "sync-full",
+      "mode": "api",
+      "baseline": {
+        "domain": "dr",
+        "scenario": "sync-full",
+        "mode": "api",
+        "n": 3,
+        "wallMs": {
+          "median": 10113.781809,
+          "min": 9811.267947,
+          "max": 10464.200297000001
+        },
+        "userMs": {
+          "median": 7706.302,
+          "min": 7326.546,
+          "max": 7775.047
+        },
+        "systemMs": {
+          "median": 3549.343,
+          "min": 3317.177,
+          "max": 3601.515
+        },
+        "maxRssKiB": {
+          "median": 368844,
+          "min": 310860,
+          "max": 369416
+        },
+        "stdoutBytes": {
+          "median": 73,
+          "min": 73,
+          "max": 73
+        },
+        "stderrBytes": {
+          "median": 520,
+          "min": 520,
+          "max": 520
+        }
+      },
+      "afterStage03": {
+        "domain": "dr",
+        "scenario": "sync-full",
+        "mode": "api",
+        "n": 3,
+        "wallMs": {
+          "median": 7221.186377,
+          "min": 6669.104993,
+          "max": 8622.199088000001
+        },
+        "userMs": {
+          "median": 5720.716,
+          "min": 5199.063,
+          "max": 6822.623
+        },
+        "systemMs": {
+          "median": 2267.031,
+          "min": 2194.394,
+          "max": 2707.427
+        },
+        "maxRssKiB": {
+          "median": 365372,
+          "min": 365348,
+          "max": 371608
+        },
+        "stdoutBytes": {
+          "median": 73,
+          "min": 73,
+          "max": 73
+        },
+        "stderrBytes": {
+          "median": 520,
+          "min": 520,
+          "max": 520
+        }
+      },
+      "wallRatioAfterOverBefore": 0.713994677102293
+    },
+    {
+      "domain": "dr",
+      "scenario": "sync-selected",
+      "mode": "api",
+      "baseline": {
+        "domain": "dr",
+        "scenario": "sync-selected",
+        "mode": "api",
+        "n": 3,
+        "wallMs": {
+          "median": 10968.584318000001,
+          "min": 10964.548902999999,
+          "max": 11140.717292
+        },
+        "userMs": {
+          "median": 8368.442,
+          "min": 8285.861,
+          "max": 8555.823
+        },
+        "systemMs": {
+          "median": 3589.355,
+          "min": 3578.417,
+          "max": 3635.828
+        },
+        "maxRssKiB": {
+          "median": 392304,
+          "min": 390312,
+          "max": 392364
+        },
+        "stdoutBytes": {
+          "median": 138,
+          "min": 138,
+          "max": 138
+        },
+        "stderrBytes": {
+          "median": 520,
+          "min": 520,
+          "max": 520
+        }
+      },
+      "afterStage03": {
+        "domain": "dr",
+        "scenario": "sync-selected",
+        "mode": "api",
+        "n": 3,
+        "wallMs": {
+          "median": 10147.379522,
+          "min": 7327.008191,
+          "max": 11492.52628
+        },
+        "userMs": {
+          "median": 8484.192,
+          "min": 5896.825,
+          "max": 8983.369
+        },
+        "systemMs": {
+          "median": 2771.539,
+          "min": 2315.452,
+          "max": 2955.524
+        },
+        "maxRssKiB": {
+          "median": 392048,
+          "min": 389304,
+          "max": 409888
+        },
+        "stdoutBytes": {
+          "median": 138,
+          "min": 138,
+          "max": 138
+        },
+        "stderrBytes": {
+          "median": 520,
+          "min": 520,
+          "max": 520
+        }
+      },
+      "wallRatioAfterOverBefore": 0.9251311954039171
+    },
+    {
+      "domain": "ir",
+      "scenario": "content",
+      "mode": "api",
+      "baseline": {
+        "domain": "ir",
+        "scenario": "content",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 733.961822,
+          "min": 733.961822,
+          "max": 733.961822
+        },
+        "userMs": {
+          "median": 816.177,
+          "min": 816.177,
+          "max": 816.177
+        },
+        "systemMs": {
+          "median": 218.035,
+          "min": 218.035,
+          "max": 218.035
+        },
+        "maxRssKiB": {
+          "median": 221800,
+          "min": 221800,
+          "max": 221800
+        },
+        "stdoutBytes": {
+          "median": 1253,
+          "min": 1253,
+          "max": 1253
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "afterStage03": {
+        "domain": "ir",
+        "scenario": "content",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 767.6590749999999,
+          "min": 767.6590749999999,
+          "max": 767.6590749999999
+        },
+        "userMs": {
+          "median": 755.521,
+          "min": 755.521,
+          "max": 755.521
+        },
+        "systemMs": {
+          "median": 314.464,
+          "min": 314.464,
+          "max": 314.464
+        },
+        "maxRssKiB": {
+          "median": 224388,
+          "min": 224388,
+          "max": 224388
+        },
+        "stdoutBytes": {
+          "median": 1253,
+          "min": 1253,
+          "max": 1253
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "wallRatioAfterOverBefore": 1.045911452053701
+    },
+    {
+      "domain": "ir",
+      "scenario": "list",
+      "mode": "api",
+      "baseline": {
+        "domain": "ir",
+        "scenario": "list",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 484.98902100000004,
+          "min": 484.98902100000004,
+          "max": 484.98902100000004
+        },
+        "userMs": {
+          "median": 592.232,
+          "min": 592.232,
+          "max": 592.232
+        },
+        "systemMs": {
+          "median": 88.023,
+          "min": 88.023,
+          "max": 88.023
+        },
+        "maxRssKiB": {
+          "median": 220472,
+          "min": 220472,
+          "max": 220472
+        },
+        "stdoutBytes": {
+          "median": 1694,
+          "min": 1694,
+          "max": 1694
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "afterStage03": {
+        "domain": "ir",
+        "scenario": "list",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 503.74144799999993,
+          "min": 503.74144799999993,
+          "max": 503.74144799999993
+        },
+        "userMs": {
+          "median": 698.788,
+          "min": 698.788,
+          "max": 698.788
+        },
+        "systemMs": {
+          "median": 65.392,
+          "min": 65.392,
+          "max": 65.392
+        },
+        "maxRssKiB": {
+          "median": 224016,
+          "min": 224016,
+          "max": 224016
+        },
+        "stdoutBytes": {
+          "median": 1694,
+          "min": 1694,
+          "max": 1694
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "wallRatioAfterOverBefore": 1.0386656732173736
+    },
+    {
+      "domain": "ir",
+      "scenario": "metadata",
+      "mode": "api",
+      "baseline": {
+        "domain": "ir",
+        "scenario": "metadata",
+        "mode": "api",
+        "n": 3,
+        "wallMs": {
+          "median": 779.594379,
+          "min": 771.69064,
+          "max": 801.6693950000001
+        },
+        "userMs": {
+          "median": 939.88,
+          "min": 924.948,
+          "max": 978.476
+        },
+        "systemMs": {
+          "median": 83.604,
+          "min": 76.116,
+          "max": 98.525
+        },
+        "maxRssKiB": {
+          "median": 247928,
+          "min": 247640,
+          "max": 248168
+        },
+        "stdoutBytes": {
+          "median": 1910,
+          "min": 1910,
+          "max": 1910
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "afterStage03": {
+        "domain": "ir",
+        "scenario": "metadata",
+        "mode": "api",
+        "n": 3,
+        "wallMs": {
+          "median": 922.664436,
+          "min": 910.101005,
+          "max": 964.0046709999999
+        },
+        "userMs": {
+          "median": 1114.197,
+          "min": 1105.937,
+          "max": 1148.806
+        },
+        "systemMs": {
+          "median": 115.613,
+          "min": 111.141,
+          "max": 138.262
+        },
+        "maxRssKiB": {
+          "median": 246848,
+          "min": 238260,
+          "max": 247148
+        },
+        "stdoutBytes": {
+          "median": 1910,
+          "min": 1910,
+          "max": 1910
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "wallRatioAfterOverBefore": 1.1835185846048795
+    },
+    {
+      "domain": "ir",
+      "scenario": "new",
+      "mode": "api",
+      "baseline": {
+        "domain": "ir",
+        "scenario": "new",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 746.6201799999999,
+          "min": 746.6201799999999,
+          "max": 746.6201799999999
+        },
+        "userMs": {
+          "median": 886.081,
+          "min": 886.081,
+          "max": 886.081
+        },
+        "systemMs": {
+          "median": 145.25,
+          "min": 145.25,
+          "max": 145.25
+        },
+        "maxRssKiB": {
+          "median": 230056,
+          "min": 230056,
+          "max": 230056
+        },
+        "stdoutBytes": {
+          "median": 1215,
+          "min": 1215,
+          "max": 1215
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "afterStage03": {
+        "domain": "ir",
+        "scenario": "new",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 518.663187,
+          "min": 518.663187,
+          "max": 518.663187
+        },
+        "userMs": {
+          "median": 664.585,
+          "min": 664.585,
+          "max": 664.585
+        },
+        "systemMs": {
+          "median": 97.335,
+          "min": 97.335,
+          "max": 97.335
+        },
+        "maxRssKiB": {
+          "median": 223964,
+          "min": 223964,
+          "max": 223964
+        },
+        "stdoutBytes": {
+          "median": 1215,
+          "min": 1215,
+          "max": 1215
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "wallRatioAfterOverBefore": 0.6946814469975886
+    },
+    {
+      "domain": "ir",
+      "scenario": "readiness",
+      "mode": "api",
+      "baseline": {
+        "domain": "ir",
+        "scenario": "readiness",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 405.63870599999996,
+          "min": 405.63870599999996,
+          "max": 405.63870599999996
+        },
+        "userMs": {
+          "median": 520.514,
+          "min": 520.514,
+          "max": 520.514
+        },
+        "systemMs": {
+          "median": 68.84,
+          "min": 68.84,
+          "max": 68.84
+        },
+        "maxRssKiB": {
+          "median": 219288,
+          "min": 219288,
+          "max": 219288
+        },
+        "stdoutBytes": {
+          "median": 694,
+          "min": 694,
+          "max": 694
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "afterStage03": {
+        "domain": "ir",
+        "scenario": "readiness",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 493.44106800000003,
+          "min": 493.44106800000003,
+          "max": 493.44106800000003
+        },
+        "userMs": {
+          "median": 602.033,
+          "min": 602.033,
+          "max": 602.033
+        },
+        "systemMs": {
+          "median": 112.296,
+          "min": 112.296,
+          "max": 112.296
+        },
+        "maxRssKiB": {
+          "median": 222408,
+          "min": 222408,
+          "max": 222408
+        },
+        "stdoutBytes": {
+          "median": 694,
+          "min": 694,
+          "max": 694
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "wallRatioAfterOverBefore": 1.2164545954349832
+    },
+    {
+      "domain": "ir",
+      "scenario": "relations",
+      "mode": "api",
+      "baseline": {
+        "domain": "ir",
+        "scenario": "relations",
+        "mode": "api",
+        "n": 3,
+        "wallMs": {
+          "median": 508.53227999999996,
+          "min": 497.78634999999997,
+          "max": 509.348081
+        },
+        "userMs": {
+          "median": 674.37,
+          "min": 613.169,
+          "max": 680.764
+        },
+        "systemMs": {
+          "median": 71.655,
+          "min": 68.673,
+          "max": 131.867
+        },
+        "maxRssKiB": {
+          "median": 221744,
+          "min": 220704,
+          "max": 222612
+        },
+        "stdoutBytes": {
+          "median": 891,
+          "min": 891,
+          "max": 891
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "afterStage03": {
+        "domain": "ir",
+        "scenario": "relations",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 503.727127,
+          "min": 503.727127,
+          "max": 503.727127
+        },
+        "userMs": {
+          "median": 663.065,
+          "min": 663.065,
+          "max": 663.065
+        },
+        "systemMs": {
+          "median": 113.09,
+          "min": 113.09,
+          "max": 113.09
+        },
+        "maxRssKiB": {
+          "median": 223516,
+          "min": 223516,
+          "max": 223516
+        },
+        "stdoutBytes": {
+          "median": 891,
+          "min": 891,
+          "max": 891
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "wallRatioAfterOverBefore": 0.9905509380840092
+    },
+    {
+      "domain": "ir",
+      "scenario": "show",
+      "mode": "api",
+      "baseline": {
+        "domain": "ir",
+        "scenario": "show",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 426.02444199999996,
+          "min": 426.02444199999996,
+          "max": 426.02444199999996
+        },
+        "userMs": {
+          "median": 505.58,
+          "min": 505.58,
+          "max": 505.58
+        },
+        "systemMs": {
+          "median": 101.851,
+          "min": 101.851,
+          "max": 101.851
+        },
+        "maxRssKiB": {
+          "median": 214876,
+          "min": 214876,
+          "max": 214876
+        },
+        "stdoutBytes": {
+          "median": 916,
+          "min": 916,
+          "max": 916
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "afterStage03": {
+        "domain": "ir",
+        "scenario": "show",
+        "mode": "api",
+        "n": 1,
+        "wallMs": {
+          "median": 439.45616099999995,
+          "min": 439.45616099999995,
+          "max": 439.45616099999995
+        },
+        "userMs": {
+          "median": 597.431,
+          "min": 597.431,
+          "max": 597.431
+        },
+        "systemMs": {
+          "median": 67.28,
+          "min": 67.28,
+          "max": 67.28
+        },
+        "maxRssKiB": {
+          "median": 224196,
+          "min": 224196,
+          "max": 224196
+        },
+        "stdoutBytes": {
+          "median": 916,
+          "min": 916,
+          "max": 916
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "wallRatioAfterOverBefore": 1.031528047867263
+    },
+    {
+      "domain": "ir",
+      "scenario": "sync-full",
+      "mode": "api",
+      "baseline": {
+        "domain": "ir",
+        "scenario": "sync-full",
+        "mode": "api",
+        "n": 3,
+        "wallMs": {
+          "median": 2739.807854,
+          "min": 2700.606214,
+          "max": 2761.2269180000003
+        },
+        "userMs": {
+          "median": 1538.794,
+          "min": 1520.706,
+          "max": 1557.417
+        },
+        "systemMs": {
+          "median": 1454.978,
+          "min": 1449.117,
+          "max": 1511.391
+        },
+        "maxRssKiB": {
+          "median": 289860,
+          "min": 288948,
+          "max": 290172
+        },
+        "stdoutBytes": {
+          "median": 267,
+          "min": 267,
+          "max": 267
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "afterStage03": {
+        "domain": "ir",
+        "scenario": "sync-full",
+        "mode": "api",
+        "n": 3,
+        "wallMs": {
+          "median": 3281.517575,
+          "min": 3096.464836,
+          "max": 3344.777628
+        },
+        "userMs": {
+          "median": 1930.606,
+          "min": 1910.911,
+          "max": 1965.565
+        },
+        "systemMs": {
+          "median": 1697.449,
+          "min": 1502.238,
+          "max": 1783.246
+        },
+        "maxRssKiB": {
+          "median": 294416,
+          "min": 294200,
+          "max": 295416
+        },
+        "stdoutBytes": {
+          "median": 267,
+          "min": 267,
+          "max": 267
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "wallRatioAfterOverBefore": 1.197718142974562
+    },
+    {
+      "domain": "ir",
+      "scenario": "sync-selected",
+      "mode": "api",
+      "baseline": {
+        "domain": "ir",
+        "scenario": "sync-selected",
+        "mode": "api",
+        "n": 3,
+        "wallMs": {
+          "median": 3475.1994569999997,
+          "min": 3427.544771,
+          "max": 3478.897437
+        },
+        "userMs": {
+          "median": 2451.213,
+          "min": 2367.918,
+          "max": 2478.812
+        },
+        "systemMs": {
+          "median": 1523.08,
+          "min": 1493.904,
+          "max": 1553.842
+        },
+        "maxRssKiB": {
+          "median": 334916,
+          "min": 334204,
+          "max": 335248
+        },
+        "stdoutBytes": {
+          "median": 335,
+          "min": 335,
+          "max": 335
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "afterStage03": {
+        "domain": "ir",
+        "scenario": "sync-selected",
+        "mode": "api",
+        "n": 3,
+        "wallMs": {
+          "median": 3448.479915,
+          "min": 3387.4528790000004,
+          "max": 3534.811963
+        },
+        "userMs": {
+          "median": 2377.431,
+          "min": 2369.134,
+          "max": 2413.43
+        },
+        "systemMs": {
+          "median": 1574.651,
+          "min": 1520.209,
+          "max": 1620.808
+        },
+        "maxRssKiB": {
+          "median": 348636,
+          "min": 346708,
+          "max": 358008
+        },
+        "stdoutBytes": {
+          "median": 335,
+          "min": 335,
+          "max": 335
+        },
+        "stderrBytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        }
+      },
+      "wallRatioAfterOverBefore": 0.9923113644754463
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import { readRecordText } from "../../record-operations/src/source.ts";
 import path from "node:path";
 import { decisionIdFromMarkdown } from "./decision-metadata.ts";
 import { decisionIndexFileName } from "./decision-state-index.ts";
@@ -133,15 +134,10 @@ export async function validateSourceMembership(
   const sourceFilesById = new Map<string, SourceFileMembers>();
   for (const sourceFile of sourceFiles) {
     let decisionId: DecisionId | null = null;
-    try {
-      sourceFile.sourceText = await fs.readFile(
-        sourceFile.decisionPath,
-        "utf8"
-      );
-      decisionId = decisionIdFromMarkdown(sourceFile.sourceText);
+    const text = await readSourceText(sourceFile, sourceErrors);
+    if (text !== null) {
+      decisionId = decisionIdFromMarkdown(text);
       sourceFile.decisionId = decisionId;
-    } catch {
-      // Full source scanning reports the filesystem failure with its path.
     }
     if (decisionId === null) continue;
     const members = sourceFilesById.get(decisionId);
@@ -170,4 +166,30 @@ export async function validateSourceMembership(
     }
   }
   return availableDecisionIds;
+}
+
+export async function readSourceText(
+  sourceFile: SourceFile,
+  sourceErrors: string[]
+): Promise<string | null> {
+  if (sourceFile.sourceReadFailed === true) {
+    return null;
+  }
+  if (sourceFile.sourceText !== undefined) {
+    return sourceFile.sourceText;
+  }
+  try {
+    const directory = sourceFile.sourcePath.startsWith("archive/")
+      ? path.dirname(path.dirname(sourceFile.decisionPath))
+      : path.dirname(sourceFile.decisionPath);
+    const text = await readRecordText(directory, sourceFile.sourcePath);
+    sourceFile.sourceText = text;
+    return text;
+  } catch (error) {
+    sourceFile.sourceReadFailed = true;
+    sourceErrors.push(
+      sourceFile.sourcePath + " could not be read: " + errorText(error)
+    );
+    return null;
+  }
 }

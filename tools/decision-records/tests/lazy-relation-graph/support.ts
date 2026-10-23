@@ -20,7 +20,8 @@ export async function withGraphBuildCount(
         "decisionId" in record &&
         "projection" in record &&
         "sourcePath" in record &&
-        "status" in record
+        "status" in record &&
+        this.has(record.decisionId)
       ) {
         builds += 1;
       }

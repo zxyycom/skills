@@ -8,13 +8,11 @@
  * Rebuild: bun run sync:investigation-report-check
  */
 import path from "node:path";
+import { InvestigationPreparation } from "./strict-preparation.ts";
+import { inspectInvestigationCollectionLayout } from "./investigation-layout.ts";
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 import type { PreparedRename } from "./rename-contract.ts";
-import {
-  asFormalSource,
-  inspectLayout,
-  readCandidateSources
-} from "./rename-preparation.ts";
+import { asFormalSource, readCandidateSources } from "./rename-preparation.ts";
 import { errorText, lstatOrNull, readRegularText } from "./rename-support.ts";
 import { syncInvestigationStateIndex } from "./investigation-state-index.ts";
 import { collectValidatedInvestigationCollection } from "./validation.ts";
@@ -103,39 +101,34 @@ export async function verifyCommittedRename(
   root: string,
   prepared: PreparedRename
 ): Promise<readonly string[]> {
+  const preparation = new InvestigationPreparation(root);
+  const layout = await inspectInvestigationCollectionLayout(root, {
+    preparation
+  });
   const collection = await collectValidatedInvestigationCollection(root, {
-    allowEmptyCollection: true
+    allowEmptyCollection: true,
+    layout,
+    preparation
   });
   if (collection.errors.length > 0) return collection.errors;
-  const candidateRead = await readCurrentCandidates(root, prepared.indexPath);
-  if (candidateRead.errors !== null) return candidateRead.errors;
+  const candidates = await readCandidateSources(root, layout.candidateIds, {
+    layout,
+    preparation
+  });
+  if ("result" in candidates) return candidates.result.errors;
   if (await indexIsStale(root, collection))
     return ["investigation index is stale after rename"];
   return await retiredIdentityErrors(root, prepared, [
-    ...collection.sources.map((source) => asFormalSource(root, source)),
-    ...candidateRead.candidates
+    ...collection.sources.map((source) =>
+      asFormalSource(
+        root,
+        source,
+        preparation.parsed(source),
+        collection.states.get(source.id)
+      )
+    ),
+    ...candidates.value
   ]);
-}
-
-async function readCurrentCandidates(
-  root: string,
-  indexPath: string
-): Promise<
-  Readonly<{
-    candidates: readonly import("./rename-contract.ts").RenameSource[];
-    errors: readonly string[] | null;
-  }>
-> {
-  const layout = await inspectLayout(root, indexPath);
-  if ("result" in layout)
-    return { candidates: [], errors: layout.result.errors };
-  const candidates = await readCandidateSources(
-    root,
-    layout.value.candidateIds
-  );
-  return "result" in candidates
-    ? { candidates: [], errors: candidates.result.errors }
-    : { candidates: candidates.value, errors: null };
 }
 
 async function indexIsStale(

@@ -1,38 +1,54 @@
-import { randomUUID } from "node:crypto";
+import type { InvestigationPreparation } from "./strict-preparation.ts";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { runRecordTransaction } from "../../record-operations/src/transaction.ts";
+import { verifyRecordFile } from "../../record-operations/src/transaction-files.ts";
 import {
   diagnosticFromError,
   type InvestigationDiagnostic,
   type InvestigationMutationDiagnostic
 } from "./diagnostics.ts";
 import {
-  compareText,
   discardMutation,
   errorText,
-  uniqueSorted,
   type AfterDiscardResourceTombstone,
   type InvestigationDiscardWriter
 } from "./discard.ts";
 import {
-  inspectOwnedResources,
-  scanOwnerResourceTree,
-  type ResourceTreeScan
-} from "./discard-history.ts";
+  scanResourceOwner,
+  sameResourceOwnerSnapshot
+} from "./rename-resource-snapshot.ts";
 import {
-  ensureRegularFile,
-  lstatOrNull,
-  sameResourceTree
-} from "./discard-files.ts";
+  moveResourceOwner,
+  restoreResourceOwnerMove,
+  removeResourceOwnerCopy,
+  verifyResourceOwnerCopy,
+  verifyResourceSourceProof
+} from "./rename-resource-move.ts";
+import type { ResourceMoveProgress } from "./rename-contract.ts";
+import type { InvestigationSource } from "./types.ts";
+import type { ResourceTreeScan } from "./discard-history.ts";
+import { verifyInvestigationMembers } from "./transaction-files.ts";
+import { collectValidatedInvestigationCollection } from "./validation-collection.ts";
 
+import {
+  createDiscardPublicationContext,
+  prepareDiscardTransaction,
+  type DiscardPublicationContext
+} from "./discard-transaction-plan.ts";
+import type { RecordWrittenFile } from "../../record-operations/src/transaction-files.ts";
+import type { RecordTransactionResult } from "../../record-operations/src/transaction.ts";
 export type DiscardPublicationOptions = Readonly<{
+  preparation?: InvestigationPreparation;
   afterResourceTombstone: AfterDiscardResourceTombstone;
   indexPath: string;
-  indexText: string;
-  originalIndexText: string;
+  indexText: string | null;
+  originalIndexText: string | null;
+  originalSources: readonly InvestigationSource[];
   reportPath: string;
   resourceOwnerPath: string;
   resourceSnapshot: ResourceTreeScan;
+  resourceProgress?: ResourceMoveProgress;
   root: string;
   write: InvestigationDiscardWriter;
 }>;
@@ -42,276 +58,154 @@ export type DiscardPublicationResult = Readonly<{
   errors: string[];
   mutation?: InvestigationMutationDiagnostic;
 }>;
-type DiscardMovement = {
-  movedReport: boolean;
-  movedResources: boolean;
-};
 
+/** Actual file plan and domain resource lifecycle feed the common transaction owner. */
 export async function publishDiscard(
   options: DiscardPublicationOptions
 ): Promise<DiscardPublicationResult> {
-  const verificationFailure = await discardReportVerificationFailure(options);
-  if (verificationFailure !== null) return verificationFailure;
-  const trash = discardTrashPath(options.reportPath);
-  const movement: DiscardMovement = {
-    movedReport: false,
-    movedResources: false
-  };
-  try {
-    await publishDiscardTombstones(options, trash, movement);
-  } catch (error) {
-    return await discardPublishFailure(options, trash, movement, error);
-  }
-  const cleanupFailure = await discardCleanupFailure(
-    options,
-    trash,
-    movement.movedResources
-  );
-  return cleanupFailure ?? { changed: true, diagnostics: [], errors: [] };
-}
-
-async function discardReportVerificationFailure(
-  options: DiscardPublicationOptions
-): Promise<DiscardPublicationResult | null> {
-  try {
-    await ensureRegularFile(options.reportPath);
-    return null;
-  } catch (error) {
-    return {
-      changed: false,
-      diagnostics: [
-        diagnosticFromError({
-          code: "investigation-report.discard-report-recheck-failed",
-          error,
-          mutation: discardMutation("no-change"),
-          reason: "the report could not be verified before discard publication",
-          recovery:
-            "restore access to the report and verify its current contents before retrying discard",
-          target: options.reportPath
-        })
-      ],
-      errors: [
-        `report could not be verified before discard: ${errorText(error)}`
-      ],
-      mutation: discardMutation("no-change")
-    };
-  }
-}
-
-function discardTrashPath(reportPath: string): string {
-  return path.join(
-    path.dirname(path.dirname(reportPath)),
-    `.investigation-report-discard-${process.pid}-${randomUUID()}`
-  );
-}
-
-async function publishDiscardTombstones(
-  options: DiscardPublicationOptions,
-  trash: string,
-  movement: DiscardMovement
-): Promise<void> {
-  await fs.mkdir(trash, { recursive: false });
-  await fs.rename(options.reportPath, path.join(trash, "report.md"));
-  movement.movedReport = true;
-  await verifyCurrentDiscardResources(options);
-  await tombstoneDiscardResources(options, trash, movement);
-  await options.write(options.indexPath, options.indexText);
-}
-
-async function verifyCurrentDiscardResources(
-  options: DiscardPublicationOptions
-): Promise<void> {
-  const currentResources = await inspectOwnedResources(
-    options.root,
-    options.resourceOwnerPath
-  );
-  if (sameResourceTree(currentResources, options.resourceSnapshot)) return;
-  throw new Error(
-    currentResources.errors.length > 0
-      ? `owned resources changed before discard publication: ${currentResources.errors.join("; ")}`
-      : "owned resources changed before discard publication"
-  );
-}
-
-async function tombstoneDiscardResources(
-  options: DiscardPublicationOptions,
-  trash: string,
-  movement: DiscardMovement
-): Promise<void> {
-  const resourceEntry = await lstatOrNull(options.resourceOwnerPath);
-  if (resourceEntry === null) return;
-  if (resourceEntry.isSymbolicLink() || !resourceEntry.isDirectory()) {
-    throw new Error(
-      "owner resource path must be a non-symbolic-link directory"
-    );
-  }
-  const tombstonePath = path.join(trash, "resources");
-  await fs.rename(options.resourceOwnerPath, tombstonePath);
-  movement.movedResources = true;
-  await options.afterResourceTombstone();
-  const tombstonedResources = await scanOwnerResourceTree(
-    tombstonePath,
-    path.basename(options.resourceOwnerPath)
-  );
-  if (sameResourceTree(tombstonedResources, options.resourceSnapshot)) return;
-  throw new Error(
-    tombstonedResources.errors.length > 0
-      ? `tombstoned owner resources changed before discard publication: ${tombstonedResources.errors.join("; ")}`
-      : "tombstoned owner resources changed before discard publication"
-  );
-}
-
-async function discardPublishFailure(
-  options: DiscardPublicationOptions,
-  trash: string,
-  movement: DiscardMovement,
-  error: unknown
-): Promise<DiscardPublicationResult> {
-  const restorationErrors = await restoreDiscard({
-    ...options,
-    ...movement,
-    trash,
-    write: options.write
+  const context = await createDiscardPublicationContext(options);
+  const { progress, members } = context;
+  const transaction = await runRecordTransaction({
+    prepare: () => prepareDiscardTransaction(context),
+    fresh: async () => {
+      await verifyResourceSourceProof(
+        context.transactionRoot,
+        options.resourceOwnerPath,
+        progress
+      );
+      await validateDiscardFormalCollection(context);
+      await verifyInvestigationMembers(options.root, members);
+    },
+    resources: {
+      changed: () => progress.targetClaimed,
+      apply: () => applyDiscardResources(context),
+      recover: () => recoverDiscardResources(context)
+    },
+    verify: async () => {
+      await verifyInvestigationMembers(options.root, members, [
+        options.reportPath
+      ]);
+      await validateDiscardFormalCollection(context);
+      if (context.resourceMove !== null)
+        await verifyResourceOwnerCopy(context.resourceMove, progress);
+    },
+    verifyRecovered: async () =>
+      verifyInvestigationMembers(options.root, members, [options.reportPath]),
+    cleanup: (_value, writes) => cleanupDiscardTombstone(context, writes)
   });
-  const mutation = discardMutation(
-    restorationErrors.length === 0 ? "rolled-back" : "partial-or-unknown"
+  return discardPublicationResult(context, transaction);
+}
+async function validateDiscardFormalCollection(
+  context: DiscardPublicationContext
+): Promise<void> {
+  if (context.options.indexText === null) return;
+  const collection = await collectValidatedInvestigationCollection(
+    context.options.root,
+    { allowEmptyCollection: true }
   );
+  if (collection.errors.length > 0)
+    throw new Error(collection.errors.join("; "));
+}
+async function applyDiscardResources(
+  context: DiscardPublicationContext
+): Promise<void> {
+  const { resourceMove, options, progress } = context;
+  if (resourceMove === null) return;
+  const owner = path.basename(options.resourceOwnerPath);
+  await moveResourceOwner(resourceMove, owner, owner, progress);
+  await options.afterResourceTombstone();
+  const current = await scanResourceOwner(resourceMove.to, owner);
+  if (
+    current.errors.length > 0 ||
+    !sameResourceOwnerSnapshot(current.value, resourceMove.snapshot)
+  )
+    throw new Error(
+      "tombstoned owner resources changed before index publication"
+    );
+}
+async function recoverDiscardResources(
+  context: DiscardPublicationContext
+): Promise<void> {
+  const { resourceMove, options, progress } = context;
+  if (resourceMove === null) return;
+  const owner = path.basename(options.resourceOwnerPath);
+  const errors = await restoreResourceOwnerMove(
+    resourceMove,
+    owner,
+    owner,
+    progress
+  );
+  if (errors.length > 0) throw new Error(errors.join("; "));
+}
+async function cleanupDiscardTombstone(
+  context: DiscardPublicationContext,
+  writes: readonly RecordWrittenFile[]
+): Promise<void> {
+  const { transactionRoot, trashReport, trash, resourceMove, progress } =
+    context;
+  const report = writes.find(
+    (written) => written.change.path === trashReport
+  )?.written;
+  if (report === undefined || report === null)
+    throw new Error("Discard tombstone ownership is unknown: " + trash);
+  await verifyRecordFile(transactionRoot, trashReport, report);
+  if (resourceMove !== null)
+    await removeResourceOwnerCopy(resourceMove, progress);
+  await fs.unlink(trashReport);
+  await fs.rmdir(trash);
+}
+function discardPublicationResult(
+  context: DiscardPublicationContext,
+  transaction: RecordTransactionResult<DiscardPublicationOptions>
+): DiscardPublicationResult {
+  if (transaction.status === "ok")
+    return { changed: transaction.changed, diagnostics: [], errors: [] };
+  const mutation = discardMutation(transaction.outcome);
+  const failures = [...transaction.errors, ...transaction.cleanupErrors];
   return {
-    changed: false,
-    diagnostics: [
+    changed: transaction.changed,
+    errors: [
+      ...transaction.errors.map(
+        (error) =>
+          (transaction.committed
+            ? "discard verification failed after commit: "
+            : "discard transaction publish failed: ") + errorText(error)
+      ),
+      ...transaction.cleanupErrors.map(
+        (error) =>
+          "discard committed but tombstone cleanup is pending at " +
+          context.trash +
+          ": " +
+          errorText(error)
+      )
+    ],
+    mutation,
+    diagnostics: failures.map((error) =>
       diagnosticFromError({
-        code: "investigation-report.discard-publish-failed",
+        code:
+          transaction.verification === "passed"
+            ? "investigation-report.discard-cleanup-pending"
+            : "investigation-report.discard-publish-failed",
         error,
         mutation,
-        reason:
-          restorationErrors.length === 0
-            ? "discard publication failed and the report, resources, and index were restored"
-            : "discard publication failed and restoration could not be fully verified",
+        reason: discardFailureReason(transaction),
         recovery:
-          restorationErrors.length === 0
-            ? "correct the publication failure, then retry discard"
-            : "inspect the listed report, resource, and index paths before any retry",
-        target: options.reportPath
+          "stop mutations and reconcile report, resource, index and the exact tombstone before any retry",
+        target: transaction.committed
+          ? context.trash
+          : context.options.reportPath
       })
-    ],
-    errors: uniqueSorted([
-      `discard transaction publish failed: ${errorText(error)}`,
-      ...restorationErrors
-    ]),
-    mutation
+    )
   };
 }
-
-async function discardCleanupFailure(
-  options: DiscardPublicationOptions,
-  trash: string,
-  movedResources: boolean
-): Promise<DiscardPublicationResult | null> {
-  try {
-    await fs.unlink(path.join(trash, "report.md"));
-    if (movedResources) await deleteDiscardResourceTombstone(options, trash);
-    await fs.rmdir(trash);
-    return null;
-  } catch (error) {
-    return {
-      changed: true,
-      diagnostics: [
-        diagnosticFromError({
-          code: "investigation-report.discard-cleanup-pending",
-          error,
-          mutation: discardMutation("committed-cleanup-pending"),
-          reason:
-            "discard committed the final index, but its tombstone cleanup could not finish safely",
-          recovery:
-            "do not retry discard; inspect and remove only the listed tombstone after confirming its contents",
-          target: trash
-        })
-      ],
-      errors: [
-        `discard committed but temporary deletion data at ${trash} could not be fully removed: ${errorText(error)}`
-      ],
-      mutation: discardMutation("committed-cleanup-pending")
-    };
-  }
-}
-
-async function deleteDiscardResourceTombstone(
-  options: DiscardPublicationOptions,
-  trash: string
-): Promise<void> {
-  const tombstonePath = path.join(trash, "resources");
-  const tombstonedResources = await scanOwnerResourceTree(
-    tombstonePath,
-    path.basename(options.resourceOwnerPath)
-  );
-  if (!sameResourceTree(tombstonedResources, options.resourceSnapshot)) {
-    throw new Error("tombstoned owner resources changed before final deletion");
-  }
-  await deletePreviewedResourceTree(
-    tombstonePath,
-    path.basename(options.resourceOwnerPath),
-    options.resourceSnapshot
-  );
-}
-
-async function deletePreviewedResourceTree(
-  resourceRoot: string,
-  ownerPrefix: string,
-  snapshot: ResourceTreeScan
-): Promise<void> {
-  const ownerPrefixLength = ownerPrefix.length + 1;
-  for (const resourceId of snapshot.resourceIds) {
-    await fs.unlink(
-      path.join(resourceRoot, resourceId.slice(ownerPrefixLength))
-    );
-  }
-  for (const directory of [...snapshot.directories].sort(
-    (left, right) =>
-      right.split("/").length - left.split("/").length ||
-      compareText(right, left)
-  )) {
-    await fs.rmdir(
-      directory.length === 0 ? resourceRoot : path.join(resourceRoot, directory)
-    );
-  }
-}
-
-async function restoreDiscard(options: {
-  indexPath: string;
-  movedReport: boolean;
-  movedResources: boolean;
-  originalIndexText: string;
-  reportPath: string;
-  resourceOwnerPath: string;
-  trash: string;
-  write: InvestigationDiscardWriter;
-}): Promise<string[]> {
-  const errors: string[] = [];
-  if (options.movedResources) {
-    try {
-      await fs.rename(
-        path.join(options.trash, "resources"),
-        options.resourceOwnerPath
-      );
-    } catch (error) {
-      errors.push(`failed to restore owner resources: ${errorText(error)}`);
-    }
-  }
-  if (options.movedReport) {
-    try {
-      await fs.rename(
-        path.join(options.trash, "report.md"),
-        options.reportPath
-      );
-    } catch (error) {
-      errors.push(`failed to restore report: ${errorText(error)}`);
-    }
-  }
-  try {
-    await options.write(options.indexPath, options.originalIndexText);
-  } catch (error) {
-    errors.push(`failed to restore investigation index: ${errorText(error)}`);
-  }
-  await fs.rmdir(options.trash).catch(() => undefined);
-  return errors;
+function discardFailureReason(
+  transaction: RecordTransactionResult<DiscardPublicationOptions>
+): string {
+  return transaction.committed
+    ? transaction.verification === "passed"
+      ? "discard committed, but exact tombstone cleanup is incomplete"
+      : "discard committed, but verification failed or is unknown"
+    : transaction.verification === "failed-or-unknown"
+      ? "the discard commit state is unknown; preserve and reconcile actual writes"
+      : "discard failed before its derived index commit point";
 }

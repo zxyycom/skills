@@ -239,7 +239,7 @@ function printShow(
     writeCliLine(io.stdout, "bodyReady: " + result.record.bodyReady);
   }
   writeCliLine(io.stdout, "");
-  writeCliLine(io.stdout, result.body.trimEnd());
+  io.stdout(result.body);
 }
 
 function printSyncIndex(

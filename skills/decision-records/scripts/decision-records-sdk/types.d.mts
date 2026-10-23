@@ -247,5 +247,6 @@ export type MarkdownSection = {
  */
 export type DecisionPreparationContext = Pick<DecisionScan, "records" | "sourceErrors" | "decisionsDirectory" | "workspaceRoot" | "indexPath" | "indexRelativePath" | "indexText" | "indexExists"> & {
     readonly publishedBaseline?: DecisionIndex;
+    readonly sourceMembers?: readonly string[];
 };
 export {};

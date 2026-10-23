@@ -1,3 +1,5 @@
+import { collectRecordMetadataWindow } from "../../record-operations/src/query.ts";
+import { err, ok } from "neverthrow";
 import {
   metadataSearchFacts,
   searchLimitWarnings
@@ -11,11 +13,8 @@ import {
   diagnosticFromError,
   diagnosticFromStateIndexDiagnostic
 } from "./diagnostics.ts";
-import { loadInvestigationIndex } from "./investigation-state-index.ts";
-import {
-  createInvestigationRelationContext,
-  type InvestigationRelationContext
-} from "./relation-context.ts";
+import { loadInvestigationQueryIndex } from "./investigation-state-index.ts";
+import { type InvestigationRelationContext } from "./relation-context.ts";
 import { compareText, searchFailure } from "./query-results.ts";
 import { investigationMetadataSearchFields } from "./types.ts";
 import type {
@@ -44,11 +43,16 @@ export async function searchInvestigationMetadata(
   indexPath: string,
   prepared: PreparedSearch
 ): Promise<InvestigationSearchResult> {
-  const loaded = await loadInvestigationIndex({ investigationsDirectory });
+  const loaded = await loadInvestigationQueryIndex({
+    investigationsDirectory,
+    requiresRelations:
+      prepared.validated.relatedTo !== undefined ||
+      prepared.validated.relationType !== undefined
+  });
   if (loaded.status === "error")
     return metadataIndexFailure(loaded.diagnostics, indexPath);
   return searchLoadedInvestigationMetadata(
-    createInvestigationRelationContext(Object.entries(loaded.value.entries)),
+    loaded.relations,
     indexPath,
     prepared
   );
@@ -115,22 +119,32 @@ function metadataSearchResult(
   prepared: PreparedSearch,
   indexPath: string
 ): InvestigationSearchResult {
-  const entries: InvestigationMetadataSearchEntry[] = [];
-  for (const entry of [...selection.entries].sort(compareSearchSourcePath)) {
-    const matched = metadataEntryMatch(matcher, entry);
-    if (matched instanceof Error)
-      return metadataMatcherFailure(matched, indexPath);
-    if (matched !== null)
-      entries.push({
-        ...matched,
-        ...(selection.filterRelations?.get(entry.id) === undefined
-          ? {}
-          : { filterRelations: selection.filterRelations.get(entry.id)! })
-      });
-  }
-  const returned = entries.slice(0, prepared.validated.limit);
+  const window = collectRecordMetadataWindow({
+    entries: [...selection.entries].sort(compareSearchSourcePath),
+    limit: prepared.validated.limit,
+    match: (entry) => {
+      try {
+        const matches = matchTextSegments(matcher, metadataSegments(entry));
+        return ok(
+          matches.length === 0
+            ? null
+            : matches.map(({ identifier }) => identifier)
+        );
+      } catch (error) {
+        return err(error);
+      }
+    },
+    project: (entry, evidence) => ({
+      ...metadataMatchEntry(entry, evidence),
+      ...(selection.filterRelations?.get(entry.id) === undefined
+        ? {}
+        : { filterRelations: selection.filterRelations.get(entry.id)! })
+    })
+  });
+  if (window.isErr()) return metadataMatcherFailure(window.error, indexPath);
+  const returned = window.value.entries;
   const facts = metadataSearchFacts(
-    entries.length,
+    window.value.matched,
     returned.length,
     prepared.validated.limit
   );
@@ -157,7 +171,7 @@ function metadataSearchResult(
     indexPath,
     status: "ok",
     truncation: {
-      files: entries.length > returned.length,
+      files: window.value.matched > returned.length,
       matches: false,
       previewCharacters: false
     },
@@ -170,24 +184,6 @@ function compareSearchSourcePath(
   right: InvestigationSnapshotEntry
 ): number {
   return compareText(left.state.sourcePath, right.state.sourcePath);
-}
-
-function metadataEntryMatch(
-  matcher: ReturnType<typeof createTextSearchMatcher>,
-  entry: InvestigationSnapshotEntry
-): InvestigationMetadataSearchEntry | null | Error {
-  try {
-    const matches = matchTextSegments(matcher, metadataSegments(entry));
-    if (matches.length === 0) return null;
-    return metadataMatchEntry(
-      entry,
-      matches.map(({ identifier }) => identifier)
-    );
-  } catch (error) {
-    return error instanceof Error
-      ? error
-      : new Error("metadata matcher failed");
-  }
 }
 
 function metadataMatchEntry(

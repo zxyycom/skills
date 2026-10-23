@@ -78,14 +78,6 @@ function prepareRelationCandidate(
     (id) => loaded.sourceById.get(id)?.text !== candidateById.get(id)?.text
   );
   const review = replacementReview(options, loaded, candidateStates);
-  if (changedSources.length === 0) {
-    return relationPhaseResult(
-      relationResult(false, loaded.sourceIds, options.indexPath, [], {
-        preflight: options.preflight,
-        relationReview: review
-      })
-    );
-  }
   return {
     status: "ready",
     value: {

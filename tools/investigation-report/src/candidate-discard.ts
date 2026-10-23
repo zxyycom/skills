@@ -1,10 +1,12 @@
-import fs from "node:fs/promises";
+import {
+  prepareCandidateDiscard,
+  type CandidateDiscardPreparation,
+  type CandidateDiscardPreparationResult
+} from "./candidate-discard-preparation.ts";
+
 import path from "node:path";
 import { withInvestigationCollectionMutationLock } from "./collection-mutation-lock.ts";
-import {
-  diagnosticFromError,
-  type InvestigationDiagnostic
-} from "./diagnostics.ts";
+import { diagnosticFromError } from "./diagnostics.ts";
 import { inspectInvestigationCollectionLayout } from "./investigation-index-source.ts";
 import {
   investigationSelectorEntries,
@@ -15,9 +17,7 @@ import {
   resolveInvestigationsDirectory,
   canonicalizeInvestigationsDirectory
 } from "./report-path.ts";
-import { findCandidatePathForInvestigationId } from "./candidate-path.ts";
-import { readCandidateAuthoringResourceReferences } from "./candidate.ts";
-import { investigationResourcesDirectoryName } from "./resource-reference.ts";
+
 import { parseInvestigationCandidateDiscardOptions } from "./options.ts";
 import { discardPreparedCandidate } from "./candidate-discard-tombstone.ts";
 import {
@@ -32,10 +32,7 @@ import {
   sameCandidateDiscardPreparation,
   validateOptions
 } from "./candidate-discard-support.ts";
-import {
-  scanCandidateOwnerResources,
-  type CandidateResourceTree
-} from "./candidate-discard-resources.ts";
+
 import type {
   InvestigationCandidateDiscardOptions,
   InvestigationCandidateDiscardResult
@@ -235,138 +232,4 @@ async function candidateDiscardBeforeCommitFailure(options: {
   }
 }
 
-export type CandidateDiscardPreparation = Readonly<{
-  candidatePath: string;
-  candidateText: string;
-  resources: CandidateResourceTree;
-  sharedReferences: string[];
-}>;
-
-type CandidateDiscardPreparationResult =
-  | Readonly<{ status: "ok"; value: CandidateDiscardPreparation }>
-  | Readonly<{
-      diagnostics: InvestigationDiagnostic[];
-      errors: string[];
-      status: "error";
-    }>;
-
-async function prepareCandidateDiscard(
-  root: string,
-  id: string
-): Promise<CandidateDiscardPreparationResult> {
-  try {
-    return await buildCandidateDiscardPreparation(root, id);
-  } catch (error) {
-    return {
-      diagnostics: [
-        diagnosticFromError({
-          code: "investigation-report.discard-candidate-prepare-failed",
-          error,
-          reason:
-            "the candidate and owner resources could not be prepared for discard",
-          recovery:
-            "restore a readable candidate collection and owner resource tree, then retry discard",
-          target: id
-        })
-      ],
-      errors: ["candidate discard preparation could not be completed"],
-      status: "error"
-    };
-  }
-}
-
-async function buildCandidateDiscardPreparation(
-  root: string,
-  id: string
-): Promise<CandidateDiscardPreparationResult> {
-  const candidate = await preparedCandidateFile(root, id);
-  if (candidate.status === "error") return candidate;
-  const resources = await scanCandidateOwnerResources(
-    root,
-    path.join(root, investigationResourcesDirectoryName, id)
-  );
-  if (resources.errors.length > 0)
-    return { diagnostics: [], errors: resources.errors, status: "error" };
-  const sharedReferences = await sharedCandidateResourceReferences(root, id);
-  return {
-    status: "ok",
-    value: { ...candidate.value, resources, sharedReferences }
-  };
-}
-
-type PreparedCandidateFile = Readonly<{
-  candidatePath: string;
-  candidateText: string;
-}>;
-
-async function preparedCandidateFile(
-  root: string,
-  id: string
-): Promise<
-  | Readonly<{ status: "ok"; value: PreparedCandidateFile }>
-  | Readonly<{
-      diagnostics: InvestigationDiagnostic[];
-      errors: string[];
-      status: "error";
-    }>
-> {
-  const layout = await inspectInvestigationCollectionLayout(root);
-  if (layout.errors.length > 0)
-    return { diagnostics: [], errors: layout.errors, status: "error" };
-  if (!layout.candidateIds.includes(id)) return missingCandidatePreparation(id);
-  const candidatePath = await findCandidatePathForInvestigationId(root, id);
-  if (candidatePath === null) return missingCandidatePreparation(id);
-  const entry = await fs.lstat(candidatePath);
-  if (entry.isSymbolicLink() || !entry.isFile())
-    return {
-      diagnostics: [],
-      errors: [
-        `${id} investigation candidate must be a regular non-symbolic-link file`
-      ],
-      status: "error"
-    };
-  return {
-    status: "ok",
-    value: {
-      candidatePath,
-      candidateText: await fs.readFile(candidatePath, "utf8")
-    }
-  };
-}
-
-function missingCandidatePreparation(id: string): Readonly<{
-  diagnostics: InvestigationDiagnostic[];
-  errors: string[];
-  status: "error";
-}> {
-  return {
-    diagnostics: [],
-    errors: [`${id} investigation candidate does not exist`],
-    status: "error"
-  };
-}
-
-async function sharedCandidateResourceReferences(
-  root: string,
-  id: string
-): Promise<string[]> {
-  const references = await readCandidateAuthoringResourceReferences(root, {
-    failOnInvalidSources: true
-  });
-  const ownerPrefix = `${id}/`;
-  return [...references]
-    .filter(
-      ([source, ids]) =>
-        source !== id &&
-        [...ids].some((resourceId) => resourceId.startsWith(ownerPrefix))
-    )
-    .map(
-      ([source]) =>
-        `${id} owns resources still referenced by ${source}; remove or replace those resource links before discard`
-    )
-    .sort(compareText);
-}
-
-function compareText(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
-}
+export type { CandidateDiscardPreparation } from "./candidate-discard-preparation.ts";

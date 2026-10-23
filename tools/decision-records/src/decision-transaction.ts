@@ -1,240 +1,164 @@
-import fs from "node:fs/promises";
-import { selectEstablishedDecisionIds, validateDecisionScan } from "./index.ts";
+import type { DecisionSourceCapture } from "./decision-strict-preparation.ts";
+import path from "node:path";
+import { RecordAtomicCleanupError } from "../../record-operations/src/transaction-files.ts";
 import {
-  decisionIndexDiagnostics,
-  decisionIndexFileName,
-  syncDecisionIndex
-} from "./decision-state-index.ts";
+  runRecordTransaction,
+  type RecordTransactionResult
+} from "../../record-operations/src/transaction.ts";
 import { withDecisionCollectionMutationLock } from "./decision-collection-mutation-lock.ts";
 import {
   decisionFileSystemDiagnostic,
   type DecisionDiagnostic,
   type DecisionMutationOutcome
 } from "./application-result.ts";
-import { scanDecisionRecords } from "./scan.ts";
-import type { DecisionScan, DecisionScanOptions } from "./types.ts";
-import { preflightDecisionChanges } from "./decision-transaction-preflight.ts";
 import {
-  applyDecisionChange,
-  restoreDecisionChanges
-} from "./decision-transaction-files.ts";
+  prepareDecisionTransactionPlan,
+  verifyDecisionTransactionMembers,
+  type PreparedDecisionTransaction
+} from "./decision-transaction-plan.ts";
 import {
   decisionTransactionLockFailure,
   transactionFailure
 } from "./decision-transaction-outcome.ts";
+import type { DecisionPreparationContext, DecisionScan } from "./types.ts";
 export { decisionTransactionLockFailure } from "./decision-transaction-outcome.ts";
 
 export type DecisionFileChange = {
   decisionPath: string;
   expectedText: string;
   nextText: string | null;
-  /** Move the replacement text to this path rather than overwriting the source. */
   targetPath?: string;
 };
-
-export type DecisionChangePreflight = {
-  createdTargetPaths: Set<string>;
-  errors: DecisionTransactionIssue[];
-  originalBodies: Map<string, string>;
-};
-
 export type DecisionTransactionIssue = string | DecisionDiagnostic;
+export type DecisionTransactionFacts = {
+  changed?: boolean;
+  committed?: boolean;
+  verification?: "passed" | "failed-or-unknown" | "not-run";
+  sourcePaths?: readonly string[];
+};
+export type DecisionTransactionResult = DecisionTransactionFacts &
+  (
+    | { changed: boolean; diagnostics: []; errors: []; status: "ok" }
+    | {
+        diagnostics: DecisionDiagnostic[];
+        errors: string[];
+        outcome: DecisionMutationOutcome;
+        scope: "Decision Markdown files and derived decision index";
+        status: "error";
+      }
+  );
 
-export type DecisionTransactionResult =
-  | {
-      changed: boolean;
-      diagnostics: [];
-      errors: [];
-      status: "ok";
-    }
-  | {
-      diagnostics: DecisionDiagnostic[];
-      errors: string[];
-      outcome: DecisionMutationOutcome;
-      scope: "Decision Markdown files and derived decision index";
-      status: "error";
-    };
-
-export async function applyDecisionChanges(options: {
+type DecisionChanges = Readonly<{
   changes: readonly DecisionFileChange[];
   originalScan: DecisionScan;
-  scanOptions: DecisionScanOptions;
-}): Promise<DecisionTransactionResult> {
+}>;
+export async function applyDecisionChanges(
+  options: DecisionChanges
+): Promise<DecisionTransactionResult> {
+  return await applyPreparedDecisionTransaction({
+    context: options.originalScan,
+    changes: options.changes
+  });
+}
+/** The caller prepared domain lifecycle/history while holding the collection lock. */
+export async function applyLockedDecisionChanges(
+  options: DecisionChanges & { sourceCapture?: DecisionSourceCapture }
+): Promise<DecisionTransactionResult> {
+  return await runDecisionTransaction(
+    {
+      context: options.originalScan,
+      changes: options.changes,
+      lockHeld: true
+    },
+    options.sourceCapture
+  );
+}
+
+type DecisionTransactionOptions = Readonly<{
+  context: DecisionPreparationContext;
+  changes: readonly DecisionFileChange[];
+  lockHeld?: boolean;
+  preflight?: boolean;
+}>;
+
+export async function applyPreparedDecisionTransaction(
+  options: DecisionTransactionOptions
+): Promise<DecisionTransactionResult> {
+  return await runDecisionTransaction(options);
+}
+
+async function runDecisionTransaction(
+  options: DecisionTransactionOptions,
+  sourceCapture?: DecisionSourceCapture
+): Promise<DecisionTransactionResult> {
+  const operation = async (): Promise<DecisionTransactionResult> => {
+    const result = await runRecordTransaction({
+      preflight: options.preflight,
+      prepare: () =>
+        prepareDecisionTransactionPlan(
+          options.context,
+          options.changes,
+          sourceCapture
+        ),
+      fresh: (value) => verifyDecisionTransactionMembers(value, "before"),
+      verify: (value) => verifyDecisionTransactionMembers(value, "after"),
+      verifyRecovered: (value) =>
+        verifyDecisionTransactionMembers(value, "before")
+    });
+    return decisionTransactionResult(result, options.context.indexRelativePath);
+  };
   try {
-    return await withDecisionCollectionMutationLock(
-      options.originalScan.indexPath,
-      async () => await applyLockedDecisionChanges(options)
-    );
+    return options.lockHeld === true || options.preflight === true
+      ? await operation()
+      : await withDecisionCollectionMutationLock(
+          options.context.indexPath,
+          operation
+        );
   } catch (error) {
     return decisionTransactionLockFailure(error);
   }
 }
 
-/**
- * Applies already prepared changes while the caller holds the collection lock.
- * Lifecycle commands use this after re-reading their scan and Git baseline in
- * that same lock; direct transaction callers should use applyDecisionChanges.
- */
-export async function applyLockedDecisionChanges(options: {
-  changes: readonly DecisionFileChange[];
-  originalScan: DecisionScan;
-  scanOptions: DecisionScanOptions;
-}): Promise<DecisionTransactionResult> {
-  const { changes, originalScan } = options;
-  const preflight = await preflightDecisionChanges(changes, originalScan);
-  if (preflight.errors.length > 0) {
-    return transactionFailure(preflight.errors, "no-change");
-  }
-  try {
-    return await applyPreflightedDecisionChanges(options, preflight);
-  } catch (error) {
-    return await recoveredTransactionFailure(
-      [
-        transactionFileSystemDiagnostic(
-          "Failed to update decision files and index.",
-          "Decision transaction",
-          error
-        )
-      ],
-      originalScan,
-      preflight
-    );
-  }
-}
-
-async function applyPreflightedDecisionChanges(
-  options: {
-    changes: readonly DecisionFileChange[];
-    originalScan: DecisionScan;
-    scanOptions: DecisionScanOptions;
-  },
-  preflight: DecisionChangePreflight
-): Promise<DecisionTransactionResult> {
-  let changed = await applyPreflightDecisionChanges(
-    options.changes,
-    preflight.createdTargetPaths
+function decisionTransactionResult(
+  result: RecordTransactionResult<PreparedDecisionTransaction>,
+  target: string
+): DecisionTransactionResult {
+  const facts = {
+    changed: result.changed,
+    committed: result.committed,
+    verification: result.verification,
+    sourcePaths: result.writtenPaths.map((filePath) =>
+      result.value === null
+        ? filePath
+        : path
+            .relative(result.value.context.decisionsDirectory, filePath)
+            .split(path.sep)
+            .join("/")
+    )
+  };
+  if (result.status === "ok")
+    return { ...facts, diagnostics: [], errors: [], status: "ok" };
+  const errors = result.errors.map((error) =>
+    transactionFileSystemDiagnostic(
+      "Failed to update or verify Decision files and index.",
+      target,
+      error
+    )
   );
-  const candidateScan = await scanDecisionRecords(options.scanOptions);
-  const hasEstablishedDecision = candidateScan.records.some(
-    (record) => record.markdownExists && record.document !== null
+  const cleanup = result.cleanupErrors.map((error) =>
+    transactionFileSystemDiagnostic(
+      "Decision mutation completed but temporary cleanup failed.",
+      error instanceof RecordAtomicCleanupError && result.value !== null
+        ? path
+            .relative(result.value.context.workspaceRoot, error.temporaryPath)
+            .split(path.sep)
+            .join("/")
+        : target,
+      error
+    )
   );
-  const sourceErrors = await changedDecisionSourceErrors(
-    candidateScan,
-    hasEstablishedDecision
-  );
-  if (sourceErrors.length > 0) {
-    return await recoveredTransactionFailure(
-      sourceErrors,
-      options.originalScan,
-      preflight
-    );
-  }
-  const synchronized = await synchronizeChangedDecisionIndex(
-    candidateScan,
-    hasEstablishedDecision,
-    changed
-  );
-  if (synchronized.errors.length > 0) {
-    return await recoveredTransactionFailure(
-      synchronized.errors,
-      options.originalScan,
-      preflight
-    );
-  }
-  changed = synchronized.changed;
-  const validationErrors = await finalDecisionValidationErrors(
-    options.scanOptions,
-    hasEstablishedDecision
-  );
-  if (validationErrors.length > 0) {
-    return await recoveredTransactionFailure(
-      validationErrors,
-      options.originalScan,
-      preflight
-    );
-  }
-  return { changed, diagnostics: [], errors: [], status: "ok" };
+  return transactionFailure([...errors, ...cleanup], result.outcome, facts);
 }
-
-async function applyPreflightDecisionChanges(
-  changes: readonly DecisionFileChange[],
-  createdTargetPaths: Set<string>
-): Promise<boolean> {
-  let changed = false;
-  for (const change of changes) {
-    changed =
-      (await applyDecisionChange(change, createdTargetPaths)) || changed;
-  }
-  return changed;
-}
-
-async function changedDecisionSourceErrors(
-  scan: DecisionScan,
-  hasEstablishedDecision: boolean
-): Promise<DecisionTransactionIssue[]> {
-  const validation = await validateDecisionScan(scan, {
-    allowEmptyDecisionSet: !hasEstablishedDecision,
-    checkIndexText: false,
-    scanErrorPolicy: "source-only"
-  });
-  return validation.errors;
-}
-
-async function synchronizeChangedDecisionIndex(
-  scan: DecisionScan,
-  hasEstablishedDecision: boolean,
-  changed: boolean
-): Promise<{ changed: boolean; errors: DecisionTransactionIssue[] }> {
-  if (!hasEstablishedDecision) {
-    await fs.rm(scan.indexPath, { force: true });
-    return { changed: scan.indexExists || changed, errors: [] };
-  }
-  const selection = selectEstablishedDecisionIds(scan);
-  if (selection.errors.length > 0) {
-    return { changed, errors: selection.errors };
-  }
-  const synchronized = await syncDecisionIndex({
-    decisionsDirectory: scan.decisionsDirectory,
-    indexPath: decisionIndexFileName,
-    mode: "write"
-  });
-  if (synchronized.status === "error") {
-    return {
-      changed,
-      errors: decisionIndexDiagnostics(synchronized.diagnostics, {
-        code: "decision-records.transaction-failed",
-        recovery:
-          "Inspect the decision files and derived index, then retry the command.",
-        target: scan.indexRelativePath
-      })
-    };
-  }
-  return { changed: synchronized.state === "written" || changed, errors: [] };
-}
-
-async function finalDecisionValidationErrors(
-  scanOptions: DecisionScanOptions,
-  hasEstablishedDecision: boolean
-): Promise<DecisionTransactionIssue[]> {
-  const validationScan = await scanDecisionRecords(scanOptions);
-  const validation = await validateDecisionScan(validationScan, {
-    allowEmptyDecisionSet: !hasEstablishedDecision
-  });
-  return validation.errors;
-}
-
-async function recoveredTransactionFailure(
-  errors: readonly DecisionTransactionIssue[],
-  originalScan: DecisionScan,
-  preflight: DecisionChangePreflight
-): Promise<DecisionTransactionResult> {
-  const recoveryErrors = await restoreDecisionChanges(originalScan, preflight);
-  return transactionFailure(
-    [...errors, ...recoveryErrors],
-    recoveryErrors.length === 0 ? "rolled-back" : "partial-or-unknown"
-  );
-}
-
 export function transactionFileSystemDiagnostic(
   reason: string,
   target: string,
@@ -245,7 +169,7 @@ export function transactionFileSystemDiagnostic(
       code: "decision-records.transaction-failed",
       reason,
       recovery:
-        "Inspect the decision files and derived index, then retry the command.",
+        "Inspect and reconcile the Decision files, derived index and cleanup state before running another mutation.",
       target
     },
     error

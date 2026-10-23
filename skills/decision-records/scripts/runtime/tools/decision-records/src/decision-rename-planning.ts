@@ -60,49 +60,66 @@ export function prepareDecisionRename(
   options: DecisionRenameOptions
 ): PreparedRenameStep {
   const source = resolveRenameSource(scan, options.source);
-  if (source.status !== "ok") return source;
+  if (source.status !== "ok") {
+    return source;
+  }
   const target = resolveRenameTarget(
     source.record,
     scan.records,
     options.target
   );
-  if (target.status !== "ok") return target;
-  const relations = rewrittenDecisionChanges(
-    scan.records,
-    source.record,
-    target.value
-  );
+  if (target.status !== "ok") {
+    return target;
+  }
+  const unchanged =
+    source.record.decisionId === target.value.decisionId &&
+    source.record.sourcePath === target.value.sourcePath;
+  const relations = unchanged
+    ? []
+    : rewrittenDecisionChanges(scan.records, source.record, target.value);
   const sourceChange = relations.find(
     (change) => change.decisionPath === source.record.decisionPath
   );
-  if (sourceChange === undefined) {
+  if (!unchanged && sourceChange === undefined) {
     throw new Error("Decision rename did not prepare its selected source");
   }
-  const candidateRelations = scan.records
-    .filter(isDecisionCandidateRecord)
-    .flatMap((record) => record.source.document.relations)
-    .filter((relation) => relation.target === source.record.decisionId).length;
-  const establishedRelations = scan.records
-    .filter(isEstablishedDecisionRecord)
-    .flatMap((record) => record.source.document.relations)
-    .filter((relation) => relation.target === source.record.decisionId).length;
   return {
     status: "ready",
     value: {
       changes: relations,
-      plan: {
-        affectedCandidateRelationCount: candidateRelations,
-        affectedEstablishedRelationCount: establishedRelations,
-        newId: target.value.decisionId,
-        newName: target.value.name,
-        newSourcePath: target.value.sourcePath,
-        oldId: source.record.decisionId,
-        oldName: decisionNameFromId(source.record.decisionId),
-        oldSourcePath: source.record.sourcePath,
-        outcome: "ready"
-      },
+      plan: decisionRenamePlan(scan.records, source.record, target.value),
       source: source.record
     }
+  };
+}
+
+/** 从被更正身份的入边独立生成 review 计数，不重新解析或读取来源。 */
+function decisionRenamePlan(
+  records: readonly DecisionRecord[],
+  source: RenameableDecisionRecord,
+  target: RenameTarget
+): DecisionRenamePlan {
+  let affectedCandidateRelationCount = 0;
+  let affectedEstablishedRelationCount = 0;
+  for (const record of records) {
+    if (!isRenameableDecisionRecord(record)) continue;
+    const count = record.source.document.relations.filter(
+      (relation) => relation.target === source.decisionId
+    ).length;
+    if (isDecisionCandidateRecord(record))
+      affectedCandidateRelationCount += count;
+    else affectedEstablishedRelationCount += count;
+  }
+  return {
+    affectedCandidateRelationCount,
+    affectedEstablishedRelationCount,
+    newId: target.decisionId,
+    newName: target.name,
+    newSourcePath: target.sourcePath,
+    oldId: source.decisionId,
+    oldName: decisionNameFromId(source.decisionId),
+    oldSourcePath: source.sourcePath,
+    outcome: "ready"
   };
 }
 

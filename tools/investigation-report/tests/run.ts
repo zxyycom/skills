@@ -33,6 +33,7 @@ await import("./rename.test.ts");
 await import("./rename-validation.test.ts");
 await import("./rename-recovery.test.ts");
 await import("./rename-drift.test.ts");
+await import("./strict-preparation.test.ts");
 
 await import("./search-info.test.ts");
 
@@ -77,3 +78,14 @@ await import("./staging-pending-refresh.test.ts");
 await import("./staging-pending-deletion.test.ts");
 
 await import("./staging-index-payload.test.ts");
+
+await import("./result-integrity.test.ts");
+await import("./transaction-boundaries.test.ts");
+
+await import("./discovery-dependencies.test.ts");
+
+await import("./candidate-operations.test.ts");
+
+await import("./transaction-domain-boundaries.test.ts");
+
+await import("./transaction-creation-modes.test.ts");

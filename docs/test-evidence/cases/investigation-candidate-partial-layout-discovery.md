@@ -1,13 +1,13 @@
-### Case INVESTIGATION-CANDIDATE-PARTIAL-DISCOVERY-001: 局部候选读取保留移动 owner 发现
+### Case INVESTIGATION-CANDIDATE-PARTIAL-DISCOVERY-001: 局部候选读取拒绝未恢复的必需正式 owner
 
 Tests:
-- `test:9d1136e7099d8dff50bb83ae1f26f9c0e87c1c781bcb03afc55559de18673a42`
+- `test:36cb633c6dc02ddc1e718ed4b3af2ab138af8f6f93b8ad429c84dfffb500da0b`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 局部 layout 尚无正式来源时，候选共享资源可发现移动后的正式 owner，索引不可用时仍按现有发现 fallback 取得身份。
+- 候选共享资源的必需正式 owner 必须能由有效发布基线可靠解析；位置未同步或索引不可用时须显式恢复，不以来源 fallback 或无索引 header 身份代替正式依赖证明。
 
 Proves:
-- 正式 owner 移动但尚未同步索引时仍可读取候选；随后索引 JSON 损坏或删除时同样成功，候选资源无错误。
+- 在同一共享资源 fixture 中，正式 owner 从索引记录的位置移到新路径后，show-candidate 返回 error；保持该移动并依次损坏、删除索引时同样返回 error，没有返回成功候选。

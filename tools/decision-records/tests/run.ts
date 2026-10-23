@@ -61,3 +61,20 @@ await import("./search-metadata-window.test.ts");
 await import("./cli-search-metadata-window.test.ts");
 
 await import("./local-operation-contracts.test.ts");
+
+await import("./discovery-dependencies.test.ts");
+
+await import("./candidate-operations.test.ts");
+
+await import("./transaction-boundaries.test.ts");
+
+await import("./acquisition-safety.test.ts");
+
+await import("./record-shared-transactions.test.ts");
+await import("./sync-preflight-lock.test.ts");
+
+await import("./candidate-transaction-boundaries.test.ts");
+
+await import("./transaction-creation-modes.test.ts");
+
+await import("./transaction-strict-preparation.test.ts");

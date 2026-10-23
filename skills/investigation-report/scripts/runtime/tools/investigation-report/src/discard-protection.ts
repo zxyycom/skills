@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import type { InvestigationPreparation } from "./strict-preparation.ts";
 import { collectValidatedInvestigationCollection } from "./validation.ts";
 import { sameInvestigationSources } from "./investigation-index-source.ts";
 import {
@@ -126,7 +127,10 @@ export async function publishPreparedDiscard(
   options: DiscardCollectionOptions,
   prepared: Readonly<{
     indexText: string;
+    preparation?: InvestigationPreparation;
     originalIndexText: string;
+    originalSources: readonly import("./types.ts").InvestigationSource[];
+    resourceProgress: import("./rename-contract.ts").ResourceMoveProgress;
     ownedResources: ResourceTreeScan;
     reportPath: string;
     resourceOwnerPath: string;
@@ -134,9 +138,12 @@ export async function publishPreparedDiscard(
 ): Promise<InvestigationReportDiscardResult> {
   const publication = await publishDiscard({
     afterResourceTombstone: options.afterResourceTombstone,
+    preparation: prepared.preparation,
     indexPath: options.indexPath,
     indexText: prepared.indexText,
     originalIndexText: prepared.originalIndexText,
+    originalSources: prepared.originalSources,
+    resourceProgress: prepared.resourceProgress,
     reportPath: prepared.reportPath,
     resourceOwnerPath: prepared.resourceOwnerPath,
     resourceSnapshot: prepared.ownedResources,

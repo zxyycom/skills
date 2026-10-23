@@ -8,6 +8,7 @@
  * Rebuild: bun run sync:investigation-report-check
  */
 import fs from "node:fs/promises";
+import type { RecordWriteIdentity } from "../../record-operations/src/transaction-files.ts";
 import path from "node:path";
 import { err, ok, type Result } from "neverthrow";
 import { InvestigationCollectionMutationLockError } from "./collection-mutation-lock.ts";
@@ -15,7 +16,7 @@ import {
   diagnosticFromError,
   type InvestigationDiagnostic
 } from "./diagnostics.ts";
-import { inspectInvestigationCollectionLayout } from "./investigation-index-source.ts";
+import { discoverInvestigationCandidates } from "./candidate-discovery.ts";
 import type {
   InvestigationCandidateCreateResult,
   InvestigationCandidateListResult,
@@ -23,12 +24,11 @@ import type {
 } from "./types.ts";
 
 export async function safeCandidateLayout(
-  investigationsDirectory: string,
-  options: Readonly<{ readFormalSources?: boolean }> = {}
+  investigationsDirectory: string
 ): Promise<
   | {
       status: "ok";
-      value: Awaited<ReturnType<typeof inspectInvestigationCollectionLayout>>;
+      value: Awaited<ReturnType<typeof discoverInvestigationCandidates>>;
     }
   | {
       diagnostics: InvestigationDiagnostic[];
@@ -37,13 +37,10 @@ export async function safeCandidateLayout(
     }
 > {
   try {
-    const layout = await inspectInvestigationCollectionLayout(
-      investigationsDirectory,
-      options
+    const layout = await discoverInvestigationCandidates(
+      investigationsDirectory
     );
-    return layout.errors.length === 0
-      ? { status: "ok", value: layout }
-      : { diagnostics: [], errors: layout.errors, status: "error" };
+    return { status: "ok", value: layout };
   } catch (error) {
     return {
       diagnostics: [
@@ -55,7 +52,9 @@ export async function safeCandidateLayout(
           target: investigationsDirectory
         })
       ],
-      errors: ["investigation root could not be safely inspected"],
+      errors: [
+        "investigation root could not be safely inspected: " + errorText(error)
+      ],
       status: "error"
     };
   }
@@ -64,7 +63,12 @@ export async function safeCandidateLayout(
 export async function writeCandidateAtomically(
   target: string,
   markdown: string
-): Promise<Result<Readonly<{ warnings: string[] }>, unknown>> {
+): Promise<
+  Result<
+    Readonly<{ warnings: string[]; identity: RecordWriteIdentity }>,
+    unknown
+  >
+> {
   const temporary = candidateTemporaryPath(target);
   let handle: Awaited<ReturnType<typeof fs.open>> | undefined;
   let published = false;
@@ -73,11 +77,19 @@ export async function writeCandidateAtomically(
     handle = await fs.open(temporary, "wx", 0o600);
     await handle.writeFile(markdown, "utf8");
     await handle.sync();
+    const identity = await handle.stat();
     await handle.close();
     handle = undefined;
     await fs.link(temporary, target);
     published = true;
-    return await removePublishedTemporary(temporary);
+    return (await removePublishedTemporary(temporary)).map((value) => ({
+      ...value,
+      identity: {
+        dev: identity.dev,
+        ino: identity.ino,
+        mode: identity.mode & 0o7777
+      }
+    }));
   } catch (error) {
     return err(error);
   } finally {

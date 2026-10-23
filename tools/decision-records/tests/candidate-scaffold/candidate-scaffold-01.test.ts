@@ -137,13 +137,14 @@ test("new creates a canonical incomplete scaffold without entering the establish
       "--root",
       workspaceRoot
     ]);
-    assert.equal(invalidCollection.exitCode, 0, invalidCollection.stderr);
+    assert.equal(invalidCollection.exitCode, 1, invalidCollection.stderr);
+    assert.match(invalidCollection.stderr, /cannot be safely classified/);
     assert.doesNotMatch(invalidCollection.stderr, /collection problem/);
     assert.equal(
       await fileExists(
         decisionFilePath(workspaceRoot, "blocked-by-invalid-source.md")
       ),
-      true
+      false
     );
     await fs.rm(decisionFilePath(workspaceRoot, "invalid-existing-source.md"));
 

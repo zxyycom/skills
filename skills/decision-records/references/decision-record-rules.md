@@ -112,7 +112,7 @@ relations:
     summary: 将查询投影移出持久索引
 ```
 
-每个 target 是合法 Decision ID，在同一来源记录中唯一，完整图无自环、无环。候选关系先检查类型、ID、重复、自环和目标可解析性；候选建立前留在正式图外，活动前序也无需提前归档。
+每个 target 是合法 Decision ID，在同一来源记录中唯一，完整图无自环、无环。候选起草先检查类型、ID、重复与自环；new、candidates 与 show-candidate 的完整 target ID 只验语法，允许目标以后创建；目标尚未建立不降低 scaffoldValid 或隐藏候选，name 按[创建操作的选择集合](cli-operations.md#创建与继续候选)唯一解析。正式发布独立验证目标存在及最终完整图；候选建立前留在正式图外，活动前序也无需提前归档。
 
 可选 summary 从来源记录视角说明该边：输入 trim 后为空则省略，非空须为单行且最多 40 个 Unicode 码点，超限拒绝。它补充边的说明，边身份、排序、去重和拓扑继续由 type、target 及领域图规则决定。
 
@@ -142,6 +142,10 @@ Markdown 是权威来源，索引保存已建立记录的定位、状态、非�
 
 `list`、`trace` 与 metadata 搜索使用已发布快照；`show` 读取所选当前正文，默认 content 搜索发现当前文本。结果只证明实际来源与覆盖，索引不能反向定义记录事实。具体查询选择和完整性解释见 [CLI 查询契约](cli-operations.md#查询与结果解释)。
 
-已知合法来源变化先 `sync-index` 再严格 `check`；未解释的索引异常先检查诊断。严格检查验证来源、状态位置、关系与索引一致性，agent 另行核对记录门槛、正文与摘要、真实前序、后继承接和 alignment 依据。
+已知合法正式来源变化先 `sync-index`；任务要求当前全集结论或正在恢复集合时再严格 `check`，未解释的索引异常先检查诊断。严格检查验证本次采集的来源、状态位置、关系与索引一致性，agent 另行核对记录门槛、正文与摘要、真实前序、后继承接和 alignment 依据。首次采集与同步 fresh 的边界见 [CLI 检查与同步](cli-operations.md#检查与同步)。
 
 Git 待提交快照与领域状态分别维护：`stage` 只构造所选正式记录的 pending 内容，commit 与 push 另按授权执行。同步与暂存前提分别见 [CLI 检查与同步](cli-operations.md#检查与同步)和[待提交快照](cli-operations.md#待提交快照)。
+
+## 事务边界与零写动作
+
+普通维护保护已声明的局部依赖与最终领域图；严格 rename/discard/带删除 evolve 继续承担全集与历史义务。提交事实与写后验收见 [CLI 结果与恢复](cli-operations.md#结果与恢复)，真零写 rename、末条删除及候选索引边界见[身份更正与删除](cli-operations.md#身份更正与删除)；失败后的对账与 CAS 范围见[中断写入](maintenance-recovery.md#中断写入)。

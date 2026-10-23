@@ -1,3 +1,6 @@
+import { recordGraphProof } from "../../record-operations/src/query.ts";
+import { validateInvestigationRelationGraph } from "./relation-validation.ts";
+import { validateInvestigationResourceOwnership } from "./resources.ts";
 import { createLazyRelationGraph } from "../../shared/src/graph/lazy-relation-graph.ts";
 import {
   buildRelationGraph,
@@ -19,13 +22,14 @@ export type InvestigationRelationGraph = RelationGraph<
 export type InvestigationRelationContext = Readonly<{
   entries: readonly InvestigationSnapshotEntry[];
   graph: () => InvestigationRelationGraph;
+  errors: () => readonly string[];
 }>;
 
 export function createInvestigationRelationContext(
   states: Iterable<readonly [string, InvestigationIndexState]>
 ): InvestigationRelationContext {
   const entries = Array.from(states, ([id, state]) => ({ id, state }));
-  return {
+  const context: InvestigationRelationContext = {
     entries,
     graph: createLazyRelationGraph(() => {
       const statesById = new Map(entries.map(({ id, state }) => [id, state]));
@@ -36,6 +40,19 @@ export function createInvestigationRelationContext(
         ...buildRelationGraph(statesById.keys(), edges),
         states: statesById
       };
-    })
+    }),
+    errors: recordGraphProof(
+      () => context.graph(),
+      () => [
+        ...validateInvestigationRelationGraph(context),
+        ...validateInvestigationResourceOwnership(
+          entries.flatMap(({ state }) => state.resourceIds),
+          new Map(
+            entries.map(({ id, state }) => [id, new Set(state.resourceIds)])
+          )
+        )
+      ]
+    )
   };
+  return context;
 }

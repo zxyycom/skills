@@ -1,3 +1,5 @@
+import { executeDecisionQuery } from "../../src/decision-query-service.ts";
+import { assertSyncSelectionPriority } from "../../../record-operations/tests/sync-selection-contract.ts";
 import {
   archivedDecisionId,
   assert,
@@ -6,6 +8,7 @@ import {
   decisionFilePath,
   fs,
   path,
+  readIndex,
   runSourceCli,
   syncDecisionIndex,
   test,
@@ -200,3 +203,96 @@ test("Decision full sync preflight accepts recoverable indexes without weakening
     assert.match(current.stdout, /up to date/u);
     assert.doesNotMatch(current.stdout, /not published/u);
   }));
+
+test("Decision selected sync preserves strict baseline and selector error priority", async () => {
+  await withFixtureWorkspace(
+    "selected-baseline-priority",
+    async (workspaceRoot) => {
+      await assertSyncSelectionPriority({
+        indexPath: path.join(
+          workspaceRoot,
+          "docs/decisions/decision-index.json"
+        ),
+        knownSelector: currentDecisionId,
+        synchronize: async (selector) => {
+          const api = await executeDecisionQuery({
+            command: "sync-index",
+            location: { workspaceRoot, decisionsDir: "docs/decisions" },
+            selectors: [selector],
+            preflight: true
+          });
+          const cli = await runSourceCli([
+            "sync-index",
+            "--select",
+            selector,
+            "--preflight",
+            "--root",
+            workspaceRoot
+          ]);
+          return [
+            { ok: api.status === "ok", details: JSON.stringify(api) },
+            { ok: cli.exitCode === 0, details: cli.stderr }
+          ];
+        }
+      });
+    }
+  );
+});
+
+test("Decision selected sync keeps raw selector errors ahead of an acquired invalid baseline", async () => {
+  await withFixtureWorkspace(
+    "selected-raw-baseline-priority",
+    async (workspaceRoot) => {
+      const indexPath = path.join(
+        workspaceRoot,
+        "docs/decisions/decision-index.json"
+      );
+      await fs.writeFile(indexPath, "{invalid");
+      for (const [selectors, code] of [
+        [[""], "selector-invalid"],
+        [[currentDecisionId, currentDecisionId], "selector-duplicate"]
+      ] as const) {
+        const result = await executeDecisionQuery({
+          command: "sync-index",
+          location: { workspaceRoot, decisionsDir: "docs/decisions" },
+          selectors,
+          preflight: true
+        });
+        assert.equal(result.status, "error");
+        assert.match(JSON.stringify(result), new RegExp(code));
+        assert.doesNotMatch(
+          JSON.stringify(result),
+          /selected sync requires a valid baseline/
+        );
+        assert.equal(await fs.readFile(indexPath, "utf8"), "{invalid");
+      }
+    }
+  );
+});
+
+test("Decision selected sync accepts a selected deletion from a valid baseline despite missing-member diagnostics", async () => {
+  await withFixtureWorkspace(
+    "selected-valid-baseline-deletion",
+    async (workspaceRoot) => {
+      const indexPath = path.join(
+        workspaceRoot,
+        "docs/decisions/decision-index.json"
+      );
+      const baseline = await readIndex(indexPath);
+      await fs.rm(decisionFilePath(workspaceRoot, currentRelativePath));
+      const result = await executeDecisionQuery({
+        command: "sync-index",
+        location: { workspaceRoot, decisionsDir: "docs/decisions" },
+        selectors: [currentDecisionId],
+        preflight: false
+      });
+      assert.equal(result.status, "ok", JSON.stringify(result));
+      const current = await readIndex(indexPath);
+      assert.equal(Object.hasOwn(current.entries, currentDecisionId), false);
+      assert.deepEqual(
+        current.entries[archivedDecisionId],
+        baseline.entries[archivedDecisionId]
+      );
+    }
+  );
+});

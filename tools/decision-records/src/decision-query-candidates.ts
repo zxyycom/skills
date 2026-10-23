@@ -1,14 +1,10 @@
-import {
-  decisionFailure,
-  type DecisionApplicationFailure
-} from "./application-result.ts";
+import { decisionFailure } from "./application-result.ts";
 import { decisionScanOptions } from "./decision-query-context.ts";
 import { loadDecisionValidationContext } from "./index.ts";
-import { scanDecisionRecords } from "./scan.ts";
+import { readCandidateSelection } from "./decision-candidate-context.ts";
 import type { DecisionLocation } from "./decision-query-context.ts";
 import type { DecisionQueryResult } from "./decision-query-contract.ts";
 import { candidateRecords, sourceFailure } from "./decision-query-records.ts";
-import type { DecisionScan } from "./types.ts";
 
 export async function listDecisionCandidates(
   location: DecisionLocation
@@ -48,22 +44,11 @@ export async function checkDecisionRecords(
   };
 }
 
-export async function loadCandidateQueryContext(
-  location: DecisionLocation
-): Promise<
-  | DecisionApplicationFailure
-  | { scan: DecisionScan; status: "ok"; warnings: string[] }
-> {
-  const scan = await scanDecisionRecords(decisionScanOptions(location));
-  if (!scan.decisionsDirectoryAvailable)
-    return sourceFailure(scan.sourceErrors, "Decision collection");
-  if (scan.collectionErrors.length > 0)
-    return sourceFailure(scan.collectionErrors, "Decision collection");
-  return {
-    scan,
-    status: "ok",
-    warnings: scan.sourceErrors.filter(
-      (error) => !scan.collectionErrors.includes(error)
-    )
-  };
+export async function loadCandidateQueryContext(location: DecisionLocation) {
+  try {
+    const scan = await readCandidateSelection(decisionScanOptions(location));
+    return { scan, status: "ok" as const, warnings: scan.sourceErrors };
+  } catch (error) {
+    return sourceFailure([String(error)], "Decision collection");
+  }
 }

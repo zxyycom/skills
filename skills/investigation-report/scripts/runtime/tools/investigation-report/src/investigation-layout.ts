@@ -12,6 +12,7 @@ import fs from "node:fs/promises";
 import { hasCandidateFormalIdentityConflict } from "./candidate-path.ts";
 import {
   inspectInvestigationLayoutEntry,
+  type InvestigationLayoutOptions,
   type InvestigationLayoutScan
 } from "./investigation-layout-entry.ts";
 import {
@@ -32,10 +33,7 @@ export type InvestigationCollectionLayout = Readonly<{
 
 export async function inspectInvestigationCollectionLayout(
   investigationsDirectory: string,
-  options: Readonly<{
-    readFormalSources?: boolean;
-    readCandidateSources?: boolean;
-  }> = {}
+  options: InvestigationLayoutOptions = {}
 ): Promise<InvestigationCollectionLayout> {
   const scan: InvestigationLayoutScan = {
     candidateErrors: [],

@@ -166,7 +166,9 @@ export function stateIndexSyncDiagnostics(
     ...diagnosticFromStateIndexDiagnostic(diagnostic, {
       mutation,
       recovery:
-        "correct the reported derived-index problem, then retry the synchronization",
+        result.state === "index-write-failed"
+          ? "the index may already have been published; inspect its actual bytes and reconcile before another mutation, rather than retrying blindly"
+          : "correct the reported derived-index problem, then retry the synchronization",
       target: indexPath
     })
   }));

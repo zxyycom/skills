@@ -1,7 +1,5 @@
-import {
-  syncStateIndex,
-  type StateSnapshot
-} from "../../index-runtime/src/index.ts";
+import type { StateSnapshot } from "../../index-runtime/src/index.ts";
+import { checkCollectedRecordIndex } from "../../record-operations/src/check.ts";
 import {
   createDecisionStateIndexDefinition,
   decisionIndexFileName
@@ -16,9 +14,11 @@ import {
 } from "./types.ts";
 
 /** Called only with the fresh, source-valid scan owned by this validation call. */
-export async function checkScannedDecisionIndex(scan: DecisionScan) {
+export function decisionSnapshotFromScan(
+  scan: DecisionScan
+): StateSnapshot<DecisionIndexState, DecisionIndexMetadata> {
   const records = scan.records.filter(isEstablishedDecisionRecord);
-  const snapshot: StateSnapshot<DecisionIndexState, DecisionIndexMetadata> = {
+  return {
     metadata: {},
     sourceRevision: decisionSourceRevision(
       records.map((record) => ({
@@ -38,13 +38,14 @@ export async function checkScannedDecisionIndex(scan: DecisionScan) {
       ])
     )
   };
-  return await syncStateIndex({
+}
+
+export async function checkScannedDecisionIndex(scan: DecisionScan) {
+  const snapshot = decisionSnapshotFromScan(scan);
+  return await checkCollectedRecordIndex({
     context: { root: scan.decisionsDirectory },
-    definition: {
-      ...createDecisionStateIndexDefinition(),
-      read: async () => snapshot
-    },
+    definition: createDecisionStateIndexDefinition(),
     indexPath: decisionIndexFileName,
-    mode: "check"
+    snapshot
   });
 }

@@ -4,31 +4,32 @@
 
 ## Context
 
-事实接点阅读于 `ce3272c557c5f7cd85d3968e5528e8687d87fd58`；后续实施须重核 owner 与输入，
+设计调查接点为 `ce3272c557c5f7cd85d3968e5528e8687d87fd58`，用于解释方案动因，不是当前源码清单或性能配对基线。
 Plan 的 `baseCommit` 以 CLI 实际记录为准。DR、IR 的 Markdown 是事实源，索引是派生发布投影。
 当前方向依据[局部/全集边界](../../docs/decisions/separate-record-local-operations-from-collection-audits.md)、
 [共同候选动作](../../docs/decisions/260922-unify-record-candidate-lifecycle-actions.md)与
 [Index Runtime](../../tools/index-runtime/README.md)，不是以当前代码复制关系推定共同契约。
 
-关键事实与源码入口如下；已有定向观察用于确定方案，实施验收另行取得：
+下表区分方案形成时的观察与当前维护入口。实施与验收进度只见 [tasks](tasks.md)；
+[阶段 0–3](stage-0-3-handoff.md)、[阶段 4–6](stage-4-6-handoff.md)保存各 checkpoint 的执行证据，
+性能输入、结果与未完成配对从[证据入口](evidence/README.md)恢复。
 
-| 责任 | 关键发现与稳定接点 | 证据性质与边界 |
+| 责任 | 方案动因与证据边界 | 当前实现阅读入口 |
 | --- | --- | --- |
-| 结果完整性 | IR [trace](../../tools/investigation-report/src/query-trace.ts)在缺失 target 的结构合法索引上静默跳过 entry，破坏[集合不变量](../../tools/investigation-report/README.md#关系筛选与-trace)；[candidate-create](../../tools/investigation-report/src/candidate-create.ts)未接回锁释放错误携带的完成结果 | 两项已有小 fixture 定向复现；不是所有 CLI/故障组合已验证 |
-| 同阶段索引与来源 | DR [decision-query-sync](../../tools/decision-records/src/decision-query-sync.ts)未交接已验 scan；两域 selected selector 与 sync 重复严格 baseline 准备；IR [publish 准备](../../tools/investigation-report/src/publish-preparation-formal.ts)未持续交接 baseline | 现有 1W 侦察支持读取量；无优化后配对收益证明 |
-| 查询准备 | [严格 load](../../tools/index-runtime/src/storage-load.ts)与 [reader](../../tools/index-runtime/src/reader.ts)重复提取 queryValues；DR [snapshot](../../tools/decision-records/src/decision-index-snapshot.ts)建 reader 后只消费 index；IR [content](../../tools/investigation-report/src/query-search.ts)另建上下文，[metadata](../../tools/investigation-report/src/query-search-metadata.ts)为全部命中保留 DTO | 静态链路；不是重复 JSON/state parse；content 无关系条件时并不构第二张图 |
-| 普通/严格事务 | DR [普通事务](../../tools/decision-records/src/decision-maintenance-transaction.ts)与 IR [关系发布](../../tools/investigation-report/src/relation-transaction-publication.ts)的 fresh/写后保证不同；[DR 恢复](../../tools/decision-records/src/decision-transaction-files.ts)及 [IR 恢复](../../tools/investigation-report/src/rename-recovery.ts)仍有未按当前写集归属保护的路径 | 静态恢复风险，未复现并发丢失；不据此报告秒数或已发生损坏 |
-| 候选/路径 | 两域候选 name 选择集合不同；[DR query context](../../tools/decision-records/src/decision-query-context.ts)与 [IR path](../../tools/investigation-report/src/report-path.ts)的 canonical 边界不同 | 同名无索引 fixture、内部查询 API 的集合 symlink 有定向观察；不是 CLI 全排列或路径竞态证明 |
+| 结果完整性 | IR trace 静默跳过缺失 target、new 解锁失败丢失实际创建事实，均有小 fixture 定向复现；不代表所有故障组合已验证。 | IR [关系筛选与 trace](../../tools/investigation-report/README.md#关系筛选与-trace)、[候选读取](../../tools/investigation-report/README.md#候选读取) |
+| 同阶段索引与来源 | 两域存在 scan、selected baseline 和发布准备的重复取得；原 1W 侦察只支持读取量观察，不直接证明配对收益。 | [共同操作与证据交接](../../tools/record-operations/README.md#同阶段证据与后续复核)、[Index Runtime 内部证明](../../tools/index-runtime/README.md#同阶段内部准备证明) |
+| 查询准备 | 静态链路发现字段重复物化、未持续使用 reader、查询上下文重复准备与全命中 DTO 留存；不是重复 JSON/state parse，也不意味着无关系 content 原本构建第二张图。 | [共同查询入口](../../tools/record-operations/README.md#操作入口与责任)、[reader 契约](../../tools/index-runtime/README.md#严格边界currentness-与-reader) |
+| 普通/严格事务 | 两域 fresh/写后保证不同，恢复路径存在实际写集归属风险；当时为静态风险，未复现并发丢失。 | [共同事务顺序](../../tools/record-operations/README.md#事务事实与恢复)、[DR 适配](../../tools/decision-records/README.md#非-stage-事务与恢复)、[IR 适配](../../tools/investigation-report/README.md#事务与诊断) |
+| 候选/路径 | name 选择集合与 canonical 边界不同，有同名无索引及 API 集合 symlink 定向观察；不构成 CLI 全排列或路径竞态证明。 | [共同候选与安全来源](../../tools/record-operations/README.md#操作入口与责任)、[DR 候选](../../tools/decision-records/README.md#候选操作)、[IR 候选](../../tools/investigation-report/README.md#候选读取) |
 
 已提交的[历史全操作调查](../../docs/investigations/record-tools-all-operations-100k.md)仅作成本背景：
 其 revision、100K 负载和 CLI 计时口径不同，不与当前 1W 源码 API 侦察拼表计算加速。
-未来 baseline 重新取得同口径证据。
+本 Change 的配对 baseline 与后续结果由[证据入口](evidence/README.md)及其 manifest 承接。
 
-当前有效的[关系输入决策](../../docs/decisions/maintain-formal-record-relations-with-shared-input-contract.md)
-明确不提取跨工具运行时组件。本计划扩大实现 owner，接入前须按决策流程显式修订该限制，
-不能声称现有独立编排违反该决策。
+[关系输入决策](../../docs/decisions/maintain-formal-record-relations-with-shared-input-contract.md)
+已显式承接窄共同操作 owner；两域的领域图、生命周期、资源与公开边界继续独立。
 [payload 决策](../../docs/decisions/scope-record-index-payload-validation.md)的 fresh 等价复用限定 stage，
-不是普通事务已经采用的保证。
+普通事务采用本计划 G4/G5 的独立阶段保证。
 
 ## Goals / Non-Goals
 
@@ -225,15 +226,15 @@ discard 是对象退出受管集合（可仍有已声明 tombstone/cleanup 残�
 #### 文档、决策与分发影响
 
 相应实现前/同批同步两域行为规则、操作与恢复契约、README、help 和公开声明，不扩大公开导出集合。
-[关系输入决策](../../docs/decisions/maintain-formal-record-relations-with-shared-input-contract.md)的
-“不提取跨工具运行时组件”限制须在共同 owner 接入前显式修订；
+[关系输入决策](../../docs/decisions/maintain-formal-record-relations-with-shared-input-contract.md)承接共同 owner 与领域边界；
 [选择发布决策](../../docs/decisions/publish-investigation-candidates-selectively.md)的“全部正式 Markdown 新鲜”
-须与局部发布和独立 fresh 的准确范围协调；
-[DR 查询快照决策](../../docs/decisions/publish-decision-index-query-snapshots.md)随 G1 修订。
+与局部发布和独立 fresh 的准确范围须一致；
+[DR 查询快照决策](../../docs/decisions/publish-decision-index-query-snapshots.md)承接 G1。
 其他 G2–G5 长期取舍按既有 Decision Records 流程判断原记录修订或新记录，不由计划覆盖当前有效记录。
 help 按[帮助投影决策](../../docs/decisions/project-record-discovery-semantics-into-cli-help.md)
 校正过时 fallback/全集验证表述；[维护工作流](../../docs/record-maintenance-workflow.md)的验收投影与完整门禁一致。
 
+Index Runtime 的实际既有消费者还包括 novel-cards 与 test-evidence-review；同批同步其生成闭包、独立版本及分发检查，行为源码保持不变。
 构建沿现有 DR/IR adapter 各自生成依赖闭包；可分发副本不是第二份维护源。
 每批同步受影响产物、声明和各 skill 独立版本，证明安装其中一个不依赖另一个 skill 或仓库路径。
 共同契约测试只维护一份并分别对两域适配器执行，领域图/生命周期/资源及公开 CLI/SDK 集成独立保留。

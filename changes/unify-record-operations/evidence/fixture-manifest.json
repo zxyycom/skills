@@ -1,0 +1,64 @@
+{
+  "sourceCommit": "5d6a73fb51ef1d9c2b0311e160cbd42a04576f42",
+  "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+  "fixtureTree": "e442746692f7f32a6582bf15d77b520348847e0e",
+  "treeSha256": "cf5d8c03134ad49e5b5535fcae0bf89f64958974df8367e29d467a93f4f8b7f5",
+  "files": 20007,
+  "bytes": 19196017,
+  "formalPerDomain": 10000,
+  "relationsPerDomain": 9000,
+  "candidatesPerDomain": 2,
+  "irResources": 1,
+  "irOwners": 1,
+  "remotes": "",
+  "commands": [
+    {
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/decision-records/scripts/decision-records.ts",
+        "sync-index",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "stdout": "Rebuilt docs/decisions/decision-index.json from decision Markdown files.\n",
+      "stderr": "Decision records command completed with warnings:\n- code: decision-records.candidate-remains\n  object: 261001-candidate-1.md\n  reason: Decision candidate scaffold remains: 261001-candidate-1.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n- code: decision-records.candidate-remains\n  object: 261001-candidate-2.md\n  reason: Decision candidate scaffold remains: 261001-candidate-2.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n"
+    },
+    {
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/decision-records/scripts/decision-records.ts",
+        "check",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "stdout": "Decision records check passed (10000 decisions, 1000 active, 500 aligned, 500 unaligned, 9000 archived, 2 candidate scaffolds, 2 body-ready candidates).\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/investigation-report/scripts/check-investigations.ts",
+        "sync-index",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "stdout": "Investigation index synchronized (10000 reports).\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/investigation-report/scripts/check-investigations.ts",
+        "check",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "stdout": "Investigation report check passed (10000 reports checked; full index current).\n",
+      "stderr": ""
+    }
+  ]
+}

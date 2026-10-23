@@ -12,7 +12,7 @@ import {
 } from "./report-path.ts";
 import type { InvestigationRelationSummaryInput } from "./relation-summary.ts";
 import type { InvestigationRelationSetResult } from "./types.ts";
-import { applyRelationReplacements } from "./relation-transaction-preparation.ts";
+import { applyRelationReplacements } from "./relation-transaction-execution.ts";
 import {
   defaultIndexPath,
   errorText,

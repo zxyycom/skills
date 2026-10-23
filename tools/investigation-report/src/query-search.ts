@@ -1,9 +1,8 @@
-import { publishedGraphErrors } from "./published-preparation.ts";
 import path from "node:path";
 import { canonicalizeInvestigationsDirectory } from "./report-path.ts";
 import {
   investigationIndexFileName,
-  loadInvestigationIndex
+  loadInvestigationQueryIndex
 } from "./investigation-state-index.ts";
 import { diagnosticFromStateIndexDiagnostic } from "./diagnostics.ts";
 import {
@@ -13,7 +12,6 @@ import {
 import { prepareSearch } from "./query-options.ts";
 import { searchInvestigationMetadata } from "./query-search-metadata.ts";
 import { searchSnapshot } from "./query-search-content.ts";
-import { createInvestigationRelationContext } from "./relation-context.ts";
 import type { InvestigationSearchResult } from "./types.ts";
 
 export async function searchInvestigationReports(
@@ -54,43 +52,37 @@ async function searchContent(
   indexPath: string,
   prepared: import("./query.ts").PreparedSearch
 ): Promise<InvestigationSearchResult> {
-  const loaded = await loadInvestigationIndex({
-    investigationsDirectory
+  const loaded = await loadInvestigationQueryIndex({
+    investigationsDirectory,
+    requiresRelations:
+      prepared.validated.relatedTo !== undefined ||
+      prepared.validated.relationType !== undefined
   });
-  if (loaded.status === "ok") {
-    const errors = publishedGraphErrors(
-      new Map(Object.entries(loaded.value.entries))
-    );
-    if (errors.length > 0)
-      return searchFailure({ errors, indexPath, failureKind: "operation" });
-  }
-  return loaded.status === "ok"
-    ? await searchSnapshot({
-        relations: createInvestigationRelationContext(
-          Object.entries(loaded.value.entries)
-        ),
-        indexPath,
-        investigationsDirectory,
-        prepared,
-        source: {
-          kind: "published-index+current-text",
-          currentness: "unchecked",
-          fallback: false
-        },
-        warnings: []
+  if (loaded.status === "ok")
+    return await searchSnapshot({
+      relations: loaded.relations,
+      indexPath,
+      investigationsDirectory,
+      prepared,
+      source: {
+        kind: "published-index+current-text",
+        currentness: "unchecked",
+        fallback: false
+      },
+      warnings: []
+    });
+  return searchFailure({
+    errors: [
+      "the published investigation index could not be loaded for content search"
+    ],
+    indexPath,
+    diagnostics: loaded.diagnostics.map((diagnostic) =>
+      diagnosticFromStateIndexDiagnostic(diagnostic, {
+        recovery:
+          "Run check to diagnose the collection, then run sync-index after correcting the problem.",
+        target: indexPath
       })
-    : searchFailure({
-        errors: [
-          "the published investigation index could not be loaded for content search"
-        ],
-        indexPath,
-        diagnostics: loaded.diagnostics.map((diagnostic) =>
-          diagnosticFromStateIndexDiagnostic(diagnostic, {
-            recovery:
-              "Run check to diagnose the collection, then run sync-index after correcting the problem.",
-            target: indexPath
-          })
-        ),
-        failureKind: "operation"
-      });
+    ),
+    failureKind: "operation"
+  });
 }

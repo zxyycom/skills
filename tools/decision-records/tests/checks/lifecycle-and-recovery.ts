@@ -14,3 +14,15 @@ await import("../first-establishment.test.ts");
 await import("../reallocation-member-complexity.test.ts");
 
 await import("../local-operation-contracts.test.ts");
+
+await import("../candidate-operations.test.ts");
+
+await import("../transaction-boundaries.test.ts");
+
+await import("../record-shared-transactions.test.ts");
+
+await import("../candidate-transaction-boundaries.test.ts");
+
+await import("../transaction-creation-modes.test.ts");
+
+await import("../transaction-strict-preparation.test.ts");

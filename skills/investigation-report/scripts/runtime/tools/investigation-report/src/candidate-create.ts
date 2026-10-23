@@ -7,6 +7,8 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import { writePreparedCandidate } from "./candidate-create-publication.ts";
+import { createRecordCandidate } from "../../record-operations/src/candidate.ts";
 import fs from "node:fs/promises";
 import path from "node:path";
 import {
@@ -15,7 +17,10 @@ import {
   investigationNameFromId,
   parseDatedInvestigationId
 } from "./report-path.ts";
-import { withInvestigationCollectionMutationLock } from "./collection-mutation-lock.ts";
+import {
+  InvestigationCollectionMutationLockError,
+  withInvestigationCollectionMutationLock
+} from "./collection-mutation-lock.ts";
 import {
   diagnosticFromError,
   genericInvestigationDiagnostic
@@ -29,17 +34,10 @@ import {
 import {
   candidateOperationDiagnostic,
   createCandidateFailure,
-  safeCandidateLayout,
-  uniqueSorted,
-  writeCandidateAtomically
+  safeCandidateLayout
 } from "./candidate-support.ts";
-import { loadInvestigationIndex } from "./investigation-state-index.ts";
-import { readInvestigationCandidate } from "./candidate-document.ts";
-import { serializeInvestigationCandidate } from "./candidate-format.ts";
-import type {
-  InvestigationCandidate,
-  InvestigationCandidateCreateResult
-} from "./types.ts";
+import type { CandidateCollectionLayout } from "./candidate-discovery.ts";
+import type { InvestigationCandidateCreateResult } from "./types.ts";
 import type { InvestigationRelationSummaryInput } from "./relation-summary.ts";
 
 export async function createInvestigationCandidate(
@@ -101,17 +99,26 @@ async function createCandidateUnderLock(
   candidate: PreparedInvestigationCandidateCreateOptions,
   relationSummaries: readonly InvestigationRelationSummaryInput[]
 ): Promise<InvestigationCandidateCreateResult> {
+  let completed: InvestigationCandidateCreateResult | undefined;
   try {
     return await withInvestigationCollectionMutationLock(
       path.join(investigationsDirectory, investigationIndexFileName),
-      async () =>
-        await createCandidateWithinLock(
+      async () => {
+        completed = await createCandidateWithinLock(
           investigationsDirectory,
           candidate,
           relationSummaries
-        )
+        );
+        return completed;
+      }
     );
   } catch (error) {
+    if (
+      error instanceof InvestigationCollectionMutationLockError &&
+      error.operationCompleted &&
+      completed?.changed === true
+    )
+      return completedCandidateLockFailure(completed, error);
     return createCandidateFailure(
       "error",
       ["investigation candidate could not be created"],
@@ -124,64 +131,51 @@ async function createCandidateWithinLock(
   initialCandidate: PreparedInvestigationCandidateCreateOptions,
   relationSummaries: readonly InvestigationRelationSummaryInput[]
 ): Promise<InvestigationCandidateCreateResult> {
-  const layout = await safeCandidateLayout(investigationsDirectory, {
-    readFormalSources: false
+  return await createRecordCandidate<
+    CandidateCollectionLayout,
+    PreparedInvestigationCandidateCreateOptions,
+    InvestigationCandidateCreateResult
+  >({
+    discover: async () => {
+      const layout = await safeCandidateLayout(investigationsDirectory);
+      return layout.status === "error"
+        ? {
+            status: "error",
+            result: createCandidateFailure(
+              "error",
+              layout.errors,
+              layout.diagnostics
+            )
+          }
+        : { status: "ok", value: layout.value };
+    },
+    resolve: (layout) => {
+      const resolved = resolveCandidateRelationSelectors(
+        initialCandidate,
+        [...layout.reportIds, ...layout.candidateIds],
+        relationSummaries
+      );
+      return resolved.status === "error"
+        ? {
+            status: "error",
+            result: createCandidateFailure("error", resolved.errors)
+          }
+        : { status: "ok", value: resolved.candidate };
+    },
+    conflict: (layout, candidate) =>
+      duplicateCandidateError(candidate, layout.reportIds, layout.candidateIds),
+    allocate: async (_layout, candidate) =>
+      await allocateCandidatePath(investigationsDirectory, candidate.id),
+    writeAndReadiness: async (layout, candidate, target) =>
+      await writePreparedCandidate(
+        investigationsDirectory,
+        candidate,
+        layout,
+        target
+      )
   });
-  if (layout.status === "error")
-    return createCandidateFailure("error", layout.errors, layout.diagnostics);
-  const published = await loadInvestigationIndex({ investigationsDirectory });
-  const reportIds =
-    published.status === "ok" ? Object.keys(published.value.entries) : [];
-  const resolved = resolveCandidateRelationSelectors(
-    initialCandidate,
-    [...reportIds, ...layout.value.candidateIds],
-    relationSummaries
-  );
-  if (resolved.status === "error")
-    return createCandidateFailure("error", resolved.errors);
-  const candidate = resolved.candidate;
-  const duplicate = duplicateCandidateError(
-    candidate,
-    reportIds,
-    layout.value.candidateIds
-  );
-  if (duplicate !== null) return duplicate;
-  return await writePreparedCandidate(investigationsDirectory, candidate);
 }
 
-async function writePreparedCandidate(
-  investigationsDirectory: string,
-  candidate: PreparedInvestigationCandidateCreateOptions
-): Promise<InvestigationCandidateCreateResult> {
-  const target = await allocateCandidatePath(
-    investigationsDirectory,
-    candidate.id
-  );
-  const markdown = serializeInvestigationCandidate(candidate);
-  const written = await writeCandidateAtomically(target, markdown);
-  if (written.isErr())
-    return createCandidateFailure(
-      "error",
-      [`${candidate.id} investigation candidate was not created`],
-      [
-        diagnosticFromError({
-          code: "investigation-report.candidate-create-failed",
-          error: written.error,
-          reason: "the investigation candidate could not be atomically created",
-          recovery:
-            "resolve the reported candidate-path problem, then create the candidate again",
-          target
-        })
-      ]
-    );
-  return createdCandidateResult(
-    candidate.id,
-    target,
-    markdown,
-    written.value.warnings,
-    await readInvestigationCandidate(investigationsDirectory, candidate.id)
-  );
-}
 function duplicateCandidateError(
   candidate: PreparedInvestigationCandidateCreateOptions,
   reportIds: readonly string[],
@@ -217,42 +211,32 @@ function duplicateCandidateError(
     ]
   );
 }
-function createdCandidateResult(
-  id: string,
-  target: string,
-  markdown: string,
-  writeWarnings: readonly string[],
-  read: Awaited<ReturnType<typeof readInvestigationCandidate>>
+
+function completedCandidateLockFailure(
+  completed: Extract<InvestigationCandidateCreateResult, { changed: true }>,
+  error: InvestigationCollectionMutationLockError
 ): InvestigationCandidateCreateResult {
-  if (read.status === "error") {
-    const candidate: InvestigationCandidate = {
-      diagnostics: read.diagnostics,
-      errors: read.errors,
-      id,
-      markdown,
-      path: target,
-      readiness: {
-        bodyReady: false,
-        resourceReady: false,
-        scaffoldValid: false
-      },
-      warnings: []
-    };
-    return {
-      candidate,
-      changed: true,
-      diagnostics: [],
-      errors: [],
-      status: "ok",
-      warnings: uniqueSorted([...writeWarnings, ...read.errors])
-    };
-  }
   return {
-    candidate: read.value,
-    changed: true,
-    diagnostics: [],
-    errors: [],
-    status: "ok",
-    warnings: uniqueSorted([...writeWarnings, ...read.value.errors])
+    ...completed,
+    diagnostics: [
+      ...completed.diagnostics,
+      {
+        ...error.diagnostic,
+        mutation: {
+          scope: "investigation candidate creation",
+          outcome: completed.diagnostics.some(
+            (diagnostic) =>
+              diagnostic.mutation?.outcome === "partial-or-unknown"
+          )
+            ? "partial-or-unknown"
+            : "committed-cleanup-pending"
+        }
+      }
+    ],
+    errors: [
+      ...completed.errors,
+      "investigation candidate was created but collection lock release failed; inspect the candidate and lock before further mutation"
+    ],
+    status: "error"
   };
 }

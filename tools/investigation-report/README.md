@@ -16,13 +16,7 @@
 
 ## 查询投影
 
-list 从严格加载产生的本次 reader 取得冻结索引与查询结果，复用字段物化，领域关系上下文与 facets 各准备一次。原始索引查询入口保持完整校验；reader 的生命周期与验证边界由 [Index Runtime](../index-runtime/README.md)承接。
-
-### 候选读取
-
-同一查询阶段复用候选源字节、身份映射、引用与资源依据，正式共享 owner 按实际引用读取。没有可用索引或出现未知、移动 owner 时，身份发现可扩大，局部读取仍不证明正式全集健康。
-
-`new` 在身份归一化前取得一次有效 formedAt；显式非法值失败，不能回退默认。stdout 只集中回显身份、标题、路径与三项 readiness，warning/error 留在 stderr；起草与候选读取不附带全集发布预检，readiness 不就绪不撤销已成功创建的候选。
+正式查询通过[共同操作 owner](../record-operations/README.md)取得严格结构、字段与 definition 的本次 reader，复用字段物化。无关系 list、metadata、show 和 content 不审计全域关系/资源 owner 图；关系条件和 trace 对完整发布投影惰性验图，同投影的领域关系上下文、图证明与 facets 各准备一次。原始索引查询入口保持完整校验；reader 的生命周期与验证边界由 [Index Runtime](../index-runtime/README.md)承接。
 
 ### 关系图上下文
 
@@ -30,6 +24,7 @@ list 从严格加载产生的本次 reader 取得冻结索引与查询结果，�
 
 - **按需复用**：首次实际访问图时构建正反向邻接和 ID 映射，后续图操作共用同一引用；无关系条件的 `list` 和 metadata 搜索不构图。
 - **顺序责任**：构图保留投影边序，证据、诊断与 `trace` 各自在输出时确定顺序。
+- **图证明**：关系条件和 trace 同时验证完整领域图及资源 owner 声明，缺失 target 直接失败，不能静默遗漏 trace 成员。无关系发现成功不声明全集健康。
 - **阶段边界**：同次发布索引查询复用所属投影上下文；集合变更或进入新的准备、复核与恢复阶段时，另建上下文并完成所属阶段的校验。stage 的纯计算仅在[新鲜等价证据](../index-runtime/README.md#记录领域的内部暂存协调)成立后允许调用内复用，不省略本阶段真实来源、payload 与身份验收；不跨调用保留图。
 
 ### 关系筛选与 trace
@@ -66,21 +61,39 @@ metadata 保留切片前精确计数。content 返回预算满后，在首个不
 - `search results limited: max-records`
 - `search previews limited: match-previews,preview-characters`，只列实际原因。
 
-content 使用严格发布索引与领域图选择范围，先判断候选预算，再安全读取所选文本并在匹配前核对同份字节的 ID。索引失败走显式恢复，读取与身份错误保持失败；当前文本不证明全集来源新鲜或跨文件原子快照。
+content 使用严格发布索引选择范围，仅在有关系条件时验完整领域图，先判断候选预算，再安全读取所选文本并在匹配前核对同份字节的 ID。索引失败走显式恢复，读取与身份错误保持失败；当前文本不证明全集来源新鲜或跨文件原子快照。
+
+## 候选读取
+
+候选动作由共同 owner 编排索引状态、安全身份发现、冲突、动作选择及列表 warning/显式目标失败；领域提供 locator 成员规则、解析、直接资源与 owner。合法索引与真正缺索引的发现范围见[候选恢复规则](../../skills/investigation-report/references/maintenance-recovery.md#候选身份发现与索引状态)。
+
+同一查询阶段复用候选源字节、ID→source 映射、引用与资源依据，正式资源 owner 按实际引用安全读取；缺发布基线而必须正式解析的 owner 失败。局部读取不验证无关正式正文/图。候选发现、严格全集采集与 stage layout 各按自己的成员规则取证。创建后只把自身已写 scaffold 与本次身份映射交给 readiness，不再次扫描候选全集。
+
+`new` 在身份归一化前取得一次有效 formedAt；显式非法值失败，不能回退默认。stdout 只集中回显身份、标题、路径与三项 readiness，warning/error 留在 stderr。readiness 不就绪与创建后解锁失败分别映射为自身准备事实与真实写入结果，具体见[候选操作契约](../../skills/investigation-report/references/cli-operations.md#创建与继续候选)。
 
 ## 写入与阶段事实
 
 ### 事务与诊断
 
-工作区 mutation 共用集合锁，写前独立核对相关来源、索引和成员，保护范围外工作。publish 以索引发布为提交点；set-relations 的 review 从准备阶段读取的完整 before 与规范化完整 after 生成，按 source ID 排列，正式成功与预检分别为 committed/preflight，失败不返回成功 review。
+非 stage 的[事务顺序与实际写集恢复](../record-operations/README.md#事务事实与恢复)由共同操作单一编排；本域保留字段、图合法性、资源 owner 生命周期及结果映射。
+
+`set-relations` 的 review 从准备阶段读取的完整 before 与规范化完整 after 生成，按 source ID 排列；正式成功与预检分别为 committed/preflight，失败不返回成功 review。
 
 关系输入形态问题在 CLI 边界以参数错误拒绝，需要集合知识的解析与绑定属于领域失败。单值参数重复退出 2；合法 repeatable 参数保留集合或分组语义。
 
-删除通过同文件系统 tombstone 保存恢复范围。提交前失败恢复完整旧组合；提交后只精确清理预演成员，不递归删除未知字节。rename 新目标独占创建，资源复制后核对类型、权限、大小、内容，旧成员再次确认未变后逐个清理。回滚只撤销仍等于事务快照的新内容，并只恢复仍缺失的旧路径；并发漂移保留现场并报告 partial-or-unknown。
+删除通过同文件系统 tombstone 保存恢复范围；提交后只精确清理本事务成员，不递归删除未知字节。rename 新目标独占创建，资源复制后核对类型、权限、大小、内容，旧成员再次确认未变后逐个清理。资源移动与恢复必须服从共同操作的实际写集归属及 CAS 保护。
+
+调用者的提交结果与对账动作分别见[操作结果](../../skills/investigation-report/references/cli-operations.md#结果与恢复)和[恢复规则](../../skills/investigation-report/references/maintenance-recovery.md#中断写入)。
 
 诊断有可靠系统证据时才增加净化的 category、operation 和 target；权限或工具故障不映射为无条件重试。即时输出不保存日志、遥测或 receipt。只对真实 mutation 声明 scope/outcome。
 
+### 安全正文读取
+
+show 的完整正文读取交给共同操作的 `source.ts`；本域提供所选 ID 和定位，并据发布指纹判断来源 warning。共同安全边界见[操作入口与责任](../record-operations/README.md#操作入口与责任)。
+
 ### 检查与同步
+
+sync 的来源验收由领域采集，baseline/selector、原生构建与独立 fresh/同步由共同操作编排；selected 的完整来源、未选变化及最终 metadata/revision 保护不降低。
 
 全量 check 使用首次采集的同一份身份、源字节、解析结果与资源事实，每份正文读取一次；单阶段复用不构成跨调用缓存。同步（含预检）及其他写操作仍在各自边界重新取得可变来源，拒绝期间漂移。
 

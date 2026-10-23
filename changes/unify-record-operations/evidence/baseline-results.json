@@ -1,0 +1,4984 @@
+{
+  "label": "baseline-frozen-1w",
+  "provenance": [
+    {
+      "path": "/tmp/unify-record-operations-baseline/baseline-queries/verified-results.json",
+      "sha256": "583e376ef8e042f311c570b4c291bae0c0fb44c2493b67da1fdfbf556a3a73a0"
+    },
+    {
+      "path": "/tmp/unify-record-operations-baseline/baseline-operations/results.json",
+      "sha256": "d154e1db5733322fac2615b967e14e756662ff9473ed0f9d81ff82b61e3adaa3"
+    },
+    {
+      "path": "/tmp/unify-record-operations-baseline/baseline-remaining-dr2/results.json",
+      "sha256": "763b386b0a18b168d827d315f186d02c0264607a298ac23ce01f81a9d6298423"
+    },
+    {
+      "path": "/tmp/unify-record-operations-baseline/baseline-remaining-dr3/verified-results.json",
+      "sha256": "73550f71dbf5dd0f3a4be5644d2dc9e0bcbf2dba0c09d72a7a2e32f31ad7cb08"
+    },
+    {
+      "path": "/tmp/unify-record-operations-baseline/baseline-remaining-dr4/results.json",
+      "sha256": "1ee41dd83c4b903b838c40efb493922d654cfd2917bdb8ae7d455e5b0adca62e"
+    },
+    {
+      "path": "/tmp/unify-record-operations-baseline/baseline-operations-ir/verified-results.json",
+      "sha256": "aac5b55956972c7f39d429b1954a8c492ac51002a7013db1f4a84f935daed594"
+    },
+    {
+      "path": "/tmp/unify-record-operations-baseline/baseline-remaining-ir/results.json",
+      "sha256": "75a45b1cb3bc5a14636840d1e060daf95d6931eef5fcf08076a1efd62889be6e"
+    },
+    {
+      "path": "/tmp/unify-record-operations-baseline/baseline-ir-content-100/results.json",
+      "sha256": "296ea6b258131af0fecc79fb40a05571a41e9f446476bdfafbdecf8d4ac8629e"
+    }
+  ],
+  "samples": [
+    {
+      "key": "dr-list-api-1",
+      "domain": "dr",
+      "scenario": "list",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "list",
+        "[\"list\", \"--limit\", \"5\", \"--offset\", \"5\", \"--status\", \"all\"]",
+        "/tmp/unify-record-operations-baseline/baseline-queries/dr-list-api-1.metrics.json"
+      ],
+      "exit": 0,
+      "wallMs": 650.883581,
+      "userMs": 759.606,
+      "systemMs": 153.807,
+      "maxRssKiB": 224272,
+      "counts": {},
+      "stdoutBytes": 924,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "7985af25e87fbeab5577bdf7cde0b3f20b76e9e6a5311f913de5c6cc499ec9bf",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": 0
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "7985af25e87fbeab5577bdf7cde0b3f20b76e9e6a5311f913de5c6cc499ec9bf",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-list-cli-1",
+      "domain": "dr",
+      "scenario": "list",
+      "mode": "cli",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/decision-records/scripts/decision-records.ts",
+        "list",
+        "--limit",
+        "5",
+        "--offset",
+        "5",
+        "--status",
+        "all",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "wallMs": 848.392149,
+      "userMs": 1062.497,
+      "systemMs": 191.72799999999998,
+      "maxRssKiB": 221344,
+      "stdoutBytes": 924,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "7985af25e87fbeab5577bdf7cde0b3f20b76e9e6a5311f913de5c6cc499ec9bf",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": 0
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "7985af25e87fbeab5577bdf7cde0b3f20b76e9e6a5311f913de5c6cc499ec9bf",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-metadata-api-1",
+      "domain": "dr",
+      "scenario": "metadata",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "metadata",
+        "[\"search\", \"benchmark\", \"--in\", \"metadata\", \"--limit\", \"5\", \"--status\", \"all\"]",
+        "/tmp/unify-record-operations-baseline/baseline-queries/dr-metadata-api-1.metrics.json"
+      ],
+      "exit": 0,
+      "wallMs": 1052.604398,
+      "userMs": 1201.6,
+      "systemMs": 168.881,
+      "maxRssKiB": 245524,
+      "counts": {},
+      "stdoutBytes": 1470,
+      "stderrBytes": 69,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "a01ca584f5f7c1034f72a03cf06e44363a7c7d357b6ba536c9f5fdb52b1d951b",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": 0
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "a01ca584f5f7c1034f72a03cf06e44363a7c7d357b6ba536c9f5fdb52b1d951b",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-metadata-api-2",
+      "domain": "dr",
+      "scenario": "metadata",
+      "mode": "api",
+      "repeat": 2,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "metadata",
+        "[\"search\", \"benchmark\", \"--in\", \"metadata\", \"--limit\", \"5\", \"--status\", \"all\"]",
+        "/tmp/unify-record-operations-baseline/baseline-queries/dr-metadata-api-2.metrics.json"
+      ],
+      "exit": 0,
+      "wallMs": 1002.620455,
+      "userMs": 1201.326,
+      "systemMs": 116.67,
+      "maxRssKiB": 243284,
+      "counts": {},
+      "stdoutBytes": 1470,
+      "stderrBytes": 69,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "a01ca584f5f7c1034f72a03cf06e44363a7c7d357b6ba536c9f5fdb52b1d951b",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "a01ca584f5f7c1034f72a03cf06e44363a7c7d357b6ba536c9f5fdb52b1d951b",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-metadata-api-3",
+      "domain": "dr",
+      "scenario": "metadata",
+      "mode": "api",
+      "repeat": 3,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "metadata",
+        "[\"search\", \"benchmark\", \"--in\", \"metadata\", \"--limit\", \"5\", \"--status\", \"all\"]",
+        "/tmp/unify-record-operations-baseline/baseline-queries/dr-metadata-api-3.metrics.json"
+      ],
+      "exit": 0,
+      "wallMs": 1007.776595,
+      "userMs": 1197.722,
+      "systemMs": 122.16,
+      "maxRssKiB": 244164,
+      "counts": {},
+      "stdoutBytes": 1470,
+      "stderrBytes": 69,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "a01ca584f5f7c1034f72a03cf06e44363a7c7d357b6ba536c9f5fdb52b1d951b",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "a01ca584f5f7c1034f72a03cf06e44363a7c7d357b6ba536c9f5fdb52b1d951b",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-metadata-cli-1",
+      "domain": "dr",
+      "scenario": "metadata",
+      "mode": "cli",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/decision-records/scripts/decision-records.ts",
+        "search",
+        "benchmark",
+        "--in",
+        "metadata",
+        "--limit",
+        "5",
+        "--status",
+        "all",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "wallMs": 1224.353775,
+      "userMs": 1466.606,
+      "systemMs": 203.369,
+      "maxRssKiB": 244060,
+      "stdoutBytes": 1470,
+      "stderrBytes": 69,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "a01ca584f5f7c1034f72a03cf06e44363a7c7d357b6ba536c9f5fdb52b1d951b",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": 0
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "a01ca584f5f7c1034f72a03cf06e44363a7c7d357b6ba536c9f5fdb52b1d951b",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-metadata-cli-2",
+      "domain": "dr",
+      "scenario": "metadata",
+      "mode": "cli",
+      "repeat": 2,
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/decision-records/scripts/decision-records.ts",
+        "search",
+        "benchmark",
+        "--in",
+        "metadata",
+        "--limit",
+        "5",
+        "--status",
+        "all",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "wallMs": 1221.318854,
+      "userMs": 1447.705,
+      "systemMs": 213.865,
+      "maxRssKiB": 242140,
+      "stdoutBytes": 1470,
+      "stderrBytes": 69,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "a01ca584f5f7c1034f72a03cf06e44363a7c7d357b6ba536c9f5fdb52b1d951b",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "a01ca584f5f7c1034f72a03cf06e44363a7c7d357b6ba536c9f5fdb52b1d951b",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-metadata-cli-3",
+      "domain": "dr",
+      "scenario": "metadata",
+      "mode": "cli",
+      "repeat": 3,
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/decision-records/scripts/decision-records.ts",
+        "search",
+        "benchmark",
+        "--in",
+        "metadata",
+        "--limit",
+        "5",
+        "--status",
+        "all",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "wallMs": 1218.316904,
+      "userMs": 1509.423,
+      "systemMs": 161.005,
+      "maxRssKiB": 243356,
+      "stdoutBytes": 1470,
+      "stderrBytes": 69,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "a01ca584f5f7c1034f72a03cf06e44363a7c7d357b6ba536c9f5fdb52b1d951b",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "a01ca584f5f7c1034f72a03cf06e44363a7c7d357b6ba536c9f5fdb52b1d951b",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-relations-api-1",
+      "domain": "dr",
+      "scenario": "relations",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "relations",
+        "[\"list\", \"--related-to\", \"261001-record-09000\", \"--direction\", \"successors\", \"--limit\", \"5\"]",
+        "/tmp/unify-record-operations-baseline/baseline-queries/dr-relations-api-1.metrics.json"
+      ],
+      "exit": 0,
+      "wallMs": 542.8985460000001,
+      "userMs": 756.632,
+      "systemMs": 49.455,
+      "maxRssKiB": 221428,
+      "counts": {},
+      "stdoutBytes": 682,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "c1e141d7253191bddc08a8830e0fe40286ee6524a9b55d7f6fc66094239cfbb7",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": 0
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "c1e141d7253191bddc08a8830e0fe40286ee6524a9b55d7f6fc66094239cfbb7",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-relations-api-2",
+      "domain": "dr",
+      "scenario": "relations",
+      "mode": "api",
+      "repeat": 2,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "relations",
+        "[\"list\", \"--related-to\", \"261001-record-09000\", \"--direction\", \"successors\", \"--limit\", \"5\"]",
+        "/tmp/unify-record-operations-baseline/baseline-queries/dr-relations-api-2.metrics.json"
+      ],
+      "exit": 0,
+      "wallMs": 534.997914,
+      "userMs": 710.028,
+      "systemMs": 85.407,
+      "maxRssKiB": 225880,
+      "counts": {},
+      "stdoutBytes": 682,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "c1e141d7253191bddc08a8830e0fe40286ee6524a9b55d7f6fc66094239cfbb7",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "c1e141d7253191bddc08a8830e0fe40286ee6524a9b55d7f6fc66094239cfbb7",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-relations-api-3",
+      "domain": "dr",
+      "scenario": "relations",
+      "mode": "api",
+      "repeat": 3,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "relations",
+        "[\"list\", \"--related-to\", \"261001-record-09000\", \"--direction\", \"successors\", \"--limit\", \"5\"]",
+        "/tmp/unify-record-operations-baseline/baseline-queries/dr-relations-api-3.metrics.json"
+      ],
+      "exit": 0,
+      "wallMs": 552.563412,
+      "userMs": 717.43,
+      "systemMs": 89.313,
+      "maxRssKiB": 225136,
+      "counts": {},
+      "stdoutBytes": 682,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "c1e141d7253191bddc08a8830e0fe40286ee6524a9b55d7f6fc66094239cfbb7",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "c1e141d7253191bddc08a8830e0fe40286ee6524a9b55d7f6fc66094239cfbb7",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-relations-cli-1",
+      "domain": "dr",
+      "scenario": "relations",
+      "mode": "cli",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/decision-records/scripts/decision-records.ts",
+        "list",
+        "--related-to",
+        "261001-record-09000",
+        "--direction",
+        "successors",
+        "--limit",
+        "5",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "wallMs": 808.848491,
+      "userMs": 1042.344,
+      "systemMs": 165.64299999999997,
+      "maxRssKiB": 226036,
+      "stdoutBytes": 682,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "c1e141d7253191bddc08a8830e0fe40286ee6524a9b55d7f6fc66094239cfbb7",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": 0
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "c1e141d7253191bddc08a8830e0fe40286ee6524a9b55d7f6fc66094239cfbb7",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-relations-cli-2",
+      "domain": "dr",
+      "scenario": "relations",
+      "mode": "cli",
+      "repeat": 2,
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/decision-records/scripts/decision-records.ts",
+        "list",
+        "--related-to",
+        "261001-record-09000",
+        "--direction",
+        "successors",
+        "--limit",
+        "5",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "wallMs": 782.91794,
+      "userMs": 1012.116,
+      "systemMs": 156.981,
+      "maxRssKiB": 220016,
+      "stdoutBytes": 682,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "c1e141d7253191bddc08a8830e0fe40286ee6524a9b55d7f6fc66094239cfbb7",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "c1e141d7253191bddc08a8830e0fe40286ee6524a9b55d7f6fc66094239cfbb7",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-relations-cli-3",
+      "domain": "dr",
+      "scenario": "relations",
+      "mode": "cli",
+      "repeat": 3,
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/decision-records/scripts/decision-records.ts",
+        "list",
+        "--related-to",
+        "261001-record-09000",
+        "--direction",
+        "successors",
+        "--limit",
+        "5",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "wallMs": 839.089933,
+      "userMs": 1053.8400000000001,
+      "systemMs": 177.658,
+      "maxRssKiB": 223692,
+      "stdoutBytes": 682,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "c1e141d7253191bddc08a8830e0fe40286ee6524a9b55d7f6fc66094239cfbb7",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "c1e141d7253191bddc08a8830e0fe40286ee6524a9b55d7f6fc66094239cfbb7",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-content-api-1",
+      "domain": "dr",
+      "scenario": "content",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "content",
+        "[\"search\", \"needle-perf-unique\", \"--in\", \"content\", \"--status\", \"all\"]",
+        "/tmp/unify-record-operations-baseline/baseline-queries/dr-content-api-1.metrics.json"
+      ],
+      "exit": 0,
+      "wallMs": 20167.328585,
+      "userMs": 9482.285,
+      "systemMs": 12160.505,
+      "maxRssKiB": 225376,
+      "counts": {},
+      "stdoutBytes": 731,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "905542a8bbb2d6e534b32953ba09c3e7f4c78456d5a559bc9cd0ee19015e50ed",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": 0
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "905542a8bbb2d6e534b32953ba09c3e7f4c78456d5a559bc9cd0ee19015e50ed",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-content-api-2",
+      "domain": "dr",
+      "scenario": "content",
+      "mode": "api",
+      "repeat": 2,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "content",
+        "[\"search\", \"needle-perf-unique\", \"--in\", \"content\", \"--status\", \"all\"]",
+        "/tmp/unify-record-operations-baseline/baseline-queries/dr-content-api-2.metrics.json"
+      ],
+      "exit": 0,
+      "wallMs": 20290.63608,
+      "userMs": 9581.646,
+      "systemMs": 12235.029,
+      "maxRssKiB": 231900,
+      "counts": {},
+      "stdoutBytes": 731,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "905542a8bbb2d6e534b32953ba09c3e7f4c78456d5a559bc9cd0ee19015e50ed",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "905542a8bbb2d6e534b32953ba09c3e7f4c78456d5a559bc9cd0ee19015e50ed",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-content-api-3",
+      "domain": "dr",
+      "scenario": "content",
+      "mode": "api",
+      "repeat": 3,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "content",
+        "[\"search\", \"needle-perf-unique\", \"--in\", \"content\", \"--status\", \"all\"]",
+        "/tmp/unify-record-operations-baseline/baseline-queries/dr-content-api-3.metrics.json"
+      ],
+      "exit": 0,
+      "wallMs": 20869.709297,
+      "userMs": 9749.552,
+      "systemMs": 12471.28,
+      "maxRssKiB": 227132,
+      "counts": {},
+      "stdoutBytes": 731,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "905542a8bbb2d6e534b32953ba09c3e7f4c78456d5a559bc9cd0ee19015e50ed",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "905542a8bbb2d6e534b32953ba09c3e7f4c78456d5a559bc9cd0ee19015e50ed",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-content-cli-1",
+      "domain": "dr",
+      "scenario": "content",
+      "mode": "cli",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/decision-records/scripts/decision-records.ts",
+        "search",
+        "needle-perf-unique",
+        "--in",
+        "content",
+        "--status",
+        "all",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "wallMs": 22347.496246,
+      "userMs": 10390.812,
+      "systemMs": 12434.069,
+      "maxRssKiB": 230488,
+      "stdoutBytes": 731,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "905542a8bbb2d6e534b32953ba09c3e7f4c78456d5a559bc9cd0ee19015e50ed",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": 0
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "905542a8bbb2d6e534b32953ba09c3e7f4c78456d5a559bc9cd0ee19015e50ed",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-content-cli-2",
+      "domain": "dr",
+      "scenario": "content",
+      "mode": "cli",
+      "repeat": 2,
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/decision-records/scripts/decision-records.ts",
+        "search",
+        "needle-perf-unique",
+        "--in",
+        "content",
+        "--status",
+        "all",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "wallMs": 20564.154276,
+      "userMs": 10034.537999999999,
+      "systemMs": 12243.938,
+      "maxRssKiB": 231616,
+      "stdoutBytes": 731,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "905542a8bbb2d6e534b32953ba09c3e7f4c78456d5a559bc9cd0ee19015e50ed",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "905542a8bbb2d6e534b32953ba09c3e7f4c78456d5a559bc9cd0ee19015e50ed",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-content-cli-3",
+      "domain": "dr",
+      "scenario": "content",
+      "mode": "cli",
+      "repeat": 3,
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/decision-records/scripts/decision-records.ts",
+        "search",
+        "needle-perf-unique",
+        "--in",
+        "content",
+        "--status",
+        "all",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "wallMs": 20315.905874,
+      "userMs": 9774.158,
+      "systemMs": 12224.133,
+      "maxRssKiB": 225664,
+      "stdoutBytes": 731,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "905542a8bbb2d6e534b32953ba09c3e7f4c78456d5a559bc9cd0ee19015e50ed",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "905542a8bbb2d6e534b32953ba09c3e7f4c78456d5a559bc9cd0ee19015e50ed",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-show-api-1",
+      "domain": "dr",
+      "scenario": "show",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "show",
+        "[\"show\", \"261001-record-10000\"]",
+        "/tmp/unify-record-operations-baseline/baseline-queries/dr-show-api-1.metrics.json"
+      ],
+      "exit": 0,
+      "wallMs": 506.68059300000004,
+      "userMs": 658.731,
+      "systemMs": 76.231,
+      "maxRssKiB": 224844,
+      "counts": {},
+      "stdoutBytes": 559,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "24ccc008b163003b273d019c389fe29b6c5711d751cb5468cabcac94c02ccef7",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": 0
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "24ccc008b163003b273d019c389fe29b6c5711d751cb5468cabcac94c02ccef7",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-show-cli-1",
+      "domain": "dr",
+      "scenario": "show",
+      "mode": "cli",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/decision-records/scripts/decision-records.ts",
+        "show",
+        "261001-record-10000",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "wallMs": 751.276487,
+      "userMs": 969.3919999999999,
+      "systemMs": 156.476,
+      "maxRssKiB": 226156,
+      "stdoutBytes": 559,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "24ccc008b163003b273d019c389fe29b6c5711d751cb5468cabcac94c02ccef7",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": 0
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "24ccc008b163003b273d019c389fe29b6c5711d751cb5468cabcac94c02ccef7",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-list-api-1",
+      "domain": "ir",
+      "scenario": "list",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "list",
+        "[\"list\", \"--limit\", \"5\", \"--offset\", \"5\"]",
+        "/tmp/unify-record-operations-baseline/baseline-queries/ir-list-api-1.metrics.json"
+      ],
+      "exit": 0,
+      "wallMs": 484.98902100000004,
+      "userMs": 592.232,
+      "systemMs": 88.023,
+      "maxRssKiB": 220472,
+      "counts": {},
+      "stdoutBytes": 1694,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "7fdbbf4b0029e8b310f94bb6fc6689cc63bc4a2f33b77bd208eb5e95cd28b459",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "fullCheckExit": 0
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "7fdbbf4b0029e8b310f94bb6fc6689cc63bc4a2f33b77bd208eb5e95cd28b459",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-list-cli-1",
+      "domain": "ir",
+      "scenario": "list",
+      "mode": "cli",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/investigation-report/scripts/check-investigations.ts",
+        "list",
+        "--limit",
+        "5",
+        "--offset",
+        "5",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "wallMs": 725.023714,
+      "userMs": 962.818,
+      "systemMs": 147.207,
+      "maxRssKiB": 219132,
+      "stdoutBytes": 711,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "5b9e61c556dc6065dd4c91f3a2990bd67b9bcabc96047003ce002c412a91493b",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "fullCheckExit": 0
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "5b9e61c556dc6065dd4c91f3a2990bd67b9bcabc96047003ce002c412a91493b",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-metadata-api-1",
+      "domain": "ir",
+      "scenario": "metadata",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "metadata",
+        "[\"search\", \"benchmark\", \"--in\", \"metadata\", \"--limit\", \"5\"]",
+        "/tmp/unify-record-operations-baseline/baseline-queries/ir-metadata-api-1.metrics.json"
+      ],
+      "exit": 0,
+      "wallMs": 801.6693950000001,
+      "userMs": 978.476,
+      "systemMs": 76.116,
+      "maxRssKiB": 247640,
+      "counts": {},
+      "stdoutBytes": 1910,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "da216be1a880b586d17c354fb04e2a2a8f8bfb4274a27529c46be164e628661e",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "searchInfo": {
+          "query": {
+            "text": "benchmark",
+            "in": "metadata",
+            "match": "all",
+            "filters": {
+              "tags": []
+            },
+            "limits": {
+              "maxRecords": 5,
+              "resources": null,
+              "preview": null
+            }
+          },
+          "source": {
+            "kind": "published-index",
+            "currentness": "unchecked",
+            "fallback": false
+          },
+          "counts": {
+            "matched": {
+              "value": 10000,
+              "precision": "exact"
+            },
+            "returned": 5
+          },
+          "coverage": {
+            "scanComplete": true,
+            "resultsComplete": false,
+            "previewsComplete": null,
+            "reasons": [
+              "max-records"
+            ]
+          }
+        },
+        "fullCheckExit": 0
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "da216be1a880b586d17c354fb04e2a2a8f8bfb4274a27529c46be164e628661e",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "searchInfo": {
+          "query": {
+            "text": "benchmark",
+            "in": "metadata",
+            "match": "all",
+            "filters": {
+              "tags": []
+            },
+            "limits": {
+              "maxRecords": 5,
+              "resources": null,
+              "preview": null
+            }
+          },
+          "source": {
+            "kind": "published-index",
+            "currentness": "unchecked",
+            "fallback": false
+          },
+          "counts": {
+            "matched": {
+              "value": 10000,
+              "precision": "exact"
+            },
+            "returned": 5
+          },
+          "coverage": {
+            "scanComplete": true,
+            "resultsComplete": false,
+            "previewsComplete": null,
+            "reasons": [
+              "max-records"
+            ]
+          }
+        }
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-metadata-api-2",
+      "domain": "ir",
+      "scenario": "metadata",
+      "mode": "api",
+      "repeat": 2,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "metadata",
+        "[\"search\", \"benchmark\", \"--in\", \"metadata\", \"--limit\", \"5\"]",
+        "/tmp/unify-record-operations-baseline/baseline-queries/ir-metadata-api-2.metrics.json"
+      ],
+      "exit": 0,
+      "wallMs": 771.69064,
+      "userMs": 924.948,
+      "systemMs": 98.525,
+      "maxRssKiB": 248168,
+      "counts": {},
+      "stdoutBytes": 1910,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "da216be1a880b586d17c354fb04e2a2a8f8bfb4274a27529c46be164e628661e",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "searchInfo": {
+          "query": {
+            "text": "benchmark",
+            "in": "metadata",
+            "match": "all",
+            "filters": {
+              "tags": []
+            },
+            "limits": {
+              "maxRecords": 5,
+              "resources": null,
+              "preview": null
+            }
+          },
+          "source": {
+            "kind": "published-index",
+            "currentness": "unchecked",
+            "fallback": false
+          },
+          "counts": {
+            "matched": {
+              "value": 10000,
+              "precision": "exact"
+            },
+            "returned": 5
+          },
+          "coverage": {
+            "scanComplete": true,
+            "resultsComplete": false,
+            "previewsComplete": null,
+            "reasons": [
+              "max-records"
+            ]
+          }
+        },
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "da216be1a880b586d17c354fb04e2a2a8f8bfb4274a27529c46be164e628661e",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "searchInfo": {
+          "query": {
+            "text": "benchmark",
+            "in": "metadata",
+            "match": "all",
+            "filters": {
+              "tags": []
+            },
+            "limits": {
+              "maxRecords": 5,
+              "resources": null,
+              "preview": null
+            }
+          },
+          "source": {
+            "kind": "published-index",
+            "currentness": "unchecked",
+            "fallback": false
+          },
+          "counts": {
+            "matched": {
+              "value": 10000,
+              "precision": "exact"
+            },
+            "returned": 5
+          },
+          "coverage": {
+            "scanComplete": true,
+            "resultsComplete": false,
+            "previewsComplete": null,
+            "reasons": [
+              "max-records"
+            ]
+          }
+        }
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-metadata-api-3",
+      "domain": "ir",
+      "scenario": "metadata",
+      "mode": "api",
+      "repeat": 3,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "metadata",
+        "[\"search\", \"benchmark\", \"--in\", \"metadata\", \"--limit\", \"5\"]",
+        "/tmp/unify-record-operations-baseline/baseline-queries/ir-metadata-api-3.metrics.json"
+      ],
+      "exit": 0,
+      "wallMs": 779.594379,
+      "userMs": 939.88,
+      "systemMs": 83.604,
+      "maxRssKiB": 247928,
+      "counts": {},
+      "stdoutBytes": 1910,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "da216be1a880b586d17c354fb04e2a2a8f8bfb4274a27529c46be164e628661e",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "searchInfo": {
+          "query": {
+            "text": "benchmark",
+            "in": "metadata",
+            "match": "all",
+            "filters": {
+              "tags": []
+            },
+            "limits": {
+              "maxRecords": 5,
+              "resources": null,
+              "preview": null
+            }
+          },
+          "source": {
+            "kind": "published-index",
+            "currentness": "unchecked",
+            "fallback": false
+          },
+          "counts": {
+            "matched": {
+              "value": 10000,
+              "precision": "exact"
+            },
+            "returned": 5
+          },
+          "coverage": {
+            "scanComplete": true,
+            "resultsComplete": false,
+            "previewsComplete": null,
+            "reasons": [
+              "max-records"
+            ]
+          }
+        },
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "da216be1a880b586d17c354fb04e2a2a8f8bfb4274a27529c46be164e628661e",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "searchInfo": {
+          "query": {
+            "text": "benchmark",
+            "in": "metadata",
+            "match": "all",
+            "filters": {
+              "tags": []
+            },
+            "limits": {
+              "maxRecords": 5,
+              "resources": null,
+              "preview": null
+            }
+          },
+          "source": {
+            "kind": "published-index",
+            "currentness": "unchecked",
+            "fallback": false
+          },
+          "counts": {
+            "matched": {
+              "value": 10000,
+              "precision": "exact"
+            },
+            "returned": 5
+          },
+          "coverage": {
+            "scanComplete": true,
+            "resultsComplete": false,
+            "previewsComplete": null,
+            "reasons": [
+              "max-records"
+            ]
+          }
+        }
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-metadata-cli-1",
+      "domain": "ir",
+      "scenario": "metadata",
+      "mode": "cli",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/investigation-report/scripts/check-investigations.ts",
+        "search",
+        "benchmark",
+        "--in",
+        "metadata",
+        "--limit",
+        "5",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "wallMs": 1016.61841,
+      "userMs": 1220.352,
+      "systemMs": 186.829,
+      "maxRssKiB": 247864,
+      "stdoutBytes": 1376,
+      "stderrBytes": 67,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "5bdae8779adc1adf0918a42975423f082b6f03f35641aaae3cc5ed31dce76fc8",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "fullCheckExit": 0
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "5bdae8779adc1adf0918a42975423f082b6f03f35641aaae3cc5ed31dce76fc8",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-metadata-cli-2",
+      "domain": "ir",
+      "scenario": "metadata",
+      "mode": "cli",
+      "repeat": 2,
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/investigation-report/scripts/check-investigations.ts",
+        "search",
+        "benchmark",
+        "--in",
+        "metadata",
+        "--limit",
+        "5",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "wallMs": 1049.904674,
+      "userMs": 1294.5629999999999,
+      "systemMs": 184.388,
+      "maxRssKiB": 247544,
+      "stdoutBytes": 1376,
+      "stderrBytes": 67,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "5bdae8779adc1adf0918a42975423f082b6f03f35641aaae3cc5ed31dce76fc8",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "5bdae8779adc1adf0918a42975423f082b6f03f35641aaae3cc5ed31dce76fc8",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-metadata-cli-3",
+      "domain": "ir",
+      "scenario": "metadata",
+      "mode": "cli",
+      "repeat": 3,
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/investigation-report/scripts/check-investigations.ts",
+        "search",
+        "benchmark",
+        "--in",
+        "metadata",
+        "--limit",
+        "5",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "wallMs": 1062.624795,
+      "userMs": 1246.8870000000002,
+      "systemMs": 215.51099999999997,
+      "maxRssKiB": 247552,
+      "stdoutBytes": 1376,
+      "stderrBytes": 67,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "5bdae8779adc1adf0918a42975423f082b6f03f35641aaae3cc5ed31dce76fc8",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "5bdae8779adc1adf0918a42975423f082b6f03f35641aaae3cc5ed31dce76fc8",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-relations-api-1",
+      "domain": "ir",
+      "scenario": "relations",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "relations",
+        "[\"list\", \"--related-to\", \"261001-record-09000\", \"--direction\", \"successors\", \"--limit\", \"5\"]",
+        "/tmp/unify-record-operations-baseline/baseline-queries/ir-relations-api-1.metrics.json"
+      ],
+      "exit": 0,
+      "wallMs": 509.348081,
+      "userMs": 674.37,
+      "systemMs": 68.673,
+      "maxRssKiB": 222612,
+      "counts": {},
+      "stdoutBytes": 891,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "34aae78a5734633c8a588cc0240ed3aef52e9954598f2dfebd3d2c126e6de157",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "fullCheckExit": 0
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "34aae78a5734633c8a588cc0240ed3aef52e9954598f2dfebd3d2c126e6de157",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-relations-api-2",
+      "domain": "ir",
+      "scenario": "relations",
+      "mode": "api",
+      "repeat": 2,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "relations",
+        "[\"list\", \"--related-to\", \"261001-record-09000\", \"--direction\", \"successors\", \"--limit\", \"5\"]",
+        "/tmp/unify-record-operations-baseline/baseline-queries/ir-relations-api-2.metrics.json"
+      ],
+      "exit": 0,
+      "wallMs": 508.53227999999996,
+      "userMs": 613.169,
+      "systemMs": 131.867,
+      "maxRssKiB": 220704,
+      "counts": {},
+      "stdoutBytes": 891,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "34aae78a5734633c8a588cc0240ed3aef52e9954598f2dfebd3d2c126e6de157",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "34aae78a5734633c8a588cc0240ed3aef52e9954598f2dfebd3d2c126e6de157",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-relations-api-3",
+      "domain": "ir",
+      "scenario": "relations",
+      "mode": "api",
+      "repeat": 3,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "relations",
+        "[\"list\", \"--related-to\", \"261001-record-09000\", \"--direction\", \"successors\", \"--limit\", \"5\"]",
+        "/tmp/unify-record-operations-baseline/baseline-queries/ir-relations-api-3.metrics.json"
+      ],
+      "exit": 0,
+      "wallMs": 497.78634999999997,
+      "userMs": 680.764,
+      "systemMs": 71.655,
+      "maxRssKiB": 221744,
+      "counts": {},
+      "stdoutBytes": 891,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "34aae78a5734633c8a588cc0240ed3aef52e9954598f2dfebd3d2c126e6de157",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "34aae78a5734633c8a588cc0240ed3aef52e9954598f2dfebd3d2c126e6de157",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-relations-cli-1",
+      "domain": "ir",
+      "scenario": "relations",
+      "mode": "cli",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/investigation-report/scripts/check-investigations.ts",
+        "list",
+        "--related-to",
+        "261001-record-09000",
+        "--direction",
+        "successors",
+        "--limit",
+        "5",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "wallMs": 782.579835,
+      "userMs": 1019.458,
+      "systemMs": 162.463,
+      "maxRssKiB": 222192,
+      "stdoutBytes": 500,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "18c39264f1fc3e55e614c5e32d3789ed722b947813bb2e7a2ae618b99aec7717",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "fullCheckExit": 0
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "18c39264f1fc3e55e614c5e32d3789ed722b947813bb2e7a2ae618b99aec7717",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-relations-cli-2",
+      "domain": "ir",
+      "scenario": "relations",
+      "mode": "cli",
+      "repeat": 2,
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/investigation-report/scripts/check-investigations.ts",
+        "list",
+        "--related-to",
+        "261001-record-09000",
+        "--direction",
+        "successors",
+        "--limit",
+        "5",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "wallMs": 738.760535,
+      "userMs": 926.6359999999999,
+      "systemMs": 174.987,
+      "maxRssKiB": 219852,
+      "stdoutBytes": 500,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "18c39264f1fc3e55e614c5e32d3789ed722b947813bb2e7a2ae618b99aec7717",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "18c39264f1fc3e55e614c5e32d3789ed722b947813bb2e7a2ae618b99aec7717",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-relations-cli-3",
+      "domain": "ir",
+      "scenario": "relations",
+      "mode": "cli",
+      "repeat": 3,
+      "argv": [
+        "node",
+        "/tmp/unify-record-operations-baseline/source/skills/investigation-report/scripts/check-investigations.ts",
+        "list",
+        "--related-to",
+        "261001-record-09000",
+        "--direction",
+        "successors",
+        "--limit",
+        "5",
+        "--root",
+        "/tmp/unify-record-operations-baseline/fixture-v3"
+      ],
+      "exit": 0,
+      "wallMs": 751.922198,
+      "userMs": 977.0559999999999,
+      "systemMs": 162.183,
+      "maxRssKiB": 220100,
+      "stdoutBytes": 500,
+      "stderrBytes": 0,
+      "postverify": {
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "18c39264f1fc3e55e614c5e32d3789ed722b947813bb2e7a2ae618b99aec7717",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "independentReadOnlyAudit": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "18c39264f1fc3e55e614c5e32d3789ed722b947813bb2e7a2ae618b99aec7717",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082"
+      },
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-sync-full-api-1",
+      "domain": "dr",
+      "scenario": "sync-full",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "sync-full",
+        "[\"sync-index\"]",
+        "/tmp/unify-record-operations-baseline/baseline-operations/dr-sync-full-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "c92acb921aa2d709e17b5ba333e00debacaf8f2dab07ecd0955c7004dd1f39be",
+      "exit": 0,
+      "wallMs": 10464.200297000001,
+      "userMs": 7775.047,
+      "systemMs": 3549.343,
+      "maxRssKiB": 368844,
+      "counts": {},
+      "stdoutBytes": 73,
+      "stderrBytes": 520,
+      "postverify": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/decisions/decision-index.json"
+        ],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "09626edfee7b174dc12f191bcdf72ba1f19b7b7d8679630afd4f4246aa4dcd0c",
+        "indexSha256": "4ef8ab516ac8dffca7398fe5ba8c6c4d31e1c14d46a3c21b8f7c1be87a7166cc",
+        "fullCheckExit": 0
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-sync-full-api-2",
+      "domain": "dr",
+      "scenario": "sync-full",
+      "mode": "api",
+      "repeat": 2,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "sync-full",
+        "[\"sync-index\"]",
+        "/tmp/unify-record-operations-baseline/baseline-operations/dr-sync-full-api-2.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "c92acb921aa2d709e17b5ba333e00debacaf8f2dab07ecd0955c7004dd1f39be",
+      "exit": 0,
+      "wallMs": 9811.267947,
+      "userMs": 7326.546,
+      "systemMs": 3317.177,
+      "maxRssKiB": 369416,
+      "counts": {},
+      "stdoutBytes": 73,
+      "stderrBytes": 520,
+      "postverify": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/decisions/decision-index.json"
+        ],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "09626edfee7b174dc12f191bcdf72ba1f19b7b7d8679630afd4f4246aa4dcd0c",
+        "indexSha256": "4ef8ab516ac8dffca7398fe5ba8c6c4d31e1c14d46a3c21b8f7c1be87a7166cc",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-sync-full-api-3",
+      "domain": "dr",
+      "scenario": "sync-full",
+      "mode": "api",
+      "repeat": 3,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "sync-full",
+        "[\"sync-index\"]",
+        "/tmp/unify-record-operations-baseline/baseline-operations/dr-sync-full-api-3.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "c92acb921aa2d709e17b5ba333e00debacaf8f2dab07ecd0955c7004dd1f39be",
+      "exit": 0,
+      "wallMs": 10113.781809,
+      "userMs": 7706.302,
+      "systemMs": 3601.515,
+      "maxRssKiB": 310860,
+      "counts": {},
+      "stdoutBytes": 73,
+      "stderrBytes": 520,
+      "postverify": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/decisions/decision-index.json"
+        ],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "09626edfee7b174dc12f191bcdf72ba1f19b7b7d8679630afd4f4246aa4dcd0c",
+        "indexSha256": "4ef8ab516ac8dffca7398fe5ba8c6c4d31e1c14d46a3c21b8f7c1be87a7166cc",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-sync-selected-api-1",
+      "domain": "dr",
+      "scenario": "sync-selected",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "sync-selected",
+        "[\"sync-index\", \"--select\", \"261001-record-10000\"]",
+        "/tmp/unify-record-operations-baseline/baseline-operations/dr-sync-selected-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "c92acb921aa2d709e17b5ba333e00debacaf8f2dab07ecd0955c7004dd1f39be",
+      "exit": 0,
+      "wallMs": 10968.584318000001,
+      "userMs": 8368.442,
+      "systemMs": 3578.417,
+      "maxRssKiB": 390312,
+      "counts": {},
+      "stdoutBytes": 138,
+      "stderrBytes": 520,
+      "postverify": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/decisions/decision-index.json"
+        ],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "61ade78327735e99f0f61f7b2218f03c2b62955712d5c871855fc4ea273662d9",
+        "indexSha256": "4ef8ab516ac8dffca7398fe5ba8c6c4d31e1c14d46a3c21b8f7c1be87a7166cc",
+        "fullCheckExit": 0
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-sync-selected-api-2",
+      "domain": "dr",
+      "scenario": "sync-selected",
+      "mode": "api",
+      "repeat": 2,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "sync-selected",
+        "[\"sync-index\", \"--select\", \"261001-record-10000\"]",
+        "/tmp/unify-record-operations-baseline/baseline-operations/dr-sync-selected-api-2.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "c92acb921aa2d709e17b5ba333e00debacaf8f2dab07ecd0955c7004dd1f39be",
+      "exit": 0,
+      "wallMs": 10964.548902999999,
+      "userMs": 8285.861,
+      "systemMs": 3635.828,
+      "maxRssKiB": 392304,
+      "counts": {},
+      "stdoutBytes": 138,
+      "stderrBytes": 520,
+      "postverify": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/decisions/decision-index.json"
+        ],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "61ade78327735e99f0f61f7b2218f03c2b62955712d5c871855fc4ea273662d9",
+        "indexSha256": "4ef8ab516ac8dffca7398fe5ba8c6c4d31e1c14d46a3c21b8f7c1be87a7166cc",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-sync-selected-api-3",
+      "domain": "dr",
+      "scenario": "sync-selected",
+      "mode": "api",
+      "repeat": 3,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "sync-selected",
+        "[\"sync-index\", \"--select\", \"261001-record-10000\"]",
+        "/tmp/unify-record-operations-baseline/baseline-operations/dr-sync-selected-api-3.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "c92acb921aa2d709e17b5ba333e00debacaf8f2dab07ecd0955c7004dd1f39be",
+      "exit": 0,
+      "wallMs": 11140.717292,
+      "userMs": 8555.823,
+      "systemMs": 3589.355,
+      "maxRssKiB": 392364,
+      "counts": {},
+      "stdoutBytes": 138,
+      "stderrBytes": 520,
+      "postverify": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/decisions/decision-index.json"
+        ],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "61ade78327735e99f0f61f7b2218f03c2b62955712d5c871855fc4ea273662d9",
+        "indexSha256": "4ef8ab516ac8dffca7398fe5ba8c6c4d31e1c14d46a3c21b8f7c1be87a7166cc",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-readiness-api-1",
+      "domain": "dr",
+      "scenario": "readiness",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "readiness",
+        "[\"show-candidate\", \"261001-candidate-1\"]",
+        "/tmp/unify-record-operations-baseline/baseline-remaining-dr2/dr-readiness-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "exit": 0,
+      "wallMs": 3594.576423,
+      "userMs": 2759.403,
+      "systemMs": 1345.191,
+      "maxRssKiB": 243700,
+      "counts": {},
+      "stdoutBytes": 486,
+      "stderrBytes": 0,
+      "postverify": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "3d1d062d7bd97ace188a3f97d6ad79560fa7a5669a647219517b2ed93a50c985",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": 0
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-publish-api-1",
+      "domain": "dr",
+      "scenario": "publish",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "publish",
+        "[\"publish\", \"261001-candidate-1\", \"--alignment\", \"aligned\"]",
+        "/tmp/unify-record-operations-baseline/baseline-remaining-dr2/dr-publish-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "exit": 0,
+      "wallMs": 4389.606336000001,
+      "userMs": 3591.769,
+      "systemMs": 1453.601,
+      "maxRssKiB": 381820,
+      "counts": {},
+      "stdoutBytes": 190,
+      "stderrBytes": 0,
+      "postverify": {
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/decisions/261001-candidate-1.md",
+          "docs/decisions/decision-index.json"
+        ],
+        "entryCount": 10001,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10001,
+        "stdoutSha256": "c750e234350b1cd4496aa36098443542da93099bdd1803c464b9b83f6b19deb3",
+        "indexSha256": "edd514b2e9031bf5828d926a433506f946770cfb3d2fdeb4f3a05eafb3a67c24",
+        "fullCheckExit": 0
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-new-api-1",
+      "domain": "dr",
+      "scenario": "new",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "new",
+        "[\"new\", \"new-candidate\", \"--title\", \"benchmark candidate\", \"--tag\", \"benchmark\", \"--purpose\", \"\\u56fa\\u5b9a\\u76ee\\u7684\", \"--background\", \"\\u56fa\\u5b9a\\u80cc\\u666f\", \"--decision\", \"\\u56fa\\u5b9a\\u51b3\\u5b9a\"]",
+        "/tmp/unify-record-operations-baseline/baseline-remaining-dr3/dr-new-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "exit": 0,
+      "wallMs": 6891.242289,
+      "userMs": 4803.324,
+      "systemMs": 2810.462,
+      "maxRssKiB": 266248,
+      "counts": {},
+      "stdoutBytes": 323,
+      "stderrBytes": 0,
+      "postverify": {
+        "fileDelta": {
+          "docs/decisions/new-candidate.md": {
+            "before": null,
+            "after": {
+              "sha256": "20bb22dfb76c33f13741c1cb832e4ecd6a4c3ced94f7e5162ad6adb05cfbe6e8",
+              "bytes": 247,
+              "mode": "0o664"
+            }
+          }
+        },
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/decisions/new-candidate.md"
+        ],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "a3bd5ae87a6526299f948084242e4351851636ee22621b64034acc46d1802a68",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": 0,
+        "createdIdentityAudit": {
+          "id": "261023-new-candidate",
+          "sourcePath": "new-candidate.md",
+          "expectedExactScaffoldSha256": "20bb22dfb76c33f13741c1cb832e4ecd6a4c3ced94f7e5162ad6adb05cfbe6e8",
+          "readiness": {
+            "scaffoldValid": true,
+            "bodyReady": false
+          },
+          "basis": "independent literal expected scaffold bytes hash equals recorded filesystem after hash; actual stdout ID/path/readiness agree"
+        }
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-set-relations-api-1",
+      "domain": "dr",
+      "scenario": "set-relations",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "set-relations",
+        "[\"set-relations\", \"--source\", \"261001-record-10000\", \"--relation\", \"\\u4fee\\u8ba2=261001-record-08999\"]",
+        "/tmp/unify-record-operations-baseline/baseline-remaining-dr3/dr-set-relations-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "exit": 0,
+      "wallMs": 1196.349047,
+      "userMs": 1471.454,
+      "systemMs": 157.434,
+      "maxRssKiB": 356220,
+      "counts": {},
+      "stdoutBytes": 453,
+      "stderrBytes": 0,
+      "postverify": {
+        "fileDelta": {
+          "docs/decisions/261001-record-10000.md": {
+            "before": {
+              "sha256": "33c63648eebb8975becfb75292e9c4656e7406d3cc6e8ee8805b36151b3226f5",
+              "bytes": 418,
+              "mode": "0o664"
+            },
+            "after": {
+              "sha256": "2bca80a75c7201dc8e25c74c0cdc298027870e1dcf0e54a04b4618dff948d53a",
+              "bytes": 396,
+              "mode": "0o664"
+            }
+          },
+          "docs/decisions/decision-index.json": {
+            "before": {
+              "sha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+              "bytes": 6303257,
+              "mode": "0o664"
+            },
+            "after": {
+              "sha256": "1267ee3b3cac7afbe4d2831a0d727e4a9c8b4d9d0b94e94ba47a1a6c241102c9",
+              "bytes": 6303257,
+              "mode": "0o664"
+            }
+          }
+        },
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/decisions/261001-record-10000.md",
+          "docs/decisions/decision-index.json"
+        ],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "709c5a96d537b3b5973f6f596e5dcaa21a66989b6ac0cff1fb1fd0a0dc899b11",
+        "indexSha256": "1267ee3b3cac7afbe4d2831a0d727e4a9c8b4d9d0b94e94ba47a1a6c241102c9",
+        "fullCheckExit": 0
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-rename-api-1",
+      "domain": "dr",
+      "scenario": "rename",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "rename",
+        "[\"rename\", \"261001-record-10000\", \"261001-renamed-record\", \"--rename-recorded-decision\"]",
+        "/tmp/unify-record-operations-baseline/baseline-remaining-dr3/dr-rename-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "exit": 0,
+      "wallMs": 33502.633748,
+      "userMs": 24409.415,
+      "systemMs": 10573.51,
+      "maxRssKiB": 656548,
+      "counts": {},
+      "stdoutBytes": 271,
+      "stderrBytes": 0,
+      "correctedHarnessAssertion": "AssertionError(('rename', ['docs/decisions/261001-record-10000.md', 'docs/decisions/decision-index.json', 'docs/decisions/renamed-record.md'], ['docs/decisions/261001-record-10000.md', 'docs/decisions/261001-renamed-record.md', 'docs/decisions/decision-index.json']))",
+      "postverify": {
+        "fileDelta": {
+          "docs/decisions/261001-record-10000.md": {
+            "before": {
+              "bytes": 418,
+              "mode": "0o664",
+              "sha256": "33c63648eebb8975becfb75292e9c4656e7406d3cc6e8ee8805b36151b3226f5"
+            },
+            "after": null
+          },
+          "docs/decisions/decision-index.json": {
+            "before": {
+              "bytes": 6303257,
+              "mode": "0o664",
+              "sha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90"
+            },
+            "after": {
+              "sha256": "46ab41afc05f514037e4d097da279440b57de6fd58eb1fbbb789f64d079aa164",
+              "bytes": 6303258,
+              "mode": "0o664"
+            }
+          },
+          "docs/decisions/renamed-record.md": {
+            "before": null,
+            "after": {
+              "sha256": "3fbc1d7f5816adc61e5f681e783d28260f80ece0b98effca738e52280e1f1b87",
+              "bytes": 398,
+              "mode": "0o664"
+            }
+          }
+        },
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/decisions/261001-record-10000.md",
+          "docs/decisions/decision-index.json",
+          "docs/decisions/renamed-record.md"
+        ],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "a93599849597c6288d1d7f459c137aa3a8cf7795f102177c4d3b0a427e4e4e1e",
+        "indexSha256": "46ab41afc05f514037e4d097da279440b57de6fd58eb1fbbb789f64d079aa164",
+        "fullCheckExit": 0
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-discard-api-1",
+      "domain": "dr",
+      "scenario": "discard",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "discard",
+        "[\"discard\", \"261001-record-10000\", \"--delete-recorded\"]",
+        "/tmp/unify-record-operations-baseline/baseline-remaining-dr4/dr-discard-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "exit": 0,
+      "wallMs": 34382.385132999996,
+      "userMs": 24302.257,
+      "systemMs": 11652.845,
+      "maxRssKiB": 553412,
+      "counts": {},
+      "stdoutBytes": 43,
+      "stderrBytes": 520,
+      "postverify": {
+        "fileDelta": {
+          "docs/decisions/261001-record-10000.md": {
+            "before": {
+              "sha256": "33c63648eebb8975becfb75292e9c4656e7406d3cc6e8ee8805b36151b3226f5",
+              "bytes": 418,
+              "mode": "0o664"
+            },
+            "after": null
+          },
+          "docs/decisions/decision-index.json": {
+            "before": {
+              "sha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+              "bytes": 6303257,
+              "mode": "0o664"
+            },
+            "after": {
+              "sha256": "ea12eb3801ed34268b66a613f8c8e7f10940b0cb3d1ff325c0b570c1531aa09a",
+              "bytes": 6302627,
+              "mode": "0o664"
+            }
+          }
+        },
+        "relationCount": 8999,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/decisions/261001-record-10000.md",
+          "docs/decisions/decision-index.json"
+        ],
+        "entryCount": 9999,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 9999,
+        "stdoutSha256": "7bdea8ef16d0884a15f058ef1273c0431b1c350d17e278197197083a6535484b",
+        "indexSha256": "ea12eb3801ed34268b66a613f8c8e7f10940b0cb3d1ff325c0b570c1531aa09a",
+        "fullCheckExit": 0
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "dr-check-api-1",
+      "domain": "dr",
+      "scenario": "check",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "check",
+        "[\"check\"]",
+        "/tmp/unify-record-operations-baseline/baseline-remaining-dr4/dr-check-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "exit": 0,
+      "wallMs": 6316.485941,
+      "userMs": 5016.947,
+      "systemMs": 1977.767,
+      "maxRssKiB": 347252,
+      "counts": {},
+      "stdoutBytes": 153,
+      "stderrBytes": 0,
+      "postverify": {
+        "fileDelta": {},
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "3dc5d51ac294fd5fcf121036b4f24c084f0728c678715e27582212e21da919a2",
+        "indexSha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+        "fullCheckExit": 0
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-sync-full-api-1",
+      "domain": "ir",
+      "scenario": "sync-full",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "sync-full",
+        "[\"sync-index\"]",
+        "/tmp/unify-record-operations-baseline/baseline-operations-ir/ir-sync-full-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "8ee31760c9587a84b33cb459ffa12e82236459a0993290fa0bf6382dbf923382",
+      "exit": 0,
+      "wallMs": 2761.2269180000003,
+      "userMs": 1538.794,
+      "systemMs": 1511.391,
+      "maxRssKiB": 288948,
+      "counts": {},
+      "stdoutBytes": 267,
+      "stderrBytes": 0,
+      "postverify": {
+        "fileDelta": {
+          "docs/investigations/investigation-index.json": {
+            "before": {
+              "sha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+              "bytes": 5193312,
+              "mode": "0o664"
+            },
+            "after": {
+              "sha256": "5690ce69159f23aae21a284c97fa59f02de03b6a6311ce625b73a3784c13a1f9",
+              "bytes": 5193312,
+              "mode": "0o664"
+            }
+          }
+        },
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/investigations/investigation-index.json"
+        ],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "7b864b90840760429d0064295877023f60bfc7d87fb83039c281fc45441c1f1a",
+        "indexSha256": "5690ce69159f23aae21a284c97fa59f02de03b6a6311ce625b73a3784c13a1f9",
+        "fullCheckExit": 0
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-sync-full-api-2",
+      "domain": "ir",
+      "scenario": "sync-full",
+      "mode": "api",
+      "repeat": 2,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "sync-full",
+        "[\"sync-index\"]",
+        "/tmp/unify-record-operations-baseline/baseline-operations-ir/ir-sync-full-api-2.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "8ee31760c9587a84b33cb459ffa12e82236459a0993290fa0bf6382dbf923382",
+      "exit": 0,
+      "wallMs": 2739.807854,
+      "userMs": 1557.417,
+      "systemMs": 1449.117,
+      "maxRssKiB": 290172,
+      "counts": {},
+      "stdoutBytes": 267,
+      "stderrBytes": 0,
+      "postverify": {
+        "fileDelta": {
+          "docs/investigations/investigation-index.json": {
+            "before": {
+              "sha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+              "bytes": 5193312,
+              "mode": "0o664"
+            },
+            "after": {
+              "sha256": "5690ce69159f23aae21a284c97fa59f02de03b6a6311ce625b73a3784c13a1f9",
+              "bytes": 5193312,
+              "mode": "0o664"
+            }
+          }
+        },
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/investigations/investigation-index.json"
+        ],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "7b864b90840760429d0064295877023f60bfc7d87fb83039c281fc45441c1f1a",
+        "indexSha256": "5690ce69159f23aae21a284c97fa59f02de03b6a6311ce625b73a3784c13a1f9",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-sync-full-api-3",
+      "domain": "ir",
+      "scenario": "sync-full",
+      "mode": "api",
+      "repeat": 3,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "sync-full",
+        "[\"sync-index\"]",
+        "/tmp/unify-record-operations-baseline/baseline-operations-ir/ir-sync-full-api-3.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "8ee31760c9587a84b33cb459ffa12e82236459a0993290fa0bf6382dbf923382",
+      "exit": 0,
+      "wallMs": 2700.606214,
+      "userMs": 1520.706,
+      "systemMs": 1454.978,
+      "maxRssKiB": 289860,
+      "counts": {},
+      "stdoutBytes": 267,
+      "stderrBytes": 0,
+      "postverify": {
+        "fileDelta": {
+          "docs/investigations/investigation-index.json": {
+            "before": {
+              "sha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+              "bytes": 5193312,
+              "mode": "0o664"
+            },
+            "after": {
+              "sha256": "5690ce69159f23aae21a284c97fa59f02de03b6a6311ce625b73a3784c13a1f9",
+              "bytes": 5193312,
+              "mode": "0o664"
+            }
+          }
+        },
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/investigations/investigation-index.json"
+        ],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "7b864b90840760429d0064295877023f60bfc7d87fb83039c281fc45441c1f1a",
+        "indexSha256": "5690ce69159f23aae21a284c97fa59f02de03b6a6311ce625b73a3784c13a1f9",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-sync-selected-api-1",
+      "domain": "ir",
+      "scenario": "sync-selected",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "sync-selected",
+        "[\"sync-index\", \"--select\", \"261001-record-10000\"]",
+        "/tmp/unify-record-operations-baseline/baseline-operations-ir/ir-sync-selected-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "8ee31760c9587a84b33cb459ffa12e82236459a0993290fa0bf6382dbf923382",
+      "exit": 0,
+      "wallMs": 3427.544771,
+      "userMs": 2367.918,
+      "systemMs": 1553.842,
+      "maxRssKiB": 334916,
+      "counts": {},
+      "stdoutBytes": 335,
+      "stderrBytes": 0,
+      "postverify": {
+        "fileDelta": {
+          "docs/investigations/investigation-index.json": {
+            "before": {
+              "sha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+              "bytes": 5193312,
+              "mode": "0o664"
+            },
+            "after": {
+              "sha256": "5690ce69159f23aae21a284c97fa59f02de03b6a6311ce625b73a3784c13a1f9",
+              "bytes": 5193312,
+              "mode": "0o664"
+            }
+          }
+        },
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/investigations/investigation-index.json"
+        ],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "818f72fcb5e8942371d2b0cdfbeb32b25ebdf0180635e67f19ec29dde2f3f610",
+        "indexSha256": "5690ce69159f23aae21a284c97fa59f02de03b6a6311ce625b73a3784c13a1f9",
+        "fullCheckExit": 0
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-sync-selected-api-2",
+      "domain": "ir",
+      "scenario": "sync-selected",
+      "mode": "api",
+      "repeat": 2,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "sync-selected",
+        "[\"sync-index\", \"--select\", \"261001-record-10000\"]",
+        "/tmp/unify-record-operations-baseline/baseline-operations-ir/ir-sync-selected-api-2.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "8ee31760c9587a84b33cb459ffa12e82236459a0993290fa0bf6382dbf923382",
+      "exit": 0,
+      "wallMs": 3478.897437,
+      "userMs": 2451.213,
+      "systemMs": 1523.08,
+      "maxRssKiB": 334204,
+      "counts": {},
+      "stdoutBytes": 335,
+      "stderrBytes": 0,
+      "postverify": {
+        "fileDelta": {
+          "docs/investigations/investigation-index.json": {
+            "before": {
+              "sha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+              "bytes": 5193312,
+              "mode": "0o664"
+            },
+            "after": {
+              "sha256": "5690ce69159f23aae21a284c97fa59f02de03b6a6311ce625b73a3784c13a1f9",
+              "bytes": 5193312,
+              "mode": "0o664"
+            }
+          }
+        },
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/investigations/investigation-index.json"
+        ],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "818f72fcb5e8942371d2b0cdfbeb32b25ebdf0180635e67f19ec29dde2f3f610",
+        "indexSha256": "5690ce69159f23aae21a284c97fa59f02de03b6a6311ce625b73a3784c13a1f9",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-sync-selected-api-3",
+      "domain": "ir",
+      "scenario": "sync-selected",
+      "mode": "api",
+      "repeat": 3,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "sync-selected",
+        "[\"sync-index\", \"--select\", \"261001-record-10000\"]",
+        "/tmp/unify-record-operations-baseline/baseline-operations-ir/ir-sync-selected-api-3.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "8ee31760c9587a84b33cb459ffa12e82236459a0993290fa0bf6382dbf923382",
+      "exit": 0,
+      "wallMs": 3475.1994569999997,
+      "userMs": 2478.812,
+      "systemMs": 1493.904,
+      "maxRssKiB": 335248,
+      "counts": {},
+      "stdoutBytes": 335,
+      "stderrBytes": 0,
+      "postverify": {
+        "fileDelta": {
+          "docs/investigations/investigation-index.json": {
+            "before": {
+              "sha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+              "bytes": 5193312,
+              "mode": "0o664"
+            },
+            "after": {
+              "sha256": "5690ce69159f23aae21a284c97fa59f02de03b6a6311ce625b73a3784c13a1f9",
+              "bytes": 5193312,
+              "mode": "0o664"
+            }
+          }
+        },
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/investigations/investigation-index.json"
+        ],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "818f72fcb5e8942371d2b0cdfbeb32b25ebdf0180635e67f19ec29dde2f3f610",
+        "indexSha256": "5690ce69159f23aae21a284c97fa59f02de03b6a6311ce625b73a3784c13a1f9",
+        "fullCheckExit": "same scenario/entry first sample checked; every repeat independently bytes/mode/entry/revision verified"
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-new-api-1",
+      "domain": "ir",
+      "scenario": "new",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "new",
+        "[\"new\", \"261001-new-candidate\", \"--title\", \"benchmark candidate\", \"--tag\", \"benchmark\", \"--question\", \"\\u56fa\\u5b9a\\u95ee\\u9898\", \"--formed-at\", \"2026-10-01T00:00:00Z\"]",
+        "/tmp/unify-record-operations-baseline/baseline-operations-ir/ir-new-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "exit": 0,
+      "wallMs": 746.6201799999999,
+      "userMs": 886.081,
+      "systemMs": 145.25,
+      "maxRssKiB": 230056,
+      "counts": {},
+      "stdoutBytes": 1215,
+      "stderrBytes": 0,
+      "postverify": {
+        "fileDelta": {
+          "docs/investigations/_candidate.new-candidate": {
+            "before": null,
+            "after": {
+              "sha256": "88b33bc143d106f52d002bbae8c940252b85a02767ecac5b94cbed648d641a6e",
+              "bytes": 247,
+              "mode": "0o600"
+            }
+          }
+        },
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/investigations/_candidate.new-candidate"
+        ],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "a43cf64d6720b5aa878ab1d8c60cd2557dff44258592f5f7aa95ce886a1a8c5b",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "fullCheckExit": 0,
+        "createdIdentityAudit": {
+          "id": "261001-new-candidate",
+          "sourcePath": "_candidate.new-candidate",
+          "markdownSha256": "88b33bc143d106f52d002bbae8c940252b85a02767ecac5b94cbed648d641a6e",
+          "readiness": {
+            "scaffoldValid": true,
+            "bodyReady": false,
+            "resourceReady": true
+          },
+          "basis": "returned markdown/id/path/readiness agree with independent filesystem after hash"
+        }
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-readiness-api-1",
+      "domain": "ir",
+      "scenario": "readiness",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "readiness",
+        "[\"show-candidate\", \"261001-candidate-1\"]",
+        "/tmp/unify-record-operations-baseline/baseline-operations-ir/ir-readiness-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "exit": 0,
+      "wallMs": 405.63870599999996,
+      "userMs": 520.514,
+      "systemMs": 68.84,
+      "maxRssKiB": 219288,
+      "counts": {},
+      "stdoutBytes": 694,
+      "stderrBytes": 0,
+      "postverify": {
+        "fileDelta": {},
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "3c39910bfc7a964cf308cf430542f5c0d3939d501f823cc25a9014863c4b3b7b",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "fullCheckExit": 0
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-publish-api-1",
+      "domain": "ir",
+      "scenario": "publish",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "publish",
+        "[\"publish\", \"261001-candidate-1\"]",
+        "/tmp/unify-record-operations-baseline/baseline-operations-ir/ir-publish-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "exit": 0,
+      "wallMs": 2221.4067729999997,
+      "userMs": 2478.741,
+      "systemMs": 326.584,
+      "maxRssKiB": 368416,
+      "counts": {},
+      "stdoutBytes": 343,
+      "stderrBytes": 0,
+      "correctedHarnessAssertion": "AssertionError(('mode', 'docs/investigations/investigation-index.json'))",
+      "postverify": {
+        "fileDelta": {
+          "docs/investigations/261001-candidate-1.md": {
+            "before": null,
+            "after": {
+              "sha256": "01f2b56bde736c33e87aa6ba1082a8e2d5e15e15667e52ad649b3253c8a3960e",
+              "bytes": 327,
+              "mode": "0o664"
+            }
+          },
+          "docs/investigations/_candidate.261001-candidate-1": {
+            "before": {
+              "bytes": 327,
+              "mode": "0o664",
+              "sha256": "01f2b56bde736c33e87aa6ba1082a8e2d5e15e15667e52ad649b3253c8a3960e"
+            },
+            "after": null
+          },
+          "docs/investigations/investigation-index.json": {
+            "before": {
+              "bytes": 5193312,
+              "mode": "0o664",
+              "sha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082"
+            },
+            "after": {
+              "sha256": "2b39a0e45dfc8ab80df817eb68eb1d60ebee95b5ef47861b3ce067be7705c2d6",
+              "bytes": 5193739,
+              "mode": "0o600"
+            }
+          }
+        },
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/investigations/261001-candidate-1.md",
+          "docs/investigations/_candidate.261001-candidate-1",
+          "docs/investigations/investigation-index.json"
+        ],
+        "entryCount": 10001,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10001,
+        "stdoutSha256": "50cdd45578b2c986f5550704951fda8003af49f1d902f4b5c7d140946f1a5b0f",
+        "indexSha256": "2b39a0e45dfc8ab80df817eb68eb1d60ebee95b5ef47861b3ce067be7705c2d6",
+        "fullCheckExit": 0
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-publish-batch-api-1",
+      "domain": "ir",
+      "scenario": "publish-batch",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "publish-batch",
+        "[\"publish\", \"261001-candidate-1\", \"261001-candidate-2\"]",
+        "/tmp/unify-record-operations-baseline/baseline-remaining-ir/ir-publish-batch-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "exit": 0,
+      "wallMs": 2164.52656,
+      "userMs": 2418.675,
+      "systemMs": 294.581,
+      "maxRssKiB": 367340,
+      "counts": {},
+      "stdoutBytes": 442,
+      "stderrBytes": 0,
+      "postverify": {
+        "fileDelta": {
+          "docs/investigations/261001-candidate-1.md": {
+            "before": null,
+            "after": {
+              "sha256": "01f2b56bde736c33e87aa6ba1082a8e2d5e15e15667e52ad649b3253c8a3960e",
+              "bytes": 327,
+              "mode": "0o664"
+            }
+          },
+          "docs/investigations/261001-candidate-2.md": {
+            "before": null,
+            "after": {
+              "sha256": "db846e506126da1bfb684d62173820dea47cd1b2228bc3d1e1f1da8267ed8172",
+              "bytes": 327,
+              "mode": "0o664"
+            }
+          },
+          "docs/investigations/_candidate.261001-candidate-1": {
+            "before": {
+              "sha256": "01f2b56bde736c33e87aa6ba1082a8e2d5e15e15667e52ad649b3253c8a3960e",
+              "bytes": 327,
+              "mode": "0o664"
+            },
+            "after": null
+          },
+          "docs/investigations/_candidate.261001-candidate-2": {
+            "before": {
+              "sha256": "db846e506126da1bfb684d62173820dea47cd1b2228bc3d1e1f1da8267ed8172",
+              "bytes": 327,
+              "mode": "0o664"
+            },
+            "after": null
+          },
+          "docs/investigations/investigation-index.json": {
+            "before": {
+              "sha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+              "bytes": 5193312,
+              "mode": "0o664"
+            },
+            "after": {
+              "sha256": "833afad929f9dd95f8c4d51576eabc24f50e852505d1c4481bbe5dc98034f69e",
+              "bytes": 5194166,
+              "mode": "0o600"
+            }
+          }
+        },
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/investigations/261001-candidate-1.md",
+          "docs/investigations/261001-candidate-2.md",
+          "docs/investigations/_candidate.261001-candidate-1",
+          "docs/investigations/_candidate.261001-candidate-2",
+          "docs/investigations/investigation-index.json"
+        ],
+        "entryCount": 10002,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10002,
+        "stdoutSha256": "794449930bce8ea60f383bed944cf83ec793fb7bf940a93e565ed313bd37efd9",
+        "indexSha256": "833afad929f9dd95f8c4d51576eabc24f50e852505d1c4481bbe5dc98034f69e",
+        "fullCheckExit": 0
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-set-relations-api-1",
+      "domain": "ir",
+      "scenario": "set-relations",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "set-relations",
+        "[\"set-relations\", \"--source\", \"261001-record-10000\", \"--relation\", \"\\u8865\\u5145=261001-record-08999\"]",
+        "/tmp/unify-record-operations-baseline/baseline-remaining-ir/ir-set-relations-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "exit": 0,
+      "wallMs": 860.728397,
+      "userMs": 1034.404,
+      "systemMs": 144.984,
+      "maxRssKiB": 267256,
+      "counts": {},
+      "stdoutBytes": 431,
+      "stderrBytes": 0,
+      "postverify": {
+        "fileDelta": {
+          "docs/investigations/261001-record-10000.md": {
+            "before": {
+              "sha256": "d22d1e575f72a2bcac3118b8e5768d2fed0ae6daeef2868c9f1a0e5c86067542",
+              "bytes": 399,
+              "mode": "0o664"
+            },
+            "after": {
+              "sha256": "f1b6a80dd0e3979be4c8b9ecfc2f27f41ed4a37c33614dc2b7032c3ef8a974e8",
+              "bytes": 399,
+              "mode": "0o600"
+            }
+          },
+          "docs/investigations/investigation-index.json": {
+            "before": {
+              "sha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+              "bytes": 5193312,
+              "mode": "0o664"
+            },
+            "after": {
+              "sha256": "fd640d874ff7fea1a84222b52c5823d3ee3de0d1e8570c28053656fc65a4ed21",
+              "bytes": 5193312,
+              "mode": "0o600"
+            }
+          }
+        },
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/investigations/261001-record-10000.md",
+          "docs/investigations/investigation-index.json"
+        ],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "2017cfa014c7ed6cc84e015c2996da4d00dffbab8840e3a6e8452f2fa28a40c7",
+        "indexSha256": "fd640d874ff7fea1a84222b52c5823d3ee3de0d1e8570c28053656fc65a4ed21",
+        "fullCheckExit": 0
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-rename-api-1",
+      "domain": "ir",
+      "scenario": "rename",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "rename",
+        "[\"rename\", \"261001-record-10000\", \"261001-renamed-record\", \"--rename-recorded-report\"]",
+        "/tmp/unify-record-operations-baseline/baseline-remaining-ir/ir-rename-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "exit": 0,
+      "wallMs": 17184.540933,
+      "userMs": 8665.634,
+      "systemMs": 9319.61,
+      "maxRssKiB": 514844,
+      "counts": {},
+      "stdoutBytes": 519,
+      "stderrBytes": 0,
+      "postverify": {
+        "fileDelta": {
+          "docs/investigations/261001-record-10000.md": {
+            "before": {
+              "sha256": "d22d1e575f72a2bcac3118b8e5768d2fed0ae6daeef2868c9f1a0e5c86067542",
+              "bytes": 399,
+              "mode": "0o664"
+            },
+            "after": null
+          },
+          "docs/investigations/investigation-index.json": {
+            "before": {
+              "sha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+              "bytes": 5193312,
+              "mode": "0o664"
+            },
+            "after": {
+              "sha256": "18a44c6525bf4792d0e5819771a7b4f788171086fe427831e520729039e8d26d",
+              "bytes": 5193313,
+              "mode": "0o600"
+            }
+          },
+          "docs/investigations/renamed-record.md": {
+            "before": null,
+            "after": {
+              "sha256": "2c56811ed0621a54bf1359d49698759b61905ac825b8e8d0531d3855bdd7f204",
+              "bytes": 401,
+              "mode": "0o600"
+            }
+          }
+        },
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/investigations/261001-record-10000.md",
+          "docs/investigations/investigation-index.json",
+          "docs/investigations/renamed-record.md"
+        ],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "811c1bc5dba4e13d1e7c3aad3c08c68340c8adba6a8201f2549a4558eb5469a0",
+        "indexSha256": "18a44c6525bf4792d0e5819771a7b4f788171086fe427831e520729039e8d26d",
+        "fullCheckExit": 0
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-discard-api-1",
+      "domain": "ir",
+      "scenario": "discard",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "discard",
+        "[\"discard\", \"261001-record-10000\", \"--delete-recorded\"]",
+        "/tmp/unify-record-operations-baseline/baseline-remaining-ir/ir-discard-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "exit": 0,
+      "wallMs": 7689.584261,
+      "userMs": 3762.818,
+      "systemMs": 4374.799,
+      "maxRssKiB": 429612,
+      "counts": {},
+      "stdoutBytes": 249,
+      "stderrBytes": 0,
+      "postverify": {
+        "fileDelta": {
+          "docs/investigations/261001-record-10000.md": {
+            "before": {
+              "sha256": "d22d1e575f72a2bcac3118b8e5768d2fed0ae6daeef2868c9f1a0e5c86067542",
+              "bytes": 399,
+              "mode": "0o664"
+            },
+            "after": null
+          },
+          "docs/investigations/investigation-index.json": {
+            "before": {
+              "sha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+              "bytes": 5193312,
+              "mode": "0o664"
+            },
+            "after": {
+              "sha256": "3dabec7ab26539675e7c5a9fe6cc8bcb84d2a7c131c6c17b83ba9a1312c21824",
+              "bytes": 5192783,
+              "mode": "0o600"
+            }
+          }
+        },
+        "relationCount": 8999,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [
+          "docs/investigations/261001-record-10000.md",
+          "docs/investigations/investigation-index.json"
+        ],
+        "entryCount": 9999,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 9999,
+        "stdoutSha256": "486d6a72d8ddcc416e1a98b27528a3199e07472317b4233fe53d65fe48d40696",
+        "indexSha256": "3dabec7ab26539675e7c5a9fe6cc8bcb84d2a7c131c6c17b83ba9a1312c21824",
+        "fullCheckExit": 0
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-check-api-1",
+      "domain": "ir",
+      "scenario": "check",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "check",
+        "[\"check\"]",
+        "/tmp/unify-record-operations-baseline/baseline-remaining-ir/ir-check-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "exit": 0,
+      "wallMs": 2417.274058,
+      "userMs": 1411.562,
+      "systemMs": 891.103,
+      "maxRssKiB": 280900,
+      "counts": {},
+      "stdoutBytes": 229,
+      "stderrBytes": 0,
+      "postverify": {
+        "fileDelta": {},
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "23693052355d83157943e7ba3209130e2f2a56573d92cdd9ef595bca942cf8e3",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "fullCheckExit": 0
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-show-api-1",
+      "domain": "ir",
+      "scenario": "show",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "show",
+        "[\"show\", \"261001-record-10000\"]",
+        "/tmp/unify-record-operations-baseline/baseline-remaining-ir/ir-show-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "3ce420f4cb0bb6c6bb52c4091b42ac9dd31002e0144963c436ea4e86baae263e",
+      "exit": 0,
+      "wallMs": 426.02444199999996,
+      "userMs": 505.58,
+      "systemMs": 101.851,
+      "maxRssKiB": 214876,
+      "counts": {},
+      "stdoutBytes": 916,
+      "stderrBytes": 0,
+      "postverify": {
+        "fileDelta": {},
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "7728a03441bd03f73d3d78098280152ed3691ace97ad6b7598753a93e85aed8b",
+        "indexSha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+        "fullCheckExit": 0
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    },
+    {
+      "key": "ir-content-api-1",
+      "domain": "ir",
+      "scenario": "content",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-ir-content-100",
+        "content",
+        "[\"search\", \"needle-perf-unique\", \"--in\", \"content\", \"--limit\", \"5\", \"--tag\", \"content-scope\"]",
+        "/tmp/unify-record-operations-baseline/baseline-ir-content-100/ir-content-api-1.metrics.json"
+      ],
+      "fixtureHead": "6736a70714f4358277773874de09c14e963e1206",
+      "inputDomainSha256": "a0ccee5130c7e361b9c5ebd2b70f8d6f8c3ab6455cd8ffb7dc7bb870d34d0ad9",
+      "exit": 0,
+      "wallMs": 733.961822,
+      "userMs": 816.177,
+      "systemMs": 218.035,
+      "maxRssKiB": 221800,
+      "counts": {},
+      "stdoutBytes": 1253,
+      "stderrBytes": 0,
+      "postverify": {
+        "fileDelta": {},
+        "relationCount": 9000,
+        "sourceRevisionMembershipExact": true,
+        "changedFiles": [],
+        "entryCount": 10000,
+        "unselectedBytesModesEntriesPreserved": true,
+        "identityLocatorChecked": 10000,
+        "stdoutSha256": "92fe0ac5616a11a398dad4d7b5081122ed1ecd2ae92eb1433d8a3793b0e929b8",
+        "indexSha256": "57f948e1310e4f3a4a3367582700e2b7fbd49f7334cad702573f8c10bec467a2",
+        "searchInfo": {
+          "query": {
+            "text": "needle-perf-unique",
+            "in": "content",
+            "match": "all",
+            "filters": {
+              "tags": [
+                "content-scope"
+              ]
+            },
+            "limits": {
+              "maxRecords": 5,
+              "resources": {
+                "maxCandidateFiles": 2000,
+                "maxFileBytes": 2097152,
+                "maxTotalBytes": 20971520
+              },
+              "preview": {
+                "contextLines": 1,
+                "maxMatchesPerFile": 3,
+                "maxPreviewCharacters": 24000
+              }
+            }
+          },
+          "source": {
+            "kind": "published-index+current-text",
+            "currentness": "unchecked",
+            "fallback": false
+          },
+          "counts": {
+            "matched": {
+              "value": 1,
+              "precision": "exact"
+            },
+            "returned": 1
+          },
+          "coverage": {
+            "scanComplete": true,
+            "resultsComplete": true,
+            "previewsComplete": true,
+            "reasons": []
+          }
+        },
+        "fullCheckExit": 0
+      },
+      "inputAudit": "exact frozen HEAD bytes/mode manifest, plus only declared title edit for sync"
+    }
+  ],
+  "rejectedSamples": [
+    {
+      "key": "ir-content-api-1",
+      "domain": "ir",
+      "scenario": "content",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "ir",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "content",
+        "[\"search\", \"needle-perf-unique\", \"--in\", \"content\", \"--limit\", \"5\"]",
+        "/tmp/unify-record-operations-baseline/baseline-queries/ir-content-api-1.metrics.json"
+      ],
+      "exit": 1,
+      "wallMs": 427.62037399999997,
+      "userMs": 541.808,
+      "systemMs": 86.52,
+      "maxRssKiB": 221316,
+      "counts": {},
+      "stdoutBytes": 737,
+      "stderrBytes": 0,
+      "failure": ""
+    },
+    {
+      "key": "dr-new-api-1",
+      "domain": "dr",
+      "scenario": "new",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "new",
+        "[\"new\", \"261001-new-candidate\", \"--title\", \"benchmark candidate\", \"--tag\", \"benchmark\", \"--purpose\", \"\\u56fa\\u5b9a\\u76ee\\u7684\", \"--background\", \"\\u56fa\\u5b9a\\u80cc\\u666f\", \"--decision\", \"\\u56fa\\u5b9a\\u51b3\\u5b9a\"]",
+        "/tmp/unify-record-operations-baseline/baseline-operations/dr-new-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "exit": 1,
+      "wallMs": 3578.2081329999996,
+      "userMs": 2760.316,
+      "systemMs": 1341.962,
+      "maxRssKiB": 240408,
+      "counts": {},
+      "stdoutBytes": 0,
+      "stderrBytes": 357,
+      "failure": "Decision records command failed:\n- code: decision-records.new-formation-date-mismatch\n  object: 261001-new-candidate\n  reason: Decision ID date must match the authoritative UTC candidate formation date: 261023\n  scope: Decision candidate scaffold\n  outcome: no-change\n  next: Provide the semantic name only, or provide the standard ID for today's UTC date.\n"
+    },
+    {
+      "key": "dr-publish-batch-api-1",
+      "domain": "dr",
+      "scenario": "publish-batch",
+      "mode": "api",
+      "repeat": 1,
+      "argv": [
+        "node",
+        "/workspace/skills/changes/unify-record-operations/evidence/api-worker.mjs",
+        "/tmp/unify-record-operations-baseline/source",
+        "dr",
+        "/tmp/unify-record-operations-baseline/fixture-v3",
+        "publish-batch",
+        "[\"evolve\", \"--successor\", \"aligned=261001-candidate-1\", \"--successor\", \"aligned=261001-candidate-2\", \"--clear-relations\"]",
+        "/tmp/unify-record-operations-baseline/baseline-remaining-dr2/dr-publish-batch-api-1.metrics.json"
+      ],
+      "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+      "inputDomainSha256": "7f80b04f73c299db93067bcc5418812c6d615db0d11f655ee6a06b56ee26c8b7",
+      "exit": 1,
+      "wallMs": 3437.06219,
+      "userMs": 2483.076,
+      "systemMs": 1377.797,
+      "maxRssKiB": 253312,
+      "counts": {},
+      "stdoutBytes": 0,
+      "stderrBytes": 390,
+      "failure": "Decision records command failed:\n- code: decision-records.lifecycle-preflight-failed\n  object: Decision Records command\n  reason: Multiple successors are supported only by the closed 拆分 strategy or the closed 重划 strategy.\n  scope: Decision Markdown files and derived decision index\n  outcome: no-change\n  next: Correct the reported decision-records problem, then retry the command.\n"
+    }
+  ],
+  "summary": [
+    {
+      "domain": "dr",
+      "scenario": "check",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 6316.485941,
+        "min": 6316.485941,
+        "max": 6316.485941
+      },
+      "userMs": {
+        "median": 5016.947,
+        "min": 5016.947,
+        "max": 5016.947
+      },
+      "systemMs": {
+        "median": 1977.767,
+        "min": 1977.767,
+        "max": 1977.767
+      },
+      "maxRssKiB": {
+        "median": 347252,
+        "min": 347252,
+        "max": 347252
+      },
+      "stdoutBytes": {
+        "median": 153,
+        "min": 153,
+        "max": 153
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "dr",
+      "scenario": "content",
+      "mode": "api",
+      "n": 3,
+      "wallMs": {
+        "median": 20290.63608,
+        "min": 20167.328585,
+        "max": 20869.709297
+      },
+      "userMs": {
+        "median": 9581.646,
+        "min": 9482.285,
+        "max": 9749.552
+      },
+      "systemMs": {
+        "median": 12235.029,
+        "min": 12160.505,
+        "max": 12471.28
+      },
+      "maxRssKiB": {
+        "median": 227132,
+        "min": 225376,
+        "max": 231900
+      },
+      "stdoutBytes": {
+        "median": 731,
+        "min": 731,
+        "max": 731
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "dr",
+      "scenario": "content",
+      "mode": "cli",
+      "n": 3,
+      "wallMs": {
+        "median": 20564.154276,
+        "min": 20315.905874,
+        "max": 22347.496246
+      },
+      "userMs": {
+        "median": 10034.537999999999,
+        "min": 9774.158,
+        "max": 10390.812
+      },
+      "systemMs": {
+        "median": 12243.938,
+        "min": 12224.133,
+        "max": 12434.069
+      },
+      "maxRssKiB": {
+        "median": 230488,
+        "min": 225664,
+        "max": 231616
+      },
+      "stdoutBytes": {
+        "median": 731,
+        "min": 731,
+        "max": 731
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "dr",
+      "scenario": "discard",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 34382.385132999996,
+        "min": 34382.385132999996,
+        "max": 34382.385132999996
+      },
+      "userMs": {
+        "median": 24302.257,
+        "min": 24302.257,
+        "max": 24302.257
+      },
+      "systemMs": {
+        "median": 11652.845,
+        "min": 11652.845,
+        "max": 11652.845
+      },
+      "maxRssKiB": {
+        "median": 553412,
+        "min": 553412,
+        "max": 553412
+      },
+      "stdoutBytes": {
+        "median": 43,
+        "min": 43,
+        "max": 43
+      },
+      "stderrBytes": {
+        "median": 520,
+        "min": 520,
+        "max": 520
+      }
+    },
+    {
+      "domain": "dr",
+      "scenario": "list",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 650.883581,
+        "min": 650.883581,
+        "max": 650.883581
+      },
+      "userMs": {
+        "median": 759.606,
+        "min": 759.606,
+        "max": 759.606
+      },
+      "systemMs": {
+        "median": 153.807,
+        "min": 153.807,
+        "max": 153.807
+      },
+      "maxRssKiB": {
+        "median": 224272,
+        "min": 224272,
+        "max": 224272
+      },
+      "stdoutBytes": {
+        "median": 924,
+        "min": 924,
+        "max": 924
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "dr",
+      "scenario": "list",
+      "mode": "cli",
+      "n": 1,
+      "wallMs": {
+        "median": 848.392149,
+        "min": 848.392149,
+        "max": 848.392149
+      },
+      "userMs": {
+        "median": 1062.497,
+        "min": 1062.497,
+        "max": 1062.497
+      },
+      "systemMs": {
+        "median": 191.72799999999998,
+        "min": 191.72799999999998,
+        "max": 191.72799999999998
+      },
+      "maxRssKiB": {
+        "median": 221344,
+        "min": 221344,
+        "max": 221344
+      },
+      "stdoutBytes": {
+        "median": 924,
+        "min": 924,
+        "max": 924
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "dr",
+      "scenario": "metadata",
+      "mode": "api",
+      "n": 3,
+      "wallMs": {
+        "median": 1007.776595,
+        "min": 1002.620455,
+        "max": 1052.604398
+      },
+      "userMs": {
+        "median": 1201.326,
+        "min": 1197.722,
+        "max": 1201.6
+      },
+      "systemMs": {
+        "median": 122.16,
+        "min": 116.67,
+        "max": 168.881
+      },
+      "maxRssKiB": {
+        "median": 244164,
+        "min": 243284,
+        "max": 245524
+      },
+      "stdoutBytes": {
+        "median": 1470,
+        "min": 1470,
+        "max": 1470
+      },
+      "stderrBytes": {
+        "median": 69,
+        "min": 69,
+        "max": 69
+      }
+    },
+    {
+      "domain": "dr",
+      "scenario": "metadata",
+      "mode": "cli",
+      "n": 3,
+      "wallMs": {
+        "median": 1221.318854,
+        "min": 1218.316904,
+        "max": 1224.353775
+      },
+      "userMs": {
+        "median": 1466.606,
+        "min": 1447.705,
+        "max": 1509.423
+      },
+      "systemMs": {
+        "median": 203.369,
+        "min": 161.005,
+        "max": 213.865
+      },
+      "maxRssKiB": {
+        "median": 243356,
+        "min": 242140,
+        "max": 244060
+      },
+      "stdoutBytes": {
+        "median": 1470,
+        "min": 1470,
+        "max": 1470
+      },
+      "stderrBytes": {
+        "median": 69,
+        "min": 69,
+        "max": 69
+      }
+    },
+    {
+      "domain": "dr",
+      "scenario": "new",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 6891.242289,
+        "min": 6891.242289,
+        "max": 6891.242289
+      },
+      "userMs": {
+        "median": 4803.324,
+        "min": 4803.324,
+        "max": 4803.324
+      },
+      "systemMs": {
+        "median": 2810.462,
+        "min": 2810.462,
+        "max": 2810.462
+      },
+      "maxRssKiB": {
+        "median": 266248,
+        "min": 266248,
+        "max": 266248
+      },
+      "stdoutBytes": {
+        "median": 323,
+        "min": 323,
+        "max": 323
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "dr",
+      "scenario": "publish",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 4389.606336000001,
+        "min": 4389.606336000001,
+        "max": 4389.606336000001
+      },
+      "userMs": {
+        "median": 3591.769,
+        "min": 3591.769,
+        "max": 3591.769
+      },
+      "systemMs": {
+        "median": 1453.601,
+        "min": 1453.601,
+        "max": 1453.601
+      },
+      "maxRssKiB": {
+        "median": 381820,
+        "min": 381820,
+        "max": 381820
+      },
+      "stdoutBytes": {
+        "median": 190,
+        "min": 190,
+        "max": 190
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "dr",
+      "scenario": "readiness",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 3594.576423,
+        "min": 3594.576423,
+        "max": 3594.576423
+      },
+      "userMs": {
+        "median": 2759.403,
+        "min": 2759.403,
+        "max": 2759.403
+      },
+      "systemMs": {
+        "median": 1345.191,
+        "min": 1345.191,
+        "max": 1345.191
+      },
+      "maxRssKiB": {
+        "median": 243700,
+        "min": 243700,
+        "max": 243700
+      },
+      "stdoutBytes": {
+        "median": 486,
+        "min": 486,
+        "max": 486
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "dr",
+      "scenario": "relations",
+      "mode": "api",
+      "n": 3,
+      "wallMs": {
+        "median": 542.8985460000001,
+        "min": 534.997914,
+        "max": 552.563412
+      },
+      "userMs": {
+        "median": 717.43,
+        "min": 710.028,
+        "max": 756.632
+      },
+      "systemMs": {
+        "median": 85.407,
+        "min": 49.455,
+        "max": 89.313
+      },
+      "maxRssKiB": {
+        "median": 225136,
+        "min": 221428,
+        "max": 225880
+      },
+      "stdoutBytes": {
+        "median": 682,
+        "min": 682,
+        "max": 682
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "dr",
+      "scenario": "relations",
+      "mode": "cli",
+      "n": 3,
+      "wallMs": {
+        "median": 808.848491,
+        "min": 782.91794,
+        "max": 839.089933
+      },
+      "userMs": {
+        "median": 1042.344,
+        "min": 1012.116,
+        "max": 1053.8400000000001
+      },
+      "systemMs": {
+        "median": 165.64299999999997,
+        "min": 156.981,
+        "max": 177.658
+      },
+      "maxRssKiB": {
+        "median": 223692,
+        "min": 220016,
+        "max": 226036
+      },
+      "stdoutBytes": {
+        "median": 682,
+        "min": 682,
+        "max": 682
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "dr",
+      "scenario": "rename",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 33502.633748,
+        "min": 33502.633748,
+        "max": 33502.633748
+      },
+      "userMs": {
+        "median": 24409.415,
+        "min": 24409.415,
+        "max": 24409.415
+      },
+      "systemMs": {
+        "median": 10573.51,
+        "min": 10573.51,
+        "max": 10573.51
+      },
+      "maxRssKiB": {
+        "median": 656548,
+        "min": 656548,
+        "max": 656548
+      },
+      "stdoutBytes": {
+        "median": 271,
+        "min": 271,
+        "max": 271
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "dr",
+      "scenario": "set-relations",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 1196.349047,
+        "min": 1196.349047,
+        "max": 1196.349047
+      },
+      "userMs": {
+        "median": 1471.454,
+        "min": 1471.454,
+        "max": 1471.454
+      },
+      "systemMs": {
+        "median": 157.434,
+        "min": 157.434,
+        "max": 157.434
+      },
+      "maxRssKiB": {
+        "median": 356220,
+        "min": 356220,
+        "max": 356220
+      },
+      "stdoutBytes": {
+        "median": 453,
+        "min": 453,
+        "max": 453
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "dr",
+      "scenario": "show",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 506.68059300000004,
+        "min": 506.68059300000004,
+        "max": 506.68059300000004
+      },
+      "userMs": {
+        "median": 658.731,
+        "min": 658.731,
+        "max": 658.731
+      },
+      "systemMs": {
+        "median": 76.231,
+        "min": 76.231,
+        "max": 76.231
+      },
+      "maxRssKiB": {
+        "median": 224844,
+        "min": 224844,
+        "max": 224844
+      },
+      "stdoutBytes": {
+        "median": 559,
+        "min": 559,
+        "max": 559
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "dr",
+      "scenario": "show",
+      "mode": "cli",
+      "n": 1,
+      "wallMs": {
+        "median": 751.276487,
+        "min": 751.276487,
+        "max": 751.276487
+      },
+      "userMs": {
+        "median": 969.3919999999999,
+        "min": 969.3919999999999,
+        "max": 969.3919999999999
+      },
+      "systemMs": {
+        "median": 156.476,
+        "min": 156.476,
+        "max": 156.476
+      },
+      "maxRssKiB": {
+        "median": 226156,
+        "min": 226156,
+        "max": 226156
+      },
+      "stdoutBytes": {
+        "median": 559,
+        "min": 559,
+        "max": 559
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "dr",
+      "scenario": "sync-full",
+      "mode": "api",
+      "n": 3,
+      "wallMs": {
+        "median": 10113.781809,
+        "min": 9811.267947,
+        "max": 10464.200297000001
+      },
+      "userMs": {
+        "median": 7706.302,
+        "min": 7326.546,
+        "max": 7775.047
+      },
+      "systemMs": {
+        "median": 3549.343,
+        "min": 3317.177,
+        "max": 3601.515
+      },
+      "maxRssKiB": {
+        "median": 368844,
+        "min": 310860,
+        "max": 369416
+      },
+      "stdoutBytes": {
+        "median": 73,
+        "min": 73,
+        "max": 73
+      },
+      "stderrBytes": {
+        "median": 520,
+        "min": 520,
+        "max": 520
+      }
+    },
+    {
+      "domain": "dr",
+      "scenario": "sync-selected",
+      "mode": "api",
+      "n": 3,
+      "wallMs": {
+        "median": 10968.584318000001,
+        "min": 10964.548902999999,
+        "max": 11140.717292
+      },
+      "userMs": {
+        "median": 8368.442,
+        "min": 8285.861,
+        "max": 8555.823
+      },
+      "systemMs": {
+        "median": 3589.355,
+        "min": 3578.417,
+        "max": 3635.828
+      },
+      "maxRssKiB": {
+        "median": 392304,
+        "min": 390312,
+        "max": 392364
+      },
+      "stdoutBytes": {
+        "median": 138,
+        "min": 138,
+        "max": 138
+      },
+      "stderrBytes": {
+        "median": 520,
+        "min": 520,
+        "max": 520
+      }
+    },
+    {
+      "domain": "ir",
+      "scenario": "check",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 2417.274058,
+        "min": 2417.274058,
+        "max": 2417.274058
+      },
+      "userMs": {
+        "median": 1411.562,
+        "min": 1411.562,
+        "max": 1411.562
+      },
+      "systemMs": {
+        "median": 891.103,
+        "min": 891.103,
+        "max": 891.103
+      },
+      "maxRssKiB": {
+        "median": 280900,
+        "min": 280900,
+        "max": 280900
+      },
+      "stdoutBytes": {
+        "median": 229,
+        "min": 229,
+        "max": 229
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "ir",
+      "scenario": "content",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 733.961822,
+        "min": 733.961822,
+        "max": 733.961822
+      },
+      "userMs": {
+        "median": 816.177,
+        "min": 816.177,
+        "max": 816.177
+      },
+      "systemMs": {
+        "median": 218.035,
+        "min": 218.035,
+        "max": 218.035
+      },
+      "maxRssKiB": {
+        "median": 221800,
+        "min": 221800,
+        "max": 221800
+      },
+      "stdoutBytes": {
+        "median": 1253,
+        "min": 1253,
+        "max": 1253
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "ir",
+      "scenario": "discard",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 7689.584261,
+        "min": 7689.584261,
+        "max": 7689.584261
+      },
+      "userMs": {
+        "median": 3762.818,
+        "min": 3762.818,
+        "max": 3762.818
+      },
+      "systemMs": {
+        "median": 4374.799,
+        "min": 4374.799,
+        "max": 4374.799
+      },
+      "maxRssKiB": {
+        "median": 429612,
+        "min": 429612,
+        "max": 429612
+      },
+      "stdoutBytes": {
+        "median": 249,
+        "min": 249,
+        "max": 249
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "ir",
+      "scenario": "list",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 484.98902100000004,
+        "min": 484.98902100000004,
+        "max": 484.98902100000004
+      },
+      "userMs": {
+        "median": 592.232,
+        "min": 592.232,
+        "max": 592.232
+      },
+      "systemMs": {
+        "median": 88.023,
+        "min": 88.023,
+        "max": 88.023
+      },
+      "maxRssKiB": {
+        "median": 220472,
+        "min": 220472,
+        "max": 220472
+      },
+      "stdoutBytes": {
+        "median": 1694,
+        "min": 1694,
+        "max": 1694
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "ir",
+      "scenario": "list",
+      "mode": "cli",
+      "n": 1,
+      "wallMs": {
+        "median": 725.023714,
+        "min": 725.023714,
+        "max": 725.023714
+      },
+      "userMs": {
+        "median": 962.818,
+        "min": 962.818,
+        "max": 962.818
+      },
+      "systemMs": {
+        "median": 147.207,
+        "min": 147.207,
+        "max": 147.207
+      },
+      "maxRssKiB": {
+        "median": 219132,
+        "min": 219132,
+        "max": 219132
+      },
+      "stdoutBytes": {
+        "median": 711,
+        "min": 711,
+        "max": 711
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "ir",
+      "scenario": "metadata",
+      "mode": "api",
+      "n": 3,
+      "wallMs": {
+        "median": 779.594379,
+        "min": 771.69064,
+        "max": 801.6693950000001
+      },
+      "userMs": {
+        "median": 939.88,
+        "min": 924.948,
+        "max": 978.476
+      },
+      "systemMs": {
+        "median": 83.604,
+        "min": 76.116,
+        "max": 98.525
+      },
+      "maxRssKiB": {
+        "median": 247928,
+        "min": 247640,
+        "max": 248168
+      },
+      "stdoutBytes": {
+        "median": 1910,
+        "min": 1910,
+        "max": 1910
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "ir",
+      "scenario": "metadata",
+      "mode": "cli",
+      "n": 3,
+      "wallMs": {
+        "median": 1049.904674,
+        "min": 1016.61841,
+        "max": 1062.624795
+      },
+      "userMs": {
+        "median": 1246.8870000000002,
+        "min": 1220.352,
+        "max": 1294.5629999999999
+      },
+      "systemMs": {
+        "median": 186.829,
+        "min": 184.388,
+        "max": 215.51099999999997
+      },
+      "maxRssKiB": {
+        "median": 247552,
+        "min": 247544,
+        "max": 247864
+      },
+      "stdoutBytes": {
+        "median": 1376,
+        "min": 1376,
+        "max": 1376
+      },
+      "stderrBytes": {
+        "median": 67,
+        "min": 67,
+        "max": 67
+      }
+    },
+    {
+      "domain": "ir",
+      "scenario": "new",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 746.6201799999999,
+        "min": 746.6201799999999,
+        "max": 746.6201799999999
+      },
+      "userMs": {
+        "median": 886.081,
+        "min": 886.081,
+        "max": 886.081
+      },
+      "systemMs": {
+        "median": 145.25,
+        "min": 145.25,
+        "max": 145.25
+      },
+      "maxRssKiB": {
+        "median": 230056,
+        "min": 230056,
+        "max": 230056
+      },
+      "stdoutBytes": {
+        "median": 1215,
+        "min": 1215,
+        "max": 1215
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "ir",
+      "scenario": "publish",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 2221.4067729999997,
+        "min": 2221.4067729999997,
+        "max": 2221.4067729999997
+      },
+      "userMs": {
+        "median": 2478.741,
+        "min": 2478.741,
+        "max": 2478.741
+      },
+      "systemMs": {
+        "median": 326.584,
+        "min": 326.584,
+        "max": 326.584
+      },
+      "maxRssKiB": {
+        "median": 368416,
+        "min": 368416,
+        "max": 368416
+      },
+      "stdoutBytes": {
+        "median": 343,
+        "min": 343,
+        "max": 343
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "ir",
+      "scenario": "publish-batch",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 2164.52656,
+        "min": 2164.52656,
+        "max": 2164.52656
+      },
+      "userMs": {
+        "median": 2418.675,
+        "min": 2418.675,
+        "max": 2418.675
+      },
+      "systemMs": {
+        "median": 294.581,
+        "min": 294.581,
+        "max": 294.581
+      },
+      "maxRssKiB": {
+        "median": 367340,
+        "min": 367340,
+        "max": 367340
+      },
+      "stdoutBytes": {
+        "median": 442,
+        "min": 442,
+        "max": 442
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "ir",
+      "scenario": "readiness",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 405.63870599999996,
+        "min": 405.63870599999996,
+        "max": 405.63870599999996
+      },
+      "userMs": {
+        "median": 520.514,
+        "min": 520.514,
+        "max": 520.514
+      },
+      "systemMs": {
+        "median": 68.84,
+        "min": 68.84,
+        "max": 68.84
+      },
+      "maxRssKiB": {
+        "median": 219288,
+        "min": 219288,
+        "max": 219288
+      },
+      "stdoutBytes": {
+        "median": 694,
+        "min": 694,
+        "max": 694
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "ir",
+      "scenario": "relations",
+      "mode": "api",
+      "n": 3,
+      "wallMs": {
+        "median": 508.53227999999996,
+        "min": 497.78634999999997,
+        "max": 509.348081
+      },
+      "userMs": {
+        "median": 674.37,
+        "min": 613.169,
+        "max": 680.764
+      },
+      "systemMs": {
+        "median": 71.655,
+        "min": 68.673,
+        "max": 131.867
+      },
+      "maxRssKiB": {
+        "median": 221744,
+        "min": 220704,
+        "max": 222612
+      },
+      "stdoutBytes": {
+        "median": 891,
+        "min": 891,
+        "max": 891
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "ir",
+      "scenario": "relations",
+      "mode": "cli",
+      "n": 3,
+      "wallMs": {
+        "median": 751.922198,
+        "min": 738.760535,
+        "max": 782.579835
+      },
+      "userMs": {
+        "median": 977.0559999999999,
+        "min": 926.6359999999999,
+        "max": 1019.458
+      },
+      "systemMs": {
+        "median": 162.463,
+        "min": 162.183,
+        "max": 174.987
+      },
+      "maxRssKiB": {
+        "median": 220100,
+        "min": 219852,
+        "max": 222192
+      },
+      "stdoutBytes": {
+        "median": 500,
+        "min": 500,
+        "max": 500
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "ir",
+      "scenario": "rename",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 17184.540933,
+        "min": 17184.540933,
+        "max": 17184.540933
+      },
+      "userMs": {
+        "median": 8665.634,
+        "min": 8665.634,
+        "max": 8665.634
+      },
+      "systemMs": {
+        "median": 9319.61,
+        "min": 9319.61,
+        "max": 9319.61
+      },
+      "maxRssKiB": {
+        "median": 514844,
+        "min": 514844,
+        "max": 514844
+      },
+      "stdoutBytes": {
+        "median": 519,
+        "min": 519,
+        "max": 519
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "ir",
+      "scenario": "set-relations",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 860.728397,
+        "min": 860.728397,
+        "max": 860.728397
+      },
+      "userMs": {
+        "median": 1034.404,
+        "min": 1034.404,
+        "max": 1034.404
+      },
+      "systemMs": {
+        "median": 144.984,
+        "min": 144.984,
+        "max": 144.984
+      },
+      "maxRssKiB": {
+        "median": 267256,
+        "min": 267256,
+        "max": 267256
+      },
+      "stdoutBytes": {
+        "median": 431,
+        "min": 431,
+        "max": 431
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "ir",
+      "scenario": "show",
+      "mode": "api",
+      "n": 1,
+      "wallMs": {
+        "median": 426.02444199999996,
+        "min": 426.02444199999996,
+        "max": 426.02444199999996
+      },
+      "userMs": {
+        "median": 505.58,
+        "min": 505.58,
+        "max": 505.58
+      },
+      "systemMs": {
+        "median": 101.851,
+        "min": 101.851,
+        "max": 101.851
+      },
+      "maxRssKiB": {
+        "median": 214876,
+        "min": 214876,
+        "max": 214876
+      },
+      "stdoutBytes": {
+        "median": 916,
+        "min": 916,
+        "max": 916
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "ir",
+      "scenario": "sync-full",
+      "mode": "api",
+      "n": 3,
+      "wallMs": {
+        "median": 2739.807854,
+        "min": 2700.606214,
+        "max": 2761.2269180000003
+      },
+      "userMs": {
+        "median": 1538.794,
+        "min": 1520.706,
+        "max": 1557.417
+      },
+      "systemMs": {
+        "median": 1454.978,
+        "min": 1449.117,
+        "max": 1511.391
+      },
+      "maxRssKiB": {
+        "median": 289860,
+        "min": 288948,
+        "max": 290172
+      },
+      "stdoutBytes": {
+        "median": 267,
+        "min": 267,
+        "max": 267
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "domain": "ir",
+      "scenario": "sync-selected",
+      "mode": "api",
+      "n": 3,
+      "wallMs": {
+        "median": 3475.1994569999997,
+        "min": 3427.544771,
+        "max": 3478.897437
+      },
+      "userMs": {
+        "median": 2451.213,
+        "min": 2367.918,
+        "max": 2478.812
+      },
+      "systemMs": {
+        "median": 1523.08,
+        "min": 1493.904,
+        "max": 1553.842
+      },
+      "maxRssKiB": {
+        "median": 334916,
+        "min": 334204,
+        "max": 335248
+      },
+      "stdoutBytes": {
+        "median": 335,
+        "min": 335,
+        "max": 335
+      },
+      "stderrBytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    }
+  ]
+}

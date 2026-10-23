@@ -11,7 +11,6 @@ import {
   createInvestigationStateIndexDefinition,
   investigationIndexDiagnosticMessages
 } from "./investigation-state-index.ts";
-import path from "node:path";
 import {
   publicationSnapshot,
   readPublishedInvestigationDependencies,
@@ -25,7 +24,6 @@ import type {
 } from "./types.ts";
 import {
   errorText,
-  readRegularText,
   relationMutation,
   relationPhaseResult,
   relationResult,
@@ -124,161 +122,6 @@ function driftedProtectedRelationCollection(
           recovery:
             "review the concurrent report change, then retry from the current collection state",
           target: options.root
-        })
-      ],
-      mutation: relationMutation("no-change")
-    }
-  );
-}
-
-export async function verifyRelationSourceBytes(
-  options: RelationTransactionOptions,
-  context: CandidateRelationContext
-): Promise<RelationPhase<Map<string, string>>> {
-  const originalTextByPath = new Map<string, string>();
-  for (const source of context.collection.sources) {
-    const verified = await verifyRelationSource(options, context, source);
-    if ("result" in verified) return relationPhaseResult(verified.result);
-    if (verified.changedPath !== null) {
-      originalTextByPath.set(verified.changedPath, verified.text);
-    }
-  }
-  return { status: "ready", value: originalTextByPath };
-}
-
-async function verifyRelationSource(
-  options: RelationTransactionOptions,
-  context: CandidateRelationContext,
-  source: InvestigationSource
-): Promise<
-  | { changedPath: string | null; text: string }
-  | { result: InvestigationRelationSetResult }
-> {
-  const reportPath = path.join(options.root, source.sourcePath);
-  try {
-    const currentText = await readRegularText(reportPath);
-    if (currentText !== source.text) {
-      return { result: driftedRelationSource(options, context, source.id) };
-    }
-    return {
-      changedPath: context.changedSources.includes(source.id)
-        ? reportPath
-        : null,
-      text: currentText
-    };
-  } catch (error) {
-    return {
-      result: unreadableRelationSource(options, context, source.id, error)
-    };
-  }
-}
-
-function driftedRelationSource(
-  options: RelationTransactionOptions,
-  context: CandidateRelationContext,
-  sourceId: string
-): InvestigationRelationSetResult {
-  return relationResult(
-    false,
-    context.sourceIds,
-    options.indexPath,
-    [`${sourceId} changed after relation validation; no files were written`],
-    {
-      diagnostics: [
-        genericInvestigationDiagnostic({
-          code: "investigation-report.relation-source-drift",
-          mutation: relationMutation("no-change"),
-          reason: `${sourceId} changed after relation validation`,
-          recovery:
-            "review the concurrent report change, then retry from the current collection state",
-          target: sourceId
-        })
-      ],
-      mutation: relationMutation("no-change")
-    }
-  );
-}
-
-function unreadableRelationSource(
-  options: RelationTransactionOptions,
-  context: CandidateRelationContext,
-  sourceId: string,
-  error: unknown
-): InvestigationRelationSetResult {
-  return relationResult(
-    false,
-    context.sourceIds,
-    options.indexPath,
-    [
-      `${sourceId} could not be verified before relation transaction: ${errorText(error)}`
-    ],
-    {
-      diagnostics: [
-        diagnosticFromError({
-          code: "investigation-report.relation-source-recheck-failed",
-          error,
-          mutation: relationMutation("no-change"),
-          reason:
-            "a report could not be re-read before the relation transaction",
-          recovery:
-            "restore access to the report and verify its current contents before retrying",
-          target: sourceId
-        })
-      ],
-      mutation: relationMutation("no-change")
-    }
-  );
-}
-
-export async function verifyRelationIndexBytes(
-  options: RelationTransactionOptions,
-  context: CandidateRelationContext
-): Promise<InvestigationRelationSetResult | null> {
-  let currentIndexText: string;
-  try {
-    currentIndexText = await readRegularText(options.indexPath);
-  } catch (error) {
-    return relationResult(
-      false,
-      context.sourceIds,
-      options.indexPath,
-      [
-        `current investigation index could not be re-read before relation transaction: ${errorText(error)}`
-      ],
-      {
-        diagnostics: [
-          diagnosticFromError({
-            code: "investigation-report.relation-index-recheck-failed",
-            error,
-            mutation: relationMutation("no-change"),
-            reason:
-              "the current investigation index could not be re-read before publication",
-            recovery:
-              "restore read access to the index and verify it has not changed before retrying",
-            target: options.indexPath
-          })
-        ],
-        mutation: relationMutation("no-change")
-      }
-    );
-  }
-  if (currentIndexText === context.originalIndexText) return null;
-  return relationResult(
-    false,
-    context.sourceIds,
-    options.indexPath,
-    [
-      "investigation index changed after relation validation; no files were written"
-    ],
-    {
-      diagnostics: [
-        genericInvestigationDiagnostic({
-          code: "investigation-report.relation-index-drift",
-          mutation: relationMutation("no-change"),
-          reason: "the investigation index changed after relation validation",
-          recovery:
-            "review the concurrent index change, then retry from the current collection state",
-          target: options.indexPath
         })
       ],
       mutation: relationMutation("no-change")

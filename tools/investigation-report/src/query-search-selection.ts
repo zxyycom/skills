@@ -25,32 +25,49 @@ export function selectSearchEntries(
   prepared: PreparedSearch
 ): Result<InvestigationSearchSelection, string[]> {
   const query = prepared.validated;
-  let filters = query.filters;
-  let resolvedQuery: RelationQuery = query;
-  if (query.relatedTo !== undefined) {
-    const target = relatedTarget(context.entries, query.relatedTo);
-    if (target.isErr()) return err(target.error);
-    resolvedQuery = {
-      ...query,
-      relatedTo: target.value.id,
-      direction: query.direction ?? "both"
-    };
-    filters = {
-      ...filters,
-      relatedTo: target.value.id,
-      direction: query.direction ?? "both"
-    };
-  }
-  const relations = filterRelationsByEntry(context, resolvedQuery);
+  const selection = resolveSearchRelation(context, query);
+  if (selection.isErr()) return err(selection.error);
+  const { target, filters } = selection.value;
+  const graphErrors =
+    query.relatedTo !== undefined || query.relationType !== undefined
+      ? context.errors()
+      : [];
+  if (graphErrors.length > 0) return err([...graphErrors]);
+  const relations =
+    target === null
+      ? filterRelationsByEntry(context, query)
+      : filterRelationsForResolvedTarget(context, target, query);
   if (relations.isErr()) return err(relations.error);
+  const entries = context.entries.filter(
+    ({ id, state }) =>
+      query.states(state) &&
+      (relations.value === null || relations.value.has(id))
+  );
+  return ok({ entries, filters, filterRelations: relations.value });
+}
+
+/** 一次解析 selector，并保留同份完整目标与规范化过滤事实用于结果。 */
+function resolveSearchRelation(
+  context: InvestigationRelationContext,
+  query: PreparedSearch["validated"]
+): Result<
+  Readonly<{
+    target: InvestigationSnapshotEntry | null;
+    filters: InvestigationSearchFilters;
+  }>,
+  string[]
+> {
+  if (query.relatedTo === undefined)
+    return ok({ target: null, filters: query.filters });
+  const target = relatedTarget(context.entries, query.relatedTo);
+  if (target.isErr()) return err(target.error);
   return ok({
-    entries: context.entries.filter(
-      ({ id, state }) =>
-        query.states(state) &&
-        (relations.value === null || relations.value.has(id))
-    ),
-    filters,
-    filterRelations: relations.value
+    target: target.value,
+    filters: {
+      ...query.filters,
+      relatedTo: target.value.id,
+      direction: query.direction ?? "both"
+    }
   });
 }
 
@@ -110,6 +127,17 @@ function filterRelationsForRelatedTarget(
 > {
   const target = relatedTarget(context.entries, relatedTo);
   if (target.isErr()) return err(target.error);
+  return filterRelationsForResolvedTarget(context, target.value, query);
+}
+
+function filterRelationsForResolvedTarget(
+  context: InvestigationRelationContext,
+  target: InvestigationSnapshotEntry,
+  query: RelationQuery
+): Result<
+  ReadonlyMap<string, readonly InvestigationFilterRelation[]>,
+  string[]
+> {
   const relations = new Map<string, InvestigationFilterRelation[]>();
   const relationKeys = new Map<string, Set<string>>();
   const direction = query.direction ?? "both";
@@ -118,7 +146,7 @@ function filterRelationsForRelatedTarget(
     appendNeighborRelations(
       relations,
       relationKeys,
-      graph.edgesBySource.get(target.value.id) ?? [],
+      graph.edgesBySource.get(target.id) ?? [],
       query.relationType,
       "predecessors"
     );
@@ -127,7 +155,7 @@ function filterRelationsForRelatedTarget(
     appendNeighborRelations(
       relations,
       relationKeys,
-      graph.edgesByTarget.get(target.value.id) ?? [],
+      graph.edgesByTarget.get(target.id) ?? [],
       query.relationType,
       "successors"
     );

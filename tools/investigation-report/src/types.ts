@@ -63,6 +63,14 @@ export type InvestigationCandidateCreateResult =
       warnings: string[];
     }>
   | Readonly<{
+      candidate: InvestigationCandidate;
+      changed: true;
+      diagnostics: InvestigationDiagnostic[];
+      errors: string[];
+      status: "error";
+      warnings: string[];
+    }>
+  | Readonly<{
       candidate: null;
       changed: false;
       diagnostics: InvestigationDiagnostic[];

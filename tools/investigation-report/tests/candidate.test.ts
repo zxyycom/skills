@@ -347,20 +347,25 @@ test("candidate readiness requires every visible candidate-owned resource to hav
   });
 });
 
-test("new and candidate show do not read unrelated formal sources without a published index", async () => {
+test("new and candidate show discover only formal header identities without a published index", async () => {
   await withTempRoot("candidate-local-draft", async (root) => {
     await writeCollection(root, [{ id: "unrelated" }], false);
     const formalPath = path.join(root, "docs/investigations/unrelated.md");
-    await fs.writeFile(formalPath, "unrelated malformed formal source\n");
-    const readFile = fs.readFile;
+    await fs.writeFile(
+      formalPath,
+      reportMarkdown({ id: "unrelated" }).replace(
+        /\n##[\s\S]*/u,
+        "\nmalformed unrelated formal body\n"
+      )
+    );
+    const open = fs.open;
     let formalReads = 0;
-    fs.readFile = (async (...args: Parameters<typeof fs.readFile>) => {
+    fs.open = (async (...args: Parameters<typeof fs.open>) => {
       if (args[0] === formalPath) {
         formalReads += 1;
-        throw new Error("unrelated formal source must not be read");
       }
-      return await readFile(...args);
-    }) as typeof fs.readFile;
+      return await open(...args);
+    }) as typeof fs.open;
     try {
       const created = await createInvestigationCandidate({
         ...candidateInput,
@@ -375,9 +380,9 @@ test("new and candidate show do not read unrelated formal sources without a publ
         id: candidateId
       });
       assert.equal(shown.status, "ok");
-      assert.equal(formalReads, 0);
+      assert.equal(formalReads, 4);
     } finally {
-      fs.readFile = readFile;
+      fs.open = open;
     }
   });
 });

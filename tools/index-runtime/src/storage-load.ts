@@ -1,3 +1,4 @@
+import type { MaterializedStateIndexEntry } from "./query-fields.ts";
 import fs from "node:fs/promises";
 import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
 import { sameStateSourceRevision } from "./canonicalization.ts";
@@ -29,6 +30,7 @@ export async function loadStateIndex<
 >(options: {
   context: StateIndexContext;
   definition: StateIndexDefinition<State, Metadata>;
+  materializedEntries?: MaterializedStateIndexEntry<State>[];
   expectation?: StateIndexExpectation;
   indexPath: string;
 }): Promise<StateIndexResult<StateIndex<State, Metadata>>> {
@@ -39,6 +41,7 @@ export async function loadStateIndex<
   if (resolved.status === "error") return resolved;
   return await loadStateIndexAtResolvedPath({
     definition: options.definition,
+    materializedEntries: options.materializedEntries,
     expectation: options.expectation ?? expectationOf(options.definition),
     indexPath: options.indexPath,
     resolved: resolved.value
@@ -50,6 +53,7 @@ export async function loadStateIndexAtResolvedPath<
   Metadata extends JsonObject
 >(options: {
   definition: StateIndexDefinition<State, Metadata>;
+  materializedEntries?: MaterializedStateIndexEntry<State>[];
   expectation: StateIndexExpectation;
   indexPath: string;
   resolved: ResolvedIndexPath;
@@ -58,6 +62,7 @@ export async function loadStateIndexAtResolvedPath<
   if (text.status === "error") return text;
   return parseStateIndex({
     definition: options.definition,
+    materializedEntries: options.materializedEntries,
     expectation: options.expectation,
     sourcePath: options.indexPath,
     text: text.value
@@ -141,6 +146,7 @@ export async function loadCurrentStateIndex<
 >(options: {
   context: StateIndexContext;
   definition: StateIndexDefinition<State, Metadata>;
+  materializedEntries?: MaterializedStateIndexEntry<State>[];
   indexPath: string;
 }): Promise<StateIndexResult<StateIndex<State, Metadata>>> {
   const definitionErrors = validateStateIndexDefinition(options.definition);
@@ -177,7 +183,8 @@ export async function loadCurrentStateIndex<
   const normalized = normalizeStateIndex(
     loaded.value,
     options.definition,
-    options.indexPath
+    options.indexPath,
+    options.materializedEntries
   );
   if (normalized.status === "error") return normalized;
   return validateCompleteStateIndex(

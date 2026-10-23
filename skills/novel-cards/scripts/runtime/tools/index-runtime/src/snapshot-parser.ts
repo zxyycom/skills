@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/novel-cards
  * Rebuild: bun run sync:novel-cards-cli
  */
+import type { MaterializedStateIndexEntry } from "./query-fields.ts";
 import { expectationOf, validateStateIndexDefinition } from "./definition.ts";
 import { canonicalizeStateIndex } from "./canonicalization.ts";
 import { diagnostic, errorText } from "./diagnostics.ts";
@@ -29,6 +30,7 @@ export function parseStateIndex<
   Metadata extends JsonObject
 >(options: {
   definition: StateIndexDefinition<State, Metadata>;
+  materializedEntries?: MaterializedStateIndexEntry<State>[];
   expectation?: StateIndexExpectation;
   sourcePath: string;
   text: string;
@@ -74,7 +76,8 @@ export function parseStateIndex<
   const normalized = normalizeStateIndex(
     envelope.value,
     options.definition,
-    options.sourcePath
+    options.sourcePath,
+    options.materializedEntries
   );
   if (normalized.status === "error") return normalized;
   return validateCompleteStateIndex(

@@ -62,7 +62,7 @@ const commandSpecs: readonly CommandSpec[] = [
   },
   {
     description:
-      "Validate and establish only explicitly selected candidates. --preflight is read-only and does not create a receipt.",
+      "Validate and establish only explicitly selected candidates. --preflight is read-only, takes no exclusive writer lock, and creates no receipt.",
     name: "publish",
     options: [
       {
@@ -117,7 +117,7 @@ const commandSpecs: readonly CommandSpec[] = [
       },
       {
         description:
-          "Validate the complete projection and report the outcome without writing the index",
+          "Validate the complete projection and report the outcome without writing the index or taking an exclusive writer lock",
         flags: "--preflight"
       }
     ]
@@ -234,7 +234,7 @@ const commandSpecs: readonly CommandSpec[] = [
   },
   {
     description:
-      "Atomically replace every selected source relation set and rebuild the workspace index; --preflight validates without writing or staging files.",
+      "Transactionally replace every selected source relation set and rebuild the workspace index; --preflight validates without writing or staging files.",
     name: "set-relations",
     options: [
       {

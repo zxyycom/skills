@@ -39,7 +39,10 @@ export type DecisionRenameFailure = Readonly<{
     diagnostics: DecisionRenameDiagnostic[];
     errors: string[];
     exitCode: 1 | 2;
-    plan: null;
+    plan: DecisionRenamePlan | null;
+    changed?: boolean;
+    committed?: boolean;
+    verification?: "passed" | "failed-or-unknown" | "not-run";
     presentation: "command" | "plain";
     status: "error";
 }>;

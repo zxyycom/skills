@@ -26,16 +26,8 @@ import {
 import type {
   InvestigationIndexState,
   InvestigationRelationReplacement,
-  InvestigationRelationSetResult,
   InvestigationSource
 } from "./types.ts";
-import {
-  protectRelationCollection,
-  verifyRelationIndexBytes,
-  verifyRelationSourceBytes
-} from "./relation-transaction-protection.ts";
-import { publishRelationCandidate } from "./relation-transaction-publication.ts";
-import { buildRelationCandidate } from "./relation-transaction-candidate.ts";
 import { diagnosticFromError } from "./diagnostics.ts";
 import {
   errorText,
@@ -74,43 +66,7 @@ export type LoadedRelationContext = Readonly<{
   sourceIds: string[];
 }>;
 
-export async function applyRelationReplacements(
-  options: RelationTransactionOptions
-): Promise<InvestigationRelationSetResult> {
-  const loaded = await loadRelationTransaction(options);
-  if (loaded.status === "result") return loaded.result;
-  const candidate = await buildRelationCandidate(options, loaded.value);
-  if (candidate.status === "result") return candidate.result;
-  if (options.preflight)
-    return relationResult(
-      false,
-      candidate.value.sourceIds,
-      options.indexPath,
-      [],
-      {
-        preflight: true,
-        relationReview: candidate.value.relationReview
-      }
-    );
-  await options.beforePublish();
-  const protectedCollection = await protectRelationCollection(
-    options,
-    candidate.value
-  );
-  if (protectedCollection.status === "result")
-    return protectedCollection.result;
-  const sourceBytes = await verifyRelationSourceBytes(options, candidate.value);
-  if (sourceBytes.status === "result") return sourceBytes.result;
-  const indexFailure = await verifyRelationIndexBytes(options, candidate.value);
-  if (indexFailure !== null) return indexFailure;
-  return await publishRelationCandidate(
-    options,
-    candidate.value,
-    sourceBytes.value
-  );
-}
-
-async function loadRelationTransaction(
+export async function loadRelationTransaction(
   options: RelationTransactionOptions
 ): Promise<RelationPhase<LoadedRelationContext>> {
   const originalIndex = await readOriginalRelationIndex(options, []);

@@ -1,3 +1,4 @@
+import path from "node:path";
 import {
   accessDeniedFileSystemError,
   applyDecisionChanges,
@@ -20,20 +21,20 @@ test("sync-index preserves structured source filesystem access diagnostics", () 
     "sync-index-structured-filesystem",
     async (workspaceRoot) => {
       const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
-      const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
+      const descriptor = Object.getOwnPropertyDescriptor(fs, "open");
       assert.ok(descriptor);
-      const readFile = fs.readFile.bind(fs);
+      const open = fs.open.bind(fs);
       let sourceReads = 0;
-      Object.defineProperty(fs, "readFile", {
+      Object.defineProperty(fs, "open", {
         ...descriptor,
-        value: async (...args: Parameters<typeof fs.readFile>) => {
+        value: async (...args: Parameters<typeof fs.open>) => {
           if (isTargetPath(args[0], sourcePath)) {
             sourceReads += 1;
             if (sourceReads === 2) {
               throw accessDeniedFileSystemError();
             }
           }
-          return await readFile(...args);
+          return await open(...args);
         }
       });
       try {
@@ -64,7 +65,7 @@ test("sync-index preserves structured source filesystem access diagnostics", () 
         );
         assert.equal(sourceReads, 2);
       } finally {
-        Object.defineProperty(fs, "readFile", descriptor);
+        Object.defineProperty(fs, "open", descriptor);
       }
     }
   ));
@@ -75,21 +76,23 @@ test("transaction preserves structured index filesystem access diagnostics", () 
     async (workspaceRoot) => {
       const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
       const sourceText = await fs.readFile(sourcePath, "utf8");
+      const indexFile = path.join(
+        workspaceRoot,
+        "docs/decisions/decision-index.json"
+      );
       const originalScan = await scanDecisionRecords({ workspaceRoot });
-      const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
+      const descriptor = Object.getOwnPropertyDescriptor(fs, "open");
       assert.ok(descriptor);
-      const readFile = fs.readFile.bind(fs);
-      let sourceReads = 0;
-      Object.defineProperty(fs, "readFile", {
+      const open = fs.open.bind(fs);
+      let indexReads = 0;
+      Object.defineProperty(fs, "open", {
         ...descriptor,
-        value: async (...args: Parameters<typeof fs.readFile>) => {
-          if (isTargetPath(args[0], sourcePath)) {
-            sourceReads += 1;
-            if (sourceReads === 3) {
-              throw accessDeniedFileSystemError();
-            }
+        value: async (...args: Parameters<typeof fs.open>) => {
+          if (isTargetPath(args[0], indexFile)) {
+            indexReads += 1;
+            if (indexReads === 2) throw accessDeniedFileSystemError();
           }
-          return await readFile(...args);
+          return await open(...args);
         }
       });
       try {
@@ -104,11 +107,10 @@ test("transaction preserves structured index filesystem access diagnostics", () 
               )
             }
           ],
-          originalScan,
-          scanOptions: { workspaceRoot }
+          originalScan
         });
         assert.equal(result.status, "error");
-        assert.equal(result.outcome, "rolled-back");
+        assert.equal(result.outcome, "no-change");
         const diagnostic = result.diagnostics.find(
           (entry) =>
             entry.code === "decision-records.transaction-failed" &&
@@ -118,13 +120,13 @@ test("transaction preserves structured index filesystem access diagnostics", () 
         assertRedactedAccessDeniedDiagnostic({
           detail: diagnostic.detail,
           expectedReason:
-            "The derived Decision index filesystem operation could not complete.",
+            "Failed to update or verify Decision files and index.",
           reason: diagnostic.reason
         });
-        assert.equal(sourceReads, 3);
+        assert.equal(indexReads, 2);
         assert.equal(await fs.readFile(sourcePath, "utf8"), sourceText);
       } finally {
-        Object.defineProperty(fs, "readFile", descriptor);
+        Object.defineProperty(fs, "open", descriptor);
       }
     }
   ));

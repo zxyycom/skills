@@ -1,0 +1,41 @@
+{
+  "status": "Historical preparation locator note; not pending work. Final actual hooks/hashes live in per-snapshot instrumentation.json and final-results.json.",
+  "checks": [
+    {
+      "file": "record-operations/src/check.ts",
+      "function": "checkCollectedRecordIndex",
+      "status": "current source signature matched in memory only; not instrumented or executed",
+      "sourceSha256": "99f691325add9d06b63ddf8e86c801cce5ea4c82a36da0252f562701466bb650"
+    },
+    {
+      "file": "record-operations/src/transaction.ts",
+      "function": "runRecordTransaction",
+      "status": "current source signature matched in memory only; not instrumented or executed",
+      "sourceSha256": "bcfecfe0e95710cbbc02fa382bb26f011e8bf936b51d7a965fe857afcdd14603"
+    },
+    {
+      "file": "record-operations/src/transaction.ts",
+      "function": "executePreparedRecordTransaction",
+      "status": "current source signature matched in memory only; not instrumented or executed",
+      "sourceSha256": "bcfecfe0e95710cbbc02fa382bb26f011e8bf936b51d7a965fe857afcdd14603"
+    },
+    {
+      "file": "record-operations/src/transaction.ts",
+      "function": "verifyPlan",
+      "status": "current source signature matched in memory only; not instrumented or executed",
+      "sourceSha256": "bcfecfe0e95710cbbc02fa382bb26f011e8bf936b51d7a965fe857afcdd14603"
+    },
+    {
+      "file": "record-operations/src/transaction.ts",
+      "function": "verifyWritten",
+      "status": "current source signature matched in memory only; not instrumented or executed",
+      "sourceSha256": "bcfecfe0e95710cbbc02fa382bb26f011e8bf936b51d7a965fe857afcdd14603"
+    },
+    {
+      "file": "record-operations/src/transaction-files.ts",
+      "function": "readRecordFileSnapshot",
+      "status": "current source signature matched in memory only; not instrumented or executed",
+      "sourceSha256": "9a9095960b68b97f5a1fdb107bc858528e5079fd205d52d35911e298d5326e9c"
+    }
+  ]
+}

@@ -10,3 +10,14 @@ await import("../rename-recovery.test.ts");
 await import("../rename-validation.test.ts");
 
 await import("../candidate-discard-transaction.test.ts");
+
+await import("../result-integrity.test.ts");
+await import("../transaction-boundaries.test.ts");
+
+await import("../candidate-operations.test.ts");
+
+await import("../transaction-domain-boundaries.test.ts");
+
+await import("../transaction-creation-modes.test.ts");
+
+await import("../strict-preparation.test.ts");
