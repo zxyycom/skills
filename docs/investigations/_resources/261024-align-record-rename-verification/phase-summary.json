@@ -1,0 +1,685 @@
+{
+  "purpose": "本轮记录 rename/discard 性能调查的精简实测数据；不是 benchmark 契约或置信区间。",
+  "baseline": {
+    "git": "66cf190967fd9ea7a0654412c29c955801951923",
+    "skillVersions": {
+      "decision-records": "91",
+      "investigation-report": "80"
+    }
+  },
+  "after": {
+    "skillVersions": {
+      "decision-records": "92",
+      "investigation-report": "81"
+    },
+    "productCore12FileManifestSHA256": "77e215d0465a2ddad8f3ede33a787c7e938a5c05c6723579cb0f9aea2241412f",
+    "frozenSource1281FileCanonicalSHA256": "a13647ca53047958fa6f8a471cd6a69356921d9436bbc138a7e6ce8584e7e288"
+  },
+  "environment": {
+    "nodeVersion": "26.8.2",
+    "nodeExecutableSHA256": "8a22a371fd85aecf5411636574309f6380fbc42694aaf0651a089a8ef9c44e52",
+    "platform": "linux",
+    "arch": "x64",
+    "cpuModel": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+    "cpuAffinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "filesystemType": "ext4",
+    "dependencyCanonicalSHA256": "30312346c53797807a1693188f52d767d0b83a406f6c4e2fd6dba60f08188ab9"
+  },
+  "fixture": {
+    "formalPerDomain": 10000,
+    "directedRelationsPerDomain": 9000,
+    "candidatesPerDomain": 2,
+    "selectedIncomingRelations": 0,
+    "selectedOwnedResources": 0,
+    "unselectedIRResources": 1,
+    "totalFiles": 20007,
+    "inputManifestSHA256": "411d14b5e95e03f59076f566a791bc28eb92514c1226610e73069e7cbdb67212",
+    "fixtureRecipeSHA256": "273aea8ce6f66baf6a2fc58829b669413f98e287754264567f81b480db1b4fd3"
+  },
+  "method": {
+    "normalPerVersionScenario": 2,
+    "instrumentedPerVersionScenario": 1,
+    "formalAccepted": 24,
+    "equivalenceProbeAccepted": 16,
+    "probeFormalPerDomain": 1000,
+    "probeRelationsPerDomain": 900,
+    "allPosteriorsPassed": true,
+    "normalInstrumentedExactFilesAndStdioEquivalent": true,
+    "instrumentedIntervalsClosedAndNested": true,
+    "sourceDependencyAndNodePostMeasurementImmutable": true,
+    "afterReconstructedFromBaselinePatchAndModesFiles": 1281,
+    "afterReconstructionManifestEqual": true,
+    "rawArchiveFiles": 152,
+    "rawArchiveInventorySHA256": "8d5056e5d4bb860c292043638facf356e7a0c0c2380b5dac277ac84b7c9133d4",
+    "wallScope": "每次全新 Node 进程，包含 launch/import/worker startup/公开 CLI 直到退出；reset/hash/postaudit 在计时外。",
+    "samplingLimits": "非冷缓存；before/after 按版本成块，非随机交错；外部工作区负载不可完全控制。",
+    "instrumentationLimits": "instrumented 单独报告，不混入 normal，不把差值当纯仪器开销；容器与子 interval 不能相加。",
+    "cpuRSSScope": "直接 Node child rusage，含 worker threads，不提供逐阶段 CPU 或 syscall 计数。",
+    "measurementWindowsUTC": {
+      "beforeFormal": {
+        "startedUTC": "2026-10-24T06:01:50.234452+00:00",
+        "endedUTC": "2026-10-24T06:08:04.391617+00:00"
+      },
+      "afterFreezeStartedUTC": "2026-10-24T06:35:30.189341+00:00",
+      "afterProbeCompletedUTC": "2026-10-24T06:36:03.191445+00:00",
+      "afterFormal": {
+        "startedUTC": "2026-10-24T06:36:03.191456+00:00",
+        "endedUTC": "2026-10-24T06:39:29.626335+00:00"
+      },
+      "meaning": "窗口覆盖本批次12个正式CLI及其reset/hash/后验间隔，不是单个CLI wall；formedAt为首个认识检查点形成时间。"
+    }
+  },
+  "formalSamples": [
+    {
+      "sample": "before-10000-dr-rename-normal-1",
+      "version": "before",
+      "domain": "dr",
+      "scenario": "rename",
+      "mode": "normal",
+      "rep": 1,
+      "metrics": {
+        "wallMs": 10380.233249,
+        "userMs": 8736.479,
+        "systemMs": 4022.194,
+        "maxRSSKiB": 415404,
+        "exit": 0
+      },
+      "outputManifestSHA256": "b638e53f775424856bfa82944d19ede231920d80a99784613cc224d86953e957",
+      "plannedWrites": null,
+      "actualDocumentDeltaCount": 2,
+      "actualIndexDeltaCount": 1
+    },
+    {
+      "sample": "before-10000-dr-rename-normal-2",
+      "version": "before",
+      "domain": "dr",
+      "scenario": "rename",
+      "mode": "normal",
+      "rep": 2,
+      "metrics": {
+        "wallMs": 8070.62043,
+        "userMs": 7881.35,
+        "systemMs": 2017.471,
+        "maxRSSKiB": 475376,
+        "exit": 0
+      },
+      "outputManifestSHA256": "b638e53f775424856bfa82944d19ede231920d80a99784613cc224d86953e957",
+      "plannedWrites": null,
+      "actualDocumentDeltaCount": 2,
+      "actualIndexDeltaCount": 1
+    },
+    {
+      "sample": "before-10000-dr-rename-instrumented-1",
+      "version": "before",
+      "domain": "dr",
+      "scenario": "rename",
+      "mode": "instrumented",
+      "rep": 1,
+      "metrics": {
+        "wallMs": 8073.442033,
+        "userMs": 7544.959000000001,
+        "systemMs": 2422.7090000000003,
+        "maxRSSKiB": 491928,
+        "exit": 0
+      },
+      "outputManifestSHA256": "b638e53f775424856bfa82944d19ede231920d80a99784613cc224d86953e957",
+      "plannedWrites": {
+        "plannedWrites": 2,
+        "guards": 10001,
+        "index": true,
+        "unchanged": 0
+      },
+      "actualDocumentDeltaCount": 2,
+      "actualIndexDeltaCount": 1,
+      "inclusiveStageMs": {
+        "domain.rename.prepare": 5066.521269,
+        "shared.prepare": 873.6625429999995,
+        "domain.fresh": 6.512142999999924,
+        "shared.preverify": 807.1411939999998,
+        "write.loop": 7.899882000000616,
+        "publish": 191.84173999999985,
+        "shared.postverify": 780.5245700000005,
+        "domain.postverify": 10.503357999999935,
+        "freshPlusSharedPreverify": 813.6533369999997,
+        "sharedPlusDomainPostverify": 791.0279280000004,
+        "externalAndUnattributedResidual": 5395.356603
+      }
+    },
+    {
+      "sample": "before-10000-ir-rename-normal-1",
+      "version": "before",
+      "domain": "ir",
+      "scenario": "rename",
+      "mode": "normal",
+      "rep": 1,
+      "metrics": {
+        "wallMs": 63132.340938,
+        "userMs": 27399.704,
+        "systemMs": 35875.994,
+        "maxRSSKiB": 443032,
+        "exit": 0
+      },
+      "outputManifestSHA256": "65619fe84c7e9abe4b138506adaeedff4c048e65320e81fe01a8f5ecfd2f6d97",
+      "plannedWrites": null,
+      "actualDocumentDeltaCount": 2,
+      "actualIndexDeltaCount": 1
+    },
+    {
+      "sample": "before-10000-ir-rename-normal-2",
+      "version": "before",
+      "domain": "ir",
+      "scenario": "rename",
+      "mode": "normal",
+      "rep": 2,
+      "metrics": {
+        "wallMs": 53126.038201,
+        "userMs": 23166.972999999998,
+        "systemMs": 31164.35,
+        "maxRSSKiB": 465188,
+        "exit": 0
+      },
+      "outputManifestSHA256": "65619fe84c7e9abe4b138506adaeedff4c048e65320e81fe01a8f5ecfd2f6d97",
+      "plannedWrites": null,
+      "actualDocumentDeltaCount": 2,
+      "actualIndexDeltaCount": 1
+    },
+    {
+      "sample": "before-10000-ir-rename-instrumented-1",
+      "version": "before",
+      "domain": "ir",
+      "scenario": "rename",
+      "mode": "instrumented",
+      "rep": 1,
+      "metrics": {
+        "wallMs": 66008.191845,
+        "userMs": 26433.016,
+        "systemMs": 36738.729999999996,
+        "maxRSSKiB": 459084,
+        "exit": 0
+      },
+      "outputManifestSHA256": "65619fe84c7e9abe4b138506adaeedff4c048e65320e81fe01a8f5ecfd2f6d97",
+      "plannedWrites": {
+        "plannedWrites": 10003,
+        "guards": 10002,
+        "index": true,
+        "unchanged": 10001
+      },
+      "actualDocumentDeltaCount": 2,
+      "actualIndexDeltaCount": 1,
+      "inclusiveStageMs": {
+        "domain.rename.prepare": 2951.246652,
+        "shared.prepare": 317.4399600000006,
+        "domain.fresh": 16914.710680999997,
+        "shared.preverify": 22206.348316,
+        "write.loop": 59.23645299999771,
+        "publish": 149.07199799999944,
+        "shared.postverify": 18345.433998,
+        "domain.postverify": 3504.3027439999933,
+        "freshPlusSharedPreverify": 39121.058997,
+        "sharedPlusDomainPostverify": 21849.736741999994,
+        "externalAndUnattributedResidual": 4511.647695000007
+      }
+    },
+    {
+      "sample": "before-10000-dr-discard-normal-1",
+      "version": "before",
+      "domain": "dr",
+      "scenario": "discard",
+      "mode": "normal",
+      "rep": 1,
+      "metrics": {
+        "wallMs": 9520.1836,
+        "userMs": 9565.975999999999,
+        "systemMs": 2225.944,
+        "maxRSSKiB": 578776,
+        "exit": 0
+      },
+      "outputManifestSHA256": "17defa246de9e15bb1f7d85c6aaba739173038d6984a300882bfee7a07abfaa1",
+      "plannedWrites": null,
+      "actualDocumentDeltaCount": 1,
+      "actualIndexDeltaCount": 1
+    },
+    {
+      "sample": "before-10000-dr-discard-normal-2",
+      "version": "before",
+      "domain": "dr",
+      "scenario": "discard",
+      "mode": "normal",
+      "rep": 2,
+      "metrics": {
+        "wallMs": 8616.018259,
+        "userMs": 8587.042,
+        "systemMs": 2039.7720000000002,
+        "maxRSSKiB": 568104,
+        "exit": 0
+      },
+      "outputManifestSHA256": "17defa246de9e15bb1f7d85c6aaba739173038d6984a300882bfee7a07abfaa1",
+      "plannedWrites": null,
+      "actualDocumentDeltaCount": 1,
+      "actualIndexDeltaCount": 1
+    },
+    {
+      "sample": "before-10000-dr-discard-instrumented-1",
+      "version": "before",
+      "domain": "dr",
+      "scenario": "discard",
+      "mode": "instrumented",
+      "rep": 1,
+      "metrics": {
+        "wallMs": 10906.256501,
+        "userMs": 10412.736,
+        "systemMs": 2442.493,
+        "maxRSSKiB": 484508,
+        "exit": 0
+      },
+      "outputManifestSHA256": "17defa246de9e15bb1f7d85c6aaba739173038d6984a300882bfee7a07abfaa1",
+      "plannedWrites": {
+        "plannedWrites": 1,
+        "guards": 10001,
+        "index": true,
+        "unchanged": 0
+      },
+      "actualDocumentDeltaCount": 1,
+      "actualIndexDeltaCount": 1,
+      "inclusiveStageMs": {
+        "domain.discard.initial_validation": 3968.742262,
+        "shared.prepare": 1004.8640580000001,
+        "domain.fresh": 6.948019999999815,
+        "shared.preverify": 781.935766999999,
+        "write.loop": 3.5209840000006807,
+        "publish": 179.69722600000023,
+        "shared.postverify": 1250.6010160000005,
+        "domain.postverify": 27.82745799999975,
+        "freshPlusSharedPreverify": 788.8837869999988,
+        "sharedPlusDomainPostverify": 1278.4284740000003,
+        "externalAndUnattributedResidual": 7650.861972
+      }
+    },
+    {
+      "sample": "before-10000-ir-discard-normal-1",
+      "version": "before",
+      "domain": "ir",
+      "scenario": "discard",
+      "mode": "normal",
+      "rep": 1,
+      "metrics": {
+        "wallMs": 16935.594721,
+        "userMs": 10134.695000000002,
+        "systemMs": 5650.3820000000005,
+        "maxRSSKiB": 472036,
+        "exit": 0
+      },
+      "outputManifestSHA256": "6dd72df7636217ab14fc557437b6707eb888e181b038b1d5c1acaa1c8c4aa1bd",
+      "plannedWrites": null,
+      "actualDocumentDeltaCount": 1,
+      "actualIndexDeltaCount": 1
+    },
+    {
+      "sample": "before-10000-ir-discard-normal-2",
+      "version": "before",
+      "domain": "ir",
+      "scenario": "discard",
+      "mode": "normal",
+      "rep": 2,
+      "metrics": {
+        "wallMs": 17747.250805,
+        "userMs": 10467.742,
+        "systemMs": 6093.799,
+        "maxRSSKiB": 466644,
+        "exit": 0
+      },
+      "outputManifestSHA256": "6dd72df7636217ab14fc557437b6707eb888e181b038b1d5c1acaa1c8c4aa1bd",
+      "plannedWrites": null,
+      "actualDocumentDeltaCount": 1,
+      "actualIndexDeltaCount": 1
+    },
+    {
+      "sample": "before-10000-ir-discard-instrumented-1",
+      "version": "before",
+      "domain": "ir",
+      "scenario": "discard",
+      "mode": "instrumented",
+      "rep": 1,
+      "metrics": {
+        "wallMs": 24242.132101,
+        "userMs": 10268.063,
+        "systemMs": 5667.9839999999995,
+        "maxRSSKiB": 512080,
+        "exit": 0
+      },
+      "outputManifestSHA256": "6dd72df7636217ab14fc557437b6707eb888e181b038b1d5c1acaa1c8c4aa1bd",
+      "plannedWrites": {
+        "plannedWrites": 2,
+        "guards": 10000,
+        "index": true,
+        "unchanged": 0
+      },
+      "actualDocumentDeltaCount": 1,
+      "actualIndexDeltaCount": 1,
+      "inclusiveStageMs": {
+        "domain.discard.early_fresh": 1685.952616,
+        "shared.prepare": 467.15570800000023,
+        "domain.fresh": 5582.292216,
+        "shared.preverify": 2358.2544880000023,
+        "write.loop": 34.8134229999996,
+        "resources.apply": 0.20356900000115274,
+        "publish": 306.944359000001,
+        "shared.postverify": 1361.4444440000007,
+        "domain.postverify": 4981.681628999999,
+        "cleanup": 4.902325000002747,
+        "freshPlusSharedPreverify": 7940.546704000002,
+        "sharedPlusDomainPostverify": 6343.126072999999,
+        "externalAndUnattributedResidual": 9144.439939999993
+      }
+    },
+    {
+      "sample": "after-10000-dr-rename-normal-1",
+      "version": "after",
+      "domain": "dr",
+      "scenario": "rename",
+      "mode": "normal",
+      "rep": 1,
+      "metrics": {
+        "wallMs": 7835.888957,
+        "userMs": 7414.5289999999995,
+        "systemMs": 2172.072,
+        "maxRSSKiB": 498324,
+        "exit": 0
+      },
+      "outputManifestSHA256": "b638e53f775424856bfa82944d19ede231920d80a99784613cc224d86953e957",
+      "plannedWrites": null,
+      "actualDocumentDeltaCount": 2,
+      "actualIndexDeltaCount": 1
+    },
+    {
+      "sample": "after-10000-dr-rename-normal-2",
+      "version": "after",
+      "domain": "dr",
+      "scenario": "rename",
+      "mode": "normal",
+      "rep": 2,
+      "metrics": {
+        "wallMs": 7721.756922,
+        "userMs": 7457.186,
+        "systemMs": 2166.654,
+        "maxRSSKiB": 497680,
+        "exit": 0
+      },
+      "outputManifestSHA256": "b638e53f775424856bfa82944d19ede231920d80a99784613cc224d86953e957",
+      "plannedWrites": null,
+      "actualDocumentDeltaCount": 2,
+      "actualIndexDeltaCount": 1
+    },
+    {
+      "sample": "after-10000-dr-rename-instrumented-1",
+      "version": "after",
+      "domain": "dr",
+      "scenario": "rename",
+      "mode": "instrumented",
+      "rep": 1,
+      "metrics": {
+        "wallMs": 7738.332961,
+        "userMs": 7473.428,
+        "systemMs": 2089.2110000000002,
+        "maxRSSKiB": 512376,
+        "exit": 0
+      },
+      "outputManifestSHA256": "b638e53f775424856bfa82944d19ede231920d80a99784613cc224d86953e957",
+      "plannedWrites": {
+        "plannedWrites": 2,
+        "guards": 10001,
+        "index": true,
+        "unchanged": 0
+      },
+      "actualDocumentDeltaCount": 2,
+      "actualIndexDeltaCount": 1,
+      "inclusiveStageMs": {
+        "domain.rename.prepare": 4697.80981,
+        "shared.prepare": 896.4516709999998,
+        "domain.fresh": 7.9473109999999,
+        "shared.preverify": 848.671918,
+        "write.loop": 8.018992999999682,
+        "publish": 180.6133260000006,
+        "shared.postverify": 748.2744389999998,
+        "domain.postverify": 6.615905999999995,
+        "freshPlusSharedPreverify": 856.6192289999999,
+        "sharedPlusDomainPostverify": 754.8903449999998,
+        "externalAndUnattributedResidual": 5041.739397
+      }
+    },
+    {
+      "sample": "after-10000-ir-rename-normal-1",
+      "version": "after",
+      "domain": "ir",
+      "scenario": "rename",
+      "mode": "normal",
+      "rep": 1,
+      "metrics": {
+        "wallMs": 10010.376836,
+        "userMs": 7430.562,
+        "systemMs": 4386.361,
+        "maxRSSKiB": 429860,
+        "exit": 0
+      },
+      "outputManifestSHA256": "65619fe84c7e9abe4b138506adaeedff4c048e65320e81fe01a8f5ecfd2f6d97",
+      "plannedWrites": null,
+      "actualDocumentDeltaCount": 2,
+      "actualIndexDeltaCount": 1
+    },
+    {
+      "sample": "after-10000-ir-rename-normal-2",
+      "version": "after",
+      "domain": "ir",
+      "scenario": "rename",
+      "mode": "normal",
+      "rep": 2,
+      "metrics": {
+        "wallMs": 9960.974621,
+        "userMs": 7519.115,
+        "systemMs": 4306.303,
+        "maxRSSKiB": 448720,
+        "exit": 0
+      },
+      "outputManifestSHA256": "65619fe84c7e9abe4b138506adaeedff4c048e65320e81fe01a8f5ecfd2f6d97",
+      "plannedWrites": null,
+      "actualDocumentDeltaCount": 2,
+      "actualIndexDeltaCount": 1
+    },
+    {
+      "sample": "after-10000-ir-rename-instrumented-1",
+      "version": "after",
+      "domain": "ir",
+      "scenario": "rename",
+      "mode": "instrumented",
+      "rep": 1,
+      "metrics": {
+        "wallMs": 9820.766548,
+        "userMs": 7436.076,
+        "systemMs": 4268.718,
+        "maxRSSKiB": 456456,
+        "exit": 0
+      },
+      "outputManifestSHA256": "65619fe84c7e9abe4b138506adaeedff4c048e65320e81fe01a8f5ecfd2f6d97",
+      "plannedWrites": {
+        "plannedWrites": 2,
+        "guards": 20003,
+        "index": true,
+        "unchanged": 0
+      },
+      "actualDocumentDeltaCount": 2,
+      "actualIndexDeltaCount": 1,
+      "inclusiveStageMs": {
+        "domain.rename.prepare": 2795.449177,
+        "shared.prepare": 324.02244199999996,
+        "domain.fresh": 1647.162778,
+        "shared.preverify": 165.83958499999972,
+        "write.loop": 6.616484999999557,
+        "publish": 58.811353000000054,
+        "shared.postverify": 670.8281109999998,
+        "domain.postverify": 2926.0642239999997,
+        "freshPlusSharedPreverify": 1813.0023629999996,
+        "sharedPlusDomainPostverify": 3596.8923349999995,
+        "externalAndUnattributedResidual": 4021.4215700000004
+      }
+    },
+    {
+      "sample": "after-10000-dr-discard-normal-1",
+      "version": "after",
+      "domain": "dr",
+      "scenario": "discard",
+      "mode": "normal",
+      "rep": 1,
+      "metrics": {
+        "wallMs": 8836.021394,
+        "userMs": 8712.405999999999,
+        "systemMs": 2150.862,
+        "maxRSSKiB": 597888,
+        "exit": 0
+      },
+      "outputManifestSHA256": "17defa246de9e15bb1f7d85c6aaba739173038d6984a300882bfee7a07abfaa1",
+      "plannedWrites": null,
+      "actualDocumentDeltaCount": 1,
+      "actualIndexDeltaCount": 1
+    },
+    {
+      "sample": "after-10000-dr-discard-normal-2",
+      "version": "after",
+      "domain": "dr",
+      "scenario": "discard",
+      "mode": "normal",
+      "rep": 2,
+      "metrics": {
+        "wallMs": 8665.573083,
+        "userMs": 8444.702,
+        "systemMs": 2205.228,
+        "maxRSSKiB": 577644,
+        "exit": 0
+      },
+      "outputManifestSHA256": "17defa246de9e15bb1f7d85c6aaba739173038d6984a300882bfee7a07abfaa1",
+      "plannedWrites": null,
+      "actualDocumentDeltaCount": 1,
+      "actualIndexDeltaCount": 1
+    },
+    {
+      "sample": "after-10000-dr-discard-instrumented-1",
+      "version": "after",
+      "domain": "dr",
+      "scenario": "discard",
+      "mode": "instrumented",
+      "rep": 1,
+      "metrics": {
+        "wallMs": 8996.340039,
+        "userMs": 8910.753,
+        "systemMs": 2168.881,
+        "maxRSSKiB": 556704,
+        "exit": 0
+      },
+      "outputManifestSHA256": "17defa246de9e15bb1f7d85c6aaba739173038d6984a300882bfee7a07abfaa1",
+      "plannedWrites": {
+        "plannedWrites": 1,
+        "guards": 10001,
+        "index": true,
+        "unchanged": 0
+      },
+      "actualDocumentDeltaCount": 1,
+      "actualIndexDeltaCount": 1,
+      "inclusiveStageMs": {
+        "domain.discard.initial_validation": 3157.492563,
+        "shared.prepare": 785.5010750000001,
+        "domain.fresh": 6.844083000000865,
+        "shared.preverify": 774.7711530000006,
+        "write.loop": 3.711312000000362,
+        "publish": 182.24696800000038,
+        "shared.postverify": 895.1032050000003,
+        "domain.postverify": 7.414601000000403,
+        "freshPlusSharedPreverify": 781.6152360000015,
+        "sharedPlusDomainPostverify": 902.5178060000007,
+        "externalAndUnattributedResidual": 6340.7476419999975
+      }
+    },
+    {
+      "sample": "after-10000-ir-discard-normal-1",
+      "version": "after",
+      "domain": "ir",
+      "scenario": "discard",
+      "mode": "normal",
+      "rep": 1,
+      "metrics": {
+        "wallMs": 9862.065101,
+        "userMs": 7309.523,
+        "systemMs": 4522.771,
+        "maxRSSKiB": 441904,
+        "exit": 0
+      },
+      "outputManifestSHA256": "6dd72df7636217ab14fc557437b6707eb888e181b038b1d5c1acaa1c8c4aa1bd",
+      "plannedWrites": null,
+      "actualDocumentDeltaCount": 1,
+      "actualIndexDeltaCount": 1
+    },
+    {
+      "sample": "after-10000-ir-discard-normal-2",
+      "version": "after",
+      "domain": "ir",
+      "scenario": "discard",
+      "mode": "normal",
+      "rep": 2,
+      "metrics": {
+        "wallMs": 10496.65865,
+        "userMs": 7530.921,
+        "systemMs": 4901.74,
+        "maxRSSKiB": 557012,
+        "exit": 0
+      },
+      "outputManifestSHA256": "6dd72df7636217ab14fc557437b6707eb888e181b038b1d5c1acaa1c8c4aa1bd",
+      "plannedWrites": null,
+      "actualDocumentDeltaCount": 1,
+      "actualIndexDeltaCount": 1
+    },
+    {
+      "sample": "after-10000-ir-discard-instrumented-1",
+      "version": "after",
+      "domain": "ir",
+      "scenario": "discard",
+      "mode": "instrumented",
+      "rep": 1,
+      "metrics": {
+        "wallMs": 10238.489864,
+        "userMs": 7574.193,
+        "systemMs": 4588.151,
+        "maxRSSKiB": 447508,
+        "exit": 0
+      },
+      "outputManifestSHA256": "6dd72df7636217ab14fc557437b6707eb888e181b038b1d5c1acaa1c8c4aa1bd",
+      "plannedWrites": {
+        "plannedWrites": 2,
+        "guards": 10000,
+        "index": true,
+        "unchanged": 0
+      },
+      "actualDocumentDeltaCount": 1,
+      "actualIndexDeltaCount": 1,
+      "inclusiveStageMs": {
+        "domain.discard.early_fresh": 1316.4661219999998,
+        "shared.prepare": 242.04336199999943,
+        "domain.fresh": 2051.4424019999997,
+        "shared.preverify": 100.2772560000003,
+        "write.loop": 9.342235999999502,
+        "resources.apply": 0.09012700000039331,
+        "publish": 81.60877399999936,
+        "shared.postverify": 725.5277539999997,
+        "domain.postverify": 1806.684889,
+        "cleanup": 8.596143999999185,
+        "freshPlusSharedPreverify": 2151.719658,
+        "sharedPlusDomainPostverify": 2532.212643,
+        "externalAndUnattributedResidual": 5212.8769200000015
+      }
+    }
+  ]
+}

@@ -7,9 +7,9 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { readRecordText } from "../../record-operations/src/source.ts";
 import {
   diagnosticFromError,
   genericInvestigationDiagnostic,
@@ -82,6 +82,13 @@ export function renameLockFailure(
   indexPath: string,
   error: unknown
 ): InvestigationRenameResult {
+  if (
+    error instanceof InvestigationCollectionMutationLockError &&
+    error.operationCompleted &&
+    isRenameResult(error.operationResult)
+  ) {
+    return completedRenameLockFailure(error.operationResult, error);
+  }
   const mutation = renameMutation(
     error instanceof InvestigationCollectionMutationLockError &&
       error.operationCompleted
@@ -110,6 +117,19 @@ export function renameLockFailure(
   };
 }
 
+function isRenameResult(value: unknown): value is InvestigationRenameResult {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof Reflect.get(value, "changed") === "boolean" &&
+    Array.isArray(Reflect.get(value, "errors")) &&
+    Array.isArray(Reflect.get(value, "diagnostics")) &&
+    "plan" in value &&
+    typeof Reflect.get(value, "indexPath") === "string" &&
+    ["ok", "attention", "error"].includes(String(Reflect.get(value, "status")))
+  );
+}
+
 export function renameMutation(
   outcome: InvestigationMutationDiagnostic["outcome"]
 ): InvestigationMutationDiagnostic {
@@ -117,44 +137,7 @@ export function renameMutation(
 }
 
 export async function readRegularText(filePath: string): Promise<string> {
-  const entry = await fs.lstat(filePath);
-  if (entry.isSymbolicLink() || !entry.isFile()) {
-    throw new Error("must be a regular non-symbolic-link file");
-  }
-  return await fs.readFile(filePath, "utf8");
-}
-
-export async function writeTextAtomically(
-  targetPath: string,
-  text: string
-): Promise<void> {
-  await readRegularText(targetPath);
-  const temporaryPath = `${targetPath}.${process.pid}.${randomUUID()}.tmp`;
-  const handle = await fs.open(temporaryPath, "wx", 0o600);
-  try {
-    await handle.writeFile(text, "utf8");
-  } finally {
-    await handle.close();
-  }
-  try {
-    await fs.rename(temporaryPath, targetPath);
-  } catch (error) {
-    await fs.rm(temporaryPath, { force: true }).catch(() => undefined);
-    throw error;
-  }
-}
-
-export async function writeNewText(
-  targetPath: string,
-  text: string
-): Promise<void> {
-  await fs.mkdir(path.dirname(targetPath), { recursive: true });
-  const file = await fs.open(targetPath, "wx", 0o600);
-  try {
-    await file.writeFile(text, "utf8");
-  } finally {
-    await file.close();
-  }
+  return await readRecordText(path.dirname(filePath), path.basename(filePath));
 }
 
 export async function lstatOrNull(
@@ -199,4 +182,22 @@ export function compareText(left: string, right: string): number {
 
 export function errorText(error: unknown): string {
   return sanitizeInvestigationDiagnosticText(error);
+}
+
+function completedRenameLockFailure(
+  completed: InvestigationRenameResult,
+  error: InvestigationCollectionMutationLockError
+): InvestigationRenameResult {
+  const mutation =
+    completed.mutation ??
+    renameMutation(
+      completed.changed ? "committed-cleanup-pending" : "no-change"
+    );
+  return {
+    ...completed,
+    status: "error",
+    mutation,
+    errors: [...completed.errors, errorText(error)],
+    diagnostics: [...completed.diagnostics, { ...error.diagnostic, mutation }]
+  };
 }

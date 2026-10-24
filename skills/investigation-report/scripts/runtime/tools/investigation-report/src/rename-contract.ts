@@ -7,7 +7,12 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-import { Buffer } from "node:buffer";
+import type { InvestigationPreparation } from "./strict-preparation.ts";
+import type { RecordFileSnapshot } from "../../record-operations/src/transaction-files.ts";
+import type {
+  InvestigationIndexState,
+  ParsedInvestigationReport
+} from "./types.ts";
 import type {
   InvestigationDiagnostic,
   InvestigationMutationDiagnostic
@@ -62,6 +67,8 @@ export type InvestigationRenameHooks = Readonly<{
 }>;
 
 export type RenameSource = Readonly<{
+  parsed?: ParsedInvestigationReport;
+  state?: InvestigationIndexState;
   candidate: boolean;
   document: ParsedInvestigationReportDocument;
   filePath: string;
@@ -92,23 +99,29 @@ export type ResourceMove = Readonly<{
   from: string;
   snapshot: ResourceOwnerSnapshot;
   to: string;
+  root?: string;
 }>;
 
+export type ResourceDirectoryIdentity = Readonly<{
+  dev: number;
+  ino: number;
+  mode: number;
+}>;
+
+/** Mutable ownership journal for one resource move and its possible recovery. */
 export type ResourceMoveProgress = {
-  sourceRemovalStarted: boolean;
-  sourceRemoved: boolean;
   targetClaimed: boolean;
+  sourceFiles: Map<string, RecordFileSnapshot>;
+  writtenFiles: Map<string, RecordFileSnapshot>;
+  removedFiles: Set<string>;
+  sourceDirectories: Map<string, ResourceDirectoryIdentity>;
+  targetDirectories: Map<string, ResourceDirectoryIdentity>;
+  removedDirectories: Set<string>;
+  uncertainWrite: boolean;
 };
 
-/** Bytes and mode used to prove a report file is still owned by this transaction. */
-export type ReportFileSnapshot = Readonly<{
-  bytes: Buffer;
-  contentHash: string;
-  mode: number;
-  size: number;
-}>;
-
 export type PreparedRename = Readonly<{
+  preparation?: InvestigationPreparation;
   indexPath: string;
   noChange: boolean;
   nextIndexText: string | null;

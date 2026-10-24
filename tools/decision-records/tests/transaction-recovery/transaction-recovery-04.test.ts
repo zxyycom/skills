@@ -105,8 +105,7 @@ test("decision transaction reports committed cleanup pending when lock release f
             nextText: sourceBefore.replace("使用生成 CLI", "释放锁后的生成 CLI")
           }
         ],
-        originalScan: await scanDecisionRecords({ workspaceRoot }),
-        scanOptions: { workspaceRoot }
+        originalScan: await scanDecisionRecords({ workspaceRoot })
       });
     } finally {
       Object.defineProperty(fs, "rm", descriptor);
@@ -168,8 +167,7 @@ test("decision transaction retains no-change when lock release fails after prefl
               nextText: sourceBefore.replace("使用生成 CLI", "完成更新生成 CLI")
             }
           ],
-          originalScan,
-          scanOptions: { workspaceRoot }
+          originalScan
         });
       } finally {
         Object.defineProperty(fs, "rm", descriptor);

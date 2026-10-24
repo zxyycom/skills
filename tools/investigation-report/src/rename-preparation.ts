@@ -1,4 +1,11 @@
+import { InvestigationPreparation } from "./strict-preparation.ts";
+import { prepareLocalNoOp } from "./rename-noop.ts";
+import {
+  noChangePreparation,
+  changedRenamePreparation
+} from "./rename-plan.ts";
 import path from "node:path";
+
 import {
   openVersionControl,
   repositoryRelativePathFromFileSystemPath,
@@ -8,7 +15,6 @@ import {
   investigationIndexFileName,
   syncInvestigationStateIndex
 } from "./investigation-state-index.ts";
-import { investigationNameFromId } from "./report-path.ts";
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 import { prepareResourceMove } from "./rename-resource.ts";
 import { prepareNextIndex } from "./rename-index-projection.ts";
@@ -29,7 +35,6 @@ export {
 } from "./rename-preparation-source.ts";
 import type {
   InvestigationRenameOptions,
-  InvestigationRenamePlan,
   InvestigationRenameResult,
   PreparedRename,
   RenameSource,
@@ -37,7 +42,6 @@ import type {
 } from "./rename-contract.ts";
 import {
   compareText,
-  countText,
   errorText,
   renameFailure,
   renameMutation,
@@ -51,7 +55,10 @@ export async function prepareRename(
   indexPath: string,
   options: InvestigationRenameOptions
 ): Promise<RenameStep<PreparedRename>> {
-  const sources = await loadRenameSources(root, indexPath);
+  const noOp = await prepareLocalNoOp(root, indexPath, options);
+  if (noOp !== null) return noOp;
+  const preparation = new InvestigationPreparation(root);
+  const sources = await loadRenameSources(root, indexPath, preparation);
   if ("result" in sources) return sources;
   const source = resolveRenameSource(sources.value, options.source, indexPath);
   if ("result" in source) return source;
@@ -67,7 +74,7 @@ export async function prepareRename(
     : await changedPreparation(
         root,
         indexPath,
-        sources.value,
+        { sources: sources.value, preparation },
         source.value,
         target.value
       );
@@ -75,12 +82,15 @@ export async function prepareRename(
 
 async function loadRenameSources(
   root: string,
-  indexPath: string
+  indexPath: string,
+  preparation: InvestigationPreparation
 ): Promise<RenameStep<RenameSource[]>> {
-  const layout = await inspectLayout(root, indexPath);
+  const layout = await inspectLayout(root, indexPath, preparation);
   if ("result" in layout) return layout;
   const formal = await collectValidatedInvestigationCollection(root, {
-    allowEmptyCollection: true
+    allowEmptyCollection: true,
+    layout: layout.value,
+    preparation
   });
   if (formal.errors.length > 0 || formal.snapshot === null)
     return renameStepFailure(indexPath, formal.errors);
@@ -88,12 +98,20 @@ async function loadRenameSources(
   if (freshness !== null) return freshness;
   const candidates = await readCandidateSources(
     root,
-    layout.value.candidateIds
+    layout.value.candidateIds,
+    { layout: layout.value, preparation }
   );
   if ("result" in candidates) return candidates;
   return {
     value: [
-      ...formal.sources.map((source) => asFormalSource(root, source)),
+      ...formal.sources.map((source) =>
+        asFormalSource(
+          root,
+          source,
+          preparation.parsed(source),
+          formal.states.get(source.id)
+        )
+      ),
       ...candidates.value
     ].sort((left, right) => compareText(left.id, right.id))
   };
@@ -104,48 +122,33 @@ async function verifyRenameIndexFreshness(
   indexPath: string,
   formal: Awaited<ReturnType<typeof collectValidatedInvestigationCollection>>
 ): Promise<RenameStep<never> | null> {
-  if (formal.sources.length === 0 || formal.snapshot === null) return null;
+  if (formal.snapshot === null) return null;
   const freshness = await syncInvestigationStateIndex({
     investigationsDirectory: root,
     mode: "check",
     snapshot: formal.snapshot
   });
-  return freshness.status === "error"
+  return freshness.status === "error" &&
+    !(formal.sources.length === 0 && freshness.state === "index-missing")
     ? renameStepFailure(indexPath, [
         "investigation index is not fresh for the current collection"
       ])
     : null;
 }
 
-function noChangePreparation(
-  indexPath: string,
-  sources: readonly RenameSource[],
-  source: RenameSource,
-  target: RenameTarget
-): RenameStep<PreparedRename> {
-  return {
-    value: {
-      indexPath,
-      noChange: true,
-      nextIndexText: null,
-      oldIndexText: null,
-      originalSources: sources,
-      plan: renamePlan(sources, source, target, sources, false),
-      resourceMove: null,
-      sourceBefore: source,
-      sources,
-      targetSource: source
-    }
-  };
-}
+type RenamePreparationCollection = Readonly<{
+  sources: readonly RenameSource[];
+  preparation: InvestigationPreparation;
+}>;
 
 async function changedPreparation(
   root: string,
   indexPath: string,
-  sources: readonly RenameSource[],
+  collection: RenamePreparationCollection,
   source: RenameSource,
   target: RenameTarget
 ): Promise<RenameStep<PreparedRename>> {
+  const { sources, preparation } = collection;
   const rewritten = rewriteSources(sources, source, target);
   if ("result" in rewritten) return rewritten;
   const resourceMove = await prepareResourceMove(
@@ -155,75 +158,24 @@ async function changedPreparation(
     indexPath
   );
   if ("result" in resourceMove) return resourceMove;
-  const index = await prepareNextIndex(root, indexPath, rewritten.value);
-  if ("result" in index) return index;
-  const plan = renamePlan(
-    sources,
-    source,
-    target,
+  const index = await prepareNextIndex(
+    root,
+    indexPath,
     rewritten.value,
-    resourceMove.value !== null
+    preparation
   );
+  if ("result" in index) return index;
   return {
-    value: {
+    value: changedRenamePreparation({
       indexPath,
-      noChange: false,
-      nextIndexText: index.value.nextIndexText,
-      oldIndexText: index.value.oldIndexText,
-      originalSources: sources,
-      plan,
+      preparation,
+      sources,
+      source,
+      target,
+      rewritten: rewritten.value,
       resourceMove: resourceMove.value,
-      sourceBefore: source,
-      sources: rewritten.value,
-      targetSource: rewritten.value.find(
-        (candidate) => candidate.id === target.id
-      )!
-    }
-  };
-}
-
-function renamePlan(
-  before: readonly RenameSource[],
-  source: RenameSource,
-  target: RenameTarget,
-  after: readonly RenameSource[],
-  resourceOwnerMoved: boolean
-): InvestigationRenamePlan {
-  const identityChanged = source.id !== target.id;
-  const relationCounts = identityChanged
-    ? before.reduce(
-        (counts, current) => {
-          const affected = current.document.relations.filter(
-            (relation) => relation.target === source.id
-          ).length;
-          if (current.candidate) counts.candidate += affected;
-          else counts.established += affected;
-          return counts;
-        },
-        { candidate: 0, established: 0 }
-      )
-    : { candidate: 0, established: 0 };
-  const resourcePrefix = `./_resources/${source.id}/`;
-  const affectedResourceReferenceCount = identityChanged
-    ? before.reduce(
-        (count, current) =>
-          count + countText(current.text, `](${resourcePrefix}`),
-        0
-      )
-    : 0;
-  const next = after.find((current) => current.id === target.id)!;
-  return {
-    affectedCandidateRelationCount: relationCounts.candidate,
-    affectedEstablishedRelationCount: relationCounts.established,
-    affectedResourceReferenceCount,
-    newId: target.id,
-    newName: target.name,
-    newSourcePath: next.sourcePath,
-    oldId: source.id,
-    oldName: investigationNameFromId(source.id),
-    oldSourcePath: source.sourcePath,
-    outcome: "ready",
-    resourceOwnerMoved
+      index: index.value
+    })
   };
 }
 

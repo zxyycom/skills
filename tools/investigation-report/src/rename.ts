@@ -49,9 +49,9 @@ export async function renameInvestigationRecordWithHooks(
   if (canonical.isErr()) return renameFailure("", null, canonical.error);
   const root = canonical.value.investigationsDirectory;
   const indexPath = path.join(root, investigationIndexFileName);
-  const initial = await prepareRename(root, indexPath, options);
-  if ("result" in initial) return initial.result;
   if (options.preflight === true) {
+    const initial = await prepareRename(root, indexPath, options);
+    if ("result" in initial) return initial.result;
     return renameSuccess(
       false,
       indexPath,
@@ -62,23 +62,14 @@ export async function renameInvestigationRecordWithHooks(
       "preflight"
     );
   }
-  if (initial.value.noChange) {
-    return renameSuccess(false, indexPath, initial.value.plan, "no-change");
-  }
   try {
     return await withInvestigationCollectionMutationLock(
       indexPath,
       async () => {
         const prepared = await prepareRename(root, indexPath, options);
         if ("result" in prepared) return prepared.result;
-        if (prepared.value.noChange) {
-          return renameSuccess(
-            false,
-            indexPath,
-            prepared.value.plan,
-            "no-change"
-          );
-        }
+        if (prepared.value.noChange)
+          return await publishRename(root, prepared.value, hooks);
         const confirmation = await recordedRenameConfirmation(
           root,
           prepared.value.sourceBefore,

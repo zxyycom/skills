@@ -164,8 +164,8 @@ test("Decision content search reuses the published graph while reading current t
         assert.equal(result.records.length, "relatedTo" in request ? 1 : 2);
         assert.equal(
           count(),
-          1,
-          "strict published graph validation is reused by relation selection"
+          "relatedTo" in request ? 1 : 0,
+          "only relation-dependent searches validate and reuse the published graph"
         );
       });
     }

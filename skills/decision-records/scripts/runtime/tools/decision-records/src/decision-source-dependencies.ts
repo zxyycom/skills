@@ -16,7 +16,7 @@ import type { DecisionId, DecisionIndex } from "./types.ts";
  * Completing one event does not recursively select unrelated historical events.
  */
 export function relatedPublishedDecisionIds(
-  index: DecisionIndex,
+  index: Pick<DecisionIndex, "entries">,
   anchors: ReadonlySet<DecisionId>
 ): Set<DecisionId> {
   const related = new Set(anchors);
@@ -35,7 +35,9 @@ export function relatedPublishedDecisionIds(
   return related;
 }
 
-function publishedEdges(index: DecisionIndex): DecisionRelationEdge[] {
+function publishedEdges(
+  index: Pick<DecisionIndex, "entries">
+): DecisionRelationEdge[] {
   const edges: DecisionRelationEdge[] = [];
   for (const [id, entry] of Object.entries(index.entries)) {
     if (!isDecisionId(id))

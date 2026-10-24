@@ -12,6 +12,7 @@ import {
   type DecisionIndexSnapshot
 } from "./decision-index-snapshot.ts";
 import path from "node:path";
+import { canonicalRecordCollection } from "../../record-operations/src/source.ts";
 import {
   decisionFailure,
   type DecisionApplicationFailure
@@ -43,14 +44,30 @@ type ResolvedDecisionLocation = Readonly<{
 }>;
 
 export async function loadDecisionQueryContext(
-  location: DecisionLocation
+  location: DecisionLocation,
+  requiresRelations = false
 ): Promise<DecisionApplicationFailure | DecisionQueryContext> {
-  const { decisionsDirectory, workspaceRoot } =
-    resolveDecisionLocation(location);
+  let decisionsDirectory: string;
+  let workspaceRoot: string;
+  try {
+    const canonical = await canonicalRecordCollection(
+      location.workspaceRoot,
+      location.decisionsDir
+    );
+    decisionsDirectory = canonical.collectionRoot;
+    workspaceRoot = canonical.workspaceRoot;
+  } catch (error) {
+    return decisionFailure([
+      error instanceof Error
+        ? error.message
+        : "Decision collection could not be safely resolved"
+    ]);
+  }
   const indexPath = path.join(decisionsDirectory, decisionIndexFileName);
   const indexRelativePath = displayDecisionPath(workspaceRoot, indexPath);
   const currentIndex = await loadDecisionIndexSnapshot({
-    decisionsDirectory
+    decisionsDirectory,
+    queryOnly: !requiresRelations
   });
   if (currentIndex.status === "error") {
     return decisionFailure(
@@ -68,6 +85,7 @@ export async function loadDecisionQueryContext(
     decisionsDirectory,
     index: currentIndex.value.index,
     getRelationGraph: currentIndex.value.getRelationGraph,
+    relationErrors: currentIndex.value.relationErrors,
     indexRelativePath,
     entries: currentIndex.value.entries,
     status: "ok",

@@ -150,8 +150,7 @@ test("lifecycle rejects a source changed after its prewrite scan before moving e
           )
         }
       ],
-      originalScan,
-      scanOptions: { workspaceRoot }
+      originalScan
     });
     assert.equal(result.status, "error");
     assert.equal(await fs.readFile(currentPath, "utf8"), driftedText);

@@ -44,6 +44,9 @@ export function traceLoadedInvestigation(
   );
   if (resolved.status === "error")
     return traceFailure(selector, indexPath, resolved.errors);
+  const graphErrors = context.errors();
+  if (graphErrors.length > 0)
+    return traceFailure(selector, indexPath, graphErrors);
   const trace = traceInvestigationRelations(context, resolved.id, options);
   return {
     status: "ok",
@@ -127,7 +130,8 @@ function traceInvestigationEntries(
   const entries: Record<string, InvestigationTraceEntry> = {};
   for (const id of [...ids].sort(compareText)) {
     const state = states.get(id);
-    if (state === undefined) continue;
+    if (state === undefined)
+      throw new Error(`validated investigation trace member is missing: ${id}`);
     entries[id] = {
       title: state.title,
       formedAt: state.formedAt,

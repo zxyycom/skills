@@ -7,40 +7,70 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import type { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
+import { requireRecordTextSnapshot } from "../../record-operations/src/transaction-snapshot.ts";
 import path from "node:path";
+import { InvestigationPreparation } from "./strict-preparation.ts";
+import { inspectInvestigationCollectionLayout } from "./investigation-layout.ts";
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 import type { PreparedRename } from "./rename-contract.ts";
-import {
-  asFormalSource,
-  inspectLayout,
-  readCandidateSources
-} from "./rename-preparation.ts";
+import { asFormalSource, readCandidateSources } from "./rename-preparation.ts";
 import { errorText, lstatOrNull, readRegularText } from "./rename-support.ts";
 import { syncInvestigationStateIndex } from "./investigation-state-index.ts";
 import { collectValidatedInvestigationCollection } from "./validation.ts";
 
 export async function verifyPreparedRename(
   root: string,
-  prepared: PreparedRename
+  prepared: PreparedRename,
+  phase: RecordVerificationPhase
 ): Promise<string[]> {
-  const errors = await verifyPreparedSources(prepared);
+  const errors = await verifyPreparedSources(root, prepared, phase);
   await verifyPreparedTarget(root, prepared, errors);
-  await verifyPreparedIndex(prepared, errors);
+  await verifyPreparedIndex(root, prepared, phase, errors);
   await verifyPreparedResourceTarget(prepared, errors);
   return errors;
 }
 
 async function verifyPreparedSources(
+  root: string,
+  prepared: PreparedRename,
+  phase: RecordVerificationPhase
+): Promise<string[]> {
+  const errors: string[] = [];
+  if (prepared.preparation === undefined)
+    return await verifyLocalNoOpSources(prepared);
+  const preparation = prepared.preparation;
+  const guards = prepared.originalSources.map((source) => ({
+    path: source.filePath,
+    before: requireRecordTextSnapshot(
+      preparation.captured(source.filePath, source.text),
+      root,
+      source.filePath,
+      source.text
+    )
+  }));
+  await phase.verifyMany(guards, (failure, index) => {
+    const source = prepared.originalSources[index]!;
+    errors.push(
+      failure.kind === "changed"
+        ? `${source.id} changed after rename validation; no files were written`
+        : `${source.id} could not be re-read before rename: ${errorText(failure.error)}`
+    );
+  });
+  return errors;
+}
+
+async function verifyLocalNoOpSources(
   prepared: PreparedRename
 ): Promise<string[]> {
   const errors: string[] = [];
+  // Local no-op identity preparation keeps its separate fresh text boundary.
   for (const source of prepared.originalSources) {
     try {
-      if ((await readRegularText(source.filePath)) !== source.text) {
+      if ((await readRegularText(source.filePath)) !== source.text)
         errors.push(
           `${source.id} changed after rename validation; no files were written`
         );
-      }
     } catch (error) {
       errors.push(
         `${source.id} could not be re-read before rename: ${errorText(error)}`
@@ -67,16 +97,44 @@ async function verifyPreparedTarget(
 }
 
 async function verifyPreparedIndex(
+  root: string,
   prepared: PreparedRename,
+  phase: RecordVerificationPhase,
   errors: string[]
 ): Promise<void> {
   if (prepared.oldIndexText === null) return;
+  if (prepared.preparation !== undefined) {
+    const before = requireRecordTextSnapshot(
+      prepared.preparation.captured(prepared.indexPath, prepared.oldIndexText),
+      root,
+      prepared.indexPath,
+      prepared.oldIndexText
+    );
+    await phase.verifyMany(
+      [{ path: prepared.indexPath, before }],
+      (failure) => {
+        errors.push(
+          failure.kind === "changed"
+            ? "investigation index changed after rename validation; no files were written"
+            : "investigation index could not be re-read before rename: " +
+                errorText(failure.error)
+        );
+      }
+    );
+    return;
+  }
+  await verifyLocalNoOpIndex(prepared, errors);
+}
+
+async function verifyLocalNoOpIndex(
+  prepared: PreparedRename,
+  errors: string[]
+): Promise<void> {
   try {
-    if ((await readRegularText(prepared.indexPath)) !== prepared.oldIndexText) {
+    if ((await readRegularText(prepared.indexPath)) !== prepared.oldIndexText)
       errors.push(
         "investigation index changed after rename validation; no files were written"
       );
-    }
   } catch (error) {
     errors.push(
       "investigation index could not be re-read before rename: " +
@@ -103,39 +161,34 @@ export async function verifyCommittedRename(
   root: string,
   prepared: PreparedRename
 ): Promise<readonly string[]> {
+  const preparation = new InvestigationPreparation(root);
+  const layout = await inspectInvestigationCollectionLayout(root, {
+    preparation
+  });
   const collection = await collectValidatedInvestigationCollection(root, {
-    allowEmptyCollection: true
+    allowEmptyCollection: true,
+    layout,
+    preparation
   });
   if (collection.errors.length > 0) return collection.errors;
-  const candidateRead = await readCurrentCandidates(root, prepared.indexPath);
-  if (candidateRead.errors !== null) return candidateRead.errors;
+  const candidates = await readCandidateSources(root, layout.candidateIds, {
+    layout,
+    preparation
+  });
+  if ("result" in candidates) return candidates.result.errors;
   if (await indexIsStale(root, collection))
     return ["investigation index is stale after rename"];
   return await retiredIdentityErrors(root, prepared, [
-    ...collection.sources.map((source) => asFormalSource(root, source)),
-    ...candidateRead.candidates
+    ...collection.sources.map((source) =>
+      asFormalSource(
+        root,
+        source,
+        preparation.parsed(source),
+        collection.states.get(source.id)
+      )
+    ),
+    ...candidates.value
   ]);
-}
-
-async function readCurrentCandidates(
-  root: string,
-  indexPath: string
-): Promise<
-  Readonly<{
-    candidates: readonly import("./rename-contract.ts").RenameSource[];
-    errors: readonly string[] | null;
-  }>
-> {
-  const layout = await inspectLayout(root, indexPath);
-  if ("result" in layout)
-    return { candidates: [], errors: layout.result.errors };
-  const candidates = await readCandidateSources(
-    root,
-    layout.value.candidateIds
-  );
-  return "result" in candidates
-    ? { candidates: [], errors: candidates.result.errors }
-    : { candidates: candidates.value, errors: null };
 }
 
 async function indexIsStale(

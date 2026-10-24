@@ -30,3 +30,5 @@ relations: []
 - 采用: discard 按稳定 ID 自动识别候选或正式记录；进入 Git HEAD 的目标统一要求 --delete-recorded，Investigation owner 资源删除额外要求 --delete-owned-resources，共享引用门禁保持独立有效。
 - 采用: 被取代的 activate、discard-candidate 与目标专属删除确认参数只得到普通未知命令或无效参数结果，不保留兼容别名、弃用分支或迁移专用提示。
 - 采用: 准备结果统一区分结构、正文、领域条件、语义审核和授权；门禁失败属于领域结果，参数形态无效才属于 CLI 参数错误。
+- 采用: 起草允许语法完整但尚未建立的关系 ID；name 按动作实际可用集合唯一解析。`show-candidate` 只选择并准备候选及必要依赖；列表对单份候选坏内容或结构 warning/skip，显式目标失败，安全或可见身份冲突始终失败。
+- 采用: 合法发布索引可提供正式身份与位置；只有真正缺索引时才使用安全 header 身份发现保证不覆盖，发现结果不作为发布事实。已有坏索引或 definition 不符必须显式恢复。创建成功与 readiness 未就绪分开报告，publish 继续承担最终闭合。

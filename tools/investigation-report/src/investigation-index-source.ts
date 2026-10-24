@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import { readRecordText } from "../../record-operations/src/source.ts";
 import path from "node:path";
 import {
   hasEntry,
@@ -196,7 +197,10 @@ async function readIndexedInvestigationSource(
       throw new Error(
         `${state.sourcePath} must be a regular non-symbolic-link file`
       );
-    const text = await fs.readFile(target, "utf8");
+    const text = await readRecordText(
+      investigationsDirectory,
+      state.sourcePath
+    );
     return investigationIdFromMarkdown(text) === id
       ? { id, sourcePath: state.sourcePath, text }
       : null;

@@ -1,3 +1,5 @@
+import { synchronizeInvestigationIndex } from "../src/validation.ts";
+import { assertSyncSelectionPriority } from "../../record-operations/tests/sync-selection-contract.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -30,8 +32,11 @@ test("CLI selected sync publishes by default and keeps --preflight zero-write", 
       "--select",
       "260828-beta"
     ]);
-    assert.equal(unselected.status, 1);
-    assert.match(unselected.stderr, /outside the selected sync scope/u);
+    assert.equal(unselected.status, 0, unselected.stderr);
+    assert.match(
+      unselected.stdout,
+      /unselected entries retain the published baseline/u
+    );
     assert.equal(await fs.readFile(indexPath, "utf8"), baseline);
 
     const checked = await runInvestigationCli(root, [
@@ -125,5 +130,65 @@ test("CLI full sync preflight accepts recoverable indexes while strict check rem
     assert.equal(current.status, 0, current.stderr);
     assert.match(current.stdout, /already current/u);
     assert.doesNotMatch(current.stdout, /not published/u);
+  });
+});
+
+test("Investigation selected sync preserves strict baseline and selector error priority", async () => {
+  await withTempRoot("selected-baseline-priority", async (workspaceRoot) => {
+    await writeCollection(workspaceRoot, [{ id: "260828-alpha" }]);
+    await assertSyncSelectionPriority({
+      indexPath: path.join(
+        investigationRoot(workspaceRoot),
+        "investigation-index.json"
+      ),
+      knownSelector: "260828-alpha",
+      synchronize: async (selector) => {
+        const api = await synchronizeInvestigationIndex({
+          workspaceRoot,
+          selectors: [selector],
+          preflight: true
+        });
+        const cli = await runInvestigationCli(workspaceRoot, [
+          "sync-index",
+          "--select",
+          selector,
+          "--preflight"
+        ]);
+        return [
+          { ok: api.errors.length === 0, details: JSON.stringify(api) },
+          { ok: cli.status === 0, details: cli.stderr }
+        ];
+      }
+    });
+  });
+});
+
+test("Investigation sync preflight validates without acquiring a busy mutation lock", async () => {
+  await withTempRoot("sync-readonly-lock", async (workspaceRoot) => {
+    await writeCollection(workspaceRoot, [{ id: "report" }]);
+    const index = path.join(
+      investigationRoot(workspaceRoot),
+      "investigation-index.json"
+    );
+    const lock = path.join(
+      workspaceRoot,
+      "docs/.investigation-index.json.mutation.lock"
+    );
+    const before = await fs.readFile(index);
+    await fs.writeFile(lock, "another writer");
+    const preview = await synchronizeInvestigationIndex({
+      workspaceRoot,
+      preflight: true
+    });
+    assert.deepEqual(preview.errors, []);
+    const cli = await runInvestigationCli(workspaceRoot, [
+      "sync-index",
+      "--preflight"
+    ]);
+    assert.equal(cli.status, 0, cli.stderr);
+    const write = await synchronizeInvestigationIndex({ workspaceRoot });
+    assert.ok(write.errors.length > 0);
+    assert.deepEqual(await fs.readFile(index), before);
+    assert.equal(await fs.readFile(lock, "utf8"), "another writer");
   });
 });

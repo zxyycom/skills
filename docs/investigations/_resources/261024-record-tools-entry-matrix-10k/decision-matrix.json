@@ -1,0 +1,973 @@
+{
+  "version": 1,
+  "publicPrefix": [
+    "node",
+    "<snapshot>/skills/decision-records/scripts/decision-records.ts",
+    "--root",
+    "<sample-root>"
+  ],
+  "scenarios": [
+    {
+      "id": "list",
+      "argv": [
+        "list",
+        "--limit",
+        "10"
+      ],
+      "setup": "base",
+      "expected": "10 active entries, total 1000; published-index source",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "list-relations",
+      "argv": [
+        "list",
+        "--status",
+        "all",
+        "--related-to",
+        "261001-record-09001",
+        "--direction",
+        "predecessors",
+        "--relation-type",
+        "修订",
+        "--detail"
+      ],
+      "setup": "base",
+      "expected": "exactly P and filter edge A→P; graph validates full index",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "show",
+      "argv": [
+        "show",
+        "261001-record-09001"
+      ],
+      "setup": "base",
+      "expected": "exact current A body and identity; no file/index changes",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "show-current",
+      "argv": [
+        "show",
+        "261001-record-09001"
+      ],
+      "setup": "body-edit",
+      "expected": "edited current body and stale revision warning; no changes",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "metadata",
+      "argv": [
+        "search",
+        "固定",
+        "--in",
+        "metadata",
+        "--limit",
+        "10"
+      ],
+      "setup": "base",
+      "expected": "matched exact 1000, returned 10, results limited, no content reads",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "metadata-relations",
+      "argv": [
+        "search",
+        "固定",
+        "--in",
+        "metadata",
+        "--status",
+        "all",
+        "--related-to",
+        "261001-record-09001",
+        "--direction",
+        "predecessors"
+      ],
+      "setup": "base",
+      "expected": "exact single P with relation evidence",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "content-small",
+      "argv": [
+        "search",
+        "采用:",
+        "--status",
+        "all",
+        "--related-to",
+        "261001-record-09001",
+        "--direction",
+        "predecessors"
+      ],
+      "setup": "base",
+      "expected": "single current P, complete search and preview",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "content-return-limit",
+      "argv": [
+        "search",
+        "固定"
+      ],
+      "setup": "base",
+      "expected": "returned 20, matched at least 21, incomplete results; warning",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "content-budget-refuse",
+      "argv": [
+        "search",
+        "absent-needle",
+        "--related-to",
+        "261001-record-09001",
+        "--direction",
+        "predecessors",
+        "--status",
+        "all"
+      ],
+      "setup": "oversize-P",
+      "expected": "nonzero maxFileBytes budget failure; exact unchanged files",
+      "exit": 1,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "content-argument-refuse",
+      "argv": [
+        "search",
+        "固定",
+        "--limit",
+        "1"
+      ],
+      "setup": "base",
+      "expected": "metadata-only --limit rejected, zero writes",
+      "exit": 2,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "trace",
+      "argv": [
+        "trace",
+        "261001-record-09001",
+        "--depth",
+        "all",
+        "--max-records",
+        "20",
+        "--json"
+      ],
+      "setup": "base",
+      "expected": "10 chain members,9 edges,complete",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "trace-limited",
+      "argv": [
+        "trace",
+        "261001-record-09001",
+        "--depth",
+        "1",
+        "--max-records",
+        "2",
+        "--json"
+      ],
+      "setup": "base",
+      "expected": "bounded slice/frontier, incomplete coverage, no writes",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "candidates",
+      "argv": [
+        "candidates"
+      ],
+      "setup": "base",
+      "expected": "exact C,D candidates, body ready; no formal bodies needed",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "show-candidate",
+      "argv": [
+        "show-candidate",
+        "261001-candidate-1"
+      ],
+      "setup": "base",
+      "expected": "exact C body and body-ready status",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "new",
+      "argv": [
+        "new",
+        "candidate-new",
+        "--title",
+        "Benchmark new",
+        "--purpose",
+        "固定目的",
+        "--background",
+        "固定背景",
+        "--decision",
+        "固定选择",
+        "--tag",
+        "benchmark"
+      ],
+      "setup": "base",
+      "expected": "one new candidate, no formal/index change; scaffold readiness not confused with body readiness",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "publish-independent",
+      "argv": [
+        "publish",
+        "261001-candidate-1",
+        "--alignment",
+        "unaligned"
+      ],
+      "setup": "base",
+      "expected": "C active; 10001 formal; original 10000 unchanged",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "publish-predecessor",
+      "argv": [
+        "publish",
+        "261001-candidate-1",
+        "--alignment",
+        "unaligned"
+      ],
+      "setup": "candidate-predecessor",
+      "expected": "C active,A archived; 10001 formal; summary retained",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "publish-preflight",
+      "argv": [
+        "publish",
+        "261001-candidate-1",
+        "--alignment",
+        "unaligned",
+        "--preflight"
+      ],
+      "setup": "candidate-predecessor",
+      "expected": "phase preflight, full review, zero persistent writes",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "publish-first-no-index",
+      "argv": [
+        "publish",
+        "261001-candidate-1",
+        "--alignment",
+        "unaligned"
+      ],
+      "setup": "first-publish",
+      "expected": "0→1 formal, legal new index; explicitly NOT a 10000-record sample",
+      "exit": 0,
+      "formalCount": 0,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "evolve-candidate",
+      "argv": [
+        "evolve",
+        "--successor",
+        "unaligned=261001-candidate-1",
+        "--relation",
+        "修订=261001-record-09001",
+        "--relation-summary",
+        "261001-record-09001=benchmark successor"
+      ],
+      "setup": "base",
+      "expected": "C established,A archived; review establish",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "evolve-formal",
+      "argv": [
+        "evolve",
+        "--successor",
+        "aligned=261001-record-09002",
+        "--relation",
+        "修订=261001-record-09001"
+      ],
+      "setup": "base",
+      "expected": "B remains formal,A archived,relations replaced,alignment aligned; no discard",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "evolve-formal-discard",
+      "argv": [
+        "evolve",
+        "--successor",
+        "aligned=261001-record-09002",
+        "--relation",
+        "修订=261001-record-09001",
+        "--discard",
+        "261001-record-10000",
+        "--delete-recorded"
+      ],
+      "setup": "base",
+      "expected": "A archived,B modified,Z deleted;9999 formal",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "evolve-candidate-discard",
+      "argv": [
+        "evolve",
+        "--successor",
+        "unaligned=261001-candidate-1",
+        "--discard",
+        "261001-record-10000",
+        "--delete-recorded"
+      ],
+      "setup": "base",
+      "expected": "C established,Z deleted;10000 formal",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "evolve-preflight",
+      "argv": [
+        "evolve",
+        "--successor",
+        "aligned=261001-record-09002",
+        "--relation",
+        "修订=261001-record-09001",
+        "--preflight"
+      ],
+      "setup": "base",
+      "expected": "preflight complete relation review, zero writes",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "set-relations",
+      "argv": [
+        "set-relations",
+        "--source",
+        "261001-record-09001",
+        "--clear-relations"
+      ],
+      "setup": "base",
+      "expected": "A relations empty,index updated;all lifecycle/body/other metadata unchanged",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "set-relations-preflight",
+      "argv": [
+        "set-relations",
+        "--source",
+        "261001-record-09001",
+        "--clear-relations",
+        "--preflight"
+      ],
+      "setup": "base",
+      "expected": "preflight review,zero persistent writes",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "mark-aligned",
+      "argv": [
+        "mark-aligned",
+        "261001-record-09001"
+      ],
+      "setup": "base",
+      "expected": "A alignment aligned; unchanged body,status,createdAt,relations",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "archive",
+      "argv": [
+        "archive",
+        "261001-record-09001"
+      ],
+      "setup": "base",
+      "expected": "A archived,location moved,index updated; history accepted from real HEAD",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "reactivate",
+      "argv": [
+        "reactivate",
+        "261001-record-10000",
+        "--alignment",
+        "unaligned"
+      ],
+      "setup": "archived-Z",
+      "expected": "Z active,location root,createdAt/relations preserved",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "reactivate-preflight",
+      "argv": [
+        "reactivate",
+        "261001-record-10000",
+        "--alignment",
+        "unaligned",
+        "--preflight"
+      ],
+      "setup": "archived-Z",
+      "expected": "preflight zero persistent writes",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "check",
+      "argv": [
+        "check"
+      ],
+      "setup": "base",
+      "expected": "complete set healthy,10000 formal+2 ready candidates,zero writes",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "sync-selected-current",
+      "argv": [
+        "sync-index",
+        "--select",
+        "261001-record-09001"
+      ],
+      "setup": "base",
+      "expected": "complete independent index/source projection; zero writes",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "sync-selected-changed",
+      "argv": [
+        "sync-index",
+        "--select",
+        "261001-record-09001"
+      ],
+      "setup": "body-edit",
+      "expected": "complete independent index/source projection; only index changes;edited revision adopted",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "sync-selected-preflight",
+      "argv": [
+        "sync-index",
+        "--select",
+        "261001-record-09001",
+        "--preflight"
+      ],
+      "setup": "body-edit",
+      "expected": "complete independent index/source projection; zero writes",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "sync-full-current",
+      "argv": [
+        "sync-index"
+      ],
+      "setup": "base",
+      "expected": "complete independent index/source projection; zero writes",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "sync-full-changed",
+      "argv": [
+        "sync-index"
+      ],
+      "setup": "body-edit",
+      "expected": "complete independent index/source projection; only index changes;edited revision adopted",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "sync-full-preflight",
+      "argv": [
+        "sync-index",
+        "--preflight"
+      ],
+      "setup": "body-edit",
+      "expected": "complete independent index/source projection; zero writes",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "rename-candidate-actual",
+      "argv": [
+        "rename",
+        "261001-candidate-1",
+        "renamed-benchmark",
+        "--rename-recorded-decision"
+      ],
+      "setup": "base",
+      "expected": "candidate target ID/path renamed; candidate incoming targets rewritten; index byte-identical",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "rename-candidate-noop",
+      "argv": [
+        "rename",
+        "261001-candidate-1",
+        "261001-candidate-1"
+      ],
+      "setup": "canonical-name-paths",
+      "expected": "zero persistent writes",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "rename-candidate-preflight",
+      "argv": [
+        "rename",
+        "261001-candidate-1",
+        "renamed-benchmark",
+        "--preflight"
+      ],
+      "setup": "base",
+      "expected": "zero persistent writes",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "rename-formal-actual",
+      "argv": [
+        "rename",
+        "261001-record-09001",
+        "renamed-benchmark",
+        "--rename-recorded-decision"
+      ],
+      "setup": "base",
+      "expected": "target ID/path renamed; incoming targets rewritten; old ID absent; formal index updated",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "rename-formal-noop",
+      "argv": [
+        "rename",
+        "261001-record-09001",
+        "261001-record-09001"
+      ],
+      "setup": "canonical-name-paths",
+      "expected": "zero persistent writes",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "rename-formal-preflight",
+      "argv": [
+        "rename",
+        "261001-record-09001",
+        "renamed-benchmark",
+        "--preflight"
+      ],
+      "setup": "base",
+      "expected": "zero persistent writes",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "rename-formal-history-refuse",
+      "argv": [
+        "rename",
+        "261001-record-09001",
+        "renamed-benchmark"
+      ],
+      "setup": "base",
+      "expected": "recorded identity confirmation refusal;zero writes",
+      "exit": 1,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "discard-candidate",
+      "argv": [
+        "discard",
+        "261001-candidate-1",
+        "--delete-recorded"
+      ],
+      "setup": "base",
+      "expected": "only C removed; index unchanged",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "discard-formal",
+      "argv": [
+        "discard",
+        "261001-record-10000",
+        "--delete-recorded"
+      ],
+      "setup": "base",
+      "expected": "Z removed,index9999;no remaining references to Z",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "discard-formal-history-refuse",
+      "argv": [
+        "discard",
+        "261001-record-10000"
+      ],
+      "setup": "base",
+      "expected": "recorded deletion confirmation refusal;zero writes",
+      "exit": 1,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "archive-unrecorded-refuse",
+      "argv": [
+        "archive",
+        "261001-record-09001"
+      ],
+      "setup": "A-unrecorded",
+      "expected": "unrecorded-history gate refusal,zero writes",
+      "exit": 1,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "archive-unrecorded-keep",
+      "argv": [
+        "archive",
+        "261001-record-09001",
+        "--keep-unrecorded-history"
+      ],
+      "setup": "A-unrecorded",
+      "expected": "A archived with explicit unrecorded-history preservation",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "new-first-no-index",
+      "argv": [
+        "new",
+        "candidate-new",
+        "--title",
+        "Benchmark new",
+        "--purpose",
+        "固定目的",
+        "--background",
+        "固定背景",
+        "--decision",
+        "固定选择",
+        "--tag",
+        "benchmark"
+      ],
+      "setup": "first-publish",
+      "expected": "new candidate created via no-index identity discovery;0 formal;index absent",
+      "exit": 0,
+      "formalCount": 0,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "candidates-first-no-index",
+      "argv": [
+        "candidates"
+      ],
+      "setup": "first-publish",
+      "expected": "2 candidates via no-index discovery;0 formal;index absent",
+      "exit": 0,
+      "formalCount": 0,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "stage-index-first",
+      "argv": [
+        "stage",
+        "261001-record-09001",
+        "--scope",
+        "index"
+      ],
+      "setup": "stage-A-edited",
+      "expected": "HEAD/worktree unchanged by stage; pending index exact selected projection;only scope paths change",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "stage-index-preserve-unselected",
+      "argv": [
+        "stage",
+        "261001-record-09001",
+        "--scope",
+        "index"
+      ],
+      "setup": "stage-B-pending-A-edited",
+      "expected": "HEAD/worktree unchanged by stage; pending index exact selected projection; preserve B pending bytes/OID/mode",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "stage-index-reselect",
+      "argv": [
+        "stage",
+        "261001-record-09001",
+        "--scope",
+        "index"
+      ],
+      "setup": "stage-A-pending-A-reedited",
+      "expected": "HEAD/worktree unchanged by stage; pending index exact selected projection; reselected A newest complete bytes",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "stage-index-unchanged",
+      "argv": [
+        "stage",
+        "261001-record-09001",
+        "--scope",
+        "index"
+      ],
+      "setup": "base",
+      "expected": "HEAD/worktree unchanged by stage; pending index exact selected projection; no pending change",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "stage-domain-first",
+      "argv": [
+        "stage",
+        "261001-record-09001",
+        "--scope",
+        "domain"
+      ],
+      "setup": "stage-A-edited",
+      "expected": "HEAD/worktree unchanged by stage; pending domain exact selected projection;only scope paths change",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "stage-domain-preserve-unselected",
+      "argv": [
+        "stage",
+        "261001-record-09001",
+        "--scope",
+        "domain"
+      ],
+      "setup": "stage-B-pending-A-edited",
+      "expected": "HEAD/worktree unchanged by stage; pending domain exact selected projection; preserve B pending bytes/OID/mode",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "stage-domain-reselect",
+      "argv": [
+        "stage",
+        "261001-record-09001",
+        "--scope",
+        "domain"
+      ],
+      "setup": "stage-A-pending-A-reedited",
+      "expected": "HEAD/worktree unchanged by stage; pending domain exact selected projection; reselected A newest complete bytes",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "stage-domain-unchanged",
+      "argv": [
+        "stage",
+        "261001-record-09001",
+        "--scope",
+        "domain"
+      ],
+      "setup": "base",
+      "expected": "HEAD/worktree unchanged by stage; pending domain exact selected projection; no pending change",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "stage-all-first",
+      "argv": [
+        "stage",
+        "261001-record-09001",
+        "--scope",
+        "all"
+      ],
+      "setup": "stage-A-edited",
+      "expected": "HEAD/worktree unchanged by stage; pending all exact selected projection;only scope paths change",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "stage-all-preserve-unselected",
+      "argv": [
+        "stage",
+        "261001-record-09001",
+        "--scope",
+        "all"
+      ],
+      "setup": "stage-B-pending-A-edited",
+      "expected": "HEAD/worktree unchanged by stage; pending all exact selected projection; preserve B pending bytes/OID/mode",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "stage-all-reselect",
+      "argv": [
+        "stage",
+        "261001-record-09001",
+        "--scope",
+        "all"
+      ],
+      "setup": "stage-A-pending-A-reedited",
+      "expected": "HEAD/worktree unchanged by stage; pending all exact selected projection; reselected A newest complete bytes",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    },
+    {
+      "id": "stage-all-unchanged",
+      "argv": [
+        "stage",
+        "261001-record-09001",
+        "--scope",
+        "all"
+      ],
+      "setup": "base",
+      "expected": "HEAD/worktree unchanged by stage; pending all exact selected projection; no pending change",
+      "exit": 0,
+      "formalCount": 10000,
+      "normalRepetitions": 3,
+      "counterRepetitions": 1
+    }
+  ]
+}

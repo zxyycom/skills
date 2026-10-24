@@ -10,7 +10,7 @@ import {
   loadDecisionMaintenanceContext,
   ordinaryDecisionRequest
 } from "./decision-maintenance-context.ts";
-import { applyDecisionMaintenanceChanges } from "./decision-maintenance-transaction.ts";
+import { applyPreparedDecisionTransaction } from "./decision-transaction.ts";
 import { decisionIndexFileName } from "./decision-state-index.ts";
 import { resolveDecisionLifecycleRequest } from "./cli-lifecycle-selection.ts";
 import {
@@ -62,9 +62,12 @@ export async function runPublishedDecisionLifecycle(
   try {
     if (!(await publishedIndexAvailable(indexPath, request.action)))
       return null;
-    const result = await withDecisionCollectionMutationLock(indexPath, () =>
-      executePublishedLifecycle(args, request, io)
-    );
+    const result =
+      args.preflight === true
+        ? await executePublishedLifecycle(args, request, io)
+        : await withDecisionCollectionMutationLock(indexPath, () =>
+            executePublishedLifecycle(args, request, io)
+          );
     if (result.exitCode === 0 && result.completed !== null)
       printLifecycleCompletion(result.completed, io);
     return result.exitCode;
@@ -107,28 +110,30 @@ async function executePublishedLifecycle(
     io
   );
   if (prepared === null) return { ...noChanges, exitCode: 1, completed: null };
-  if (
+  const preflightAction =
     args.preflight === true &&
     (request.action === "publish" ||
       request.action === "evolve" ||
       request.action === "reactivate" ||
       request.action === "set-relations")
-  ) {
-    return {
-      ...noChanges,
-      exitCode: printLifecyclePreflight(request.action, prepared, io),
-      completed: null
-    };
-  }
-  const applied = await applyDecisionMaintenanceChanges({
+      ? request.action
+      : null;
+  const applied = await applyPreparedDecisionTransaction({
     context,
     changes: prepared.changes,
+    preflight: preflightAction !== null,
     lockHeld: true
   });
   if (applied.status === "error") {
     printDecisionFailure(decisionFailure(applied.diagnostics), io);
     return { ...applied, exitCode: 1, completed: null };
   }
+  if (preflightAction !== null)
+    return {
+      ...applied,
+      exitCode: printLifecyclePreflight(preflightAction, prepared, io),
+      completed: null
+    };
   return { ...applied, exitCode: 0, completed: prepared };
 }
 

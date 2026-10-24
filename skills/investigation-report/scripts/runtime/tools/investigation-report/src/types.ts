@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import type { RecordSelectedCoverage } from "../../record-operations/src/selected-synchronize.ts";
 import type {
   StateIndexDiagnostic,
   StateIndexEntryStageResult,
@@ -69,6 +70,14 @@ export type InvestigationCandidateCreateResult =
       diagnostics: InvestigationDiagnostic[];
       errors: [];
       status: "ok";
+      warnings: string[];
+    }>
+  | Readonly<{
+      candidate: InvestigationCandidate;
+      changed: true;
+      diagnostics: InvestigationDiagnostic[];
+      errors: string[];
+      status: "error";
       warnings: string[];
     }>
   | Readonly<{
@@ -200,6 +209,7 @@ export type InvestigationIndexSyncOptions = {
 };
 
 export type InvestigationIndexSyncResult = {
+  coverage?: RecordSelectedCoverage;
   changed: boolean;
   changedIds: string[];
   diagnostics: InvestigationDiagnostic[];

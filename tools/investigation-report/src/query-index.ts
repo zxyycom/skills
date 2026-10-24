@@ -121,7 +121,12 @@ export function queryValidatedInvestigationIndex(
     investigationIndexFileName
   );
   return ResultAsync.fromPromise(
-    loadInvestigationIndexReader({ investigationsDirectory }),
+    loadInvestigationIndexReader({
+      investigationsDirectory,
+      requiresRelations:
+        validated.relatedTo !== undefined ||
+        validated.relationType !== undefined
+    }),
     (error) =>
       queryOperationFailure(
         error,
@@ -136,8 +141,12 @@ export function queryValidatedInvestigationIndex(
     const entries = Object.entries(loaded.value.index.entries) as Array<
       [string, InvestigationIndexState]
     >;
-    return queryInvestigationSnapshot(entries, validated, indexPath, (query) =>
-      loaded.value.query(query)
+    return queryInvestigationSnapshot(
+      entries,
+      validated,
+      indexPath,
+      (query) => loaded.value.query(query),
+      loaded.relations
     );
   });
 }
@@ -184,9 +193,10 @@ function queryInvestigationSnapshot(
   entries: readonly [string, InvestigationIndexState][],
   validated: ValidatedQueryOptions,
   indexPath: string,
-  query: InvestigationSnapshotQuery
+  query: InvestigationSnapshotQuery,
+  relations?: import("./relation-context.ts").InvestigationRelationContext
 ) {
-  const context = createInvestigationRelationContext(entries);
+  const context = relations ?? createInvestigationRelationContext(entries);
   const facets = buildInvestigationListFacets(context.entries);
   const filterRelations = filterRelationsByEntry(context, validated);
   if (filterRelations.isErr())

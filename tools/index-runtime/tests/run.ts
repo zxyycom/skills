@@ -23,3 +23,8 @@ await import("./preview.test.ts");
 await import("./record-staging.test.ts");
 
 await import("./storage-source.test.ts");
+
+await import("./prepared.test.ts");
+await import("./prepared-sync.test.ts");
+await import("./prepared-baseline-source.test.ts");
+await import("./full-sync-index-source.test.ts");

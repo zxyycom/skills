@@ -32,6 +32,7 @@ import type {
 export type DecisionRelationRecordSnapshot = Readonly<{
   records: readonly IndexedDecisionRecord[];
   getRelationGraph: DecisionRelationGraphProvider;
+  relationErrors?: () => readonly string[];
 }>;
 
 export function decisionRelationRecordSnapshot(
@@ -54,6 +55,7 @@ export function decisionIndexRecordSnapshot(
   return {
     entries,
     records,
+    ...("index" in source ? { relationErrors: source.relationErrors } : {}),
     getRelationGraph:
       "index" in source
         ? source.getRelationGraph
@@ -192,7 +194,7 @@ export function syncIndexNoChange(
     ...failure,
     diagnostics: failure.diagnostics.map((diagnostic) => ({
       ...diagnostic,
-      outcome: "no-change" as const,
+      outcome: diagnostic.outcome ?? "no-change",
       scope: "Derived decision index"
     }))
   };

@@ -18,14 +18,14 @@
 
 ### 快照与关系筛选
 
-list/trace 成功结果显式包含 `source={kind: "published-index", currentness: "unchecked", fallback: false}`；metadata search 在 searchInfo.source 中表达同一事实。正常 unchecked 不生成来源 warning。show 只用目标已读字节比较单条 revision，不扩大为全集验证。
+list/trace 成功结果显式包含 `source={kind: "published-index", currentness: "unchecked", fallback: false}`；metadata search 在 searchInfo.source 中表达同一事实。正常 unchecked 不生成来源 warning。show 通过安全 FileHandle 读取完整正文，以同 inode、严格 UTF-8 解码的同一字节核对 ID，再比较单条 revision；不套 content/preview 预算，不扩大为全集验证。
 
-严格加载后的领域投影复用本次冻结索引，保留完整关系校验；原始索引查询入口继续独立严格校验。完整来源检查把同轮已验证的正文投影与来源指纹交给索引文本检查，仍独立重读 revision 检测漂移，并比较完整预期索引文本。调用方持有的旧 scan 和独立同步操作各自重新读取来源。
+正式查询由[共同操作 owner](../record-operations/README.md)加载严格结构、字段和 definition，并复用本次冻结索引；原始索引查询入口继续独立严格校验。图的作用域与阶段边界如下。
 
 关系图以单次操作内的一份稳定快照为作用域，通过[惰性访问器](../shared/src/graph/lazy-relation-graph.ts)按需构建：
 
 - **按需复用**：首次实际访问图时构建，后续校验、`trace` 与关系筛选共用该图；`related-to` 使用同图的正反向邻接。
-- **加载校验**：严格索引加载执行完整关系校验，因此普通 `list`、`show` 和 metadata 搜索成功时也各构图一次。
+- **实际依赖**：无关系条件不构图；关系筛选和 trace 验完整发布图，不只验命中子图。普通发现成功不声明全集健康。
 - **阶段边界**：新加载、来源重读和事务投影各建独立访问器，并完成所属阶段的校验。stage 的纯计算仅在[新鲜等价证据](../index-runtime/README.md#记录领域的内部暂存协调)成立后允许调用内复用，不省略本阶段真实来源、payload 与身份验收；图与访问器不跨调用保留。
 
 `filterRelations` 属于 Decision 内部 list/search 查询记录，不进入索引、Schema 或公开导出边界。只在传入 related-to 或 relation-type 时出现，来自同一筛选快照。按 `(sourceId, type, target)` 去重并用 UTF-16 code-unit 词法序排序；前驱边由 anchor 指向结果，后继边由结果指向 anchor，both 取并集，type-only 取结果来源的指定类型出边。记录排序、total 与分页不变，文本命中证据单独计算。
@@ -81,6 +81,12 @@ relationReview 按规范 source ID 排序，覆盖全部所选成员，before �
 
 `new` 的 stdout 只集中回显完整 ID、标题、路径及自身 readiness，不默认打印全文或固定下一步；warning/error 留在 stderr。创建与候选读取不附带全集发布预检；即时输出不保存日志、遥测或 receipt，普通查询与参数错误不附会 mutation 结果。
 
+### 候选操作
+
+候选动作通过共同 owner 编排索引状态、安全发现、身份冲突、所选准备及列表 warning/显式目标失败；领域负责 status/archive 位置、正文解析和直接依赖。`new` 的 target name 选择候选与可见正式身份，`show-candidate` 的 selector 只选择候选。合法索引与真正缺索引的身份发现范围见[候选恢复规则](../../skills/decision-records/references/maintenance-recovery.md#候选身份发现与索引状态)。
+
+同阶段来源与 ID→source 映射直接交给所选 readiness 和 show；创建 stdout 的 readiness 来自自身实际写入并验收的 scaffold，无需再次扫描候选全集。它只表达自身准备，不声明全局关系闭合或采用授权。
+
 ## stage 的领域适配
 
 公开 scope、选择与结果保证见[暂存操作契约](../../skills/decision-records/references/cli-operations.md#待提交快照)。共同 scope 策略、H/W/P 投影兼容、pending 基底选中刷新与准备→fresh 复核→发布顺序由 [Index Runtime 内部记录暂存协调器](../index-runtime/README.md#记录领域的内部暂存协调)承接，本领域不另行维护同形流程。
@@ -90,6 +96,28 @@ relationReview 按规范 source ID 排序，覆盖全部所选成员，before �
 可变来源与成员只在本阶段有效；固定 H 的不可变事实可调用内复用。Decision 所选正文仍按既有常规文件表示写入，不套用 Investigation 资源树的执行位策略。各 scope 的 payload 与完整 pending 身份保证由上述共同协调器承接。
 
 `decision-stage-refresh.ts` 的 `decisionStageSuccess` 将共同协调结果映射为本领域成功 envelope：`preservedPendingPaths` 是 scope 中所有未更新 snapshot 成员，`pendingFileCount` 计完整 scope 成员，不改成仅相对 H 的变化路径。来源失败、pending conflict 与恢复失败按真实阶段映射，不把普通失败附会为 mutation。
+
+## 非 stage 事务与恢复
+
+非 stage 事务统一交给共同 owner 编排[事务顺序与实际写集恢复](../record-operations/README.md#事务事实与恢复)，领域适配分工如下：
+
+| 模块 | 领域责任 |
+| --- | --- |
+| `decision-transaction.ts` | 提供局部发布基线或严格全集的领域准备；普通维护只读取适用范围，首次 publish、严格 rename/discard 和带删除 evolve 也使用共同事务。 |
+| `decision-transaction-plan.ts` | 提供领域提案、适用来源与成员保护，经共同计划归一化形成实际写集。 |
+| `decision-transaction-projection.ts` | 构造领域索引投影。 |
+
+stage 使用上节的 Index Runtime 协调器。调用者的提交结果与对账动作见[操作结果](../../skills/decision-records/references/cli-operations.md#结果与恢复)和[恢复规则](../../skills/decision-records/references/maintenance-recovery.md#中断写入)。
+
+同 ID、同 sourcePath 的 rename 在合法发布投影或真实缺索引身份发现、必要来源安全及可见冲突确认后走独立 fresh 的零写路径，不规范正文、索引或 mode，不读取历史确认；真实 rename 继续严格验证全集和历史。删除末条正式记录保留合法空索引。
+
+## 检查与同步
+
+全量只读 check 把首次安全采集的正文投影、身份与来源指纹交给共同操作，比较完整预期索引文本；不在结束时重读全集，不保证结束新鲜度或跨文件原子快照。调用方持有的旧 scan 不能作为新一次检查的来源事实。
+
+全量同步将完整来源 scan 的已验字节、身份与状态投影交给共同操作。局部同步由 `decision-selected-sync.ts` 提供本域解析、来源 revision、前后关系邻居、完整演进事件与全图验证，再交给共同局部同步入口。
+
+已知路径、未读基线和独立 fresh 的保证见[共同操作](../record-operations/README.md#同阶段证据与后续复核)，调用者结果见 [CLI 检查与同步](../../skills/decision-records/references/cli-operations.md#检查与同步)。公开 `syncDecisionIndex` 仍执行通用完整来源验证；stage 的保证由上节承接。
 
 ## 交付验证
 

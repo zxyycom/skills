@@ -8,6 +8,8 @@
  * Rebuild: bun run sync:decision-records-cli
  */
 import { runPublishedDecisionLifecycle } from "./cli-maintenance-execution.ts";
+import { applyPreparedDecisionTransaction } from "./decision-transaction.ts";
+import { decisionFailure } from "./application-result.ts";
 import { printDecisionFailure } from "./cli-output.ts";
 import type { CliArgsFor } from "./cli-args.ts";
 import type { DecisionRecordsCliIo } from "./cli-io.ts";
@@ -19,7 +21,6 @@ import {
 import type { DecisionScan } from "./types.ts";
 import {
   applyLockedCandidateLifecycle,
-  applyPreparedLifecycle,
   lifecyclePreflightFailure,
   prepareLifecycleWithCurrentHistory,
   printLifecyclePreflight
@@ -255,32 +256,28 @@ export async function applyLifecycle(
   }
   request = resolved.request;
   if (
-    request.action === "publish" ||
-    request.action === "evolve" ||
-    request.action === "set-relations"
+    args.preflight === true &&
+    (request.action === "publish" ||
+      request.action === "evolve" ||
+      request.action === "reactivate" ||
+      request.action === "set-relations")
   ) {
-    if (args.preflight === true) {
-      const prepared = await prepareLifecycleWithCurrentHistory(
-        scan,
-        request,
-        io
-      );
-      if (prepared === null) return 1;
-      return printLifecyclePreflight(request.action, prepared, io);
+    const prepared = await prepareLifecycleWithCurrentHistory(
+      scan,
+      request,
+      io
+    );
+    if (prepared === null) return 1;
+    const checked = await applyPreparedDecisionTransaction({
+      context: scan,
+      changes: prepared.changes,
+      preflight: true
+    });
+    if (checked.status === "error") {
+      printDecisionFailure(decisionFailure(checked.diagnostics), io);
+      return 1;
     }
-    return await applyLockedCandidateLifecycle(args, scan, request, io);
-  }
-  const prepared = await prepareLifecycleWithCurrentHistory(scan, request, io);
-  if (prepared === null) return 1;
-  if (args.preflight === true && request.action === "reactivate")
     return printLifecyclePreflight(request.action, prepared, io);
-  return (
-    await applyPreparedLifecycle({
-      args,
-      io,
-      lockHeld: false,
-      prepared,
-      scan
-    })
-  ).exitCode;
+  }
+  return await applyLockedCandidateLifecycle(args, scan, request, io);
 }

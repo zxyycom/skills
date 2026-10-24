@@ -1,13 +1,13 @@
-### Case INVESTIGATION-LOCAL-DRAFT-001: 起草与候选读取不承担无关正式来源验收
+### Case INVESTIGATION-LOCAL-DRAFT-001: 无索引起草与候选读取仅发现无关正式身份
 
 Tests:
-- `test:f91eee630f3751ef94bd3247d410ad1e65d01a1e6e71e40b55f1eebeceb1c9a4`
+- `test:cc4c59d4e4fc5e3d68808187a6e0e4304b9da13436f769bf34a0465a98767e60`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- new 与 show-candidate 在无发布索引时只读取自身和直接必需依赖，不隐式验收无关正式正文。
+- new 与 show-candidate 在真正缺少发布索引时可安全读取无关正式来源以发现 header 身份，但不验证其正文或宣布正式集合健康。
 
 Proves:
-- 无索引且无关正式来源正文损坏时，起草仍成功、readiness 准确表示空正文，show 可读；拦截该正式来源的读取计数为零。
+- 无索引且无关正式来源保留合法 header、正文损坏时，起草成功并返回 scaffoldValid=true、bodyReady=false，show-candidate 也成功；new 的准备、独立 fresh、写后身份验收及 show-candidate 各调用一次 fs.open，合计四次，该计数反映身份发现所需打开，不表示验收正式正文。

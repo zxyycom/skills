@@ -105,7 +105,7 @@ Valibot Schema 是索引外壳和查询输入的真源。持久索引固定为�
 
 `loadStateIndexReader` 与 `loadCurrentStateIndexReader` 分别在同一严格 load/current 边界内建立 reader，后者保持一次 revision 读取和 stale 优先顺序；`runtime.open()` 使用后者。需要在一次操作中同时检查索引投影和查询时，读取递归只读的 `reader.index` 并调用该 reader 的 `query/get/all`，不把已验证投影重新交给原始索引查询入口。reader 建立时固定 definition 和 snapshot，后续文件或调用方输入变化不影响它；公开原始索引入口仍各自严格校验，不以冻结状态或调用方声明代替验证。
 
-reader 为当前 snapshot 的每个 entry 物化私有 `{ id, state, queryValues }` 并缓存；查询值不进入持久索引或公开 entry。一个 reader 的后续 `get/query/all` 不再读取 revision，也不重复提取静态查询值。要观察新 revision，必须重新 `open`。公开 entry 始终只有 `{ id, state }`，公开 metadata、state 和完整索引 view 都是与调用方输入分离的递归冻结快照。
+严格 parse/load/build 完成字段物化，同阶段准备结果直接交给 reader。reader 为每个 entry 保存私有 `{ id, state, queryValues }`，后续 `get/query/all` 不再读取 revision 或重复提取静态查询值；要观察新 revision，必须重新 `open`。查询值不进入持久索引或公开 entry，公开 entry 始终只有 `{ id, state }`；公开 metadata、state 与完整索引 view 均是与调用方输入分离的递归冻结快照。
 
 查询支持：
 
@@ -118,6 +118,21 @@ reader 为当前 snapshot 的每个 entry 物化私有 `{ id, state, queryValues
 
 runtime state overlay 是 `id -> state`。同 ID 临时替换静态 entry，新 ID 临时追加；overlay 使用持久 snapshot 的 metadata 上下文，经同一 parser 和查询字段提取器物化，不修改磁盘索引或静态缓存。overlay 不执行完整集合 `validateIndex`。
 
+## 同阶段内部准备证明
+
+`src/prepared.ts` 向[共同记录操作](../record-operations/README.md)提供同调用、同阶段的内部证明；公开索引 API 仍独立严格验收。
+
+| 证明 | 绑定事实 |
+| --- | --- |
+| 原生构建 | 同一 definition 引用及冻结描述/callback、root、indexPath、不可变 index 与字段物化。 |
+| selected baseline | 经安全 FileHandle 取得的实际 bytes/text、canonical root 至父目录的完整真实身份链、文件身份与字节稳定性，以及严格结构、字段和 definition 验收。index/text 不可变，bytes 防御性复制。 |
+
+消费证明时复核其来源和 canonical root/target；伪造对象、其他 definition/path/index 或相同解码文本均不能替代实际字节身份。selector 与 native sync 消费同一 baseline 证明：selector 可先从严格投影解析选择，native selected sync 随后验收 canonical 文本，非 canonical 输入在来源 build 和独立 fresh 前拒绝。
+
+证明只复用本阶段事实。full/selected sync 仍独立读取最终来源 revision；通用 selected 仍验完整来源、可信 baseline、collection metadata/revision 和未选变化。DR/IR 的局部来源组合由共同记录操作承接，区别于该通用契约。
+
+领域图证明与 native build 证明分别交接；候选 Markdown、生命周期和资源 owner 语义留在领域。stage 的内部接点与阶段义务见下文“记录领域的内部暂存协调”。
+
 ## 索引路径边界
 
 `indexPath` 必须是规范化 POSIX 相对路径。Runtime 把 `context.root` 解析为规范根目录，再沿已有组件逐段核对文件系统身份：根目录本身和指向根内的目录符号链接可用；指向根外的中间目录或目标文件在读取、同步写入或按 ID staging 前以 `state-index.index-path-invalid` 拒绝。
@@ -127,6 +142,8 @@ runtime state overlay 是 `id -> state`。同 ID 临时替换静态 entry，新 
 ## Revision、sync 与 selected scope
 
 `read` 和 `readRevision` 必须产生相同结构化来源清单。任何可能改变 metadata 的输入都必须改变 metadata fingerprint；任何可能改变成员、state 或查询结果的输入都必须改变、增加或删除对应 ID fingerprint。
+
+完整 sync 经安全 baseline FileHandle 采集持久索引，检查 canonical 包含边界、文件身份、读取稳定性与父目录身份，拒绝读取中的 file/root/nested parent 替换。合法缺失、非法 UTF-8、解析错误和 I/O 失败分别处理；同步始终独立 fresh。DR/IR 全量只读 check 的首次来源采集规则见[共同记录操作](../record-operations/README.md#同阶段证据与后续复核)。
 
 `syncStateIndex`：
 

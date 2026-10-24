@@ -56,9 +56,9 @@ test("scan reports root archive index and source read failures with their action
       }
     }
 
-    const readFileDescriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
-    assert.ok(readFileDescriptor);
-    const readFile = fs.readFile.bind(fs);
+    const openDescriptor = Object.getOwnPropertyDescriptor(fs, "open");
+    assert.ok(openDescriptor);
+    const open = fs.open.bind(fs);
     for (const [targetPath, expected] of [
       [
         indexPath,
@@ -69,15 +69,16 @@ test("scan reports root archive index and source read failures with their action
         /use-generated-cli\.md could not be read: simulated source read failure/
       ]
     ] as const) {
-      Object.defineProperty(fs, "readFile", {
-        ...readFileDescriptor,
-        value: async (filePath: string, encoding: BufferEncoding) => {
+      Object.defineProperty(fs, "open", {
+        ...openDescriptor,
+        value: async (...args: Parameters<typeof fs.open>) => {
+          const filePath = String(args[0]);
           if (path.resolve(filePath) === targetPath) {
             throw new Error(
               `simulated ${targetPath === indexPath ? "index" : "source"} read failure`
             );
           }
-          return await readFile(filePath, encoding);
+          return await open(...args);
         }
       });
       try {
@@ -86,7 +87,7 @@ test("scan reports root archive index and source read failures with their action
           targetPath === indexPath ? scan.indexErrors : scan.sourceErrors;
         assert.ok(errors.some((error) => expected.test(error)));
       } finally {
-        Object.defineProperty(fs, "readFile", readFileDescriptor);
+        Object.defineProperty(fs, "open", openDescriptor);
       }
     }
   });
@@ -95,16 +96,16 @@ test("scan reports root archive index and source read failures with their action
 test("scan classifies access denial and redacts filesystem error detail", () =>
   withFixtureWorkspace("filesystem-diagnostic-scan", async (workspaceRoot) => {
     const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
-    const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
+    const descriptor = Object.getOwnPropertyDescriptor(fs, "open");
     assert.ok(descriptor);
-    const readFile = fs.readFile.bind(fs);
-    Object.defineProperty(fs, "readFile", {
+    const open = fs.open.bind(fs);
+    Object.defineProperty(fs, "open", {
       ...descriptor,
-      value: async (...args: Parameters<typeof fs.readFile>) => {
+      value: async (...args: Parameters<typeof fs.open>) => {
         if (isTargetPath(args[0], sourcePath)) {
           throw accessDeniedFileSystemError();
         }
-        return await readFile(...args);
+        return await open(...args);
       }
     });
     try {
@@ -124,7 +125,7 @@ test("scan classifies access denial and redacts filesystem error detail", () =>
         reason: diagnostic.reason
       });
     } finally {
-      Object.defineProperty(fs, "readFile", descriptor);
+      Object.defineProperty(fs, "open", descriptor);
     }
   }));
 
@@ -155,8 +156,7 @@ test("transaction classifies access denial and redacts filesystem error detail",
               nextText: sourceText.replace("使用生成 CLI", "不可读的生成 CLI")
             }
           ],
-          originalScan: await scanDecisionRecords({ workspaceRoot }),
-          scanOptions: { workspaceRoot }
+          originalScan: await scanDecisionRecords({ workspaceRoot })
         });
         assert.equal(result.status, "error");
         const diagnostic = result.diagnostics.find(
@@ -166,7 +166,7 @@ test("transaction classifies access denial and redacts filesystem error detail",
         assertRedactedAccessDeniedDiagnostic({
           detail: diagnostic.detail,
           expectedReason:
-            "Failed to verify decision source before update. No files were written.",
+            "Failed to update or verify Decision files and index.",
           reason: diagnostic.reason
         });
       } finally {

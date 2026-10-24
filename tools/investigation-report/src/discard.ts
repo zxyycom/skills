@@ -107,7 +107,7 @@ export async function discardInvestigationReportWithWriter(
   );
 }
 
-function discardLockFailure(
+export function discardLockFailure(
   error: unknown,
   input: { investigationsDir?: string; workspaceRoot?: string },
   id: string

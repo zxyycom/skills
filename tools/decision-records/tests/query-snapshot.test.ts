@@ -43,6 +43,7 @@ async function snapshotQueries(root: string) {
 test("Decision snapshot queries perform zero Markdown reads and source directory discovery", async () => {
   await withFixtureWorkspace("query-snapshot-no-source", async (root) => {
     const readFile = fs.readFile;
+    const open = fs.open;
     const readdir = fs.readdir;
     let markdownReads = 0;
     let discoveries = 0;
@@ -56,6 +57,13 @@ test("Decision snapshot queries perform zero Markdown reads and source directory
         return readFile(...args);
       }
     });
+    fs.open = (async (...args: Parameters<typeof fs.open>) => {
+      if (typeof args[0] === "string" && args[0].endsWith(".md")) {
+        markdownReads += 1;
+        throw new Error("source unavailable");
+      }
+      return await open(...args);
+    }) as typeof fs.open;
     Object.defineProperty(fs, "readdir", {
       configurable: true,
       value: (...args: Parameters<typeof fs.readdir>) => {
@@ -86,12 +94,13 @@ test("Decision snapshot queries perform zero Markdown reads and source directory
       assert.equal(markdownReads, 1);
     } finally {
       fs.readFile = readFile;
+      fs.open = open;
       fs.readdir = readdir;
     }
   });
 });
 
-test("Decision snapshot queries reject corrupt incompatible and relation-invalid indexes without fallback", async () => {
+test("Decision snapshot queries reject invalid indexes and gate bad graphs only for relation dependencies", async () => {
   await withFixtureWorkspace("query-snapshot-invalid", async (root) => {
     const file = path.join(root, "docs/decisions/decision-index.json");
     const original = await fs.readFile(file, "utf8");
@@ -106,15 +115,17 @@ test("Decision snapshot queries reject corrupt incompatible and relation-invalid
     invalidRelation.entries[currentDecisionId]!.relations = [
       { target: "missing-target", type: "修订" }
     ];
-    for (const data of [
-      "{broken",
-      JSON.stringify(incompatible),
-      JSON.stringify(invalidRelation)
-    ]) {
+    for (const data of ["{broken", JSON.stringify(incompatible)]) {
       await fs.writeFile(file, data);
       for (const result of await snapshotQueries(root))
         assert.equal(result.status, "error");
     }
+    await fs.writeFile(file, JSON.stringify(invalidRelation));
+    const relationResults = await snapshotQueries(root);
+    assert.deepEqual(
+      relationResults.map((result) => result.status),
+      ["ok", "error", "ok"]
+    );
     await fs.rm(file);
     for (const result of await snapshotQueries(root))
       assert.equal(result.status, "error");

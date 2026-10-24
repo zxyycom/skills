@@ -7,9 +7,8 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-import { randomUUID } from "node:crypto";
-import fs from "node:fs/promises";
 import path from "node:path";
+import { readRecordText } from "../../record-operations/src/source.ts";
 import {
   genericInvestigationDiagnostic,
   sanitizeInvestigationDiagnosticText,
@@ -29,7 +28,6 @@ import type {
   InvestigationRelationReplacement,
   InvestigationRelationSetResult
 } from "./types.ts";
-import type { InvestigationAtomicWriter } from "./relation-transaction.ts";
 
 export type RelationPhase<T> =
   | { status: "ready"; value: T }
@@ -178,66 +176,10 @@ export function resolveRelationSelectors(
     : { errors: validated.errors, status: "error" };
 }
 
-export async function writeTextAtomically(
-  targetPath: string,
-  text: string
-): Promise<void> {
-  await ensureRegularFile(targetPath);
-  const temporaryPath = `${targetPath}.${process.pid}.${randomUUID()}.tmp`;
-  const handle = await fs.open(temporaryPath, "wx", 0o600);
-  try {
-    await handle.writeFile(text, "utf8");
-  } finally {
-    await handle.close();
-  }
-  try {
-    await fs.rename(temporaryPath, targetPath);
-  } catch (error) {
-    await fs.rm(temporaryPath, { force: true }).catch(() => undefined);
-    throw error;
-  }
-}
-
-export async function restoreOriginalTexts(
-  indexPath: string,
-  originalIndexText: string,
-  originalTextByPath: ReadonlyMap<string, string>,
-  writtenPaths: readonly string[],
-  write: InvestigationAtomicWriter
-): Promise<string[]> {
-  const errors: string[] = [];
-  const paths = [...new Set(writtenPaths)]
-    .filter((target) => target !== indexPath)
-    .sort(compareText);
-  for (const target of paths) {
-    const original = originalTextByPath.get(target);
-    if (original === undefined) continue;
-    try {
-      await write(target, original);
-    } catch (error) {
-      errors.push(`failed to restore report ${target}: ${errorText(error)}`);
-    }
-  }
-  try {
-    await write(indexPath, originalIndexText);
-  } catch (error) {
-    errors.push(
-      `failed to restore investigation index ${indexPath}: ${errorText(error)}`
-    );
-  }
-  return errors;
-}
+export { writeInvestigationTextAtomically as writeTextAtomically } from "./transaction-files.ts";
 
 export async function readRegularText(filePath: string): Promise<string> {
-  await ensureRegularFile(filePath);
-  return await fs.readFile(filePath, "utf8");
-}
-
-export async function ensureRegularFile(filePath: string): Promise<void> {
-  const entry = await fs.lstat(filePath);
-  if (entry.isSymbolicLink() || !entry.isFile()) {
-    throw new Error("must be a regular non-symbolic-link file");
-  }
+  return await readRecordText(path.dirname(filePath), path.basename(filePath));
 }
 
 export function relationResult(

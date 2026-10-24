@@ -21,6 +21,10 @@ selector 移除一次大小写不敏感的末尾 `.md` 后，标准日期 ID 只
 | 默认 content `search` | 发布索引选定范围内的当前文件文本；读取时核对 ID。未同步新增和筛选变化在同步后进入范围；索引不可用时明确恢复。 |
 | `candidates`、`show-candidate` | 从来源读取候选，分别报告结构与正文 readiness。单条非法来源可 warning 后跳过，显式目标非法或集合成员、索引前提错误仍失败。 |
 
+无关系条件的 list、metadata、show 和 content 只验严格索引结构、字段、definition 及实际读取的来源/直接依赖；完整关系图不作前置。使用关系条件或 trace 时验证完整发布图，同一投影只准备和证明一次。普通发现成功不声明当前全集健康，全集体检由全量 check／sync-index 承担。
+
+show 通过安全 FileHandle 对同 inode、同一读取字节核对 frontmatter ID，并严格解码 UTF-8；越界、路径替换或非法 UTF-8 失败。返回完整正文，不受搜索/preview 预算限制。
+
 `list` 与 `search` 默认查 active、全部 alignment；查历史时显式筛选。状态、alignment、tags、时间和关系条件取交集，重复 tags 为 AND，时间边界包含端点。空页只说明本次筛选与窗口无结果。`--related-to` 的方向相对目标解释，type 与 target 同用时须命中同一条边。
 
 ### 搜索
@@ -52,7 +56,7 @@ selector 移除一次大小写不敏感的末尾 `.md` 后，标准日期 ID 只
 1. 按[定位与选择](#定位与选择)确认集合和完整 ID，读取本次涉及的[身份与正文](decision-record-rules.md#记录身份与集合)、[生命周期](decision-record-rules.md#生命周期与对齐)及[演进关系](decision-record-rules.md#演进关系)。
 2. 确认当前授权包含对象及影响；一般语义审核由 agent 自行完成，高风险删除仍需精确授权。readiness、预检和历史确认参数均不代替语义审核或授权。
 3. 工作区 mutation 共用集合锁，写前核对来源与相关版本。已建立记录的生命周期、alignment、关系、删除和身份通过 CLI 事务维护；正文与 tags 的编辑性修正按领域规则直接编辑后同步。
-4. `--preflight` 只预演本次完整输入，不保存执行凭据；正式执行重新提供参数、读取和验证。同步预检可使用短暂集合锁，但不写持久领域文件、索引或 pending。
+4. `--preflight` 只预演本次完整输入，不保存执行凭据；正式执行重新提供参数、读取和验证。领域事务预检不持有写锁，即使合作锁忙也先按本次输入验证；预检不写入文件、索引、pending 或执行凭据。正式执行在写锁内重新准备，并独立核对写前来源、成员与索引；`unchanged` 也不能跳过其适用范围的保护。
 5. 普通 publish、无删除的 evolve、mark-aligned、archive、reactivate 和 set-relations 严格验证发布索引、所选来源与必要依赖及最终领域图；未读取来源的手改问题交给显式 check／sync 发现。已知正式手改先同步，删除、身份更正及其组合保持完整来源验收。
 6. 按[结果与恢复](#结果与恢复)判断实际写入，局部成功只证明声明范围。需要当前全集健康结论时在批次验收运行严格 `check`；起草与只读任务按实际覆盖交付。首次候选集合按恢复手册处理；非法 alignment 按[原位字段恢复](maintenance-recovery.md#已建立-alignment-无效)修复。
 
@@ -68,9 +72,13 @@ CLI 自行检查 Git 门禁，调用方直接执行操作并响应实际诊断�
 
 创建前读[正文与候选准备](decision-record-rules.md#正文与候选准备)。`new` 从显式 metadata 原子、不覆盖地创建候选：name 自动加本次 UTC 日期，完整 ID 的日期须同日；同日同名冲突零写入，同名 legacy ID 冲突按 `migration-required` 显式处理。
 
-候选、active 与 archive 位置均可用时优先 name basename，否则用完整 ID。创建成功回显完整 ID、路径及 scaffold/body readiness；随后继续编辑该候选。创建只核对自身输入、安全路径和不覆盖条件，readiness 未就绪不撤销创建；全局身份与关系冲突由正式发布门禁确认。
+候选、active 与 archive 位置均可用时优先 name basename，否则用完整 ID。创建成功回显完整 ID、路径及 scaffold/body readiness；随后继续编辑该候选。创建核对输入、可见身份冲突、集合安全与不覆盖条件，readiness 未就绪不撤销创建；正式发布仍独立验证全局身份与关系闭合。
 
-`show-candidate` 核对所选候选与必要直接依赖，不证明正式全集健康。候选结构、正文、语义审核和建立授权各自成立后，再进入生命周期操作。
+`new` 的关系完整 target ID 只验领域 ID 语法，允许以后创建；target name 在候选与可见正式身份的集合中必须唯一，零项或歧义失败。此规则也适用于关系摘要的 target。
+
+正式身份/位置优先来自合法发布索引；只有索引真正缺失时才作安全 header 身份发现。已有坏或不兼容索引必须显式恢复，具体范围和失败条件见[候选身份发现与索引状态](maintenance-recovery.md#候选身份发现与索引状态)。
+
+`show-candidate` 只在候选中选择，不因同名正式项产生歧义；核对所选候选与必要直接依赖，不证明正式全集健康。候选列表对单份可分类候选的非法内容或结构 warning 后跳过，显式选中则失败；坏正文中仍能确定的合法 ID 继续参与冲突检测。不安全路径、非普通成员、可见重复 ID、集合位置冲突和必要依赖失败不能降为 warning。候选结构、正文、语义审核和建立授权各自成立后，再进入生命周期操作。
 
 ## 建立与生命周期
 
@@ -126,15 +134,21 @@ CLI 自行检查 Git 门禁，调用方直接执行操作并响应实际诊断�
 - ID、name 和目标位置须无冲突；同生命周期优先 name basename，其次完整 ID，两者占用则零写入。
 - `--preflight` 预演同一检查；目标已进入 HEAD 时，正式执行按诊断确认 `--rename-recorded-decision`，范围只限当前工作树。
 
+同 ID、同 sourcePath 的真正 no-op 完成必要身份、安全及可见冲突核对后零写入，不规范化正文、索引或 mode，也不要求历史更名确认。实际改变身份或位置的 rename 保持严格全集来源及历史验收。
+
 ### 删除
 
 `discard` 删除完整、结构合法且最终集合中无剩余引用的 candidate、active 或 archived。`evolve --discard <id>` 可原子组合演进与删除；被删 ID 与所选后继互斥，最终关系移除该 ID，并满足普通闭合规则。
 
 HEAD 已记录目标时，首次不带 `--delete-recorded` 的调用在其他条件通过后零写入暂停。取得覆盖目标与影响的授权后按提示重试；该参数不绕过同次 evolve 的其他历史确认。非 Git、unborn HEAD 或未被 HEAD 记录的 ID 无此门禁；没有确认参数且 HEAD 不可读时仍零写入停止。成功交付为实际删除，而非归档。
 
+候选 rename/discard 不创建或改写正式索引；删除最后一条正式记录保留合法空索引，供后续查询与 publish 使用。
+
 ## 检查与同步
 
 严格 `check` 验证 Markdown、身份、tags、状态位置、关系、索引结构与新鲜度，区分 scaffold 与 body-ready candidate。首次仅有候选的集合按[恢复手册](maintenance-recovery.md#状态分流)检查，不提前同步索引。
+
+全量只读 `check` 使用首次安全采集的成员身份、源字节与解析结果比较完整预期索引，不在结束时重读全集。因此成功只证明本次取得的事实，不保证结束新鲜度或跨文件原子快照；采集中的路径或身份替换仍拒绝。sync 与写事务继续独立 fresh。
 
 已知合法正式来源变化先 `sync-index`；任务要求当前全集结论或正在恢复集合时再严格检查。未解释异常先检查诊断。来源合法而索引缺失、损坏、陈旧或 definition 过期时全量重建；非法来源先恢复，索引和默认值不能补造 alignment。
 
@@ -142,12 +156,26 @@ HEAD 已记录目标时，首次不带 `--delete-recorded` 的调用在其他条
 
 同一工作批次的正文或 tags 编辑可共同完成，再统一 `sync-index`，按任务的全集验收要求安排严格 `check`；进入依赖发布投影的事务前先同步。关系与生命周期变化使用 `evolve` 或 `set-relations` 的多对象输入，减少重复准备。预检和正式执行各自重新验证，批次边界由调用方明确选择。
 
-选择性同步同样完整验证，适用于可信 baseline 上的已知合法变化：
+### 选择性同步
 
-1. 集合 metadata 与其 revision 不变；definition 升级使用全量同步。
-2. selector 从 baseline 与待发布投影的 name 映射并集解析。
-3. 全部变化 ID 都选中：新增选新 ID，删除选旧 ID，身份更正同选旧、新 ID。
-4. 仍发布完整投影；未选变化、未知 ID 或坏 baseline 零写入停止，补充选择或显式全量同步。
+`sync-index --select` 在可信发布基线上接纳局部当前来源，仍发布完整索引。需要发现未知位置变化或取得当前全集来源结论时，使用全量 sync/check。
+
+| 环节 | 范围与要求 |
+| --- | --- |
+| 基线 | 严格加载合法、canonical、当前 definition 的 baseline；缺失、损坏或不兼容时显式全量恢复，不当空基线。集合 metadata 及其 revision 保持不变。 |
+| 选择与依赖 | name 从 baseline 解析；标准完整 ID 可作为已知路径内身份更正的待证身份。读取所选 baseline 已知 sourcePath、前后直接关系邻居及完整演进事件所需依赖。必要未选依赖须匹配发布投影与来源 revision，否则显式补选或全量同步。 |
+| 已知路径缺失 | 按所选删除处理，完整组合图仍须合法；旧位置缺失不能区分实际删除与未知位置移动。 |
+| 同路径改 ID | 显式同选旧、新 ID，以本次已读 locator 证明新身份与位置唯一；没有已读位置证明的新 ID 要求全量同步。 |
+| 未读范围 | 未选条目与 revision 沿用发布事实。未知位置的新增、移动、重复身份或未同步新引用由全量 sync/check 发现；无关未选正文变化不一定阻断本次同步。 |
+| 发布保护 | 验收完整组合索引与关系图，以及原生 baseline、metadata 和选择保护；写前独立重读本次来源、必要依赖及实际 baseline，unchanged 也须通过。写入发布完整索引并 readback。 |
+
+成功 `coverage` 显式报告：
+
+- `source: published-index+selected-current-sources`；
+- `currentness: selected-and-dependencies`，未选来源当前性未检查；
+- 排序后的 `checkedIds`：所选身份标签及实际读取的必要依赖，包括缺失删除和同路径改 ID 的旧、新 ID。标签不保证当前存在，也不表示未知位置发现完整。
+
+CLI 同时说明上述覆盖边界。
 
 ## 待提交快照
 
@@ -178,8 +206,12 @@ HEAD 与工作区发布索引必须合法；index／all 还验证 pending 索引
 | mutation outcome | 可确认状态与下一步 |
 | --- | --- |
 | `no-change` | 声明范围未改变，处理前置条件后重新观察。 |
-| `rolled-back` | 旧范围已完整恢复，复核后再决定重试。 |
-| `partial-or-unknown` | 无法证明完整恢复，停止后续 mutation 并对账。 |
-| `committed-cleanup-pending` | 已越过提交点，先对账完成变化与清理残留。 |
+| `rolled-back` | 提交前失败且旧范围已完整恢复，复核后再决定重试。 |
+| `partial-or-unknown` | 无法证明完整恢复，或已提交但写后验收失败/未知；保留已知提交和实际路径，停止后续 mutation 并对账。 |
+| `committed-cleanup-pending` | 已提交且验收通过，仅清理或解锁未完成；先对账完成变化与精确残留。 |
 
-scope/outcome 只说明声明范围。普通查询、检查或参数错误不附会写入结果。权限、锁、中断与非法来源恢复统一按[维护恢复](maintenance-recovery.md)执行。
+非 stage 的正式事务以实际索引发布为提交点；候选创建以安全独占建立为提交点，更名以目标写集建立且旧位置退出为提交点，删除以对象退出受管集合为提交点。正常成功还须独立验收实际 bytes、identity、mode 及相关来源、成员；writer 返回不等于验收通过。stage 的 pending 提交与保护按[待提交快照](#待提交快照)执行。
+
+越过提交点后不自动回滚。清理或解锁失败返回非零，保留真实 mutation、ID 和 sourcePath；候选已创建不能报告为未创建或建议直接重做 new。验收与清理同时失败时分别诊断，以验收失败/未知为主要事实，不附成功 review。
+
+scope/outcome 只说明声明范围。普通查询、检查、readiness、预检和参数错误不附会写入结果；无写入而解锁失败仍非零，但不虚构 committed。权限、锁、中断及 CAS 恢复按[维护恢复](maintenance-recovery.md#中断写入)执行。

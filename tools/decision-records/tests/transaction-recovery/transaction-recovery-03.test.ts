@@ -1,5 +1,6 @@
 import {
   applyDecisionChanges,
+  interceptDecisionWrites,
   assert,
   currentDecisionId,
   currentSourcePath,
@@ -26,30 +27,19 @@ test("sync-index fails while a decision transaction holds the collection lock", 
     );
     const currentBefore = await fs.readFile(currentPath, "utf8");
     const indexBefore = await fs.readFile(indexPath, "utf8");
-    const descriptor = Object.getOwnPropertyDescriptor(fs, "writeFile");
-    assert.ok(descriptor);
-    const writeFile = fs.writeFile.bind(fs);
     let releaseWrite: () => void = () => {};
     let signalBlocked: () => void = () => {};
     let blocked = false;
     const writeBlocked = new Promise<void>((resolve) => {
       signalBlocked = resolve;
     });
-    Object.defineProperty(fs, "writeFile", {
-      ...descriptor,
-      value: async (
-        filePath: string,
-        data: string,
-        encoding: BufferEncoding
-      ): Promise<void> => {
-        if (!blocked && path.resolve(filePath) === currentPath) {
-          blocked = true;
-          signalBlocked();
-          await new Promise<void>((resolve) => {
-            releaseWrite = resolve;
-          });
-        }
-        await writeFile(filePath, data, encoding);
+    const restoreWrites = interceptDecisionWrites(async (filePath) => {
+      if (!blocked && path.resolve(filePath) === currentPath) {
+        blocked = true;
+        signalBlocked();
+        await new Promise<void>((resolve) => {
+          releaseWrite = resolve;
+        });
       }
     });
     let transaction:
@@ -67,8 +57,7 @@ test("sync-index fails while a decision transaction holds the collection lock", 
             )
           }
         ],
-        originalScan: await scanDecisionRecords({ workspaceRoot }),
-        scanOptions: { workspaceRoot }
+        originalScan: await scanDecisionRecords({ workspaceRoot })
       });
       await writeBlocked;
 
@@ -88,7 +77,7 @@ test("sync-index fails while a decision transaction holds the collection lock", 
       assert.equal((await transaction).status, "ok");
     } finally {
       releaseWrite();
-      Object.defineProperty(fs, "writeFile", descriptor);
+      restoreWrites();
     }
 
     const retriedSync = await runSourceCli([
@@ -163,8 +152,7 @@ test("decision transaction fails while sync-index holds the collection lock", ()
             )
           }
         ],
-        originalScan: await scanDecisionRecords({ workspaceRoot }),
-        scanOptions: { workspaceRoot }
+        originalScan: await scanDecisionRecords({ workspaceRoot })
       });
       assert.ok(
         transactionResult.status === "error" &&

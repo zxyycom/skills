@@ -7,18 +7,21 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/test-evidence-review
  * Rebuild: bun run sync:test-evidence-cli
  */
-import fs from "node:fs/promises";
-import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
+import { readBaselineSource } from "./prepared-baseline-source.ts";
+import {
+  consumePreparedStateIndex,
+  type PreparedStateIndex,
+  type PreparedSelectedStateIndexBaseline
+} from "./prepared.ts";
 import { sameStateSourceRevision } from "./canonicalization.ts";
 import { expectationOf } from "./definition.ts";
-import { diagnostic, filesystemDiagnostic, failure } from "./diagnostics.ts";
+import { diagnostic, filesystemDiagnostic } from "./diagnostics.ts";
 import {
-  decodeUtf8Text,
   resolveIndexPath,
   verifyWrittenText,
   writeTextAtomically
 } from "./index-path.ts";
-import { validateStateIndexSelectedIds } from "./selection.ts";
+import { resolveSyncScope } from "./selection.ts";
 import { syncSelectedStateIndex } from "./selected-sync.ts";
 import { buildStateIndex } from "./snapshot-builder.ts";
 import { parseStateIndex, serializeStateIndex } from "./snapshot-parser.ts";
@@ -31,7 +34,6 @@ import {
 import type {
   JsonObject,
   StateIndexContext,
-  StateIndexResult,
   StateIndexSyncMode,
   StateIndexSyncScope,
   StateIndexSyncResult,
@@ -47,6 +49,28 @@ export async function syncStateIndex<
   indexPath: string;
   mode: StateIndexSyncMode;
   scope?: StateIndexSyncScope;
+}): Promise<StateIndexSyncResult> {
+  return await syncStateIndexPrepared({
+    context: options.context,
+    definition: options.definition,
+    indexPath: options.indexPath,
+    mode: options.mode,
+    scope: options.scope
+  });
+}
+
+/** Internal same-operation handoff; raw public sync never trusts caller evidence. */
+export async function syncStateIndexPrepared<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
+  context: StateIndexContext;
+  definition: StateIndexDefinition<State, Metadata>;
+  indexPath: string;
+  mode: StateIndexSyncMode;
+  scope?: StateIndexSyncScope;
+  prepared?: PreparedStateIndex<State, Metadata>;
+  baseline?: PreparedSelectedStateIndexBaseline<State, Metadata>;
 }): Promise<StateIndexSyncResult> {
   const { context, definition, indexPath, mode } = options;
   if (!isStateIndexSyncMode(mode)) {
@@ -98,7 +122,20 @@ export async function syncStateIndex<
     });
   }
 
-  const built = await buildStateIndex(definition, context);
+  const proof =
+    options.prepared === undefined
+      ? null
+      : consumePreparedStateIndex({ ...options, prepared: options.prepared });
+  const built =
+    proof === null
+      ? await buildStateIndex(definition, context)
+      : proof.status === "error"
+        ? proof
+        : {
+            diagnostics: [],
+            status: "ok" as const,
+            value: options.prepared!.index
+          };
   if (built.status === "error") {
     return failedSync(options, "source-invalid", built.diagnostics, "all", []);
   }
@@ -137,48 +174,26 @@ export async function syncStateIndex<
   }
   const expectedText = serializeStateIndex(built.value, definition);
   let currentText: string | null = null;
-  try {
-    const currentData = await fs.readFile(resolved.value.targetPath);
-    try {
-      currentText = decodeUtf8Text(currentData);
-    } catch {
-      if (mode === "check") {
-        return failedSync(
-          options,
-          "index-invalid",
-          [
-            diagnostic({
-              code: "state-index.index-encoding-invalid",
-              message: `${indexPath} must contain valid UTF-8 text`,
-              path: indexPath
-            })
-          ],
-          "all",
-          []
-        );
-      }
-    }
-  } catch (error) {
-    if (!isFileSystemError(error, "ENOENT")) {
+  const currentSource = await readBaselineSource({
+    indexPath,
+    resolved: resolved.value
+  });
+  if (currentSource.status === "ok") currentText = currentSource.value.text;
+  else {
+    const missing = currentSource.diagnostics.some(
+      (item) => item.code === "state-index.index-missing"
+    );
+    const encoding = currentSource.diagnostics.some(
+      (item) => item.code === "state-index.index-encoding-invalid"
+    );
+    if (!missing && !(encoding && mode !== "check"))
       return failedSync(
         options,
-        "index-read-failed",
-        [
-          diagnostic({
-            code: "state-index.index-read-failed",
-            filesystem: filesystemDiagnostic(error, {
-              operation: "read a state-index file",
-              target: indexPath
-            }),
-            message:
-              "failed to read the state-index file; inspect index availability and access, then retry",
-            path: indexPath
-          })
-        ],
+        encoding ? "index-invalid" : "index-read-failed",
+        currentSource.diagnostics,
         "all",
         []
       );
-    }
   }
 
   if (
@@ -309,39 +324,4 @@ export async function syncStateIndex<
       []
     );
   }
-}
-
-type ResolvedSyncScope =
-  | Readonly<{ kind: "all" }>
-  | Readonly<{ kind: "selected"; selectedIds: string[] }>;
-
-export function resolveSyncScope(
-  input: StateIndexSyncScope | undefined,
-  indexPath: string
-): StateIndexResult<ResolvedSyncScope> {
-  if (
-    input === undefined ||
-    (typeof input === "object" && input !== null && input.kind === "all")
-  ) {
-    return { diagnostics: [], status: "ok", value: { kind: "all" } };
-  }
-  if (
-    typeof input !== "object" ||
-    input === null ||
-    input.kind !== "selected"
-  ) {
-    return failure(
-      "state-index.selection-invalid",
-      "sync scope must be all or a non-empty selected ID set",
-      { path: indexPath }
-    );
-  }
-  const selected = validateStateIndexSelectedIds(input.selectedIds, indexPath);
-  return selected.status === "error"
-    ? { ...selected, value: null }
-    : {
-        diagnostics: [],
-        status: "ok",
-        value: { kind: "selected", selectedIds: selected.selectedIds }
-      };
 }

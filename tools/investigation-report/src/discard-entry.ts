@@ -1,5 +1,13 @@
-import { discardInvestigationCandidate } from "./candidate-discard.ts";
-import { discardInvestigationReport, discardResult } from "./discard.ts";
+import path from "node:path";
+import { lockFailure as candidateDiscardLockFailure } from "./candidate-discard-support.ts";
+import { discardCandidateWithinLock } from "./candidate-discard.ts";
+import { withInvestigationCollectionMutationLock } from "./collection-mutation-lock.ts";
+import { InvestigationPreparation } from "./strict-preparation.ts";
+import { inspectInvestigationCollectionLayout } from "./investigation-layout.ts";
+import { discardFromCollection } from "./discard-loading.ts";
+import { writeTextAtomically } from "./discard-files.ts";
+import { investigationIndexFileName } from "./investigation-state-index.ts";
+import { discardLockFailure, discardResult } from "./discard.ts";
 import { identifyInvestigationDiscardTarget } from "./discard-target.ts";
 import { parseInvestigationReportDiscardOptions } from "./options.ts";
 import {
@@ -8,7 +16,8 @@ import {
 } from "./report-path.ts";
 import type {
   InvestigationCandidateDiscardResult,
-  InvestigationReportDiscardResult
+  InvestigationReportDiscardResult,
+  InvestigationReportDiscardOptions
 } from "./types.ts";
 
 /**
@@ -27,20 +36,63 @@ export async function discardInvestigationRecord(
       id: resolved.id,
       input: resolved.input
     });
-  const target = await identifyInvestigationDiscardTarget(
-    resolved.root,
-    resolved.options.id
-  );
-  if (target.status === "error")
-    return discardResult({
-      errors: target.errors,
-      id: resolved.options.id,
-      input: resolved.options
-    });
-  const routed = { ...resolved.options, id: target.id };
-  return target.kind === "candidate"
-    ? await discardInvestigationCandidate(routed)
-    : await discardInvestigationReport(routed);
+  const indexPath = path.join(resolved.root, investigationIndexFileName);
+  const route: { candidateId: string | null } = { candidateId: null };
+  try {
+    return await withInvestigationCollectionMutationLock(
+      indexPath,
+      async () => {
+        const preparation = new InvestigationPreparation(
+          path.dirname(resolved.root),
+          resolved.root
+        );
+        const layout = await inspectInvestigationCollectionLayout(
+          resolved.root,
+          { preparation }
+        );
+        const target = await identifyInvestigationDiscardTarget(
+          resolved.root,
+          resolved.options.id,
+          layout
+        );
+        if (target.status === "error")
+          return discardResult({
+            errors: target.errors,
+            id: resolved.options.id,
+            input: resolved.options
+          });
+        const routed = { ...resolved.options, id: target.id };
+        if (target.kind === "candidate") route.candidateId = target.id;
+        return target.kind === "candidate"
+          ? await discardCandidateWithinLock({
+              beforeCommit: async () => {},
+              input: routed,
+              root: resolved.root,
+              layout
+            })
+          : await discardFromCollection(
+              {
+                afterResourceTombstone: async () => {},
+                beforePublish: async () => {},
+                deleteOwnedResources: routed.deleteOwnedResources === true,
+                deleteRecorded: routed.deleteRecorded === true,
+                id: routed.id,
+                indexPath,
+                root: resolved.root,
+                write: writeTextAtomically
+              },
+              { preparation, layout }
+            );
+      }
+    );
+  } catch (error) {
+    if (route.candidateId !== null)
+      return candidateDiscardLockFailure(
+        { ...resolved.options, id: route.candidateId },
+        error
+      );
+    return discardLockFailure(error, resolved.options, resolved.options.id);
+  }
 }
 
 type DiscardLocationFailure = Readonly<{
@@ -50,9 +102,7 @@ type DiscardLocationFailure = Readonly<{
   status: "error";
 }>;
 type ResolvedDiscardLocation = Readonly<{
-  options: { investigationsDir?: string; workspaceRoot?: string } & {
-    id: string;
-  };
+  options: InvestigationReportDiscardOptions;
   root: string;
   status: "ok";
 }>;

@@ -10,4 +10,4 @@ Contract:
 - show 返回稳定 ID/sourcePath 元数据；正文读取失败时不输出部分结果。
 
 Proves:
-- 模拟读取失败，断言空 stdout、定位诊断和单次读取。
+- 模拟安全 FileHandle open 失败，断言空 stdout、定位诊断和单次读取。

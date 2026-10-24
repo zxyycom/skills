@@ -141,6 +141,17 @@ function printSelectedSyncSuccess(
         ? `Published the complete Investigation index projection for resolved IDs: ${result.selectedIds.join(", ")}.`
         : `Resolved Investigation IDs are already current: ${result.selectedIds.join(", ")}.`
   );
+  writeLine(
+    io.stdout,
+    "Source: selected sources and required dependencies checked; unselected entries retain the published baseline (not checked for currentness). Unknown paths were not discovered."
+  );
+  if (result.coverage !== undefined)
+    writeLine(
+      io.stdout,
+      "Current source scope IDs (including missing or corrected identities): " +
+        result.coverage.checkedIds.join(", ") +
+        "."
+    );
 }
 
 export async function runDiscard(

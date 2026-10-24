@@ -22,7 +22,7 @@ test("sync-index preserves post-rename uncertainty when lock cleanup also fails"
     fs.readFile = (async (...args) => {
       if (args[0] === indexPath) {
         indexReadCount += 1;
-        if (indexReadCount === 2) {
+        if (indexReadCount === 1) {
           racedAfterRename = true;
           await fs.writeFile(indexPath, "interleaving index write\n", "utf8");
         }

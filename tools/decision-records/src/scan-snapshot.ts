@@ -1,8 +1,18 @@
+import { validateScannedDecisionRecords } from "./decision-validation.ts";
+import { checkScannedDecisionIndex } from "./scan-index-check.ts";
+import type {
+  DecisionValidationContext,
+  DecisionValidationOptions
+} from "./index.ts";
+import {
+  captureDecisionSourceFiles,
+  type DecisionSourceCapture
+} from "./decision-strict-preparation.ts";
 import {
   createDecisionRelationGraphProvider,
   type DecisionRelationGraphProvider
 } from "./relation-graph.ts";
-import fs from "node:fs/promises";
+import { canonicalRecordCollection } from "../../record-operations/src/source.ts";
 import path from "node:path";
 import process from "node:process";
 import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
@@ -42,11 +52,13 @@ export function decisionIndexRequiredError(indexRelativePath: string): string {
 
 export type DecisionScanSnapshot = Readonly<{
   scan: DecisionScan;
+  sourceCapture?: DecisionSourceCapture;
   getRelationGraph: DecisionRelationGraphProvider;
 }>;
 
 export async function scanDecisionSnapshot(
-  options: DecisionScanOptions = {}
+  options: DecisionScanOptions = {},
+  captureTransactionSources = false
 ): Promise<DecisionScanSnapshot> {
   const resolution = resolveDecisionScanLocation(options);
   if (resolution.error !== null) {
@@ -56,27 +68,17 @@ export async function scanDecisionSnapshot(
   const directoryError = await inspectDecisionsDirectory(location);
   if (directoryError !== null)
     return unavailableDecisionSnapshot(location, directoryError);
-  const collectionErrors: string[] = [];
-  const indexErrors: string[] = [];
-  const sourceErrors: string[] = [];
-  const loadedIndex = await loadDecisionIndexForScan(location, indexErrors);
-  const sourceFiles = await collectScannedSourceFiles(
-    location,
-    collectionErrors,
-    sourceErrors
-  );
-  const records = await scanCollectedSourceFiles({
-    collectionErrors,
-    indexErrors,
-    loadedIndex,
-    location,
-    sourceErrors,
-    sourceFiles
-  });
+  const sourceCapture: DecisionSourceCapture | undefined =
+    captureTransactionSources
+      ? { root: location.workspaceRoot, sources: new Map() }
+      : undefined;
+  const { collectionErrors, indexErrors, sourceErrors, loadedIndex, records } =
+    await acquireDecisionCollection(location, sourceCapture);
   records.sort(compareDecisionRecords);
   const relations = createScannedRelationshipSnapshot(records);
   validateScannedRelationshipSnapshot(relations, sourceErrors);
   return {
+    sourceCapture,
     getRelationGraph: relations.getRelationGraph,
     scan: successfulDecisionScan({
       collectionErrors,
@@ -87,6 +89,53 @@ export async function scanDecisionSnapshot(
       sourceErrors
     })
   };
+}
+
+/** Only the current locked strict operation consumes this acquisition sidecar. */
+export async function loadDecisionTransactionValidationContext(
+  options: DecisionScanOptions,
+  validationOptions: DecisionValidationOptions
+): Promise<
+  DecisionValidationContext & { sourceCapture?: DecisionSourceCapture }
+> {
+  const { scan, sourceCapture } = await scanDecisionSnapshot(options, true);
+  return {
+    result: await validateScannedDecisionRecords(scan, validationOptions, () =>
+      checkScannedDecisionIndex(scan)
+    ),
+    sourceCapture
+  };
+}
+
+/** Index and source acquisition share only this call's explicit transaction namespace. */
+async function acquireDecisionCollection(
+  location: DecisionScanLocation,
+  sourceCapture?: DecisionSourceCapture
+) {
+  const collectionErrors: string[] = [];
+  const indexErrors: string[] = [];
+  const sourceErrors: string[] = [];
+  const loadedIndex = await loadDecisionIndexForScan(
+    location,
+    indexErrors,
+    sourceCapture
+  );
+  const sourceFiles = await collectScannedSourceFiles(
+    location,
+    collectionErrors,
+    sourceErrors
+  );
+  if (sourceCapture !== undefined)
+    await captureDecisionSourceFiles(sourceFiles, sourceErrors, sourceCapture);
+  const records = await scanCollectedSourceFiles({
+    collectionErrors,
+    indexErrors,
+    loadedIndex,
+    location,
+    sourceErrors,
+    sourceFiles
+  });
+  return { collectionErrors, indexErrors, sourceErrors, loadedIndex, records };
 }
 
 async function collectScannedSourceFiles(
@@ -221,9 +270,16 @@ async function inspectDecisionsDirectory(
   location: DecisionScanLocation
 ): Promise<string | null> {
   try {
-    if (!(await fs.stat(location.decisionsDirectory)).isDirectory()) {
-      return location.decisionsLabel + " must be a directory";
-    }
+    const canonical = await canonicalRecordCollection(
+      location.workspaceRoot,
+      path.relative(location.workspaceRoot, location.decisionsDirectory)
+    );
+    location.workspaceRoot = canonical.workspaceRoot;
+    location.decisionsDirectory = canonical.collectionRoot;
+    location.indexPath = path.join(
+      canonical.collectionRoot,
+      decisionIndexFileName
+    );
     return null;
   } catch (error) {
     return isFileSystemError(error, "ENOENT")

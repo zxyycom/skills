@@ -72,6 +72,7 @@ export function isKnownGateInput(relativePath: string): boolean {
     return [
       "shared",
       "index-runtime",
+      "record-operations",
       "skill-package",
       "skill-updater",
       "change-plan",

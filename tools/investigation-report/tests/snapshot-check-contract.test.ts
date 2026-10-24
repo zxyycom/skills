@@ -15,18 +15,24 @@ import {
 import { writeCollection } from "./collection-support.ts";
 
 async function mutateAfterSourceRead<T>(source: string, run: () => Promise<T>) {
-  const original = fs.readFile;
+  const original = fs.open;
   let reads = 0;
-  fs.readFile = (async (...args: Parameters<typeof fs.readFile>) => {
-    const value = await original(...args);
-    if (args[0] === source && ++reads === 1)
-      await fs.appendFile(source, "\nchanged after acquisition\n");
-    return value;
-  }) as typeof fs.readFile;
+  fs.open = (async (...args: Parameters<typeof fs.open>) => {
+    const handle = await original(...args);
+    if (args[0] === source) {
+      const close = handle.close.bind(handle);
+      handle.close = async () => {
+        await close();
+        if (++reads === 1)
+          await fs.appendFile(source, "\nchanged after acquisition\n");
+      };
+    }
+    return handle;
+  }) as typeof fs.open;
   try {
     return { result: await run(), reads };
   } finally {
-    fs.readFile = original;
+    fs.open = original;
   }
 }
 

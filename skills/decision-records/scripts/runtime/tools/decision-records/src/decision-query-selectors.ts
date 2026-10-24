@@ -13,21 +13,13 @@ import {
   type DecisionApplicationFailure
 } from "./application-result.ts";
 import {
-  decisionNameFromId,
   normalizeDecisionSelectorInput,
   parseDatedDecisionId
 } from "./decision-path.ts";
 import { loadDecisionQueryContext } from "./decision-query-context.ts";
-import type {
-  CandidateDecisionRecord,
-  IndexedDecisionRecord
-} from "./decision-query-contract.ts";
-import {
-  candidateRecords,
-  indexedRecord,
-  selectorNotFound
-} from "./decision-query-records.ts";
-import type { DecisionId, DecisionScan } from "./types.ts";
+import type { IndexedDecisionRecord } from "./decision-query-contract.ts";
+import { indexedRecord, selectorNotFound } from "./decision-query-records.ts";
+import type { DecisionId } from "./types.ts";
 
 export function resolveIndexedDecisionSelector(
   context: Extract<
@@ -109,44 +101,4 @@ function indexedSelectorById(
   return state === undefined
     ? { failure: selectorNotFound(label, normalized), status: "error" }
     : { record: indexedRecord({ id: decisionId, state }), status: "ok" };
-}
-
-export function resolveCandidateDecisionSelector(
-  scan: Pick<DecisionScan, "records">,
-  selector: string
-):
-  | { record: CandidateDecisionRecord | null; status: "ok" }
-  | { failure: DecisionApplicationFailure; status: "error" } {
-  const normalized = normalizeDecisionSelectorInput(selector);
-  const dated = parseDatedDecisionId(normalized);
-  const matches =
-    dated === null
-      ? candidateRecords(scan).filter(
-          (candidate) => decisionNameFromId(candidate.decisionId) === normalized
-        )
-      : candidateRecords(scan).filter(
-          (candidate) => candidate.decisionId === dated.id
-        );
-  if (matches.length === 0) return { record: null, status: "ok" };
-  if (matches.length === 1) return { record: matches[0]!, status: "ok" };
-  return {
-    failure: decisionFailure(
-      [
-        decisionDiagnostic({
-          code: "decision-records.candidate-ambiguous",
-          reason:
-            `Decision candidate name is ambiguous: ${normalized}; choose one standard ID: ` +
-            matches
-              .map((candidate) => candidate.decisionId)
-              .sort()
-              .join(", "),
-          recovery:
-            "Retry with one listed calendar-valid YYMMDD-name Decision ID.",
-          target: normalized
-        })
-      ],
-      { presentation: "plain" }
-    ),
-    status: "error"
-  };
 }

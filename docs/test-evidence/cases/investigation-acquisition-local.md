@@ -11,5 +11,5 @@ Contract:
 - show 按发布 locator 读目标并检查身份；局部 check 优先定位选定来源，必要时发现移动或新增 ID，不承担全集健康。
 
 Proves:
-- show 与已索引局部 check 各只读目标一次，无关 malformed 不阻断；目标 symlink 被拒绝。
+- 读取观察同时覆盖 readFile 与安全 FileHandle；show 与已索引局部 check 各只读目标一次，无关 malformed 不阻断；目标 symlink 被拒绝。
 - 移动与未发布正式 ID 能由局部发现验证，indexChecked=false；同集合的全量 check 仍拒绝非法来源。

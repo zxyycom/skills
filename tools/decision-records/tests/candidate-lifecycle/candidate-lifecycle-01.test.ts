@@ -5,8 +5,10 @@ import {
   candidateDecisionBody,
   decisionFilePath,
   fileExists,
+  findIndexEntry,
   fs,
   path,
+  readIndex,
   runSourceCli,
   runSuccessfulSourceLifecycleCli,
   test,
@@ -15,7 +17,7 @@ import {
   writeDecision
 } from "./support.ts";
 
-test("discarding the only active established decision removes the derived index", () =>
+test("discarding the only active established decision keeps a usable empty index", () =>
   withTemporaryWorkspace("only-active-established", async (workspaceRoot) => {
     const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
     const indexPath = path.join(decisionsDirectory, "decision-index.json");
@@ -42,10 +44,10 @@ test("discarding the only active established decision removes the derived index"
     ]);
     assert.equal(discarded.exitCode, 0, discarded.stderr);
     assert.equal(await fileExists(decisionPath), false);
-    assert.equal(await fileExists(indexPath), false);
+    await assertUsableEmptyIndex(workspaceRoot, indexPath);
   }));
 
-test("discarding the only archived established decision removes its archive path and index", () =>
+test("discarding the only archived established decision removes its archive path and keeps a usable empty index", () =>
   withTemporaryWorkspace("only-archived-established", async (workspaceRoot) => {
     const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
     const indexPath = path.join(decisionsDirectory, "decision-index.json");
@@ -83,7 +85,7 @@ test("discarding the only archived established decision removes its archive path
     ]);
     assert.equal(discarded.exitCode, 0, discarded.stderr);
     assert.equal(await fileExists(archivedPath), false);
-    assert.equal(await fileExists(indexPath), false);
+    await assertUsableEmptyIndex(workspaceRoot, indexPath);
   }));
 
 test("discard rejects invalid candidate lifecycle or body without mutation", () =>
@@ -190,3 +192,30 @@ test("discard preflights an invalid established source before touching a candida
       assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
     }
   ));
+
+async function assertUsableEmptyIndex(
+  workspaceRoot: string,
+  indexPath: string
+): Promise<void> {
+  assert.equal(await fileExists(indexPath), true);
+  assert.deepEqual((await readIndex(indexPath)).entries, {});
+  const listed = await runSourceCli(["list", "--root", workspaceRoot]);
+  assert.equal(listed.exitCode, 0, listed.stderr);
+  const nextId = "after-only-member-discard";
+  await writeDecision(
+    workspaceRoot,
+    nextId,
+    candidateDecisionBody({ id: nextId })
+  );
+  await runSuccessfulSourceLifecycleCli([
+    "publish",
+    nextId,
+    "--alignment",
+    "unaligned",
+    "--root",
+    workspaceRoot
+  ]);
+  const nextIndex = await readIndex(indexPath);
+  assert.deepEqual(Object.keys(nextIndex.entries), [nextId]);
+  assert.equal(findIndexEntry(nextIndex, nextId).status, "active");
+}

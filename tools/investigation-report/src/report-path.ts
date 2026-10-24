@@ -1,11 +1,7 @@
-import fs from "node:fs/promises";
 import path from "node:path";
 import { err, ok, ResultAsync, type Result } from "neverthrow";
-import {
-  isFileSystemError,
-  isPathWithinDirectory
-} from "../../shared/src/node/filesystem.ts";
-import { operationErrorDetail } from "../../shared/src/version-control/error-detail.ts";
+import { isPathWithinDirectory } from "../../shared/src/node/filesystem.ts";
+import { canonicalRecordCollection } from "../../record-operations/src/source.ts";
 
 export const defaultInvestigationsDirectory = "docs/investigations";
 export const investigationIndexFileName = "investigation-index.json";
@@ -68,29 +64,24 @@ export function resolveInvestigationsDirectory(
 export function canonicalizeInvestigationsDirectory(
   resolved: ResolvedInvestigationsDirectory
 ): ResultAsync<CanonicalInvestigationsDirectory, string[]> {
-  return canonicalDirectory("workspace root", resolved.workspaceRoot).andThen(
-    (canonicalWorkspaceRoot) =>
-      canonicalDirectory(
-        displayPath(resolved.investigationsDirectoryOption),
-        resolved.investigationsDirectory
-      ).andThen((canonicalInvestigationsDirectory) => {
-        if (
-          !isPathWithinDirectory(
-            canonicalInvestigationsDirectory,
-            canonicalWorkspaceRoot
+  return ResultAsync.fromPromise(
+    canonicalRecordCollection(
+      resolved.workspaceRoot,
+      resolved.investigationsDirectoryOption
+    ),
+    (error) => [
+      error instanceof Error
+        ? error.message.replaceAll(
+            "record collection",
+            "investigations directory"
           )
-        ) {
-          return err([
-            "investigations directory must resolve within the workspace root"
-          ]);
-        }
-        return ok({
-          investigationsDirectory: canonicalInvestigationsDirectory,
-          investigationsDirectoryOption: resolved.investigationsDirectoryOption,
-          workspaceRoot: canonicalWorkspaceRoot
-        });
-      })
-  );
+        : "investigations directory could not be safely resolved"
+    ]
+  ).map(({ workspaceRoot, collectionRoot }) => ({
+    investigationsDirectory: collectionRoot,
+    investigationsDirectoryOption: resolved.investigationsDirectoryOption,
+    workspaceRoot
+  }));
 }
 
 export function isInvestigationId(value: string): boolean {
@@ -172,36 +163,4 @@ export function validateInvestigationId(value: string): string[] {
 
 export function isInvestigationTag(value: string): boolean {
   return kebabCasePattern.test(value);
-}
-
-function canonicalDirectory(
-  label: string,
-  directory: string
-): ResultAsync<string, string[]> {
-  return ResultAsync.fromPromise(fs.realpath(directory), (error) => [
-    fileSystemResolutionError(label, error)
-  ]).andThen((canonicalDirectoryPath) =>
-    ResultAsync.fromPromise(fs.stat(canonicalDirectoryPath), (error) => [
-      fileSystemResolutionError(label, error)
-    ]).andThen((stats) =>
-      stats.isDirectory()
-        ? ok(canonicalDirectoryPath)
-        : err([`${label} must be a directory`])
-    )
-  );
-}
-
-function fileSystemResolutionError(label: string, error: unknown): string {
-  if (isFileSystemError(error, "ENOENT")) {
-    return `${label} does not exist`;
-  }
-  return `${label} could not be resolved: ${errorText(error)}`;
-}
-
-function displayPath(value: string): string {
-  return value.replace(/\\/gu, "/");
-}
-
-function errorText(error: unknown): string {
-  return operationErrorDetail(error) ?? "unavailable error detail";
 }

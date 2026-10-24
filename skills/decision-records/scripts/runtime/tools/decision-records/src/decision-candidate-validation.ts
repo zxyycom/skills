@@ -21,7 +21,7 @@ export function validateCandidateCreationRequest(
 ): NewDecisionCandidateResult | null {
   const identityConflict = candidateIdentityConflict(scan, request);
   if (identityConflict !== null) return identityConflict;
-  return candidateRelationFailure(scan, request);
+  return candidateRelationFailure(request);
 }
 
 function candidateIdentityConflict(
@@ -46,7 +46,6 @@ function candidateIdentityConflict(
 }
 
 function candidateRelationFailure(
-  scan: CandidateIdentityContext,
   request: NewDecisionCandidateRequest
 ): NewDecisionCandidateResult | null {
   for (const relation of request.relations) {
@@ -60,20 +59,6 @@ function candidateRelationFailure(
             "Choose an existing direct predecessor Decision ID, then retry the command.",
           scope: "Decision candidate scaffold",
           target: request.decisionId
-        })
-      );
-    }
-    if (!scan.records.some((record) => record.decisionId === relation.target)) {
-      return creationFailure(
-        decisionDiagnostic({
-          code: "decision-records.new-relation-target-missing",
-          outcome: "no-change",
-          reason:
-            "Candidate relation target does not exist: " + relation.target,
-          recovery:
-            "Choose an existing direct predecessor Decision ID, then retry the command.",
-          scope: "Decision candidate scaffold",
-          target: relation.target
         })
       );
     }

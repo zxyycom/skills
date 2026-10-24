@@ -1,4 +1,9 @@
 import fs from "node:fs/promises";
+import {
+  forEachRecordText,
+  recordReaderWorkerThreshold
+} from "../../record-operations/src/reader-batch.ts";
+import { readRecordText } from "../../record-operations/src/source.ts";
 import path from "node:path";
 import type {
   StateSnapshot,
@@ -89,34 +94,75 @@ async function discoverDecisionSources(
   const sourcePaths = await collectDecisionSourcePaths(decisionsDirectory);
   const sources: DiscoveredDecisionSource[] = [];
   const seenIds = new Set<DecisionId>();
-  for (const sourcePath of sourcePaths) {
-    if (signal?.aborted === true) {
-      throw new Error("decision source read was aborted");
-    }
-    const sourceFile = path.join(decisionsDirectory, ...sourcePath.split("/"));
-    await requireRegularSourceFile(sourceFile, sourcePath);
-    const text = await fs.readFile(sourceFile, "utf8");
-    const { decisionId, isCandidate } =
-      decisionSourceIdentityFromMarkdown(text);
-    if (decisionId === null) {
-      throw new Error(
-        `${sourcePath} must declare a valid frontmatter Decision ID`
+  if (sourcePaths.length < recordReaderWorkerThreshold) {
+    for (const sourcePath of sourcePaths) {
+      if (signal?.aborted === true)
+        throw new Error("decision source read was aborted");
+      const sourceFile = path.join(
+        decisionsDirectory,
+        ...sourcePath.split("/")
+      );
+      await requireRegularSourceFile(sourceFile, sourcePath);
+      sources.push(
+        discoveredDecisionSource(
+          sourcePath,
+          await readRecordText(decisionsDirectory, sourcePath),
+          seenIds
+        )
       );
     }
-    if (seenIds.has(decisionId)) {
-      throw new Error(
-        `Decision ID resolves to more than one source path: ${decisionId}`
-      );
-    }
-    seenIds.add(decisionId);
-    sources.push({
-      decisionId,
-      isCandidate,
-      sourcePath: sourcePath as DecisionSourcePath,
-      text
-    });
+    return sources;
+  }
+  try {
+    await forEachRecordText(
+      decisionsDirectory,
+      sourcePaths,
+      async (result, index) => {
+        const sourcePath = sourcePaths[index]!;
+        if (signal?.aborted === true)
+          throw new Error("decision source read was aborted");
+        // The acquired failure is final: a later lstat must not hide or retry it.
+        if (!result.ok) throw result.error;
+        const sourceFile = path.join(
+          decisionsDirectory,
+          ...sourcePath.split("/")
+        );
+        await requireRegularSourceFile(sourceFile, sourcePath);
+        sources.push(
+          discoveredDecisionSource(sourcePath, result.value, seenIds)
+        );
+      },
+      signal
+    );
+  } catch (error) {
+    if (signal?.aborted === true && error === signal.reason)
+      throw new Error("decision source read was aborted", { cause: error });
+    throw error;
   }
   return sources;
+}
+
+function discoveredDecisionSource(
+  sourcePath: string,
+  text: string,
+  seenIds: Set<DecisionId>
+): DiscoveredDecisionSource {
+  const { decisionId, isCandidate } = decisionSourceIdentityFromMarkdown(text);
+  if (decisionId === null)
+    throw new Error(
+      `${sourcePath} must declare a valid frontmatter Decision ID`
+    );
+  if (seenIds.has(decisionId))
+    throw new Error(
+      `Decision ID resolves to more than one source path: ${decisionId}`
+    );
+  seenIds.add(decisionId);
+  return {
+    decisionId,
+    isCandidate,
+    sourcePath: sourcePath as DecisionSourcePath,
+    text
+  };
 }
 
 async function collectDecisionSourcePaths(

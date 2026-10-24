@@ -26,7 +26,8 @@ relations: []
 
 ## 决策
 
-- 采用: `list`、`trace` 和 metadata `search` 只读取已发布索引，完整验证其结构、身份和领域关系，不逐次核对 Markdown 新鲜度。索引缺失、损坏或非法关系图均失败关闭，不自动扫描来源或同步。
+- 采用: `list`、`trace` 和 metadata `search` 只读取已发布索引，严格验证结构、字段、definition 与身份，不逐次核对 Markdown 新鲜度。索引缺失、损坏或不兼容时失败并显式恢复，不自动扫描来源或同步。
+- 采用: 查询按实际依赖验图。无关系条件的 list、metadata、show 和 content 不附加全域关系图门禁；关系筛选或 trace 对完整发布投影惰性验图，同投影只证明、物化一次，非法完整图失败。普通发现只交付实际来源与覆盖，全集体检由 check/sync-index 承担。
 - 采用: 成功 `list`、`trace` 明确返回 `source={kind:"published-index",currentness:"unchecked",fallback:false}`；metadata 沿 `searchInfo.source` 返回相同事实。文本与机器输出一致，不把主动未核对来源包装成 warning。
 - 采用: 快照的成员、关系、计数和覆盖不能证明当前来源仍相同，也不能用于当前全集的否定结论。需要当前来源事实时使用相应来源验证入口。
 - 采用: 当前正文通过 `show` 的目标读取取得；当前文本发现、完整来源检查、发布和写前验证分别由 content `search`、`check`、`sync-index` 及维护事务承接。各入口的证据与恢复边界由[决策记录规则](../../skills/decision-records/references/decision-record-rules.md#派生索引与查询)维护。

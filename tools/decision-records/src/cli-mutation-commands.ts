@@ -1,16 +1,18 @@
 import path from "node:path";
-import {
-  decisionFileSystemErrorText,
-  type DecisionApplicationFailure
-} from "./application-result.ts";
+import { type DecisionApplicationFailure } from "./application-result.ts";
 import type { CliArgs, CliArgsFor } from "./cli-args.ts";
 import type { QueryCliArgs } from "./cli-query-commands.ts";
 import { printDecisionAttention, printDecisionFailure } from "./cli-output.ts";
 import type { DecisionRecordsCliIo } from "./cli-io.ts";
 import { decisionLocation } from "./cli-location.ts";
-import { createDecisionCandidate } from "./decision-candidate-service.ts";
-import { readCandidateSelection } from "./decision-candidate-context.ts";
-import { renameDecisionRecord } from "./decision-rename.ts";
+import {
+  createDecisionCandidate,
+  type NewDecisionCandidateResult
+} from "./decision-candidate-service.ts";
+import {
+  renameDecisionRecord,
+  type DecisionRenameResult
+} from "./decision-rename.ts";
 import { stageDecisionRecords } from "./decision-stage-service.ts";
 import {
   runArchive,
@@ -30,7 +32,9 @@ export async function runNew(
   if (created.status === "error") {
     if ("sourcePath" in created) {
       io.stdout(
-        "Created decision candidate scaffold: " +
+        (created.verification === "failed-or-unknown"
+          ? "Decision candidate mutation observed (verification incomplete): "
+          : "Created decision candidate scaffold: ") +
           path.resolve(
             args.workspaceRoot,
             args.decisionsDir,
@@ -38,11 +42,23 @@ export async function runNew(
           ) +
           "\n"
       );
+      if ("decisionId" in created)
+        io.stdout("Decision ID: " + created.decisionId + "\n");
       io.stdout("No lifecycle state or derived decision index was changed.\n");
     }
     printDecisionFailure(created, io);
     return created.exitCode;
   }
+  printCandidateCreated(args, created, io);
+  return 0;
+}
+
+/** 成功创建的集中输出；失败写入事实不走 readiness 成功 renderer。 */
+function printCandidateCreated(
+  args: CliArgsFor<"new">,
+  created: Extract<NewDecisionCandidateResult, { status: "ok" }>,
+  io: DecisionRecordsCliIo
+): void {
   io.stdout(
     "Created decision candidate scaffold: " +
       path.resolve(args.workspaceRoot, args.decisionsDir, created.sourcePath) +
@@ -51,38 +67,17 @@ export async function runNew(
   io.stdout("Decision ID: " + created.decisionId + "\n");
   io.stdout("title: " + args.title + "\n");
   io.stdout("No lifecycle state or derived decision index was changed.\n");
-  await printNewCandidateReadiness(
-    { ...args, decisionId: created.decisionId },
-    io
+  for (const warning of created.warnings ?? [])
+    io.stderr("Candidate warning: " + warning + "\n");
+  io.stdout(
+    "Decision candidate readiness after creation:\n- scaffoldValid: true\n- bodyReady: false\n"
   );
-  return 0;
-}
-
-async function printNewCandidateReadiness(
-  args: CliArgsFor<"new">,
-  io: DecisionRecordsCliIo
-): Promise<void> {
-  try {
-    const selected = await readCandidateSelection(args, args.decisionId);
-    const candidate = selected.records[0];
-    io.stdout("Decision candidate readiness after creation:\n");
+  if (args.preflightAlignment !== null)
     io.stdout(
-      "- scaffoldValid: " + (candidate?.scaffoldValid ?? "unavailable") + "\n"
+      "- alignment preview: " +
+        args.preflightAlignment +
+        " (not written; publish validates the final projection)\n"
     );
-    io.stdout("- bodyReady: " + (candidate?.bodyReady ?? "unavailable") + "\n");
-    if (args.preflightAlignment !== null)
-      io.stdout(
-        "- alignment preview: " +
-          args.preflightAlignment +
-          " (not written; publish validates the final projection)\n"
-      );
-  } catch (error) {
-    io.stderr(
-      "Candidate readiness unavailable: " +
-        decisionFileSystemErrorText(error) +
-        "\n"
-    );
-  }
 }
 
 export async function runStage(
@@ -135,12 +130,28 @@ export async function runRename(
   });
   if (result.status === "error") {
     printDecisionFailure(result, io);
+    if (result.changed === true && result.plan !== null)
+      io.stderr(
+        "Decision rename mutation observed; inspect old sourcePath: " +
+          result.plan.oldSourcePath +
+          "; new sourcePath: " +
+          result.plan.newSourcePath +
+          ".\n"
+      );
     return result.exitCode;
   }
   if (result.status === "attention") {
     printDecisionAttention(result, io);
     return result.exitCode;
   }
+  printRenameCompleted(result, io);
+  return 0;
+}
+
+function printRenameCompleted(
+  result: Extract<DecisionRenameResult, { status: "ok" }>,
+  io: DecisionRecordsCliIo
+): void {
   io.stdout("Decision rename " + result.outcome + ":\n");
   io.stdout("- old ID: " + result.plan.oldId + "\n");
   io.stdout("- new ID: " + result.plan.newId + "\n");
@@ -158,7 +169,6 @@ export async function runRename(
       result.plan.affectedEstablishedRelationCount +
       ")\n"
   );
-  return 0;
 }
 
 function withStageNoChange(

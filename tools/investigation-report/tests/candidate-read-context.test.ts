@@ -67,7 +67,7 @@ test("candidate preparation reuses complete formal identities and owner bytes wi
   });
 });
 
-test("candidate partial layouts discover moved formal owners when the index is stale or unavailable", async () => {
+test("candidate reads require explicit recovery for moved formal owners or unavailable indexes", async () => {
   await withTempRoot("candidate-owner-discovery", async (root) => {
     await writeSharedCandidate(root);
     await writeCollection(root, [
@@ -87,22 +87,19 @@ test("candidate partial layouts discover moved formal owners when the index is s
       workspaceRoot: root,
       id: "next"
     });
-    assert.equal(indexed.status, "ok");
-    assert.deepEqual(indexed.candidate?.errors, []);
+    assert.equal(indexed.status, "error");
     await fs.writeFile(indexPath, "invalid JSON\n");
     const unindexed = await showInvestigationCandidate({
       workspaceRoot: root,
       id: "next"
     });
-    assert.equal(unindexed.status, "ok");
-    assert.deepEqual(unindexed.candidate?.errors, []);
+    assert.equal(unindexed.status, "error");
     await fs.rm(indexPath);
     const missing = await showInvestigationCandidate({
       workspaceRoot: root,
       id: "next"
     });
-    assert.equal(missing.status, "ok");
-    assert.deepEqual(missing.candidate?.errors, []);
+    assert.equal(missing.status, "error");
   });
 });
 
@@ -114,14 +111,14 @@ test("candidate partial layouts preserve required owner access failures", async 
     ]);
     const directory = investigationRoot(root);
     const owner = path.join(directory, "owner.md");
-    const original = fs.readFile;
-    fs.readFile = (async (...args: Parameters<typeof fs.readFile>) => {
+    const original = fs.open;
+    fs.open = (async (...args: Parameters<typeof fs.open>) => {
       if (args[0] === owner)
         throw Object.assign(new Error("owner access denied"), {
           code: "EACCES"
         });
       return await original(...args);
-    }) as typeof fs.readFile;
+    }) as typeof fs.open;
     try {
       const denied = await showInvestigationCandidate({
         workspaceRoot: root,
@@ -134,7 +131,7 @@ test("candidate partial layouts preserve required owner access failures", async 
       );
       assert.equal(denied.diagnostics[0]?.causeCategory, "access-denied");
     } finally {
-      fs.readFile = original;
+      fs.open = original;
     }
   });
 });
@@ -159,7 +156,7 @@ test("candidate partial layouts reject duplicate formal owner identities", async
     assert.equal(duplicate.status, "error");
     assert.equal(
       duplicate.diagnostics[0]?.code,
-      "investigation-report.candidate-read-failed"
+      "investigation-report.candidate-layout-unavailable"
     );
   });
 });

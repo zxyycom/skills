@@ -184,6 +184,11 @@ export type InvestigationIndexSyncOptions = {
 };
 
 export type InvestigationIndexSyncResult = {
+  coverage?: Readonly<{
+    source: "published-index+selected-current-sources";
+    currentness: "selected-and-dependencies";
+    checkedIds: readonly string[];
+  }>;
   changed: boolean;
   changedIds: string[];
   diagnostics: Array<{

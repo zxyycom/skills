@@ -7,7 +7,11 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import { readRecordTextSnapshot } from "../../record-operations/src/transaction-snapshot.ts";
+import type { DecisionSourceCapture } from "./decision-strict-preparation.ts";
 import fs from "node:fs/promises";
+import path from "node:path";
+import { readRecordText } from "../../record-operations/src/source.ts";
 import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
 import { decisionFileSystemErrorText } from "./application-result.ts";
 import {
@@ -27,14 +31,15 @@ type IndexEntryState = "missing" | "invalid" | "regular";
 
 export async function loadDecisionIndexForScan(
   location: IndexLocation,
-  indexErrors: string[]
+  indexErrors: string[],
+  sourceCapture?: DecisionSourceCapture
 ): Promise<LoadedDecisionIndex> {
   const entryState = await inspectIndexEntry(location, indexErrors);
   if (entryState === "missing")
     return { index: null, indexExists: false, indexText: "" };
   if (entryState === "invalid")
     return { index: null, indexExists: true, indexText: "" };
-  return readRegularDecisionIndex(location, indexErrors);
+  return readRegularDecisionIndex(location, indexErrors, sourceCapture);
 }
 
 async function inspectIndexEntry(
@@ -63,11 +68,24 @@ async function inspectIndexEntry(
 
 async function readRegularDecisionIndex(
   location: IndexLocation,
-  indexErrors: string[]
+  indexErrors: string[],
+  sourceCapture?: DecisionSourceCapture
 ): Promise<LoadedDecisionIndex> {
   let indexText: string;
   try {
-    indexText = await fs.readFile(location.indexPath, "utf8");
+    const captured =
+      sourceCapture === undefined
+        ? undefined
+        : await readRecordTextSnapshot(sourceCapture.root, location.indexPath);
+    if (sourceCapture !== undefined && captured !== undefined) {
+      sourceCapture.sources.set(captured.path, captured);
+    }
+    indexText =
+      captured?.text ??
+      (await readRecordText(
+        path.dirname(location.indexPath),
+        path.basename(location.indexPath)
+      ));
   } catch (error) {
     indexErrors.push(
       location.indexRelativePath +

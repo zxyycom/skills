@@ -358,4 +358,7 @@ export type DecisionPreparationContext = Pick<
   | "indexRelativePath"
   | "indexText"
   | "indexExists"
-> & { readonly publishedBaseline?: DecisionIndex };
+> & {
+  readonly publishedBaseline?: DecisionIndex;
+  readonly sourceMembers?: readonly string[];
+};

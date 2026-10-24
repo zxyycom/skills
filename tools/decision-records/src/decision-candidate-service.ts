@@ -1,3 +1,4 @@
+import { createRecordCandidate } from "../../record-operations/src/candidate.ts";
 import { ensureDecisionDirectoryPath } from "./decision-source-path-safety.ts";
 import { resolveWorkspaceDecisionLocation } from "./decision-location.ts";
 import fs from "node:fs/promises";
@@ -15,10 +16,7 @@ import {
   publishCandidateCreation
 } from "./decision-candidate-publication.ts";
 import { validateCandidateCreationRequest } from "./decision-candidate-validation.ts";
-import {
-  bindRelationSummaries,
-  normalizeRelationSummary
-} from "./relation-summary.ts";
+import { resolveCandidateRelationSelectors } from "./decision-candidate-relations.ts";
 import {
   datedDecisionIdForName,
   decisionNameFromId,
@@ -51,10 +49,25 @@ export type NewDecisionCandidateRequest = DecisionScanOptions & {
   title: string;
 };
 
-export type NewDecisionCandidateResult =
+export type NewDecisionCandidateResult = {
+  changed?: boolean;
+  committed?: boolean;
+  verification?: "passed" | "failed-or-unknown" | "not-run";
+} & (
   | DecisionApplicationFailure
-  | { created: true; decisionId: DecisionId; sourcePath: string; status: "ok" }
-  | (DecisionApplicationFailure & { created: true; sourcePath: string });
+  | {
+      created: true;
+      decisionId: DecisionId;
+      sourcePath: string;
+      status: "ok";
+      warnings?: readonly string[];
+    }
+  | (DecisionApplicationFailure & {
+      created: true;
+      decisionId: DecisionId;
+      sourcePath: string;
+    })
+);
 
 export async function createDecisionCandidate(
   request: NewDecisionCandidateRequest
@@ -120,147 +133,68 @@ async function createLockedDecisionCandidate(
     request.workspaceRoot ?? process.cwd(),
     request.decisionsDir ?? "docs/decisions"
   );
-  const scan = await loadCandidateIdentityContext(decisionsDirectory);
-  const prepared = prepareNewDecisionIdentity(request);
-  if (prepared.status === "error") {
-    return creationFailure(prepared.diagnostic);
-  }
-  const resolved = resolveCandidateRelationSelectors(scan, prepared.request);
-  if (resolved.status === "error") {
-    return creationFailure(resolved.diagnostic);
-  }
-  const validationFailure = validateCandidateCreationRequest(
-    scan,
-    resolved.request
-  );
-  if (validationFailure !== null) {
-    return validationFailure;
-  }
-
-  const migration = legacyNameConflict(scan, resolved.request);
-  if (migration !== null) {
-    return creationFailure(migration);
-  }
-
-  const sourcePath = allocateCandidateSourcePath(scan, resolved.request);
-
-  const decisionPath = path.join(scan.decisionsDirectory, sourcePath);
-  return await publishCandidateCreation(
-    resolved.request,
-    decisionPath,
-    sourcePath
-  );
-}
-
-function resolveCandidateRelationSelectors(
-  scan: CandidateIdentityContext,
-  request: NewDecisionCandidateRequest
-):
-  | { request: NewDecisionCandidateRequest; status: "ok" }
-  | { diagnostic: ReturnType<typeof decisionDiagnostic>; status: "error" } {
-  const relations: DecisionRelation[] = [];
-  for (const relation of request.relations) {
-    const normalized = normalizeCandidateRelationSummary(relation.summary);
-    if ("error" in normalized)
-      return { diagnostic: normalized.error, status: "error" };
-    const target = resolveDecisionRelationSelector(scan, relation.target);
-    if (target.status === "error") return target;
-    relations.push({
-      type: relation.type,
-      target: target.decisionId,
-      ...normalized
-    });
-  }
-  const relationSummaries: DecisionRelationSummary[] = [];
-  for (const summary of request.relationSummaries ?? []) {
-    const target = resolveDecisionRelationSelector(scan, summary.target);
-    if (target.status === "error") return target;
-    relationSummaries.push({ ...summary, target: target.decisionId });
-  }
-  const bound = bindRelationSummaries(relations, relationSummaries);
-  if ("error" in bound) {
-    return {
-      diagnostic: decisionDiagnostic({
-        code: "decision-records.new-relation-summary-invalid",
-        outcome: "no-change",
-        reason: bound.error,
-        recovery:
-          "Provide each --relation-summary target once in this command's complete relation set, then retry.",
-        scope: "Decision candidate scaffold",
-        target: "--relation-summary"
-      }),
-      status: "error"
-    };
-  }
-  return {
-    request: { ...request, relations: bound.relations, relationSummaries: [] },
-    status: "ok"
-  };
-}
-
-function normalizeCandidateRelationSummary(
-  summary: unknown
-): { summary?: string } | { error: ReturnType<typeof decisionDiagnostic> } {
-  if (summary === undefined) return {};
-  const normalized = normalizeRelationSummary(summary);
-  if (!("issue" in normalized)) return normalized;
-  return {
-    error: decisionDiagnostic({
-      code: "decision-records.new-relation-summary-invalid",
-      outcome: "no-change",
-      reason: "Candidate relation summary " + normalized.issue,
-      recovery:
-        "Use a blank or trimmed single-line summary of at most 40 Unicode code points, then retry.",
-      scope: "Decision candidate scaffold",
-      target: "relation.summary"
-    })
-  };
-}
-
-function resolveDecisionRelationSelector(
-  scan: CandidateIdentityContext,
-  selector: DecisionId
-):
-  | { decisionId: DecisionId; status: "ok" }
-  | { diagnostic: ReturnType<typeof decisionDiagnostic>; status: "error" } {
-  const dated = parseDatedDecisionId(selector);
-  const matches =
-    dated === null
-      ? scan.records
-          .filter(
-            (record) =>
-              typeof record.decisionId === "string" &&
-              decisionNameFromId(record.decisionId as DecisionId) === selector
-          )
-          .map((record) => record.decisionId as DecisionId)
-          .sort()
-      : scan.records
-          .filter((record) => record.decisionId === dated.id)
-          .map((record) => record.decisionId as DecisionId);
-  if (matches.length === 1) return { decisionId: matches[0]!, status: "ok" };
-  return {
-    diagnostic: decisionDiagnostic({
-      code:
-        matches.length === 0
-          ? "decision-records.new-relation-target-missing"
-          : "decision-records.new-relation-target-ambiguous",
-      outcome: "no-change",
-      reason:
-        matches.length === 0
-          ? "Candidate relation target does not exist: " + selector
-          : "Candidate relation target is ambiguous: " +
-            selector +
-            "; choose one standard ID: " +
-            matches.join(", "),
-      recovery:
-        matches.length === 0
-          ? "Choose an existing direct predecessor Decision ID or unique name, then retry the command."
-          : "Retry with one listed calendar-valid YYMMDD-name Decision ID.",
-      scope: "Decision candidate scaffold",
-      target: selector
+  return await createRecordCandidate<
+    CandidateIdentityContext,
+    NewDecisionCandidateRequest,
+    NewDecisionCandidateResult
+  >({
+    discover: async () => ({
+      status: "ok",
+      value: await loadCandidateIdentityContext(decisionsDirectory)
     }),
-    status: "error"
-  };
+    resolve: (scan) => {
+      const prepared = prepareNewDecisionIdentity(request);
+      if (prepared.status === "error")
+        return {
+          status: "error",
+          result: creationFailure(prepared.diagnostic)
+        };
+      const resolved = resolveCandidateRelationSelectors(
+        scan,
+        prepared.request
+      );
+      return resolved.status === "error"
+        ? { status: "error", result: creationFailure(resolved.diagnostic) }
+        : { status: "ok", value: resolved.request };
+    },
+    conflict: (scan, resolved) => {
+      const invalid = validateCandidateCreationRequest(scan, resolved);
+      if (invalid !== null) return invalid;
+      const migration = legacyNameConflict(scan, resolved);
+      return migration === null ? null : creationFailure(migration);
+    },
+    allocate: allocateCandidateSourcePath,
+    writeAndReadiness: async (scan, resolved, sourcePath) => {
+      const result = await publishCandidateCreation(
+        resolved,
+        path.join(decisionsDirectory, sourcePath),
+        sourcePath,
+        async (created) => {
+          const current =
+            await loadCandidateIdentityContext(decisionsDirectory);
+          const expected = [
+            ...scan.records,
+            ...(created
+              ? [{ decisionId: resolved.decisionId, sourcePath }]
+              : [])
+          ];
+          const signature = (records: CandidateIdentityContext["records"]) =>
+            JSON.stringify(
+              [...records].sort((left, right) =>
+                left.sourcePath.localeCompare(right.sourcePath)
+              )
+            );
+          if (signature(current.records) !== signature(expected))
+            throw new Error(
+              "Decision candidate identities changed during creation."
+            );
+        }
+      );
+      return result.status === "ok"
+        ? { ...result, warnings: scan.collection.warnings }
+        : result;
+    }
+  });
 }
 
 function prepareNewDecisionIdentity(

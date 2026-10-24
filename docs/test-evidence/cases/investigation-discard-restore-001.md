@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-RESTORE-001: discard restores report resources and index when index publication fails
 
 Tests:
-- `test:5c3fb4f21ca8a0e7630ca8dfc995b77c1fbd6c49668113267b1ef2c69041bef4`
+- `test:cbeb3bff8192be8222e78927d6c94b299b87b205b104f917ce8eca6d77e0be3d`
 
 Tags:
 - `investigation-report`

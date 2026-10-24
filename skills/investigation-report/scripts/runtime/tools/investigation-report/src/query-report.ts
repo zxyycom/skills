@@ -7,7 +7,13 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-import fs from "node:fs/promises";
+import { showPublishedRecord } from "../../record-operations/src/query.ts";
+import { createInvestigationStateIndexDefinition } from "./investigation-index-definition.ts";
+import { investigationSourceRevision } from "./investigation-source-revision.ts";
+import {
+  normalizeInvestigationSelectorInput,
+  parseDatedInvestigationId
+} from "./report-path.ts";
 import path from "node:path";
 import { err, errAsync, ok, ResultAsync, type Result } from "neverthrow";
 import {
@@ -18,12 +24,9 @@ import { investigationIdFromMarkdown } from "./markdown.ts";
 import {
   investigationIndexDiagnosticMessages,
   investigationIndexFileName,
-  loadInvestigationIndex
+  loadInvestigationQueryIndex
 } from "./investigation-state-index.ts";
-import {
-  persistedSnapshotBodyWarning,
-  shownInvestigationStale
-} from "./index-staleness.ts";
+import { persistedSnapshotBodyWarning } from "./index-staleness.ts";
 import {
   parseInvestigationReportShowOptions,
   parseInvestigationReportTraceOptions
@@ -32,8 +35,7 @@ import {
   canonicalizeInvestigationsDirectory,
   resolveInvestigationsDirectory
 } from "./report-path.ts";
-import { resolveInvestigationSelector } from "./investigation-selector.ts";
-import { createInvestigationRelationContext } from "./relation-context.ts";
+import type { InvestigationRelationContext } from "./relation-context.ts";
 import {
   normalizeInvestigationTraceOptions,
   traceLoadedInvestigation
@@ -106,41 +108,78 @@ export async function showInvestigationReport(
   if (parsed.isErr())
     return showFailure(rawId, defaultInvestigationIndexPath(), parsed.error);
   const { id: selector } = parsed.value;
-  const loaded = await loadIndexedInvestigationContext(
-    parsed.value,
-    "correct the reported derived-index problem, then retry showing the report"
-  );
-  if (loaded.isErr()) {
+  const indexPath = investigationIndexPathForOptions(parsed.value);
+  const shown = await showPublishedRecord({
+    workspaceRoot: parsed.value.workspaceRoot,
+    collection: parsed.value.investigationsDir ?? "docs/investigations",
+    definition: createInvestigationStateIndexDefinition(),
+    indexPath: investigationIndexFileName,
+    selector,
+    normalizeSelector: normalizeInvestigationSelectorInput,
+    datedSelectorId: (value) => parseDatedInvestigationId(value)?.id ?? null,
+    idFromMarkdown: (text) =>
+      investigationIdFromMarkdown(text.replace(/^\uFEFF/, "")),
+    sourceFingerprint: (source) =>
+      investigationSourceRevision([source]).entries[source.id]!
+  });
+  if (shown.status === "ok")
+    return {
+      errors: [],
+      diagnostics: [],
+      id: shown.id,
+      indexPath,
+      markdown: shown.text,
+      state: shown.state,
+      status: "ok",
+      warnings: shown.stale ? [persistedSnapshotBodyWarning] : []
+    };
+  if (shown.phase === "location")
+    return showFailure(selector, indexPath, [
+      shown.error instanceof Error
+        ? shown.error.message
+        : "investigations directory could not be safely resolved"
+    ]);
+  if (shown.phase === "selection")
     return showFailure(
       selector,
-      loaded.error.indexPath,
-      loaded.error.errors,
-      loaded.error.diagnostics
+      indexPath,
+      shown.matches.length === 0
+        ? [`${shown.normalized} investigation report does not exist`]
+        : [
+            `Investigation name is ambiguous: ${shown.normalized}; choose one standard ID: ${shown.matches.join(", ")}`
+          ]
     );
-  }
-  const context = loaded.value;
-  const { index, indexPath, investigationsDirectory } = context;
-  const selected = selectInvestigationEntry(context, selector);
-  if (selected.isErr()) return selected.error;
-  const { id, entry } = selected.value;
-  const shown = await readShownInvestigation(
-    investigationsDirectory,
-    indexPath,
-    id,
-    entry
-  );
-  return shown.status === "error"
-    ? shown
-    : {
-        ...shown,
-        warnings: shownInvestigationStale(index, {
-          id,
-          sourcePath: entry.sourcePath,
-          text: shown.markdown
+  if (shown.phase === "index")
+    return showFailure(
+      selector,
+      indexPath,
+      investigationIndexDiagnosticMessages(shown.diagnostics, indexPath),
+      shown.diagnostics.map((diagnostic) =>
+        diagnosticFromStateIndexDiagnostic(diagnostic, {
+          recovery:
+            "correct the reported derived-index problem, then retry showing the report",
+          target: indexPath
         })
-          ? [persistedSnapshotBodyWarning]
-          : []
-      };
+      )
+    );
+  return showFailure(
+    shown.id,
+    indexPath,
+    [`${shown.id} could not be read`],
+    [
+      diagnosticFromError({
+        code: "investigation-report.report-read-failed",
+        error: shown.error,
+        reason: "the selected investigation report could not be read",
+        recovery: "restore read access to the report, then retry show",
+        target: path.join(
+          parsed.value.workspaceRoot,
+          parsed.value.investigationsDir ?? "docs/investigations",
+          shown.state.sourcePath
+        )
+      })
+    ]
+  );
 }
 
 type CurrentInvestigationIndex = Extract<
@@ -151,6 +190,7 @@ type IndexedInvestigationContext = Readonly<{
   index: CurrentInvestigationIndex;
   indexPath: string;
   investigationsDirectory: string;
+  relations: InvestigationRelationContext;
 }>;
 type IndexedInvestigationFailure = QueryOperationFailure & {
   indexPath: string;
@@ -159,28 +199,6 @@ type InvestigationQueryLocationOptions = Pick<
   InvestigationReportShowOptions,
   "investigationsDir" | "workspaceRoot"
 >;
-
-type SelectedInvestigationEntry = Readonly<{
-  id: string;
-  entry: NonNullable<InvestigationReportShowResult["state"]>;
-}>;
-
-function selectInvestigationEntry(
-  context: IndexedInvestigationContext,
-  selector: string
-): Result<SelectedInvestigationEntry, InvestigationReportShowResult> {
-  const resolved = resolveInvestigationSelector(
-    Object.entries(context.index.entries).map(([id, state]) => ({
-      id,
-      name: state.name
-    })),
-    selector
-  );
-  if (resolved.status === "error")
-    return err(showFailure(selector, context.indexPath, resolved.errors));
-  const { id } = resolved;
-  return ok({ entry: context.index.entries[id]!, id });
-}
 
 async function loadIndexedInvestigationContext(
   options: InvestigationQueryLocationOptions,
@@ -211,8 +229,9 @@ async function loadIndexedInvestigationContext(
     investigationsDirectory,
     investigationIndexFileName
   );
-  const loaded = await loadInvestigationIndex({
-    investigationsDirectory
+  const loaded = await loadInvestigationQueryIndex({
+    investigationsDirectory,
+    requiresRelations: true
   });
   if (loaded.status === "error") {
     return err({
@@ -229,57 +248,12 @@ async function loadIndexedInvestigationContext(
       indexPath
     });
   }
-  return ok({ index: loaded.value, indexPath, investigationsDirectory });
-}
-
-async function readShownInvestigation(
-  investigationsDirectory: string,
-  indexPath: string,
-  id: string,
-  state: NonNullable<InvestigationReportShowResult["state"]>
-): Promise<InvestigationReportShowResult> {
-  const target = path.join(investigationsDirectory, state.sourcePath);
-  try {
-    const markdown = await readShownMarkdown(target, id);
-    return {
-      errors: [],
-      diagnostics: [],
-      id,
-      indexPath,
-      markdown,
-      state,
-      status: "ok",
-      warnings: []
-    };
-  } catch (error) {
-    return showFailure(
-      id,
-      indexPath,
-      [`${id} could not be read`],
-      [
-        diagnosticFromError({
-          code: "investigation-report.report-read-failed",
-          error,
-          reason: "the selected investigation report could not be read",
-          recovery: "restore read access to the report, then retry show",
-          target
-        })
-      ]
-    );
-  }
-}
-
-async function readShownMarkdown(target: string, id: string): Promise<string> {
-  const entry = await fs.lstat(target);
-  if (!entry.isFile() || entry.isSymbolicLink())
-    throw new Error("selected report must be a regular non-symbolic-link file");
-  const markdown = await fs.readFile(target, "utf8");
-  if (investigationIdFromMarkdown(markdown) !== id) {
-    throw new Error(
-      "frontmatter Investigation ID does not match the requested ID"
-    );
-  }
-  return markdown;
+  return ok({
+    index: loaded.value,
+    indexPath,
+    investigationsDirectory,
+    relations: loaded.relations
+  });
 }
 
 export async function traceInvestigationReports(
@@ -315,9 +289,7 @@ export async function traceInvestigationReports(
     );
   }
   const traced = traceLoadedInvestigation(
-    createInvestigationRelationContext(
-      Object.entries(loaded.value.index.entries)
-    ),
+    loaded.value.relations,
     loaded.value.indexPath,
     selector,
     traceOptions.value

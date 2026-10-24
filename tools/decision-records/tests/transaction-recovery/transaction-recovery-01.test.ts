@@ -34,7 +34,6 @@ test("transaction recovery restores source path target path and index after a po
     Object.defineProperty(fs, "rename", {
       ...descriptor,
       value: async (from: string, to: string): Promise<void> => {
-        await originalRename(from, to);
         if (path.resolve(to) === indexPath) {
           throw Object.assign(
             new Error("simulated index replacement failure"),
@@ -43,6 +42,7 @@ test("transaction recovery restores source path target path and index after a po
             }
           );
         }
+        await originalRename(from, to);
       }
     });
     try {
@@ -58,8 +58,7 @@ test("transaction recovery restores source path target path and index after a po
             targetPath
           }
         ],
-        originalScan: await scanDecisionRecords({ workspaceRoot }),
-        scanOptions: { workspaceRoot }
+        originalScan: await scanDecisionRecords({ workspaceRoot })
       });
       assert.equal(result.status, "error");
       assert.equal(result.outcome, "rolled-back");
@@ -107,13 +106,13 @@ test("decision transaction restores every changed Markdown file and index after 
     Object.defineProperty(fs, "rename", {
       ...descriptor,
       value: async (from: string, to: string) => {
-        await rename(from, to);
         if (path.resolve(to) === indexPath) {
           throw Object.assign(
             new Error("simulated index failure after replacement"),
             { code: "EIO" }
           );
         }
+        await rename(from, to);
       }
     });
     try {
@@ -136,8 +135,7 @@ test("decision transaction restores every changed Markdown file and index after 
             )
           }
         ],
-        originalScan: await scanDecisionRecords({ workspaceRoot }),
-        scanOptions: { workspaceRoot }
+        originalScan: await scanDecisionRecords({ workspaceRoot })
       });
       assert.equal(result.status, "error");
       assert.equal(result.outcome, "rolled-back");

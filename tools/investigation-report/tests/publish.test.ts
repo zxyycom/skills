@@ -184,7 +184,8 @@ test("publish preserves candidate resources and rolls renamed candidates back wh
 
     const published = await publishInvestigationCandidatesWithWriter(
       { ids: ["resource-owner.md"], workspaceRoot: root },
-      async (target, text) => await fs.writeFile(target, text, "utf8"),
+      async (target, text) =>
+        await fs.writeFile(target, text, { encoding: "utf8", mode: 0o600 }),
       async () => await fs.writeFile(resource, "updated bytes", "utf8")
     );
     assert.deepEqual(published.errors, []);
@@ -230,7 +231,10 @@ test("publish rechecks candidate, formal source, and index drift before changing
 
   await withTempRoot("publish-formal-index-drift", async (root) => {
     await writeCollection(root, [{ id: "formal" }]);
-    await createReadyCandidate(root, "candidate.md");
+    await createReadyCandidate(root, "candidate.md", {
+      id: "candidate",
+      relations: [{ type: "补充", target: "formal" }]
+    });
     const candidate = candidatePath(root, "candidate.md");
     const formal = path.join(investigationRoot(root), "formal.md");
     const index = path.join(

@@ -8,6 +8,10 @@
  * Rebuild: bun run sync:novel-cards-cli
  */
 import {
+  consumePreparedStateIndex,
+  type PreparedStateIndex
+} from "./prepared.ts";
+import {
   createProjectionContext,
   normalizeStateIndex,
   projectStateIndexState,
@@ -19,12 +23,16 @@ import {
   queryMaterializedStateIndex,
   stateIndexEntryOf
 } from "./query.ts";
-import type { MaterializedStateIndexEntry } from "./query-fields.ts";
+import {
+  bindMaterializedEntries,
+  type MaterializedStateIndexEntry
+} from "./query-fields.ts";
 import { isPlainRecord } from "./record.ts";
 import { isStateIndexText, stateIndexQueryMaximumLimit } from "./schemas.ts";
 import type {
   JsonObject,
   StateIndex,
+  StateIndexContext,
   StateIndexDefinition,
   StateIndexDiagnostic,
   StateIndexEntry,
@@ -52,43 +60,52 @@ export function createStateIndexReader<
   indexPath: string;
 }): StateIndexReader<State, Metadata> {
   const definition = defineStateIndexDefinition(options.definition);
+  const materializedEntries: MaterializedStateIndexEntry<State>[] = [];
   const index = createReaderSnapshot({
     definition,
     index: options.index,
-    indexPath: options.indexPath
+    indexPath: options.indexPath,
+    materializedEntries
   });
-  const created = createStateIndexReaderFromSnapshot({
+  const created = createReaderWithEntries({
     definition,
     index,
-    indexPath: options.indexPath
+    indexPath: options.indexPath,
+    entries: bindMaterializedEntries(index, materializedEntries)
   });
   if (created.status === "error") throw invalidReaderError(created.diagnostics);
   return created.value;
 }
 
-export function createStateIndexReaderFromSnapshot<
+export function createStateIndexReaderFromPrepared<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
+  context: StateIndexContext;
+  definition: StateIndexDefinition<State, Metadata>;
+  prepared: PreparedStateIndex<State, Metadata>;
+  indexPath: string;
+}): StateIndexResult<StateIndexReader<State, Metadata>> {
+  const entries = consumePreparedStateIndex(options);
+  if (entries.status === "error") return entries;
+  return createReaderWithEntries({
+    ...options,
+    definition: defineStateIndexDefinition(options.definition),
+    index: options.prepared.index,
+    entries: entries.value
+  });
+}
+
+function createReaderWithEntries<
   State extends object,
   Metadata extends JsonObject
 >(options: {
   definition: StateIndexDefinition<State, Metadata>;
   index: StateIndex<State, Metadata>;
   indexPath: string;
+  entries: readonly MaterializedStateIndexEntry<State>[];
 }): StateIndexResult<StateIndexReader<State, Metadata>> {
-  const staticEntries = materializeEffectiveEntries({
-    definition: options.definition,
-    index: options.index
-  });
-  if (staticEntries.status === "error") {
-    return {
-      diagnostics: staticEntries.diagnostics.map((entry) => ({
-        ...entry,
-        path: entry.path ?? options.indexPath
-      })),
-      status: "error",
-      value: null
-    };
-  }
-  const cachedEntries = staticEntries.value;
+  const cachedEntries = options.entries;
 
   function getError(
     code: "state-index.query-invalid" | "state-index.runtime-states-invalid",
@@ -235,6 +252,7 @@ function createReaderSnapshot<
   definition: StateIndexDefinition<State, Metadata>;
   index: StateIndex<State, Metadata>;
   indexPath: string;
+  materializedEntries: MaterializedStateIndexEntry<State>[];
 }): StateIndex<State, Metadata> {
   const validated = validateStateIndexValue(
     options.index,
@@ -245,7 +263,8 @@ function createReaderSnapshot<
   const normalized = normalizeStateIndex(
     validated.index,
     options.definition,
-    options.indexPath
+    options.indexPath,
+    options.materializedEntries
   );
   if (normalized.status === "error")
     throw invalidReaderError(normalized.diagnostics);

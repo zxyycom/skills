@@ -7,9 +7,9 @@ Tags:
 - `investigation-report`
 
 Contract:
-- Investigation `sync-index --select` 默认在完整验证正式报告集合后发布当前 projection；`--preflight` 保持零写入，selector 以 ID-first 解析限制本次可接纳的来源变化。
+- Investigation `sync-index --select` 默认在合法发布基线上验证所选已知路径与必要依赖，发布完整组合 projection；未读来源当前性不检查，`--preflight` 同范围零写入。
 
 Proves:
-- 选择范围外的来源变化以领域错误拒绝且 index 保持原字节；合法所选来源变化的 `--preflight` 成功、明确尚未发布且 index 保持原字节。
+- 无关未选来源变化不阻断局部同步，index 保持原字节且结果明确未选条目沿用发布基线；合法所选来源变化的 `--preflight` 成功、明确尚未发布且 index 保持原字节。
 - `--write` 触发用法错误退出，stdout 为空且 index 保持原字节。
 - 原始 `.md` name selector 与解析后的标准日期 ID 同时出现在结果文本；完整 projection 字节等于 full sync。

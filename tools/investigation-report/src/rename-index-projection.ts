@@ -1,3 +1,4 @@
+import type { InvestigationPreparation } from "./strict-preparation.ts";
 import {
   buildStateIndex,
   serializeStateIndex
@@ -12,6 +13,7 @@ import type { RenameSource } from "./rename-contract.ts";
 import {
   errorText,
   readRegularText,
+  lstatOrNull,
   renameStepFailure,
   type RenameStep
 } from "./rename-support.ts";
@@ -20,17 +22,18 @@ import type { InvestigationIndexState, InvestigationSource } from "./types.ts";
 export async function prepareNextIndex(
   root: string,
   indexPath: string,
-  sources: readonly RenameSource[]
+  sources: readonly RenameSource[],
+  preparation?: InvestigationPreparation
 ): Promise<
   RenameStep<
     Readonly<{ nextIndexText: string | null; oldIndexText: string | null }>
   >
 > {
   const formal = sources.filter((source) => !source.candidate);
-  if (formal.length === 0)
-    return { value: { nextIndexText: null, oldIndexText: null } };
-  const previous = await readRenameIndex(indexPath);
+  const previous = await readRenameIndex(indexPath, preparation);
   if ("result" in previous) return previous;
+  if (formal.length === 0)
+    return { value: { nextIndexText: null, oldIndexText: previous.value } };
   const projected = await projectRenamedIndex(root, indexPath, formal);
   if ("result" in projected) return projected;
   return {
@@ -38,9 +41,18 @@ export async function prepareNextIndex(
   };
 }
 
-async function readRenameIndex(indexPath: string): Promise<RenameStep<string>> {
+async function readRenameIndex(
+  indexPath: string,
+  preparation?: InvestigationPreparation
+): Promise<RenameStep<string | null>> {
   try {
-    return { value: await readRegularText(indexPath) };
+    if ((await lstatOrNull(indexPath)) === null) return { value: null };
+    return {
+      value:
+        preparation === undefined
+          ? await readRegularText(indexPath)
+          : await preparation.read(indexPath)
+    };
   } catch (error) {
     return renameStepFailure(indexPath, [
       "Investigation index could not be read before rename: " + errorText(error)
@@ -56,11 +68,14 @@ async function projectRenamedIndex(
   const states = new Map<string, InvestigationIndexState>();
   const formalSources: InvestigationSource[] = [];
   for (const source of sources) {
-    const built = buildInvestigationReportState(
-      source.id,
-      parseInvestigationReport(source.text, source.id),
-      source.sourcePath
-    );
+    const built =
+      source.state === undefined
+        ? buildInvestigationReportState(
+            source.id,
+            source.parsed ?? parseInvestigationReport(source.text, source.id),
+            source.sourcePath
+          )
+        : { status: "valid" as const, state: source.state };
     if (built.status === "invalid")
       return renameStepFailure(indexPath, built.errors);
     states.set(source.id, built.state);

@@ -42,18 +42,19 @@ test("decision show returns metadata and reports body read failures", () =>
     assert.match(shown, /^id: use-generated-cli$/m);
     assert.match(shown, /^sourcePath: use-generated-cli\.md$/m);
     const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
-    const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
+    const descriptor = Object.getOwnPropertyDescriptor(fs, "open");
     assert.ok(descriptor);
-    const readFile = fs.readFile.bind(fs);
+    const open = fs.open.bind(fs);
     let reads = 0;
-    Object.defineProperty(fs, "readFile", {
+    Object.defineProperty(fs, "open", {
       ...descriptor,
-      value: async (file: string, encoding: BufferEncoding) => {
-        if (path.resolve(file) === sourcePath) {
+      value: async (...args: Parameters<typeof fs.open>) => {
+        const file = args[0];
+        if (typeof file === "string" && path.resolve(file) === sourcePath) {
           reads += 1;
           throw new Error("simulated decision body read failure");
         }
-        return await readFile(file, encoding);
+        return await open(...args);
       }
     });
     try {
@@ -71,7 +72,7 @@ test("decision show returns metadata and reports body read failures", () =>
       );
       assert.equal(reads, 1);
     } finally {
-      Object.defineProperty(fs, "readFile", descriptor);
+      Object.defineProperty(fs, "open", descriptor);
     }
   }));
 

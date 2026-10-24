@@ -41,7 +41,10 @@ export async function listDecisionRecords(
 ): Promise<DecisionQueryResult> {
   const prepared = prepareDecisionListRequest(request);
   if (prepared.status === "error") return prepared.failure;
-  const context = await loadDecisionQueryContext(request.location);
+  const context = await loadDecisionQueryContext(
+    request.location,
+    request.relatedTo !== undefined || request.relationType !== undefined
+  );
   if (context.status === "error") return context;
   return projectDecisionList(context, request, prepared, context.warnings);
 }

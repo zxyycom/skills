@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import type { InvestigationPreparation } from "./strict-preparation.ts";
 import type {
   DiscardCollectionOptions,
   ValidatedInvestigationCollection
@@ -19,17 +20,22 @@ export async function publishLoadedDiscard(
   loaded: Readonly<{
     collection: ValidatedInvestigationCollection;
     originalIndexText: string;
+    preparation: InvestigationPreparation;
   }>,
   ownership: Readonly<{
     ownedResources: ResourceTreeScan;
     reportPath: string;
     resourceOwnerPath: string;
+    resourceProgress: import("./rename-contract.ts").ResourceMoveProgress;
   }>,
   indexText: string
 ) {
   return await publishPreparedDiscard(options, {
     indexText,
+    preparation: loaded.preparation,
     originalIndexText: loaded.originalIndexText,
+    originalSources: loaded.collection.sources,
+    resourceProgress: ownership.resourceProgress,
     ownedResources: ownership.ownedResources,
     reportPath: ownership.reportPath,
     resourceOwnerPath: ownership.resourceOwnerPath

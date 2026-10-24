@@ -115,7 +115,7 @@ test("decision CLI top-level help exposes the current command set", async () => 
   assert.doesNotMatch(help.stdout, /This is the default command/);
   assert.match(
     help.stdout,
-    /sync-index[\s\S]*Rebuild and publish the complete JSON index from[\s\S]*established Markdown/
+    /sync-index[\s\S]*full\s+source\s+audit\s+by\s+default;[\s\S]*--select\s+updates\s+known\s+published\s+locations/
   );
   assert.match(
     help.stdout,
@@ -237,9 +237,13 @@ test("sync-index publishes by default and separates the zero-write preflight", a
   assert.equal(help.exitCode, 0);
   assert.match(
     help.stdout,
-    /Rebuild and publish the complete JSON index from established Markdown/
+    /full\s+source\s+audit\s+by\s+default;[\s\S]*--select\s+updates\s+known\s+published\s+locations/
   );
   assert.match(help.stdout, /--select <name-or-id>/);
+  assert.match(
+    help.stdout,
+    /Unselected\s+source\s+currentness\s+is\s+not\s+checked/
+  );
   assert.match(help.stdout, /--preflight/);
   assert.doesNotMatch(help.stdout, /--write/);
 

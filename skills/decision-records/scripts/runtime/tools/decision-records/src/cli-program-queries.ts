@@ -57,8 +57,8 @@ function registerCheckCommand(
   const check = createSubcommand(
     program,
     "check",
-    "Strictly validate Markdown metadata, tags, source locations, alignment, relations, " +
-      "candidate scaffold/body readiness, and the JSON index."
+    "Validate first-acquired Markdown metadata, tags, source locations, alignment, relations, " +
+      "candidate readiness, and the complete JSON index projection; no end-of-check freshness or atomic snapshot promise."
   );
   check.action(() => execute("check", check));
 }
@@ -366,17 +366,17 @@ function registerSyncIndexCommand(
   const syncIndex = createSubcommand(
     program,
     "sync-index",
-    "Rebuild and publish the complete JSON index from established Markdown."
+    "Publish the complete index: full source audit by default; --select updates known published locations and required dependencies only."
   )
     .option(
       "--select <name-or-id>",
-      "Accept only this Decision's source change; repeat for multiple Decisions.",
+      "Locally update this published Decision; repeat for observed old/new IDs. Unselected source currentness is not checked.",
       (value: string, previous: string[]) => [...previous, value],
       []
     )
     .option(
       "--preflight",
-      "Validate the complete projection and report the outcome without writing the index."
+      "Validate the same full or selected scope without writing the index or taking an exclusive writer lock."
     );
   syncIndex.action(() => execute("sync-index", syncIndex));
 }

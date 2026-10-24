@@ -861,6 +861,64 @@
       ],
       "title": "记录工具局部操作契约一万条前后成本验证"
     },
+    "261024-align-record-rename-verification": {
+      "formedAt": "2026-10-24T05:55:23Z",
+      "name": "align-record-rename-verification",
+      "question": "为什么同等来源规模的 IR rename 承受额外串行验收，如何在不减弱事务安全的条件下对齐共同操作？",
+      "relations": [],
+      "resourceIds": [
+        "261024-align-record-rename-verification/phase-summary.json"
+      ],
+      "sourcePath": "align-record-rename-verification.md",
+      "tags": [
+        "investigation-report",
+        "performance",
+        "record-operations"
+      ],
+      "title": "记录身份更正的共同计划与阶段验收差异"
+    },
+    "261024-record-tools-entry-matrix-10k": {
+      "formedAt": "2026-10-24T10:59:25Z",
+      "name": "record-tools-entry-matrix-10k",
+      "question": "当前记录工具在一万条存量、每次小操作下，哪些入口及关键分支存在异常时间、CPU、内存或工作量负担？",
+      "relations": [
+        {
+          "summary": "在当前版本以全部入口和关键分支复查小操作成本",
+          "target": "261022-record-tools-local-contracts-1w",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "261024-record-tools-entry-matrix-10k/audit.json",
+        "261024-record-tools-entry-matrix-10k/decision-matrix.json",
+        "261024-record-tools-entry-matrix-10k/decision-metrics.jsonl",
+        "261024-record-tools-entry-matrix-10k/decision-outcomes.jsonl",
+        "261024-record-tools-entry-matrix-10k/decision-provenance.jsonl",
+        "261024-record-tools-entry-matrix-10k/decision-streams.jsonl",
+        "261024-record-tools-entry-matrix-10k/decision-summary.json",
+        "261024-record-tools-entry-matrix-10k/decision-workloads.jsonl",
+        "261024-record-tools-entry-matrix-10k/environment-and-inputs.json",
+        "261024-record-tools-entry-matrix-10k/investigation-matrix.json",
+        "261024-record-tools-entry-matrix-10k/investigation-metrics.jsonl",
+        "261024-record-tools-entry-matrix-10k/investigation-outcomes.jsonl",
+        "261024-record-tools-entry-matrix-10k/investigation-provenance.jsonl",
+        "261024-record-tools-entry-matrix-10k/investigation-streams.jsonl",
+        "261024-record-tools-entry-matrix-10k/investigation-summary.json",
+        "261024-record-tools-entry-matrix-10k/investigation-workloads.jsonl",
+        "261024-record-tools-entry-matrix-10k/measurement-methods.md",
+        "261024-record-tools-entry-matrix-10k/measurements.csv",
+        "261024-record-tools-entry-matrix-10k/protocol.md",
+        "261024-record-tools-entry-matrix-10k/verification.json"
+      ],
+      "sourcePath": "record-tools-entry-matrix-10k.md",
+      "tags": [
+        "decision-records",
+        "investigation-report",
+        "performance",
+        "scale-testing"
+      ],
+      "title": "记录工具当前版本一万条存量全入口横向性能复查"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -1545,6 +1603,8 @@
       "261022-ir-index-stage-regression-cause": "sha256:f4429711183d4192846574cae7ddafccec30140f35d7a0b54ff0c95d1dabc0ae",
       "261022-record-stage-convergence-10k": "sha256:c8d51362bb46c8dda5b711e3fbdd3ac6f1ce92325005870f0501494cdb15067d",
       "261022-record-tools-local-contracts-1w": "sha256:b4662c7c1cf3248491db6a5e9b9a44d2d353329d2242112ccda3f67954e050d2",
+      "261024-align-record-rename-verification": "sha256:9dd528772b765ccfd04508a25db5368100cdcc672f80f2e6788033ae5de56b4e",
+      "261024-record-tools-entry-matrix-10k": "sha256:bdb7464449dcae7a158bd1e6d18ed8adae29de35855b26dc3d814ac6ba092149",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import type { InvestigationPreparation } from "./strict-preparation.ts";
 import path from "node:path";
 import {
   createInvestigationStateSnapshot,
@@ -49,22 +50,27 @@ export type ValidatedInvestigationCollection = Readonly<{
   warnings: string[];
 }>;
 
+type CollectionValidationOptions = Readonly<{
+  allowEmptyCollection?: boolean;
+  layout?: InvestigationCollectionLayout;
+  preparation?: InvestigationPreparation;
+}>;
+
 export async function collectValidatedInvestigationCollection(
   investigationRoot: string,
-  options: Readonly<{
-    allowEmptyCollection?: boolean;
-    layout?: InvestigationCollectionLayout;
-  }> = {}
+  options: CollectionValidationOptions = {}
 ): Promise<ValidatedInvestigationCollection> {
   const layout =
     options.layout ??
-    (await inspectInvestigationCollectionLayout(investigationRoot));
+    (await inspectInvestigationCollectionLayout(investigationRoot, {
+      preparation: options.preparation
+    }));
   const errors = [...layout.errors];
   if (layout.reportIds.length === 0 && !options.allowEmptyCollection) {
     errors.push("investigation collection must contain at least one report");
   }
   const sources = layout.errors.length > 0 ? [] : layout.formalSources;
-  const states = collectionStates(sources, errors);
+  const states = collectionStates(sources, errors, options.preparation);
   const relations = createInvestigationRelationContext(states);
   if (errors.length === 0)
     errors.push(...validateInvestigationRelationGraph(relations));
@@ -78,6 +84,7 @@ export async function collectValidatedInvestigationCollection(
       authoringReferencesByReport:
         await readCandidateAuthoringResourceReferences(investigationRoot, {
           layout,
+          preparation: options.preparation,
           formalReferences: referencesByReport
         })
     }
@@ -101,13 +108,15 @@ export async function collectValidatedInvestigationCollection(
 
 function collectionStates(
   sources: readonly InvestigationSource[],
-  errors: string[]
+  errors: string[],
+  preparation?: InvestigationPreparation
 ): Map<string, InvestigationIndexState> {
   const states = new Map<string, InvestigationIndexState>();
   for (const source of sources) {
     const built = buildInvestigationReportState(
       source.id,
-      parseInvestigationReport(source.text, source.id),
+      preparation?.parsed(source) ??
+        parseInvestigationReport(source.text, source.id),
       source.sourcePath
     );
     if (built.status === "invalid") errors.push(...built.errors);

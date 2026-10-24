@@ -7,12 +7,16 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import type { RecordWriteIdentity } from "../../record-operations/src/transaction-files.ts";
 import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { sanitizeInvestigationDiagnosticText } from "./diagnostics.ts";
 
-export type InvestigationPublishWriteResult = Readonly<{ warnings: string[] }>;
+export type InvestigationPublishWriteResult = Readonly<{
+  warnings: string[];
+  identity?: RecordWriteIdentity;
+}>;
 
 export async function writeIndexAtomically(
   indexPath: string,
@@ -32,14 +36,18 @@ export async function writeIndexAtomically(
       investigationDirectory,
       stagingDirectory
     );
-    await writeTemporaryIndex(temporaryPath, indexText);
+    const identity = await writeTemporaryIndex(
+      temporaryPath,
+      indexText,
+      indexExisted ? (await fs.lstat(indexPath)).mode & 0o7777 : undefined
+    );
     const result = await publishTemporaryIndex(
       temporaryPath,
       indexPath,
       indexExisted
     );
     published = true;
-    return result;
+    return { ...result, identity };
   } finally {
     if (!published)
       await fs.rm(temporaryPath, { force: true }).catch(() => undefined);
@@ -74,12 +82,16 @@ async function validateIndexStagingFilesystem(
 }
 async function writeTemporaryIndex(
   temporaryPath: string,
-  indexText: string
-): Promise<void> {
+  indexText: string,
+  mode: number | undefined
+): Promise<RecordWriteIdentity> {
   const handle = await fs.open(temporaryPath, "wx", 0o600);
   try {
     await handle.writeFile(indexText, "utf8");
+    if (mode !== undefined) await handle.chmod(mode);
     await handle.sync();
+    const actual = await handle.stat();
+    return { dev: actual.dev, ino: actual.ino, mode: actual.mode & 0o7777 };
   } finally {
     await handle.close();
   }

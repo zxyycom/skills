@@ -20,7 +20,7 @@ test("project Markdown links cover the bounded package catalog without dropping 
     const source = path.join(directory, "source.md");
     const reference = "[destination](target.md#destination)\n";
     await fs.writeFile(path.join(directory, "target.md"), "# Destination\n");
-    await fs.writeFile(source, reference.repeat(2_048));
+    await fs.writeFile(source, reference.repeat(4_096));
     const complete = outcomeFor(
       await runDefinition(definition, directory),
       "markdown-link-validation"
@@ -28,12 +28,12 @@ test("project Markdown links cover the bounded package catalog without dropping 
     assert.equal(complete.status, "passed");
     assert.equal(
       complete.status === "passed" && complete.data.targetReadCount,
-      2_048
+      4_096
     );
 
     await fs.writeFile(
       source,
-      reference.repeat(2_047) + "[missing](missing.md)\n"
+      reference.repeat(4_095) + "[missing](missing.md)\n"
     );
     const broken = outcomeFor(
       await runDefinition(definition, directory),
@@ -42,7 +42,7 @@ test("project Markdown links cover the bounded package catalog without dropping 
     assert.equal(broken.status, "failed");
     assert.equal(broken.status === "failed" && broken.data.findingCount, 1);
 
-    await fs.writeFile(source, reference.repeat(2_049));
+    await fs.writeFile(source, reference.repeat(4_097));
     const overflow = outcomeFor(
       await runDefinition(definition, directory),
       "markdown-link-validation"

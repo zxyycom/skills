@@ -36,6 +36,7 @@ async function observeSourceReads<T>(
   run: () => Promise<T>
 ): Promise<{ result: T; paths: string[] }> {
   const original = fs.readFile;
+  const originalOpen = fs.open;
   const paths: string[] = [];
   fs.readFile = (async (...args: Parameters<typeof fs.readFile>) => {
     const target = typeof args[0] === "string" ? args[0] : "";
@@ -47,10 +48,21 @@ async function observeSourceReads<T>(
       paths.push(target);
     return await original(...args);
   }) as typeof fs.readFile;
+  fs.open = async (...args) => {
+    const target = typeof args[0] === "string" ? args[0] : "";
+    if (
+      target.startsWith(investigationRoot(root) + path.sep) &&
+      (target.endsWith(".md") ||
+        path.basename(target).startsWith("_candidate."))
+    )
+      paths.push(target);
+    return await originalOpen(...args);
+  };
   try {
     return { result: await run(), paths };
   } finally {
     fs.readFile = original;
+    fs.open = originalOpen;
   }
 }
 

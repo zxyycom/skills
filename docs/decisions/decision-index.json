@@ -105,7 +105,7 @@
       "260922-front-load-record-context-recovery": "sha256:457ea886d899da2a9d80e4118b33afc814f5ce3951b0f64f168a96d2ec244785",
       "260922-unify-cli-workspace-location-and-help": "sha256:5a823ce3607c76af0f0bb9b735fba8e04d2a517e245c9e8e69dcf67f4a498a01",
       "260922-unify-formal-relation-maintenance-actions": "sha256:404749283553846c1b7ef56d267c4b2982efe08b29b55ce343fd62c503993ee1",
-      "260922-unify-record-candidate-lifecycle-actions": "sha256:61e1ce2bb1c6f362a00baf84c4838aacb8639c7fb0fee62bda2f9a7eec911dd6",
+      "260922-unify-record-candidate-lifecycle-actions": "sha256:70033f215c7b8e1633d7c4ed8d3a71f898c477cc3e936de29ad21661498611af",
       "260922-unify-record-pending-snapshot-scopes": "sha256:864547962cb88df7b5ac8c38976bc4abdb07eeb38f8a1c0d94718adc0d0b71b8",
       "261003-lightweight-judgment-durable-calls": "sha256:be254f6a1a0680dd997fa20469d3247e2e76d54187db0bfecdd68f185980f99a",
       "261003-lightweight-judgment-explicit-invocation": "sha256:42fe1dc47c8c6a6a5ae0809304ad5964767fa088b4a127fa89d50ad59f756b2b",
@@ -114,7 +114,7 @@
       "261004-evolve-decision-lifecycle-through-closed-strategies": "sha256:35945dd42c3847e733728bbf480d343c300e92c2a82e9b58b486b2ca8252260e",
       "261004-exclude-historical-investigation-bytes-from-link-gate": "sha256:dbad1c240d0c22cbe31785024c5fd43d9e937f085090175e2a110c33b9ed7e71",
       "261004-lightweight-judgment-readonly-statistics": "sha256:70b3a59e8a5d60960d6a2ba96892ab220a7c7b6eb53d3cffe1d7f63156ab3316",
-      "261004-maintain-formal-record-relations-with-shared-input-contract": "sha256:d295f1ff27a1c1d36ff5ddb6b56956f85f4dfe23cda30be43890665b9db89416",
+      "261004-maintain-formal-record-relations-with-shared-input-contract": "sha256:012c634bb2c0870e64d5e1685671c4ab5eec70dc98d69f461ed744862e776a4b",
       "261004-project-record-discovery-semantics-into-cli-help": "sha256:32d2e0d77dee41fdb2c36dc1a197d873ce1ee7e8a5dfcfe8a64d00da0e6bb26d",
       "261004-recover-record-context-before-new-work": "sha256:435e069278dd7ef9d8027ef6948979663bd22f72207d6fb777337b470f2ef861",
       "261004-require-one-canonical-change-metadata-model": "sha256:8b323acb814148b44a43577839937b78f1eb22a9a5cc4aa62f2fa4b4335df2ab",
@@ -129,7 +129,7 @@
       "261010-investigation-local-validation-and-phase-facts": "sha256:575e7a38ac477ca6e3af84085c76bd101d3da1964efe38e595c15b62dd7fa840",
       "261010-retain-complete-validation-with-selected-content": "sha256:277160a97f3f3f37b38dd891a842e36f56883686291617de3af7c2ca4cd79fea",
       "261010-separate-investigation-query-and-validation-acquisition": "sha256:5669fdde0cbe2d1f86188ef5ed606f836f32660c960a2554b4c48083afc4a70a",
-      "261011-publish-decision-index-query-snapshots": "sha256:e70725985c320e52778936cb0db50357a238154a47596c051e63d6d9c689bbed",
+      "261011-publish-decision-index-query-snapshots": "sha256:8a85d80b6bfd2bc955f925af7a6d78a48408ebc5b1ee6012b1e92d0dadd7ffa1",
       "261017-complete-change-plans-through-task-declarations": "sha256:de38af27e41917cae426abb4903d4b20492b7c84f0b5b6643753b714b309f2bb",
       "261017-lightweight-judgment-faithful-protocol-adapters": "sha256:bb4a453ec6fb6159f865a3b5b3307e5ff5b0585a3aa9481a78919fd79ebc40b3",
       "261017-route-record-documentation-by-consumer-task": "sha256:45930827a933def1ad4df38f87547f0418e595912280f7ae9e03f3e3d7d0884a",
@@ -143,9 +143,11 @@
       "261022-scope-investigation-index-payload-validation": "sha256:7ae97d432be75b020bfa96b6cb8dfba88fda65acdd0ac820118458ddf75bdd8c",
       "261022-scope-record-index-payload-validation": "sha256:97af9f53547727d115ec4182430b9319d12b5eb4c13c5012c83a70989bb04f51",
       "261022-separate-quick-gate-from-complete-validation": "sha256:38418e687ffc5adb5244d3f32cde7c41e304786bad7118b6e3f55fae8e8c2c78",
-      "261022-separate-record-local-operations-from-collection-audits": "sha256:8dfcdf36c8a1471db4d14aecd17889edddd5954626ba541148ac36c6f504d462",
+      "261022-separate-record-local-operations-from-collection-audits": "sha256:1a13d4fcf611a5a19df7772603c398c869fbafdffda601b85c0e52d6939fcd8e",
+      "261024-bound-selected-record-sync-currentness": "sha256:7ca10a631d9c961d1622774e10f6b582ffa9258b0cd587fdca1cc500003c1856",
       "261024-keep-video-configuration-outside-installation": "sha256:6ac9697bb40a0f0e05d6905a7e44be656d10d24e30c522e4f6f16d35b90986ed",
       "261024-require-windows-video-acceptance-for-aggregate-release": "sha256:0d0c9519f948cdb2bc2d18ef47a9e3239929c605db6189c691669c6729b2b49f",
+      "261024-separate-test-design-from-evidence-catalog": "sha256:6cf6b51806fc6647e65a14245c39afe632e1a9d4a5d9c270f4bd946344b98b77",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -3304,6 +3306,23 @@
         }
       ]
     },
+    "261024-bound-selected-record-sync-currentness": {
+      "name": "bound-selected-record-sync-currentness",
+      "sourcePath": "bound-selected-record-sync-currentness.md",
+      "title": "限定记录选择性同步的来源新鲜度",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-24T04:15:10Z",
+      "purpose": "让小批记录同步只承担选中来源与必要依赖的当前性保证",
+      "background": "发布索引已有合法未选投影而全集扫描将存量成本重复附加到局部同步",
+      "decision": "选择性同步以合法发布基线组合局部当前事实并显式交付新鲜度范围",
+      "tags": [
+        "decision-records",
+        "investigation-report",
+        "responsibility-boundaries"
+      ],
+      "relations": []
+    },
     "261024-keep-video-configuration-outside-installation": {
       "name": "keep-video-configuration-outside-installation",
       "sourcePath": "keep-video-configuration-outside-installation.md",
@@ -3334,6 +3353,23 @@
         "project-tooling",
         "release-safety",
         "video-understanding"
+      ],
+      "relations": []
+    },
+    "261024-separate-test-design-from-evidence-catalog": {
+      "name": "separate-test-design-from-evidence-catalog",
+      "sourcePath": "separate-test-design-from-evidence-catalog.md",
+      "title": "分离测试设计与证据账本的能力边界",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-24T06:06:19Z",
+      "purpose": "让测试设计可独立改善辨错能力与必要成本，同时保持证据账本的职责清晰。",
+      "background": "测试登记和证据审查不能替代测试边界、数据与断言的具体设计，混合流程会让测试改进依赖账本维护。",
+      "decision": "以 test-design 独立承接测试设计与改进，test-evidence-review 保留证据审查与 Case 维护，两者按项目选择协作。",
+      "tags": [
+        "responsibility-boundaries",
+        "test-design",
+        "test-evidence-review"
       ],
       "relations": []
     },

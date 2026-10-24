@@ -7,14 +7,21 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import { isDecisionId } from "./decision-path.ts";
+import type { DecisionId } from "./types.ts";
 import { validateDecisionBody } from "./record.ts";
-import { randomUUID } from "node:crypto";
-import fs from "node:fs/promises";
 import path from "node:path";
+import { runRecordTransaction } from "../../record-operations/src/transaction.ts";
+import {
+  RecordAtomicCleanupError,
+  readRecordFileSnapshot,
+  writeRecordFileAtomically
+} from "../../record-operations/src/transaction-files.ts";
 import {
   decisionDiagnostic,
   decisionFileSystemDiagnostic,
   decisionFailure,
+  type DecisionMutationOutcome,
   type DecisionApplicationFailure
 } from "./application-result.ts";
 import { DecisionCollectionLockError } from "./decision-collection-mutation-lock.ts";
@@ -27,7 +34,8 @@ import type {
 export async function publishCandidateCreation(
   request: NewDecisionCandidateRequest,
   decisionPath: string,
-  sourcePath: string
+  sourcePath: string,
+  verifyIdentities: (created: boolean) => Promise<void>
 ): Promise<NewDecisionCandidateResult> {
   const markdown = candidateScaffoldMarkdown(request);
   const invalid = await validateCandidateScaffold(
@@ -36,50 +44,105 @@ export async function publishCandidateCreation(
     markdown
   );
   if (invalid !== null) return creationFailure(invalid);
-  let published: CandidatePublication;
-  try {
-    published = await publishNewDecisionCandidate(decisionPath, markdown);
-  } catch (error) {
-    return creationFailure(
-      decisionFileSystemDiagnostic(
-        {
-          code: "decision-records.new-publish-failed",
-          outcome: "no-change",
-          reason:
-            "Could not publish the decision candidate scaffold without overwriting an existing identity.",
-          recovery:
-            "Inspect the candidate path and collection, then retry with an unused Decision ID if no candidate was created.",
-          scope: "Decision candidate scaffold",
-          target: request.decisionId
-        },
-        error
-      )
-    );
-  }
-  if (published.cleanupPending) {
-    return completedCreationFailure(
-      request.decisionId,
-      decisionFileSystemDiagnostic(
-        {
-          code: "decision-records.new-staging-cleanup-failed",
-          outcome: "committed-cleanup-pending",
-          reason:
-            "The decision candidate scaffold was created, but its private staging file could not be removed.",
-          recovery:
-            "Keep the created scaffold, inspect the reported staging path, and remove only that private staging file before another mutation.",
-          scope: "Decision candidate scaffold",
-          target: published.stagingPath
-        },
-        published.cleanupError
-      )
-    );
-  }
-  return {
-    created: true,
-    decisionId: request.decisionId,
-    sourcePath,
-    status: "ok"
+  const root = path.resolve(request.workspaceRoot ?? process.cwd());
+  const result = await runRecordTransaction({
+    prepare: async () => {
+      const before = await readRecordFileSnapshot(root, decisionPath);
+      if (before !== null)
+        throw new Error(
+          "Decision candidate target already exists: " + sourcePath
+        );
+      const indexPath = path.join(
+        path.dirname(decisionPath),
+        "decision-index.json"
+      );
+      const indexBefore = await readRecordFileSnapshot(root, indexPath);
+      return {
+        value: sourcePath,
+        root,
+        index: null,
+        writes: [
+          {
+            path: decisionPath,
+            before,
+            next: Buffer.from(markdown),
+            creationMode: 0o666,
+            write: async (target: string, bytes: Uint8Array) =>
+              writeRecordFileAtomically(
+                root,
+                {
+                  path: target,
+                  before: null,
+                  next: bytes,
+                  creationMode: 0o666
+                },
+                path.dirname(path.dirname(decisionPath))
+              )
+          }
+        ],
+        guards: [{ path: indexPath, before: indexBefore }]
+      };
+    },
+    fresh: () => verifyIdentities(false),
+    verify: () => verifyIdentities(true),
+    verifyRecovered: () => verifyIdentities(false)
+  });
+  const facts = {
+    changed: result.changed,
+    committed: result.committed,
+    verification: result.verification
   };
+  if (result.status === "ok")
+    return {
+      ...facts,
+      created: true,
+      decisionId: request.decisionId,
+      sourcePath,
+      status: "ok"
+    };
+  const diagnostics = [
+    ...result.errors.map((error) =>
+      creationDiagnostic(error, sourcePath, result.outcome, false, root)
+    ),
+    ...result.cleanupErrors.map((error) =>
+      creationDiagnostic(error, sourcePath, result.outcome, true, root)
+    )
+  ];
+  const failure = { ...decisionFailure(diagnostics), ...facts };
+  return result.changed
+    ? { ...failure, created: true, decisionId: request.decisionId, sourcePath }
+    : failure;
+}
+
+function creationDiagnostic(
+  error: unknown,
+  sourcePath: string,
+  outcome: DecisionMutationOutcome,
+  cleanup: boolean,
+  workspaceRoot: string
+) {
+  return decisionFileSystemDiagnostic(
+    {
+      code: cleanup
+        ? "decision-records.new-staging-cleanup-failed"
+        : "decision-records.new-publish-failed",
+      outcome,
+      reason: cleanup
+        ? "Decision candidate was published but temporary cleanup failed."
+        : "Decision candidate publication or verification failed.",
+      recovery:
+        "Inspect the actual candidate sourcePath and reported cleanup state before running another mutation.",
+      scope: "Decision candidate scaffold",
+      target:
+        error instanceof RecordAtomicCleanupError
+          ? path
+              .relative(workspaceRoot, error.temporaryPath)
+              .split(path.sep)
+              .join("/")
+          : sourcePath
+    },
+    error
+  );
 }
 
 async function validateCandidateScaffold(
@@ -126,95 +189,38 @@ function candidateScaffoldMarkdown(
   );
 }
 
-async function publishNewDecisionCandidate(
-  decisionPath: string,
-  markdown: string
-): Promise<CandidatePublication> {
-  const temporaryPath = await candidateTemporaryPath(decisionPath);
-  return publishCandidateFile(temporaryPath, decisionPath, markdown);
-}
-
-async function candidateTemporaryPath(decisionPath: string): Promise<string> {
-  const decisionsDirectory = path.dirname(decisionPath);
-  const stagingDirectory = path.dirname(decisionsDirectory);
-  const [decisionsStats, stagingStats] = await Promise.all([
-    fs.stat(decisionsDirectory),
-    fs.stat(stagingDirectory)
-  ]);
-  if (decisionsStats.dev !== stagingStats.dev) {
-    throw new Error(
-      "candidate staging directory is not on the decision collection filesystem"
-    );
-  }
-  return path.join(
-    stagingDirectory,
-    ".decision-records-candidate-" +
-      path.basename(decisionPath) +
-      ".new-" +
-      randomUUID()
-  );
-}
-
-async function publishCandidateFile(
-  temporaryPath: string,
-  decisionPath: string,
-  markdown: string
-): Promise<CandidatePublication> {
-  let operationError: unknown = null;
-  try {
-    await fs.writeFile(temporaryPath, markdown, {
-      encoding: "utf8",
-      flag: "wx"
-    });
-    await fs.link(temporaryPath, decisionPath);
-  } catch (error) {
-    operationError = error;
-  }
-  const cleanupError = await removeCandidateStagingFile(temporaryPath);
-  if (operationError !== null) throw operationError;
-  return cleanupError === null
-    ? { cleanupError: null, cleanupPending: false, stagingPath: temporaryPath }
-    : { cleanupError, cleanupPending: true, stagingPath: temporaryPath };
-}
-
-async function removeCandidateStagingFile(
-  temporaryPath: string
-): Promise<Error | null> {
-  try {
-    await fs.rm(temporaryPath, { force: true });
-    return null;
-  } catch (error) {
-    return error instanceof Error ? error : new Error(String(error));
-  }
-}
-
-type CandidatePublication = {
-  cleanupError: Error | null;
-  cleanupPending: boolean;
-  stagingPath: string;
-};
-
 export function completedCandidateCreation(
   error: unknown,
   decisionsDirectory: string
-): (DecisionApplicationFailure & { created: true; sourcePath: string }) | null {
+):
+  | (DecisionApplicationFailure & {
+      created: true;
+      decisionId: DecisionId;
+      sourcePath: string;
+    })
+  | null {
   const completed = releasedCandidateCreation(error);
   if (completed === null) return null;
   const diagnostic = collectionLockDiagnostic(
     error,
     decisionsDirectory,
-    "committed-cleanup-pending"
+    completed.status === "ok"
+      ? "committed-cleanup-pending"
+      : (completed.diagnostics.find((entry) => entry.outcome !== undefined)
+          ?.outcome ?? "committed-cleanup-pending")
   );
   return completed.status === "ok"
-    ? completedCreationFailure(completed.sourcePath, diagnostic)
+    ? { ...completed, ...creationFailure(diagnostic) }
     : appendCompletedCreationDiagnostic(completed, diagnostic);
 }
 
-function releasedCandidateCreation(
-  error: unknown
-):
-  | (DecisionApplicationFailure & { created: true; sourcePath: string })
-  | { created: true; sourcePath: string; status: "ok" }
+function releasedCandidateCreation(error: unknown):
+  | (DecisionApplicationFailure & {
+      created: true;
+      decisionId: DecisionId;
+      sourcePath: string;
+    })
+  | { created: true; decisionId: DecisionId; sourcePath: string; status: "ok" }
   | null {
   if (
     !(error instanceof DecisionCollectionLockError) ||
@@ -226,12 +232,20 @@ function releasedCandidateCreation(
     : null;
 }
 
-function isCreatedCandidateResult(
-  value: unknown
-): value is
-  | (DecisionApplicationFailure & { created: true; sourcePath: string })
-  | { created: true; sourcePath: string; status: "ok" } {
+function isCreatedCandidateResult(value: unknown): value is
+  | (DecisionApplicationFailure & {
+      created: true;
+      decisionId: DecisionId;
+      sourcePath: string;
+    })
+  | {
+      created: true;
+      decisionId: DecisionId;
+      sourcePath: string;
+      status: "ok";
+    } {
   if (value === null || typeof value !== "object") return false;
+  if (!("decisionId" in value) || !isDecisionId(value.decisionId)) return false;
   if (!("sourcePath" in value) || typeof value.sourcePath !== "string")
     return false;
   if (!("created" in value) || value.created !== true) return false;
@@ -241,16 +255,28 @@ function isCreatedCandidateResult(
 }
 
 function appendCompletedCreationDiagnostic(
-  failure: DecisionApplicationFailure & { created: true; sourcePath: string },
+  failure: DecisionApplicationFailure & {
+    created: true;
+    decisionId: DecisionId;
+    sourcePath: string;
+  },
   diagnostic: ReturnType<typeof collectionLockDiagnostic>
-): DecisionApplicationFailure & { created: true; sourcePath: string } {
-  return { ...failure, diagnostics: [...failure.diagnostics, diagnostic] };
+): DecisionApplicationFailure & {
+  created: true;
+  decisionId: DecisionId;
+  sourcePath: string;
+} {
+  return {
+    ...failure,
+    diagnostics: [...failure.diagnostics, diagnostic],
+    errors: [...failure.errors, diagnostic.reason]
+  };
 }
 
 export function collectionLockDiagnostic(
   error: unknown,
   decisionsDirectory: string,
-  outcome: "committed-cleanup-pending" | "no-change" = "no-change"
+  outcome: DecisionMutationOutcome = "no-change"
 ) {
   if (error instanceof DecisionCollectionLockError) {
     return decisionDiagnostic({
@@ -270,7 +296,9 @@ export function collectionLockDiagnostic(
       recovery:
         error.kind === "busy"
           ? "Wait for or confirm the active transaction; only if none is active, inspect the remaining lock before retrying."
-          : "Inspect access to the decision collection, then retry the command.",
+          : error.kind === "release-failed"
+            ? "Inspect the actual candidate and remaining lock before running another mutation."
+            : "Inspect access to the decision collection, then retry the command.",
       scope: "Decision candidate scaffold",
       target: decisionsDirectory
     });
@@ -286,13 +314,6 @@ export function collectionLockDiagnostic(
     },
     error
   );
-}
-
-function completedCreationFailure(
-  sourcePath: string,
-  diagnostic: ReturnType<typeof collectionLockDiagnostic>
-): DecisionApplicationFailure & { created: true; sourcePath: string } {
-  return { ...creationFailure(diagnostic), created: true, sourcePath };
 }
 
 export function creationFailure(

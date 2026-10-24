@@ -7,39 +7,15 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
+import path from "node:path";
+import { readRecordText } from "../../record-operations/src/source.ts";
 import type { ResourceTreeScan } from "./discard-history.ts";
 
-export async function writeTextAtomically(
-  targetPath: string,
-  text: string
-): Promise<void> {
-  await ensureRegularFile(targetPath);
-  const temporaryPath = `${targetPath}.${process.pid}.${randomUUID()}.tmp`;
-  const handle = await fs.open(temporaryPath, "wx", 0o600);
-  try {
-    await handle.writeFile(text, "utf8");
-  } finally {
-    await handle.close();
-  }
-  try {
-    await fs.rename(temporaryPath, targetPath);
-  } catch (error) {
-    await fs.rm(temporaryPath, { force: true }).catch(() => undefined);
-    throw error;
-  }
-}
+export { writeInvestigationTextAtomically as writeTextAtomically } from "./transaction-files.ts";
 
 export async function readRegularText(filePath: string): Promise<string> {
-  await ensureRegularFile(filePath);
-  return await fs.readFile(filePath, "utf8");
-}
-export async function ensureRegularFile(filePath: string): Promise<void> {
-  const entry = await fs.lstat(filePath);
-  if (entry.isSymbolicLink() || !entry.isFile()) {
-    throw new Error("must be a regular non-symbolic-link file");
-  }
+  return await readRecordText(path.dirname(filePath), path.basename(filePath));
 }
 export async function lstatOrNull(
   filePath: string

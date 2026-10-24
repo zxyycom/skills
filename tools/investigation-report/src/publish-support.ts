@@ -1,4 +1,3 @@
-import fs from "node:fs/promises";
 import path from "node:path";
 import { InvestigationCollectionMutationLockError } from "./collection-mutation-lock.ts";
 import {
@@ -13,94 +12,6 @@ import type {
   InvestigationCandidatePublishOptions,
   InvestigationCandidatePublishResult
 } from "./types.ts";
-
-export async function currentIndexText(
-  indexPath: string,
-  expected: boolean
-): Promise<
-  | Readonly<{ status: "ok"; value: string | null }>
-  | Readonly<{
-      diagnostics: InvestigationDiagnostic[];
-      errors: string[];
-      status: "error";
-    }>
-> {
-  try {
-    const valid = await isRegularIndex(indexPath);
-    if (!valid) return invalidIndexFile();
-    if (!expected) {
-      return {
-        diagnostics: [],
-        errors: ["investigation index appeared after publish preparation"],
-        status: "error"
-      };
-    }
-    return { status: "ok", value: await fs.readFile(indexPath, "utf8") };
-  } catch (error) {
-    if (isMissing(error) && !expected) return { status: "ok", value: null };
-    return {
-      diagnostics: [
-        diagnosticFromError({
-          code: "investigation-report.publish-index-read-failed",
-          error,
-          reason: "the investigation index could not be read before publish",
-          recovery:
-            "restore a readable current index or run sync-index before retrying publish",
-          target: indexPath
-        })
-      ],
-      errors: ["investigation index could not be read before publish"],
-      status: "error"
-    };
-  }
-}
-
-async function isRegularIndex(indexPath: string): Promise<boolean> {
-  const entry = await fs.lstat(indexPath);
-  return !entry.isSymbolicLink() && entry.isFile();
-}
-
-function invalidIndexFile(): Readonly<{
-  diagnostics: InvestigationDiagnostic[];
-  errors: string[];
-  status: "error";
-}> {
-  return {
-    diagnostics: [],
-    errors: ["investigation index must be a regular non-symbolic-link file"],
-    status: "error"
-  };
-}
-
-export function publishNoChangeFailure(
-  options: { ids: readonly string[]; indexPath: string; root: string },
-  preparation: InvestigationPublishPreparation,
-  code: string,
-  error: unknown
-): InvestigationCandidatePublishResult {
-  return result(
-    { ids: options.ids, workspaceRoot: options.root },
-    false,
-    ["investigation publish could not continue before writing files"],
-    {
-      diagnostics: [
-        diagnosticFromError({
-          code,
-          error,
-          mutation: publishMutation("no-change"),
-          reason:
-            "the publish transaction stopped before changing candidate or formal report paths",
-          recovery:
-            "resolve the reported failure, then retry publish from the current collection state",
-          target: options.indexPath
-        })
-      ],
-      indexPath: options.indexPath,
-      warnings: preparation.warnings,
-      mutation: publishMutation("no-change")
-    }
-  );
-}
 
 export function publishLockFailure(
   input: InvestigationCandidatePublishOptions,
@@ -121,9 +32,11 @@ function completedPublishLockFailure(
     isPublishResult(error.operationResult)
   ) {
     const completed = error.operationResult;
-    const mutation = publishMutation(
-      completed.changed ? "committed-cleanup-pending" : "no-change"
-    );
+    const mutation =
+      completed.mutation ??
+      publishMutation(
+        completed.changed ? "committed-cleanup-pending" : "no-change"
+      );
     const { relationReview: _relationReview, ...result } = completed;
     return {
       ...result,
@@ -269,16 +182,6 @@ export function sameResourceSnapshots(
   );
 }
 
-export async function pathExists(target: string): Promise<boolean> {
-  try {
-    await fs.lstat(target);
-    return true;
-  } catch (error) {
-    if (isMissing(error)) return false;
-    throw error;
-  }
-}
-
 export function isPublishResult(
   value: unknown
 ): value is InvestigationCandidatePublishResult {
@@ -297,6 +200,10 @@ export function isMissing(error: unknown): boolean {
     error !== null &&
     Reflect.get(error, "code") === "ENOENT"
   );
+}
+
+export function errorText(error: unknown): string {
+  return sanitizeInvestigationDiagnosticText(error);
 }
 
 export function uniqueSorted(values: readonly string[]): string[] {

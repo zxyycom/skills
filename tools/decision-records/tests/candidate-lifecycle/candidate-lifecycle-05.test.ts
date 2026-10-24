@@ -107,7 +107,7 @@ test("discarding the only candidate leaves no established decision index", () =>
     );
   }));
 
-test("candidate collection serves sources while the established index is missing invalid or stale", async () => {
+test("candidate collection distinguishes missing invalid and stale established indexes", async () => {
   for (const indexState of ["missing", "invalid", "stale"] as const) {
     await withFixtureWorkspace(
       `candidate-index-${indexState}`,
@@ -147,16 +147,29 @@ test("candidate collection serves sources while the established index is missing
           "--root",
           workspaceRoot
         ]);
-        assert.equal(candidates.exitCode, 0, candidates.stderr);
-        assert.match(candidates.stdout, new RegExp(candidateId), indexState);
+        assert.equal(
+          candidates.exitCode,
+          indexState === "invalid" ? 1 : 0,
+          candidates.stderr
+        );
+        if (indexState === "invalid")
+          assert.match(candidates.stderr, /explicitly sync-index/);
+        else
+          assert.match(candidates.stdout, new RegExp(candidateId), indexState);
         const shown = await runSourceCli([
           "show-candidate",
           candidateId,
           "--root",
           workspaceRoot
         ]);
-        assert.equal(shown.exitCode, 0, shown.stderr);
-        assert.match(shown.stdout, new RegExp(candidateId), indexState);
+        assert.equal(
+          shown.exitCode,
+          indexState === "invalid" ? 1 : 0,
+          shown.stderr
+        );
+        if (indexState === "invalid")
+          assert.match(shown.stderr, /explicitly sync-index/);
+        else assert.match(shown.stdout, new RegExp(candidateId), indexState);
       }
     );
   }

@@ -36,7 +36,6 @@ test("decision transaction retains rolled-back when lock release fails after rec
       Object.defineProperty(fs, "rename", {
         ...renameDescriptor,
         value: async (...args: Parameters<typeof fs.rename>) => {
-          await rename(...args);
           if (
             path.resolve(String(args[1])) === indexPath &&
             !indexWriteFailed
@@ -44,6 +43,7 @@ test("decision transaction retains rolled-back when lock release fails after rec
             indexWriteFailed = true;
             throw new Error("simulated index write failure");
           }
+          await rename(...args);
         }
       });
       Object.defineProperty(fs, "rm", {
@@ -71,8 +71,7 @@ test("decision transaction retains rolled-back when lock release fails after rec
               nextText: sourceBefore.replace("使用生成 CLI", "回滚后的生成 CLI")
             }
           ],
-          originalScan: await scanDecisionRecords({ workspaceRoot }),
-          scanOptions: { workspaceRoot }
+          originalScan: await scanDecisionRecords({ workspaceRoot })
         });
       } finally {
         Object.defineProperty(fs, "rename", renameDescriptor);
@@ -143,7 +142,7 @@ test("sync-index retains no-change when a current index lock release fails", () 
     }
   ));
 
-test("lifecycle rolls back and does not print success when its post-write index check fails", () =>
+test("lifecycle preserves committed archive and omits success when index readback fails", () =>
   withFixtureWorkspace("post-mutation-scan", async (workspaceRoot) => {
     const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
     const indexPath = path.join(decisionsDirectory, "decision-index.json");
@@ -151,11 +150,11 @@ test("lifecycle rolls back and does not print success when its post-write index 
     const sourceBefore = await fs.readFile(sourcePath, "utf8");
     const indexBefore = await fs.readFile(indexPath, "utf8");
     const renameDescriptor = Object.getOwnPropertyDescriptor(fs, "rename");
-    const readDescriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
+    const readDescriptor = Object.getOwnPropertyDescriptor(fs, "open");
     assert.ok(renameDescriptor);
     assert.ok(readDescriptor);
     const rename = fs.rename.bind(fs);
-    const readFile = fs.readFile.bind(fs);
+    const open = fs.open.bind(fs);
     let indexWritten = false;
     Object.defineProperty(fs, "rename", {
       ...renameDescriptor,
@@ -164,16 +163,15 @@ test("lifecycle rolls back and does not print success when its post-write index 
         if (path.resolve(String(args[1])) === indexPath) indexWritten = true;
       }
     });
-    Object.defineProperty(fs, "readFile", {
+    Object.defineProperty(fs, "open", {
       ...readDescriptor,
-      value: async (...args: Parameters<typeof fs.readFile>) => {
-        if (
-          indexWritten &&
-          typeof args[0] === "string" &&
-          path.resolve(args[0]) === indexPath
-        )
-          throw new Error("simulated post-mutation decision index failure");
-        return await readFile(...args);
+      value: async (...args: Parameters<typeof fs.open>) => {
+        const handle = await open(...args);
+        if (indexWritten && path.resolve(String(args[0])) === indexPath)
+          handle.readFile = async () => {
+            throw new Error("simulated post-mutation decision index failure");
+          };
+        return handle;
       }
     });
     try {
@@ -187,16 +185,18 @@ test("lifecycle rolls back and does not print success when its post-write index 
       assert.equal(result.exitCode, 1);
       assert.equal(result.stdout, "");
       assert.match(result.stderr, /code: decision-records\.transaction-failed/);
-      assert.match(result.stderr, /outcome: rolled-back/);
+      assert.match(result.stderr, /outcome: partial-or-unknown/);
     } finally {
       Object.defineProperty(fs, "rename", renameDescriptor);
-      Object.defineProperty(fs, "readFile", readDescriptor);
+      Object.defineProperty(fs, "open", readDescriptor);
     }
-    assert.equal(await fs.readFile(sourcePath, "utf8"), sourceBefore);
-    assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
-    await assert.rejects(
-      fs.access(
-        path.join(decisionsDirectory, "archive", `${currentDecisionId}.md`)
-      )
+    await assert.rejects(fs.access(sourcePath));
+    assert.notEqual(await fs.readFile(indexPath, "utf8"), indexBefore);
+    assert.equal(
+      await fs.readFile(
+        path.join(decisionsDirectory, "archive", `${currentDecisionId}.md`),
+        "utf8"
+      ),
+      sourceBefore.replace("status: active", "status: archived")
     );
   }));

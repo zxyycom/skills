@@ -12,7 +12,8 @@
 | 使用或审阅某个 skill | `skills/<skill-name>/SKILL.md` | 该入口按读取策略指向的 `references/`、`scripts/` 或其他材料；按需读取对应 `docs/skills/<skill-name>.md` |
 | 排查或解决 Bug | [复杂 Bug 调查与报告](complex-bug-investigation.md) | 目标代码、测试和领域 owner；需要形成报告时，读取 [Investigation Report](../skills/investigation-report/SKILL.md) 及其固定契约 |
 | 维护或恢复非线性任务图 | [Task Graph](../skills/task-graph/SKILL.md) | [权威 task index](task-graph/task-graph-index.json)；需要持久 change、长期知识或代理编排时按该 skill 的交接条件读取对应 owner |
-| 新增、修改、删除或审查测试实现 | [Test Evidence Review](../skills/test-evidence-review/SKILL.md) | 项目测试约定、目标测试及被测契约；写入 case 时读取该 skill 的目录契约 |
+| 设计、编写、改进或审查测试实现 | [Test Design](../skills/test-design/SKILL.md) | 项目测试约定、目标测试及被测契约；保留入口与证明范围变化时按 [Test Evidence Review](../skills/test-evidence-review/SKILL.md) 维护账本 |
+| 查询、整理或修复测试证据 Case | [Test Evidence Review](../skills/test-evidence-review/SKILL.md) | 写入 Case 时读取该 skill 的目录契约；需要改进测试实现时再进入 Test Design |
 | 创建、显著扩展或大幅重构 skill | [Skill Maintainer](../skills/skill-maintainer/SKILL.md)、已有目标 skill 的 `SKILL.md` | 真实流程、关键判断、约束或验收仍隐含或冲突时读 [Skill Design Discovery](../skills/skill-design-discovery/SKILL.md)；涉及通用分发边界时读 [仓库模型](repository-model.md) |
 | 调整仓库定位、skill 选择与启用边界或通用分发边界 | [仓库模型](repository-model.md) | 涉及具体打包、发布或 updater 机制时读 [项目工具链](tooling.md)；只影响特定 skill 时读其行为 owner |
 | 修改项目级 agent 协作约定 | [AGENTS](../AGENTS.md) | 改变任务路由或内容 owner 时读本文；需要让文档更适合 AI 阅读和使用时读 [AI-Ready Docs](../skills/ai-ready-docs/SKILL.md) |
@@ -58,6 +59,7 @@
 | Skill 本体 | `skills/<skill-name>/SKILL.md` 及其相邻材料 | 单个 skill 的触发、行为、读取策略、执行流程、边界、验收和分发内容 |
 | 任务图索引 | `docs/task-graph/task-graph-index.json` | 当前工作中 task、真实父子、显式依赖与排斥、执行租约的唯一权威事实；只由 task-graph 工具事务化修改，复杂有效状态由查询投影 |
 | 测试证据账本 | `docs/test-evidence/cases/*.md`、`docs/test-evidence/test-evidence-index.json` | 每个 Markdown 承接一个权威 Case；Case 的 Tests 集合记录共同支持同一 Contract 与 Proves 的一个或多个最小原生测试入口，另含可选 tags；索引 JSON 是 Case-only 查询投影。项目实体快照与覆盖策略由项目 owner 承接，格式和维护事务由 `skills/test-evidence-review/` 承接 |
+| 共同记录操作 | `tools/record-operations/` | Decision Records 与 Investigation Report 的共同操作编排、阶段证明交接和失败边界；领域规则与适配仍归各域，stage 协调仍归 Index Runtime；入口见该目录 README |
 | 可分发工具源码 | `tools/<tool-name>/` | 随 skill 分发的源码、声明、测试、fixture 和局部组件契约；`tools/shared/` 承接跨工具运行时不变量，`tools/skill-package/` 承接发布端与 updater 共用的分发协议 |
 | 主仓库自动化与共享交付 | 主仓库根目录、`scripts/` 和 CI 配置 | 命令编排、生成适配、共享校验、打包、聚合发布、依赖入口、Git 和 CI 自动化；不承接随 skill 分发工具的运行时源码 |
 | 调查报告 | `docs/investigations/<investigation-id>.md`、`docs/investigations/investigation-index.json` | 根目录直属 Markdown 各承接一份可独立复核的报告；Investigation ID、tags、关系、资源与验证含义由 `skills/investigation-report/references/investigation-report-contract.md` 承接，调用前提与操作结果由同目录 `cli-operations.md` 承接，JSON 是派生索引 |

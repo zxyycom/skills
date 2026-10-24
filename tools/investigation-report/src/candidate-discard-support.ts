@@ -1,4 +1,5 @@
 import { InvestigationCollectionMutationLockError } from "./collection-mutation-lock.ts";
+import { sameRecordFile } from "../../record-operations/src/transaction-files.ts";
 import {
   diagnosticFromError,
   sanitizeInvestigationDiagnosticText,
@@ -21,8 +22,36 @@ export function sameCandidateDiscardPreparation(
     left.candidatePath === right.candidatePath &&
     left.candidateText === right.candidateText &&
     sameResourceTree(left.resources, right.resources) &&
+    sameCandidateResourceProof(left, right) &&
     sameTextList(left.sharedReferences, right.sharedReferences)
   );
+}
+
+function sameCandidateResourceProof(
+  left: CandidateDiscardPreparation,
+  right: CandidateDiscardPreparation
+): boolean {
+  const leftProof = left.resourceProgress;
+  const rightProof = right.resourceProgress;
+  const files = leftProof.sourceFiles ?? new Map();
+  const nextFiles = rightProof.sourceFiles ?? new Map();
+  if (files.size !== nextFiles.size) {
+    return false;
+  }
+  for (const [relative, snapshot] of files) {
+    const next = nextFiles.get(relative);
+    if (next === undefined) {
+      return false;
+    }
+    if (!sameRecordFile(snapshot, next)) {
+      return false;
+    }
+  }
+  const directories = leftProof.sourceDirectories ?? new Map();
+  const nextDirectories = rightProof.sourceDirectories ?? new Map();
+  const before = JSON.stringify([...directories]);
+  const after = JSON.stringify([...nextDirectories]);
+  return before === after;
 }
 
 export function sameResourceTree(
@@ -84,9 +113,11 @@ function completedLockFailure(
     isDiscardResult(error.operationResult)
   ) {
     const completed = error.operationResult;
-    const mutation = discardMutation(
-      completed.changed ? "committed-cleanup-pending" : "no-change"
-    );
+    const mutation =
+      completed.mutation ??
+      discardMutation(
+        completed.changed ? "committed-cleanup-pending" : "no-change"
+      );
     return {
       ...completed,
       diagnostics: [

@@ -32,9 +32,9 @@ test("CLI show renders a scrubbed structured report read failure", async () => {
     await writeCollection(root, [{ id: "report" }]);
     const reportPath = path.join(investigationRoot(root), "report.md");
     const token = `ghp_${"x".repeat(36)}`;
-    const originalReadFile = fs.readFile;
+    const originalOpen = fs.open;
     let reportReadCount = 0;
-    fs.readFile = (async (...args) => {
+    fs.open = (async (...args) => {
       if (args[0] === reportPath) {
         reportReadCount += 1;
         if (reportReadCount === 1) {
@@ -44,13 +44,13 @@ test("CLI show renders a scrubbed structured report read failure", async () => {
           );
         }
       }
-      return await originalReadFile(...args);
-    }) as typeof fs.readFile;
+      return await originalOpen(...args);
+    }) as typeof fs.open;
     let result;
     try {
       result = await runInvestigationCli(root, ["show", "report.md"]);
     } finally {
-      fs.readFile = originalReadFile;
+      fs.open = originalOpen;
     }
     assert.equal(result.status, 1);
     assert.equal(result.stdout, "");
@@ -244,21 +244,21 @@ test("CLI sync-index renders filesystem diagnostics structurally", async () => {
       "investigation-index.json"
     );
     const token = `ghp_${"z".repeat(36)}`;
-    const originalReadFile = fs.readFile;
-    fs.readFile = (async (...args) => {
+    const originalOpen = fs.open;
+    fs.open = (async (...args) => {
       if (args[0] === indexPath) {
         throw Object.assign(
           new Error(`token=${token}\nfailed at /private/index.json`),
           { code: "EACCES" }
         );
       }
-      return await originalReadFile(...args);
-    }) as typeof fs.readFile;
+      return await originalOpen(...args);
+    }) as typeof fs.open;
     let result;
     try {
       result = await runInvestigationCli(root, ["sync-index"]);
     } finally {
-      fs.readFile = originalReadFile;
+      fs.open = originalOpen;
     }
     assert.equal(result.status, 1);
     assert.equal(result.stdout, "");

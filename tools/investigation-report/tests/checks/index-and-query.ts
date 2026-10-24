@@ -16,3 +16,7 @@ await import("../relation-context.test.ts");
 await import("../relation-order.test.ts");
 
 await import("../relation-dedup.test.ts");
+
+await import("../discovery-dependencies.test.ts");
+
+await import("../selected-local-contract.test.ts");
