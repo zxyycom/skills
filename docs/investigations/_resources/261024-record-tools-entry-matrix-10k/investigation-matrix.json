@@ -1,0 +1,1158 @@
+[
+  {
+    "id": "new-index",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "new",
+      "fresh",
+      "--formed-at",
+      "2026-10-01T00:00:00Z",
+      "--title",
+      "benchmark fresh",
+      "--question",
+      "固定问题",
+      "--tag",
+      "benchmark"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "one new candidate; scaffold true, body false, resources true; formal/index/pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "candidates-index",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "candidates"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "exactly both candidate IDs, readiness all true; no bytes changed",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "show-candidate-index",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "show-candidate",
+      "261001-candidate-1"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "exact candidate source + all readiness true; no bytes changed",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "new-missing-index",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "new",
+      "fresh",
+      "--formed-at",
+      "2026-10-01T00:00:00Z",
+      "--title",
+      "benchmark fresh",
+      "--question",
+      "固定问题",
+      "--tag",
+      "benchmark"
+    ],
+    "setup": "missing-index",
+    "expectedExit": 0,
+    "expectedDelta": "one new candidate; scaffold true, body false, resources true; formal/index/pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "candidates-missing-index",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "candidates"
+    ],
+    "setup": "missing-index",
+    "expectedExit": 0,
+    "expectedDelta": "exactly both candidate IDs, readiness all true; no bytes changed",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "show-candidate-missing-index",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "show-candidate",
+      "261001-candidate-1"
+    ],
+    "setup": "missing-index",
+    "expectedExit": 0,
+    "expectedDelta": "exact candidate source + all readiness true; no bytes changed",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "publish-zero",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "publish",
+      "261001-candidate-1"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "candidate1 removed; one same-identity/body formal added; index gains exactly candidate1; candidate2/resources/pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "publish-predecessor",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "publish",
+      "261001-candidate-1"
+    ],
+    "setup": "candidate-relation",
+    "expectedExit": 0,
+    "expectedDelta": "as publish-zero; complete new relation = 补充 record-09999; HEAD history available with 10000 formal payloads",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "publish-predecessor-no-head",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "publish",
+      "261001-candidate-1"
+    ],
+    "setup": "candidate-relation-unborn",
+    "expectedExit": 0,
+    "expectedDelta": "as publish-zero with direct predecessor; no available HEAD so no recorded-predecessor assertion; 10000 formal worktree/index retained",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "publish-preflight",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "publish",
+      "261001-candidate-1",
+      "--preflight"
+    ],
+    "setup": "candidate-relation",
+    "expectedExit": 0,
+    "expectedDelta": "preflight relation review; all bytes/pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "publish-first",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "publish",
+      "261001-candidate-1"
+    ],
+    "setup": "bootstrap",
+    "expectedExit": 0,
+    "expectedDelta": "first formal established; legal index of exactly candidate1; candidate2 unchanged",
+    "workload": "0 formal / 0 edges / 2 candidates / 0 resources; no formal index or HEAD baseline",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "check-full",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "check"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "success full index current, exactly 10000 checked; readonly",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "check-selected",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "check",
+      "--id",
+      "261001-record-09999"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "success exactly one selected; index not checked; readonly",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "check-selected-locator-fallback",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "check",
+      "--id",
+      "261001-record-09999"
+    ],
+    "setup": "moved-selected",
+    "expectedExit": 0,
+    "expectedDelta": "success exactly one selected after known locator missing expands identity discovery; readonly",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "sync-selected-changed",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "sync-index",
+      "--select",
+      "261001-record-09999"
+    ],
+    "setup": "edited-selected",
+    "expectedExit": 0,
+    "expectedDelta": "only index changes; title and revision for A become current; all other entries/source/pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "sync-selected-current",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "sync-index",
+      "--select",
+      "261001-record-09999"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "already current; no persistent byte changes",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "sync-selected-preflight",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "sync-index",
+      "--select",
+      "261001-record-09999",
+      "--preflight"
+    ],
+    "setup": "edited-selected",
+    "expectedExit": 0,
+    "expectedDelta": "preflight success; stale index preserved byte-for-byte; no writes",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "sync-full-changed",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "sync-index"
+    ],
+    "setup": "edited-selected",
+    "expectedExit": 0,
+    "expectedDelta": "only index changes; title and revision for A become current; all other entries/source/pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "sync-full-current",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "sync-index"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "already current; no persistent byte changes",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "sync-full-preflight",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "sync-index",
+      "--preflight"
+    ],
+    "setup": "edited-selected",
+    "expectedExit": 0,
+    "expectedDelta": "preflight success; stale index preserved byte-for-byte; no writes",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "list-window",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "list",
+      "--limit",
+      "10"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "10 ordered IDs; readonly",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "list-relations",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "list",
+      "--related-to",
+      "261001-record-00002",
+      "--direction",
+      "successors",
+      "--relation-type",
+      "补充",
+      "--limit",
+      "10"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "exact incoming direct neighbor IDs and evidence; readonly",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "show-one",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "show",
+      "261001-record-09999"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "stdout exactly current A source; readonly",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "metadata-few",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "search",
+      "record-09999",
+      "--in",
+      "metadata",
+      "--limit",
+      "10"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "exact matched=1 returned=1 metadata; no source reads expected; readonly",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "metadata-many",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "search",
+      "benchmark",
+      "--in",
+      "metadata",
+      "--limit",
+      "10"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "exact matched=10000 returned=10 metadata; no source reads expected; readonly",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "content-selected",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "search",
+      "固定结果",
+      "--tag",
+      "small-content",
+      "--limit",
+      "10"
+    ],
+    "setup": "content-tag",
+    "expectedExit": 0,
+    "expectedDelta": "exact 3 selected files match, returned=3, scan/results/previews complete; readonly",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "content-cap-refused",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "search",
+      "固定结果",
+      "--limit",
+      "10"
+    ],
+    "setup": "base",
+    "expectedExit": 1,
+    "expectedDelta": "operation refusal maxCandidateFiles=2000 because selected=10000; zero content scans; readonly",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "trace-json",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "trace",
+      "261001-record-00002",
+      "--depth",
+      "all",
+      "--max-records",
+      "50",
+      "--json"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "exact sparse component from independent graph; complete trace envelope; readonly",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "trace-budget",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "trace",
+      "261001-record-00002",
+      "--depth",
+      "all",
+      "--max-records",
+      "2",
+      "--json"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "exact bounded graph and nonempty frontier, coverage incomplete; readonly",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "relations-changed",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "set-relations",
+      "--source",
+      "261001-record-09999",
+      "--relation",
+      "复查=261001-record-00002",
+      "--relation-summary",
+      "261001-record-00002=benchmark review"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "only A relations and complete index change, committed replace review; pending/resources unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "relations-unchanged",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "set-relations",
+      "--source",
+      "261001-record-09999",
+      "--relation",
+      "补充=261001-record-08999"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "unchanged review; all bytes and pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "relations-preflight",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "set-relations",
+      "--source",
+      "261001-record-09999",
+      "--relation",
+      "复查=261001-record-00002",
+      "--preflight"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "preflight replace review; all bytes/pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "rename-candidate-no-owner",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "rename",
+      "261001-candidate-1",
+      "renamed-candidate",
+      "--rename-recorded-candidate"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "identity/source/managed references renamed; owner tree moved iff owner; candidate rename index unchanged; formal rename index updated; pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "discard-candidate-no-owner",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "discard",
+      "261001-candidate-1",
+      "--delete-recorded"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "only target and owned resource tree iff owner removed; candidate index unchanged / formal index removes target; pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "rename-candidate-owner",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "rename",
+      "261001-candidate-2",
+      "renamed-candidate",
+      "--rename-recorded-candidate"
+    ],
+    "setup": "candidate-owner",
+    "expectedExit": 0,
+    "expectedDelta": "identity/source/managed references renamed; owner tree moved iff owner; candidate rename index unchanged; formal rename index updated; pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "discard-candidate-owner",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "discard",
+      "261001-candidate-2",
+      "--delete-recorded",
+      "--delete-owned-resources"
+    ],
+    "setup": "candidate-owner",
+    "expectedExit": 0,
+    "expectedDelta": "only target and owned resource tree iff owner removed; candidate index unchanged / formal index removes target; pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "rename-formal-no-owner",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "rename",
+      "261001-record-09999",
+      "renamed-formal",
+      "--rename-recorded-report"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "identity/source/managed references renamed; owner tree moved iff owner; candidate rename index unchanged; formal rename index updated; pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "discard-formal-no-owner",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "discard",
+      "261001-record-09999",
+      "--delete-recorded"
+    ],
+    "setup": "base",
+    "expectedExit": 0,
+    "expectedDelta": "only target and owned resource tree iff owner removed; candidate index unchanged / formal index removes target; pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "rename-formal-owner",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "rename",
+      "261001-record-10000",
+      "renamed-formal",
+      "--rename-recorded-report"
+    ],
+    "setup": "formal-owner",
+    "expectedExit": 0,
+    "expectedDelta": "identity/source/managed references renamed; owner tree moved iff owner; candidate rename index unchanged; formal rename index updated; pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "discard-formal-owner",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "discard",
+      "261001-record-10000",
+      "--delete-recorded",
+      "--delete-owned-resources"
+    ],
+    "setup": "formal-owner",
+    "expectedExit": 0,
+    "expectedDelta": "only target and owned resource tree iff owner removed; candidate index unchanged / formal index removes target; pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "rename-candidate-noop",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "rename",
+      "261001-candidate-1",
+      "261001-candidate-1"
+    ],
+    "setup": "canonical-candidate",
+    "expectedExit": 0,
+    "expectedDelta": "true unchanged: same canonical ID/path, all bytes and pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "rename-candidate-preflight",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "rename",
+      "261001-candidate-1",
+      "renamed-candidate",
+      "--preflight",
+      "--rename-recorded-candidate"
+    ],
+    "setup": "candidate-owner-source1",
+    "expectedExit": 0,
+    "expectedDelta": "preflight actual identity/path/owner move plan; all bytes and pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "rename-formal-noop",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "rename",
+      "261001-record-09999",
+      "261001-record-09999"
+    ],
+    "setup": "canonical-formal",
+    "expectedExit": 0,
+    "expectedDelta": "true unchanged: same canonical ID/path, all bytes and pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "rename-formal-preflight",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "rename",
+      "261001-record-09999",
+      "renamed-formal",
+      "--preflight",
+      "--rename-recorded-report"
+    ],
+    "setup": "formal-owner-sourceA",
+    "expectedExit": 0,
+    "expectedDelta": "preflight actual identity/path/owner move plan; all bytes and pending unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "stage-index-first",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "stage",
+      "261001-record-09999",
+      "--scope",
+      "index"
+    ],
+    "setup": "stage-first",
+    "expectedExit": 0,
+    "expectedDelta": "scope-specific pending projection of A; preserve exact unrelated pending bytes/deletion/mode; worktree unchanged; changed true",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "stage-index-preserve",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "stage",
+      "261001-record-09999",
+      "--scope",
+      "index"
+    ],
+    "setup": "stage-preserve",
+    "expectedExit": 0,
+    "expectedDelta": "scope-specific pending projection of A; preserve exact unrelated pending bytes/deletion/mode; worktree unchanged; changed true",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "stage-index-reselect",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "stage",
+      "261001-record-09999",
+      "--scope",
+      "index"
+    ],
+    "setup": "stage-reselect",
+    "expectedExit": 0,
+    "expectedDelta": "scope-specific pending projection of A; preserve exact unrelated pending bytes/deletion/mode; worktree unchanged; changed true",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "stage-index-unchanged",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "stage",
+      "261001-record-09999",
+      "--scope",
+      "index"
+    ],
+    "setup": "stage-unchanged-index",
+    "expectedExit": 0,
+    "expectedDelta": "scope-specific pending projection of A; preserve exact unrelated pending bytes/deletion/mode; worktree unchanged; changed false",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "stage-domain-first",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "stage",
+      "261001-record-09999",
+      "--scope",
+      "domain"
+    ],
+    "setup": "stage-first",
+    "expectedExit": 0,
+    "expectedDelta": "scope-specific pending projection of A; preserve exact unrelated pending bytes/deletion/mode; worktree unchanged; changed true",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "stage-domain-preserve",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "stage",
+      "261001-record-09999",
+      "--scope",
+      "domain"
+    ],
+    "setup": "stage-preserve",
+    "expectedExit": 0,
+    "expectedDelta": "scope-specific pending projection of A; preserve exact unrelated pending bytes/deletion/mode; worktree unchanged; changed true",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "stage-domain-reselect",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "stage",
+      "261001-record-09999",
+      "--scope",
+      "domain"
+    ],
+    "setup": "stage-reselect",
+    "expectedExit": 0,
+    "expectedDelta": "scope-specific pending projection of A; preserve exact unrelated pending bytes/deletion/mode; worktree unchanged; changed true",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "stage-domain-unchanged",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "stage",
+      "261001-record-09999",
+      "--scope",
+      "domain"
+    ],
+    "setup": "stage-unchanged-domain",
+    "expectedExit": 0,
+    "expectedDelta": "scope-specific pending projection of A; preserve exact unrelated pending bytes/deletion/mode; worktree unchanged; changed false",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "stage-all-first",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "stage",
+      "261001-record-09999",
+      "--scope",
+      "all"
+    ],
+    "setup": "stage-first",
+    "expectedExit": 0,
+    "expectedDelta": "scope-specific pending projection of A; preserve exact unrelated pending bytes/deletion/mode; worktree unchanged; changed true",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "stage-all-preserve",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "stage",
+      "261001-record-09999",
+      "--scope",
+      "all"
+    ],
+    "setup": "stage-preserve",
+    "expectedExit": 0,
+    "expectedDelta": "scope-specific pending projection of A; preserve exact unrelated pending bytes/deletion/mode; worktree unchanged; changed true",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "stage-all-reselect",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "stage",
+      "261001-record-09999",
+      "--scope",
+      "all"
+    ],
+    "setup": "stage-reselect",
+    "expectedExit": 0,
+    "expectedDelta": "scope-specific pending projection of A; preserve exact unrelated pending bytes/deletion/mode; worktree unchanged; changed true",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "stage-all-unchanged",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "stage",
+      "261001-record-09999",
+      "--scope",
+      "all"
+    ],
+    "setup": "stage-unchanged-all",
+    "expectedExit": 0,
+    "expectedDelta": "scope-specific pending projection of A; preserve exact unrelated pending bytes/deletion/mode; worktree unchanged; changed false",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "stage-domain-owner",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "stage",
+      "261001-record-00001",
+      "--scope",
+      "domain"
+    ],
+    "setup": "stage-owner",
+    "expectedExit": 0,
+    "expectedDelta": "complete owner tree in pending: referenced evidence updated, unreferenced extra added, HEAD stale removed; other pending and W unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  },
+  {
+    "id": "stage-all-owner",
+    "argv": [
+      "node",
+      "<BENCH_ROOT>/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "{runRoot}",
+      "stage",
+      "261001-record-00001",
+      "--scope",
+      "all"
+    ],
+    "setup": "stage-owner",
+    "expectedExit": 0,
+    "expectedDelta": "complete owner tree in pending: referenced evidence updated, unreferenced extra added, HEAD stale removed; other pending and W unchanged",
+    "workload": "10000 formal / 9000 edges / 2 candidates / 1 resource",
+    "normalRepetitions": 3,
+    "probeRepetitions": 1,
+    "probeMapping": "same isolated setup; private instrumented runtime + common --import preload; not a normal timing"
+  }
+]

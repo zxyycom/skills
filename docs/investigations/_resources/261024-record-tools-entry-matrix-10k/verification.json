@@ -1,0 +1,71 @@
+{
+  "recordedAt": "2026-10-24T11:13:47.037232+00:00",
+  "sourceScope": "70c1a255 frozen product; unrelated main test-design changes preserved",
+  "formalDataAudit": {
+    "passed": true,
+    "samples": 484,
+    "normal": 363,
+    "instrumented": 121,
+    "unexpectedFailures": 0
+  },
+  "candidateReadiness": {
+    "command": "bun run investigation-report -- show-candidate 261024-record-tools-entry-matrix-10k",
+    "exitCode": 0,
+    "scaffoldValid": true,
+    "bodyReady": true,
+    "resourceReady": true
+  },
+  "preVerificationResourcePackageAudit": {
+    "passed": true,
+    "at": "2026-10-24T11:12:39.808604+00:00",
+    "resources": 19,
+    "resourceBytes": 13686790,
+    "logicalFilesCovered": {
+      "decision": 408,
+      "investigation": 388
+    },
+    "methodUniqueBlocks": 25,
+    "methodAliases": 29,
+    "metrics": 484,
+    "CSVrows": 121,
+    "allCSVnormalStatsComparedWithIndependentlyAuditedRawMetrics": true,
+    "normalMaxRssMiB": 579.30859375,
+    "earliestSample": "2026-10-24T09:11:41.886119+00:00",
+    "latestSampleFinish": "2026-10-24T10:56:15.818931+00:00",
+    "finalCgroupMemoryEvents": "low 0\nhigh 0\nmax 2529323\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "mainReportRead": "Critical counts/resources/causal strength/scope reviewed; no unsupported phase causality, cold-cache, heap, or full dependency closure claim found.",
+    "boundary": "Checks logical aggregation identities and report figures, not a second raw-events or product run."
+  },
+  "boundary": "Package audit identifies the 19 evidence resources before this verification record was added. Mechanical gates do not replace semantic or measurement review.",
+  "mechanicalChecks": [
+    {
+      "command": "bun run investigation-report -- publish 261024-record-tools-entry-matrix-10k",
+      "exitCode": 0,
+      "phase": "committed",
+      "relation": "复查 -> 261022-record-tools-local-contracts-1w"
+    },
+    {
+      "command": "bun run investigation-report -- check",
+      "exitCode": 0,
+      "reportsChecked": 76,
+      "fullIndexCurrent": true
+    },
+    {
+      "command": "bun run check:changed",
+      "exitCode": 0,
+      "execution": "completed",
+      "passed": 14,
+      "failed": 0,
+      "notApplicable": 50,
+      "unavailable": 0,
+      "inputPlan": {
+        "execute": 6,
+        "reuse": 47,
+        "fallback": 0
+      },
+      "scope": "changed, not full test reexecution",
+      "recordedAt": "2026-10-24T11:14:51.535481+00:00"
+    }
+  ],
+  "finalizationBoundary": "This record was written after the first successful changed gate; a subsequent final changed gate checks this resource update and is reported in the delivery."
+}
