@@ -4,7 +4,7 @@
 
 本轮以可归因的 Git index 为交付对象，在独立验收 worktree 验证；不把含并行领域实现的主工作区当作提交快照。
 
-- 当前实现/索引受测 tree：`0f06721a20864eb830c7da49a729dceaf2912ff0`；主工作区index、隔离worktree与该tree的4863项mode/blob/path完全一致。[最终范围复核](review-final-commit-scope.md)无阻断：326改动路径（325 manifest路径＋选择性index），Case为114修改/47新增/2删除。
+- 提交前本地门禁受测tree：`0f06721a20864eb830c7da49a729dceaf2912ff0`；主工作区index、隔离worktree与该tree的4863项mode/blob/path完全一致。[最终范围复核](review-final-commit-scope.md)无阻断：326改动路径（325 manifest路径＋选择性index），Case为114修改/47新增/2删除。
 - 并行领域源码、生成物、11 个 Case 和混合文件中的明确他方行保留在主工作区，未暂存；Case 索引通过公开 `stage-index` 只接纳本方163个ID（包括两项删除）；working混合索引保持不变。
 - 运行时固定 Bun 1.4.2、Node 24.18.0，`TMPDIR=/var/tmp`；完整结果保存在本轮 ignored 验收日志，不作为长期源码提交。
 
@@ -31,7 +31,7 @@
 
 上述是实施者/复核者的目标证据，不是本记录编辑者独立重跑，也不代替全 Gate。完整 Check/receipt 数仍 69/66/58，quick 原10项与全部质量、性能、权限政策保持不变。
 
-## 当前精确快照验收
+## 提交前精确快照验收
 
 以下由root在当前tree的隔离worktree实际执行；本记录编辑者读取日志/机器结果及root交接，不冒称独立重跑。隔离Case检查为**1680实体**；混合工作区Case维护快照1691包含他方11实体，未进入当前提交范围。
 
@@ -50,6 +50,22 @@
 
 最新完整changed日志为`.log/vibe-check/isolated-acceptance/changed-final.log`；Run、输入计划、性能与receipt机器结果由该日志指向的invocation保存。Review报告和本轮最终状态文档增量不属于上述已受测tree；加入后须按影响核对文档边界，不能把后续实现/index变化沿用为该tree证据。
 
-## 待完成
+## 实现提交与最终远端验收
 
-Linux冷release已完成；最终相关revision的远端`package`、同revision及同次artifact的`video-windows`尚未开始验收，不能勾完成。远端main未配置分支保护/ruleset的既有边界如实报告，本轮不擅自配置；最终交付与结项由root连续推进。
+实现提交为`748f9a78f78ebdef64b6d589d2b98331b54ee031`，tree为`19c476a5d9e2d20a49c4b08c215015ac85325747`。本地方才加入的文档增量已在隔离环境重跑changed：14项实际通过、52复用，0 failure/fallback/unclosed，publication58成功，wall16.33s；日志`changed-docs-final.log`。实现提交包含327改动路径，仅比原范围多本方最终范围报告，index树与提交一致且提交后暂存区为空。已授权hook完成自动推送。70个他方working文件与保存的hash全部一致，本记录编辑者也再次只读复核70/70；没有把混合源码或他方Case纳入提交。
+
+[最终workflow run](https://github.com/zxyycom/skills/actions/runs/40117683174)的headSha为该实现提交，三个job均success：
+
+| Job | 实际证据 |
+| --- | --- |
+| [package](https://github.com/zxyycom/skills/actions/runs/40117683174/job/120942306449) | 2026-10-24 17:46:59–17:49:54 UTC；Linux release 69 execute/0 reuse、69 passed，failed/not-applicable/unavailable均0。 |
+| [video-windows](https://github.com/zxyycom/skills/actions/runs/40117683174/job/120942983336) | 17:49:57–17:51:19 UTC；日志TESTED_REVISION精确等于`748f9a78…`。下载同次`skills` artifact **12569432268**，digest **sha256:25c901a7e20c9aa366531185f90276982d7838160b9f5228cc830a2b723a0bf3**；`accept:video-windows`实际执行视频源码及`dist/video-understanding.zip`制品验收，均成功。 |
+| [publish](https://github.com/zxyycom/skills/actions/runs/40117683174/job/120943315789) | 17:51:22–17:51:32 UTC，success；既有发布依赖保持。 |
+
+证据保存在`.log/vibe-check/isolated-acceptance/`的`ci-final.json`、`ci-artifacts.json`、`ci-package.log`、`ci-windows.log`；本记录编辑者已读取head/job结论、实际69项结算、Windows revision/下载digest/源码及zip运行边界，不把job名称当执行证据。
+
+## 完成边界与结项
+
+全部实质任务及验收完成，Plan24/24。提交前只读远端核对仍为main `protected:false`、rulesets `[]`（`remote-main-before-commit.json`、`remote-rulesets-before-commit.json`）；本任务未改workflow job身份或远端配置，**PR合并保护未启用，不能声称失败检查会阻止合并**。CI job依赖实际约束了本次聚合发布，这是与合并保护不同的边界。
+
+远端成功证据只绑定实现提交`748f9a78…`。本轮仅文档的全勾完成态及随后finalize删除提交尚未由该远端run测试；它们按影响完成限定机械检查，不能冒称该CI已经验证未来提交。root接续保存全勾Plan，再通过公开finalize预检/执行/list确认退出；若hook节流使结项提交暂留本地，如实报告等待后续正常推送，不绕过hook或手工push。

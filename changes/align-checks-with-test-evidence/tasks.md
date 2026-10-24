@@ -32,8 +32,8 @@
 - [x] 2.3 最终文档按代表性 AI 阅读任务检查其目标、owner、依赖、边界与操作可恢复性；代码按编码规范检查数据流、失败／资源边界与抽象责任，修正后重跑受影响验证。验收：分别记录语义复核与机械检查，不以格式通过替代实际可用性。
 - [x] 2.4 运行 `bun run check` 与 `bun run check:changed`，记录 scope、实际执行／复用、性能政策、原生质量与 receipt 发布结果。验收：quick 原 eligible 和预算不放宽，changed 完整变更责任与精确无漂移成功事务成立；失败先解释修复，不能用重试通过覆盖首次失败。
 - [x] 2.5 核对 pending snapshot／版本基线并运行 Linux `bun run check --tag release --cold`（必要时显式事件基线），保存同快照版本授权与全部打包结果。验收：当前新增 image/video 检查仍在全量范围，全部普通检查真实执行，release 不用 receipt；未暂存内容不冒称已进入 zip。
-- [ ] 2.6 核对最终相关 revision 的远端 workflow，取得 `package` 与 `video-windows` 实际成功、同 tested revision 和同次 skills artifact 的视频 zip 验收证据；按 tooling 核既有远端必需检查／阻断证据，缺访问或配置权限时报告明确外部阻塞，不擅写配置。验收：两门禁都实际执行、不路径跳过，发布依赖未弱化，不用 Linux 本地结果替代 Windows。
-- [ ] 2.7 做最终范围和交付核对：所有成功标准有证据，findings无漏项，稳定知识归 owner，无关工作未 stage，当前可提交改动按 git-commit-organizer 整理。验收：实际运行、未覆盖平台／外部状态和风险均可独立读取；用户授权内正常提交及结项路径清楚。
+- [x] 2.6 核对最终相关 revision 的远端 workflow，取得 `package` 与 `video-windows` 实际成功、同 tested revision 和同次 skills artifact 的视频 zip 验收证据；按 tooling 核既有远端必需检查／阻断证据，缺访问或配置权限时报告明确外部阻塞，不擅写配置。验收：两门禁都实际执行、不路径跳过，发布依赖未弱化，不用 Linux 本地结果替代 Windows。
+- [x] 2.7 做最终范围和交付核对：所有成功标准有证据，findings无漏项，稳定知识归 owner，无关工作未 stage，当前可提交改动按 git-commit-organizer 整理。验收：实际运行、未覆盖平台／外部状态和风险均可独立读取；用户授权内正常提交及结项路径清楚。
 
 完成以上实质任务后，由整合者保存最终全勾 Plan 的 Git 快照，运行 `change-plan finalize --preflight`、`finalize` 与 `list` 确认退出；这些是完成后的结项动作，不是全勾前置任务。提交可触发已授权 hook 自动推送，不手工 push。
 
@@ -63,12 +63,14 @@
 | 2.2 | 最终隔离test:check **108 total/107 pass/1预期skip/0 fail**、Case1680检查及全base成功，迁移/拆分/新节点有真实runner与账本双重证据。 |
 | 2.4 | 最新changed全base66通过、58 receipt发布；同tree重复changed仅8项实际通过/58复用、无回退或未闭合；quick10 eligible中5实际通过/5复用，预算通过且不发布。首次失败、冷quick和最终性能均见[验证记录](verification.md)。 |
 | 2.5 | 同tree冷release **69/69 Check通过**、69 execute/0 reuse，基线a661d059…、versionIssueCount0；prepare→version授权→pack同快照完成，全部zip实际生成，见[验证记录](verification.md)。 |
+| 2.6 | 实现提交`748f9a78…`的[最终CI](https://github.com/zxyycom/skills/actions/runs/40117683174)中package、video-windows、publish均success。Linux release实际69/69；Windows确认相同TESTED_REVISION，下载同次skills artifact并实际验源码与原zip。远端保护核对为未启用，已如实保留且未擅配置；不声称PR阻断生效。 |
+| 2.7 | 实现提交已保存并经授权hook自动推送；文档增量changed14实际通过/52复用、receipt58发布；327路径归属准确，70个他方working文件hash未变、暂存区清空。最终证据与风险见[验证记录](verification.md)，剩余仅保存全勾Plan与public finalize的结项动作。 |
 
-当前实施、本地变更验收与Linux冷release已完成，仅剩2.6最终revision远端/Windows与保护状态核对、2.7最终交付。上述勾选以实现/索引受测tree `0f06721a20864eb830c7da49a729dceaf2912ff0` 为依据，本轮文档状态更新另行机械检查，不能冒称已在该tree中受测。
+全部24项实质任务及验收完成。实现提交为`748f9a78f78ebdef64b6d589d2b98331b54ee031`（tree `19c476a5…`）；CI证据只绑定该提交。当前仅文档完成态增量另行机械核对，不能冒称后续完成态或删除提交已经由该CI测试。保存全勾Plan、finalize和删除保存按上文结项路径由root接续，不重新成为全勾前置任务。
 
 混合工作区1691实体只作Case维护证据；交付依据是排除他方工作后的隔离1680。公开stage-index的选择范围与精确快照见最终范围复核，不复制临时操作过程。
 
 ## 基线验证记录
 
 - 实施前 `bun run check:changed`：64 项 base 实际执行，62 通过、2 失败（112.6 秒）；尚未修改源码。typecheck 失败为当前依赖目录缺 manifest 已声明的 `@types/bun`；video 分发 fixture 检测到宿主 `/tmp/node_modules`，隔离前提不成立。后续先恢复锁定本地依赖、使用无 ambient node_modules 的临时目录，再复核，不修改产品语义或放宽测试。
-- `node scripts/environment.js gate` 在固定 Bun 1.4.2 下通过。当前 HEAD 的远端 `package`、`video-windows`、`publish` 均成功；不作为后续改动已验证的证据。GitHub 查询显示 main 无 branch protection、仓库 rulesets 为空；本任务仅核对并报告，不擅自配置远端保护。
+- `node scripts/environment.js gate` 在固定 Bun 1.4.2 下通过。实施前HEAD的远端 `package`、`video-windows`、`publish` 均成功；该历史结果不作为后续改动已验证的证据。GitHub 查询显示 main 无 branch protection、仓库 rulesets 为空；本任务仅核对并报告，不擅自配置远端保护。

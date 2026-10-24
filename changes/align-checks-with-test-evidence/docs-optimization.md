@@ -9,7 +9,7 @@
 | `docs/tooling.md` | 同步 69 total/66 base/58 receipt、输入与调度 identity；呈现共同协议/source CLI 责任、程序输入与生成信任边界，保留 quick10/原预算、full/CI 无 receipt、release 同快照及既有 Windows 链。PR 保护配置与已生效证据明确分开。 |
 | `docs/gate-check-authoring.md` | 接入流程仍为主线；以真实消费选择 owner/输入/provider，区分源码 CLI 与真实分发、共同协议与两域 adapter、leaf 身份与保守字节覆盖。 |
 | `proposal.md`、`design.md` | 保留 Change 固定结构和单一 Outcome；把已定方案从开放问题移入当前设计，剩余问题只留最终验收/远端配置。 |
-| `tasks.md` | 当前22/24：Readiness与Implementation全部完成，Verification完成2.1–2.5；每组附handoff/review/隔离验收依据，最终CI/Windows和交付未勾。 |
+| `tasks.md` | 当前24/24：Readiness、Implementation、Verification均完成；每组附handoff/review/本地与远端验收依据，保存完成态与finalize是随后结项动作。 |
 | `findings.md` | 计划处置改为实际采用/收窄/保留/不实施及未验证边界；保留原 145 个逐节点来源键，按 99 个原文件路由聚合，精确名称/运行不再复制 handoff。首轮由257行收敛为206行，后续只补当前验收和回应指针。 |
 
 核对了当前源码、Definition/订阅、wrappers/run、已安装 API 责任与原始交接，不只使用任务消息摘要。三路正确性 review 无剩余阻断；G1–G3 修复已定向闭合。另一会话 frontmatter leaf 未由本方迁移，当前 record consumer 按其实际源码 CLI 补足输入；其产品工作与 11 个 Case 保留，最终暂存由 root 隔离。
@@ -55,10 +55,16 @@
 
 ## 本方精确快照的任务完成核对
 
-本轮按最终范围复核、原始handoff/review、最后代码优化及root的精确运行结果，逐项复核0.1、全部Implementation、2.2–2.4；该轮完成21/24；后续同tree Linux冷release69/69通过并完成2.5，当前22/24，仅剩最终相关revision远端/Windows与最终交付。1.13生成/版本责任按cached无skill/runtime源码/build adapter变化判为无需新增同步或提升，本轮统一生成provider仍实际通过。
+本轮按最终范围复核、原始handoff/review、最后代码优化及root的精确运行结果，逐项复核0.1、全部Implementation、2.2–2.4；该轮完成21/24；后续同tree Linux冷release69/69通过并完成2.5，该阶段为22/24；后续最终CI与交付核对已完成，当前24/24。1.13生成/版本责任按cached无skill/runtime源码/build adapter变化判为无需新增同步或提升，本轮统一生成provider仍实际通过。
 
-AI语义复核可从tasks的完成依据恢复每项勾选来源；从verification区分混合1691/初次隔离1677/当前隔离1680，以及当前tree与后续文档增量。changed首次三失败、精确输入修复、最终66通过/58receipt、重复复用及quick5实际/5复用均各自留证，release按后来实际完成的69/69结果勾选，不向远端/Windows外推。没有发现需用户选择的实施缺口，剩余验证由root接续。
+AI语义复核可从tasks的完成依据恢复每项勾选来源；从verification区分混合1691/初次隔离1677/当前隔离1680，以及当前tree与后续文档增量。changed首次三失败、精确输入修复、最终66通过/58receipt、重复复用及quick5实际/5复用均各自留证，release按后来实际完成的69/69结果勾选，不向远端/Windows外推。没有未决实施缺口；最终远端证据与结项边界见验证记录。
 
 本轮只改本Change五份文档，不改长期owner、Case/index或源码，不stage/commit，不重复全Gate。固定运行时实际执行Plan check：valid=true、21/24、无diagnostics；限定五文件原生Markdown lint/links均passed、0 findings（links30 occurrences/30 target reads），git diff --check通过；本轮记录增量不属于已受测tree `0f06721a…`，仅有文档变更不能冒称该tree已包含它们。
 
 本次release短增量已读取实际日志并核对同tree/基线/版本/pack边界，未重复运行Gate；只补2.5完成与剩余2.6/2.7。实际Plan check valid=true、22/24；限定五文件原生Markdown lint/links均passed、0 findings（31 occurrences/31 target reads），diff-check通过。
+
+## 最终AI-ready完成核对
+
+实际读取最终CI JSON与日志后，2.6/2.7按证据完成。目标AI现在可从proposal恢复已完成Outcome，从tasks追溯24项依据，从verification恢复具体提交、Linux/Windows同revision与同次artifact、PR保护未启用及后续文档提交边界；无“仍待CI”的当前状态残留。原阶段handoff/review保持历史证据，不改写其当时未验证范围。
+
+本轮只写本Change必要完成态，不改长期owner、源码或Case/index，不stage/commit或重复Gate。最终固定运行时Plan check valid=true、24/24、无diagnostics（基线至实现提交1 commit/7972 changed lines，已按最终实现及证据复核）；限定六文件原生Markdown lint/links均passed、0 findings（38 occurrences/33 target reads），diff-check通过；root随后保存全勾Plan并public finalize，后续仅文档/删除提交不冒称远端已经测试。

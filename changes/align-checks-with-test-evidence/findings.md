@@ -1,6 +1,6 @@
 # Findings 处置与验证
 
-本文件追踪本Change的已确认发现、实施处置及验收。实施、独立正确性/范围复核与本地变更验收已闭合：本方精确快照Case1680、test:check、changed及quick通过。混合工作区1691只作维护证据；同tree Linux冷release69/69通过，最终revision远端/Windows与交付尚未完成。
+本文件追踪本Change的已确认发现、实施处置及验收，现已全部闭合。实现提交`748f9a78…`通过本地变更/冷release与最终远端package、同revision同次artifact的Windows验收；混合工作区1691与本方隔离1680的证据分开，首次失败完整保留。
 
 原始静态材料位于 `.log/vibe-check/audits/test-design-census-20261024-wx9KzT/` 的 A–F report/tests/checks、summary、review-checks、review-tests；它们只供本 Change 回查。下表保留来源键；精确 old/new 最小入口、命令、首次失败与未覆盖范围由各 handoff 保存，不在这里复制第二份。
 
@@ -199,8 +199,10 @@
 | F-tests：239 | `tools/shared/tests/version-control-snapshot.test.ts` | A |
 | F-tests：270 | `scripts/validate.test.ts` | A |
 
-## 当前验收与剩余交付
+## 最终验收与证据边界
 
 [最终范围复核](review-final-commit-scope.md)确认本方163-ID选择、326改动路径及他方工作排除；[验证记录](verification.md)保存tree `0f06721a…` 的Case1680、test:check107通过/1预期skip、changed66通过/58receipt发布及重复复用、quick预算通过。全部145原来源键仍由上表及handoff回查，首次失败没有被最终通过覆盖。
 
-同tree Linux冷release69/69、同snapshot版本授权与全部zip打包已通过；剩余为最终相关revision同次Windows zip/远端CI证据，以及最终交付。main无branch protection/ruleset的事实仍如实保留，不声称保护生效或擅配置远端。本轮文档状态增量不改变上述已受测实现/index；任务进度由`tasks.md`统一承接。
+同tree Linux冷release69/69、版本授权与全部zip打包通过；实现提交`748f9a78…`的最终package/video-windows/publish均success，详见验证记录。全部24项已完成，剩余仅保存全勾Plan和finalize的结项动作。
+
+远端只读核对main保护/ruleset未启用，不声明PR阻断生效；该外部边界未被CI成功改变。后续只文档完成态及删除提交不冒称已被实现提交的CI测试；当前任务进度由`tasks.md`统一承接。

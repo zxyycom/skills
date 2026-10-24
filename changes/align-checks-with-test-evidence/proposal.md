@@ -45,3 +45,7 @@
 - `tools/decision-records/`、`tools/investigation-report/`、`tools/record-operations/`、`tools/index-runtime/`、`tools/shared/` 的测试／fixtures及必要现有实现边界。
 - `tools/task-graph/`、`tools/test-evidence/`、`tools/change-plan/`、`tools/novel-cards/`、`tools/lightweight-judgment/`、`tools/mcpshell-workspace-bridge/`、`tools/skill-updater/`、`tools/skill-validator/` 的相关测试与局部契约。
 - `docs/test-evidence/cases/`、派生 index、`docs/tooling.md`、`docs/gate-check-authoring.md`、必要局部 README／长期决策；生成与版本按项目工具链处理。
+
+## Completion
+
+Outcome与全部24项任务已完成；实现提交`748f9a78…`取得本地Gate、Linux冷release及同revision/同次artifact的Windows和最终workflow成功证据，见[验证记录](verification.md)。远端main保护/ruleset未启用，核对结果如实保留而不声称PR阻断已生效。后续只文档完成态、保存和finalize删除不冒称已被该实现提交的CI测试。

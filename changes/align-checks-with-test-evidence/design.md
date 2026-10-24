@@ -49,10 +49,9 @@
 
 ## Open Questions
 
-实施取舍已收敛，没有等待用户选择的领域方案。剩余是验收与外部配置证据：
+无未决实施或验收问题：本地方针与全部验证已闭合，实现提交`748f9a78…`的package/video-windows/publish成功，Windows使用同revision和同次artifact原zip，见[验证记录](verification.md)。
 
-1. 当前精确隔离tree已取得typecheck、Case1680、test:check、changed与quick证据；同snapshot Linux冷release69/69及版本授权/打包已通过，最终相关revision的远端package/Windows同次zip及最终交付仍待完成，见[验证记录](verification.md)。
-2. 远端 main 当前无 branch protection、rulesets 为空；既有 workflow 发布依赖仍保留，但远端合并阻断尚未证明生效。需要配置时取得明确授权，不以本地测试代替。
+远端只读核对main保护/ruleset未启用；本任务未配置远端，不声明合并阻断生效。这是明确保留的既有外部边界，不补造为已实现政策。剩余仅root保存全勾Plan及公开finalize的结项动作；后续文档/删除提交与已受测实现提交分开说明。
 
 ## Implementation Observations
 
