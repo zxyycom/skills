@@ -2,14 +2,17 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { filterDecisionRelationRecords } from "../src/decision-query-relation-filter.ts";
 import type { IndexedDecisionRecord } from "../src/decision-query-contract.ts";
+import { isDecisionSourcePath } from "../src/decision-path.ts";
 import { decisionIdForTest } from "./support.ts";
 
 function source(
   relations: IndexedDecisionRecord["projection"]["relations"]
 ): IndexedDecisionRecord {
+  const sourcePath = "source.md";
+  assert.ok(isDecisionSourcePath(sourcePath));
   return {
     decisionId: decisionIdForTest("source"),
-    sourcePath: "source.md" as never,
+    sourcePath,
     alignment: "aligned",
     createdAt: "2026-09-11T00:00:00Z",
     status: "active",

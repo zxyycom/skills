@@ -5,6 +5,8 @@ import path from "node:path";
 import { afterEach } from "node:test";
 import { promisify } from "node:util";
 import { syncTestEvidenceIndex } from "../src/core.ts";
+import * as v from "valibot";
+import { testEvidenceStateIndexSchema } from "../src/core-schemas.ts";
 
 export const exec = promisify(execFile);
 export { fs, path };
@@ -49,4 +51,12 @@ export async function commitFixture(withIndex = true): Promise<string> {
   await exec("git", ["add", "."], { cwd: root });
   await exec("git", ["commit", "-m", "baseline"], { cwd: root });
   return root;
+}
+
+/** Decode the persisted index boundary before inspecting or deliberately mutating it. */
+export function parseIndexJson(
+  text: string
+): v.InferOutput<typeof testEvidenceStateIndexSchema> {
+  const value: unknown = JSON.parse(text);
+  return v.parse(testEvidenceStateIndexSchema, value);
 }

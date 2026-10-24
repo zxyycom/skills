@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
-import fs from "node:fs/promises";
+import fs, { type FileHandle } from "node:fs/promises";
 import path from "node:path";
-import test from "node:test";
+import test, { type TestContext } from "node:test";
 import {
   discardInvestigationReport,
   discardInvestigationReportWithWriter
@@ -9,6 +9,41 @@ import {
 import { writeInvestigationTextAtomically } from "../src/transaction-files.ts";
 import { investigationRoot, withTempRoot } from "./fixture-support.ts";
 import { writeCollection } from "./collection-support.ts";
+
+async function withObservedTemporaryHandles<T>(
+  t: TestContext,
+  root: string,
+  instrument: (handle: FileHandle, target: string) => void,
+  run: () => Promise<T>
+): Promise<T> {
+  const open = fs.open;
+  const observed = t.mock.method(
+    fs,
+    "open",
+    async (...args: Parameters<typeof open>) => {
+      const handle = await open(...args);
+      try {
+        const target = String(args[0]);
+        if (args[1] === "wx" && path.dirname(target) === root)
+          instrument(handle, target);
+        return handle;
+      } catch (error) {
+        await handle.close().catch((closeError: unknown) => {
+          throw new AggregateError(
+            [error, closeError],
+            "Source observation setup and handle cleanup failed"
+          );
+        });
+        throw error;
+      }
+    }
+  );
+  try {
+    return await run();
+  } finally {
+    observed.mock.restore();
+  }
+}
 
 test("Investigation atomic text writer cleans failed temporary writes without changing the original source", async (t) => {
   for (const fault of ["write", "mode", "close"] as const)
@@ -18,40 +53,32 @@ test("Investigation atomic text writer cleans failed temporary writes without ch
       await fs.chmod(target, 0o640);
       const before = await fs.stat(target);
       const injected = new Error("injected temporary " + fault + " failure");
-      const open = fs.open;
-      const observed = t.mock.method(
-        fs,
-        "open",
-        async (...args: Parameters<typeof open>) => {
-          const handle = await open(...args);
-          if (args[1] === "wx" && path.dirname(String(args[0])) === root) {
-            if (fault === "write")
-              t.mock.method(handle, "writeFile", async () => {
-                throw injected;
-              });
-            else if (fault === "mode")
-              t.mock.method(handle, "chmod", async () => {
-                throw injected;
-              });
-            else {
-              const close = handle.close.bind(handle);
-              t.mock.method(handle, "close", async () => {
-                await close();
-                throw injected;
-              });
-            }
+      await withObservedTemporaryHandles(
+        t,
+        root,
+        (handle) => {
+          if (fault === "write")
+            t.mock.method(handle, "writeFile", async () => {
+              throw injected;
+            });
+          else if (fault === "mode")
+            t.mock.method(handle, "chmod", async () => {
+              throw injected;
+            });
+          else {
+            const close = handle.close.bind(handle);
+            t.mock.method(handle, "close", async () => {
+              await close();
+              throw injected;
+            });
           }
-          return handle;
-        }
+        },
+        () =>
+          assert.rejects(
+            writeInvestigationTextAtomically(target, "replacement\n"),
+            (error) => error === injected
+          )
       );
-      try {
-        await assert.rejects(
-          writeInvestigationTextAtomically(target, "replacement\n"),
-          (error) => error === injected
-        );
-      } finally {
-        observed.mock.restore();
-      }
       const after = await fs.stat(target);
       assert.equal(await fs.readFile(target, "utf8"), "original source\n");
       assert.equal(after.mode, before.mode);
@@ -67,23 +94,8 @@ test("Investigation atomic text writer retains both publication and temporary cl
     await fs.writeFile(target, "original source\n");
     const writeFailure = new Error("injected temporary mode failure");
     const cleanupFailure = new Error("injected temporary cleanup failure");
-    const open = fs.open;
     const unlink = fs.unlink;
     let temporary: string | undefined;
-    const observedOpen = t.mock.method(
-      fs,
-      "open",
-      async (...args: Parameters<typeof open>) => {
-        const handle = await open(...args);
-        if (args[1] === "wx" && path.dirname(String(args[0])) === root) {
-          temporary = String(args[0]);
-          t.mock.method(handle, "chmod", async () => {
-            throw writeFailure;
-          });
-        }
-        return handle;
-      }
-    );
     const observedUnlink = t.mock.method(
       fs,
       "unlink",
@@ -93,16 +105,26 @@ test("Investigation atomic text writer retains both publication and temporary cl
       }
     );
     try {
-      await assert.rejects(
-        writeInvestigationTextAtomically(target, "replacement\n"),
-        (error) => {
-          assert.ok(error instanceof AggregateError);
-          assert.deepEqual(error.errors, [writeFailure, cleanupFailure]);
-          return true;
-        }
+      await withObservedTemporaryHandles(
+        t,
+        root,
+        (handle, target) => {
+          temporary = target;
+          t.mock.method(handle, "chmod", async () => {
+            throw writeFailure;
+          });
+        },
+        () =>
+          assert.rejects(
+            writeInvestigationTextAtomically(target, "replacement\n"),
+            (error) => {
+              assert.ok(error instanceof AggregateError);
+              assert.deepEqual(error.errors, [writeFailure, cleanupFailure]);
+              return true;
+            }
+          )
       );
     } finally {
-      observedOpen.mock.restore();
       observedUnlink.mock.restore();
     }
     assert.ok(temporary);
@@ -149,36 +171,20 @@ test("Investigation default discard restores its collection after an index tempo
     const originals = await Promise.all(
       paths.map((name) => fs.readFile(path.join(root, name)))
     );
-    const open = fs.open;
     const injected = new Error("injected index temporary mode failure");
     let injectedOnce = false;
-    const observed = t.mock.method(
-      fs,
-      "open",
-      async (...args: Parameters<typeof open>) => {
-        const handle = await open(...args);
-        if (
-          args[1] === "wx" &&
-          path.dirname(String(args[0])) === root &&
-          !paths.includes(path.basename(String(args[0])))
-        ) {
-          injectedOnce = true;
-          t.mock.method(handle, "chmod", async () => {
-            throw injected;
-          });
-        }
-        return handle;
-      }
+    const result = await withObservedTemporaryHandles(
+      t,
+      root,
+      (handle, target) => {
+        if (paths.includes(path.basename(target))) return;
+        injectedOnce = true;
+        t.mock.method(handle, "chmod", async () => {
+          throw injected;
+        });
+      },
+      () => discardInvestigationReport({ workspaceRoot, id: "selected" })
     );
-    let result;
-    try {
-      result = await discardInvestigationReport({
-        workspaceRoot,
-        id: "selected"
-      });
-    } finally {
-      observed.mock.restore();
-    }
     assert.equal(injectedOnce, true);
     assert.match(
       result.errors.join("; "),
@@ -211,28 +217,8 @@ test("Investigation default discard reports both index publication and exact tem
       const operationFailure = new Error(
         "injected index temporary mode failure"
       );
-      const open = fs.open;
       const unlink = fs.unlink;
       let temporary: string | undefined;
-      const observedOpen = t.mock.method(
-        fs,
-        "open",
-        async (...args: Parameters<typeof open>) => {
-          const handle = await open(...args);
-          const target = String(args[0]);
-          if (
-            args[1] === "wx" &&
-            path.dirname(target) === root &&
-            !paths.includes(path.basename(target))
-          ) {
-            temporary = target;
-            t.mock.method(handle, "chmod", async () => {
-              throw operationFailure;
-            });
-          }
-          return handle;
-        }
-      );
       const observedUnlink = t.mock.method(
         fs,
         "unlink",
@@ -251,12 +237,19 @@ test("Investigation default discard reports both index publication and exact tem
       );
       let result;
       try {
-        result = await discardInvestigationReport({
-          workspaceRoot,
-          id: "selected"
-        });
+        result = await withObservedTemporaryHandles(
+          t,
+          root,
+          (handle, target) => {
+            if (paths.includes(path.basename(target))) return;
+            temporary = target;
+            t.mock.method(handle, "chmod", async () => {
+              throw operationFailure;
+            });
+          },
+          () => discardInvestigationReport({ workspaceRoot, id: "selected" })
+        );
       } finally {
-        observedOpen.mock.restore();
         observedUnlink.mock.restore();
       }
       assert.ok(temporary);

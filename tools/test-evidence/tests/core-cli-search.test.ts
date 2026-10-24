@@ -133,10 +133,11 @@ test("search rejects stale Case indexes through its API and CLI", async () => {
   );
   assert.equal(code, 1);
   assert.equal(stderr.join(""), "");
+  const raw: unknown = JSON.parse(stdout.join(""));
   assert.deepEqual(
-    JSON.parse(stdout.join("")).diagnostics.map(
-      (entry: { code: string }) => entry.code
-    ),
+    v
+      .parse(testEvidenceSearchResultSchema, raw)
+      .diagnostics.map((entry) => entry.code),
     ["state-index.index-stale"]
   );
 });
@@ -218,7 +219,8 @@ test("CLI writes domain failures as JSON stdout with a nonzero exit", async () =
     );
     assert.equal(code, 1);
     assert.equal(stderr.join(""), "");
-    const result = JSON.parse(stdout.join(""));
+    const raw: unknown = JSON.parse(stdout.join(""));
+    const result = v.parse(testEvidenceReferenceResultSchema, raw);
     assert.equal(result.state, "snapshot-invalid");
     assert.ok(v.safeParse(testEvidenceReferenceResultSchema, result).success);
   };
@@ -300,21 +302,29 @@ test("Case hard-link identity conflicts are rejected", async () => {
     report.diagnostics.some((entry) => entry.code === "case.identity-conflict")
   );
 });
-test("search rejects a Case source that changes during the authoritative read", async () => {
+test("search rejects a Case source that changes during the authoritative read", async (context) => {
   const root = await fixture();
   await syncTestEvidenceIndex({ workspaceRoot: root, mode: "write" });
   const target = path.join(root, "docs/test-evidence/cases/access.md");
   const originalOpen = fs.open;
   let changed = false;
-  const mutableFs = fs as { open: typeof fs.open };
-  mutableFs.open = (async (...args: Parameters<typeof originalOpen>) => {
-    const handle = await originalOpen(...args);
-    if (path.resolve(String(args[0])) === target && !changed) {
-      changed = true;
-      await fs.appendFile(target, "\n");
+  const open = context.mock.method(
+    fs,
+    "open",
+    async (...args: Parameters<typeof originalOpen>) => {
+      const handle = await originalOpen(...args);
+      if (path.resolve(String(args[0])) === target && !changed) {
+        changed = true;
+        try {
+          await fs.appendFile(target, "\n");
+        } catch (error) {
+          await handle.close();
+          throw error;
+        }
+      }
+      return handle;
     }
-    return handle;
-  }) as typeof fs.open;
+  );
   try {
     const result = await searchTestEvidence({
       workspaceRoot: root,
@@ -327,7 +337,7 @@ test("search rejects a Case source that changes during the authoritative read", 
       JSON.stringify(result)
     );
   } finally {
-    mutableFs.open = originalOpen;
+    open.mock.restore();
   }
 });
 

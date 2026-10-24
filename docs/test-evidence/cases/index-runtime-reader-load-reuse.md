@@ -15,6 +15,6 @@ Contract:
 
 Proves:
 - parser 输出、输入对象、definition 描述符与磁盘变化不影响已打开 reader；state/metadata/revision 拒绝写入且不泄漏查询值。
-- 重复 query/get/all 不增加 fixture parser、validator 或读取次数；overlay 仅解析本次变化并保持原 reader 结果，不声明内建时间提取次数。
+- 重复 query/get/all 不增加 fixture parser、validator 或读取次数；overlay 仅解析本次变化并保持原 reader 结果。
 - 两个加载入口拒绝非法 metadata、查询字段、完整集合与越界路径；非法 definition 或冻结 raw 索引不能绕过校验。
 - current 打开读取一次 revision，stale 优先于 state 解析；再次打开读取新文件，不跨调用复用旧 reader。

@@ -31,7 +31,7 @@ test("task-graph package command defaults to the main root and accepts an explic
       linked
     );
     requireSuccess(launched, "task-graph package command");
-    assert.deepEqual(JSON.parse(launched.stdout), {
+    assert.deepEqual(JSON.parse(launched.stdout) as unknown, {
       argv: ["task", "list", "--root", main],
       cwd: main
     });
@@ -47,7 +47,7 @@ test("task-graph package command defaults to the main root and accepts an explic
         linked
       );
       requireSuccess(explicit, "task-graph explicit project root");
-      assert.deepEqual(JSON.parse(explicit.stdout), {
+      assert.deepEqual(JSON.parse(explicit.stdout) as unknown, {
         argv: ["task", "list", "--root", alternate],
         cwd: alternate
       });
@@ -67,7 +67,7 @@ test("task-graph package command defaults to the main root and accepts an explic
       nested
     );
     requireSuccess(direct, "task-graph explicit root from a nested cwd");
-    assert.deepEqual(JSON.parse(direct.stdout), {
+    assert.deepEqual(JSON.parse(direct.stdout) as unknown, {
       argv: ["task", "list", "--root", alternate],
       cwd: alternate
     });

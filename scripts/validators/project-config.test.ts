@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
+import * as v from "valibot";
 import { fileURLToPath } from "node:url";
 import {
   authoritativeGatePackageScripts,
@@ -21,10 +22,10 @@ const workspaceRoot = path.resolve(
   ".."
 );
 
-type OxlintPolicyMutation = {
+type OxlintPolicyMutation = Readonly<{
   expectedFailure: string;
   mutate: (configuration: Record<string, unknown>) => void;
-};
+}>;
 
 const oxlintPolicyMutations: readonly OxlintPolicyMutation[] = [
   {
@@ -80,12 +81,6 @@ const oxlintPolicyMutations: readonly OxlintPolicyMutation[] = [
     }
   }
 ];
-
-function cloneJsonRecord(
-  value: Record<string, unknown>
-): Record<string, unknown> {
-  return structuredClone(value);
-}
 
 function oxlintPolicyError(configurationPath: string, failure: string): string {
   return (
@@ -254,9 +249,12 @@ test("lint entry preserves Oxlint configuration preflight", async () => {
     ]);
 
     const oxlintConfigurationPath = path.join(tempRoot, ".oxlintrc.json");
-    const oxlintConfiguration = JSON.parse(
-      await fs.readFile(path.join(workspaceRoot, ".oxlintrc.json"), "utf8")
-    ) as Record<string, unknown>;
+    const oxlintConfiguration = v.parse(
+      v.record(v.string(), v.unknown()),
+      JSON.parse(
+        await fs.readFile(path.join(workspaceRoot, ".oxlintrc.json"), "utf8")
+      ) as unknown
+    );
     oxlintConfiguration.overrides = [
       {
         files: ["scripts/example.ts"],
@@ -381,9 +379,12 @@ test(
       assert.deepEqual(currentConfigurationErrors, []);
 
       const oxlintConfigurationPath = path.join(tempRoot, ".oxlintrc.json");
-      const currentOxlintConfiguration = JSON.parse(
-        await fs.readFile(oxlintConfigurationPath, "utf8")
-      ) as Record<string, unknown>;
+      const currentOxlintConfiguration = v.parse(
+        v.record(v.string(), v.unknown()),
+        JSON.parse(
+          await fs.readFile(oxlintConfigurationPath, "utf8")
+        ) as unknown
+      );
       for (const { expectedFailure, mutate } of [
         {
           expectedFailure:
@@ -394,7 +395,7 @@ test(
         },
         ...oxlintPolicyMutations
       ]) {
-        const mutatedConfiguration = cloneJsonRecord(
+        const mutatedConfiguration = structuredClone(
           currentOxlintConfiguration
         );
         mutate(mutatedConfiguration);

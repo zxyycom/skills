@@ -11,4 +11,4 @@ Contract:
 
 Proves:
 - 独立字面预期核对 5120 文件、单文件 1 MiB、总量 64 MiB 与空 finding waiver 配置。
-- 三个真实 source/hooks/config 选集 smoke 均被选中扫描并给出预期结果；不声称本节点执行上游超容量截断。
+- 三个真实 source/hooks/config 选集 smoke 均被选中扫描并给出预期结果。

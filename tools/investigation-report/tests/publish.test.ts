@@ -9,6 +9,8 @@ import {
   publishInvestigationCandidatesWithWriter
 } from "../src/publish.ts";
 import {
+  parseJsonObject,
+  jsonObjectMember,
   investigationRoot,
   reportMarkdown,
   withTempRoot
@@ -322,15 +324,17 @@ test("publish accepts unselected dependency body drift while preserving its curr
     assert.deepEqual(published.errors, []);
     assert.equal(published.changed, true);
     assert.equal(await fs.readFile(formal, "utf8"), before + "\n");
-    const index = JSON.parse(
+    const index = parseJsonObject(
       await fs.readFile(
         path.join(investigationRoot(root), "investigation-index.json"),
         "utf8"
       )
     );
-    assert.deepEqual(index.entries.candidate.relations, [
-      { type: "补充", target: "formal" }
-    ]);
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(index, "entries"), "candidate")
+        .relations,
+      [{ type: "补充", target: "formal" }]
+    );
     assert.match(
       await fs.readFile(
         path.join(investigationRoot(root), "candidate.md"),
@@ -342,7 +346,7 @@ test("publish accepts unselected dependency body drift while preserving its curr
   });
 });
 
-test("publish preserves unrelated published projections without reading their current sources or resources", async () => {
+test("publish preserves unrelated published projections without reading their current sources or resources", async (t) => {
   await withTempRoot("publish-local-baseline", async (root) => {
     const directory = investigationRoot(root);
     await fs.mkdir(path.join(directory, "_resources/unrelated"), {
@@ -358,7 +362,14 @@ test("publish preserves unrelated published projections without reading their cu
       { id: "unrelated", resources: ["unrelated/resource.txt"] }
     ]);
     const indexPath = path.join(directory, "investigation-index.json");
-    const before = JSON.parse(await fs.readFile(indexPath, "utf8"));
+    const before = parseJsonObject(await fs.readFile(indexPath, "utf8"));
+    assert.equal(
+      typeof jsonObjectMember(
+        jsonObjectMember(before, "sourceRevision"),
+        "entries"
+      ).unrelated,
+      "string"
+    );
     const unrelatedSource = path.join(directory, "unrelated.md");
     await fs.writeFile(unrelatedSource, "unrelated invalid current document\n");
     await fs.rm(unrelatedResource);
@@ -368,13 +379,17 @@ test("publish preserves unrelated published projections without reading their cu
     });
     const readFile = fs.readFile;
     const reads: string[] = [];
-    fs.readFile = (async (...args: Parameters<typeof fs.readFile>) => {
-      if (args[0] === unrelatedSource || args[0] === unrelatedResource) {
-        reads.push(String(args[0]));
-        throw new Error("unrelated payload must not be read");
+    const observedRead = t.mock.method(
+      fs,
+      "readFile",
+      async (...args: Parameters<typeof fs.readFile>) => {
+        if (args[0] === unrelatedSource || args[0] === unrelatedResource) {
+          reads.push(String(args[0]));
+          throw new Error("unrelated payload must not be read");
+        }
+        return await readFile(...args);
       }
-      return await readFile(...args);
-    }) as typeof fs.readFile;
+    );
     let result;
     try {
       result = await publishInvestigationCandidates({
@@ -382,18 +397,23 @@ test("publish preserves unrelated published projections without reading their cu
         workspaceRoot: root
       });
     } finally {
-      fs.readFile = readFile;
+      observedRead.mock.restore();
     }
     assert.deepEqual(result.errors, []);
     assert.equal(result.changed, true);
     assert.deepEqual(reads, []);
-    const after = JSON.parse(await fs.readFile(indexPath, "utf8"));
-    assert.deepEqual(after.entries.unrelated, before.entries.unrelated);
-    assert.equal(
-      after.sourceRevision.entries.unrelated,
-      before.sourceRevision.entries.unrelated
+    const after = parseJsonObject(await fs.readFile(indexPath, "utf8"));
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(after, "entries"), "unrelated"),
+      jsonObjectMember(jsonObjectMember(before, "entries"), "unrelated")
     );
-    assert.ok(after.entries.next);
+    assert.equal(
+      jsonObjectMember(jsonObjectMember(after, "sourceRevision"), "entries")
+        .unrelated,
+      jsonObjectMember(jsonObjectMember(before, "sourceRevision"), "entries")
+        .unrelated
+    );
+    assert.ok(jsonObjectMember(after, "entries").next);
     assert.equal(
       await fs.readFile(unrelatedSource, "utf8"),
       "unrelated invalid current document\n"

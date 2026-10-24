@@ -7,6 +7,8 @@ import { createGitRepositoryFixture } from "../../shared/tests/git-fixture.ts";
 import { renameInvestigationRecordWithHooks } from "../src/rename.ts";
 import { setInvestigationRelationsWithWriter } from "../src/relation-transaction.ts";
 import {
+  parseJsonObject,
+  jsonObjectMember,
   investigationRoot,
   reportMarkdown,
   withTempRoot
@@ -91,10 +93,11 @@ test("Investigation relation writer rejection after index publication preserves 
       await fs.readFile(path.join(root, "next.md"), "utf8"),
       /target: "base"/
     );
-    assert.equal(
-      JSON.parse(await fs.readFile(index, "utf8")).entries.next.relations[0]
-        .target,
-      "base"
+    const publishedIndex = parseJsonObject(await fs.readFile(index, "utf8"));
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(publishedIndex, "entries"), "next")
+        .relations,
+      [{ type: "补充", target: "base" }]
     );
   });
 });

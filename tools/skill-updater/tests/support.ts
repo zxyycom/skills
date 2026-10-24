@@ -32,8 +32,8 @@ export const validRelease = {
   tag_name: "review"
 };
 
-type UpdaterRunOptions = {
-  args: string[];
+type UpdaterRunOptions = Readonly<{
+  args: readonly string[];
   fetchMarkerPath?: string;
   updaterPath?: string;
   useDefaultTarget?: boolean;
@@ -41,7 +41,7 @@ type UpdaterRunOptions = {
   release: unknown;
   targetDir: string;
   zipData: Uint8Array;
-};
+}>;
 
 export function skillMarkdown(
   version: number,
@@ -105,9 +105,14 @@ await fs.writeFile(
   mockFetchPath,
   [
     "const fs = require('node:fs');",
-    "const releaseJson = process.env.SKILLS_TEST_RELEASE_JSON;",
-    "const manifestJson = process.env.SKILLS_TEST_MANIFEST_JSON;",
-    "const zipBase64 = process.env.SKILLS_TEST_ZIP_BASE64;",
+    "const requiredEnvironment = (name) => {",
+    "  const value = process.env[name];",
+    "  if (value === undefined) throw new Error(`Missing updater fixture environment: ${name}`);",
+    "  return value;",
+    "};",
+    "const releaseJson = requiredEnvironment('SKILLS_TEST_RELEASE_JSON');",
+    "const manifestJson = requiredEnvironment('SKILLS_TEST_MANIFEST_JSON');",
+    "const zipBase64 = requiredEnvironment('SKILLS_TEST_ZIP_BASE64');",
     "const fetchMarkerPath = process.env.SKILLS_TEST_FETCH_MARKER_PATH;",
     "globalThis.fetch = async (input) => {",
     "  const url = String(input);",
@@ -149,7 +154,7 @@ export const validManifest = {
   skills: {
     [skillName]: { version: 2 }
   }
-};
+} as const;
 
 export async function copyUpdaterSkill(target: string): Promise<void> {
   await fs.cp(path.join(rootDir, "skills", skillName), target, {

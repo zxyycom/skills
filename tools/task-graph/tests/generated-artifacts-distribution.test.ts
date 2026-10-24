@@ -19,10 +19,14 @@ import {
 } from "./generated-artifacts-support.ts";
 
 test("generated distribution exposes the source runtime API and matching CLI version", async () => {
-  const generatedApi = await import(pathToFileURL(generatedScriptPath).href);
+  const generatedModule: unknown = await import(
+    pathToFileURL(generatedScriptPath).href
+  );
+  assert.ok(typeof generatedModule === "object" && generatedModule !== null);
+  const generatedApi = generatedModule;
   assert.deepEqual(Object.keys(sourceApi).sort(), [...publicRuntimeExports]);
   assert.deepEqual(Object.keys(generatedApi).sort(), [...publicRuntimeExports]);
-  const runtime = await import(
+  const runtimeModule: unknown = await import(
     pathToFileURL(
       path.join(
         path.dirname(generatedScriptPath),
@@ -30,19 +34,36 @@ test("generated distribution exposes the source runtime API and matching CLI ver
       )
     ).href
   );
-  assert.equal(generatedApi.TaskGraphService, runtime.TaskGraphService);
-  assert.equal(generatedApi.runTaskGraphCli, runtime.runTaskGraphCli);
+  assert.ok(typeof runtimeModule === "object" && runtimeModule !== null);
+  assert.ok(
+    "TaskGraphService" in generatedApi && "TaskGraphService" in runtimeModule
+  );
+  assert.equal(generatedApi.TaskGraphService, runtimeModule.TaskGraphService);
+  assert.ok(
+    "runTaskGraphCli" in generatedApi && "runTaskGraphCli" in runtimeModule
+  );
+  assert.equal(generatedApi.runTaskGraphCli, runtimeModule.runTaskGraphCli);
+  assert.ok(typeof generatedApi.runTaskGraphCli === "function");
 
   const sourceOutput: string[] = [];
   const generatedOutput: string[] = [];
   const sourceExit = await sourceApi.runTaskGraphCli(["--version"], {
     io: { stdout: (text) => sourceOutput.push(text) }
   });
-  const generatedRunner =
-    generatedApi.runTaskGraphCli as typeof sourceApi.runTaskGraphCli;
-  const generatedExit = await generatedRunner(["--version"], {
-    io: { stdout: (text) => generatedOutput.push(text) }
-  });
+  const generatedExit: unknown = await generatedApi.runTaskGraphCli(
+    ["--version"],
+    {
+      io: {
+        stdout: (text: unknown) => {
+          assert.ok(typeof text === "string");
+          generatedOutput.push(text);
+        }
+      }
+    }
+  );
+  assert.ok(
+    typeof generatedExit === "number" && Number.isInteger(generatedExit)
+  );
   assert.equal(generatedExit, sourceExit);
   assert.deepEqual(generatedOutput, sourceOutput);
 });

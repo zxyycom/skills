@@ -17,7 +17,7 @@ import {
 
 test("environment check reports missing repository setup without writing it", async () => {
   const tempRoot = await fs.mkdtemp(
-    path.join(os.tmpdir(), "skills environment check ")
+    path.join(os.tmpdir(), "skills environment check $fixture's ")
   );
   try {
     const root = await createRepository(tempRoot, "unchecked repository");

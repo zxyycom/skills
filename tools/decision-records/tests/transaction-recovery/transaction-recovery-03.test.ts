@@ -47,15 +47,11 @@ test("sync-index fails while a decision transaction holds the collection lock", 
     );
     const currentBefore = await fs.readFile(currentPath, "utf8");
     const indexBefore = await fs.readFile(indexPath, "utf8");
-    let releaseWrite: () => void = () => {};
-    const released = new Promise<void>((resolve) => {
-      releaseWrite = resolve;
-    });
-    let signalBlocked: () => void = () => {};
+    const { promise: released, resolve: releaseWrite } =
+      Promise.withResolvers<void>();
     let blocked = false;
-    const writeBlocked = new Promise<void>((resolve) => {
-      signalBlocked = resolve;
-    });
+    const { promise: writeBlocked, resolve: signalBlocked } =
+      Promise.withResolvers<void>();
     const restoreWrites = interceptDecisionWrites(async (filePath) => {
       if (!blocked && path.resolve(filePath) === currentPath) {
         blocked = true;
@@ -140,15 +136,11 @@ test("decision transaction fails while sync-index holds the collection lock", ()
     const descriptor = Object.getOwnPropertyDescriptor(fs, "rename");
     assert.ok(descriptor);
     const rename = fs.rename.bind(fs);
-    let releaseRename: () => void = () => {};
-    const released = new Promise<void>((resolve) => {
-      releaseRename = resolve;
-    });
-    let signalBlocked: () => void = () => {};
+    const { promise: released, resolve: releaseRename } =
+      Promise.withResolvers<void>();
     let blocked = false;
-    const renameBlocked = new Promise<void>((resolve) => {
-      signalBlocked = resolve;
-    });
+    const { promise: renameBlocked, resolve: signalBlocked } =
+      Promise.withResolvers<void>();
     Object.defineProperty(fs, "rename", {
       ...descriptor,
       value: async (from: string, to: string): Promise<void> => {

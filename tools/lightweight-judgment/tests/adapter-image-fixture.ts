@@ -14,7 +14,11 @@ function pngChunk(name: string, data: Buffer): Buffer {
   result.writeUInt32BE((crc ^ 0xffffffff) >>> 0, result.length - 4);
   return result;
 }
-export function pngFixture(width: number, height: number, textLength = 0) {
+export function pngFixture(
+  width: number,
+  height: number,
+  textLength = 0
+): Readonly<{ bytes: Buffer; compressed: Buffer; pixels: Buffer }> {
   const header = Buffer.alloc(13);
   header.writeUInt32BE(width);
   header.writeUInt32BE(height, 4);

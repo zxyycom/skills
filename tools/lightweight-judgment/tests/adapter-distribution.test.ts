@@ -13,6 +13,7 @@ import http from "node:http";
 test("standalone Node TS performs one native Decisions HTTP exchange with compatible dependencies and preserves raw plus normalized", async (context) => {
   const fixture = logFixture();
   let count = 0;
+  let requestFailure: unknown;
   let activeChild: ReturnType<typeof spawn> | undefined;
   let childClosed: Promise<void> | undefined;
   const server = http.createServer((req, res) => {
@@ -50,6 +51,7 @@ test("standalone Node TS performs one native Decisions HTTP exchange with compat
           })
         );
       } catch (error) {
+        requestFailure = error;
         res.statusCode = 500;
         res.end(String(error));
       }
@@ -141,6 +143,7 @@ test("standalone Node TS performs one native Decisions HTTP exchange with compat
       });
       if (context.signal.aborted) abort();
     });
+    assert.ifError(requestFailure);
     assert.equal(result.code, 0, result.stdout + result.stderr);
     assert.equal(count, 1);
     const decoded = decodeSuccess(result.stdout);

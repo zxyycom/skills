@@ -19,7 +19,7 @@ import {
 } from "./fixture-support.ts";
 import { writeCollection, writeResource } from "./collection-support.ts";
 
-test("stage deletion defers unknown workspace identity rediscovery to explicit full validation", async () => {
+test("stage deletion defers unknown workspace identity rediscovery to explicit full validation", async (t) => {
   await withTempRoot("stage-deletion-unknown-identity", async (root) => {
     await writeCollection(root, [{ id: "first" }, { id: "second" }]);
     initializeGit(root);
@@ -29,10 +29,14 @@ test("stage deletion defers unknown workspace identity rediscovery to explicit f
     await fs.writeFile(unknownPath, reportMarkdown({ id: "first" }));
     const original = fs.readFile;
     let unknownReads = 0;
-    fs.readFile = (async (...args: Parameters<typeof fs.readFile>) => {
-      if (args[0] === unknownPath) unknownReads++;
-      return original(...args);
-    }) as typeof fs.readFile;
+    const observedRead = t.mock.method(
+      fs,
+      "readFile",
+      async (...args: Parameters<typeof fs.readFile>) => {
+        if (args[0] === unknownPath) unknownReads++;
+        return original(...args);
+      }
+    );
     try {
       const result = await stageInvestigationReports({
         reportIds: ["first"],
@@ -50,7 +54,7 @@ test("stage deletion defers unknown workspace identity rediscovery to explicit f
         ""
       );
     } finally {
-      fs.readFile = original;
+      observedRead.mock.restore();
     }
     const checked = await validateInvestigationReports({ workspaceRoot: root });
     assert.ok(checked.errors.length > 0);
@@ -118,17 +122,15 @@ test("stage all preserves a pure dependency pending deletion until explicitly se
   });
 });
 
-async function verifyPreservedPendingDeletion(
-  scope: "index" | "all"
-): Promise<void> {
-  await withTempRoot(`stage-preserved-deletion-${scope}`, async (root) => {
+test("stage all preserves an unselected pending deletion despite workspace restoration", async () => {
+  await withTempRoot("stage-preserved-deletion-all", async (root) => {
     await writeCollection(root, [{ id: "first" }, { id: "second" }]);
     initializeGit(root);
     await fs.unlink(path.join(investigationRoot(root), "second.md"));
     await writeCollection(root, [{ id: "first" }]);
     const removed = await stageInvestigationReports({
       reportIds: ["second"],
-      scope,
+      scope: "all",
       workspaceRoot: root
     });
     assert.equal(removed.status, "ok", JSON.stringify(removed));
@@ -138,7 +140,7 @@ async function verifyPreservedPendingDeletion(
     ]);
     const selected = await stageInvestigationReports({
       reportIds: ["first"],
-      scope,
+      scope: "all",
       workspaceRoot: root
     });
     assert.equal(selected.status, "ok", JSON.stringify(selected));
@@ -148,14 +150,6 @@ async function verifyPreservedPendingDeletion(
     );
     assert.equal(Object.hasOwn(entries, "second"), false);
     assert.equal(jsonObjectMember(entries, "first").title, "Selected update");
-    if (scope === "all")
-      assert.equal(
-        git(root, ["ls-files", "docs/investigations/second.md"]),
-        ""
-      );
+    assert.equal(git(root, ["ls-files", "docs/investigations/second.md"]), "");
   });
-}
-
-test("stage all preserves an unselected pending deletion despite workspace restoration", async () => {
-  await verifyPreservedPendingDeletion("all");
 });

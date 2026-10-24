@@ -10,4 +10,4 @@ Contract:
 - 预算只消费原生实际 duration，null 不补零、实际零保留；quick 阻断，完整范围仅报告。
 
 Proves:
-- 受控 duration readback 验证 nearest-rank/P90/mean、null/zero、quick/full 退出与 machine summary，不代表真实 Gate 性能实测。
+- 以受控 duration readback 验证 nearest-rank/P90/mean、null/zero、quick/full 退出与 machine summary。

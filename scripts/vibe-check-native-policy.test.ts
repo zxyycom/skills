@@ -48,37 +48,31 @@ test("project schema validation binds the two owned indexes to authoritative sch
   assert.ok(check?.options && typeof check.options === "object");
   const schemaOptions = check.options;
   assert.deepEqual(
-    JSON.parse(JSON.stringify(Reflect.get(schemaOptions, "schemaIdentity"))),
+    structuredClone(Reflect.get(schemaOptions, "schemaIdentity")),
     {
       mode: "configuration-authoritative"
     }
   );
-  assert.deepEqual(
-    JSON.parse(JSON.stringify(Reflect.get(schemaOptions, "schemas"))),
-    [
-      {
-        id: "urn:skills:task-graph-index",
-        path: "skills/task-graph/references/task-graph-index.schema.json"
-      },
-      {
-        id: "urn:skills:test-evidence-index",
-        path: "skills/test-evidence-review/references/schemas/test-evidence-state-index.schema.json"
-      }
-    ]
-  );
-  assert.deepEqual(
-    JSON.parse(JSON.stringify(Reflect.get(schemaOptions, "bindings"))),
-    [
-      {
-        id: "task-graph-index",
-        instancePath: "docs/task-graph/task-graph-index.json",
-        schemaId: "urn:skills:task-graph-index"
-      },
-      {
-        id: "test-evidence-index",
-        instancePath: "docs/test-evidence/test-evidence-index.json",
-        schemaId: "urn:skills:test-evidence-index"
-      }
-    ]
-  );
+  assert.deepEqual(structuredClone(Reflect.get(schemaOptions, "schemas")), [
+    {
+      id: "urn:skills:task-graph-index",
+      path: "skills/task-graph/references/task-graph-index.schema.json"
+    },
+    {
+      id: "urn:skills:test-evidence-index",
+      path: "skills/test-evidence-review/references/schemas/test-evidence-state-index.schema.json"
+    }
+  ]);
+  assert.deepEqual(structuredClone(Reflect.get(schemaOptions, "bindings")), [
+    {
+      id: "task-graph-index",
+      instancePath: "docs/task-graph/task-graph-index.json",
+      schemaId: "urn:skills:task-graph-index"
+    },
+    {
+      id: "test-evidence-index",
+      instancePath: "docs/test-evidence/test-evidence-index.json",
+      schemaId: "urn:skills:test-evidence-index"
+    }
+  ]);
 });

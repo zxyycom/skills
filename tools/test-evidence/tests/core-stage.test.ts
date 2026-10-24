@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { parseIndexJson } from "./core-test-support.ts";
 import { stageTestEvidenceIndex, syncTestEvidenceIndex } from "../src/core.ts";
 import { commitFixture, exec, fixture, fs, path } from "./core-test-support.ts";
 
@@ -47,7 +48,7 @@ test("stage preserves an existing conflicting pending index", async () => {
 test("stage overlays only selected Case revisions onto the Git baseline", async () => {
   const root = await commitFixture();
   const indexPath = "docs/test-evidence/test-evidence-index.json";
-  const baseline = JSON.parse(
+  const baseline = parseIndexJson(
     (await exec("git", ["show", `HEAD:${indexPath}`], { cwd: root })).stdout
   );
   await fs.appendFile(
@@ -64,7 +65,7 @@ test("stage overlays only selected Case revisions onto the Git baseline", async 
     caseIds: ["AUTH-ROLE-ACCESS-001"]
   });
   assert.equal(staged.status, "ok");
-  const overlay = JSON.parse(
+  const overlay = parseIndexJson(
     (await exec("git", ["show", `:${indexPath}`], { cwd: root })).stdout
   );
   assert.notEqual(
@@ -87,7 +88,7 @@ test("stage bootstraps a missing HEAD index with only selected Cases", async () 
   assert.equal(bootstrapped.status, "ok", JSON.stringify(bootstrapped));
   assert.deepEqual(
     Object.keys(
-      JSON.parse(
+      parseIndexJson(
         (
           await exec(
             "git",
@@ -153,7 +154,7 @@ test("stage removes all selected Cases from the Git index when the catalog becom
     caseIds: ["AUTH-ROLE-ACCESS-001", "AUTH-ROLE-ACCESS-002"]
   });
   assert.equal(emptied.status, "ok");
-  const emptyIndex = JSON.parse(
+  const emptyIndex = parseIndexJson(
     (
       await exec(
         "git",

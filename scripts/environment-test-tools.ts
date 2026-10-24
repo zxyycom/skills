@@ -48,7 +48,9 @@ export async function createFakeToolPath(
   return bin;
 }
 
-function availableFakeTools(metricTools: { scc: MetricToolMode }): string[] {
+function availableFakeTools(
+  metricTools: Readonly<{ scc: MetricToolMode }>
+): string[] {
   return [
     "node",
     "bun",
@@ -64,7 +66,7 @@ function availableFakeTools(metricTools: { scc: MetricToolMode }): string[] {
 async function createWindowsFakeTools(
   bin: string,
   tools: readonly string[],
-  metricTools: { scc: MetricToolMode },
+  metricTools: Readonly<{ scc: MetricToolMode }>,
   bunVersion: string,
   nodeVersion: string,
   commandLogPath?: string
@@ -90,7 +92,7 @@ async function createWindowsFakeTools(
 }
 
 function windowsFakeToolDispatcher(
-  metricTools: { scc: MetricToolMode },
+  metricTools: Readonly<{ scc: MetricToolMode }>,
   bunVersion: string,
   nodeVersion: string,
   commandLogPath?: string
@@ -122,7 +124,7 @@ function quoteBatch(value: string): string {
 async function createPosixFakeTools(
   bin: string,
   tools: readonly string[],
-  metricTools: { scc: MetricToolMode },
+  metricTools: Readonly<{ scc: MetricToolMode }>,
   bunVersion: string,
   nodeVersion: string,
   commandLogPath?: string
@@ -141,7 +143,7 @@ async function createPosixFakeTools(
 }
 
 function posixFakeToolDispatcher(
-  metricTools: { scc: MetricToolMode },
+  metricTools: Readonly<{ scc: MetricToolMode }>,
   bunVersion: string,
   nodeVersion: string,
   commandLogPath?: string
@@ -152,11 +154,11 @@ function posixFakeToolDispatcher(
     "command=$1",
     "shift",
     commandLogPath
-      ? `printf '%s:%s\\n' "$tool" "$command" >> ${JSON.stringify(commandLogPath)}`
+      ? `printf '%s:%s\\n' "$tool" "$command" >> ${quoteShell(commandLogPath)}`
       : "",
     'case "$tool:$command" in',
-    `  node:--version) printf '%s\\n' ${JSON.stringify(`v${nodeVersion}`)} ;;`,
-    `  bun:--version) printf '%s\\n' ${JSON.stringify(bunVersion)} ;;`,
+    `  node:--version) printf '%s\\n' ${quoteShell(`v${nodeVersion}`)} ;;`,
+    `  bun:--version) printf '%s\\n' ${quoteShell(bunVersion)} ;;`,
     "  pnpm:--version) printf '%s\\n' '11.7.0' ;;",
     "  pnpm:list) printf '%s\\n' '[{}]' ;;",
     "  pnpm:install) ;;",
@@ -165,11 +167,15 @@ function posixFakeToolDispatcher(
     "  codegraph:init|codegraph:sync) ;;",
     metricTools.scc === "probe-failure"
       ? "  scc:--version) printf '%s\\n' 'scc probe failed' >&2; exit 2 ;;"
-      : `  scc:--version) printf '%s\\n' ${JSON.stringify(metricTools.scc === "mismatch" ? "scc version 4.0.1" : "scc version 4.0.0")} ;;`,
+      : `  scc:--version) printf '%s\\n' ${quoteShell(metricTools.scc === "mismatch" ? "scc version 4.0.1" : "scc version 4.0.0")} ;;`,
     '  *) printf \'unexpected %s command: %s\\n\' "$tool" "$*" >&2; exit 2 ;;',
     "esac",
     ""
   ].join("\n");
+}
+
+function quoteShell(value: string): string {
+  return `'${value.replaceAll("'", `'"'"'`)}'`;
 }
 
 export function environmentWith(

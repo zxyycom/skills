@@ -6,7 +6,14 @@ import test from "node:test";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import { TaskGraphService, cancelTask, removeTasks } from "../src/index.ts";
-import { runTaskGraphCli, type TaskGraphResult } from "../src/cli.ts";
+import { runTaskGraphCli } from "../src/cli.ts";
+import {
+  parseJsonCall,
+  requireOnlyOutput,
+  requireRecord,
+  requireRecords,
+  requireStrings
+} from "./cli-test-support.ts";
 import {
   applyOperations,
   expectTaskGraphError,
@@ -91,9 +98,7 @@ test("task removal reports terminal and graph-boundary blockers without mutation
         }),
       "TASKS_NOT_REMOVABLE"
     );
-    const blockers = error.details.blockers as unknown as Array<{
-      kind: string;
-    }>;
+    const blockers = requireRecords(error.details.blockers, "removal blockers");
     assert.ok(blockers.some((blocker) => blocker.kind === blockerKind));
     assert.deepEqual(index, before);
   }
@@ -133,11 +138,15 @@ test("bulk task removal is atomic, explicit, and preserves monotonic allocation"
   );
   expectTaskGraphError(
     () =>
-      removeTasks(index, {
-        expectedRevision: index.revision,
-        taskIds: ["task-000001", "task-000002"],
-        resultsDelivered: false
-      } as never),
+      // JavaScript callers can omit the type-level delivery proof; runtime must reject it.
+      Reflect.apply(removeTasks, undefined, [
+        index,
+        {
+          expectedRevision: index.revision,
+          taskIds: ["task-000001", "task-000002"],
+          resultsDelivered: false
+        }
+      ]),
     "DELIVERY_NOT_CONFIRMED"
   );
 });
@@ -149,14 +158,19 @@ test("CLI help discovers task removal and rejects the removed scope command", as
       io: { stdout: (text) => helpChunks.push(text) }
     });
     assert.equal(helpExit, 0);
-    const help = JSON.parse(helpChunks[0]!) as TaskGraphResult<{
-      commands: string[];
-    }>;
+    const help = parseJsonCall({
+      exitCode: helpExit,
+      output: requireOnlyOutput(helpChunks)
+    });
     assert.equal(help.ok, true);
     if (help.ok) {
-      assert.ok(help.data.commands.includes("task remove"));
+      const commands = requireStrings(
+        requireRecord(help.data, "help data").commands,
+        "help commands"
+      );
+      assert.ok(commands.includes("task remove"));
       assert.equal(
-        help.data.commands.some((command) => command.startsWith("scope ")),
+        commands.some((command) => command.startsWith("scope ")),
         false
       );
     }
@@ -166,7 +180,10 @@ test("CLI help discovers task removal and rejects the removed scope command", as
       io: { stdout: (text) => scopeChunks.push(text) }
     });
     assert.equal(scopeExit, 1);
-    const scopeResult = JSON.parse(scopeChunks[0]!) as TaskGraphResult;
+    const scopeResult = parseJsonCall({
+      exitCode: scopeExit,
+      output: requireOnlyOutput(scopeChunks)
+    });
     assert.equal(scopeResult.ok, false);
     if (!scopeResult.ok)
       assert.equal(scopeResult.error.code, "ARGUMENT_INVALID");

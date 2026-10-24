@@ -111,30 +111,40 @@ test("Record source reads reject same-inode parent replacement and in-read byte 
         let changed = false;
         fs.open = async (...args) => {
           const handle = await open(...args);
-          if (String(args[0]) === file && !changed) {
-            if (mutation === "bytes") {
-              const readFile = handle.readFile.bind(handle);
-              Object.defineProperty(handle, "readFile", {
-                value: async () => {
-                  const bytes = await readFile();
-                  await fs.appendFile(file, "concurrent body edit\n");
-                  changed = true;
-                  return bytes;
-                }
-              });
-            } else {
-              const parent = path.dirname(file);
-              displaced = path.join(
-                path.dirname(root),
-                path.basename(root) + "-displaced"
-              );
-              await fs.rename(parent, displaced);
-              await fs.mkdir(parent);
-              await fs.link(path.join(displaced, path.basename(file)), file);
-              changed = true;
+          try {
+            if (String(args[0]) === file && !changed) {
+              if (mutation === "bytes") {
+                const readFile = handle.readFile.bind(handle);
+                Object.defineProperty(handle, "readFile", {
+                  value: async () => {
+                    const bytes = await readFile();
+                    await fs.appendFile(file, "concurrent body edit\n");
+                    changed = true;
+                    return bytes;
+                  }
+                });
+              } else {
+                const parent = path.dirname(file);
+                displaced = path.join(
+                  path.dirname(root),
+                  path.basename(root) + "-displaced"
+                );
+                await fs.rename(parent, displaced);
+                await fs.mkdir(parent);
+                await fs.link(path.join(displaced, path.basename(file)), file);
+                changed = true;
+              }
             }
+            return handle;
+          } catch (error) {
+            await handle.close().catch((closeError: unknown) => {
+              throw new AggregateError(
+                [error, closeError],
+                "Source observation setup and handle cleanup failed"
+              );
+            });
+            throw error;
           }
-          return handle;
         };
         try {
           await assert.rejects(

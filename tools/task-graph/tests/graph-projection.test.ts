@@ -263,16 +263,15 @@ test("service list projection preserves complete graph semantics and actual task
       const task = index.tasks[taskId];
       const projected = projection.tasks[taskId];
       const listedItem = listed.data[taskId];
-      assert.notEqual(task, undefined);
-      assert.notEqual(projected, undefined);
-      assert.notEqual(listedItem, undefined);
-      if (
-        task === undefined ||
-        projected === undefined ||
-        listedItem === undefined
-      ) {
-        continue;
-      }
+      assert.ok(task !== undefined, `${taskId} must exist in the source index`);
+      assert.ok(
+        projected !== undefined,
+        `${taskId} must exist in the graph projection`
+      );
+      assert.ok(
+        listedItem !== undefined,
+        `${taskId} must exist in the service list`
+      );
       const expected = {
         ...projected,
         title: task.content.title,

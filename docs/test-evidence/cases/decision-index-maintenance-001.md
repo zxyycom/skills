@@ -14,4 +14,4 @@ Contract:
 Proves:
 - 旧 definition 的 check 失败并提示 sync-index，重建后为 definition 11；复制规则文件与 sourcePath 不一致产生对应结构诊断。
 - 删除索引后全量同步逐字节还原规范索引，schemaVersion、metadata 与严格检查结果正确。
-- 保留的纯 parser 节点拒绝非法顶层/schema、createdAt、source fingerprint、标题/目的长度及 established alignment，不获取文件。
+- 纯 parser 节点拒绝非法顶层/schema、createdAt、source fingerprint、标题/目的长度及 established alignment，不获取文件。

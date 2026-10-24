@@ -10,4 +10,4 @@ Contract:
 - 声明为文本的查询 source 只能提取合法文本值；非法值须返回带定位的诊断。
 
 Proves:
-- boolean 文本 source 被拒绝，诊断包含 entry ID、字段与 source；该节点不声明其它 source 容器/时间/path 的完整矩阵。
+- boolean 文本 source 被拒绝，诊断包含 entry ID、字段与 source。

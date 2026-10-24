@@ -6,9 +6,9 @@ import { runDecisionRecordsCli } from "../../src/cli.ts";
 import { archivedRelativePath, currentRelativePath } from "../support.ts";
 
 export type CliExecution = {
-  exitCode: number;
-  stderr: string;
-  stdout: string;
+  readonly exitCode: number;
+  readonly stderr: string;
+  readonly stdout: string;
 };
 
 export async function runCli(args: readonly string[]): Promise<CliExecution> {

@@ -36,7 +36,17 @@ function requireGeneratedRunner(module: unknown): TaskGraphCliRunner {
   }
   const { runTaskGraphCli } = module;
   return async (argv, options) => {
-    const result: unknown = await runTaskGraphCli(argv, options);
+    const result: unknown = await runTaskGraphCli(argv, {
+      io: {
+        stdout: (text: unknown) => {
+          assert.ok(
+            typeof text === "string",
+            "generated CLI output must be text"
+          );
+          options.io.stdout(text);
+        }
+      }
+    });
     if (typeof result !== "number" || !Number.isInteger(result)) {
       assert.fail(
         "generated runTaskGraphCli must resolve to an integer exit code"
@@ -49,8 +59,8 @@ function requireGeneratedRunner(module: unknown): TaskGraphCliRunner {
 async function invokeTaskGraphCli(
   root: string,
   runner: TaskGraphCliRunner,
-  args: string[]
-): Promise<{ exitCode: number; output: string }> {
+  args: readonly string[]
+): Promise<Readonly<{ exitCode: number; output: string }>> {
   const output: string[] = [];
   const exitCode = await runner(["--root", root, ...args], {
     io: { stdout: (text) => output.push(text) }
@@ -234,9 +244,8 @@ test("generated Node CLI stages selected task entries without native runtime", a
         { windowsHide: true }
       )
     ).stdout;
-    const pending = sourceApi.parseTaskIndex(
-      JSON.parse(pendingText) as unknown
-    );
+    const pendingValue: unknown = JSON.parse(pendingText);
+    const pending = sourceApi.parseTaskIndex(pendingValue);
     assert.equal(pending.revision, candidate.revision);
     assert.equal(
       pending.tasks["task-000001"]!.content.title,
@@ -260,7 +269,9 @@ test("generated Node CLI uses the isolated runtime for offline mutation", async 
       { cwd: root, env: environment, windowsHide: true }
     );
     assert.equal(initialized.stderr, "");
-    assert.equal((JSON.parse(initialized.stdout) as { ok: boolean }).ok, true);
+    const result: unknown = JSON.parse(initialized.stdout);
+    assert.ok(typeof result === "object" && result !== null && "ok" in result);
+    assert.equal(result.ok, true);
     const indexText = await fs.readFile(
       path.join(workspace, sourceApi.defaultTaskGraphIndexPath),
       "utf8"

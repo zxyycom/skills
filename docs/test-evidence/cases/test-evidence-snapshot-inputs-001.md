@@ -7,7 +7,7 @@ Tags:
 - `test-evidence`
 
 Contract:
-- 引用检查区分无效快照、expected source 不匹配与未知 Case 选择，不把单独失败样本称为组合故障优先级证明。
+- 引用检查区分无效快照、expected source 不匹配与未知 Case 选择。
 
 Proves:
-- 非法版本、错误 revision 与未知 Case ID 分别返回 snapshot-invalid、source-mismatch 和 case-invalid。
+- 三个独立失败样本中的非法版本、错误 revision 与未知 Case ID 分别返回 snapshot-invalid、source-mismatch 和 case-invalid。

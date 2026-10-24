@@ -45,7 +45,14 @@ test("updater TypeScript entry exposes the public API and consumer types", async
   const consumerPath = path.join(tempRoot, "updater-consumer.mts");
   await fs.writeFile(
     consumerPath,
-    `import { runSkillUpdaterCli, skillUpdaterConfig, type UpdaterConfig } from ${JSON.stringify(generatedUpdaterPath)}; const config: Readonly<UpdaterConfig> = skillUpdaterConfig; const run: (argv?: readonly string[]) => Promise<number> = runSkillUpdaterCli; void config; void run;`
+    [
+      `import { runSkillUpdaterCli, skillUpdaterConfig, type UpdaterConfig } from ${JSON.stringify(generatedUpdaterPath)};`,
+      "const config: Readonly<UpdaterConfig> = skillUpdaterConfig;",
+      "const run: (argv?: readonly string[]) => Promise<number> = runSkillUpdaterCli;",
+      "void config;",
+      "void run;",
+      ""
+    ].join("\n")
   );
   const types = spawnSync(
     path.join(rootDir, "node_modules/.bin/tsgo"),
@@ -84,7 +91,11 @@ test("updater default target follows its public module URL through an external i
   ).href;
   await fs.writeFile(
     importer,
-    `import { runSkillUpdaterCli } from ${JSON.stringify(updaterUrl)}; process.exitCode = await runSkillUpdaterCli(["--check"]);`
+    [
+      `import { runSkillUpdaterCli } from ${JSON.stringify(updaterUrl)};`,
+      'process.exitCode = await runSkillUpdaterCli(["--check"]);',
+      ""
+    ].join("\n")
   );
   const result = runUpdater(mockFetchPath, {
     args: [],

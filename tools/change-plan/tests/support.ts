@@ -43,13 +43,13 @@ export async function tracedQuery(
   };
 }
 
-export type PlanOverrides = {
+export type PlanOverrides = Readonly<{
   design?: string;
   /** Raw JSON fixture value; invalid-schema tests intentionally pass unknown. */
   metadata?: unknown;
   proposal?: string;
   tasks?: string;
-};
+}>;
 
 export const validBaseCommit = "0123456789abcdef0123456789abcdef01234567";
 
@@ -189,25 +189,13 @@ export async function withTempRoot(
   run: (tempRoot: string) => Promise<void>
 ): Promise<void> {
   await withTemporaryRoot(suiteName, async (tempRoot) => {
-    const initialize = spawnSync(
-      "git",
-      ["-C", tempRoot, "init", "--quiet", "--initial-branch=main"],
-      { encoding: "utf8" }
-    );
-    if (initialize.status !== 0) {
-      throw new Error(initialize.stderr);
-    }
+    git(tempRoot, ["init", "--quiet", "--initial-branch=main"]);
     for (const arguments_ of [
       ["config", "user.email", "change-plan@example.invalid"],
       ["config", "user.name", "Change Plan Tests"],
       ["commit", "--quiet", "--allow-empty", "-m", "fixture base"]
     ]) {
-      const result = spawnSync("git", ["-C", tempRoot, ...arguments_], {
-        encoding: "utf8"
-      });
-      if (result.status !== 0) {
-        throw new Error(result.stderr);
-      }
+      git(tempRoot, arguments_);
     }
     await run(tempRoot);
   });
@@ -260,16 +248,22 @@ async function withTemporaryRoot(
 async function resolveHead(directory: string): Promise<string> {
   let current = path.resolve(directory);
   while (true) {
-    const result = spawnSync("git", ["-C", current, "rev-parse", "HEAD"], {
-      encoding: "utf8"
-    });
-    if (result.status === 0) {
-      return result.stdout.trim();
+    try {
+      await fs.lstat(path.join(current, ".git"));
+    } catch (error) {
+      if (
+        !(error instanceof Error && "code" in error && error.code === "ENOENT")
+      ) {
+        throw error;
+      }
+      const parent = path.dirname(current);
+      if (parent === current) {
+        // Filesystem-only fixtures have no repository baseline by construction.
+        return validBaseCommit;
+      }
+      current = parent;
+      continue;
     }
-    const parent = path.dirname(current);
-    if (parent === current) {
-      return validBaseCommit;
-    }
-    current = parent;
+    return git(current, ["rev-parse", "HEAD"]);
   }
 }

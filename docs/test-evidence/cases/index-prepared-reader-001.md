@@ -10,4 +10,4 @@ Contract:
 - 严格加载形成的准备证据可供 reader 复用；raw 输入仍独立校验。
 
 Proves:
-- reader query/get/all 不增加 fixture 自有 metadata/state parser 或集合 validator 调用，prepared 交接不重新校验；raw reader/query 仍拒绝坏字段，不以 Date.parse 等私有提取次数作证明。
+- reader query/get/all 不增加 fixture 自有 metadata/state parser 或集合 validator 调用，prepared 交接不重新校验；raw reader/query 仍拒绝坏字段。

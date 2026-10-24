@@ -5,7 +5,12 @@ import path from "node:path";
 import { runInvestigationReportCheckCli } from "../src/cli.ts";
 
 import { setInvestigationRelations } from "../src/relation-transaction.ts";
-import { withTempRoot, investigationRoot } from "./fixture-support.ts";
+import {
+  parseJsonObject,
+  jsonObjectMember,
+  withTempRoot,
+  investigationRoot
+} from "./fixture-support.ts";
 import { writeCollection } from "./collection-support.ts";
 
 test("set-relations parses complete source groups and rejects ambiguous grouping", async () => {
@@ -23,16 +28,20 @@ test("set-relations parses complete source groups and rejects ambiguous grouping
       "base=grouped evidence"
     ]);
     assert.equal(valid, 0);
-    const index = JSON.parse(
+    const index = parseJsonObject(
       await fs.readFile(
         path.join(investigationRoot(root), "investigation-index.json"),
         "utf8"
       )
     );
-    assert.deepEqual(index.entries.next.relations, [
-      { type: "补充", target: "base", summary: "grouped evidence" }
-    ]);
-    assert.deepEqual(index.entries.base.relations, []);
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(index, "entries"), "next").relations,
+      [{ type: "补充", target: "base", summary: "grouped evidence" }]
+    );
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(index, "entries"), "base").relations,
+      []
+    );
     const invalid = await runInvestigationReportCheckCli([
       "set-relations",
       "--root",

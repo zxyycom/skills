@@ -7,7 +7,7 @@ Tags:
 - `repository-tooling`
 
 Contract:
-- 默认 quick 仍使用原有精确激活计划与工具 flags，但不调用完整验收 receipt 发布器，也不清理既有证明；公开摘要不能把范围外计划伪称为本轮执行。
+- 默认 quick 使用精确激活计划与工具 flags，但不调用完整验收 receipt 发布器，也不清理既有证明；公开摘要不能把范围外计划伪称为本轮执行。
 
 Proves:
 - 默认调用向 Definition 传入 quick 与原样空 activeToolIds，执行 controls 保持空 flags；注入的发布器从未调用，旧 receipt 字节保持不变。

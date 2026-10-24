@@ -14,6 +14,7 @@ import {
   synchronizeInvestigationIndex
 } from "../src/validation.ts";
 import {
+  parseJsonObject,
   investigationRoot,
   reportMarkdown,
   withTempRoot
@@ -375,14 +376,10 @@ test("sync-index rejects a concurrent rebuild while discard owns the collection"
       "investigation-index.json"
     );
     const before = await fs.readFile(indexPath, "utf8");
-    let allowDiscardPublish: () => void = () => {};
-    const discardPublish = new Promise<void>((resolve) => {
-      allowDiscardPublish = resolve;
-    });
-    let discardAtCommit: () => void = () => {};
-    const discardCommit = new Promise<void>((resolve) => {
-      discardAtCommit = resolve;
-    });
+    const { promise: discardPublish, resolve: allowDiscardPublish } =
+      Promise.withResolvers<void>();
+    const { promise: discardCommit, resolve: discardAtCommit } =
+      Promise.withResolvers<void>();
     const discard = discardInvestigationReportWithWriter(
       { id: "report", workspaceRoot: root },
       async (target, text) => {
@@ -438,9 +435,7 @@ test("sync-index rejects a concurrent rebuild while discard owns the collection"
       workspaceRoot: root
     });
     assert.deepEqual(retried.errors, []);
-    const index = JSON.parse(await fs.readFile(indexPath, "utf8")) as {
-      entries: Record<string, unknown>;
-    };
+    const index = parseJsonObject(await fs.readFile(indexPath, "utf8"));
     assert.deepEqual(index.entries, {});
   });
 });

@@ -12,7 +12,7 @@
 2. 按下表选择原生、语义命令、包脚本、自定义或 release DAG Check。
 3. 在直接 owner 模块构造 Check，由完整 Definition 组合；身份、依赖、flags 与资源直接进入原生构造器。
 4. 可复用 Check 声明能力订阅，核对能力输入 patterns；同步 catalog fixture、受影响项目测试与 Test Evidence Case/index。
-5. 运行直接入口、Gate 接入测试和适用门禁，分别报告实际结果与未验证边界。
+5. 按[验证与交付](#验证与交付)运行直接入口、Gate 接入测试和适用门禁，分别报告实际结果与未验证边界。
 
 | 实施前要明确的输入 | 完成标准 |
 | --- | --- |
@@ -96,7 +96,7 @@
 
 按证明义务选择最小充分层级：规则矩阵由纯函数或轻量领域函数验证，真实接线、失败与恢复由必要集成测试验证。
 同进程 CLI、真实 Node 和 Git fixture 的边界见[工具链](tooling.md#工具-cli-与-git-fixture-测试边界)。
-调整层级时逐项核对覆盖后继并更新 Case/index，成本按同机实际工作量另行报告。
+调整测试层级时，确认每项证明由哪个保留入口继续承担并更新 Case/index；成本按同机实际工作量另行报告。
 
 1. 确认精确测试入口和实际加载边界。共同协议归共同 owner，两域 adapter 各自保留；源码 CLI 矩阵与真实生成 Node smoke 分别归位。多个文件共同证明同一契约时，可建立只导入这些文件的 `tests/checks/<contract>.ts` 容器；Test Evidence 登记框架可独立选择与报告的最小原生测试入口，而非容器。
 2. 在 `semanticGateChecks` 增加声明，例如消费分发制品的 Check：

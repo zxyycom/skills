@@ -1,21 +1,13 @@
-/* oxlint-disable no-unused-vars -- Shared test fixture keeps the original dependency surface for focused scenario modules. */
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import test from "node:test";
-import { toJsonSchema } from "@valibot/to-json-schema";
 import * as v from "valibot";
 import {
   buildStateIndex,
-  createStateIndexReader,
   createStateIndexRuntime,
-  createStateIndexSchema,
-  createStateSourceRevisionSchema,
   defineStateIndexDefinition,
-  parseStateIndex,
-  serializeStateIndex,
-  stateIndexTextSchema
+  serializeStateIndex
 } from "../src/index.ts";
 import { isPlainRecord } from "../src/record.ts";
 import {

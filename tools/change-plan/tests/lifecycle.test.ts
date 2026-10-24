@@ -56,15 +56,13 @@ test("plan confirms drafts and reconfirms plans without task progress gates", ()
     assert.equal(planResult.fromStage, "plan");
     assert.equal(planResult.metadata?.stage, "plan");
     for (const [index, directory] of directories.entries()) {
-      assert.deepEqual(
-        JSON.parse(
-          await fs.readFile(path.join(directory, ".change-plan.json"), "utf8")
-        ),
-        {
-          stage: "plan",
-          baseCommit: head.stdout.trim()
-        }
+      const metadata: unknown = JSON.parse(
+        await fs.readFile(path.join(directory, ".change-plan.json"), "utf8")
       );
+      assert.deepEqual(metadata, {
+        stage: "plan",
+        baseCommit: head.stdout.trim()
+      });
       assert.deepEqual(
         await fs.readFile(path.join(directory, "tasks.md")),
         tasksBefore[index]

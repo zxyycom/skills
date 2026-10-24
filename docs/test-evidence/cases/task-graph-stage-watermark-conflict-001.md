@@ -10,4 +10,4 @@ Contract:
 - 工作区 revision 不能低于暂存基线；回退失败保留已有 pending 内容。
 
 Proves:
-- 降低 workspace revision 后 stage 返回冲突，pending 字节不变；不将单 revision 样本称为多 watermark 覆盖。
+- 降低 workspace revision 后 stage 返回冲突，pending 字节不变。

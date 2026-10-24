@@ -10,4 +10,4 @@ Contract:
 - environment 中的结构验证消费源码 validator，不是分发 consumer。
 
 Proves:
-- 只改 validation.ts 使 environment execute，无关 CP lifecycle reuse，显式无统一生成前置。
+- 只改 validation.ts 使 environment execute，无关 Change Plan lifecycle reuse；environment Check 未声明统一生成前置。

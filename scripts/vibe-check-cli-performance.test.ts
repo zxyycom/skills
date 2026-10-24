@@ -2,11 +2,28 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import * as v from "valibot";
 import { run } from "@zxyycom/vibe-check";
 import { runVibeCheck } from "./vibe-check.ts";
 import { fixtureGateWorkspaceSnapshot } from "./lib/vibe-gate/test-support.ts";
 import { passedDefinition } from "./vibe-check-cli-test-support.ts";
 import { noOutput, withTemporaryDirectory } from "./vibe-check-test-support.ts";
+
+const performanceSummarySchema = v.looseObject({
+  nativeResult: v.looseObject({ aggregate: v.nullable(v.string()) }),
+  selection: v.record(v.string(), v.unknown()),
+  performance: v.looseObject({
+    passed: v.boolean(),
+    sampleCount: v.number(),
+    meanMs: v.nullable(v.number()),
+    p90Ms: v.nullable(v.number())
+  }),
+  timingBoundary: v.looseObject({ end: v.string() })
+});
+const incrementalSummarySchema = v.looseObject({
+  decisions: v.array(v.looseObject({ checkId: v.string() })),
+  counts: v.record(v.string(), v.unknown())
+});
 
 test("CLI enforces only quick budgets including input preparation and late report overhead", async () => {
   await withTemporaryDirectory("gate-cli-performance-", async (directory) => {
@@ -84,11 +101,14 @@ test("CLI enforces only quick budgets including input preparation and late repor
         }
       );
       assert.equal(exit, mode === "quick" || mode === "late" ? 1 : 0, mode);
-      const summary = JSON.parse(
-        await fs.readFile(
-          path.join(invocationDirectory, "machine/gate-performance.json"),
-          "utf8"
-        )
+      const summary = v.parse(
+        performanceSummarySchema,
+        JSON.parse(
+          await fs.readFile(
+            path.join(invocationDirectory, "machine/gate-performance.json"),
+            "utf8"
+          )
+        ) as unknown
       );
       assert.equal(summary.nativeResult.aggregate, "passed", mode);
       const eligible =
@@ -108,16 +128,17 @@ test("CLI enforces only quick budgets including input preparation and late repor
       if (mode === "late")
         assert.equal(summary.timingBoundary.end, "after-performance-report");
       if (mode === "full" || mode === "ci") {
-        const incremental = JSON.parse(
-          await fs.readFile(
-            path.join(invocationDirectory, "machine/gate-incremental.json"),
-            "utf8"
-          )
+        const incremental = v.parse(
+          incrementalSummarySchema,
+          JSON.parse(
+            await fs.readFile(
+              path.join(invocationDirectory, "machine/gate-incremental.json"),
+              "utf8"
+            )
+          ) as unknown
         );
         assert.deepEqual(
-          incremental.decisions.map(
-            ({ checkId }: { checkId: string }) => checkId
-          ),
+          incremental.decisions.map(({ checkId }) => checkId),
           ["script:typecheck"]
         );
         assert.equal(incremental.counts.execute, 1);
@@ -244,11 +265,14 @@ test("CLI consumes native duration facts for quick budgets and report-only scope
             scope === "full" || scenario.passed ? 0 : 1,
             `${scenario.name}: ${scope}`
           );
-          const summary = JSON.parse(
-            await fs.readFile(
-              path.join(invocationDirectory, "machine/gate-performance.json"),
-              "utf8"
-            )
+          const summary = v.parse(
+            performanceSummarySchema,
+            JSON.parse(
+              await fs.readFile(
+                path.join(invocationDirectory, "machine/gate-performance.json"),
+                "utf8"
+              )
+            ) as unknown
           );
           assert.equal(summary.nativeResult.aggregate, "passed");
           assert.equal(

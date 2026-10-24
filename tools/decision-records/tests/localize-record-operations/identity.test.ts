@@ -121,13 +121,13 @@ test("Decision exact canonical candidate selection reads neither unrelated candi
     const blocked = new Set([archive, decisionFilePath(root, b), other]);
     const originalOpen = fs.open;
     const forbidden: string[] = [];
-    fs.open = (async (...args) => {
+    fs.open = async (...args) => {
       if (typeof args[0] === "string" && blocked.has(args[0])) {
         forbidden.push(args[0]);
         throw new Error("Unrelated body must not be read");
       }
       return originalOpen(...args);
-    }) as typeof fs.open;
+    };
     try {
       const selected = await readCandidateSelection(
         { workspaceRoot: root },

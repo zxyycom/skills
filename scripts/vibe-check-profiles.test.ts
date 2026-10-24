@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import * as v from "valibot";
 import { run } from "@zxyycom/vibe-check";
 import { createGateDefinition, gateCheckIds } from "./lib/vibe-gate.ts";
 import {
@@ -143,11 +144,19 @@ test("quick CLI preserves exact reuse flags without publishing or clearing compl
     assert.equal(prepared, true);
     assert.equal(selectedScope, "quick");
     assert.equal(await fs.readFile(receiptPath, "utf8"), "existing proof\n");
-    const summary = JSON.parse(
-      await fs.readFile(
-        path.join(directory, "machine/gate-incremental.json"),
-        "utf8"
-      )
+    const summary = v.parse(
+      v.looseObject({
+        counts: v.record(v.string(), v.unknown()),
+        decisions: v.array(v.looseObject({ checkId: v.string() })),
+        completeChangePlan: v.array(v.unknown()),
+        publication: v.record(v.string(), v.unknown())
+      }),
+      JSON.parse(
+        await fs.readFile(
+          path.join(directory, "machine/gate-incremental.json"),
+          "utf8"
+        )
+      ) as unknown
     );
     assert.deepEqual(summary.counts, {
       execute: 9,
@@ -157,7 +166,7 @@ test("quick CLI preserves exact reuse flags without publishing or clearing compl
       disabled: 59
     });
     assert.deepEqual(
-      summary.decisions.map(({ checkId }: { checkId: string }) => checkId),
+      summary.decisions.map(({ checkId }) => checkId),
       ["markdown-lint"]
     );
     assert.equal(summary.completeChangePlan.length, 2);

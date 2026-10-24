@@ -127,7 +127,15 @@ CLI 使用以下执行范围；所有范围保持同一完整 Definition，实�
 | full / CI base | 全部 66 项 base 实际执行，不使用 receipt；CI 将显式 quick/changed 也提升到 full。 |
 | release | 全部 69 项实际执行，不使用 receipt，再完成同快照版本授权与打包。 |
 
-语义结果按独立责任组织：共同事务、source acquisition、reader 与两域生成 worker 由 `test:record-operations:shared-contract` 承接；DR 源码 CLI 矩阵由 `test:decision-records:cli-contract` 承接，真实生成 Node/CLI 行为继续留在 public-distribution。IR 的 CLI 加载场景归 cli-contract；领域 adapter 保留在各域。显示名描述当前实责，机器 ID 只随证明身份变化。精确命令以 `checks/semantic.ts` 和失败重跑提示为准。
+语义结果按独立责任组织：
+
+| 证明责任 | 语义 Check owner |
+| --- | --- |
+| 共同事务、source acquisition、reader 与两域生成 worker | `test:record-operations:shared-contract` |
+| Decision Records 源码 CLI 参数与结果矩阵 | `test:decision-records:cli-contract`；真实生成 Node/CLI 行为归 public-distribution |
+| Investigation Report CLI 加载场景 | `test:investigation-report:cli-contract`；领域 adapter 仍归各域 |
+
+显示名描述当前责任，机器 ID 只随证明身份变化。精确命令以 `checks/semantic.ts` 和失败重跑提示为准。
 
 工具能力 ID 与输入 patterns 由 `impact-tools.ts` 维护，内部 flag 派生为 `gate-tool:<toolId>`；语义 catalog 的 `toolIds`、包脚本的 `packageScriptToolSubscriptions` 与原生 lint 的 `markdownLintToolSubscription` 显式订阅。Vibe 通过原生条件、`enabledByFlags` 与 `propagateDependsOn` 选择适用订阅者及成功前置。共享 flag 带入的订阅者、consumer 带入的 provider 如实计入本次执行；复用项保持未激活，不冒充本次 passed。
 
@@ -161,7 +169,7 @@ quick 和 changed 可以消费既有 receipt；只有 changed 可以发布，qui
    - `repository-validation`：SKILL.md 内容、技能/资源目录身份、必需文件和校验实现，不消费嵌套运行时字节。
    - `generated-file`：生成、声明、source-runtime 与临时 fixture 的实现闭包，不消费真实领域源码。
    - 程序与格式输入：`typescript-program` 包含维护源码、skill TS/MTS 与 skill manifests，typecheck/lint 共同订阅；`repository-code` 保持 formatter 的独立维护源码范围。
-   - catalog 输入：`gate-tests` 保留 scripts、wrappers/run 与全部测试 leaf 的字节及身份，省去未读取的 tools helper/fixture 内容。leaf 存在/删除仍影响 catalog；现模型以字节保守覆盖这些事实。 DR/IR 人工 `tests/run.ts` 分别归 `decision-test-catalog`、`investigation-test-catalog`，仅由实际读取聚合入口的 `script:test:check` 与 `script:check:test-evidence-catalog` 订阅；领域 leaf 保持自身输入范围。
+   - catalog 输入：`gate-tests` 保留 scripts、wrappers/run 与全部测试 leaf 的字节及身份，省去未读取的 tools helper/fixture 内容。leaf 存在/删除仍影响 catalog；现模型以字节保守覆盖这些事实。DR/IR 人工 `tests/run.ts` 分别归 `decision-test-catalog`、`investigation-test-catalog`，仅由实际读取聚合入口的 `script:test:check` 与 `script:check:test-evidence-catalog` 订阅；领域 leaf 保持自身输入范围。
    - 项目 adapter：`test-evidence-project` 的 `scripts/test-evidence/**` 只由 snapshot、reference-check、migration 三项订阅；核心与分发 consumer 保持各自范围。统一生成与 Case 采集继续按其完整材料声明。
    - `markdown-content`：公共输入加原生 Markdown 完整磁盘选集；选集与原生 lint 共用 `impact-paths.ts#maintainedMarkdownFiles`，包含根目录、额外目录与 ignored Markdown，并沿用原生默认排除。
 2. 起始采集联合一次 `git ls-files --cached --others --exclude-standard -z`、`impact-paths.ts` 声明的磁盘目录和配置，以及原生 `collectProjectFiles` 按 `maintainedMarkdownFiles` 选出的 Markdown；磁盘遍历不受 Git ignore 省略，因此覆盖实际读取的 TS/MTS、内部 ignored fixtures、runtime、manifest、lock、索引和生成物。记录 path、kind、mode、size 与内容 SHA-256，并保留 missing 和目录身份。Markdown 能力成员是公共 patterns 命中与原生精确 source 集合的并集，文档排除不裁剪公共输入。
@@ -339,13 +347,13 @@ Vibe 的原生 `markdown-link-validation` Check 是当前维护 Markdown 链接�
 
 ### 测试证据账本
 
-本仓库使用固定的 `docs/test-evidence/` 根目录、其中的 `cases/` 单 Case 文件和固定派生索引维护测试账本。账本覆盖 `test:*` 稳定入口保留的历史与当前测试；每个 Case 按同一测试意图承接一个或多个可独立选择、单独报告的最小原生测试节点。框架不限，本仓库当前沿用 `node:test` API 定义节点；普通测试通过固定版本的 `bun test` 执行，task-graph 原生 lock 集成测试通过其声明支持的 Node.js `--test` 执行。测试文件、package script 和完整检查仍只是聚合容器。
+本仓库使用固定的 `docs/test-evidence/` 根目录、其中的 `cases/` 单 Case 文件和固定派生索引维护测试账本。账本覆盖 `test:*` 稳定入口保留的全部最小原生测试入口；每个 Case 按同一测试意图承接一个或多个可独立选择、单独报告的最小原生测试节点。框架不限，本仓库当前沿用 `node:test` API 定义节点；普通测试通过固定版本的 `bun test` 执行，task-graph 原生 lock 集成测试通过其声明支持的 Node.js `--test` 执行。测试文件、package script 和完整检查仍只是聚合容器。
 
 Case 使用 Tests、可选 tags、Contract 与 Proves，由测试改动显式维护；工具不扫描源码、自动登记 Case 或执行测试。核心 `check`、查询和 `sync-index` 只读取 Case 与索引；项目 `snapshot:test-evidence` 产生 schema v2 实体快照，引用检查必须同时接收独立的 expected source。`check:test-evidence-catalog` 先检查 Case/index，再计算当前项目测试来源 revision；若 `.log/vibe-check/cache/test-evidence-snapshots-v1/<revision>.json` 是通过 schema、expected source 与引用校验的完整 snapshot fact，则直接复用实体集合，否则重新生成并以同一 revision 发布可丢弃 cache。无论是否命中，Case 引用、实体覆盖和结束来源漂移都在本次重新判断。快照引用有效不等同于测试执行通过，未引用实体在通用核心中合法。正文变化后运行 `sync:test-evidence-catalog`；完整检查中的 `check:test-evidence-catalog` 不写回版本管理文件。
 
 项目快照在单次调用内共享模块源码、import 与文件存在性事实，注册形状的规则匹配事实也在同次会话中共用，各 command 的可达闭包和注册集合仍独立计算；起止 source fingerprint 独立读取。每次顶层调用创建新会话，输入事实不跨调用复用。
 
-项目生产和旧账本迁移不属于 `bun run test-evidence` 的常规 Case CLI。需要人工检查或交接快照时，使用 `bun run snapshot:test-evidence -- --output <new-file>`；`migrate:test-evidence` 的 expected source 必须从生成快照所用的同一项目输入边界独立计算或核验，不能直接抄录待验证快照的 source 三字段。迁移命令默认只预演，只有明确追加 `--write` 才写入；支持范围、映射阻断和恢复边界由 [Case 账本契约](../skills/test-evidence-review/references/catalog-contract.md#迁移) 承接。日常查询、同步和检查不得把旧 topic/`Entry:` 当作 fallback 输入。
+项目快照生产和旧账本迁移不属于 `bun run test-evidence` 的常规 Case CLI。需要人工检查或交接快照时，使用 `bun run snapshot:test-evidence -- --output <new-file>`；`migrate:test-evidence` 的 expected source 必须从生成快照所用的同一项目输入边界独立计算或核验，不能直接抄录待验证快照的 source 三字段。迁移命令默认只预演，只有明确追加 `--write` 才写入；支持范围、映射阻断和恢复边界由 [Case 账本契约](../skills/test-evidence-review/references/catalog-contract.md#迁移) 承接。日常查询、同步和检查不得把旧 topic/`Entry:` 当作 fallback 输入。
 
 ## 源码与依赖边界
 
@@ -474,7 +482,7 @@ Git 调用 hook 时会注入当前 worktree 的 `GIT_DIR`、`GIT_INDEX_FILE` 等
 
 ### 任务交付与远端验收
 
-按本轮目标选择验收，区分 agent 的任务完成与远端合并／聚合发布状态：
+日常任务以适用的本地验收为交付依据，远端 CI 默认异步；远端合并与聚合发布各自满足对应门禁：
 
 | 层次 | 完成依据与执行边界 |
 | --- | --- |
@@ -482,9 +490,9 @@ Git 调用 hook 时会注入当前 worktree 的 `GIT_DIR`、`GIT_INDEX_FILE` 等
 | 本地任务交付 | 按[仓库验证要求](../AGENTS.md#验证与交付)完成对应改动范围的本地验收后，凭本地证据交付任务结果；远端 CI 通常异步运行，不默认等待整个 workflow 结束，也不默认增加本地全量 release。 |
 | 远端合并／聚合发布 | 下文的 Linux／Windows 产品门禁、job 依赖与实际生效的远端必需检查约束对应合并或发布动作，不自动成为每次 agent 任务的同步等待条件。 |
 
-只有用户目标或必要验证确实需要远端结果时，才等待对应 revision 的必要 job 与制品证据，例如修复 CI、验证远端发布，或补足本地无法验证的平台边界。创建 Change、修改 Gate 或触发 workflow 本身，不足以要求整套远端验收；本地 full／release 同样按实际改动的证明责任选择。
+需要远端证据的任务（例如修复 CI、验证远端发布或补足本地无法验证的平台边界），等待对应 revision 的必要 job 与制品结果。等待范围由任务的证明责任决定；创建 Change、修改 Gate 或触发 workflow 本身不增加等待义务，本地 full／release 同样按实际改动的证明责任选择。
 
-已知相关 CI 失败应在授权范围内处理，无法解决时如实报告失败、影响和剩余验证；所需远端证据未取得时，不把对应验收标为完成。报告分别说明本地通过与远端已知状态，未查询、运行中或缺失的远端结果不声称通过。
+已知相关 CI 失败在授权范围内处理；无法解决时报告失败、影响和剩余验证。交付分别说明本地结果与远端已知状态；所需远端证据未取得时，该项验收保持未完成，未查询、运行中或缺失的结果均不声称通过。
 
 ### 聚合发布流水线
 

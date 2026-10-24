@@ -12,7 +12,9 @@ Tags:
 - `repository-tooling`
 
 Contract:
-- quick、changed、full 与 release 使用同一完整 69 项 Definition；quick 以原生条件把批准的必要集与精确激活条件相交，不裁剪 catalog、依赖或资源。完整范围的环境与七项原生材料 Check 不由 receipt 省略，markdown-lint 与项目命令 Check 订阅工具变化 flag 并声明原生 dependsOn，三个交付 Check 仅在 release 激活。各命令独立执行，不以测试批次重分配结果。
+- quick、changed、full 与 release 使用同一完整 69 项 Definition；quick 以原生条件把批准的必要集与精确激活条件相交，保留完整 catalog、依赖与资源。
+- 完整范围的环境与七项原生材料 Check 每轮执行；markdown-lint 与项目命令 Check 订阅工具变化 flag 并声明原生 dependsOn，三个交付 Check 仅在 release 激活。
+- 各命令独立执行并拥有自己的结果。
 
 Proves:
 - 完整 Check ID 与独立期望一致；完整范围中 markdown-lint 以 markdown-content 条件启用，其余七项原生材料无 activation flag，八项均依赖环境，项目 Check 的工具 flags 与 projectToolIds 一致且不使用逐 Check flag，非 base 项不能进入增量选择；语义 Check 的 ID、runner 和入口逐项匹配独立 catalog。

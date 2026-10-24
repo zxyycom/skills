@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { parseIndexJson } from "./core-test-support.ts";
 import * as v from "valibot";
 import {
   listTestEvidenceTags,
@@ -256,13 +257,13 @@ test("moving a Case preserves its ID while changing only its entry revision", as
     "docs/test-evidence/test-evidence-index.json"
   );
   await syncTestEvidenceIndex({ workspaceRoot: root, mode: "write" });
-  const before = JSON.parse(await fs.readFile(indexPath, "utf8"));
+  const before = parseIndexJson(await fs.readFile(indexPath, "utf8"));
   await fs.rename(
     path.join(root, "docs/test-evidence/cases/access.md"),
     path.join(root, "docs/test-evidence/cases/moved.md")
   );
   await syncTestEvidenceIndex({ workspaceRoot: root, mode: "write" });
-  const after = JSON.parse(await fs.readFile(indexPath, "utf8"));
+  const after = parseIndexJson(await fs.readFile(indexPath, "utf8"));
   assert.equal(
     after.entries["AUTH-ROLE-ACCESS-001"].sourcePath,
     "cases/moved.md"
@@ -293,14 +294,14 @@ test("Case revisions normalize CRLF and isolate membership changes", async () =>
     "docs/test-evidence/test-evidence-index.json"
   );
   await syncTestEvidenceIndex({ workspaceRoot: root, mode: "write" });
-  const before = JSON.parse(await fs.readFile(indexPath, "utf8"));
+  const before = parseIndexJson(await fs.readFile(indexPath, "utf8"));
   const accessPath = path.join(root, "docs/test-evidence/cases/access.md");
   await fs.writeFile(
     accessPath,
     (await fs.readFile(accessPath, "utf8")).replace(/\n/gu, "\r\n")
   );
   await syncTestEvidenceIndex({ workspaceRoot: root, mode: "write" });
-  const crlf = JSON.parse(await fs.readFile(indexPath, "utf8"));
+  const crlf = parseIndexJson(await fs.readFile(indexPath, "utf8"));
   assert.deepEqual(crlf.sourceRevision, before.sourceRevision);
 
   await fs.writeFile(
@@ -308,7 +309,7 @@ test("Case revisions normalize CRLF and isolate membership changes", async () =>
     "### Case AUTH-ROLE-ACCESS-003: added intent\n\nTests:\n- `test:added`\n\nContract:\n- addition is explicit\n\nProves:\n- membership changes\n"
   );
   await syncTestEvidenceIndex({ workspaceRoot: root, mode: "write" });
-  const added = JSON.parse(await fs.readFile(indexPath, "utf8"));
+  const added = parseIndexJson(await fs.readFile(indexPath, "utf8"));
   assert.ok(added.sourceRevision.entries["AUTH-ROLE-ACCESS-003"]);
   assert.equal(
     added.sourceRevision.entries["AUTH-ROLE-ACCESS-001"],
@@ -320,7 +321,7 @@ test("Case revisions normalize CRLF and isolate membership changes", async () =>
   );
   await fs.rm(path.join(root, "docs/test-evidence/cases/third.md"));
   await syncTestEvidenceIndex({ workspaceRoot: root, mode: "write" });
-  const removed = JSON.parse(await fs.readFile(indexPath, "utf8"));
+  const removed = parseIndexJson(await fs.readFile(indexPath, "utf8"));
   assert.equal(
     removed.sourceRevision.entries["AUTH-ROLE-ACCESS-003"],
     undefined
@@ -334,7 +335,7 @@ test("index keys are fixed Case IDs and states cannot repeat their identity", as
     "docs/test-evidence/test-evidence-index.json"
   );
   await syncTestEvidenceIndex({ workspaceRoot: root, mode: "write" });
-  const invalidKey = JSON.parse(await fs.readFile(indexPath, "utf8"));
+  const invalidKey = parseIndexJson(await fs.readFile(indexPath, "utf8"));
   invalidKey.entries["not-a-case-id"] =
     invalidKey.entries["AUTH-ROLE-ACCESS-001"];
   invalidKey.sourceRevision.entries["not-a-case-id"] =
@@ -345,8 +346,10 @@ test("index keys are fixed Case IDs and states cannot repeat their identity", as
   assert.ok(invalidKeyResult.diagnostics.some((entry) => entry.blocking));
 
   await syncTestEvidenceIndex({ workspaceRoot: root, mode: "write" });
-  const redundantId = JSON.parse(await fs.readFile(indexPath, "utf8"));
-  redundantId.entries["AUTH-ROLE-ACCESS-001"].id = "AUTH-ROLE-ACCESS-001";
+  const redundantId = parseIndexJson(await fs.readFile(indexPath, "utf8"));
+  Object.assign(redundantId.entries["AUTH-ROLE-ACCESS-001"], {
+    id: "AUTH-ROLE-ACCESS-001"
+  });
   await fs.writeFile(indexPath, `${JSON.stringify(redundantId)}\n`);
   const redundantIdResult = await queryTestEvidence({ workspaceRoot: root });
   assert.equal(redundantIdResult.total, 0);

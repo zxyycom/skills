@@ -10,4 +10,4 @@ Contract:
 - typecheck/lint 包含当前 program 的分发 TS/MTS/manifest；format 不扩大为 program 读取。
 
 Proves:
-- 分别改生成 TS、声明 MTS 与 skill manifest 后 typecheck/lint 执行且 format 复用；这是保守配置接线，不是原生 lint 读取 trace。
+- 分别改生成 TS、声明 MTS 与 skill manifest 后 typecheck/lint 执行且 format 复用；观察范围为项目输入配置和执行选择。

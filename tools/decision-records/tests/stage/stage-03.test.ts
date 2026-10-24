@@ -1,3 +1,4 @@
+import { parseJsonObject, jsonObjectMember } from "./support.ts";
 import {
   stageSource,
   withStageBaseline,
@@ -71,18 +72,35 @@ test("stage applies selected additions modifications and deletions with exact pe
     );
     assert.equal(await fs.readFile(modified, "utf8"), modifiedBefore);
     assert.equal(await fs.readFile(addedPath, "utf8"), addedBefore);
-    const index = JSON.parse(
+    const index = parseJsonObject(
       runGit(workspaceRoot, ["show", ":docs/decisions/decision-index.json"])
     );
     assert.deepEqual(
-      Object.keys(index.entries).sort(),
+      Object.keys(jsonObjectMember(index, "entries")).sort(),
       [currentDecisionId, addedId].sort()
     );
-    assert.equal(index.entries[currentDecisionId].title, "使用修改 CLI");
-    assert.deepEqual(index.entries[currentDecisionId].relations, []);
-    assert.equal(index.entries[addedId].title, "使用新增 Stage");
-    assert.equal(index.entries[addedId].status, "active");
-    assert.equal(index.entries[addedId].alignment, "aligned");
+    assert.equal(
+      jsonObjectMember(jsonObjectMember(index, "entries"), currentDecisionId)
+        .title,
+      "使用修改 CLI"
+    );
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(index, "entries"), currentDecisionId)
+        .relations,
+      []
+    );
+    assert.equal(
+      jsonObjectMember(jsonObjectMember(index, "entries"), addedId).title,
+      "使用新增 Stage"
+    );
+    assert.equal(
+      jsonObjectMember(jsonObjectMember(index, "entries"), addedId).status,
+      "active"
+    );
+    assert.equal(
+      jsonObjectMember(jsonObjectMember(index, "entries"), addedId).alignment,
+      "aligned"
+    );
   }));
 
 test("stage rejects duplicate IDs and path-shaped selectors before opening a missing workspace", async () => {

@@ -153,15 +153,9 @@ test("semantic Gate catalog matches its aggregate native entry points", async ()
     (leafFile, index) => semanticLeafFiles.indexOf(leafFile) !== index
   );
   assert.deepEqual(duplicateLeafFiles, []);
-  const missingLeafFiles: string[] = [];
   for (const leafFile of semanticLeafFiles) {
-    try {
-      await fs.access(path.join(repositoryRoot, leafFile.slice(2)));
-    } catch {
-      missingLeafFiles.push(leafFile);
-    }
+    await fs.access(path.join(repositoryRoot, leafFile.slice(2)));
   }
-  assert.deepEqual(missingLeafFiles, []);
 
   for (const [tool, expectedAggregateFiles] of aggregateFilesByTool) {
     const aggregatePath = `./tools/${tool}/tests/run.ts`;
@@ -191,9 +185,12 @@ test("semantic commands retain native store, version-control and retired perform
       ?.command.args,
     ["--test", "./tools/task-graph/tests/native-store.test.ts"]
   );
-  const manifest = JSON.parse(
-    await fs.readFile(path.join(repositoryRoot, "package.json"), "utf8")
-  ) as { scripts: Readonly<Record<string, string>> };
+  const manifest = v.parse(
+    v.object({ scripts: v.record(v.string(), v.string()) }),
+    JSON.parse(
+      await fs.readFile(path.join(repositoryRoot, "package.json"), "utf8")
+    ) as unknown
+  );
   assert.equal(manifest.scripts["test:index-runtime-performance"], undefined);
   assert.equal(
     new Set<string>(releaseRequiredPackageScripts).has(

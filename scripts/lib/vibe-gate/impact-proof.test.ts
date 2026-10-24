@@ -99,13 +99,7 @@ test("incremental Gate publishes nothing when the final Run did not succeed", as
       fixture.captureDependencies
     );
     assert.deepEqual(result, { published: false, reason: "check-not-passed" });
-    assert.equal(
-      await fs.stat(fixture.cacheDirectory).then(
-        () => true,
-        () => false
-      ),
-      false
-    );
+    await assert.rejects(fs.stat(fixture.cacheDirectory), { code: "ENOENT" });
     assert.equal(
       (await prepareFixtureActivation(fixture)).activeCheckIds.length,
       baseGateCheckIds.length

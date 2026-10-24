@@ -1,15 +1,18 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { test } from "node:test";
-import {} from "../src/collection-mutation-lock.ts";
-import {} from "../src/diagnostics.ts";
 import { setInvestigationRelations } from "../src/relation-transaction.ts";
 import { parseInvestigationReport } from "../src/markdown.ts";
 import { synchronizeInvestigationIndex } from "../src/validation.ts";
-import { investigationRoot, withTempRoot } from "./fixture-support.ts";
+import {
+  parseJsonObject,
+  jsonObjectMember,
+  investigationRoot,
+  withTempRoot
+} from "./fixture-support.ts";
 import { writeCollection } from "./collection-support.ts";
 
-test("sync-index preserves post-rename uncertainty when lock cleanup also fails", async () => {
+test("sync-index preserves post-rename uncertainty when lock cleanup also fails", async (t) => {
   await withTempRoot("sync-post-rename-release-failure", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
     await fs.appendFile(`${investigationRoot(root)}/report.md`, "\n", "utf8");
@@ -19,31 +22,35 @@ test("sync-index preserves post-rename uncertainty when lock cleanup also fails"
     const originalRm = fs.rm;
     let indexReadCount = 0;
     let racedAfterRename = false;
-    fs.readFile = (async (...args) => {
-      if (args[0] === indexPath) {
-        indexReadCount += 1;
-        if (indexReadCount === 1) {
-          racedAfterRename = true;
-          await fs.writeFile(indexPath, "interleaving index write\n", "utf8");
+    const observedRead = t.mock.method(
+      fs,
+      "readFile",
+      async (...args: Parameters<typeof fs.readFile>) => {
+        if (args[0] === indexPath) {
+          indexReadCount += 1;
+          if (indexReadCount === 1) {
+            racedAfterRename = true;
+            await fs.writeFile(indexPath, "interleaving index write\n", "utf8");
+          }
         }
+        return await originalReadFile(...args);
       }
-      return await originalReadFile(...args);
-    }) as typeof fs.readFile;
-    fs.rm = (async (...args) => {
+    );
+    fs.rm = async (...args) => {
       if (args[0] === lockPath) {
         throw Object.assign(new Error("injected lock release failure"), {
           code: "EIO"
         });
       }
       return await originalRm(...args);
-    }) as typeof fs.rm;
+    };
     let result;
     try {
       result = await synchronizeInvestigationIndex({
         workspaceRoot: root
       });
     } finally {
-      fs.readFile = originalReadFile;
+      observedRead.mock.restore();
       fs.rm = originalRm;
     }
     assert.equal(racedAfterRename, true);
@@ -124,17 +131,20 @@ test("set-relations applies multi-source replacements and explicit clears", asyn
       `${investigationRoot(root)}/investigation-index.json`,
       "utf8"
     );
-    const appliedIndex = JSON.parse(appliedIndexText) as {
-      entries: Record<string, { relations: unknown; sourcePath: string }>;
-    };
-    assert.deepEqual(appliedIndex.entries["split-a"]?.relations, [
-      { type: "拆分", target: "base", summary: "第一条拆分" }
-    ]);
-    assert.deepEqual(appliedIndex.entries["split-b"]?.relations, [
-      { type: "拆分", target: "base", summary: "第二条拆分" }
-    ]);
+    const appliedIndex = parseJsonObject(appliedIndexText);
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(appliedIndex, "entries"), "split-a")
+        .relations,
+      [{ type: "拆分", target: "base", summary: "第一条拆分" }]
+    );
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(appliedIndex, "entries"), "split-b")
+        .relations,
+      [{ type: "拆分", target: "base", summary: "第二条拆分" }]
+    );
     assert.equal(
-      appliedIndex.entries["split-b"]?.sourcePath,
+      jsonObjectMember(jsonObjectMember(appliedIndex, "entries"), "split-b")
+        .sourcePath,
       "semantic-split.md"
     );
     const cleared = await setInvestigationRelations({
@@ -156,15 +166,21 @@ test("set-relations applies multi-source replacements and explicit clears", asyn
       assert.deepEqual(parsed.errors, []);
       assert.deepEqual(parsed.report?.relations, []);
     }
-    const clearedIndex = JSON.parse(
+    const clearedIndex = parseJsonObject(
       await fs.readFile(
         `${investigationRoot(root)}/investigation-index.json`,
         "utf8"
       )
-    ) as {
-      entries: Record<string, { relations: unknown }>;
-    };
-    assert.deepEqual(clearedIndex.entries["split-a"]?.relations, []);
-    assert.deepEqual(clearedIndex.entries["split-b"]?.relations, []);
+    );
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(clearedIndex, "entries"), "split-a")
+        .relations,
+      []
+    );
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(clearedIndex, "entries"), "split-b")
+        .relations,
+      []
+    );
   });
 });

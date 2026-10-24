@@ -5,6 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { TaskGraphService } from "../src/service.ts";
+import { TaskGraphError } from "../src/errors.ts";
 import {
   expectTaskGraphRejection,
   loadRootNativeLock,
@@ -55,13 +56,10 @@ test("store serializes concurrent native mutations and preserves revision compar
       1
     );
     const rejected = settled.find((result) => result.status === "rejected");
-    assert.equal(rejected?.status, "rejected");
-    if (rejected?.status === "rejected") {
-      assert.equal(
-        (rejected.reason as { code?: string }).code,
-        "REVISION_CONFLICT"
-      );
-    }
+    assert.ok(rejected?.status === "rejected");
+    const error: unknown = rejected.reason;
+    assert.ok(error instanceof TaskGraphError);
+    assert.equal(error.code, "REVISION_CONFLICT");
     assert.equal((await first.info()).revision, 1);
   });
 });
@@ -160,7 +158,14 @@ test("operating system releases a child process native lock without stale metada
         try {
           ready = (await fs.readFile(readyPath, "utf8")) === "ready";
         } catch (error) {
-          if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+          if (
+            !(
+              error instanceof Error &&
+              "code" in error &&
+              error.code === "ENOENT"
+            )
+          )
+            throw error;
         }
         if (ready) break;
         await new Promise<void>((resolve) => setTimeout(resolve, 10));

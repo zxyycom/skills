@@ -5,42 +5,40 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
+import * as v from "valibot";
 import { fileURLToPath } from "node:url";
 
-const repositoryRoot = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  ".."
-);
+const repositoryRoot = fileURLToPath(new URL("../", import.meta.url));
 const publisherPath = path.join(repositoryRoot, "scripts", "publish-skills.ts");
 const packageHash = "a".repeat(64);
 const commitSha = "b".repeat(40);
 
-type PublishedAsset = {
+type PublishedAsset = Readonly<{
   digest: string | null;
   name: string;
   size: number;
-};
+}>;
 
-type LoggedCommand = {
-  arguments: string[];
+type LoggedCommand = Readonly<{
+  arguments: readonly string[];
   tool: "gh" | "git";
-};
+}>;
 
-type PublisherRun = {
-  commands: LoggedCommand[];
+type PublisherRun = Readonly<{
+  commands: readonly LoggedCommand[];
   status: number | null;
   stderr: string;
   stdout: string;
-};
+}>;
 
-type TestHarness = {
+type TestHarness = Readonly<{
   root: string;
   run: (
     mode: "rolling" | "snapshot",
     releases?: Readonly<Record<string, readonly PublishedAsset[]>>,
     failZipUpload?: boolean
   ) => Promise<PublisherRun>;
-};
+}>;
 
 test("rolling publication replaces packages before manifest and removes stale assets", async () => {
   await withHarness("complete", async ({ root, run }) => {
@@ -178,9 +176,7 @@ test("snapshot publication rejects conflicting assets without remote writes", as
     const tag = `skills-${packageHash.slice(0, 12)}`;
     const assets = await publishedAssets(root);
     const first = assets[0];
-    if (first === undefined) {
-      assert.fail("Expected fixture assets");
-    }
+    assert.ok(first, "Expected fixture assets");
 
     const result = await run("snapshot", {
       [tag]: [
@@ -213,23 +209,22 @@ async function withHarness(
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "publish-skills-test-"));
   try {
     await writeFixture(root, fixture);
-    const toolPath = await writeFakeTools(root);
-    const releaseStatePath = path.join(root, "release-state.json");
     const commandLogPath = path.join(root, "command-log.jsonl");
 
     await run({
       root,
       run: async (mode, releases = {}, failZipUpload = false) => {
-        await fs.writeFile(releaseStatePath, JSON.stringify(releases), "utf8");
+        const toolPath = await writeFakeTools(root, {
+          releases,
+          commandLogPath,
+          failZipUpload
+        });
         await fs.writeFile(commandLogPath, "", "utf8");
         const result = spawnSync(process.execPath, [publisherPath, mode], {
           cwd: root,
           encoding: "utf8",
           env: {
             ...process.env,
-            FAKE_COMMAND_LOG: commandLogPath,
-            FAKE_FAIL_ZIP_UPLOAD: failZipUpload ? "1" : "",
-            FAKE_RELEASE_STATE: releaseStatePath,
             GH_TOKEN: "test-token",
             GITHUB_SHA: commitSha,
             PACKAGE_HASH: packageHash,
@@ -238,6 +233,7 @@ async function withHarness(
           stdio: "pipe",
           windowsHide: true
         });
+        if (result.error !== undefined) throw result.error;
         return {
           commands: await readCommandLog(commandLogPath),
           status: result.status,
@@ -269,22 +265,37 @@ async function writeFixture(
   }
 }
 
-async function writeFakeTools(root: string): Promise<string> {
+async function writeFakeTools(
+  root: string,
+  options: Readonly<{
+    releases: Readonly<Record<string, readonly PublishedAsset[]>>;
+    commandLogPath: string;
+    failZipUpload: boolean;
+  }>
+): Promise<string> {
   const bin = path.join(root, "bin");
-  await fs.mkdir(bin);
+  await fs.mkdir(bin, { recursive: true });
   const dispatcher = path.join(bin, "fake-tool.mjs");
   await fs.writeFile(
     dispatcher,
     [
       'import fs from "node:fs";',
       "const [tool, ...arguments_] = process.argv.slice(2);",
-      'fs.appendFileSync(process.env.FAKE_COMMAND_LOG, JSON.stringify({ tool, arguments: arguments_ }) + "\\n");',
-      'if (process.env.FAKE_FAIL_ZIP_UPLOAD === "1" && tool === "gh" && arguments_[1] === "upload" && arguments_.some((argument) => argument.endsWith(".zip"))) { console.error("injected zip upload failure"); process.exit(7); }',
+      'if (tool !== "gh" && tool !== "git") throw new Error("Unexpected publication fixture tool");',
+      `fs.appendFileSync(${JSON.stringify(options.commandLogPath)}, JSON.stringify({ tool, arguments: arguments_ }) + "\\n");`,
+      `if (${options.failZipUpload} && tool === "gh" && arguments_[1] === "upload" && arguments_.some((argument) => argument.endsWith(".zip"))) {`,
+      '  console.error("injected zip upload failure");',
+      "  process.exit(7);",
+      "}",
       'if (tool === "gh" && arguments_[0] === "release" && arguments_[1] === "view") {',
       "  const tag = arguments_[2];",
-      '  const releases = JSON.parse(fs.readFileSync(process.env.FAKE_RELEASE_STATE, "utf8"));',
-      "  const assets = releases[tag];",
-      '  if (assets === undefined) { console.error("release not found"); process.exit(1); }',
+      '  if (tag === undefined) throw new Error("Missing publication fixture tag");',
+      `  const releases = new Map(${JSON.stringify(Object.entries(options.releases))});`,
+      "  const assets = releases.get(tag);",
+      "  if (assets === undefined) {",
+      '    console.error("release not found");',
+      "    process.exit(1);",
+      "  }",
       "  console.log(JSON.stringify({ tagName: tag, assets }));",
       "}",
       ""
@@ -331,11 +342,18 @@ async function publishedAssets(root: string): Promise<PublishedAsset[]> {
   );
 }
 
-async function readCommandLog(logPath: string): Promise<LoggedCommand[]> {
+const loggedCommandSchema = v.strictObject({
+  tool: v.picklist(["gh", "git"]),
+  arguments: v.array(v.string())
+});
+
+async function readCommandLog(
+  logPath: string
+): Promise<readonly LoggedCommand[]> {
   return (await fs.readFile(logPath, "utf8"))
     .split("\n")
     .filter((line) => line.length > 0)
-    .map((line) => JSON.parse(line) as LoggedCommand);
+    .map((line) => v.parse(loggedCommandSchema, JSON.parse(line) as unknown));
 }
 
 function commandAction(command: LoggedCommand): string {
@@ -348,9 +366,7 @@ function assetNames(
   command: LoggedCommand | undefined,
   root: string
 ): string[] {
-  if (command === undefined) {
-    return [];
-  }
+  assert.ok(command, "Expected a publication command carrying asset paths");
   const dist = path.join(root, "dist") + path.sep;
   return command.arguments
     .filter((argument) => argument.startsWith(dist))
@@ -361,11 +377,8 @@ function optionValue(
   command: LoggedCommand | undefined,
   option: string
 ): string | undefined {
-  if (command === undefined) {
-    return undefined;
-  }
-  const index = command.arguments.indexOf(option);
-  return index === -1 ? undefined : command.arguments[index + 1];
+  const index = command?.arguments.indexOf(option) ?? -1;
+  return index === -1 ? undefined : command?.arguments[index + 1];
 }
 
 function quoteShell(value: string): string {

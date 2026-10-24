@@ -60,7 +60,7 @@ test("loads a strict reader with an isolated readonly index view", async () => {
       Reflect.set(reader.index.sourceRevision.entries, "a", "changed"),
       false
     );
-    // oxlint-disable-next-line no-constant-condition -- The unreachable block checks the recursively readonly public index view.
+    // oxlint-disable-next-line no-constant-condition -- The branch must stay unreachable to typecheck rejected readonly assignments without executing those mutations.
     if (false) {
       // @ts-expect-error The reader index property cannot be replaced.
       reader.index = index;

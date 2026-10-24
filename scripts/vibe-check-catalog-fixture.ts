@@ -190,37 +190,35 @@ export const expectedSemanticChecks: readonly (readonly [
   ]
 ] as const;
 
-export const expectedSemanticPrerequisites = new Map<string, readonly string[]>(
+export const expectedSemanticPrerequisites: ReadonlyMap<
+  string,
+  readonly string[]
+> = new Map([
+  ["test:record-operations:shared-contract", ["script:check:skill-updaters"]],
+  ["test:test-evidence:public-boundary", ["script:check:skill-updaters"]],
   [
-    ["test:record-operations:shared-contract", ["script:check:skill-updaters"]],
-    ["test:test-evidence:public-boundary", ["script:check:skill-updaters"]],
-    [
-      "test:lightweight-judgment:request-and-response",
-      ["script:check:skill-updaters"]
-    ],
-    [
-      "test:video-understanding:public-distribution",
-      ["script:check:skill-updaters"]
-    ],
-    ["test:mcpshell:public-distribution", ["script:check:skill-updaters"]],
-    [
-      "test:novel-cards:card-and-query-contract",
-      ["script:check:skill-updaters"]
-    ],
-    [
-      "test:lightweight-judgment:public-distribution",
-      ["script:check:skill-updaters"]
-    ],
-    ["test:change-plan:public-distribution", ["script:check:skill-updaters"]],
-    [
-      "test:decision-records:public-distribution",
-      ["script:check:skill-updaters"]
-    ],
-    ["test:investigation-report:cli-contract", ["script:check:skill-updaters"]],
-    [
-      "test:investigation-report:collection-and-resources",
-      ["script:check:skill-updaters"]
-    ],
-    ["test:task-graph:public-distribution", ["script:check:skill-updaters"]]
-  ]
-);
+    "test:lightweight-judgment:request-and-response",
+    ["script:check:skill-updaters"]
+  ],
+  [
+    "test:video-understanding:public-distribution",
+    ["script:check:skill-updaters"]
+  ],
+  ["test:mcpshell:public-distribution", ["script:check:skill-updaters"]],
+  ["test:novel-cards:card-and-query-contract", ["script:check:skill-updaters"]],
+  [
+    "test:lightweight-judgment:public-distribution",
+    ["script:check:skill-updaters"]
+  ],
+  ["test:change-plan:public-distribution", ["script:check:skill-updaters"]],
+  [
+    "test:decision-records:public-distribution",
+    ["script:check:skill-updaters"]
+  ],
+  ["test:investigation-report:cli-contract", ["script:check:skill-updaters"]],
+  [
+    "test:investigation-report:collection-and-resources",
+    ["script:check:skill-updaters"]
+  ],
+  ["test:task-graph:public-distribution", ["script:check:skill-updaters"]]
+]);

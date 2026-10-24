@@ -6,6 +6,7 @@ import { renameInvestigationRecord } from "../src/rename.ts";
 import { discardInvestigationRecord } from "../src/discard-entry.ts";
 import { writeCollection } from "./collection-support.ts";
 import {
+  parseJsonObject,
   investigationRoot,
   reportMarkdown,
   withTempRoot
@@ -45,13 +46,20 @@ test("Investigation rename executes preparation only under lock while explicit p
     await fs.writeFile(unrelated, reportMarkdown({ id: "unrelated" }));
     const originalOpen = fs.open;
     let unlockedSourceRead = false;
-    fs.open = (async (...args) => {
+    fs.open = async (...args) => {
       if (typeof args[0] === "string" && args[0].endsWith(".md")) {
-        if (!(await fs.stat(lockPath(root)).catch(() => null)))
-          unlockedSourceRead = true;
+        await fs.stat(lockPath(root)).catch((error: unknown) => {
+          if (
+            error instanceof Error &&
+            "code" in error &&
+            error.code === "ENOENT"
+          )
+            unlockedSourceRead = true;
+          else throw error;
+        });
       }
       return originalOpen(...args);
-    }) as typeof fs.open;
+    };
     let result;
     try {
       result = await renameInvestigationRecord({
@@ -96,18 +104,25 @@ test("Investigation unified discard classifies and prepares under one lock for f
           ? candidatePath(root, "candidate.md")
           : path.join(investigationRoot(root), "formal.md");
       let selectedReads = 0;
-      fs.open = (async (...args) => {
+      fs.open = async (...args) => {
         if (args[0] === lockPath(root)) lockAcquisitions += 1;
         if (args[0] === selectedPath) selectedReads += 1;
         if (
           typeof args[0] === "string" &&
           (args[0].endsWith(".md") || args[0] === selectedPath)
         ) {
-          if (!(await fs.stat(lockPath(root)).catch(() => null)))
-            unlockedSourceRead = true;
+          await fs.stat(lockPath(root)).catch((error: unknown) => {
+            if (
+              error instanceof Error &&
+              "code" in error &&
+              error.code === "ENOENT"
+            )
+              unlockedSourceRead = true;
+            else throw error;
+          });
         }
         return originalOpen(...args);
-      }) as typeof fs.open;
+      };
       let result;
       try {
         result = await discardInvestigationRecord({
@@ -133,7 +148,7 @@ test("Investigation unified discard classifies and prepares under one lock for f
           fs.access(path.join(investigationRoot(root), "formal.md"))
         );
         assert.deepEqual(
-          JSON.parse(await fs.readFile(index, "utf8")).entries,
+          parseJsonObject(await fs.readFile(index, "utf8")).entries,
           {}
         );
       }
@@ -184,13 +199,13 @@ test("Investigation unified candidate discard retains its actual result when loc
     );
     const before = await fs.readFile(index);
     const originalRm = fs.rm;
-    fs.rm = (async (...args) => {
+    fs.rm = async (...args) => {
       if (args[0] === lockPath(root))
         throw Object.assign(new Error("injected lock cleanup failure"), {
           code: "EIO"
         });
       return originalRm(...args);
-    }) as typeof fs.rm;
+    };
     let result;
     try {
       result = await discardInvestigationRecord({

@@ -8,7 +8,12 @@ import {
   renameInvestigationRecordWithHooks
 } from "../src/rename.ts";
 import { synchronizeInvestigationIndex } from "../src/validation.ts";
-import { investigationRoot, withTempRoot } from "./fixture-support.ts";
+import {
+  parseJsonObject,
+  jsonObjectMember,
+  investigationRoot,
+  withTempRoot
+} from "./fixture-support.ts";
 import { writeCollection } from "./collection-support.ts";
 
 test("Investigation rename moves the report and owner resources while rewriting managed relations and links", async () => {
@@ -108,20 +113,26 @@ test("Investigation rename moves the report and owner resources while rewriting 
     );
     assert.match(renamedCandidate, /target: "legacy"/u);
     assert.match(renamedCandidate, /summary: "保留候选缘由"/u);
-    const index = JSON.parse(
+    const index = parseJsonObject(
       await fs.readFile(path.join(root, "investigation-index.json"), "utf8")
-    ) as {
-      entries: Record<string, { relations: unknown; sourcePath: string }>;
-    };
-    assert.equal(index.entries["260828-migrated"]?.sourcePath, "migrated.md");
-    assert.ok(!Object.hasOwn(index.entries, "legacy"));
-    assert.deepEqual(index.entries.dependent?.relations, [
-      {
-        type: "补充",
-        target: "260828-migrated",
-        summary: "保留迁移缘由"
-      }
-    ]);
+    );
+    assert.equal(
+      jsonObjectMember(jsonObjectMember(index, "entries"), "260828-migrated")
+        .sourcePath,
+      "migrated.md"
+    );
+    assert.ok(!Object.hasOwn(jsonObjectMember(index, "entries"), "legacy"));
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(index, "entries"), "dependent")
+        .relations,
+      [
+        {
+          type: "补充",
+          target: "260828-migrated",
+          summary: "保留迁移缘由"
+        }
+      ]
+    );
     assert.deepEqual(
       (await synchronizeInvestigationIndex({ preflight: true, workspaceRoot }))
         .errors,
@@ -241,10 +252,14 @@ test("Investigation rename migrates a legacy ID while retaining an unchanged sou
       ),
       "evidence\n"
     );
-    const index = JSON.parse(
+    const index = parseJsonObject(
       await fs.readFile(path.join(root, "investigation-index.json"), "utf8")
-    ) as { entries: Record<string, { sourcePath: string }> };
-    assert.ok(!Object.hasOwn(index.entries, "legacy"));
-    assert.equal(index.entries["260828-legacy"]?.sourcePath, "legacy.md");
+    );
+    assert.ok(!Object.hasOwn(jsonObjectMember(index, "entries"), "legacy"));
+    assert.equal(
+      jsonObjectMember(jsonObjectMember(index, "entries"), "260828-legacy")
+        .sourcePath,
+      "legacy.md"
+    );
   });
 });

@@ -7,7 +7,7 @@ Tags:
 - `repository-tooling`
 
 Contract:
-- 结构校验必须继续拒绝 skill 结构错误，不因链接由独立入口处理而放过。
+- 结构校验独立验证 skill 元数据，缺失 description 属于结构错误。
 
 Proves:
 - 健康 fixture 单独清空 description 后仅产生预期结构错误，未被配置或链接错误掩盖。

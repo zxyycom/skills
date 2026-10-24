@@ -20,20 +20,13 @@ import {
 test("strict schema rejects unknown fields, illegal state unions, and duplicate leases", () => {
   const base = graphIndex([taskOperation("first"), taskOperation("second")]);
 
-  const unknownRoot = structuredClone(base) as unknown as Record<
-    string,
-    unknown
-  >;
-  unknownRoot.extra = true;
+  const unknownRoot = { ...structuredClone(base), extra: true };
   expectTaskGraphError(() => parseTaskIndex(unknownRoot), "INDEX_INVALID");
 
   const illegalControl = structuredClone(base);
-  (
-    illegalControl.tasks["task-000001"]!.state.control as {
-      mode: string;
-      reason: string | null;
-    }
-  ).reason = "candidate cannot carry a reason";
+  Object.assign(illegalControl.tasks["task-000001"]!.state.control, {
+    reason: "candidate cannot carry a reason"
+  });
   expectTaskGraphError(() => parseTaskIndex(illegalControl), "INDEX_INVALID");
 
   const duplicateLeases = structuredClone(base);
@@ -79,7 +72,8 @@ test("task graph error details preserve boolean JSON values in a prototype-free 
   });
   assert.equal(Object.getPrototypeOf(error.details), null);
   assert.deepEqual({ ...error.details }, { accepted: true, rejected: false });
-  assert.deepEqual(JSON.parse(JSON.stringify(error.details)), {
+  const encodedDetails: unknown = JSON.parse(JSON.stringify(error.details));
+  assert.deepEqual(encodedDetails, {
     accepted: true,
     rejected: false
   });
@@ -108,7 +102,8 @@ test("canonical serialization keeps root task identity, sorting, LF, and round t
   assert.ok(text.indexOf('"alpha"') < text.indexOf('"zebra"'));
   assert.ok(text.indexOf('"task-000001"') < text.indexOf('"task-000002"'));
 
-  const roundTrip = parseTaskIndex(JSON.parse(text) as unknown);
+  const value: unknown = JSON.parse(text);
+  const roundTrip = parseTaskIndex(value);
   assert.deepEqual(roundTrip, index);
   assert.equal("taskId" in roundTrip.tasks["task-000001"]!, false);
 });

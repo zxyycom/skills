@@ -125,7 +125,6 @@ const decisionCliTestInputs = [
   "tools/decision-records/tests/queries/{domain-support,snapshot-fixture}.ts",
   "tools/decision-records/tests/support-local-contracts.ts",
   "tools/decision-records/tests/search-{relations,modes,metadata}.test.ts",
-  "tools/decision-records/tests/cli-args/**",
   "tools/decision-records/tests/configured-decision-directory.test.ts",
   "tools/decision-records/tests/checks/cli-contract.ts"
 ];

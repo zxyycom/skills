@@ -10,4 +10,4 @@ Contract:
 - Release zip 中的 skill 文件必须位于规范且无别名的包路径。
 
 Proves:
-- 源码 resolveRemoteSkillPackage 在返回可安装解包结果前拒绝 alias/非规范包路径，不把它称为真实 CLI 文件零写。
+- 源码函数 `resolveRemoteSkillPackage` 拒绝 alias/非规范包路径，不返回可安装解包结果。

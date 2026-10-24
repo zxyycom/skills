@@ -3,12 +3,16 @@ import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import test from "node:test";
+import test, { type TestContext } from "node:test";
+import * as v from "valibot";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import * as publicApi from "../../../skills/test-evidence-review/scripts/test-evidence-catalog.ts";
 
-const publicCli = path.resolve(
-  process.cwd(),
-  "skills/test-evidence-review/scripts/test-evidence-catalog.ts"
+const publicCli = fileURLToPath(
+  new URL(
+    "../../../skills/test-evidence-review/scripts/test-evidence-catalog.ts",
+    import.meta.url
+  )
 );
 
 type CliResult = Readonly<{
@@ -17,26 +21,29 @@ type CliResult = Readonly<{
   stdout: string;
 }>;
 
-type PublicSchema = Readonly<{
-  "~standard": Readonly<{
-    validate: (value: unknown) => Readonly<{ issues?: readonly unknown[] }>;
-  }>;
-}>;
-
-async function runNodeCli(
+async function runNode(
   root: string,
   args: readonly string[]
 ): Promise<CliResult> {
   return await new Promise((resolve, reject) => {
-    const child = spawn("node", [publicCli, ...args], { cwd: root });
+    const child = spawn("node", [...args], {
+      cwd: root,
+      stdio: ["ignore", "pipe", "pipe"]
+    });
     let stdout = "";
     let stderr = "";
     child.stdout.setEncoding("utf8");
     child.stderr.setEncoding("utf8");
     child.stdout.on("data", (chunk: string) => (stdout += chunk));
     child.stderr.on("data", (chunk: string) => (stderr += chunk));
-    child.once("error", reject);
-    child.once("close", (code) => resolve({ code, stderr, stdout }));
+    let failure: Error | undefined;
+    child.once("error", (error) => {
+      failure = error;
+    });
+    child.once("close", (code) => {
+      if (failure !== undefined) reject(failure);
+      else resolve({ code, stderr, stdout });
+    });
   });
 }
 
@@ -45,22 +52,11 @@ function json(result: CliResult): unknown {
   return JSON.parse(result.stdout);
 }
 
-function assertPublicSchema(name: string, value: unknown): void {
-  const candidate = (publicApi as unknown as Record<string, unknown>)[name];
-  assert.equal(typeof candidate, "object", `${name} is not exported`);
-  assert.notEqual(candidate, null, `${name} is not exported`);
-  const result = (candidate as PublicSchema)["~standard"].validate(value);
-  assert.equal(
-    result.issues,
-    undefined,
-    `${name} rejected ${JSON.stringify(value)}`
-  );
-}
-
-async function fixture(): Promise<Readonly<{ root: string; parent: string }>> {
+async function fixture(context: TestContext): Promise<string> {
   const parent = await fs.mkdtemp(
     path.join(os.tmpdir(), "test-evidence-public-")
   );
+  context.after(() => fs.rm(parent, { force: true, recursive: true }));
   const root = path.join(parent, "workspace");
   const cases = path.join(root, "docs/test-evidence/cases");
   await fs.mkdir(cases, { recursive: true });
@@ -72,248 +68,229 @@ async function fixture(): Promise<Readonly<{ root: string; parent: string }>> {
     path.join(cases, "beta.md"),
     "### Case PUBLIC-BOUNDARY-BETA-001: beta Case\n\nTests:\n- `test:beta`\n- `test:shared`\n\nTags:\n- `alpha`\n- `beta`\n\nContract:\n- authoritative needle stays searchable\n\nProves:\n- search returns the authoritative Case body\n"
   );
-  return { parent, root };
-}
-
-async function removeFixture(parent: string): Promise<void> {
-  await fs.rm(parent, { force: true, recursive: true });
+  return root;
 }
 
 async function writeIndex(root: string): Promise<void> {
-  const result = await runNodeCli(root, ["--json", "sync-index", "--write"]);
+  const result = await runNode(root, [
+    publicCli,
+    "--json",
+    "sync-index",
+    "--write"
+  ]);
   assert.equal(result.code, 0, result.stderr);
-  assertPublicSchema("testEvidenceSyncResultSchema", json(result));
+  v.parse(publicApi.testEvidenceSyncResultSchema, json(result));
 }
 
-test("distributed TS imports in Node without running CLI output and exposes the current public API", async () => {
-  const root = await fixture();
-  try {
-    const program = [
-      `const module = await import(${JSON.stringify(`file://${publicCli}`)});`,
-      "process.stdout.write(JSON.stringify(Object.keys(module).sort()));"
-    ].join("\n");
-    const result = await new Promise<CliResult>((resolve, reject) => {
-      const child = spawn("node", ["--input-type=module", "--eval", program], {
-        cwd: root.root
-      });
-      let stdout = "";
-      let stderr = "";
-      child.stdout.setEncoding("utf8");
-      child.stderr.setEncoding("utf8");
-      child.stdout.on("data", (chunk: string) => (stdout += chunk));
-      child.stderr.on("data", (chunk: string) => (stderr += chunk));
-      child.once("error", reject);
-      child.once("close", (code) => resolve({ code, stderr, stdout }));
-    });
-    assert.equal(result.code, 0, result.stderr);
-    assert.equal(result.stderr, "");
-    assert.deepEqual(JSON.parse(result.stdout), [
-      "expectedSourceSchema",
-      "fingerprintSchema",
-      "listTestEvidenceTags",
-      "queryLimitSchema",
-      "queryOffsetSchema",
-      "queryTestEvidence",
-      "runTestEvidenceCatalogCli",
-      "searchTestEvidence",
-      "showTestEvidenceCase",
-      "snapshotSchema",
-      "stageTestEvidenceIndex",
-      "syncTestEvidenceIndex",
-      "testEvidenceCaseIdPatternSource",
-      "testEvidenceCaseIdSchema",
-      "testEvidenceCaseIndexStateSchema",
-      "testEvidenceCaseSchema",
-      "testEvidenceCasesPath",
-      "testEvidenceDefinitionVersion",
-      "testEvidenceDiagnosticSchema",
-      "testEvidenceIndexMetadataSchema",
-      "testEvidenceIndexPath",
-      "testEvidenceNamespace",
-      "testEvidencePath",
-      "testEvidenceQueryResultSchema",
-      "testEvidenceReferenceResultSchema",
-      "testEvidenceReportSchema",
-      "testEvidenceSchemaVersion",
-      "testEvidenceSearchResultSchema",
-      "testEvidenceShowResultSchema",
-      "testEvidenceStageResultSchema",
-      "testEvidenceStateIndexSchema",
-      "testEvidenceSyncResultSchema",
-      "testEvidenceTagSchema",
-      "testEvidenceTagsResultSchema",
-      "testEvidenceTestIdSchema",
-      "validateTestEvidence",
-      "validateTestEvidenceReferences"
-    ]);
-    for (const callable of [
-      "listTestEvidenceTags",
-      "queryTestEvidence",
-      "searchTestEvidence",
-      "showTestEvidenceCase",
-      "stageTestEvidenceIndex",
-      "syncTestEvidenceIndex",
-      "validateTestEvidence",
-      "validateTestEvidenceReferences"
-    ] as const)
-      assert.equal(typeof publicApi[callable], "function");
-  } finally {
-    await removeFixture(root.parent);
-  }
+test("distributed TS imports in Node without running CLI output and exposes the current public API", async (context) => {
+  const root = await fixture(context);
+  const program = [
+    `const module = await import(${JSON.stringify(pathToFileURL(publicCli).href)});`,
+    "process.stdout.write(JSON.stringify(Object.keys(module).sort()));"
+  ].join("\n");
+  const result = await runNode(root, [
+    "--input-type=module",
+    "--eval",
+    program
+  ]);
+  assert.equal(result.code, 0, result.stderr);
+  assert.equal(result.stderr, "");
+  const exports: unknown = JSON.parse(result.stdout);
+  assert.deepEqual(exports, [
+    "expectedSourceSchema",
+    "fingerprintSchema",
+    "listTestEvidenceTags",
+    "queryLimitSchema",
+    "queryOffsetSchema",
+    "queryTestEvidence",
+    "runTestEvidenceCatalogCli",
+    "searchTestEvidence",
+    "showTestEvidenceCase",
+    "snapshotSchema",
+    "stageTestEvidenceIndex",
+    "syncTestEvidenceIndex",
+    "testEvidenceCaseIdPatternSource",
+    "testEvidenceCaseIdSchema",
+    "testEvidenceCaseIndexStateSchema",
+    "testEvidenceCaseSchema",
+    "testEvidenceCasesPath",
+    "testEvidenceDefinitionVersion",
+    "testEvidenceDiagnosticSchema",
+    "testEvidenceIndexMetadataSchema",
+    "testEvidenceIndexPath",
+    "testEvidenceNamespace",
+    "testEvidencePath",
+    "testEvidenceQueryResultSchema",
+    "testEvidenceReferenceResultSchema",
+    "testEvidenceReportSchema",
+    "testEvidenceSchemaVersion",
+    "testEvidenceSearchResultSchema",
+    "testEvidenceShowResultSchema",
+    "testEvidenceStageResultSchema",
+    "testEvidenceStateIndexSchema",
+    "testEvidenceSyncResultSchema",
+    "testEvidenceTagSchema",
+    "testEvidenceTagsResultSchema",
+    "testEvidenceTestIdSchema",
+    "validateTestEvidence",
+    "validateTestEvidenceReferences"
+  ]);
+  for (const callable of [
+    "listTestEvidenceTags",
+    "queryTestEvidence",
+    "searchTestEvidence",
+    "showTestEvidenceCase",
+    "stageTestEvidenceIndex",
+    "syncTestEvidenceIndex",
+    "validateTestEvidence",
+    "validateTestEvidenceReferences"
+  ] as const)
+    assert.equal(typeof publicApi[callable], "function");
 });
 
-test("distributed Node CLI returns schema-valid Case list, tags, show, and search JSON", async () => {
-  const root = await fixture();
-  try {
-    await writeIndex(root.root);
-    const list = await runNodeCli(root.root, [
-      "--json",
-      "list",
-      "--tag",
-      "alpha",
-      "--test",
-      "test:shared",
-      "--limit",
-      "1",
-      "--offset",
-      "0"
-    ]);
-    assert.equal(list.code, 0, list.stderr);
-    const listed = json(list);
-    assertPublicSchema("testEvidenceQueryResultSchema", listed);
-    assert.deepEqual(
-      (listed as { cases: { id: string }[] }).cases.map((entry) => entry.id),
-      ["PUBLIC-BOUNDARY-ALPHA-001"]
-    );
+test("distributed Node CLI returns schema-valid Case list, tags, show, and search JSON", async (context) => {
+  const root = await fixture(context);
+  await writeIndex(root);
+  const list = await runNode(root, [
+    publicCli,
+    "--json",
+    "list",
+    "--tag",
+    "alpha",
+    "--test",
+    "test:shared",
+    "--limit",
+    "1",
+    "--offset",
+    "0"
+  ]);
+  assert.equal(list.code, 0, list.stderr);
+  const listed = v.parse(publicApi.testEvidenceQueryResultSchema, json(list));
+  assert.deepEqual(
+    listed.cases.map((entry) => entry.id),
+    ["PUBLIC-BOUNDARY-ALPHA-001"]
+  );
 
-    const tags = await runNodeCli(root.root, ["--json", "tags"]);
-    assert.equal(tags.code, 0, tags.stderr);
-    const tagged = json(tags);
-    assertPublicSchema("testEvidenceTagsResultSchema", tagged);
-    assert.deepEqual((tagged as { tags: unknown }).tags, [
-      { caseCount: 2, tag: "alpha" },
-      { caseCount: 1, tag: "beta" }
-    ]);
+  const tags = await runNode(root, [publicCli, "--json", "tags"]);
+  assert.equal(tags.code, 0, tags.stderr);
+  const tagged = v.parse(publicApi.testEvidenceTagsResultSchema, json(tags));
+  assert.deepEqual(tagged.tags, [
+    { caseCount: 2, tag: "alpha" },
+    { caseCount: 1, tag: "beta" }
+  ]);
 
-    const shown = await runNodeCli(root.root, [
-      "--json",
-      "show",
-      "PUBLIC-BOUNDARY-ALPHA-001"
-    ]);
-    assert.equal(shown.code, 0, shown.stderr);
-    const showed = json(shown);
-    assertPublicSchema("testEvidenceShowResultSchema", showed);
-    assert.match((showed as { markdown: string }).markdown, /alpha Case/u);
+  const shown = await runNode(root, [
+    publicCli,
+    "--json",
+    "show",
+    "PUBLIC-BOUNDARY-ALPHA-001"
+  ]);
+  assert.equal(shown.code, 0, shown.stderr);
+  const showed = v.parse(publicApi.testEvidenceShowResultSchema, json(shown));
+  assert.match(
+    showed.markdown ?? assert.fail("show must return authoritative Markdown"),
+    /alpha Case/u
+  );
 
-    const searched = await runNodeCli(root.root, [
-      "--json",
-      "search",
-      "authoritative needle",
-      "--tag",
-      "beta"
-    ]);
-    assert.equal(searched.code, 0, searched.stderr);
-    const search = json(searched);
-    assertPublicSchema("testEvidenceSearchResultSchema", search);
-    assert.deepEqual(
-      (search as { cases: { id: string }[] }).cases.map((entry) => entry.id),
-      ["PUBLIC-BOUNDARY-BETA-001"]
-    );
-  } finally {
-    await removeFixture(root.parent);
-  }
+  const searched = await runNode(root, [
+    publicCli,
+    "--json",
+    "search",
+    "authoritative needle",
+    "--tag",
+    "beta"
+  ]);
+  assert.equal(searched.code, 0, searched.stderr);
+  const search = v.parse(
+    publicApi.testEvidenceSearchResultSchema,
+    json(searched)
+  );
+  assert.deepEqual(
+    search.cases.map((entry) => entry.id),
+    ["PUBLIC-BOUNDARY-BETA-001"]
+  );
 });
 
-test("distributed sync requires --write, while stage preserves help and domain failure boundaries", async () => {
-  const root = await fixture();
-  try {
-    const index = path.join(
-      root.root,
-      "docs/test-evidence/test-evidence-index.json"
-    );
-    const checked = await runNodeCli(root.root, ["--json", "sync-index"]);
-    assert.equal(checked.code, 1, checked.stderr);
-    assertPublicSchema("testEvidenceSyncResultSchema", json(checked));
-    await assert.rejects(fs.access(index));
+test("distributed sync requires --write, while stage preserves help and domain failure boundaries", async (context) => {
+  const root = await fixture(context);
+  const index = path.join(root, "docs/test-evidence/test-evidence-index.json");
+  const checked = await runNode(root, [publicCli, "--json", "sync-index"]);
+  assert.equal(checked.code, 1, checked.stderr);
+  v.parse(publicApi.testEvidenceSyncResultSchema, json(checked));
+  await assert.rejects(fs.access(index));
 
-    await writeIndex(root.root);
-    await fs.access(index);
+  await writeIndex(root);
+  await fs.access(index);
 
-    const help = await runNodeCli(root.root, ["stage-index", "--help"]);
-    assert.equal(help.code, 0, help.stderr);
-    assert.match(help.stdout, /stage-index \[options\] <case-ids\.\.\.>/u);
+  const help = await runNode(root, [publicCli, "stage-index", "--help"]);
+  assert.equal(help.code, 0, help.stderr);
+  assert.match(help.stdout, /stage-index \[options\] <case-ids\.\.\.>/u);
 
-    const malformed = await runNodeCli(root.root, [
-      "--json",
-      "stage-index",
-      "not-a-case-id"
-    ]);
-    assert.equal(malformed.code, 2, malformed.stderr);
-    assert.equal(malformed.stdout, "");
-    assert.match(malformed.stderr, /error:/u);
+  const malformed = await runNode(root, [
+    publicCli,
+    "--json",
+    "stage-index",
+    "not-a-case-id"
+  ]);
+  assert.equal(malformed.code, 2, malformed.stderr);
+  assert.equal(malformed.stdout, "");
+  assert.match(malformed.stderr, /error:/u);
 
-    const missing = await runNodeCli(root.root, [
-      "--json",
-      "stage-index",
-      "PUBLIC-BOUNDARY-MISSING-001"
-    ]);
-    assert.equal(missing.code, 1, missing.stderr);
-    assert.equal(missing.stderr, "");
-    assertPublicSchema("testEvidenceStageResultSchema", json(missing));
-    assert.equal((json(missing) as { status: string }).status, "error");
-  } finally {
-    await removeFixture(root.parent);
-  }
+  const missing = await runNode(root, [
+    publicCli,
+    "--json",
+    "stage-index",
+    "PUBLIC-BOUNDARY-MISSING-001"
+  ]);
+  assert.equal(missing.code, 1, missing.stderr);
+  assert.equal(missing.stderr, "");
+  const failure = v.parse(
+    publicApi.testEvidenceStageResultSchema,
+    json(missing)
+  );
+  assert.equal(failure.status, "error");
 });
 
-test("distributed Node CLI writes usage failures only to stderr with exit two", async () => {
-  const root = await fixture();
-  try {
-    const result = await runNodeCli(root.root, ["--json", "list", "--unknown"]);
-    assert.equal(result.code, 2, result.stderr);
-    assert.equal(result.stdout, "");
-    assert.match(result.stderr, /error: unknown option '--unknown'/u);
-  } finally {
-    await removeFixture(root.parent);
-  }
+test("distributed Node CLI writes usage failures only to stderr with exit two", async (context) => {
+  const root = await fixture(context);
+  const result = await runNode(root, [
+    publicCli,
+    "--json",
+    "list",
+    "--unknown"
+  ]);
+  assert.equal(result.code, 2, result.stderr);
+  assert.equal(result.stdout, "");
+  assert.match(result.stderr, /error: unknown option '--unknown'/u);
 });
 
-test("public query API returns schema-valid diagnostics for invalid options", async () => {
-  const root = await fixture();
-  try {
-    await writeIndex(root.root);
-    const invalid = await publicApi.queryTestEvidence({
-      limit: 0,
-      workspaceRoot: root.root
-    });
-    assertPublicSchema("testEvidenceQueryResultSchema", invalid);
-    assert.ok(
-      invalid.diagnostics.some(
-        (diagnostic: { code: string }) =>
-          diagnostic.code === "query.options-invalid"
-      )
-    );
-  } finally {
-    await removeFixture(root.parent);
-  }
+test("public query API returns schema-valid diagnostics for invalid options", async (context) => {
+  const root = await fixture(context);
+  await writeIndex(root);
+  const invalid = await publicApi.queryTestEvidence({
+    limit: 0,
+    workspaceRoot: root
+  });
+  v.parse(publicApi.testEvidenceQueryResultSchema, invalid);
+  assert.ok(
+    invalid.diagnostics.some(
+      (diagnostic: { code: string }) =>
+        diagnostic.code === "query.options-invalid"
+    )
+  );
 });
 
-test("Case query and explicit sync operate without project configuration or an entity snapshot", async () => {
-  const root = await fixture();
-  try {
-    for (const missing of [
-      "package.json",
-      "docs/test-evidence/test-entity-index.json",
-      ".test-evidence.json"
-    ])
-      await assert.rejects(fs.access(path.join(root.root, missing)));
-    await writeIndex(root.root);
-    const list = await runNodeCli(root.root, ["--json", "list"]);
-    assert.equal(list.code, 0, list.stderr);
-    const result = json(list);
-    assertPublicSchema("testEvidenceQueryResultSchema", result);
-    assert.equal((result as { total: number }).total, 2);
-  } finally {
-    await removeFixture(root.parent);
-  }
+test("Case query and explicit sync operate without project configuration or an entity snapshot", async (context) => {
+  const root = await fixture(context);
+  for (const missing of [
+    "package.json",
+    "docs/test-evidence/test-entity-index.json",
+    ".test-evidence.json"
+  ])
+    await assert.rejects(fs.access(path.join(root, missing)));
+  await writeIndex(root);
+  const list = await runNode(root, [publicCli, "--json", "list"]);
+  assert.equal(list.code, 0, list.stderr);
+  const result = v.parse(publicApi.testEvidenceQueryResultSchema, json(list));
+  assert.equal(result.total, 2);
 });

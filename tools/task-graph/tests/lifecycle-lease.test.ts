@@ -86,28 +86,29 @@ test("complete and cancel require exactly one mutation precondition", () => {
   ]) {
     expectTaskGraphError(
       () =>
-        completeTask(
+        // Exercise the public JavaScript boundary with a deliberately invalid precondition.
+        Reflect.apply(completeTask, undefined, [
           index,
           {
             taskId: "task-000001",
             ...precondition,
             result: { summary: "invalid precondition", references: {} }
-          } as never,
+          },
           initialNow
-        ),
+        ]),
       "ARGUMENT_INVALID"
     );
     expectTaskGraphError(
       () =>
-        cancelTask(
+        Reflect.apply(cancelTask, undefined, [
           index,
           {
             taskId: "task-000001",
             ...precondition,
             reason: "invalid precondition"
-          } as never,
+          },
           initialNow
-        ),
+        ]),
       "ARGUMENT_INVALID"
     );
   }

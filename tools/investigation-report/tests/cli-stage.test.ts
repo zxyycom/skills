@@ -5,7 +5,12 @@ import path from "node:path";
 import { test } from "node:test";
 
 import { fileURLToPath } from "node:url";
-import { investigationRoot, withTempRoot } from "./fixture-support.ts";
+import {
+  parseJsonObject,
+  jsonObjectMember,
+  investigationRoot,
+  withTempRoot
+} from "./fixture-support.ts";
 import {
   runGeneratedInvestigationCliSmoke,
   runInvestigationCli
@@ -87,7 +92,7 @@ test("CLI stage preserves version-control diagnostic facts", async () => {
   });
 });
 
-test("CLI stage renders filesystem diagnostics structurally", async () => {
+test("CLI stage renders filesystem diagnostics structurally", async (t) => {
   await withTempRoot("cli-stage-filesystem", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
     git(root, ["init", "--quiet"]);
@@ -101,15 +106,19 @@ test("CLI stage renders filesystem diagnostics structurally", async () => {
     );
     const token = `ghp_${"y".repeat(36)}`;
     const originalReadFile = fs.readFile;
-    fs.readFile = (async (...args) => {
-      if (args[0] === indexPath) {
-        throw Object.assign(
-          new Error(`token=${token}\nfailed at /private/index.json`),
-          { code: "EACCES" }
-        );
+    const observedRead = t.mock.method(
+      fs,
+      "readFile",
+      async (...args: Parameters<typeof fs.readFile>) => {
+        if (args[0] === indexPath) {
+          throw Object.assign(
+            new Error(`token=${token}\nfailed at /private/index.json`),
+            { code: "EACCES" }
+          );
+        }
+        return await originalReadFile(...args);
       }
-      return await originalReadFile(...args);
-    }) as typeof fs.readFile;
+    );
     let result;
     try {
       result = await runInvestigationCli(root, [
@@ -119,7 +128,7 @@ test("CLI stage renders filesystem diagnostics structurally", async () => {
         "report.md"
       ]);
     } finally {
-      fs.readFile = originalReadFile;
+      observedRead.mock.restore();
     }
     assert.equal(result.status, 1);
     assert.equal(result.stdout, "");
@@ -311,11 +320,12 @@ test("CLI trace accepts report-level direction options", async () => {
     ]);
     assert.equal(result.status, 0);
     assert.equal(result.stderr, "");
-    const trace = JSON.parse(result.stdout);
+    const trace = parseJsonObject(result.stdout);
     assert.deepEqual(trace.traceIds, ["first", "second"]);
-    assert.deepEqual(trace.entries.second.relations, [
-      { target: "first", type: "补充" }
-    ]);
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(trace, "entries"), "second").relations,
+      [{ target: "first", type: "补充" }]
+    );
 
     const bounded = await runInvestigationCli(root, [
       "trace",
@@ -327,12 +337,12 @@ test("CLI trace accepts report-level direction options", async () => {
       "--json"
     ]);
     assert.equal(bounded.status, 0, bounded.stderr);
-    const boundedTrace = JSON.parse(bounded.stdout) as {
-      frontier: Array<Record<string, unknown>>;
-      traceIds: string[];
-    };
+    const boundedTrace = parseJsonObject(bounded.stdout);
     assert.deepEqual(boundedTrace.traceIds, ["first"]);
-    assert.deepEqual(Object.keys(boundedTrace.frontier[0] ?? {}), [
+    assert.ok(Array.isArray(boundedTrace.frontier));
+    const frontier: unknown = boundedTrace.frontier[0];
+    assert.ok(frontier !== null && typeof frontier === "object");
+    assert.deepEqual(Object.keys(frontier), [
       "fromId",
       "direction",
       "reason",
@@ -409,14 +419,16 @@ test("CLI trace renders a stable terminal graph by default and preserves JSON be
       "--json"
     ]);
     assert.equal(json.status, 0, json.stderr);
-    const parsed = JSON.parse(json.stdout);
+    const parsed = parseJsonObject(json.stdout);
     assert.deepEqual(parsed.contextIds, ["beta"]);
-    assert.deepEqual(parsed.entries.alpha.relations, [
-      { target: "base", type: "拆分", summary: '承接"查询"责任' }
-    ]);
-    assert.deepEqual(parsed.entries.beta.relations, [
-      { target: "base", type: "拆分" }
-    ]);
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(parsed, "entries"), "alpha").relations,
+      [{ target: "base", type: "拆分", summary: '承接"查询"责任' }]
+    );
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(parsed, "entries"), "beta").relations,
+      [{ target: "base", type: "拆分" }]
+    );
   });
 });
 

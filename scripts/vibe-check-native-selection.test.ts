@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import test from "node:test";
+import * as v from "valibot";
 import { createVibeNativeChecks, vibeNativeCheckIds } from "./lib/vibe-gate.ts";
 
 function nativeCheckExclusions(
@@ -27,7 +28,9 @@ function nativeCheckExclusions(
     maintained.files,
     `missing maintained file selection for ${checkId}`
   );
-  return stringArray(maintainedFiles.patterns) ?? [];
+  const patterns = stringArray(maintainedFiles.patterns);
+  assert.ok(patterns, `missing maintained patterns for ${checkId}`);
+  return patterns;
 }
 
 function codeAreaOptions(
@@ -56,15 +59,13 @@ function optionsRecord(value: unknown, error: string): Record<string, unknown> {
 }
 
 function optionsRecordOrNull(value: unknown): Record<string, unknown> | null {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : null;
+  const parsed = v.safeParse(v.record(v.string(), v.unknown()), value);
+  return parsed.success ? parsed.output : null;
 }
 
 function stringArray(value: unknown): string[] | null {
-  return Array.isArray(value)
-    ? value.filter((entry): entry is string => typeof entry === "string")
-    : null;
+  if (value === undefined) return null;
+  return v.parse(v.array(v.string()), value);
 }
 
 test("native file selections exclude historical content and authoring candidates", () => {

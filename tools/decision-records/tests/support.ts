@@ -20,7 +20,6 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { after } from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   syncDecisionIndex,
@@ -60,15 +59,7 @@ export const generatedSchemaPath = path.join(
   "references",
   "decision-index.schema.json"
 );
-let fixtureTemplate: Promise<string> | null = null;
-let fixtureTemplatePath: string | null = null;
-
-after(async () => {
-  if (fixtureTemplatePath !== null) {
-    await fs.rm(fixtureTemplatePath, { force: true, recursive: true });
-    fixtureTemplatePath = null;
-  }
-});
+let fixtureIndexText: Promise<string> | null = null;
 
 export type CliExecution = {
   exitCode: number;
@@ -81,31 +72,41 @@ export async function createFixtureWorkspace(label: string): Promise<string> {
     path.join(os.tmpdir(), `decision-records-${label}-`)
   );
   try {
-    await fs.cp(await fixtureTemplateRoot(), workspaceRoot, {
-      recursive: true
-    });
+    await fs.cp(fixtureRoot, workspaceRoot, { recursive: true });
+    await fs.writeFile(
+      path.join(workspaceRoot, "docs/decisions/decision-index.json"),
+      await preparedFixtureIndexText(),
+      "utf8"
+    );
     return workspaceRoot;
   } catch (error) {
-    await fs.rm(workspaceRoot, { force: true, recursive: true });
+    await fs
+      .rm(workspaceRoot, { force: true, recursive: true })
+      .catch((cleanupError: unknown) => {
+        throw new AggregateError(
+          [error, cleanupError],
+          "Fixture creation and workspace cleanup failed"
+        );
+      });
     throw error;
   }
 }
 
-async function fixtureTemplateRoot(): Promise<string> {
-  fixtureTemplate ??= createFixtureTemplate();
+async function preparedFixtureIndexText(): Promise<string> {
+  fixtureIndexText ??= createFixtureIndexText();
   try {
-    return await fixtureTemplate;
+    return await fixtureIndexText;
   } catch (error) {
-    fixtureTemplate = null;
+    fixtureIndexText = null;
     throw error;
   }
 }
 
-async function createFixtureTemplate(): Promise<string> {
+async function createFixtureIndexText(): Promise<string> {
   const templatePath = await fs.mkdtemp(
     path.join(os.tmpdir(), "decision-records-fixture-template-")
   );
-  fixtureTemplatePath = templatePath;
+  let preparationFailure: { readonly error: unknown } | undefined;
   try {
     await fs.cp(fixtureRoot, templatePath, { recursive: true });
     const synced = await syncDecisionIndex({
@@ -113,11 +114,24 @@ async function createFixtureTemplate(): Promise<string> {
       mode: "write"
     });
     assert.equal(synced.status, "ok", JSON.stringify(synced));
-    return templatePath;
+    return await fs.readFile(
+      path.join(templatePath, "docs/decisions/decision-index.json"),
+      "utf8"
+    );
   } catch (error) {
-    await fs.rm(templatePath, { force: true, recursive: true });
-    fixtureTemplatePath = null;
+    preparationFailure = { error };
     throw error;
+  } finally {
+    await fs
+      .rm(templatePath, { force: true, recursive: true })
+      .catch((cleanupError: unknown) => {
+        if (preparationFailure)
+          throw new AggregateError(
+            [preparationFailure.error, cleanupError],
+            "Fixture index preparation and template cleanup failed"
+          );
+        throw cleanupError;
+      });
   }
 }
 

@@ -10,4 +10,4 @@ Contract:
 - 当前生成制品不应携带 checkout 绝对路径；不同绝对路径构建需得到相同交付字节。
 
 Proves:
-- 两个不同路径的临时 checkout 实际 build 后，入口、声明与 runtime 全部字节相等；没有 ambient optional peer 有/无对照，不声称该边界。
+- 两个不同路径的临时 checkout 实际 build 后，入口、声明与 runtime 全部字节相等；两次构建复用同一宿主依赖集合。

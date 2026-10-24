@@ -10,4 +10,4 @@ Contract:
 - 当前真实执行源码 sync-index 的 record Check 必须保留 strict preparation 与 source CLI 加载闭包，不需生成前置。
 
 Proves:
-- strict、CLI/query/maintenance/stage/shared-search 各代表单独变化均使 record consumer execute，并显式排除不必要的统一生成 provider；不替代领域新产品测试。
+- strict、CLI/query/maintenance/stage/shared-search 各代表单独变化均使 record consumer execute；Definition 未声明统一生成 provider 前置。

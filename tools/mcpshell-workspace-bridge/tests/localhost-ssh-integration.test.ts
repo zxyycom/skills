@@ -44,8 +44,9 @@ function workspaceEnvelope(value: unknown, label: string): JsonObject {
   assert.equal(result.content.length, 1, `${label} has one text result`);
   const content = requireObject(result.content[0], `${label} content`);
   assert.equal(content.type, "text");
-  assert.equal(typeof content.text, "string");
-  return requireObject(JSON.parse(content.text as string), `${label} envelope`);
+  assert.ok(typeof content.text === "string");
+  const envelope: unknown = JSON.parse(content.text);
+  return requireObject(envelope, `${label} envelope`);
 }
 function localhostE2ESkip(): false | string {
   if (!localhostSshSmokeEnabled)
@@ -60,138 +61,148 @@ test(
   {
     skip: localhostE2ESkip()
   },
-  async () => {
+  async (context) => {
     const fixture = await createBridgeFixture({ git: true });
     let sshd: LocalhostSshd | undefined;
     let client: McpShellStdioSmokeClient | undefined;
-    try {
-      await fs.mkdir(path.join(fixture.skill, "scripts"), { recursive: true });
-      await fs.cp(distributedScripts, path.join(fixture.skill, "scripts"), {
-        recursive: true
-      });
-      await fs.copyFile(
-        distributedTools,
-        path.join(fixture.skill, "references", "mcpshell-tools.yaml")
-      );
-      sshd = await createLocalhostSshd(fixture);
-      await fs.writeFile(
-        path.join(fixture.skill, ".env.mcpshell"),
-        [
-          `MCPSHELL_BACKEND_HANDLE=${sshd.backendHandle}`,
-          `MCPSHELL_PROJECT_ROOT=${fixture.project}`,
-          `MCPSHELL_STAGING_ROOT=${fixture.staging}`,
-          ""
-        ].join("\n")
-      );
-      const toolsPath = path.join(
-        fixture.skill,
-        "references",
-        "mcpshell-tools.yaml"
-      );
-      const env = {
-        ...process.env,
-        PATH: `${path.join(sshd.sshDirectory, "bin")}${path.delimiter}${process.env.PATH ?? ""}`
-      };
-      const version = await execFileAsync(mcpshell, ["--version"], {
-        cwd: fixture.agentProject,
-        env,
-        maxBuffer: 1024 * 1024
-      });
-      assert.notEqual(
-        `${version.stdout}${version.stderr}`.trim(),
-        "",
-        "MCPShell --version must identify the executable used by this smoke"
-      );
-      await execFileAsync(mcpshell, ["validate", "--tools", toolsPath], {
-        cwd: fixture.agentProject,
-        env,
-        maxBuffer: 1024 * 1024
-      });
-      client = new McpShellStdioSmokeClient(mcpshell, toolsPath, {
-        cwd: fixture.agentProject,
-        env
-      });
-      await client.initialize();
-      client.initialized();
+    context.after(async () => {
+      const failures: unknown[] = [];
+      for (const cleanup of [
+        () => client?.terminate(),
+        () => sshd?.cleanup(),
+        () => fixture.cleanup()
+      ]) {
+        try {
+          await cleanup();
+        } catch (error) {
+          failures.push(error);
+        }
+      }
+      if (failures.length > 0)
+        throw new AggregateError(failures, "Localhost smoke cleanup failed");
+    });
+    await fs.mkdir(path.join(fixture.skill, "scripts"), { recursive: true });
+    await fs.cp(distributedScripts, path.join(fixture.skill, "scripts"), {
+      recursive: true
+    });
+    await fs.copyFile(
+      distributedTools,
+      path.join(fixture.skill, "references", "mcpshell-tools.yaml")
+    );
+    sshd = await createLocalhostSshd(fixture);
+    await fs.writeFile(
+      path.join(fixture.skill, ".env.mcpshell"),
+      [
+        `MCPSHELL_BACKEND_HANDLE=${sshd.backendHandle}`,
+        `MCPSHELL_PROJECT_ROOT=${fixture.project}`,
+        `MCPSHELL_STAGING_ROOT=${fixture.staging}`,
+        ""
+      ].join("\n")
+    );
+    const toolsPath = path.join(
+      fixture.skill,
+      "references",
+      "mcpshell-tools.yaml"
+    );
+    const env = {
+      ...process.env,
+      PATH: `${path.join(sshd.sshDirectory, "bin")}${path.delimiter}${process.env.PATH ?? ""}`
+    };
+    const version = await execFileAsync(mcpshell, ["--version"], {
+      cwd: fixture.agentProject,
+      env,
+      maxBuffer: 1024 * 1024
+    });
+    assert.notEqual(
+      `${version.stdout}${version.stderr}`.trim(),
+      "",
+      "MCPShell --version must identify the executable used by this smoke"
+    );
+    await execFileAsync(mcpshell, ["validate", "--tools", toolsPath], {
+      cwd: fixture.agentProject,
+      env,
+      maxBuffer: 1024 * 1024
+    });
+    client = new McpShellStdioSmokeClient(mcpshell, toolsPath, {
+      cwd: fixture.agentProject,
+      env
+    });
+    await client.initialize();
+    client.initialized();
 
-      const shell = workspaceEnvelope(
-        await client.callTool("workspace_shell", {
-          command: `printf 'loopback:%s\\n' "$PWD"`
-        }),
-        "workspace_shell"
-      );
-      assert.equal(shell.operation, "workspace_shell");
-      assert.equal(shell.ok, true, JSON.stringify(shell));
-      assert.equal(shell.stdout, `loopback:${fixture.project}\n`);
+    const shell = workspaceEnvelope(
+      await client.callTool("workspace_shell", {
+        command: `printf 'loopback:%s\\n' "$PWD"`
+      }),
+      "workspace_shell"
+    );
+    assert.equal(shell.operation, "workspace_shell");
+    assert.equal(shell.ok, true, JSON.stringify(shell));
+    assert.equal(shell.stdout, `loopback:${fixture.project}\n`);
 
-      const patch = workspaceEnvelope(
-        await client.callTool("workspace_apply_patch", {
-          patch:
-            "diff --git a/tracked.txt b/tracked.txt\n--- a/tracked.txt\n+++ b/tracked.txt\n@@ -1 +1 @@\n-before\n+patched\n"
-        }),
-        "workspace_apply_patch"
-      );
-      assert.equal(patch.operation, "workspace_apply_patch");
-      assert.equal(patch.ok, true, JSON.stringify(patch));
-      assert.equal(
-        await fs.readFile(path.join(fixture.project, "tracked.txt"), "utf8"),
-        "patched\n"
-      );
+    const patch = workspaceEnvelope(
+      await client.callTool("workspace_apply_patch", {
+        patch:
+          "diff --git a/tracked.txt b/tracked.txt\n--- a/tracked.txt\n+++ b/tracked.txt\n@@ -1 +1 @@\n-before\n+patched\n"
+      }),
+      "workspace_apply_patch"
+    );
+    assert.equal(patch.operation, "workspace_apply_patch");
+    assert.equal(patch.ok, true, JSON.stringify(patch));
+    assert.equal(
+      await fs.readFile(path.join(fixture.project, "tracked.txt"), "utf8"),
+      "patched\n"
+    );
 
-      const transferred = Buffer.from([0, 1, 2, 255, 10]);
-      const transferredSha256 = createHash("sha256")
-        .update(transferred)
-        .digest("hex");
-      await fs.writeFile(path.join(fixture.staging, "source.bin"), transferred);
-      const put = workspaceEnvelope(
-        await client.callTool("workspace_put_file", {
-          destination_path: "from-agent.bin",
-          source_path: "source.bin"
-        }),
-        "workspace_put_file"
-      );
-      assert.equal(put.operation, "workspace_put_file");
-      assert.equal(put.ok, true, JSON.stringify(put));
-      assert.equal(
-        requireObject(put.evidence, "put evidence").bytes,
-        transferred.length
-      );
-      assert.equal(
-        requireObject(put.evidence, "put evidence").sha256,
-        transferredSha256
-      );
-      assert.deepEqual(
-        await fs.readFile(path.join(fixture.project, "from-agent.bin")),
-        transferred
-      );
+    const transferred = Buffer.from([0, 1, 2, 255, 10]);
+    const transferredSha256 = createHash("sha256")
+      .update(transferred)
+      .digest("hex");
+    await fs.writeFile(path.join(fixture.staging, "source.bin"), transferred);
+    const put = workspaceEnvelope(
+      await client.callTool("workspace_put_file", {
+        destination_path: "from-agent.bin",
+        source_path: "source.bin"
+      }),
+      "workspace_put_file"
+    );
+    assert.equal(put.operation, "workspace_put_file");
+    assert.equal(put.ok, true, JSON.stringify(put));
+    assert.equal(
+      requireObject(put.evidence, "put evidence").bytes,
+      transferred.length
+    );
+    assert.equal(
+      requireObject(put.evidence, "put evidence").sha256,
+      transferredSha256
+    );
+    assert.deepEqual(
+      await fs.readFile(path.join(fixture.project, "from-agent.bin")),
+      transferred
+    );
 
-      const get = workspaceEnvelope(
-        await client.callTool("workspace_get_file", {
-          destination_path: "received.bin",
-          source_path: "from-agent.bin"
-        }),
-        "workspace_get_file"
-      );
-      assert.equal(get.operation, "workspace_get_file");
-      assert.equal(get.ok, true, JSON.stringify(get));
-      assert.equal(
-        requireObject(get.evidence, "get evidence").bytes,
-        transferred.length
-      );
-      assert.equal(
-        requireObject(get.evidence, "get evidence").sha256,
-        transferredSha256
-      );
-      assert.deepEqual(
-        await fs.readFile(path.join(fixture.staging, "received.bin")),
-        transferred
-      );
-      await client.close();
-      client = undefined;
-    } finally {
-      await client?.terminate();
-      await sshd?.cleanup();
-      await fixture.cleanup();
-    }
+    const get = workspaceEnvelope(
+      await client.callTool("workspace_get_file", {
+        destination_path: "received.bin",
+        source_path: "from-agent.bin"
+      }),
+      "workspace_get_file"
+    );
+    assert.equal(get.operation, "workspace_get_file");
+    assert.equal(get.ok, true, JSON.stringify(get));
+    assert.equal(
+      requireObject(get.evidence, "get evidence").bytes,
+      transferred.length
+    );
+    assert.equal(
+      requireObject(get.evidence, "get evidence").sha256,
+      transferredSha256
+    );
+    assert.deepEqual(
+      await fs.readFile(path.join(fixture.staging, "received.bin")),
+      transferred
+    );
+    await client.close();
+    client = undefined;
   }
 );

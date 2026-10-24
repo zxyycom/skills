@@ -10,4 +10,4 @@ Contract:
 - show 必须核对索引 revision 与当前 Case 原文，不得把追加后的来源作为旧快照返回。
 
 Proves:
-- Case 原位追加后 show 返回 index-stale 且 Case=null，明确提示 revision 漂移；该节点不声称 inode 替换或搜索正文覆盖。
+- Case 原位追加后 show 返回 index-stale 且 Case=null，明确提示 revision 漂移。

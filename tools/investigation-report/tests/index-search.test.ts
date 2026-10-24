@@ -2,8 +2,12 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { test } from "node:test";
 import { searchInvestigationReports } from "../src/query.ts";
-import {} from "../src/report-path.ts";
-import { reportMarkdown, withTempRoot } from "./fixture-support.ts";
+import {
+  parseJsonObject,
+  jsonObjectMember,
+  reportMarkdown,
+  withTempRoot
+} from "./fixture-support.ts";
 import { writeCollection } from "./collection-support.ts";
 
 test("search finds formal Markdown with all, any, phrase, and structural filters", async () => {
@@ -78,8 +82,9 @@ test("search excludes candidates resources and index bytes and rejects a missing
       "utf8"
     );
     const indexPath = `${directory}/investigation-index.json`;
-    const index = JSON.parse(await fs.readFile(indexPath, "utf8"));
-    index.entries.formal.title = "index-only-term";
+    const index = parseJsonObject(await fs.readFile(indexPath, "utf8"));
+    jsonObjectMember(jsonObjectMember(index, "entries"), "formal").title =
+      "index-only-term";
     await fs.writeFile(indexPath, JSON.stringify(index), "utf8");
     for (const query of [
       "candidate-only-term",

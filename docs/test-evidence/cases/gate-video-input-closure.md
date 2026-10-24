@@ -11,4 +11,4 @@ Contract:
 
 Proves:
 - 视频源码、资源、ignored fixture、测试/wrapper、Windows 验收/制品入口与分发 manifest/runtime 的代表改动均保持 video 能力闭合，三项视频 Check 与统一生成执行。
-- 非 scripts 的视频输入变化保留 Novel Cards 与 Index Runtime 独立检查复用；scripts 组只核当前矩阵明示的消费，不声称所有领域沿宽 scripts/** 失效；精确发布后 warm 无激活。
+- 非 scripts 的视频输入变化保留 Novel Cards 与 Index Runtime 独立检查复用；scripts 组按矩阵明示的 consumer 核对执行选择；精确发布后 warm 无激活。

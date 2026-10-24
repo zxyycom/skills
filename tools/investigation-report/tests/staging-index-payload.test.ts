@@ -33,48 +33,45 @@ async function prepare(root: string): Promise<void> {
   ]);
 }
 
-for (const failure of ["missing"]) {
-  test(`stage scopes preserve unrelated pending ${failure} payload without reading it`, async () => {
-    await withTempRoot("stage-index-narrow", async (root) => {
-      await prepare(root);
-      const target = pendingObjectPath(root, otherPath);
-      if (failure === "missing") await fs.unlink(target);
-      const before = git(root, ["ls-files", "--stage"]);
-      for (const scope of ["all", "domain"] as const) {
-        const selected = await stage(root, scope);
-        assert.equal(selected.status, "ok", JSON.stringify(selected));
-        assert.equal(
-          git(root, ["ls-files", "--stage"])
-            .split("\n")
-            .find((line) => line.endsWith(otherPath)),
-          before.split("\n").find((line) => line.endsWith(otherPath))
-        );
-      }
-      const result = await stage(root);
-      assert.equal(result.status, "ok", JSON.stringify(result));
-      assert.deepEqual(result.writtenPaths, []);
+test("stage scopes preserve unrelated pending missing payload without reading it", async () => {
+  await withTempRoot("stage-index-narrow", async (root) => {
+    await prepare(root);
+    const target = pendingObjectPath(root, otherPath);
+    await fs.unlink(target);
+    const before = git(root, ["ls-files", "--stage"]);
+    for (const scope of ["all", "domain"] as const) {
+      const selected = await stage(root, scope);
+      assert.equal(selected.status, "ok", JSON.stringify(selected));
       assert.equal(
-        jsonObjectMember(
-          jsonObjectMember(
-            parseJsonObject(git(root, ["show", `:${indexRelativePath}`])),
-            "entries"
-          ),
-          "one"
-        ).title,
-        "Updated selected"
-      );
-      assert.deepEqual(
         git(root, ["ls-files", "--stage"])
           .split("\n")
-          .filter((line) => line.endsWith(otherPath)),
-        before.split("\n").filter((line) => line.endsWith(otherPath))
+          .find((line) => line.endsWith(otherPath)),
+        before.split("\n").find((line) => line.endsWith(otherPath))
       );
-      const unchanged = await stage(root);
-      assert.equal(unchanged.state, "unchanged");
-    });
+    }
+    const result = await stage(root);
+    assert.equal(result.status, "ok", JSON.stringify(result));
+    assert.deepEqual(result.writtenPaths, []);
+    assert.equal(
+      jsonObjectMember(
+        jsonObjectMember(
+          parseJsonObject(git(root, ["show", `:${indexRelativePath}`])),
+          "entries"
+        ),
+        "one"
+      ).title,
+      "Updated selected"
+    );
+    assert.deepEqual(
+      git(root, ["ls-files", "--stage"])
+        .split("\n")
+        .filter((line) => line.endsWith(otherPath)),
+      before.split("\n").filter((line) => line.endsWith(otherPath))
+    );
+    const unchanged = await stage(root);
+    assert.equal(unchanged.state, "unchanged");
   });
-}
-
+});
 test("stage index preserves unselected partial pending mode and staged deletion", async () => {
   await withTempRoot("stage-index-preservation", async (root) => {
     await writeCollection(root, [

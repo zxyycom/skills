@@ -2,14 +2,14 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import { test } from "node:test";
-import {} from "../src/collection-mutation-lock.ts";
-import {} from "../src/diagnostics.ts";
 import {
   setInvestigationRelations,
   setInvestigationRelationsWithWriter
 } from "../src/relation-transaction.ts";
 import { synchronizeInvestigationIndex } from "../src/validation.ts";
 import {
+  parseJsonObject,
+  jsonObjectMember,
   investigationRoot,
   reportMarkdown,
   withTempRoot
@@ -249,13 +249,13 @@ test("set-relations release cleanup failure preserves committed bytes without a 
     await writeCollection(root, [{ id: "base" }, { id: "next" }]);
     const lockPath = `${root}/docs/.investigation-index.json.mutation.lock`;
     const originalRm = fs.rm;
-    fs.rm = (async (...args) => {
+    fs.rm = async (...args) => {
       if (args[0] === lockPath)
         throw Object.assign(new Error("injected lock release failure"), {
           code: "EIO"
         });
       return await originalRm(...args);
-    }) as typeof fs.rm;
+    };
     let result;
     try {
       result = await setInvestigationRelations({
@@ -282,20 +282,21 @@ test("set-relations release cleanup failure preserves committed bytes without a 
       await fs.readFile(`${investigationRoot(root)}/next.md`, "utf8"),
       /target: "base"/u
     );
-    const index = JSON.parse(
+    const index = parseJsonObject(
       await fs.readFile(
         `${investigationRoot(root)}/investigation-index.json`,
         "utf8"
       )
     );
-    assert.deepEqual(index.entries.next.relations, [
-      { type: "补充", target: "base" }
-    ]);
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(index, "entries"), "next").relations,
+      [{ type: "补充", target: "base" }]
+    );
     await fs.rm(lockPath, { force: true });
   });
 });
 
-test("set-relations uses indexed split closure without reading unselected split siblings", async () => {
+test("set-relations uses indexed split closure without reading unselected split siblings", async (t) => {
   await withTempRoot("relations-local-dependencies", async (root) => {
     await writeCollection(root, [
       { id: "base" },
@@ -305,7 +306,13 @@ test("set-relations uses indexed split closure without reading unselected split 
     ]);
     const directory = investigationRoot(root);
     const indexPath = `${directory}/investigation-index.json`;
-    const originalIndex = JSON.parse(await fs.readFile(indexPath, "utf8"));
+    const originalIndex = parseJsonObject(await fs.readFile(indexPath, "utf8"));
+    const baselineRevisions = jsonObjectMember(
+      jsonObjectMember(originalIndex, "sourceRevision"),
+      "entries"
+    );
+    assert.equal(typeof baselineRevisions.unrelated, "string");
+    assert.equal(typeof baselineRevisions.right, "string");
     await fs.writeFile(
       `${directory}/unrelated.md`,
       "unrelated malformed current body\n"
@@ -321,31 +328,41 @@ test("set-relations uses indexed split closure without reading unselected split 
     };
     const readFile = fs.readFile;
     let unrelatedReads = 0;
-    fs.readFile = (async (...args: Parameters<typeof fs.readFile>) => {
-      if (args[0] === `${directory}/unrelated.md`) {
-        unrelatedReads += 1;
-        throw new Error("unrelated source must not be read");
+    const observedRead = t.mock.method(
+      fs,
+      "readFile",
+      async (...args: Parameters<typeof fs.readFile>) => {
+        if (args[0] === `${directory}/unrelated.md`) {
+          unrelatedReads += 1;
+          throw new Error("unrelated source must not be read");
+        }
+        return await readFile(...args);
       }
-      return await readFile(...args);
-    }) as typeof fs.readFile;
+    );
     let applied;
     try {
       applied = await setInvestigationRelations(input);
     } finally {
-      fs.readFile = readFile;
+      observedRead.mock.restore();
     }
     assert.deepEqual(applied.errors, []);
     assert.equal(applied.changed, true);
     assert.equal(unrelatedReads, 0);
     const currentIndex = await fs.readFile(indexPath, "utf8");
-    const parsedIndex = JSON.parse(currentIndex);
+    const parsedIndex = parseJsonObject(currentIndex);
     assert.deepEqual(
-      parsedIndex.entries.unrelated,
-      originalIndex.entries.unrelated
+      jsonObjectMember(jsonObjectMember(parsedIndex, "entries"), "unrelated"),
+      jsonObjectMember(jsonObjectMember(originalIndex, "entries"), "unrelated")
     );
     assert.equal(
-      parsedIndex.sourceRevision.entries.unrelated,
-      originalIndex.sourceRevision.entries.unrelated
+      jsonObjectMember(
+        jsonObjectMember(parsedIndex, "sourceRevision"),
+        "entries"
+      ).unrelated,
+      jsonObjectMember(
+        jsonObjectMember(originalIndex, "sourceRevision"),
+        "entries"
+      ).unrelated
     );
     await fs.appendFile(`${directory}/right.md`, "\nexternal drift\n");
     const beforeLeft = await fs.readFile(`${directory}/left.md`, "utf8");
@@ -364,11 +381,18 @@ test("set-relations uses indexed split closure without reading unselected split 
       await fs.readFile(`${directory}/left.md`, "utf8"),
       beforeLeft
     );
-    const updated = JSON.parse(await fs.readFile(indexPath, "utf8"));
-    assert.deepEqual(updated.entries.right, parsedIndex.entries.right);
+    const updated = parseJsonObject(await fs.readFile(indexPath, "utf8"));
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(updated, "entries"), "right"),
+      jsonObjectMember(jsonObjectMember(parsedIndex, "entries"), "right")
+    );
     assert.equal(
-      updated.sourceRevision.entries.right,
-      parsedIndex.sourceRevision.entries.right
+      jsonObjectMember(jsonObjectMember(updated, "sourceRevision"), "entries")
+        .right,
+      jsonObjectMember(
+        jsonObjectMember(parsedIndex, "sourceRevision"),
+        "entries"
+      ).right
     );
   });
 });
