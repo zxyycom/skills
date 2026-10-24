@@ -2,12 +2,12 @@ import {
   requireRecordTextSnapshot,
   type RecordTextSnapshot
 } from "../../record-operations/src/transaction-snapshot.ts";
-import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import {
   readRecordFileSnapshot,
   sameRecordBytes,
+  writeRecordFileAtomically,
   type RecordWriteIdentity,
   type RecordWritePermissions,
   type RecordFileSnapshot,
@@ -124,27 +124,21 @@ export async function writeInvestigationTextAtomically(
   targetPath: string,
   text: string
 ): Promise<void> {
-  await ensureRegularFile(targetPath);
-  const mode = (await fs.lstat(targetPath)).mode & 0o7777;
-  const temporaryPath = `${targetPath}.${process.pid}.${randomUUID()}.tmp`;
-  const handle = await fs.open(temporaryPath, "wx", 0o600);
-  try {
-    await handle.writeFile(text, "utf8");
-    await handle.chmod(mode);
-  } finally {
-    await handle.close();
-  }
-  try {
-    await fs.rename(temporaryPath, targetPath);
-  } catch (error) {
-    await fs.rm(temporaryPath, { force: true }).catch(() => undefined);
-    throw error;
-  }
-}
-
-async function ensureRegularFile(filePath: string): Promise<void> {
-  const entry = await fs.lstat(filePath);
-  if (entry.isSymbolicLink() || !entry.isFile()) {
-    throw new Error("must be a regular non-symbolic-link file");
-  }
+  const target = path.resolve(targetPath);
+  const root = path.dirname(target);
+  const before = await readRecordFileSnapshot(root, target);
+  if (before === null)
+    throw Object.assign(
+      new Error("Investigation source does not exist: " + target),
+      {
+        code: "ENOENT",
+        path: target
+      }
+    );
+  await writeRecordFileAtomically(root, {
+    path: target,
+    before,
+    next: Buffer.from(text),
+    mode: before.mode
+  });
 }

@@ -11,6 +11,7 @@ import type { RecordVerificationPhase } from "../../record-operations/src/transa
 import { InvestigationPreparation } from "./strict-preparation.ts";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { isPathWithinDirectory } from "../../shared/src/node/filesystem.ts";
 import { runRecordTransaction } from "../../record-operations/src/transaction.ts";
 import { verifyRecordFile } from "../../record-operations/src/transaction-files.ts";
 import {
@@ -178,17 +179,23 @@ function discardPublicationResult(
   if (transaction.status === "ok")
     return { changed: transaction.changed, diagnostics: [], errors: [] };
   const mutation = discardMutation(transaction.outcome);
-  const failures = [...transaction.errors, ...transaction.cleanupErrors];
+  const operationFailures = transaction.errors.flatMap((error) =>
+    discardFailureCauses(error)
+  );
+  const cleanupFailures = transaction.cleanupErrors.flatMap((error) =>
+    discardFailureCauses(error)
+  );
+  const failures = [...operationFailures, ...cleanupFailures];
   return {
     changed: transaction.changed,
     errors: [
-      ...transaction.errors.map(
+      ...operationFailures.map(
         (error) =>
           (transaction.committed
             ? "discard verification failed after commit: "
             : "discard transaction publish failed: ") + errorText(error)
       ),
-      ...transaction.cleanupErrors.map(
+      ...cleanupFailures.map(
         (error) =>
           "discard committed but tombstone cleanup is pending at " +
           context.trash +
@@ -197,8 +204,8 @@ function discardPublicationResult(
       )
     ],
     mutation,
-    diagnostics: failures.map((error) =>
-      diagnosticFromError({
+    diagnostics: failures.map((error) => ({
+      ...diagnosticFromError({
         code:
           transaction.verification === "passed"
             ? "investigation-report.discard-cleanup-pending"
@@ -211,10 +218,54 @@ function discardPublicationResult(
         target: transaction.committed
           ? context.trash
           : context.options.reportPath
-      })
-    )
+      }),
+      ...discardFailureLocation(error, context.options.root)
+    }))
   };
 }
+
+/** Compound publication failures must not hide either cause or a retained temporary path. */
+function discardFailureCauses(
+  error: unknown,
+  ancestors: ReadonlySet<AggregateError> = new Set()
+): unknown[] {
+  if (!(error instanceof AggregateError) || ancestors.has(error))
+    return [error];
+  const causes: unknown = error.errors;
+  if (!Array.isArray(causes) || causes.length === 0) return [error];
+  const nextAncestors = new Set(ancestors).add(error);
+  return causes.flatMap((cause: unknown) =>
+    discardFailureCauses(cause, nextAncestors)
+  );
+}
+
+function discardFailureLocation(
+  error: unknown,
+  collectionRoot: string
+): Readonly<{ operation?: string; target?: string }> {
+  if (!(error instanceof Error)) return {};
+  const code: unknown = Reflect.get(error, "code");
+  if (typeof code !== "string") return {};
+  const location: { operation?: string; target?: string } = {};
+  const target: unknown = Reflect.get(error, "path");
+  if (typeof target === "string" && target.length > 0) {
+    let label = target;
+    if (
+      path.isAbsolute(target) &&
+      isPathWithinDirectory(target, collectionRoot)
+    ) {
+      const relative =
+        path.relative(collectionRoot, target).split(path.sep).join("/") || ".";
+      label = "collection-relative: " + relative;
+    }
+    location.target = errorText(label);
+  }
+  const operation: unknown = Reflect.get(error, "syscall");
+  if (typeof operation === "string" && operation.length > 0)
+    location.operation = errorText(operation);
+  return location;
+}
+
 function discardFailureReason(
   transaction: RecordTransactionResult<DiscardPublicationOptions>
 ): string {

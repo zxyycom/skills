@@ -87,6 +87,7 @@ await import("./discovery-dependencies.test.ts");
 await import("./candidate-operations.test.ts");
 
 await import("./transaction-domain-boundaries.test.ts");
+await import("./transaction-file-writer.test.ts");
 
 await import("./transaction-creation-modes.test.ts");
 
