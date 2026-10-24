@@ -645,6 +645,10 @@
       "INVESTIGATION-LOCAL-PUBLICATION-BOUNDARY-001": "sha256:3e70f9e7b25eff025602b8d3396b763eed8e44251306b64c92e2e65cfe4eadc9",
       "INVESTIGATION-LOCAL-PUBLISH-001": "sha256:19224d417f4d982ab69f4cc61e05f29cc254e1607b230d4d5bc20a4976cf34bd",
       "INVESTIGATION-LOCAL-RELATION-DEPENDENCIES-001": "sha256:b6ba116307d5ac4dd0126d41a0565dbfcacd6c92787d94e8f3c07488ce2fa338",
+      "INVESTIGATION-MEMBER-SCAN-DRAIN-001": "sha256:c5cfa611f27788fe436af005330253328b3ff08204eacd57b192488d5a21b3f1",
+      "INVESTIGATION-MEMBER-SCAN-FRESH-001": "sha256:d12fd262b02a47cf9f6bd8a01d007b09b34f6bf97d96ab4f61536d342cd32527",
+      "INVESTIGATION-MEMBER-SCAN-METADATA-001": "sha256:99651bd27c0cec713f0abb9aab7630c299985f5480501ad5291bc689a127e5cb",
+      "INVESTIGATION-MEMBER-SCAN-UNSAFE-001": "sha256:bdbd2d868675054d85e3451e1531409f2917a2136a4e3032a8edaeefa7f9c0ba",
       "INVESTIGATION-NEW-CLEANUP-FACT-001": "sha256:2e54ae5af8a2dc49c0d0e0c25d43f3cad99435a2ec532cd28cfc7106d077c070",
       "INVESTIGATION-NEW-POSTWRITE-IDENTITY-001": "sha256:b9caa6aa446df5fa9c16aea9d9df72f77198289d358ca9fe300dedb38e91a886",
       "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:7c1c4d229f15339621b4e1dced9b498a9be967168bdea10c301cdffa7a477e8a",
@@ -7891,6 +7895,46 @@
       ],
       "testIds": [
         "test:744fbe3b2806a63e6adc3bd9e3bc0283004bee11f713a517a5515698427d2428"
+      ]
+    },
+    "INVESTIGATION-MEMBER-SCAN-DRAIN-001": {
+      "title": "有界元数据读取排空后按名字返回首错",
+      "sourcePath": "cases/investigation-member-scan-drain.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:2bb158927fd55da07769543d3bde4a59d7aeb6a3038219be195c302910f3e812"
+      ]
+    },
+    "INVESTIGATION-MEMBER-SCAN-FRESH-001": {
+      "title": "成员复核独立重取身份权限并保护排除路径安全",
+      "sourcePath": "cases/investigation-member-scan-fresh.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:198de8083ba8b3c3b653987d2a2a6f258b308dfe61eb621d14f9a3f39f8100b5"
+      ]
+    },
+    "INVESTIGATION-MEMBER-SCAN-METADATA-001": {
+      "title": "成员采集保持完整有序元数据且不读正文",
+      "sourcePath": "cases/investigation-member-scan-metadata.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:15925cd6babc004edcfe1b196a7927c9e07c052f24f7492205ebb996e4dbf4ca"
+      ]
+    },
+    "INVESTIGATION-MEMBER-SCAN-UNSAFE-001": {
+      "title": "成员采集拒绝符号链接与特殊文件",
+      "sourcePath": "cases/investigation-member-scan-unsafe.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:9557525c6f73bc69d9d0ecccb1a2ee6d7af7c4421969b92e33586e2e498899a8"
       ]
     },
     "INVESTIGATION-NEW-CLEANUP-FACT-001": {

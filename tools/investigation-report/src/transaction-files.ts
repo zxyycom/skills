@@ -87,19 +87,32 @@ export async function investigationMembers(
   root: string
 ): Promise<readonly InvestigationMember[]> {
   const members: InvestigationMember[] = [];
-  for (const name of (await fs.readdir(root)).sort()) {
-    if (name === "investigation-index.json") continue;
-    const target = path.join(root, name);
-    const stats = await fs.lstat(target);
-    if (stats.isSymbolicLink() || (!stats.isFile() && !stats.isDirectory()))
-      throw new Error("Unsafe Investigation collection member: " + target);
-    members.push({
-      path: target,
-      dev: stats.dev,
-      ino: stats.ino,
-      mode: stats.mode & 0o7777,
-      kind: stats.isFile() ? "file" : "directory"
-    });
+  const names = (await fs.readdir(root))
+    .filter((name) => name !== "investigation-index.json")
+    .sort();
+  const batchSize = 32;
+  for (let offset = 0; offset < names.length; offset += batchSize) {
+    const targets = names
+      .slice(offset, offset + batchSize)
+      .map((name) => path.join(root, name));
+    // Drain the bounded batch before reporting its first failure in name order.
+    const results = await Promise.allSettled(
+      targets.map((target) => fs.lstat(target))
+    );
+    for (const [index, result] of results.entries()) {
+      if (result.status === "rejected") throw result.reason;
+      const target = targets[index];
+      const stats = result.value;
+      if (stats.isSymbolicLink() || (!stats.isFile() && !stats.isDirectory()))
+        throw new Error("Unsafe Investigation collection member: " + target);
+      members.push({
+        path: target,
+        dev: stats.dev,
+        ino: stats.ino,
+        mode: stats.mode & 0o7777,
+        kind: stats.isFile() ? "file" : "directory"
+      });
+    }
   }
   return members;
 }
