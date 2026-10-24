@@ -1,0 +1,30 @@
+{
+  "productBase": "1adb98465a7972de3517bf5128a504504419affc",
+  "fixtureHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+  "node": "v26.8.2",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "preparedAt": "2026-10-24T04:01:59.435681+00:00",
+  "manifests": {
+    "source-before-manifest.json": {
+      "canonicalSHA256": "0c26652805152623a1eaeafb30c567b511206a9e7984aefdd1a5ebc25a39e0f8",
+      "manifestFileSHA256": "51f6cdb15541d751113c2769802c56cc15eddad11498a5bcaca948b6e8590e6b",
+      "fileCount": 2436,
+      "bytes": 11783782,
+      "path": "/tmp/record-end-to-end-1adb9846-20261024/source-before-manifest.json"
+    },
+    "dependencies-manifest.json": {
+      "canonicalSHA256": "30312346c53797807a1693188f52d767d0b83a406f6c4e2fd6dba60f08188ab9",
+      "manifestFileSHA256": "a83719f69548576d1aaeaf59990557e0a15438b6c98edef9fa7020b4f9a603a4",
+      "fileCount": 10997,
+      "bytes": 253961185,
+      "path": "/tmp/record-end-to-end-1adb9846-20261024/dependencies-manifest.json"
+    },
+    "fixture-manifest.json": {
+      "canonicalSHA256": "411d14b5e95e03f59076f566a791bc28eb92514c1226610e73069e7cbdb67212",
+      "manifestFileSHA256": "a188a715a5f303426533068fabea251f878e3e084a1e73479456da9a5ed51284",
+      "fileCount": 20007,
+      "bytes": 19196017,
+      "path": "/tmp/record-end-to-end-1adb9846-20261024/fixture-manifest.json"
+    }
+  }
+}

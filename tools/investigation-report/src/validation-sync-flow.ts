@@ -1,3 +1,4 @@
+import { synchronizeSelectedInvestigationIndex } from "./selected-sync.ts";
 import type { InvestigationDiagnostic } from "./diagnostics.ts";
 import path from "node:path";
 import type { StateIndexSyncMode } from "../../index-runtime/src/index.ts";
@@ -32,6 +33,41 @@ export async function synchronizeFullCollection(
   mode: StateIndexSyncMode,
   selectors: readonly string[] | undefined
 ): Promise<InvestigationIndexSyncResult> {
+  if (selectors !== undefined) {
+    const local = await synchronizeSelectedInvestigationIndex(
+      investigationRoot,
+      mode,
+      selectors
+    );
+    const synchronized = local.synchronized;
+    const indexPath = path.join(investigationRoot, investigationIndexFileName);
+    const failure = synchronized.status === "error" ? synchronized : null;
+    const diagnostics =
+      failure === null ? [] : stateIndexSyncDiagnostics(failure, indexPath);
+    return {
+      ...syncResult({
+        changed: synchronized.changed,
+        changedIds: synchronized.changedIds,
+        diagnostics,
+        errors:
+          failure === null
+            ? []
+            : investigationIndexDiagnosticMessages(
+                failure.diagnostics,
+                indexPath
+              ),
+        indexPath,
+        mutation: syncFailureMutation(failure, diagnostics),
+        reportCount: local.entryCount,
+        scope: "selected",
+        selectedIds: synchronized.selectedIds,
+        selectors,
+        state: synchronized.state,
+        warnings: []
+      }),
+      ...(local.coverage === undefined ? {} : { coverage: local.coverage })
+    };
+  }
   const collection = await collectValidatedInvestigationCollection(
     investigationRoot,
     { allowEmptyCollection: true }

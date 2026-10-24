@@ -1,3 +1,4 @@
+import { synchronizeSelectedDecisionIndex } from "./decision-selected-sync.ts";
 import path from "node:path";
 import type { StateIndexDiagnostic } from "../../index-runtime/src/index.ts";
 import type { DecisionScan } from "./types.ts";
@@ -58,6 +59,11 @@ export async function synchronizeDecisionIndex(
 async function synchronizeLockedDecisionIndex(
   request: Extract<DecisionQueryRequest, { command: "sync-index" }>
 ): Promise<DecisionQueryResult> {
+  if (request.selectors !== undefined)
+    return await synchronizeSelectedDecisionRequest({
+      ...request,
+      selectors: request.selectors
+    });
   const validation = await syncIndexValidation(request);
   if (validation.status === "error")
     return syncIndexNoChange(validation.failure);
@@ -103,6 +109,45 @@ async function synchronizeLockedDecisionIndex(
     warnings: []
   };
 }
+async function synchronizeSelectedDecisionRequest(
+  request: Extract<DecisionQueryRequest, { command: "sync-index" }> & {
+    selectors: readonly string[];
+  }
+): Promise<DecisionQueryResult> {
+  const location = resolveDecisionLocation(request.location);
+  const result = await synchronizeSelectedDecisionIndex(
+    location.decisionsDirectory,
+    location.workspaceRoot,
+    request.selectors,
+    request.preflight
+  );
+  const synchronized = result.synchronized;
+  const indexRelativePath = path
+    .relative(
+      location.workspaceRoot,
+      path.join(location.decisionsDirectory, decisionIndexFileName)
+    )
+    .split(path.sep)
+    .join("/");
+  if (synchronized.status === "error")
+    return syncIndexNoChange(
+      syncIndexRuntimeFailure(synchronized, indexRelativePath)
+    );
+  return {
+    command: "sync-index",
+    changedIds: synchronized.changedIds,
+    indexRelativePath,
+    scope: "selected",
+    selectedIds: synchronized.selectedIds,
+    selectors: [...request.selectors],
+    state: synchronized.state,
+    status: "ok",
+    unactivatedPaths: [],
+    warnings: [],
+    coverage: result.coverage
+  };
+}
+
 type SyncValidation =
   | {
       scan: Awaited<

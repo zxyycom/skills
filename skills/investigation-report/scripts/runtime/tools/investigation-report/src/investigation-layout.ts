@@ -7,11 +7,18 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import path from "node:path";
+import {
+  forEachRecordText,
+  recordReaderWorkerThreshold,
+  type RecordReadResult
+} from "../../record-operations/src/reader-batch.ts";
 import type { Dirent } from "node:fs";
 import fs from "node:fs/promises";
 import { hasCandidateFormalIdentityConflict } from "./candidate-path.ts";
 import {
   inspectInvestigationLayoutEntry,
+  shouldReadInvestigationLayoutEntry,
   type InvestigationLayoutOptions,
   type InvestigationLayoutScan
 } from "./investigation-layout-entry.ts";
@@ -43,12 +50,35 @@ export async function inspectInvestigationCollectionLayout(
     formalSources: []
   };
   const rootEntries = await readRootEntries(investigationsDirectory);
+  const sources = rootEntries.filter((entry) =>
+    shouldReadInvestigationLayoutEntry(entry, options)
+  );
+  let acquiredSources: Map<string, RecordReadResult<string>> | undefined;
+  if (sources.length >= recordReaderWorkerThreshold) {
+    const results = new Map<string, RecordReadResult<string>>();
+    const consume = (result: RecordReadResult<string>, index: number) => {
+      results.set(sources[index]!.name, result);
+    };
+    if (options.preparation === undefined)
+      await forEachRecordText(
+        investigationsDirectory,
+        sources.map((entry) => entry.name),
+        consume
+      );
+    else
+      await options.preparation.readMany(
+        sources.map((entry) => path.join(investigationsDirectory, entry.name)),
+        consume
+      );
+    acquiredSources = results;
+  }
   for (const entry of rootEntries)
     await inspectInvestigationLayoutEntry(
       entry,
       investigationsDirectory,
       scan,
-      options
+      options,
+      acquiredSources?.get(entry.name)
     );
   return finalizedLayout(scan);
 }

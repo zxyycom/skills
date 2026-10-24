@@ -82,10 +82,7 @@ export async function readRecordFileSnapshot(
     await verifyParents(root, target, parents);
     return null;
   }
-  if (!initial.isFile() || initial.isSymbolicLink())
-    throw new Error(
-      "Transaction member must be a regular non-symbolic-link file: " + target
-    );
+  requireRecordSnapshotEntry(initial, target);
   const handle = await fs.open(
     target,
     constants.O_RDONLY | constants.O_NOFOLLOW
@@ -112,7 +109,7 @@ export async function readRecordFileSnapshot(
 }
 
 /** 读取返回前，把 handle 修订与当前路径成员绑定为同一个安全证明。 */
-function verifyReadSnapshot(
+export function verifyReadSnapshot(
   opened: Stats,
   final: Stats,
   located: Stats,
@@ -190,12 +187,7 @@ export async function inspectRecordParents(
   root: string,
   target: string
 ): Promise<readonly Stats[]> {
-  if (
-    (await fs.realpath(root)) !== path.resolve(root) ||
-    !isPathWithinDirectory(path.resolve(target), path.resolve(root)) ||
-    path.resolve(target) === path.resolve(root)
-  )
-    throw new Error("Transaction path escaped its canonical root: " + target);
+  requireRecordSnapshotRoot(root, target, await fs.realpath(root));
   const parents: Stats[] = [];
   let current = root;
   for (const component of [
@@ -210,10 +202,7 @@ export async function inspectRecordParents(
       if (isFileSystemError(error, "ENOENT")) break;
       throw error;
     }
-    if (!stats.isDirectory() || stats.isSymbolicLink())
-      throw new Error(
-        "Transaction parent must be a non-symbolic-link directory: " + current
-      );
+    requireRecordSnapshotParent(stats, current);
     parents.push(stats);
   }
   return parents;
@@ -230,4 +219,32 @@ async function verifyParents(
     current.some((stats, index) => !sameRecordIdentity(stats, expected[index]!))
   )
     throw new Error("Transaction parent identity changed: " + target);
+}
+
+export function requireRecordSnapshotEntry(stats: Stats, target: string): void {
+  if (!stats.isFile() || stats.isSymbolicLink())
+    throw new Error(
+      "Transaction member must be a regular non-symbolic-link file: " + target
+    );
+}
+export function requireRecordSnapshotRoot(
+  root: string,
+  target: string,
+  canonical: string
+): void {
+  if (
+    canonical !== path.resolve(root) ||
+    !isPathWithinDirectory(path.resolve(target), path.resolve(root)) ||
+    path.resolve(target) === path.resolve(root)
+  )
+    throw new Error("Transaction path escaped its canonical root: " + target);
+}
+export function requireRecordSnapshotParent(
+  stats: Stats,
+  current: string
+): void {
+  if (!stats.isDirectory() || stats.isSymbolicLink())
+    throw new Error(
+      "Transaction parent must be a non-symbolic-link directory: " + current
+    );
 }

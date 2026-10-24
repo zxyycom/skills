@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import type { RecordReadResult } from "../../record-operations/src/reader-batch.ts";
 import path from "node:path";
 import type { InvestigationPreparation } from "./strict-preparation.ts";
 import type { Dirent } from "node:fs";
@@ -42,7 +43,8 @@ export async function inspectInvestigationLayoutEntry(
   entry: Dirent<string>,
   investigationsDirectory: string,
   scan: InvestigationLayoutScan,
-  options: InvestigationLayoutOptions = {}
+  options: InvestigationLayoutOptions = {},
+  acquired?: RecordReadResult<string>
 ): Promise<void> {
   if (inspectReservedRootEntry(entry, scan.errors)) return;
   if (entry.isSymbolicLink()) {
@@ -55,13 +57,13 @@ export async function inspectInvestigationLayoutEntry(
   }
   const candidateId = investigationCandidateIdFromFileName(entry.name);
   if (candidateId !== null) {
-    if (options.readCandidateSources !== false)
-      await inspectCandidateRootEntry(
-        entry.name,
-        investigationsDirectory,
-        scan,
-        options.preparation
-      );
+    await inspectCandidateRootEntry(
+      entry.name,
+      investigationsDirectory,
+      scan,
+      options,
+      acquired
+    );
     return;
   }
   if (isReservedInvestigationCandidateFileName(entry.name)) {
@@ -74,13 +76,13 @@ export async function inspectInvestigationLayoutEntry(
     );
     return;
   }
-  if (options.readFormalSources !== false)
-    await inspectFormalRootEntry(
-      entry.name,
-      investigationsDirectory,
-      scan,
-      options.preparation
-    );
+  await inspectFormalRootEntry(
+    entry.name,
+    investigationsDirectory,
+    scan,
+    options,
+    acquired
+  );
 }
 
 function inspectReservedRootEntry(
@@ -108,13 +110,17 @@ async function inspectCandidateRootEntry(
   name: string,
   investigationsDirectory: string,
   scan: InvestigationLayoutScan,
-  preparation?: InvestigationPreparation
+  options: InvestigationLayoutOptions,
+  acquired?: RecordReadResult<string>
 ): Promise<void> {
+  if (options.readCandidateSources === false) return;
   try {
-    const candidateText =
-      preparation === undefined
-        ? await readRecordText(investigationsDirectory, name)
-        : await preparation.read(path.join(investigationsDirectory, name));
+    const candidateText = await readLayoutText(
+      name,
+      investigationsDirectory,
+      options,
+      acquired
+    );
     const declaredId = investigationIdFromMarkdown(candidateText);
     if (declaredId === null) {
       recordCandidateError(
@@ -141,13 +147,17 @@ async function inspectFormalRootEntry(
   name: string,
   investigationsDirectory: string,
   scan: InvestigationLayoutScan,
-  preparation?: InvestigationPreparation
+  options: InvestigationLayoutOptions,
+  acquired?: RecordReadResult<string>
 ): Promise<void> {
+  if (options.readFormalSources === false) return;
   try {
-    const text =
-      preparation === undefined
-        ? await readRecordText(investigationsDirectory, name)
-        : await preparation.read(path.join(investigationsDirectory, name));
+    const text = await readLayoutText(
+      name,
+      investigationsDirectory,
+      options,
+      acquired
+    );
     const id = investigationIdFromMarkdown(text);
     if (id === null) {
       scan.errors.push(
@@ -188,4 +198,34 @@ function recordCandidateError(
 
 function errorText(error: unknown): string {
   return sanitizeInvestigationDiagnosticText(error);
+}
+
+export function shouldReadInvestigationLayoutEntry(
+  entry: Dirent<string>,
+  options: InvestigationLayoutOptions
+): boolean {
+  if (!entry.isFile() || entry.name === investigationIndexFileName)
+    return false;
+  if (investigationCandidateIdFromFileName(entry.name) !== null)
+    return options.readCandidateSources !== false;
+  return (
+    !isReservedInvestigationCandidateFileName(entry.name) &&
+    isInvestigationSourcePath(entry.name) &&
+    options.readFormalSources !== false
+  );
+}
+
+async function readLayoutText(
+  name: string,
+  directory: string,
+  options: InvestigationLayoutOptions,
+  acquired?: RecordReadResult<string>
+): Promise<string> {
+  if (acquired !== undefined) {
+    if (!acquired.ok) throw acquired.error;
+    return acquired.value;
+  }
+  return options.preparation === undefined
+    ? await readRecordText(directory, name)
+    : await options.preparation.read(path.join(directory, name));
 }

@@ -242,32 +242,47 @@ function printShow(
   io.stdout(result.body);
 }
 
+function printSelectedSyncIndex(
+  result: Extract<DecisionQuerySuccess, { command: "sync-index" }>,
+  io: DecisionRecordsCliIo
+): void {
+  writeCliLine(
+    io.stdout,
+    "Selected Decision selectors: " + result.selectors.join(", ") + "."
+  );
+  writeCliLine(
+    io.stdout,
+    result.state === "previewed"
+      ? "Decision index sync preflight passed; complete projection not published for resolved IDs: " +
+          result.selectedIds.join(", ") +
+          "."
+      : result.state === "written"
+        ? "Published the complete Decision index projection for resolved IDs: " +
+          result.selectedIds.join(", ") +
+          "."
+        : "Resolved Decision IDs are already current: " +
+          result.selectedIds.join(", ") +
+          "."
+  );
+  writeCliLine(
+    io.stdout,
+    "Source: selected sources and required dependencies checked; unselected entries retain the published baseline (not checked for currentness). Unknown paths were not discovered."
+  );
+  if (result.coverage !== undefined)
+    writeCliLine(
+      io.stdout,
+      "Current source scope IDs (including missing or corrected identities): " +
+        result.coverage.checkedIds.join(", ") +
+        "."
+    );
+  printCandidateWarnings(result.unactivatedPaths, io);
+}
+
 function printSyncIndex(
   result: Extract<DecisionQuerySuccess, { command: "sync-index" }>,
   io: DecisionRecordsCliIo
 ): void {
-  if (result.scope === "selected") {
-    writeCliLine(
-      io.stdout,
-      "Selected Decision selectors: " + result.selectors.join(", ") + "."
-    );
-    writeCliLine(
-      io.stdout,
-      result.state === "previewed"
-        ? "Decision index sync preflight passed; complete projection not published for resolved IDs: " +
-            result.selectedIds.join(", ") +
-            "."
-        : result.state === "written"
-          ? "Published the complete Decision index projection for resolved IDs: " +
-            result.selectedIds.join(", ") +
-            "."
-          : "Resolved Decision IDs are already current: " +
-            result.selectedIds.join(", ") +
-            "."
-    );
-    printCandidateWarnings(result.unactivatedPaths, io);
-    return;
-  }
+  if (result.scope === "selected") return printSelectedSyncIndex(result, io);
   writeCliLine(
     io.stdout,
     result.state === "previewed"

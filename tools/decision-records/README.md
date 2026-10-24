@@ -109,7 +109,7 @@ same ID / same path rename 在合法发布投影或真实缺索引身份发现�
 
 全量只读 check 把首次安全采集的正文投影、身份与来源指纹交给共同操作，比较完整预期索引文本；不在结束时重读全集，不保证结束新鲜度或跨文件原子快照。调用方持有的旧 scan 不能作为新一次检查的来源事实。
 
-同步将完整来源 scan 的已验字节、身份与状态投影直接交给共同操作。selected selector 与同步共用严格 canonical baseline 和原生构建证明；仍验证全来源、未选变化、metadata/revision，并独立重取最终 revision。check 的首次采集边界不豁免 sync 的 fresh。
+全量同步将完整来源 scan 的已验字节、身份与状态投影直接交给共同操作。`decision-selected-sync.ts` 提供本域解析、来源 revision、前后关系邻居/完整演进事件与全图验证，交给共同局部同步入口；其已知路径、未读基线与独立 fresh 边界见[共同操作](../record-operations/README.md#同阶段证据与后续复核)，调用者结果见 [CLI 检查与同步](../../skills/decision-records/references/cli-operations.md#检查与同步)。不改变原始 `syncDecisionIndex` 的通用完整验证契约、stage 或其他消费者。
 
 ## 交付验证
 

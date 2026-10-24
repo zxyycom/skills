@@ -151,7 +151,7 @@ function selectionFailure<State extends object, Metadata extends JsonObject>(
   };
 }
 
-function validateSelectors(
+export function validateSelectors(
   selectors: readonly string[] | undefined,
   policy: RecordSelectorPolicy,
   indexPath: string
@@ -182,11 +182,12 @@ function validateSelectors(
   return errors;
 }
 
-function resolveSelectors(
+export function resolveSelectors(
   selectors: readonly string[],
   ids: ReadonlySet<string>,
   policy: RecordSelectorPolicy,
-  indexPath: string
+  indexPath: string,
+  allowUnknownDated = false
 ) {
   const names = new Map<string, string[]>();
   for (const id of ids) {
@@ -199,7 +200,11 @@ function resolveSelectors(
   const errors: StateIndexDiagnostic[] = [];
   for (const raw of selectors) {
     const selector = policy.normalize(raw);
-    const matches = selectorMatches(selector, ids, names, policy);
+    const dated = policy.datedId(selector);
+    const matches =
+      allowUnknownDated && dated !== null
+        ? [dated]
+        : selectorMatches(selector, ids, names, policy);
     if (matches.length === 1) selected.push(matches[0]!);
     else errors.push(unresolvedSelector(policy, selector, matches));
   }

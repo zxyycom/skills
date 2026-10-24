@@ -117,16 +117,17 @@ const commandSpecs: readonly CommandSpec[] = [
   },
   {
     description:
-      "Validate the full formal collection and rebuild and publish its complete derived index in the working tree; this is the explicit recovery and acceptance path for hand-written formal reports and ignores legal candidates.",
+      "Publish the complete index: full source audit by default; --select updates known published locations and required dependencies only. Full sync is the explicit recovery and discovery path and ignores legal candidates.",
     name: "sync-index",
     options: [
       {
-        description: "Accept only this report's source change; repeatable",
+        description:
+          "Locally update this published report; repeat for observed old/new IDs. Unselected source currentness is not checked.",
         flags: "--select <name-or-id>"
       },
       {
         description:
-          "Validate the complete projection and report the outcome without writing the index or taking an exclusive writer lock",
+          "Validate the same full or selected scope without writing the index or taking an exclusive writer lock",
         flags: "--preflight"
       }
     ]

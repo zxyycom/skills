@@ -1,4 +1,8 @@
 import fs from "node:fs/promises";
+import {
+  forEachRecordText,
+  recordReaderWorkerThreshold
+} from "../../record-operations/src/reader-batch.ts";
 import { readRecordText } from "../../record-operations/src/source.ts";
 import path from "node:path";
 import { decisionIdFromMarkdown } from "./decision-metadata.ts";
@@ -131,6 +135,7 @@ export async function validateSourceMembership(
   collectionErrors: string[],
   sourceErrors: string[]
 ): Promise<ReadonlySet<DecisionId>> {
+  await acquireCollectionText(sourceFiles, sourceErrors);
   const sourceFilesById = new Map<string, SourceFileMembers>();
   for (const sourceFile of sourceFiles) {
     let decisionId: DecisionId | null = null;
@@ -192,4 +197,33 @@ export async function readSourceText(
     );
     return null;
   }
+}
+
+async function acquireCollectionText(
+  sourceFiles: readonly SourceFile[],
+  sourceErrors: string[]
+): Promise<void> {
+  const pending = sourceFiles.filter(
+    (source) =>
+      source.sourceText === undefined && source.sourceReadFailed !== true
+  );
+  if (pending.length < recordReaderWorkerThreshold) return;
+  const first = pending[0]!;
+  const directory = first.sourcePath.startsWith("archive/")
+    ? path.dirname(path.dirname(first.decisionPath))
+    : path.dirname(first.decisionPath);
+  await forEachRecordText(
+    directory,
+    pending.map((source) => source.sourcePath),
+    (result, index) => {
+      const source = pending[index]!;
+      if (result.ok) source.sourceText = result.value;
+      else {
+        source.sourceReadFailed = true;
+        sourceErrors.push(
+          source.sourcePath + " could not be read: " + errorText(result.error)
+        );
+      }
+    }
+  );
 }

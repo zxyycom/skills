@@ -89,3 +89,7 @@ await import("./candidate-operations.test.ts");
 await import("./transaction-domain-boundaries.test.ts");
 
 await import("./transaction-creation-modes.test.ts");
+
+await import("./selected-local-contract.test.ts");
+
+await import("./execution-entry-contract.test.ts");

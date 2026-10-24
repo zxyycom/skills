@@ -1,0 +1,82 @@
+{
+  "sourceManifestSHA256": "f086af77ac5f6ea8544f5db3c43f2a3b9936b40e0b38def6309a2dfd8ed9835c",
+  "commands": [
+    {
+      "argv": [
+        "node",
+        "/tmp/record-end-to-end-1adb9846-20261024/source-after/skills/decision-records/scripts/decision-records.ts",
+        "help",
+        "check"
+      ],
+      "exit": 0,
+      "stdout": "Usage: decision-records check [options]\n\nValidate first-acquired Markdown metadata, tags, source locations, alignment,\nrelations, candidate readiness, and the complete JSON index projection; no\nend-of-check freshness or atomic snapshot promise.\n\nOptions:\n  -h, --help              display help for command\n\nGlobal Options:\n  --root <path>           Workspace root. Defaults to the current directory.\n                          (default:\n                          \"/tmp/record-end-to-end-1adb9846-20261024/fixture\")\n  --decisions-dir <path>  Decision directory, relative to the workspace root.\n                          (default: \"docs/decisions\")\n\nDecision selectors remove one terminal .md suffix, then resolve a calendar-valid YYMMDD-name ID exactly or a unique semantic name. Stable identities remain extensionless IDs.\nCandidates remain outside the index, are queried from source, and report scaffold and body readiness separately.\nScaffold readiness validates candidate structure; body readiness validates required nonempty sections and the 采用 field. Neither grants semantic review or lifecycle establishment.\nExit codes: 0 success (including a created scaffold with readiness findings), 1 paused lifecycle choice, blocking validation, or index failure, 2 invalid arguments.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "node",
+        "/tmp/record-end-to-end-1adb9846-20261024/source-after/skills/decision-records/scripts/decision-records.ts",
+        "help",
+        "sync-index"
+      ],
+      "exit": 0,
+      "stdout": "Usage: decision-records sync-index [options]\n\nPublish the complete index: full source audit by default; --select updates known\npublished locations and required dependencies only.\n\nOptions:\n  --select <name-or-id>   Locally update this published Decision; repeat for\n                          observed old/new IDs. Unselected source currentness is\n                          not checked. (default: [])\n  --preflight             Validate the same full or selected scope without\n                          writing the index or taking an exclusive writer lock.\n  -h, --help              display help for command\n\nGlobal Options:\n  --root <path>           Workspace root. Defaults to the current directory.\n                          (default:\n                          \"/tmp/record-end-to-end-1adb9846-20261024/fixture\")\n  --decisions-dir <path>  Decision directory, relative to the workspace root.\n                          (default: \"docs/decisions\")\n\nDecision selectors remove one terminal .md suffix, then resolve a calendar-valid YYMMDD-name ID exactly or a unique semantic name. Stable identities remain extensionless IDs.\nCandidates remain outside the index, are queried from source, and report scaffold and body readiness separately.\nScaffold readiness validates candidate structure; body readiness validates required nonempty sections and the 采用 field. Neither grants semantic review or lifecycle establishment.\nExit codes: 0 success (including a created scaffold with readiness findings), 1 paused lifecycle choice, blocking validation, or index failure, 2 invalid arguments.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "node",
+        "/tmp/record-end-to-end-1adb9846-20261024/source-after/skills/decision-records/scripts/decision-records.ts",
+        "help",
+        "rename"
+      ],
+      "exit": 0,
+      "stdout": "Usage: decision-records rename [options] <source-selector> <target-name-or-id>\n\nRename one Decision ID and semantic name, then update all managed relation\ntargets and the complete derived index.\n\nArguments:\n  source-selector             Standard Decision ID or unique semantic name.\n  target-name-or-id           Semantic name or complete calendar-valid\n                              YYMMDD-name Decision ID.\n\nOptions:\n  --preflight                 Read and validate the complete rename plan without\n                              writing Decision Markdown or the derived index.\n  --rename-recorded-decision  Confirm renaming a Decision identity that has\n                              entered Git HEAD; Git history is not rewritten.\n  -h, --help                  display help for command\n\nGlobal Options:\n  --root <path>               Workspace root. Defaults to the current directory.\n                              (default:\n                              \"/tmp/record-end-to-end-1adb9846-20261024/fixture\")\n  --decisions-dir <path>      Decision directory, relative to the workspace\n                              root. (default: \"docs/decisions\")\n\nDecision selectors remove one terminal .md suffix, then resolve a calendar-valid YYMMDD-name ID exactly or a unique semantic name. Stable identities remain extensionless IDs.\nCandidates remain outside the index, are queried from source, and report scaffold and body readiness separately.\nScaffold readiness validates candidate structure; body readiness validates required nonempty sections and the 采用 field. Neither grants semantic review or lifecycle establishment.\nExit codes: 0 success (including a created scaffold with readiness findings), 1 paused lifecycle choice, blocking validation, or index failure, 2 invalid arguments.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "node",
+        "/tmp/record-end-to-end-1adb9846-20261024/source-after/skills/investigation-report/scripts/check-investigations.ts",
+        "help",
+        "check"
+      ],
+      "exit": 0,
+      "stdout": "Usage: investigation-report check [options]\n\nValidate the first-acquired report collection, complete relation graph, resource\nownership, and full index projection without an end-of-check freshness promise.\nScoped --id checks validate only selected reports and their declared resources.\n\nOptions:\n  --id <investigation-id>      Scoped check ID; repeatable\n  -h, --help                   display help for command\n\nGlobal Options:\n  --root <path>                Workspace root. Defaults to the current\n                               directory.\n  --investigations-dir <path>  Investigation directory, relative to the\n                               workspace root.\n\nExit status: 0 success; 1 check, operation, or deletion-confirmation failure; 2 invalid CLI arguments.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "node",
+        "/tmp/record-end-to-end-1adb9846-20261024/source-after/skills/investigation-report/scripts/check-investigations.ts",
+        "help",
+        "sync-index"
+      ],
+      "exit": 0,
+      "stdout": "Usage: investigation-report sync-index [options]\n\nPublish the complete index: full source audit by default; --select updates known\npublished locations and required dependencies only. Full sync is the explicit\nrecovery and discovery path and ignores legal candidates.\n\nOptions:\n  --select <name-or-id>        Locally update this published report; repeat for\n                               observed old/new IDs. Unselected source\n                               currentness is not checked.\n  --preflight                  Validate the same full or selected scope without\n                               writing the index or taking an exclusive writer\n                               lock\n  -h, --help                   display help for command\n\nGlobal Options:\n  --root <path>                Workspace root. Defaults to the current\n                               directory.\n  --investigations-dir <path>  Investigation directory, relative to the\n                               workspace root.\n\nExit status: 0 success; 1 check, operation, or deletion-confirmation failure; 2 invalid CLI arguments.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "node",
+        "/tmp/record-end-to-end-1adb9846-20261024/source-after/skills/investigation-report/scripts/check-investigations.ts",
+        "help",
+        "rename"
+      ],
+      "exit": 0,
+      "stdout": "Usage: investigation-report rename [options] [source-selector] [target-name-or-id]\n\nRename one candidate or formal report identity, all managed relations and\nresource references, its owner directory, and the complete formal index.\n\nOptions:\n  --preflight                  Validate the complete rename plan without writing\n                               reports, candidates, resources, or index\n  --rename-recorded-report     Confirm a formal report identity that has entered\n                               Git HEAD\n  --rename-recorded-candidate  Confirm a candidate identity that has entered Git\n                               HEAD\n  -h, --help                   display help for command\n\nGlobal Options:\n  --root <path>                Workspace root. Defaults to the current\n                               directory.\n  --investigations-dir <path>  Investigation directory, relative to the\n                               workspace root.\n\nExit status: 0 success; 1 check, operation, or deletion-confirmation failure; 2 invalid CLI arguments.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "node",
+        "/tmp/record-end-to-end-1adb9846-20261024/source-after/skills/investigation-report/scripts/check-investigations.ts",
+        "help",
+        "discard"
+      ],
+      "exit": 0,
+      "stdout": "Usage: investigation-report discard [options] [investigation-id]\n\nDelete one authoring candidate or established report after a full graph and\nresource preflight. Refuses remaining relation references and shared owner\nresources; records or owned resources in Git HEAD require --delete-recorded.\n\nOptions:\n  --delete-owned-resources     Confirm deletion of the target's owner-prefix\n                               resources\n  --delete-recorded            Confirm deletion of candidate, report, or owned\n                               resources already in Git HEAD\n  -h, --help                   display help for command\n\nGlobal Options:\n  --root <path>                Workspace root. Defaults to the current\n                               directory.\n  --investigations-dir <path>  Investigation directory, relative to the\n                               workspace root.\n\nExit status: 0 success; 1 check, operation, or deletion-confirmation failure; 2 invalid CLI arguments.\n",
+      "stderr": ""
+    }
+  ]
+}

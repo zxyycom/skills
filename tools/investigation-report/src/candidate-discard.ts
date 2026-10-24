@@ -7,7 +7,10 @@ import {
 import path from "node:path";
 import { withInvestigationCollectionMutationLock } from "./collection-mutation-lock.ts";
 import { diagnosticFromError } from "./diagnostics.ts";
-import { inspectInvestigationCollectionLayout } from "./investigation-index-source.ts";
+import {
+  inspectInvestigationCollectionLayout,
+  type InvestigationCollectionLayout
+} from "./investigation-index-source.ts";
 import {
   investigationSelectorEntries,
   resolveInvestigationSelector
@@ -73,12 +76,15 @@ export async function discardInvestigationCandidateWithHook(
   }
 }
 
-async function discardCandidateWithinLock(options: {
+export async function discardCandidateWithinLock(options: {
   beforeCommit: BeforeCandidateDiscard;
   input: InvestigationCandidateDiscardOptions;
   root: string;
+  layout?: InvestigationCollectionLayout;
 }): Promise<InvestigationCandidateDiscardResult> {
-  const layout = await inspectInvestigationCollectionLayout(options.root);
+  const layout =
+    options.layout ??
+    (await inspectInvestigationCollectionLayout(options.root));
   if (layout.errors.length > 0) {
     return result(options.input, false, [], layout.errors, {
       mutation: discardMutation("no-change")

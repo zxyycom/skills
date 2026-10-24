@@ -248,8 +248,7 @@ async function verifyPlan<Value>(
     paths.add(change.path);
     await phase.verify(change.path, change.before);
   }
-  for (const guard of plan.guards ?? [])
-    await phase.verify(guard.path, guard.before);
+  await phase.verifyMany(plan.guards ?? []);
 }
 
 async function verifyWritten<Value>(
@@ -268,8 +267,9 @@ async function verifyWritten<Value>(
       change.path,
       written.has(change.path) ? written.get(change.path)! : change.before
     );
-  for (const guard of plan.guards ?? [])
-    if (!written.has(guard.path)) await phase.verify(guard.path, guard.before);
+  await phase.verifyMany(
+    (plan.guards ?? []).filter((guard) => !written.has(guard.path))
+  );
 }
 
 function emptyResult<Value>(

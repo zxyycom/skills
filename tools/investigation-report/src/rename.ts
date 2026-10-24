@@ -49,9 +49,9 @@ export async function renameInvestigationRecordWithHooks(
   if (canonical.isErr()) return renameFailure("", null, canonical.error);
   const root = canonical.value.investigationsDirectory;
   const indexPath = path.join(root, investigationIndexFileName);
-  const initial = await prepareRename(root, indexPath, options);
-  if ("result" in initial) return initial.result;
   if (options.preflight === true) {
+    const initial = await prepareRename(root, indexPath, options);
+    if ("result" in initial) return initial.result;
     return renameSuccess(
       false,
       indexPath,

@@ -36,7 +36,11 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
     const syncHelp = await runInvestigationCli(root, ["sync-index", "--help"]);
     assert.equal(syncHelp.status, 0);
     assert.match(syncHelp.stdout, /--select <name-or-id>/u);
-    assert.match(syncHelp.stdout, /Accept only this report's source change/u);
+    assert.match(syncHelp.stdout, /Locally update this published report/u);
+    assert.match(
+      syncHelp.stdout,
+      /Unselected\s+source\s+currentness\s+is\s+not\s+checked/u
+    );
     assert.match(syncHelp.stdout, /--preflight/u);
     assert.doesNotMatch(syncHelp.stdout, /--write/u);
 

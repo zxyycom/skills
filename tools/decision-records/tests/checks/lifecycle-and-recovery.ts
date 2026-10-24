@@ -26,3 +26,7 @@ await import("../candidate-transaction-boundaries.test.ts");
 await import("../transaction-creation-modes.test.ts");
 
 await import("../transaction-strict-preparation.test.ts");
+
+await import("../../../record-operations/tests/reader-batch.test.ts");
+await import("../../../record-operations/tests/reader-snapshot.test.ts");
+await import("../../../record-operations/tests/reader-worker-runtime.test.ts");

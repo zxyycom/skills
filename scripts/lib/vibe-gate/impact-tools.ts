@@ -48,7 +48,8 @@ const decisionRecordInputs = [
 const decisionQueryInputs = [
   ...recordOperationInputs,
   "tools/decision-records/src/decision-query*.ts",
-  "tools/decision-records/tests/{index-maintenance,list-facets,queries,cli-output-trace,query-snapshot,query-loaded-snapshot,relation-filter-complexity,index-schema,search-info,search-metadata-window,discovery-dependencies,acquisition-safety,sync-preflight-lock}.test.ts",
+  "tools/decision-records/src/decision-selected-sync.ts",
+  "tools/decision-records/tests/{index-maintenance,list-facets,queries,cli-output-trace,query-snapshot,query-loaded-snapshot,relation-filter-complexity,index-schema,search-info,search-metadata-window,discovery-dependencies,acquisition-safety,sync-preflight-lock,selected-local-contract}.test.ts",
   "tools/decision-records/tests/{queries,index-maintenance,lazy-relation-graph}/**",
   "tools/decision-records/tests/search-metadata-window-fixture.ts",
   "tools/decision-records/tests/checks/query-and-index-projection.ts"
@@ -89,9 +90,9 @@ const investigationRecordInputs = [
 ];
 const investigationQueryInputs = [
   ...recordOperationInputs,
-  "tools/investigation-report/src/{index-staleness,list-*,query*,trace-output}.ts",
+  "tools/investigation-report/src/{index-staleness,list-*,query*,selected-sync,trace-output}.ts",
   "tools/investigation-report/tests/index-fixture.ts",
-  "tools/investigation-report/tests/{index-*,current-index,list-facets,acquisition-contract,identity-membership,candidate-read-failure,snapshot-check-contract,trace-output,search-info,relation-context,relation-order,relation-dedup,discovery-dependencies}.test.ts",
+  "tools/investigation-report/tests/{index-*,current-index,list-facets,acquisition-contract,identity-membership,candidate-read-failure,snapshot-check-contract,trace-output,search-info,relation-context,relation-order,relation-dedup,discovery-dependencies,selected-local-contract}.test.ts",
   "tools/investigation-report/tests/relation-context-support.ts",
   "tools/investigation-report/tests/checks/index-and-query.ts"
 ];
@@ -100,7 +101,7 @@ const investigationMaintenanceInputs = [
   "tools/investigation-report/src/{candidate*,discard*,publish*,relation-review*,relation-transaction*,rename*,strict-preparation,transaction-files}.ts",
   "tools/investigation-report/tests/publish-support.ts",
   "tools/investigation-report/tests/rename-resource-fixture.ts",
-  "tools/investigation-report/tests/{transaction*,relation-review,discard,discard-recovery,publish,rename*,strict-preparation,candidate-discard-transaction,candidate-operations,result-integrity}.test.ts",
+  "tools/investigation-report/tests/{transaction*,relation-review,discard,discard-recovery,publish,rename*,strict-preparation,candidate-discard-transaction,candidate-operations,result-integrity,execution-entry-contract}.test.ts",
   "tools/investigation-report/tests/checks/transactional-maintenance.ts"
 ];
 const investigationStageInputs = [

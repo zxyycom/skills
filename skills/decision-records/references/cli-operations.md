@@ -21,7 +21,7 @@ selector 移除一次大小写不敏感的末尾 `.md` 后，标准日期 ID 只
 | 默认 content `search` | 发布索引选定范围内的当前文件文本；读取时核对 ID。未同步新增和筛选变化在同步后进入范围；索引不可用时明确恢复。 |
 | `candidates`、`show-candidate` | 从来源读取候选，分别报告结构与正文 readiness。单条非法来源可 warning 后跳过，显式目标非法或集合成员、索引前提错误仍失败。 |
 
-无关系条件的 list、metadata、show 和 content 只验严格索引结构、字段、definition 及实际读取的来源/直接依赖；完整关系图与资源 owner 全图不作前置。使用关系条件或 trace 时验证完整发布图，同一投影只准备和证明一次。普通发现成功不声明当前全集健康，全集体检由 check／sync-index 承担。
+无关系条件的 list、metadata、show 和 content 只验严格索引结构、字段、definition 及实际读取的来源/直接依赖；完整关系图与资源 owner 全图不作前置。使用关系条件或 trace 时验证完整发布图，同一投影只准备和证明一次。普通发现成功不声明当前全集健康，全集体检由全量 check／sync-index 承担。
 
 show 通过安全 FileHandle 对同 inode、同一读取字节核对 frontmatter ID，并严格解码 UTF-8；越界、路径替换或非法 UTF-8 失败。返回完整正文，不受搜索/preview 预算限制。
 
@@ -156,12 +156,14 @@ HEAD 已记录目标时，首次不带 `--delete-recorded` 的调用在其他条
 
 同一工作批次的正文或 tags 编辑可共同完成，再统一 `sync-index`，按任务的全集验收要求安排严格 `check`；进入依赖发布投影的事务前先同步。关系与生命周期变化使用 `evolve` 或 `set-relations` 的多对象输入，减少重复准备。预检和正式执行各自重新验证，批次边界由调用方明确选择。
 
-选择性同步同样完整验证，适用于可信 baseline 上的已知合法变化：
+选择性同步 `sync-index --select` 是可信发布基线上的局部更新，不是当前全集来源验收：
 
-1. 集合 metadata 与其 revision 不变；definition 升级使用全量同步。
-2. selector 从 baseline 与待发布投影的 name 映射并集解析。
-3. 全部变化 ID 都选中：新增选新 ID，删除选旧 ID，身份更正同选旧、新 ID。
-4. 仍发布完整投影；未选变化、未知 ID 或坏 baseline 零写入停止，补充选择或显式全量同步。
+1. 先严格加载合法、canonical、当前 definition 的 baseline；缺失、损坏或不兼容均要求显式全量同步，不能当空基线。集合 metadata 与其 revision 保持不变。
+2. name 只从 baseline 解析；标准完整 ID 可作为已知路径内身份更正的待证身份。只读取所选 baseline 已知 sourcePath、前后直接关系邻居及完整演进事件所需依赖；必要未选依赖必须仍匹配发布投影和来源 revision，变化时显式补选或全量同步。
+3. 已知路径缺失按所选删除处理，完整组合图仍须合法；它不能区分实际删除与移动到未知位置。已知路径内改 ID 必须显式同选旧、新 ID，并在本次读取中证明新身份与位置唯一，否则停止。没有已读 locator 证明的新 ID 要求全量同步。
+4. 未选条目与 revision 沿用发布事实。不会读取未知位置以发现新增、移动、重复身份或未同步新引用；需要发现这些变化时使用全量 sync/check。不是所有不在选择范围内的当前变化都会阻断局部同步。
+5. 完整组合索引、关系图、原生 baseline/metadata/选择保护仍验收；写前独立重读本次来源与必要依赖及实际 baseline，未变化结果也不能绕过。写入仍发布完整索引并执行 readback。
+6. selected 成功的 `coverage` 保存 `source: published-index+selected-current-sources`、`currentness: selected-and-dependencies` 与排序后的 `checkedIds`。ID 集合包括所选身份标签（含缺失删除与已读同路径更正的旧、新 ID）及实际读取的必要依赖，不保证每个标签当前存在，也不表示未知位置发现完整；未选来源的当前性未检查。CLI 同时说明这一边界。
 
 ## 待提交快照
 

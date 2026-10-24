@@ -19,3 +19,5 @@ await import("../search-metadata-window.test.ts");
 await import("../discovery-dependencies.test.ts");
 
 await import("../acquisition-safety.test.ts");
+
+await import("../selected-local-contract.test.ts");

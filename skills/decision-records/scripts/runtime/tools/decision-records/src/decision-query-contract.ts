@@ -276,6 +276,11 @@ export type DecisionQuerySuccess =
   | (QuerySuccessBase & {
       changedIds: string[];
       command: "sync-index";
+      coverage?: Readonly<{
+        source: "published-index+selected-current-sources";
+        currentness: "selected-and-dependencies";
+        checkedIds: readonly string[];
+      }>;
       indexRelativePath: string;
       scope: "all" | "selected";
       selectedIds: string[];

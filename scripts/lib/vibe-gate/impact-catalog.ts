@@ -30,6 +30,13 @@ export type GateCheckImpactContract = Readonly<{
   version: string;
 }>;
 
+const semanticCheckContractVersions: Readonly<Record<string, string>> = {
+  "test:decision-records:query-and-index-projection": "3",
+  "test:decision-records:lifecycle-and-recovery": "3",
+  "test:investigation-report:index-and-query": "2",
+  "test:investigation-report:transactional-maintenance": "2"
+};
+
 export const baseGateImpactContracts: readonly GateCheckImpactContract[] =
   Object.freeze([
     {
@@ -52,7 +59,9 @@ export const baseGateImpactContracts: readonly GateCheckImpactContract[] =
         checkId: check.checkId,
         dependsOn: "dependsOn" in check ? (check.dependsOn ?? []) : [],
         toolIds: check.toolIds,
-        version: check.checkId.startsWith("test:decision-records:") ? "2" : "1"
+        version:
+          semanticCheckContractVersions[check.checkId] ??
+          (check.checkId.startsWith("test:decision-records:") ? "2" : "1")
       }))
   ]);
 

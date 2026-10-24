@@ -1,3 +1,4 @@
+import type { RecordSelectedCoverage } from "../../record-operations/src/selected-synchronize.ts";
 import type {
   StateIndexDiagnostic,
   StateIndexEntryStageResult,
@@ -199,6 +200,7 @@ export type InvestigationIndexSyncOptions = {
 };
 
 export type InvestigationIndexSyncResult = {
+  coverage?: RecordSelectedCoverage;
   changed: boolean;
   changedIds: string[];
   diagnostics: InvestigationDiagnostic[];

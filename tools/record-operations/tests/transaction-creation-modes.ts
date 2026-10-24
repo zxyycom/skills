@@ -30,12 +30,11 @@ export function assertNativeCreationModes(domain: Domain): void {
 }
 
 async function verifyDecisionModes(root: string, expected: number) {
-  const id = decisionIdForTest("261023-native-mode");
   const tag = "candidate";
   assert.ok(isDecisionTag(tag));
   const created = await createDecisionCandidate({
     workspaceRoot: root,
-    decisionId: id,
+    decisionId: decisionIdForTest("native-mode"),
     title: "创建权限",
     purpose: "验证原生创建请求",
     background: "保留 umask 限制",
@@ -45,6 +44,7 @@ async function verifyDecisionModes(root: string, expected: number) {
   });
   assert.equal(created.status, "ok");
   if (created.status !== "ok") throw new Error("Candidate creation failed");
+  const id = created.decisionId;
   const candidate = path.join(root, "docs/decisions", created.sourcePath);
   await assertMode(candidate, expected);
   await fs.chmod(candidate, 0o640);

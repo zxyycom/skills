@@ -8,7 +8,7 @@ import { writeReallocationRing } from "./reallocation-fixture.ts";
 import { parseDecisionIndex } from "../src/decision-state-index.ts";
 import { isDecisionId } from "../src/decision-path.ts";
 
-test("Decision stage and selected sync resolve mixed short names without changing duplicate and missing-source errors", async () => {
+test("Decision stage and selected sync resolve mixed names and reject duplicate or unavailable identities", async () => {
   await withGitFixtureWorkspace("batch-stage-sync-names", async (root) => {
     const { predecessorIds, successorIds } = await writeReallocationRing(
       root,
@@ -44,7 +44,10 @@ test("Decision stage and selected sync resolve mixed short names without changin
         root
       ]);
       assert.equal(sync.exitCode, 1, sync.stderr);
-      assert.match(sync.stderr, /selector-duplicate|selector-not-found/);
+      assert.match(
+        sync.stderr,
+        /selector-duplicate|Unknown selected ID or source location/
+      );
       assert.equal(await fs.readFile(indexPath, "utf8"), before);
     }
     const staged = await runSourceCli([

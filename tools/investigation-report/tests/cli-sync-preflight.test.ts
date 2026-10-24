@@ -32,8 +32,11 @@ test("CLI selected sync publishes by default and keeps --preflight zero-write", 
       "--select",
       "260828-beta"
     ]);
-    assert.equal(unselected.status, 1);
-    assert.match(unselected.stderr, /outside the selected sync scope/u);
+    assert.equal(unselected.status, 0, unselected.stderr);
+    assert.match(
+      unselected.stdout,
+      /unselected entries retain the published baseline/u
+    );
     assert.equal(await fs.readFile(indexPath, "utf8"), baseline);
 
     const checked = await runInvestigationCli(root, [

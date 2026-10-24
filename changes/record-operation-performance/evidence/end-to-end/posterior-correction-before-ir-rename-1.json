@@ -1,0 +1,67 @@
+{
+  "sampleKey": [
+    "before",
+    "ir",
+    "rename",
+    1
+  ],
+  "sameProductRun": true,
+  "newProductInvocations": 0,
+  "originalRowCanonicalSHA256": "9f154f5737072b40a9c1271f313431613fc2be81c20505adf573c841be44ca8f",
+  "originalPosteriorFailure": "AssertionError(('rename representation mode', '0o664'))",
+  "reason": "IR rename-transaction-plan.ts renamedSourceWrite explicitly requests mode: removal.before!.mode; 0600 native absent creation is not this rename contract. Harness expected 0600 incorrectly. Both domains must preserve old-path mode.",
+  "baselineEvidence": {
+    "path": "tools/investigation-report/src/rename-transaction-plan.ts",
+    "line": 158,
+    "snippet": "{ writer: hooks.writeNew, mode: removal.before!.mode }"
+  },
+  "rootApproval": "Root approved correction and independent posterior-only recheck on preserved fixture; no product rerun.",
+  "oldHarnessSHA256": "60502a27f73deeb9c50d3c3acfe5860f2a53234b41656417a2e305f9cefa1441",
+  "oldHarnessCopy": "/tmp/record-end-to-end-1adb9846-20261024/harness-before-mode-correction.py",
+  "newHarnessSHA256": "c1080e9312ae67da71a21ebb754035bff661e4cac5d54ecdaed954940fab0a03",
+  "correctedAt": "2026-10-24T04:12:12.361004+00:00",
+  "posterior": {
+    "allEntriesVerified": 10000,
+    "relationCount": 9000,
+    "allUnselectedBytesModesEntriesRevisionPreserved": true,
+    "allSourceRevisionFingerprintsMatch": true,
+    "completeExpectedIndexEqual": true,
+    "syncEntireIndexTextExact": null,
+    "delta": {
+      "investigations/261001-record-10000.md": {
+        "before": {
+          "bytes": 399,
+          "kind": "file",
+          "mode": "0o664",
+          "sha256": "d22d1e575f72a2bcac3118b8e5768d2fed0ae6daeef2868c9f1a0e5c86067542"
+        },
+        "after": null
+      },
+      "investigations/investigation-index.json": {
+        "before": {
+          "bytes": 5193312,
+          "kind": "file",
+          "mode": "0o664",
+          "sha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082"
+        },
+        "after": {
+          "kind": "file",
+          "sha256": "18a44c6525bf4792d0e5819771a7b4f788171086fe427831e520729039e8d26d",
+          "bytes": 5193313,
+          "mode": "0o664"
+        }
+      },
+      "investigations/renamed-record.md": {
+        "before": null,
+        "after": {
+          "kind": "file",
+          "sha256": "2c56811ed0621a54bf1359d49698759b61905ac825b8e8d0531d3855bdd7f204",
+          "bytes": 401,
+          "mode": "0o664"
+        }
+      }
+    },
+    "afterIndexSHA256": "18a44c6525bf4792d0e5819771a7b4f788171086fe427831e520729039e8d26d",
+    "afterDocsManifestSHA256": "65619fe84c7e9abe4b138506adaeedff4c048e65320e81fe01a8f5ecfd2f6d97"
+  }
+}

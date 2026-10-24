@@ -16,7 +16,7 @@ import {
   withFixtureWorkspace
 } from "./support.ts";
 
-test("selected sync accepts one Decision change only after proving the complete collection", () =>
+test("selected Decision sync checks related dependencies and publishes the selected change", () =>
   withFixtureWorkspace("selected-index-maintenance", async (workspaceRoot) => {
     const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
     const indexPath = path.join(decisionsDirectory, "decision-index.json");
@@ -37,7 +37,10 @@ test("selected sync accepts one Decision change only after proving the complete 
       workspaceRoot
     ]);
     assert.equal(rejected.exitCode, 1);
-    assert.match(rejected.stderr, /outside the selected sync scope/u);
+    assert.match(
+      rejected.stderr,
+      /Required dependency differs from published baseline/u
+    );
     assert.equal(await fs.readFile(indexPath, "utf8"), originalIndex);
 
     const checked = await runSourceCli([

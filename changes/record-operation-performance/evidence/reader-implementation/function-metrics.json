@@ -1,0 +1,4596 @@
+{
+  "kind": "focused-installed-analyzer-not-gate",
+  "files": [
+    {
+      "path": "tools/record-operations/src/reader-batch.ts",
+      "sha256": "9baae4e3ca6d0a60744265343e93aa684166106a64439dcca3b00aa4a74b1df0"
+    },
+    {
+      "path": "tools/record-operations/src/reader-worker.ts",
+      "sha256": "3f1a40b32e36c793949df317d5153139235feef6ce9c1ceb10415935765a49b0"
+    },
+    {
+      "path": "tools/record-operations/src/reader-sync.ts",
+      "sha256": "9d8ec07ebf99b50c9f0bf596ed55040ec478d5a162e614d727a774ee7f9e6a63"
+    },
+    {
+      "path": "tools/record-operations/src/reader-protocol.ts",
+      "sha256": "c898d6842e9cd1e936d33f3dfbac1d4eaae9c5a0fc0bac5812cfea63b2af0c26"
+    },
+    {
+      "path": "tools/record-operations/src/source.ts",
+      "sha256": "17da55bfab1a2ace21d017f36d168d3bc2f27f67ec0b82956198fb07b21d3687"
+    },
+    {
+      "path": "tools/record-operations/src/transaction-snapshot.ts",
+      "sha256": "8c96029632b4d4c3099948c5f6306ce4acd24aeefceaeeaf2609903897e0ffa1"
+    },
+    {
+      "path": "tools/record-operations/src/transaction-verification.ts",
+      "sha256": "376ec1e5497360468eda989dfaee83b3ca2bbb826b4c268ece11c62f22b30807"
+    },
+    {
+      "path": "tools/record-operations/src/transaction.ts",
+      "sha256": "2351e220d4ccf5d9dbb2a67ffb10ae1819c6c76b4b53268d40cd77fbe2837163"
+    },
+    {
+      "path": "tools/decision-records/src/scan-collection.ts",
+      "sha256": "038bcca8785b47a3f398706073b527a92469d800ee608b7672e0aa48aac1b8a8"
+    },
+    {
+      "path": "tools/decision-records/src/decision-index-source.ts",
+      "sha256": "2be953d47421ee8f219ec97afaf66fa796fd1a8270731eef5f799d67d0c6494a"
+    },
+    {
+      "path": "tools/decision-records/src/decision-strict-preparation.ts",
+      "sha256": "ac5b6c55c1797f0ab37520ac722e581176648286e47579e083387f4a9b1f811d"
+    },
+    {
+      "path": "tools/investigation-report/src/investigation-layout.ts",
+      "sha256": "998f491db40f45e2373c174759243efd3f4da60706fa68cab283bde59cf19f08"
+    },
+    {
+      "path": "tools/investigation-report/src/investigation-layout-entry.ts",
+      "sha256": "8ff34952b3e8f9a63704eeb36b899c0d73b75a22d3eee75f04b3dfb40dcb44f2"
+    },
+    {
+      "path": "tools/investigation-report/src/strict-preparation.ts",
+      "sha256": "d66a6c26f9a1f52ac8f5ddfab9beb784d518d34878329e118a52761e70720cde"
+    },
+    {
+      "path": "tools/record-operations/tests/reader-batch.test.ts",
+      "sha256": "90cd2a6da5ae02f4b6975d53bcbfb1005bea94b5efe17fc2b0b4faee6ba771e9"
+    },
+    {
+      "path": "tools/record-operations/tests/reader-snapshot.test.ts",
+      "sha256": "ecb533786a0f3115a9e4ce2a85218ee605502f1588c7b0c3cd31f954927c301b"
+    },
+    {
+      "path": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "sha256": "9619a31003b376c1262c35acd91d8f32318513359ad03541e97412b6b3f49750"
+    },
+    {
+      "path": "tools/record-operations/tests/reader-fixture.ts",
+      "sha256": "99583fd8775172bb86e04bd0cc60eda84b4d229248a8aa5b0ee6b2c92b2ecf97"
+    }
+  ],
+  "functions": 200,
+  "violations": [],
+  "metrics": [
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 27,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 27
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 40,
+          "token": "if"
+        },
+        {
+          "line": 45,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "endLine": 48,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 10,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 39
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 51,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 14,
+      "name": "forEachRecordText",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 4,
+      "startLine": 29
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 63,
+          "token": "if"
+        },
+        {
+          "line": 68,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "endLine": 71,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 10,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 62
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 74,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 14,
+      "name": "forEachRecordTextSnapshot",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 4,
+      "startLine": 52
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 86,
+          "token": "if"
+        },
+        {
+          "line": 91,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "endLine": 94,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 10,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 85
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 97,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 14,
+      "name": "forEachRecordFileSnapshot",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 4,
+      "startLine": 75
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 102,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 102
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 110,
+          "token": "if"
+        },
+        {
+          "line": 115,
+          "token": "if"
+        },
+        {
+          "line": 124,
+          "token": "catch"
+        },
+        {
+          "line": 125,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 5
+      },
+      "endLine": 128,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 25,
+      "name": "readAsyncRecord",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 3,
+      "startLine": 104
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 137,
+          "token": "for"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 143,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 14,
+      "name": "readAsyncBatch",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 5,
+      "startLine": 130
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 158,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 158
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 155,
+          "token": "||"
+        },
+        {
+          "line": 158,
+          "token": "||"
+        },
+        {
+          "line": 160,
+          "token": "if"
+        },
+        {
+          "line": 160,
+          "token": "||"
+        },
+        {
+          "line": 165,
+          "token": "for"
+        },
+        {
+          "line": 172,
+          "token": "for"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 7
+      },
+      "endLine": 184,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 39,
+      "name": "readBatch",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 5
+      },
+      "parameterCount": 5,
+      "startLine": 145
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 194,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 1,
+      "name": "resolve",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 1,
+      "startLine": 194
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 194,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 1,
+      "name": "reject",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 1,
+      "startLine": 194
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 203,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 4,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 200
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 205,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 205
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 207,
+          "token": "if"
+        },
+        {
+          "line": 208,
+          "token": "??"
+        },
+        {
+          "line": 212,
+          "token": "if"
+        },
+        {
+          "line": 212,
+          "token": "||"
+        },
+        {
+          "line": 213,
+          "token": "??"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 6
+      },
+      "endLine": 215,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 11,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 0,
+      "startLine": 205
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 218,
+          "token": "if"
+        },
+        {
+          "line": 219,
+          "token": "??"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "endLine": 225,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 9,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 0,
+      "startLine": 217
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 226,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 8,
+      "name": "constructor",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 197
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 229,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 230,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 3,
+      "name": "assertHealthy",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 228
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 241,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 4,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 238
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 234,
+          "token": "if"
+        },
+        {
+          "line": 246,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "endLine": 249,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 15,
+      "name": "read",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 1,
+      "startLine": 232
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 253,
+          "token": "if"
+        },
+        {
+          "line": 253,
+          "token": "&&"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "endLine": 258,
+      "file": "tools/record-operations/src/reader-batch.ts",
+      "lines": 7,
+      "name": "close",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 0,
+      "startLine": 251
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 22,
+          "token": "if"
+        },
+        {
+          "line": 30,
+          "token": "??"
+        },
+        {
+          "line": 31,
+          "token": "if"
+        },
+        {
+          "line": 36,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 5
+      },
+      "endLine": 59,
+      "file": "tools/record-operations/src/reader-worker.ts",
+      "lines": 43,
+      "name": "readRequestedRecord",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 3,
+      "startLine": 17
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 65,
+          "token": "for"
+        },
+        {
+          "line": 70,
+          "token": "catch"
+        },
+        {
+          "line": 73,
+          "token": "if"
+        },
+        {
+          "line": 73,
+          "token": "||"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 5
+      },
+      "endLine": 77,
+      "file": "tools/record-operations/src/reader-worker.ts",
+      "lines": 16,
+      "name": "readWorkerChunk",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 1,
+      "startLine": 62
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 83,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 88,
+      "file": "tools/record-operations/src/reader-worker.ts",
+      "lines": 7,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 82
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 24,
+          "token": "if"
+        },
+        {
+          "line": 30,
+          "token": "if"
+        },
+        {
+          "line": 30,
+          "token": "||"
+        },
+        {
+          "line": 37,
+          "token": "if"
+        },
+        {
+          "line": 37,
+          "token": "||"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 6
+      },
+      "endLine": 54,
+      "file": "tools/record-operations/src/reader-sync.ts",
+      "lines": 32,
+      "name": "readRecordTextSync",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 2,
+      "startLine": 23
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 62,
+          "token": "for"
+        },
+        {
+          "line": 66,
+          "token": "if"
+        },
+        {
+          "line": 69,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 72,
+      "file": "tools/record-operations/src/reader-sync.ts",
+      "lines": 17,
+      "name": "inspectSourcePath",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 2,
+      "startLine": 56
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 103,
+      "file": "tools/record-operations/src/reader-sync.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 103
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 82,
+          "token": "catch"
+        },
+        {
+          "line": 83,
+          "token": "if"
+        },
+        {
+          "line": 91,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 108,
+      "file": "tools/record-operations/src/reader-sync.ts",
+      "lines": 35,
+      "name": "readRecordFileSnapshotSync",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 2,
+      "startLine": 74
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 114,
+          "token": "for"
+        },
+        {
+          "line": 122,
+          "token": "catch"
+        },
+        {
+          "line": 123,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 130,
+      "file": "tools/record-operations/src/reader-sync.ts",
+      "lines": 21,
+      "name": "inspectParents",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 2,
+      "startLine": 110
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 140,
+      "file": "tools/record-operations/src/reader-sync.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 140
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 138,
+          "token": "if"
+        },
+        {
+          "line": 139,
+          "token": "||"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "endLine": 143,
+      "file": "tools/record-operations/src/reader-sync.ts",
+      "lines": 12,
+      "name": "verifyParents",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 3,
+      "startLine": 132
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 82,
+          "token": "if"
+        },
+        {
+          "line": 96,
+          "token": "if"
+        },
+        {
+          "line": 96,
+          "token": "&&"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 100,
+      "file": "tools/record-operations/src/reader-protocol.ts",
+      "lines": 22,
+      "name": "readerFailure",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 1,
+      "startLine": 79
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 108,
+          "token": "?"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 109,
+      "file": "tools/record-operations/src/reader-protocol.ts",
+      "lines": 7,
+      "name": "systemErrorText",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 2,
+      "startLine": 103
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 114,
+          "token": "if"
+        },
+        {
+          "line": 117,
+          "token": "?"
+        },
+        {
+          "line": 119,
+          "token": "?"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 122,
+      "file": "tools/record-operations/src/reader-protocol.ts",
+      "lines": 12,
+      "name": "restoreReaderError",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "parameterCount": 1,
+      "startLine": 111
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 12,
+          "token": "if"
+        },
+        {
+          "line": 15,
+          "token": "if"
+        },
+        {
+          "line": 18,
+          "token": "if"
+        },
+        {
+          "line": 20,
+          "token": "if"
+        },
+        {
+          "line": 21,
+          "token": "||"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 6
+      },
+      "endLine": 26,
+      "file": "tools/record-operations/src/source.ts",
+      "lines": 20,
+      "name": "canonicalRecordCollection",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 5
+      },
+      "parameterCount": 2,
+      "startLine": 7
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 34,
+      "file": "tools/record-operations/src/source.ts",
+      "lines": 6,
+      "name": "readRecordSource",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 1,
+      "startLine": 29
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 52,
+          "token": "if"
+        },
+        {
+          "line": 58,
+          "token": "if"
+        },
+        {
+          "line": 58,
+          "token": "||"
+        },
+        {
+          "line": 68,
+          "token": "if"
+        },
+        {
+          "line": 68,
+          "token": "||"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 6
+      },
+      "endLine": 83,
+      "file": "tools/record-operations/src/source.ts",
+      "lines": 37,
+      "name": "readRecordText",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 2,
+      "startLine": 47
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 94,
+      "file": "tools/record-operations/src/source.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 94
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 92,
+          "token": "&&"
+        },
+        {
+          "line": 96,
+          "token": "if"
+        },
+        {
+          "line": 97,
+          "token": "||"
+        },
+        {
+          "line": 98,
+          "token": "||"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 5
+      },
+      "endLine": 102,
+      "file": "tools/record-operations/src/source.ts",
+      "lines": 18,
+      "name": "assertStableSource",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "parameterCount": 4,
+      "startLine": 85
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 106,
+          "token": "&&"
+        },
+        {
+          "line": 107,
+          "token": "&&"
+        },
+        {
+          "line": 108,
+          "token": "&&"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 111,
+      "file": "tools/record-operations/src/source.ts",
+      "lines": 8,
+      "name": "sameFileSnapshot",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 2,
+      "startLine": 104
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 118,
+          "token": "for"
+        },
+        {
+          "line": 122,
+          "token": "if"
+        },
+        {
+          "line": 126,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 129,
+      "file": "tools/record-operations/src/source.ts",
+      "lines": 16,
+      "name": "inspectSourcePath",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 2,
+      "startLine": 113
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 135,
+          "token": "&&"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 136,
+      "file": "tools/record-operations/src/source.ts",
+      "lines": 6,
+      "name": "sameSourceIdentity",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 2,
+      "startLine": 131
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 143,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 146,
+      "file": "tools/record-operations/src/source.ts",
+      "lines": 8,
+      "name": "recordCollectionIdentity",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 1,
+      "startLine": 139
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 154,
+      "file": "tools/record-operations/src/source.ts",
+      "lines": 7,
+      "name": "inspectCollectionDirectory",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 1,
+      "startLine": 148
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 158,
+          "token": "if"
+        },
+        {
+          "line": 158,
+          "token": "||"
+        },
+        {
+          "line": 158,
+          "token": "?"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 162,
+      "file": "tools/record-operations/src/source.ts",
+      "lines": 6,
+      "name": "requireSourceComponent",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "parameterCount": 2,
+      "startLine": 157
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 164,
+          "token": "if"
+        },
+        {
+          "line": 164,
+          "token": "||"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "endLine": 166,
+      "file": "tools/record-operations/src/source.ts",
+      "lines": 4,
+      "name": "requireSourceDirectory",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 1,
+      "startLine": 163
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 30,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 42,
+      "file": "tools/record-operations/src/transaction-snapshot.ts",
+      "lines": 18,
+      "name": "readRecordTextSnapshot",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 2,
+      "startLine": 25
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 51,
+          "token": "if"
+        },
+        {
+          "line": 52,
+          "token": "||"
+        },
+        {
+          "line": 53,
+          "token": "||"
+        },
+        {
+          "line": 54,
+          "token": "||"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 5
+      },
+      "endLine": 62,
+      "file": "tools/record-operations/src/transaction-snapshot.ts",
+      "lines": 18,
+      "name": "requireRecordTextSnapshot",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "parameterCount": 4,
+      "startLine": 45
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 104,
+      "file": "tools/record-operations/src/transaction-snapshot.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 104
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 80,
+          "token": "catch"
+        },
+        {
+          "line": 81,
+          "token": "if"
+        },
+        {
+          "line": 92,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 109,
+      "file": "tools/record-operations/src/transaction-snapshot.ts",
+      "lines": 38,
+      "name": "readRecordFileSnapshot",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 2,
+      "startLine": 72
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 119,
+          "token": "if"
+        },
+        {
+          "line": 120,
+          "token": "||"
+        },
+        {
+          "line": 121,
+          "token": "||"
+        },
+        {
+          "line": 122,
+          "token": "||"
+        },
+        {
+          "line": 123,
+          "token": "||"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 6
+      },
+      "endLine": 127,
+      "file": "tools/record-operations/src/transaction-snapshot.ts",
+      "lines": 16,
+      "name": "verifyReadSnapshot",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 5
+      },
+      "parameterCount": 5,
+      "startLine": 112
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 136,
+          "token": "&&"
+        },
+        {
+          "line": 137,
+          "token": "&&"
+        },
+        {
+          "line": 138,
+          "token": "&&"
+        },
+        {
+          "line": 139,
+          "token": "&&"
+        },
+        {
+          "line": 140,
+          "token": "&&"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 6
+      },
+      "endLine": 143,
+      "file": "tools/record-operations/src/transaction-snapshot.ts",
+      "lines": 14,
+      "name": "sameReadRevision",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 3,
+      "startLine": 130
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 156,
+      "file": "tools/record-operations/src/transaction-snapshot.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 156
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 150,
+          "token": "if"
+        },
+        {
+          "line": 150,
+          "token": "||"
+        },
+        {
+          "line": 152,
+          "token": "||"
+        },
+        {
+          "line": 153,
+          "token": "&&"
+        },
+        {
+          "line": 154,
+          "token": "&&"
+        },
+        {
+          "line": 157,
+          "token": "&&"
+        },
+        {
+          "line": 158,
+          "token": "&&"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 8
+      },
+      "endLine": 161,
+      "file": "tools/record-operations/src/transaction-snapshot.ts",
+      "lines": 17,
+      "name": "sameRecordFile",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 5
+      },
+      "parameterCount": 3,
+      "startLine": 145
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 166,
+      "file": "tools/record-operations/src/transaction-snapshot.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 166
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 165,
+          "token": "&&"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 168,
+      "file": "tools/record-operations/src/transaction-snapshot.ts",
+      "lines": 6,
+      "name": "sameRecordBytes",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 2,
+      "startLine": 163
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 175,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 177,
+      "file": "tools/record-operations/src/transaction-snapshot.ts",
+      "lines": 8,
+      "name": "verifyRecordFile",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 3,
+      "startLine": 170
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 183,
+          "token": "&&"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 184,
+      "file": "tools/record-operations/src/transaction-snapshot.ts",
+      "lines": 6,
+      "name": "sameRecordIdentity",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 2,
+      "startLine": 179
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 193,
+          "token": "for"
+        },
+        {
+          "line": 201,
+          "token": "catch"
+        },
+        {
+          "line": 202,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 209,
+      "file": "tools/record-operations/src/transaction-snapshot.ts",
+      "lines": 24,
+      "name": "inspectRecordParents",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 2,
+      "startLine": 186
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 219,
+      "file": "tools/record-operations/src/transaction-snapshot.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 219
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 217,
+          "token": "if"
+        },
+        {
+          "line": 218,
+          "token": "||"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "endLine": 222,
+      "file": "tools/record-operations/src/transaction-snapshot.ts",
+      "lines": 12,
+      "name": "verifyParents",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 3,
+      "startLine": 211
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 225,
+          "token": "if"
+        },
+        {
+          "line": 225,
+          "token": "||"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "endLine": 229,
+      "file": "tools/record-operations/src/transaction-snapshot.ts",
+      "lines": 6,
+      "name": "requireRecordSnapshotEntry",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 2,
+      "startLine": 224
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 235,
+          "token": "if"
+        },
+        {
+          "line": 236,
+          "token": "||"
+        },
+        {
+          "line": 237,
+          "token": "||"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 241,
+      "file": "tools/record-operations/src/transaction-snapshot.ts",
+      "lines": 12,
+      "name": "requireRecordSnapshotRoot",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "parameterCount": 3,
+      "startLine": 230
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 246,
+          "token": "if"
+        },
+        {
+          "line": 246,
+          "token": "||"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "endLine": 250,
+      "file": "tools/record-operations/src/transaction-snapshot.ts",
+      "lines": 9,
+      "name": "requireRecordSnapshotParent",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 2,
+      "startLine": 242
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 25,
+      "file": "tools/record-operations/src/transaction-verification.ts",
+      "lines": 3,
+      "name": "constructor",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 1,
+      "startLine": 23
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 32,
+          "token": "if"
+        },
+        {
+          "line": 33,
+          "token": "&&"
+        },
+        {
+          "line": 39,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 44,
+      "file": "tools/record-operations/src/transaction-verification.ts",
+      "lines": 17,
+      "name": "verify",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 2,
+      "startLine": 27
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 56,
+      "file": "tools/record-operations/src/transaction-verification.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 56
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 60,
+          "token": "while"
+        },
+        {
+          "line": 65,
+          "token": "if"
+        },
+        {
+          "line": 66,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 69,
+      "file": "tools/record-operations/src/transaction-verification.ts",
+      "lines": 12,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 57
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 48,
+          "token": "if"
+        },
+        {
+          "line": 49,
+          "token": "for"
+        },
+        {
+          "line": 71,
+          "token": "while"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 75,
+      "file": "tools/record-operations/src/transaction-verification.ts",
+      "lines": 17,
+      "name": "verifyMany",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 1,
+      "startLine": 47
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 82,
+          "token": "for"
+        },
+        {
+          "line": 84,
+          "token": "if"
+        },
+        {
+          "line": 85,
+          "token": "||"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 92,
+      "file": "tools/record-operations/src/transaction-verification.ts",
+      "lines": 16,
+      "name": "scheduleGuards",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "parameterCount": 1,
+      "startLine": 77
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 81,
+          "token": "catch"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 85,
+      "file": "tools/record-operations/src/transaction.ts",
+      "lines": 11,
+      "name": "execute",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 75
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 88,
+      "file": "tools/record-operations/src/transaction.ts",
+      "lines": 2,
+      "name": "execute",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 87
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 213,
+      "file": "tools/record-operations/src/transaction.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 213
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 260,
+      "file": "tools/record-operations/src/transaction.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 260
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 271,
+      "file": "tools/record-operations/src/transaction.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 271
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 34,
+      "file": "tools/decision-records/src/scan-collection.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 34
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 35,
+          "token": "for"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 37,
+      "file": "tools/decision-records/src/scan-collection.ts",
+      "lines": 14,
+      "name": "collectSourceFiles",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 1,
+      "startLine": 24
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 41,
+      "file": "tools/decision-records/src/scan-collection.ts",
+      "lines": 3,
+      "name": "collectRootEntry",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 2,
+      "startLine": 39
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 61,
+          "token": "if"
+        },
+        {
+          "line": 65,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "endLine": 72,
+      "file": "tools/decision-records/src/scan-collection.ts",
+      "lines": 17,
+      "name": "collectRootFile",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 3,
+      "startLine": 56
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 83,
+      "file": "tools/decision-records/src/scan-collection.ts",
+      "lines": 10,
+      "name": "addUnsupportedRootEntry",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 2,
+      "startLine": 74
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 94,
+      "file": "tools/decision-records/src/scan-collection.ts",
+      "lines": 10,
+      "name": "addUnsupportedRootDirectory",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 2,
+      "startLine": 85
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 115,
+      "file": "tools/decision-records/src/scan-collection.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 115
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 107,
+          "token": "catch"
+        },
+        {
+          "line": 116,
+          "token": "for"
+        },
+        {
+          "line": 118,
+          "token": "if"
+        },
+        {
+          "line": 118,
+          "token": "||"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 5
+      },
+      "endLine": 131,
+      "file": "tools/decision-records/src/scan-collection.ts",
+      "lines": 36,
+      "name": "collectArchivedSourceFiles",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 1,
+      "startLine": 96
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 168,
+      "file": "tools/decision-records/src/scan-collection.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 168
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 140,
+          "token": "for"
+        },
+        {
+          "line": 143,
+          "token": "if"
+        },
+        {
+          "line": 147,
+          "token": "if"
+        },
+        {
+          "line": 149,
+          "token": "if"
+        },
+        {
+          "line": 157,
+          "token": "for"
+        },
+        {
+          "line": 158,
+          "token": "if"
+        },
+        {
+          "line": 161,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 8
+      },
+      "endLine": 174,
+      "file": "tools/decision-records/src/scan-collection.ts",
+      "lines": 41,
+      "name": "validateSourceMembership",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 3,
+      "startLine": 133
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 180,
+          "token": "if"
+        },
+        {
+          "line": 183,
+          "token": "if"
+        },
+        {
+          "line": 188,
+          "token": "?"
+        },
+        {
+          "line": 193,
+          "token": "catch"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 5
+      },
+      "endLine": 200,
+      "file": "tools/decision-records/src/scan-collection.ts",
+      "lines": 25,
+      "name": "readSourceText",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 2,
+      "startLine": 176
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 208,
+      "file": "tools/decision-records/src/scan-collection.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 208
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 217,
+      "file": "tools/decision-records/src/scan-collection.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 217
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 220,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 227,
+      "file": "tools/decision-records/src/scan-collection.ts",
+      "lines": 10,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 218
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 208,
+          "token": "&&"
+        },
+        {
+          "line": 210,
+          "token": "if"
+        },
+        {
+          "line": 213,
+          "token": "?"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 229,
+      "file": "tools/decision-records/src/scan-collection.ts",
+      "lines": 19,
+      "name": "acquireCollectionText",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "parameterCount": 2,
+      "startLine": 202
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 36,
+      "file": "tools/decision-records/src/decision-index-source.ts",
+      "lines": 9,
+      "name": "readDecisionSourceRevision",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 3,
+      "startLine": 28
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 47,
+      "file": "tools/decision-records/src/decision-index-source.ts",
+      "lines": 10,
+      "name": "readDecisionStateSnapshot",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 3,
+      "startLine": 38
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 56,
+      "file": "tools/decision-records/src/decision-index-source.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 56
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 60,
+      "file": "tools/decision-records/src/decision-index-source.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 60
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 64,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 70,
+      "file": "tools/decision-records/src/decision-index-source.ts",
+      "lines": 9,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 62
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 55,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 71,
+      "file": "tools/decision-records/src/decision-index-source.ts",
+      "lines": 15,
+      "name": "readDecisionSources",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 3,
+      "startLine": 49
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 77,
+          "token": "if"
+        },
+        {
+          "line": 81,
+          "token": "for"
+        },
+        {
+          "line": 82,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 88,
+      "file": "tools/decision-records/src/decision-index-source.ts",
+      "lines": 16,
+      "name": "validatedUniqueDecisionIds",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 1,
+      "startLine": 73
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 122,
+          "token": "if"
+        },
+        {
+          "line": 125,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "endLine": 134,
+      "file": "tools/decision-records/src/decision-index-source.ts",
+      "lines": 14,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 120
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 97,
+          "token": "if"
+        },
+        {
+          "line": 98,
+          "token": "for"
+        },
+        {
+          "line": 99,
+          "token": "if"
+        },
+        {
+          "line": 137,
+          "token": "catch"
+        },
+        {
+          "line": 138,
+          "token": "if"
+        },
+        {
+          "line": 138,
+          "token": "&&"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 7
+      },
+      "endLine": 143,
+      "file": "tools/decision-records/src/decision-index-source.ts",
+      "lines": 40,
+      "name": "discoverDecisionSources",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "parameterCount": 2,
+      "startLine": 90
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 151,
+          "token": "if"
+        },
+        {
+          "line": 155,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "endLine": 166,
+      "file": "tools/decision-records/src/decision-index-source.ts",
+      "lines": 22,
+      "name": "discoveredDecisionSource",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 3,
+      "startLine": 145
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 194,
+      "file": "tools/decision-records/src/decision-index-source.ts",
+      "lines": 2,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 193
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 175,
+          "token": "for"
+        },
+        {
+          "line": 176,
+          "token": "if"
+        },
+        {
+          "line": 180,
+          "token": "if"
+        },
+        {
+          "line": 180,
+          "token": "&&"
+        },
+        {
+          "line": 185,
+          "token": "for"
+        },
+        {
+          "line": 186,
+          "token": "if"
+        },
+        {
+          "line": 195,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 8
+      },
+      "endLine": 199,
+      "file": "tools/decision-records/src/decision-index-source.ts",
+      "lines": 31,
+      "name": "collectDecisionSourcePaths",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 1,
+      "startLine": 168
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 207,
+          "token": "if"
+        },
+        {
+          "line": 207,
+          "token": "||"
+        },
+        {
+          "line": 212,
+          "token": "catch"
+        },
+        {
+          "line": 213,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 5
+      },
+      "endLine": 220,
+      "file": "tools/decision-records/src/decision-index-source.ts",
+      "lines": 20,
+      "name": "requireRegularSourceFile",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "parameterCount": 2,
+      "startLine": 201
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 223,
+          "token": "?"
+        },
+        {
+          "line": 223,
+          "token": "?"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "endLine": 224,
+      "file": "tools/decision-records/src/decision-index-source.ts",
+      "lines": 3,
+      "name": "compareText",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 2,
+      "startLine": 222
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 20,
+      "file": "tools/decision-records/src/decision-strict-preparation.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 20
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 23,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 32,
+      "file": "tools/decision-records/src/decision-strict-preparation.ts",
+      "lines": 12,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 21
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 34,
+      "file": "tools/decision-records/src/decision-strict-preparation.ts",
+      "lines": 11,
+      "name": "captureDecisionSourceFiles",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 3,
+      "startLine": 13
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 45,
+      "file": "tools/investigation-report/src/investigation-layout.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 45
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 52,
+      "file": "tools/investigation-report/src/investigation-layout.ts",
+      "lines": 3,
+      "name": "consume",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 2,
+      "startLine": 50
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 56,
+      "file": "tools/investigation-report/src/investigation-layout.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 56
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 61,
+      "file": "tools/investigation-report/src/investigation-layout.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 61
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 48,
+          "token": "if"
+        },
+        {
+          "line": 53,
+          "token": "if"
+        },
+        {
+          "line": 66,
+          "token": "for"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 75,
+      "file": "tools/investigation-report/src/investigation-layout.ts",
+      "lines": 42,
+      "name": "inspectInvestigationCollectionLayout",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 2,
+      "startLine": 32
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 84,
+      "file": "tools/investigation-report/src/investigation-layout.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 84
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 85,
+          "token": "catch"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 91,
+      "file": "tools/investigation-report/src/investigation-layout.ts",
+      "lines": 15,
+      "name": "readRootEntries",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 1,
+      "startLine": 77
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 102,
+      "file": "tools/investigation-report/src/investigation-layout.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 102
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 110,
+      "file": "tools/investigation-report/src/investigation-layout.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 110
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 119,
+      "file": "tools/investigation-report/src/investigation-layout.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 119
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 128,
+      "file": "tools/investigation-report/src/investigation-layout.ts",
+      "lines": 36,
+      "name": "finalizedLayout",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 1,
+      "startLine": 93
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 131,
+          "token": "?"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 132,
+      "file": "tools/investigation-report/src/investigation-layout.ts",
+      "lines": 3,
+      "name": "errorText",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 1,
+      "startLine": 130
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 40,
+          "token": "if"
+        },
+        {
+          "line": 41,
+          "token": "if"
+        },
+        {
+          "line": 45,
+          "token": "if"
+        },
+        {
+          "line": 50,
+          "token": "if"
+        },
+        {
+          "line": 60,
+          "token": "if"
+        },
+        {
+          "line": 64,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 7
+      },
+      "endLine": 77,
+      "file": "tools/investigation-report/src/investigation-layout-entry.ts",
+      "lines": 45,
+      "name": "inspectInvestigationLayoutEntry",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 5,
+      "startLine": 33
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 83,
+          "token": "if"
+        },
+        {
+          "line": 84,
+          "token": "if"
+        },
+        {
+          "line": 84,
+          "token": "||"
+        },
+        {
+          "line": 90,
+          "token": "if"
+        },
+        {
+          "line": 91,
+          "token": "if"
+        },
+        {
+          "line": 91,
+          "token": "||"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 7
+      },
+      "endLine": 98,
+      "file": "tools/investigation-report/src/investigation-layout-entry.ts",
+      "lines": 20,
+      "name": "inspectReservedRootEntry",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "parameterCount": 2,
+      "startLine": 79
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 107,
+          "token": "if"
+        },
+        {
+          "line": 116,
+          "token": "if"
+        },
+        {
+          "line": 129,
+          "token": "catch"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 135,
+      "file": "tools/investigation-report/src/investigation-layout-entry.ts",
+      "lines": 36,
+      "name": "inspectCandidateRootEntry",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "parameterCount": 5,
+      "startLine": 100
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 144,
+          "token": "if"
+        },
+        {
+          "line": 153,
+          "token": "if"
+        },
+        {
+          "line": 160,
+          "token": "catch"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 163,
+      "file": "tools/investigation-report/src/investigation-layout-entry.ts",
+      "lines": 27,
+      "name": "inspectFormalRootEntry",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "parameterCount": 5,
+      "startLine": 137
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 168,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 170,
+      "file": "tools/investigation-report/src/investigation-layout-entry.ts",
+      "lines": 6,
+      "name": "recordSymbolicLink",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 2,
+      "startLine": 165
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 180,
+      "file": "tools/investigation-report/src/investigation-layout-entry.ts",
+      "lines": 9,
+      "name": "recordInvalidCandidateFileName",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 2,
+      "startLine": 172
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 188,
+      "file": "tools/investigation-report/src/investigation-layout-entry.ts",
+      "lines": 7,
+      "name": "recordCandidateError",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 2,
+      "startLine": 182
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 192,
+      "file": "tools/investigation-report/src/investigation-layout-entry.ts",
+      "lines": 3,
+      "name": "errorText",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 1,
+      "startLine": 190
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 198,
+          "token": "if"
+        },
+        {
+          "line": 198,
+          "token": "||"
+        },
+        {
+          "line": 200,
+          "token": "if"
+        },
+        {
+          "line": 203,
+          "token": "&&"
+        },
+        {
+          "line": 204,
+          "token": "&&"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 6
+      },
+      "endLine": 207,
+      "file": "tools/investigation-report/src/investigation-layout-entry.ts",
+      "lines": 14,
+      "name": "shouldReadInvestigationLayoutEntry",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 5
+      },
+      "parameterCount": 2,
+      "startLine": 194
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 215,
+          "token": "if"
+        },
+        {
+          "line": 216,
+          "token": "if"
+        },
+        {
+          "line": 220,
+          "token": "?"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 222,
+      "file": "tools/investigation-report/src/investigation-layout-entry.ts",
+      "lines": 14,
+      "name": "readLayoutText",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "parameterCount": 4,
+      "startLine": 209
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 30,
+      "file": "tools/investigation-report/src/strict-preparation.ts",
+      "lines": 4,
+      "name": "constructor",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 2,
+      "startLine": 27
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 33,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 40,
+      "file": "tools/investigation-report/src/strict-preparation.ts",
+      "lines": 9,
+      "name": "read",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 1,
+      "startLine": 32
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 45,
+      "file": "tools/investigation-report/src/strict-preparation.ts",
+      "lines": 4,
+      "name": "readMany",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 3,
+      "startLine": 42
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 52,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 56,
+      "file": "tools/investigation-report/src/strict-preparation.ts",
+      "lines": 6,
+      "name": "forEachRecordTextSnapshot",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 4,
+      "startLine": 51
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 28,
+          "token": "?"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 29,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 2,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 28
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 30,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 30
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 44,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 5,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 40
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 54,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 54
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 70,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 70
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 78,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 24,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 55
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 31,
+          "token": "for"
+        },
+        {
+          "line": 35,
+          "token": "?"
+        },
+        {
+          "line": 47,
+          "token": "for"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 81,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 29,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 25
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 82,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 3,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 24
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 102,
+          "token": "catch"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 106,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 9,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 98
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 110,
+          "token": "if"
+        },
+        {
+          "line": 115,
+          "token": "if"
+        },
+        {
+          "line": 119,
+          "token": "if"
+        },
+        {
+          "line": 121,
+          "token": "?"
+        },
+        {
+          "line": 124,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 6
+      },
+      "endLine": 126,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 18,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "parameterCount": 0,
+      "startLine": 109
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 133,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 137,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 7,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 131
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 140,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 140
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 146,
+          "token": "catch"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 150,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 9,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 142
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 156,
+          "token": "if"
+        },
+        {
+          "line": 161,
+          "token": "if"
+        },
+        {
+          "line": 165,
+          "token": "if"
+        },
+        {
+          "line": 167,
+          "token": "?"
+        },
+        {
+          "line": 170,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 6
+      },
+      "endLine": 172,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 18,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "parameterCount": 0,
+      "startLine": 155
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 174,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 34,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 85
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 175,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 3,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 84
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 195,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 200,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 7,
+      "name": "value",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 1,
+      "startLine": 194
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 181,
+          "token": "for"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 212,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 29,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 178
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 213,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 3,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 177
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 223,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 228,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 8,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 221
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 230,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 8,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 216
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 231,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 3,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 215
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 239,
+          "token": "for"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 260,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 27,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 234
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 261,
+      "file": "tools/record-operations/tests/reader-batch.test.ts",
+      "lines": 3,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 233
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 23,
+      "file": "tools/record-operations/tests/reader-snapshot.test.ts",
+      "lines": 6,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 18
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 25,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 27,
+      "file": "tools/record-operations/tests/reader-snapshot.test.ts",
+      "lines": 4,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 24
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 30,
+      "file": "tools/record-operations/tests/reader-snapshot.test.ts",
+      "lines": 2,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 29
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 33,
+      "file": "tools/record-operations/tests/reader-snapshot.test.ts",
+      "lines": 13,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 12
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 34,
+      "file": "tools/record-operations/tests/reader-snapshot.test.ts",
+      "lines": 3,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 11
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 43,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 52,
+      "file": "tools/record-operations/tests/reader-snapshot.test.ts",
+      "lines": 12,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 41
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 55,
+      "file": "tools/record-operations/tests/reader-snapshot.test.ts",
+      "lines": 2,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 54
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 60,
+      "file": "tools/record-operations/tests/reader-snapshot.test.ts",
+      "lines": 2,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 59
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 62,
+      "file": "tools/record-operations/tests/reader-snapshot.test.ts",
+      "lines": 13,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 37
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 63,
+      "file": "tools/record-operations/tests/reader-snapshot.test.ts",
+      "lines": 3,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 36
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 87,
+      "file": "tools/record-operations/tests/reader-snapshot.test.ts",
+      "lines": 13,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 75
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 90,
+      "file": "tools/record-operations/tests/reader-snapshot.test.ts",
+      "lines": 2,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 89
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 94,
+      "file": "tools/record-operations/tests/reader-snapshot.test.ts",
+      "lines": 2,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 93
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 69,
+          "token": "for"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 2
+      },
+      "endLine": 99,
+      "file": "tools/record-operations/tests/reader-snapshot.test.ts",
+      "lines": 20,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 66
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 100,
+      "file": "tools/record-operations/tests/reader-snapshot.test.ts",
+      "lines": 3,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 65
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 19,
+          "token": "for"
+        },
+        {
+          "line": 41,
+          "token": "?"
+        },
+        {
+          "line": 43,
+          "token": "if"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 4
+      },
+      "endLine": 49,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 38,
+      "name": "isolatedReader",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 2,
+      "startLine": 12
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 60,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 10,
+      "name": "executeNode",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 3,
+      "startLine": 51
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 71,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 4,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 68
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 73,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 2,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 72
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 83,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 4,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 80
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 87,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 2,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 86
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 89,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 89
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 96,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 4,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 93
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 97,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 23,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 63
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 98,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 3,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 62
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 140,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 40,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 101
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 141,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 3,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 100
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 158,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 15,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 144
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 159,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 3,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 143
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 191,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 30,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 162
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 194,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 1,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 194
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 199,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 10,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 161
+    },
+    {
+      "complexityContributors": [
+        {
+          "line": 204,
+          "token": "for"
+        },
+        {
+          "line": 216,
+          "token": "?"
+        }
+      ],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 3
+      },
+      "endLine": 235,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 33,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "parameterCount": 0,
+      "startLine": 203
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 236,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 3,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 202
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 270,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 31,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 239
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 271,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 3,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 238
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 294,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 21,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 274
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 295,
+      "file": "tools/record-operations/tests/reader-worker-runtime.test.ts",
+      "lines": 3,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 273
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 9,
+      "file": "tools/record-operations/tests/reader-fixture.ts",
+      "lines": 1,
+      "name": "fixture",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 1,
+      "startLine": 9
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 28,
+      "file": "tools/record-operations/tests/reader-fixture.ts",
+      "lines": 2,
+      "name": "(anonymous)",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 0,
+      "startLine": 27
+    },
+    {
+      "complexityContributors": [],
+      "cyclomaticComplexity": {
+        "source": "typescript-analyzer",
+        "value": 1
+      },
+      "endLine": 29,
+      "file": "tools/record-operations/tests/reader-fixture.ts",
+      "lines": 5,
+      "name": "many",
+      "nestingDepth": {
+        "source": "typescript-analyzer",
+        "value": 0
+      },
+      "parameterCount": 1,
+      "startLine": 24
+    }
+  ]
+}

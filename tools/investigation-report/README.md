@@ -87,13 +87,15 @@ content 使用严格发布索引选择范围，仅在有关系条件时验完整
 
 诊断有可靠系统证据时才增加净化的 category、operation 和 target；权限或工具故障不映射为无条件重试。即时输出不保存日志、遥测或 receipt。只对真实 mutation 声明 scope/outcome。
 
+统一 discard 在单一集合锁内采集 layout 并分类候选/正式目标，将同阶段 layout 与 strict preparation 交给领域内部执行；公开候选/正式 SDK 入口仍各自取得锁。rename 只有显式 preflight 在锁外完整准备，正式执行仅轻量入口核对后锁内准备；后续 fresh、写后与恢复不复用旧阶段。
+
 ### 安全正文读取
 
 show 的完整正文读取交给共同操作的 `source.ts`；本域提供所选 ID 和定位，并据发布指纹判断来源 warning。共同安全边界见[操作入口与责任](../record-operations/README.md#操作入口与责任)。
 
 ### 检查与同步
 
-sync 的来源验收由领域采集，baseline/selector、原生构建与独立 fresh/同步由共同操作编排；selected 的完整来源、未选变化及最终 metadata/revision 保护不降低。
+全量 sync 的完整来源验收由领域采集；`selected-sync.ts` 提供本域解析、revision、关系/owner 依赖、完整组合图与直接资源验证，交给共同局部同步入口。selected 已知路径/未读基线与独立 fresh 边界由[共同操作](../record-operations/README.md#同阶段证据与后续复核)承接；调用者结果见 [CLI 检查与同步](../../skills/investigation-report/references/cli-operations.md#检查与同步)。删除/同路径改 ID 的旧 owner 已知位置须在准备与独立 fresh 中证明缺失，任何残留均要求显式资源治理，不自动删除、不扫描其他 owner。原始 native sync 与 stage 不变。
 
 全量 check 使用首次采集的同一份身份、源字节、解析结果与资源事实，每份正文读取一次；单阶段复用不构成跨调用缓存。同步（含预检）及其他写操作仍在各自边界重新取得可变来源，拒绝期间漂移。
 

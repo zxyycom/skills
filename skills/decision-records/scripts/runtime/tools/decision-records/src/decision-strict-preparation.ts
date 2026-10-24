@@ -7,10 +7,8 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
-import {
-  readRecordTextSnapshot,
-  type RecordTextSnapshot
-} from "../../record-operations/src/transaction-snapshot.ts";
+import { forEachRecordTextSnapshot } from "../../record-operations/src/reader-batch.ts";
+import { type RecordTextSnapshot } from "../../record-operations/src/transaction-snapshot.ts";
 import { errorText } from "./scan-support.ts";
 import type { SourceFile } from "./scan-contracts.ts";
 
@@ -26,19 +24,20 @@ export async function captureDecisionSourceFiles(
   sourceErrors: string[],
   capture: DecisionSourceCapture
 ): Promise<void> {
-  for (const source of sourceFiles) {
-    try {
-      const captured = await readRecordTextSnapshot(
-        capture.root,
-        source.decisionPath
-      );
-      capture.sources.set(captured.path, captured);
-      source.sourceText = captured.text;
-    } catch (error) {
-      source.sourceReadFailed = true;
-      sourceErrors.push(
-        source.sourcePath + " could not be read: " + errorText(error)
-      );
+  await forEachRecordTextSnapshot(
+    capture.root,
+    sourceFiles.map((source) => source.decisionPath),
+    (result, index) => {
+      const source = sourceFiles[index]!;
+      if (result.ok) {
+        capture.sources.set(result.value.path, result.value);
+        source.sourceText = result.value.text;
+      } else {
+        source.sourceReadFailed = true;
+        sourceErrors.push(
+          source.sourcePath + " could not be read: " + errorText(result.error)
+        );
+      }
     }
-  }
+  );
 }

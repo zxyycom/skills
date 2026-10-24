@@ -93,5 +93,30 @@ export const domainInputOwnershipCases = [
     "tools/decision-records/src/decision-validation.ts",
     "decision-record",
     "test:decision-records:record-and-established-graph"
+  ],
+  [
+    "tools/decision-records/src/decision-selected-sync.ts",
+    "decision-query",
+    "test:decision-records:query-and-index-projection"
+  ],
+  [
+    "tools/decision-records/tests/selected-local-contract.test.ts",
+    "decision-query",
+    "test:decision-records:query-and-index-projection"
+  ],
+  [
+    "tools/investigation-report/src/selected-sync.ts",
+    "investigation-query",
+    "test:investigation-report:index-and-query"
+  ],
+  [
+    "tools/investigation-report/tests/selected-local-contract.test.ts",
+    "investigation-query",
+    "test:investigation-report:index-and-query"
+  ],
+  [
+    "tools/investigation-report/tests/execution-entry-contract.test.ts",
+    "investigation-maintenance",
+    "test:investigation-report:transactional-maintenance"
   ]
 ] as const;

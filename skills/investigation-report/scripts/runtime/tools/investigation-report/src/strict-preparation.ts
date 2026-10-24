@@ -7,6 +7,10 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import {
+  forEachRecordTextSnapshot,
+  type RecordReadResult
+} from "../../record-operations/src/reader-batch.ts";
 import path from "node:path";
 import {
   readRecordTextSnapshot,
@@ -42,6 +46,23 @@ export class InvestigationPreparation {
     const captured = await readRecordTextSnapshot(this.root, target);
     this.snapshots.set(captured.path, captured);
     return captured.text;
+  }
+
+  async readMany(
+    targets: readonly string[],
+    consume: (result: RecordReadResult<string>, index: number) => void
+  ): Promise<void> {
+    for (const target of targets)
+      if (this.snapshots.has(path.resolve(target)))
+        throw new Error(
+          "Strict Investigation source was already captured: " + target
+        );
+    await forEachRecordTextSnapshot(this.root, targets, (result, index) => {
+      if (result.ok) {
+        this.snapshots.set(result.value.path, result.value);
+        consume({ ok: true, value: result.value.text }, index);
+      } else consume(result, index);
+    });
   }
 
   captured(target: string, text: string): RecordTextSnapshot {

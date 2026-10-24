@@ -1,0 +1,19 @@
+{
+  "auditedAt": "2026-10-24T04:58:20.596972+00:00",
+  "sampleCount": 26,
+  "rawObservationJSONLRows": 26,
+  "normalProductCommandCount": 26,
+  "supplementalPosteriorCorrectionRecords": 1,
+  "beforeCount": 13,
+  "afterCount": 13,
+  "allRawHashesMatch": true,
+  "allPairedInputsMatch": true,
+  "allAcceptedPosteriorsPass": true,
+  "originalPosteriorFailureCount": 1,
+  "sameRunPosteriorCorrections": [
+    "/workspace/skills/changes/record-operation-performance/evidence/end-to-end/posterior-correction-before-ir-rename-1.json"
+  ],
+  "frozenSourcesAndDependenciesUnchanged": true,
+  "extraExternalFullChecks": 0,
+  "measuredReadOnlyChecks": 4
+}

@@ -1,0 +1,8 @@
+Decision rename committed:
+- old ID: 261001-record-10000
+- new ID: 261001-renamed-record
+- old name: record-10000
+- new name: renamed-record
+- old sourcePath: 261001-record-10000.md
+- new sourcePath: renamed-record.md
+- affected relations: 0 (candidate 0, established 0)

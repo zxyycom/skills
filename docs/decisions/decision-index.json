@@ -144,6 +144,7 @@
       "261022-scope-record-index-payload-validation": "sha256:97af9f53547727d115ec4182430b9319d12b5eb4c13c5012c83a70989bb04f51",
       "261022-separate-quick-gate-from-complete-validation": "sha256:38418e687ffc5adb5244d3f32cde7c41e304786bad7118b6e3f55fae8e8c2c78",
       "261022-separate-record-local-operations-from-collection-audits": "sha256:1a13d4fcf611a5a19df7772603c398c869fbafdffda601b85c0e52d6939fcd8e",
+      "261024-bound-selected-record-sync-currentness": "sha256:7ca10a631d9c961d1622774e10f6b582ffa9258b0cd587fdca1cc500003c1856",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -3301,6 +3302,23 @@
           "summary": "独立承接只读检查并扩展局部维护的来源责任"
         }
       ]
+    },
+    "261024-bound-selected-record-sync-currentness": {
+      "name": "bound-selected-record-sync-currentness",
+      "sourcePath": "bound-selected-record-sync-currentness.md",
+      "title": "限定记录选择性同步的来源新鲜度",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-24T04:15:10Z",
+      "purpose": "让小批记录同步只承担选中来源与必要依赖的当前性保证",
+      "background": "发布索引已有合法未选投影而全集扫描将存量成本重复附加到局部同步",
+      "decision": "选择性同步以合法发布基线组合局部当前事实并显式交付新鲜度范围",
+      "tags": [
+        "decision-records",
+        "investigation-report",
+        "responsibility-boundaries"
+      ],
+      "relations": []
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",

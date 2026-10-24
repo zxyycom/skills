@@ -74,15 +74,20 @@ export function requiredReportSourcePath(
 }
 
 export async function discardFromCollection(
-  options: DiscardCollectionOptions
+  options: DiscardCollectionOptions,
+  acquisition?: Readonly<{
+    preparation: InvestigationPreparation;
+    layout: InvestigationCollectionLayout;
+  }>
 ): Promise<InvestigationReportDiscardResult> {
-  const preparation = new InvestigationPreparation(
-    path.dirname(options.root),
-    options.root
-  );
-  const layout = await inspectInvestigationCollectionLayout(options.root, {
-    preparation
-  });
+  const preparation =
+    acquisition?.preparation ??
+    new InvestigationPreparation(path.dirname(options.root), options.root);
+  const layout =
+    acquisition?.layout ??
+    (await inspectInvestigationCollectionLayout(options.root, {
+      preparation
+    }));
   const current = await collectValidatedInvestigationCollection(options.root, {
     layout,
     preparation

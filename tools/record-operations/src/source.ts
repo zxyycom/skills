@@ -65,7 +65,7 @@ export async function readRecordText(
   );
   try {
     const before = await handle.stat();
-    if (!before.isFile() || !sameIdentity(beforePath.entry, before)) {
+    if (!before.isFile() || !sameSourceIdentity(beforePath.entry, before)) {
       throw new Error("record source changed while opening the file");
     }
     const bytes = await handle.readFile();
@@ -82,7 +82,7 @@ export async function readRecordText(
   }
 }
 
-function assertStableSource(
+export function assertStableSource(
   before: Stats,
   after: Stats,
   beforePath: Awaited<ReturnType<typeof inspectSourcePath>>,
@@ -91,11 +91,11 @@ function assertStableSource(
   const parentsMatch =
     beforePath.parents.length === afterPath.parents.length &&
     beforePath.parents.every((parent, index) =>
-      sameIdentity(parent, afterPath.parents[index]!)
+      sameSourceIdentity(parent, afterPath.parents[index]!)
     );
   if (
     !sameFileSnapshot(before, after) ||
-    !sameIdentity(after, afterPath.entry) ||
+    !sameSourceIdentity(after, afterPath.entry) ||
     !parentsMatch
   )
     throw new Error("record source changed while reading the file");
@@ -103,7 +103,7 @@ function assertStableSource(
 
 function sameFileSnapshot(before: Stats, after: Stats): boolean {
   return (
-    sameIdentity(before, after) &&
+    sameSourceIdentity(before, after) &&
     before.size === after.size &&
     before.mtimeMs === after.mtimeMs &&
     before.ctimeMs === after.ctimeMs
@@ -118,13 +118,7 @@ async function inspectSourcePath(root: string, target: string) {
   for (const [index, component] of components.entries()) {
     current = path.join(current, component);
     const stats = await fs.lstat(current);
-    if (
-      stats.isSymbolicLink() ||
-      (index === components.length - 1 ? !stats.isFile() : !stats.isDirectory())
-    )
-      throw new Error(
-        "record source components must be regular files or directories, without symbolic links"
-      );
+    requireSourceComponent(stats, index === components.length - 1);
     if (index < components.length - 1)
       parents.push({ dev: stats.dev, ino: stats.ino });
   }
@@ -134,7 +128,7 @@ async function inspectSourcePath(root: string, target: string) {
   return { entry: await fs.lstat(target), parents };
 }
 
-function sameIdentity(
+export function sameSourceIdentity(
   left: Readonly<{ dev: number; ino: number }>,
   right: Readonly<{ dev: number; ino: number }>
 ): boolean {
@@ -155,7 +149,18 @@ async function inspectCollectionDirectory(
   root: string
 ): Promise<Readonly<{ dev: number; ino: number }>> {
   const stats = await fs.lstat(root);
+  requireSourceDirectory(stats);
+  return { dev: stats.dev, ino: stats.ino };
+}
+
+/** Async and worker reads use the same component/identity rejection rules. */
+export function requireSourceComponent(stats: Stats, leaf: boolean): void {
+  if (stats.isSymbolicLink() || (leaf ? !stats.isFile() : !stats.isDirectory()))
+    throw new Error(
+      "record source components must be regular files or directories, without symbolic links"
+    );
+}
+export function requireSourceDirectory(stats: Stats): void {
   if (!stats.isDirectory() || stats.isSymbolicLink())
     throw new Error("record collection must remain a canonical directory");
-  return { dev: stats.dev, ino: stats.ino };
 }
