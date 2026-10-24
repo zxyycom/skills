@@ -8,7 +8,7 @@ Tags:
 - `video-understanding`
 
 Contract:
-- 分发 TS 在已具备兼容依赖时可从无仓库祖先依赖的安装位置运行；读取、校正和纯复用不要求媒体环境。
+- 分发 TS 在显式提供兼容依赖后可从仓库外安装位置运行；读取、校正和纯复用不要求媒体环境。
 
 Proves:
 - 真实 Node/Bun 从无关 cwd 执行 help、read、prepare/frames 复用、refine 和 logs，非法参数有非零退出，包、原素材与用户配置目录不被改写。

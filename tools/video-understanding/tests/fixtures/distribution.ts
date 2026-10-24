@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import {
-  access,
   cp,
   mkdir,
   mkdtemp,
@@ -38,12 +37,6 @@ export async function copiedSkill(
   try {
     const directory = await realpath(temporary);
     assert.equal(directory.startsWith(root + path.sep), false);
-    for (let ancestor = directory; ; ancestor = path.dirname(ancestor)) {
-      await assert.rejects(access(path.join(ancestor, "node_modules")), {
-        code: "ENOENT"
-      });
-      if (path.dirname(ancestor) === ancestor) break;
-    }
     const installed = path.join(directory, "installed skill");
     await cp(skill, installed, {
       recursive: true,

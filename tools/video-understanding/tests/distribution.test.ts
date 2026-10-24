@@ -171,18 +171,18 @@ test("public help skips malformed configuration while ordinary commands fail wit
 for (const state of ["missing", "incompatible"]) {
   test(`${state} dependencies retain the loader diagnostic and explicit recovery without installing`, async () =>
     copiedSkill(async ({ directory, installed, entry, home }) => {
+      const target = path.join(installed, "node_modules/valibot");
+      await mkdir(target, { recursive: true });
+      await writeFile(
+        path.join(target, "package.json"),
+        JSON.stringify({
+          name: "valibot",
+          version: "0.0.0",
+          type: "module",
+          exports: "./index.js"
+        })
+      );
       if (state === "incompatible") {
-        const target = path.join(installed, "node_modules/valibot");
-        await mkdir(target, { recursive: true });
-        await writeFile(
-          path.join(target, "package.json"),
-          JSON.stringify({
-            name: "valibot",
-            version: "0.0.0",
-            type: "module",
-            exports: "./index.js"
-          })
-        );
         await writeFile(
           path.join(target, "index.js"),
           "export const incompatibleFixture = true;\n"
@@ -198,8 +198,11 @@ for (const state of ["missing", "incompatible"]) {
       assert.equal(result.stdout, "");
       assert.match(
         result.stderr,
-        state === "missing" ? /valibot|ERR_MODULE_NOT_FOUND/ : /not a function/
+        state === "missing" ? /ERR_MODULE_NOT_FOUND/ : /not a function/
       );
+      if (state === "missing") {
+        assert.ok(result.stderr.includes(path.join(target, "index.js")));
+      }
       assert.match(result.stderr, /pnpm --dir/);
       assert.ok(result.stderr.includes(installed.replaceAll("\\", "\\\\")));
       assert.match(
