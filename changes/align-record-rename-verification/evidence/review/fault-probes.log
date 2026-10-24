@@ -1,9 +1,0 @@
-PASS 1: normalizer rejects canonical duplicate and invalid unchanged permissions before writes
-PASS 2: domain snapshot deep copy cannot poison phase actual observation; root is exact
-PASS 3: batch scheduler retains alias conflicts and ordered failures, not expected-object identity
-PASS 4: worker text acquisition rejects UTF8, symlink and missing without caching failed facts
-PASS 5: postcommit independent phase detects inode winner on normalized unchanged guard
-PASS 6: IR beforePublish aggregates source/index drift and preserves source and target winners
-PASS 7: fresh resource files preserve binary bytes, reject file and directory mode/inode drift, and isolate later direct checks
-PASS 8: prepare resource queue preserves ordered missing/mode failure before directory acquisition, including worker-sized binary reads
-{"passed":8,"fixtureRoot":"/tmp/record-rename-review-NwYJzz","cleanup":"scheduled in finally"}
