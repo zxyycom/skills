@@ -145,6 +145,7 @@
       "261022-separate-quick-gate-from-complete-validation": "sha256:38418e687ffc5adb5244d3f32cde7c41e304786bad7118b6e3f55fae8e8c2c78",
       "261022-separate-record-local-operations-from-collection-audits": "sha256:1a13d4fcf611a5a19df7772603c398c869fbafdffda601b85c0e52d6939fcd8e",
       "261024-bound-selected-record-sync-currentness": "sha256:7ca10a631d9c961d1622774e10f6b582ffa9258b0cd587fdca1cc500003c1856",
+      "261024-separate-test-design-from-evidence-catalog": "sha256:6cf6b51806fc6647e65a14245c39afe632e1a9d4a5d9c270f4bd946344b98b77",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -3317,6 +3318,23 @@
         "decision-records",
         "investigation-report",
         "responsibility-boundaries"
+      ],
+      "relations": []
+    },
+    "261024-separate-test-design-from-evidence-catalog": {
+      "name": "separate-test-design-from-evidence-catalog",
+      "sourcePath": "separate-test-design-from-evidence-catalog.md",
+      "title": "分离测试设计与证据账本的能力边界",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-24T06:06:19Z",
+      "purpose": "让测试设计可独立改善辨错能力与必要成本，同时保持证据账本的职责清晰。",
+      "background": "测试登记和证据审查不能替代测试边界、数据与断言的具体设计，混合流程会让测试改进依赖账本维护。",
+      "decision": "以 test-design 独立承接测试设计与改进，test-evidence-review 保留证据审查与 Case 维护，两者按项目选择协作。",
+      "tags": [
+        "responsibility-boundaries",
+        "test-design",
+        "test-evidence-review"
       ],
       "relations": []
     },
