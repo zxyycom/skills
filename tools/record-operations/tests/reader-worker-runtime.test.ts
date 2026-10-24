@@ -121,7 +121,7 @@ test("record native Node worker failures and malformed replies cannot become per
     await executeNode(root, script);
     await fs.writeFile(
       worker,
-      'import {parentPort} from "node:worker_threads"; parentPort.once("message", (request) => { parentPort.postMessage(request.paths.map(() => ({ok: true, result: {kind: "text", value: "a"}}))); process.exit(0); });'
+      'import {parentPort} from "node:worker_threads"; parentPort.once("message", (request) => { parentPort.postMessage(request.paths.map(() => ({ok: true, result: {kind: "text", value: "a"}}))); parentPort.once("message", () => process.exit(0)); });'
     );
     await executeNode(
       root,
@@ -129,9 +129,16 @@ test("record native Node worker failures and malformed replies cannot become per
       import assert from "node:assert/strict";
       const {forEachRecordText} = await import(${JSON.stringify(entry)});
       let calls = 0;
-      const exited = new Promise((resolve) => process.once("worker", (worker) => worker.once("exit", resolve)));
+      let readerWorker;
+      const exited = new Promise((resolve) => process.once("worker", (worker) => {
+        readerWorker = worker;
+        worker.once("exit", resolve);
+      }));
       await assert.rejects(forEachRecordText(${JSON.stringify(root)}, Array(1000).fill("a.md"), async () => {
-        calls++; await exited;
+        calls++;
+        // 首个 consumer 已进入后才触发退出，避免回包与退出的事件调度竞态。
+        readerWorker.postMessage(null);
+        await exited;
       }), /exited with code 0/);
       assert.equal(calls, 1);
     `
