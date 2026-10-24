@@ -110,7 +110,8 @@ function refreshedPendingIndex(
     sameRecordStagePendingIndex(previous.snapshot, snapshot, indexPath)
   )
     return previous.pending;
-  if (options.scope === "domain") return locatorIndex;
+  // all/domain reach this path only after the locator payload extension proof.
+  if (options.scope !== "index") return locatorIndex;
   const file = snapshot.files.find((file) => file.path === indexPath);
   return file === undefined ? null : indexFromFile(file);
 }

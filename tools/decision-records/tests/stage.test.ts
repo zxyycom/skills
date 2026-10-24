@@ -10,3 +10,5 @@ await import("./stage-sources.test.ts");
 await import("./local-stage-contracts.test.ts");
 
 await import("./stage-index-payload.test.ts");
+
+await import("./stage/locator-index.test.ts");

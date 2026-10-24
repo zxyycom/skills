@@ -286,6 +286,8 @@
       "DECISION-SPLIT-SINGLE-SUCCESSOR-001": "sha256:33f3f9bc03b4cb76869ab022a1ebc1cd0e8d359a171662fa4c318503a9d2bd45",
       "DECISION-SPLIT-TRANSACTION-001": "sha256:7c3d009168ddbc737847f76cab9ca12c79ecf70ceada8c870b7d0523f43c68da",
       "DECISION-STAGE-ADDITION-001": "sha256:f3d1e849997fbe5b5707f6e5f02fb91d2e3dac7bde66522e4670bbfdb8e306fd",
+      "DECISION-STAGE-ALL-LOCATOR-EXTENSION-DRIFT-001": "sha256:48fa311de67fdc3905dd70076f12cb5de02154beec6ec8e577f9ac274c862d9b",
+      "DECISION-STAGE-ALL-LOCATOR-PARSE-REUSE-001": "sha256:a47915c94585ee9a83e332c1d7fc4068f00619135ae07b23760010f3a399f73a",
       "DECISION-STAGE-ARGV-SCOPE-WIRING-001": "sha256:055c295a727c989da567303510de8fd05cee6e1378ef2260a2c83489c90b1cea",
       "DECISION-STAGE-BAD-PENDING-001": "sha256:71b099edebb4801b1acaa12ec0ce31d7bb2df6438a5b51aa1aa7542bc1f54340",
       "DECISION-STAGE-BOOTSTRAP-001": "sha256:051de4d8af5645c065acd4c418e40e340d0c78d312ad526b5ba5f41fb3237197",
@@ -4171,6 +4173,28 @@
       ],
       "testIds": [
         "test:7edba468217e7bf0bce3d62a8defd0676a6b0b97c2ca003ce7d8568f423ed79f"
+      ]
+    },
+    "DECISION-STAGE-ALL-LOCATOR-EXTENSION-DRIFT-001": {
+      "title": "all 暂存拒绝 locator 到扩展捕获之间的 pending 漂移",
+      "sourcePath": "cases/decision-stage-all-locator-extension-drift.md",
+      "tags": [
+        "decision-records",
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:eb71b1906bfd499b13f6e78d1b7f452f3c19408b88eee08b1f3a65dce60dfac8"
+      ]
+    },
+    "DECISION-STAGE-ALL-LOCATOR-PARSE-REUSE-001": {
+      "title": "all 暂存复用已验 locator 索引解析",
+      "sourcePath": "cases/decision-stage-all-locator-parse-reuse.md",
+      "tags": [
+        "decision-records",
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:ca064806ea21982904eea07660f7188a6716e2b85364f5d929f8d7343ed34af8"
       ]
     },
     "DECISION-STAGE-ARGV-SCOPE-WIRING-001": {
