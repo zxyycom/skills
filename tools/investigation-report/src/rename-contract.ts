@@ -1,4 +1,5 @@
 import type { InvestigationPreparation } from "./strict-preparation.ts";
+import type { RecordFileSnapshot } from "../../record-operations/src/transaction-files.ts";
 import type {
   InvestigationIndexState,
   ParsedInvestigationReport
@@ -92,29 +93,22 @@ export type ResourceMove = Readonly<{
   root?: string;
 }>;
 
+export type ResourceDirectoryIdentity = Readonly<{
+  dev: number;
+  ino: number;
+  mode: number;
+}>;
+
+/** Mutable ownership journal for one resource move and its possible recovery. */
 export type ResourceMoveProgress = {
-  sourceRemovalStarted: boolean;
-  sourceRemoved: boolean;
   targetClaimed: boolean;
-  sourceFiles?: Map<
-    string,
-    import("../../record-operations/src/transaction-files.ts").RecordFileSnapshot
-  >;
-  writtenFiles?: Map<
-    string,
-    import("../../record-operations/src/transaction-files.ts").RecordFileSnapshot
-  >;
-  removedFiles?: Set<string>;
-  sourceDirectories?: Map<
-    string,
-    Readonly<{ dev: number; ino: number; mode: number }>
-  >;
-  targetDirectories?: Map<
-    string,
-    Readonly<{ dev: number; ino: number; mode: number }>
-  >;
-  removedDirectories?: Set<string>;
-  uncertainWrite?: boolean;
+  sourceFiles: Map<string, RecordFileSnapshot>;
+  writtenFiles: Map<string, RecordFileSnapshot>;
+  removedFiles: Set<string>;
+  sourceDirectories: Map<string, ResourceDirectoryIdentity>;
+  targetDirectories: Map<string, ResourceDirectoryIdentity>;
+  removedDirectories: Set<string>;
+  uncertainWrite: boolean;
 };
 
 export type PreparedRename = Readonly<{

@@ -99,17 +99,25 @@ relationReview 按规范 source ID 排序，覆盖全部所选成员，before �
 
 ## 非 stage 事务与恢复
 
-`decision-transaction.ts` 将局部发布基线和严格全集两种领域准备适配给 `tools/record-operations/src/transaction.ts`；`decision-transaction-plan.ts` 提供领域提案、适用来源与成员保护，再经共同计划归一化保留实际写集，`decision-transaction-projection.ts` 负责领域索引投影。普通维护不扩大全集正文 scope；首次 publish、严格 rename/discard 和带删除 evolve 也不能绕开共同编排。stage 继续使用原协调器。
+非 stage 事务统一交给共同 owner 编排[事务顺序与实际写集恢复](../record-operations/README.md#事务事实与恢复)，领域适配分工如下：
 
-共同 owner 持有[事务顺序与实际写集恢复](../record-operations/README.md#事务事实与恢复)；领域适配提供每阶段所需的来源、成员、投影与写集，不另拼写入或索引恢复流程。调用者的提交结果与对账动作分别见[操作结果](../../skills/decision-records/references/cli-operations.md#结果与恢复)和[恢复规则](../../skills/decision-records/references/maintenance-recovery.md#中断写入)。
+| 模块 | 领域责任 |
+| --- | --- |
+| `decision-transaction.ts` | 提供局部发布基线或严格全集的领域准备；普通维护只读取适用范围，首次 publish、严格 rename/discard 和带删除 evolve 也使用共同事务。 |
+| `decision-transaction-plan.ts` | 提供领域提案、适用来源与成员保护，经共同计划归一化形成实际写集。 |
+| `decision-transaction-projection.ts` | 构造领域索引投影。 |
 
-same ID / same path rename 在合法发布投影或真实缺索引身份发现、必要来源安全及可见冲突确认后走独立 fresh 的零写路径，不规范正文、索引或 mode，不读取历史确认；真实 rename 继续严格验证全集和历史。删除末条正式记录保留合法空索引。
+stage 使用上节的 Index Runtime 协调器。调用者的提交结果与对账动作见[操作结果](../../skills/decision-records/references/cli-operations.md#结果与恢复)和[恢复规则](../../skills/decision-records/references/maintenance-recovery.md#中断写入)。
+
+同 ID、同 sourcePath 的 rename 在合法发布投影或真实缺索引身份发现、必要来源安全及可见冲突确认后走独立 fresh 的零写路径，不规范正文、索引或 mode，不读取历史确认；真实 rename 继续严格验证全集和历史。删除末条正式记录保留合法空索引。
 
 ## 检查与同步
 
 全量只读 check 把首次安全采集的正文投影、身份与来源指纹交给共同操作，比较完整预期索引文本；不在结束时重读全集，不保证结束新鲜度或跨文件原子快照。调用方持有的旧 scan 不能作为新一次检查的来源事实。
 
-全量同步将完整来源 scan 的已验字节、身份与状态投影直接交给共同操作。`decision-selected-sync.ts` 提供本域解析、来源 revision、前后关系邻居/完整演进事件与全图验证，交给共同局部同步入口；其已知路径、未读基线与独立 fresh 边界见[共同操作](../record-operations/README.md#同阶段证据与后续复核)，调用者结果见 [CLI 检查与同步](../../skills/decision-records/references/cli-operations.md#检查与同步)。不改变原始 `syncDecisionIndex` 的通用完整验证契约、stage 或其他消费者。
+全量同步将完整来源 scan 的已验字节、身份与状态投影交给共同操作。局部同步由 `decision-selected-sync.ts` 提供本域解析、来源 revision、前后关系邻居、完整演进事件与全图验证，再交给共同局部同步入口。
+
+已知路径、未读基线和独立 fresh 的保证见[共同操作](../record-operations/README.md#同阶段证据与后续复核)，调用者结果见 [CLI 检查与同步](../../skills/decision-records/references/cli-operations.md#检查与同步)。公开 `syncDecisionIndex` 仍执行通用完整来源验证；stage 的保证由上节承接。
 
 ## 交付验证
 

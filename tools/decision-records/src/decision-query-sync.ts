@@ -1,13 +1,10 @@
 import { synchronizeSelectedDecisionIndex } from "./decision-selected-sync.ts";
 import path from "node:path";
-import type { StateIndexDiagnostic } from "../../index-runtime/src/index.ts";
-import type { DecisionScan } from "./types.ts";
 import { synchronizeRecordIndex } from "../../record-operations/src/synchronize.ts";
 import { decisionSnapshotFromScan } from "./scan-index-check.ts";
 import { createDecisionStateIndexDefinition } from "./decision-index-definition.ts";
 import {
   decisionDiagnostic,
-  decisionDiagnosticFromReason,
   decisionFailure,
   type DecisionApplicationFailure
 } from "./application-result.ts";
@@ -17,10 +14,6 @@ import {
   decisionIndexFileName,
   syncDecisionIndex
 } from "./decision-state-index.ts";
-import {
-  normalizeDecisionSelectorInput,
-  parseDatedDecisionId
-} from "./decision-path.ts";
 import {
   decisionScanOptions,
   resolveDecisionLocation
@@ -72,23 +65,7 @@ async function synchronizeLockedDecisionIndex(
     definition: createDecisionStateIndexDefinition(),
     indexPath: decisionIndexFileName,
     mode: request.preflight ? "preview" : "write",
-    snapshot: decisionSnapshotFromScan(validation.scan),
-    ...(request.selectors === undefined
-      ? {}
-      : {
-          selectors: request.selectors,
-          ...(validation.scan.index === null &&
-          validation.scan.indexErrors.length > 0
-            ? { baselineFailure: scannedBaselineFailure(validation.scan) }
-            : {})
-        }),
-    selectorPolicy: {
-      label: "Decision",
-      codePrefix: "decision-records",
-      normalize: normalizeDecisionSelectorInput,
-      datedId: (selector) => parseDatedDecisionId(selector)?.id ?? null,
-      nameFromId: (id) => parseDatedDecisionId(id)?.name ?? id
-    }
+    snapshot: decisionSnapshotFromScan(validation.scan)
   });
   if (synchronized.status === "error")
     return syncIndexNoChange(
@@ -100,7 +77,7 @@ async function synchronizeLockedDecisionIndex(
     indexRelativePath: validation.scan.indexRelativePath,
     scope: synchronized.scope,
     selectedIds: synchronized.selectedIds,
-    selectors: request.selectors === undefined ? [] : [...request.selectors],
+    selectors: [],
     state: synchronized.state,
     status: "ok",
     unactivatedPaths: activationCandidates(validation.scan).map(
@@ -216,38 +193,4 @@ function syncIndexRuntimeFailure(
         }))
       }
     : failure;
-}
-
-/** Only a failed acquired index is handed off; valid index membership drift is not a baseline read failure. */
-function scannedBaselineFailure(scan: DecisionScan): StateIndexDiagnostic[] {
-  return scan.indexErrors.map((message) => {
-    const diagnostic = decisionDiagnosticFromReason(
-      {
-        code: "decision-records.sync-index-failed",
-        recovery:
-          "Restore the required Decision index or explicitly run a full sync after verifying its sources.",
-        target: scan.indexRelativePath
-      },
-      message
-    );
-    const cause = diagnostic.causeCategory;
-    return {
-      code: "state-index.index-read-failed",
-      message: diagnostic.reason,
-      path: scan.indexRelativePath,
-      stateId: null,
-      ...(cause === "access-denied" ||
-      cause === "not-found" ||
-      cause === "unknown"
-        ? {
-            filesystem: {
-              causeCategory: cause,
-              detail: diagnostic.detail ?? null,
-              operation: "read",
-              target: scan.indexRelativePath
-            }
-          }
-        : {})
-    };
-  });
 }

@@ -142,12 +142,7 @@ async function recoverDiscardResources(
   const { resourceMove, options, progress } = context;
   if (resourceMove === null) return;
   const owner = path.basename(options.resourceOwnerPath);
-  const errors = await restoreResourceOwnerMove(
-    resourceMove,
-    owner,
-    owner,
-    progress
-  );
+  const errors = await restoreResourceOwnerMove(resourceMove, owner, progress);
   if (errors.length > 0) throw new Error(errors.join("; "));
 }
 async function cleanupDiscardTombstone(

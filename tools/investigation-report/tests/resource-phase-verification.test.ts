@@ -5,6 +5,7 @@ import test from "node:test";
 import { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
 import { withTempRoot } from "./fixture-support.ts";
 import {
+  createResourceMoveProgress,
   prepareResourceSourceProof,
   verifyResourceSourceProof
 } from "../src/rename-resource-proof.ts";
@@ -24,11 +25,7 @@ test("Investigation fresh resource phase rejects wrong roots even without files 
     for (const protectedRange of [
       progress,
       { ...progress, sourceFiles: new Map() },
-      {
-        sourceRemovalStarted: false,
-        sourceRemoved: false,
-        targetClaimed: false
-      }
+      createResourceMoveProgress()
     ])
       await assert.rejects(
         verifyResourceSourceProof(root, owner, protectedRange, wrong),
@@ -36,7 +33,7 @@ test("Investigation fresh resource phase rejects wrong roots even without files 
       );
     const phase = new RecordVerificationPhase(root);
     await verifyResourceSourceProof(root, owner, progress, phase);
-    const before = progress.sourceFiles!.get("evidence.bin")!;
+    const before = progress.sourceFiles.get("evidence.bin")!;
     await fs.chmod(resource, before.mode ^ 0o100);
     await assert.rejects(
       verifyResourceSourceProof(
@@ -50,7 +47,7 @@ test("Investigation fresh resource phase rejects wrong roots even without files 
     await fs.chmod(resource, before.mode);
     await fs.chmod(
       path.join(owner, "empty"),
-      progress.sourceDirectories!.get("empty")!.mode ^ 0o100
+      progress.sourceDirectories.get("empty")!.mode ^ 0o100
     );
     await assert.rejects(
       verifyResourceSourceProof(
@@ -84,13 +81,13 @@ test("Investigation resource preparation preserves ordered binary snapshots and 
       files: [{ path: "b.bin" }, { path: "a.bin", mode }],
       directories: [""]
     });
-    assert.deepEqual([...prepared.sourceFiles!.keys()], ["b.bin", "a.bin"]);
+    assert.deepEqual([...prepared.sourceFiles.keys()], ["b.bin", "a.bin"]);
     assert.deepEqual(
-      Buffer.from(prepared.sourceFiles!.get("a.bin")!.bytes),
+      Buffer.from(prepared.sourceFiles.get("a.bin")!.bytes),
       Buffer.from([0xff])
     );
-    assert.equal(prepared.sourceFiles!.get("a.bin")!.mode, mode);
-    assert.ok(prepared.sourceDirectories!.has(""));
+    assert.equal(prepared.sourceFiles.get("a.bin")!.mode, mode);
+    assert.ok(prepared.sourceDirectories.has(""));
     for (const files of [
       [{ path: "missing.bin" }, { path: "a.bin", mode: mode ^ 0o100 }],
       [{ path: "a.bin", mode: mode ^ 0o100 }, { path: "missing.bin" }]

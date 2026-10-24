@@ -86,14 +86,13 @@ test("record worker consumer failure and cancellation settle without late callba
       (error) => error === failure
     );
     assert.equal(callbacks, 2);
-    await new Promise((resolve) => setTimeout(resolve, 25));
-    assert.equal(callbacks, 2);
     // A new call is a real acquisition, not a successful tail from an aborted worker.
     await fs.writeFile(path.join(root, "a.md"), "after abort");
     await forEachRecordText(root, paths, (result) => {
       assert.ok(result.ok);
       assert.equal(result.value, "after abort");
     });
+    assert.equal(callbacks, 2);
   });
 });
 
@@ -180,22 +179,38 @@ test("record native Node shutdown closes every actual synchronous read handle", 
       root,
       `
       import assert from "node:assert/strict";
+      import fs from "node:fs";
       const {forEachRecordText} = await import(${JSON.stringify(entry)});
       const paths = Array(1000).fill("a.md");
       const failure = new Error("consumer stopped");
       await assert.rejects(forEachRecordText(${JSON.stringify(root)}, paths, () => {throw failure}), (error) => error === failure);
+      assert.equal(fs.readFileSync(${JSON.stringify(closed)}, "utf8").trim().split("\\n").length, 1);
       const abort = new AbortController();
       await assert.rejects(forEachRecordText(${JSON.stringify(root)}, paths, () => abort.abort(failure), abort.signal), (error) => error === failure);
+      assert.equal(fs.readFileSync(${JSON.stringify(closed)}, "utf8").trim().split("\\n").length, 2);
     `
     );
     const observations: unknown[] = (await fs.readFile(closed, "utf8"))
       .trim()
       .split("\n")
       .map((line) => JSON.parse(line) as unknown);
-    assert.deepEqual(observations, [
-      { reads: 64, open: 0 },
-      { reads: 64, open: 0 }
-    ]);
+    assert.equal(
+      observations.length,
+      2,
+      "both workers exited before the calls returned"
+    );
+    for (const observation of observations) {
+      assert.ok(typeof observation === "object" && observation !== null);
+      assert.ok(
+        "reads" in observation && typeof observation.reads === "number"
+      );
+      assert.ok(
+        observation.reads > 0,
+        "worker must have acquired actual files"
+      );
+      assert.ok("open" in observation);
+      assert.equal(observation.open, 0);
+    }
   });
 });
 

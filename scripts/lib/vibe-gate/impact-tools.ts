@@ -60,6 +60,7 @@ const decisionMaintenanceInputs = [
   "tools/decision-records/src/decision-source-membership.ts",
   "tools/decision-records/tests/{activation-archive,candidate-lifecycle,candidate-scaffold,candidate-operations,evolution,lifecycle-relations,relation-maintenance,rename,transaction-recovery,unrecorded-history,filesystem-boundaries,batch-lookup,first-establishment,reallocation-member-complexity,successor-relation-overrides,local-operation-contracts,candidate-transaction-boundaries,record-shared-transactions,transaction-boundaries,transaction-creation-modes,transaction-strict-preparation}.test.ts",
   "tools/decision-records/tests/reallocation-fixture.ts",
+  "tools/decision-records/tests/native-creation-mode-probe.ts",
   "tools/decision-records/tests/support-local-contracts.ts",
   "tools/decision-records/tests/{activation-archive,candidate-lifecycle,candidate-scaffold,candidate-operations,evolution,lifecycle-relations,relation-maintenance,rename,transaction-recovery,unrecorded-history,filesystem-boundaries}/**",
   "tools/decision-records/tests/checks/lifecycle-and-recovery.ts"
@@ -100,8 +101,10 @@ const investigationMaintenanceInputs = [
   ...recordOperationInputs,
   "tools/investigation-report/src/{candidate*,discard*,publish*,relation-review*,relation-transaction*,rename*,strict-preparation,transaction-files}.ts",
   "tools/investigation-report/tests/publish-support.ts",
+  "tools/investigation-report/tests/native-creation-mode-probe.ts",
   "tools/investigation-report/tests/{rename-resource-fixture,phase-verification-support}.ts",
   "tools/investigation-report/tests/{transaction*,relation-review,discard*,publish,rename*,resource-phase-verification,strict-preparation,candidate-discard-transaction,candidate-operations,result-integrity,execution-entry-contract}.test.ts",
+  "tools/investigation-report/tests/fixtures/rename-noop/**",
   "tools/investigation-report/tests/checks/transactional-maintenance.ts"
 ];
 const investigationStageInputs = [

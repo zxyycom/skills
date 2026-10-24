@@ -159,7 +159,7 @@ quick 和 changed 可以消费既有 receipt；只有 changed 可以发布，qui
 2. 起始采集联合一次 `git ls-files --cached --others --exclude-standard -z`、`impact-paths.ts` 声明的磁盘目录和配置，以及原生 `collectProjectFiles` 按 `maintainedMarkdownFiles` 选出的 Markdown；磁盘遍历不受 Git ignore 省略，因此覆盖实际读取的 TS/MTS、内部 ignored fixtures、runtime、manifest、lock、索引和生成物。记录 path、kind、mode、size 与内容 SHA-256，并保留 missing 和目录身份。Markdown 能力成员是公共 patterns 命中与原生精确 source 集合的并集，文档排除不裁剪公共输入。
 3. 总量限制为 20,000 项、普通文件 512 MiB。未知路径、symlink 或不支持的文件类型使输入域未闭合；两领域 `src/`、`tests/` 中未归入本领域能力的文件也触发保守执行。该归属检查只发现未归属文件，实际 import、动态读取与传递依赖仍由维护者审查。越界、非 UTF-8 Git 路径、读取失败、超预算或必要工具链探测失败时，在本次有效范围内保守执行，不发布部分证明；quick 不因此升级为完整 base。
 4. 工具链摘要覆盖当前 Node 进程、可执行路径、平台/架构，Node、Bun、pnpm、Python（须可 import `tomllib`）、Git 版本与配置，以及 SCC、ast-grep、Oxfmt、Oxlint、tsgo 的实际探测。Python 是 MCPShell initializer 离线测试的真实输入，探测失败扩大执行，不扩大基础环境 Check 的工具前置。进程环境除 `_`、`OLDPWD`、`SHLVL` 三项父 shell 记账变量外进入摘要；敏感原值不写入证明。为使嵌套 Bun 入口的真实子进程与证明使用一致环境，CLI 在参数通过后、采集与任意子进程前（计入总墙钟），按 Node `path.delimiter` 对实际 `process.env.PATH` 的条目字符串精确去重、保留首次顺序和空/相对项，缺失时不创建，不排序或解析真实路径，其余环境和指纹排除不变。
-5. 每个能力指纹绑定 ID、patterns、选中内容摘要、工具链摘要与全局契约版本；完整 Check 指纹另绑定 Check ID、订阅、成功前置与逐项版本。唯一 receipt 文件是 `.log/vibe-check/cache/project-tool-receipts-v5/receipts.json`：manifest 含 `contractVersion: "project-tool-receipts-v5"`、`formatVersion: 2` 与 `receipts`，每条记录含 `checkId`、`fingerprint`、`outcome: "passed"` 和 `toolFingerprints`。只有完整指纹及订阅能力指纹的集合与值均精确匹配，才形成复用候选。缺失、损坏或变化激活相关工具 flag；无法归因到能力的契约变化激活该 Check 的全部订阅。根依赖字节服从受信 `pnpm install --frozen-lockfile` 前提，不逐文件散列安装目录；包管理器外改写依赖后应先修复安装。
+5. 每个能力指纹绑定 ID、patterns、选中内容摘要、工具链摘要与全局契约版本；完整 Check 指纹另绑定 Check ID、订阅、成功前置与逐项版本。唯一 receipt 文件是 `.log/vibe-check/cache/project-tool-receipts-v5/receipts.json`：manifest 含 `contractVersion: "project-tool-receipts-v6"`、`formatVersion: 2` 与 `receipts`，每条记录含 `checkId`、`fingerprint`、`outcome: "passed"` 和 `toolFingerprints`。只有完整指纹及订阅能力指纹的集合与值均精确匹配，才形成复用候选。缺失、损坏或变化激活相关工具 flag；无法归因到能力的契约变化激活该 Check 的全部订阅。根依赖字节服从受信 `pnpm install --frozen-lockfile` 前提，不逐文件散列安装目录；包管理器外改写依赖后应先修复安装。
 6. 只有 changed 的最终 Run completed/passed 且本次全部 execute 项（含共享 flag 和成功前置带入项）都 passed，才重取同一输入域。完整 workspace/toolchain 指纹不变后，将精确复用项与本次通过项合并，原子替换当前 53 项 receipt。能力指纹随每 Check 保存，不另维护工具成功缓存。失败、取消、rejection、原生 output failure、未知输入、漂移、采集或 receipt 写入失败均不发布；起止漂移只阻止发布，不额外改变本次 Gate 结算。cache 不可用只扩大执行，不改变质量结果。full、release 与 CI 全执行路径不采集或发布 receipt。
 
 执行与证明取舍见[原生执行与项目输入证明决策](decisions/separate-quick-gate-from-complete-validation.md)，能力与订阅归属见[工具变更 flag 决策](decisions/distinguish-tool-change-flags-from-check-subscriptions.md)。性能 history、原生计算事实 cache 与项目成功 receipt 分别维护：前者只影响任务选择偏好，计算事实仍须按本次材料和规则结算，只有完整输入精确命中的 receipt 允许省略项目命令或 Markdown 内容 Check。
@@ -341,8 +341,7 @@ Case 使用 Tests、可选 tags、Contract 与 Proves，由测试改动显式维
 2. 顶层脚本只保留入口与编排；`scripts/build/` 承接生成适配，`scripts/lib/` 承接跨脚本共享能力，`scripts/validators/` 承接项目校验项。各目录可以按命令阶段或独立不变量拆分内部模块；稳定的维护命令和明确保留的入口/导出才是跨 owner 消费边界，内部文件名或拆分层级不是文档契约。
 3. `tools/<tool-name>/src/` 承接同步后随 skill 分发的运行时源码，`api/` 承接确需独立维护的公共声明源，`tests/` 承接源码、分发模块和 fixture 验证。skill 的公开程序化边界由生成制品及其声明入口确定，不包括任意 `src/` 子模块。构建适配器选择的源码入口则是维护源码与生成制品的边界：移动或替换该入口时，同步更新 `scripts/build/` 映射、生成头和对应 `sync:*`/`check:*`，而仅拆分入口相邻的内部职责模块不需要在本文另建文件索引。Task Graph 按其[局部决策](decisions/derive-sdk-declarations-from-runtime-source.md)从运行时公开导出机械生成声明，不维护重复的 `api/` 源。Change Plan 只同步可直接 import 的当前 TS 运行时，不建立稳定 SDK 或声明源。
 4. `tools/shared/` 承接多个工具已经真实共享的运行时不变量，以及项目明确选定并预置、具有独立契约的基础实现原语；预置原语不降低其他共享代码的准入条件。当前共享职责包括版本管理、文件文本检索、关系图、Markdown/Node 基础原语和 [`Option`](../tools/shared/src/option.ts)；具体入口与局部契约由源码目录承接。[版本管理中间层](../tools/shared/version-control.md)完整说明版本管理语义，[关系图基础能力](../tools/shared/src/graph/relations.ts)负责保序建图、显式边排序、节点 trace 和结构问题；其源码与测试分别承接实现和验证。关系类型、生命周期、时序和诊断映射仍由领域工具负责。
-5. `tools/skill-package/` 承接 skill 版本以及发布端与 updater 共用的 release manifest 协议；仓库专用的临时 package hash 留在 `scripts/lib/`。[Index Runtime](../tools/index-runtime/README.md) 承接已经建立的跨领域派生索引协议。
-   [共同记录操作](../tools/record-operations/README.md)是仅服务 Decision Records 与 Investigation Report 的窄操作 owner，依赖 Index Runtime 与 shared；两域共享操作编排而不合并领域模型、公开边界或独立分发。已有 stage 协调保持 Index Runtime owner。
+5. 跨领域协议由各自 owner 承接：`tools/skill-package/` 维护 skill 版本及发布端/updater 共用的 release manifest；[Index Runtime](../tools/index-runtime/README.md)维护派生索引协议和记录 stage 协调；[共同记录操作](../tools/record-operations/README.md)仅为 Decision Records 与 Investigation Report 编排操作，依赖 Index Runtime 与 shared。两域保持独立模型、公开边界和分发；仓库专用的临时 package hash 留在 `scripts/lib/`。
 6. 领域工具可以依赖自身源码、`tools/shared/`、`tools/skill-package/`、明确建立的跨领域协议、目标运行时和显式外部依赖；不能依赖 `scripts/`、`skills/`、`dist/` 或另一个领域工具。
 7. 根目录 `tsconfig.json` 统一提供 IDE 与类型检查配置；仓库源码运行、同步适配和普通测试由 Bun 负责。真实 Node smoke、Task-graph native lock 集成测试和分发 CLI 是明确例外，使用对应 skill manifest 与 help 公布的 Node.js engine。
 8. 外部 JSON 在边界做运行时收窄。同一结构被多个入口消费或需要稳定字段诊断时，以 Valibot Schema 为结构真源；跨语言契约从同一 Schema 生成 JSON Schema 和分发声明。
@@ -414,7 +413,7 @@ pnpm --dir "<skill-directory>" install \
 | `tools/record-operations/` | 不独立分发，由 DR/IR 同步器各自复制实际可达操作模块，不依赖另一 skill |
 | `tools/mcpshell-workspace-bridge/` | `skills/mcpshell-workspace-tools/scripts/{init-mcpshell-workspace,mcpshell-workspace}.ts`、包内运行时与 `references/mcpshell-tools.yaml` |
 
-修改 `tools/shared/`、`tools/index-runtime/`、`tools/record-operations/`、`tools/skill-package/` 或其他跨领域维护源码时，先按上表和实际导入关系定位受影响的领域 consumer；对每个受影响 consumer 依次运行对应全部 `sync:*`，再运行对应 `check:*`。共享目录不因没有独立分发目标而免于同步，也不因其共享身份无条件运行全部 `sync:*`。
+修改 `tools/shared/`、`tools/index-runtime/`、`tools/record-operations/`、`tools/skill-package/` 或其他跨领域维护源码时，按上表与实际导入关系确定全部受影响 consumer，再逐一运行其全部 `sync:*` 和对应 `check:*`。同步范围以实际消费闭包为准，包含未独立分发的共享源码。
 
 ### 制品身份与独立版本
 

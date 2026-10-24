@@ -8,7 +8,8 @@ import {
   assertStableSource,
   sameSourceIdentity,
   requireSourceComponent,
-  requireSourceDirectory
+  requireSourceDirectory,
+  type RecordSourcePathObservation
 } from "./source.ts";
 import {
   requireRecordSnapshotEntry,
@@ -53,7 +54,10 @@ export function readRecordTextSync(root: string, sourcePath: string): string {
   }
 }
 
-function inspectSourcePath(root: string, target: string) {
+function inspectSourcePath(
+  root: string,
+  target: string
+): RecordSourcePathObservation {
   const rootStats = fs.lstatSync(root);
   requireSourceDirectory(rootStats);
   const parents = [{ dev: rootStats.dev, ino: rootStats.ino }];

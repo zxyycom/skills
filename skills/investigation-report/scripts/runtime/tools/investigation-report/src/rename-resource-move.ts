@@ -39,10 +39,8 @@ export async function moveResourceOwner(
   beforeSourceOwnerRemoval?: () => Promise<void>
 ): Promise<void> {
   const root = move.root ?? path.dirname(path.dirname(move.from));
-  progress.sourceFiles ??= new Map();
   progress.writtenFiles = new Map();
   progress.removedFiles = new Set();
-  progress.sourceDirectories ??= new Map();
   progress.targetDirectories = new Map();
   progress.removedDirectories = new Set();
   await verifyResourceOwnerSnapshot(move.from, oldId, move.snapshot);
@@ -113,7 +111,6 @@ export async function moveResourceOwner(
   await verifyResourceOwnerSnapshot(move.to, newId, move.snapshot);
   await verifyResourceOwnerSnapshot(move.from, oldId, move.snapshot);
   await beforeSourceOwnerRemoval?.();
-  progress.sourceRemovalStarted = true;
   for (const [relative, original] of progress.sourceFiles) {
     await verifyRecordFile(root, path.join(move.from, relative), original);
     await fs.unlink(path.join(move.from, relative));
@@ -131,7 +128,6 @@ export async function moveResourceOwner(
     await fs.rmdir(path.join(move.from, relative));
     progress.removedDirectories.add(relative);
   }
-  progress.sourceRemoved = true;
 }
 
 export {
@@ -152,9 +148,9 @@ async function createResourceDirectory(
     await fs.mkdir(target, { mode });
     created = true;
     progress.targetClaimed = true;
-    progress.targetDirectories!.set(relative, await directoryIdentity(target));
+    progress.targetDirectories.set(relative, await directoryIdentity(target));
     await fs.chmod(target, mode);
-    progress.targetDirectories!.set(relative, await directoryIdentity(target));
+    progress.targetDirectories.set(relative, await directoryIdentity(target));
   } catch (error) {
     await recordDirectoryCreationFailure(
       target,
@@ -175,7 +171,7 @@ async function recordDirectoryCreationFailure(
   error: unknown
 ): Promise<void> {
   if (created) {
-    if (!progress.targetDirectories!.has(relative))
+    if (!progress.targetDirectories.has(relative))
       progress.uncertainWrite = true;
     return;
   }

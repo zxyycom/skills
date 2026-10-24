@@ -83,6 +83,9 @@ test("record worker batch preserves ordered text and complete root-bound snapsho
 
 test("record worker batch preserves missing unsafe-path and strict UTF-8 failures", async () => {
   await fixture(async (root) => {
+    assert.equal(await readRecordText(root, "a.md"), "\ufeffalpha 中文\n");
+    const healthy = await readRecordTextSnapshot(root, path.join(root, "a.md"));
+    assert.equal(healthy.text, "\ufeffalpha 中文\n");
     await fs.writeFile(path.join(root, "invalid.md"), Buffer.from([0xff]));
     await fs.symlink(path.join(root, "a.md"), path.join(root, "link.md"));
     await fs.symlink(path.join(root, "archive"), path.join(root, "alias"));
@@ -96,23 +99,34 @@ test("record worker batch preserves missing unsafe-path and strict UTF-8 failure
     ];
     const expected = await Promise.all(
       bad.map(async (source) => {
-        try {
-          await readRecordText(root, source);
-          assert.fail("unsafe source was accepted");
-        } catch (error) {
-          assert.ok(error instanceof Error);
-          return error;
-        }
+        const error: unknown = await readRecordText(root, source).then(
+          () => assert.fail("unsafe source was accepted"),
+          (failure: unknown) => failure
+        );
+        assert.ok(error instanceof Error);
+        return error;
       })
     );
     const paths = [...bad, ...many(["a.md"])];
+    let readCount = 0;
     await forEachRecordText(root, paths, (result, index) => {
+      assert.equal(index, readCount++);
       if (index >= bad.length) {
         assert.ok(result.ok);
         return;
       }
       assert.equal(result.ok, false);
       if (result.ok) assert.fail("unsafe source was accepted");
+      if (index === 0)
+        assert.equal(
+          "code" in result.error ? result.error.code : undefined,
+          "ENOENT"
+        );
+      else if (index === 1 || index === 2)
+        assert.match(result.error.message, /symbolic links/);
+      else if (index === 3) assert.match(result.error.message, /regular files/);
+      else if (index === 4)
+        assert.match(result.error.message, /within its collection/);
       assert.equal(result.error.name, expected[index]!.name);
       assert.equal(result.error.message, expected[index]!.message);
       const expectedError = expected[index]!;
@@ -124,6 +138,7 @@ test("record worker batch preserves missing unsafe-path and strict UTF-8 failure
       if (index === bad.length - 1)
         assert.ok(result.error instanceof TypeError);
     });
+    assert.equal(readCount, paths.length);
     let missing = false;
     await forEachRecordFileSnapshot(
       root,
@@ -140,37 +155,50 @@ test("record worker batch preserves missing unsafe-path and strict UTF-8 failure
     const snapshotPaths = bad.map((source) => path.resolve(root, source));
     const snapshotErrors = await Promise.all(
       snapshotPaths.map(async (target) => {
-        try {
-          await readRecordTextSnapshot(root, target);
-          assert.fail("unsafe snapshot was accepted");
-        } catch (error) {
-          assert.ok(error instanceof Error);
-          return error;
-        }
+        const error: unknown = await readRecordTextSnapshot(root, target).then(
+          () => assert.fail("unsafe snapshot was accepted"),
+          (failure: unknown) => failure
+        );
+        assert.ok(error instanceof Error);
+        return error;
       })
     );
-    await forEachRecordTextSnapshot(
-      root,
-      [...snapshotPaths, ...many([path.join(root, "a.md")])],
-      (result, index) => {
-        if (index >= bad.length) {
-          assert.ok(result.ok);
-          return;
-        }
-        assert.equal(result.ok, false);
-        if (result.ok) assert.fail("invalid text snapshot was accepted");
-        const expectedError = snapshotErrors[index]!;
-        assert.equal(result.error.name, expectedError.name);
-        assert.equal(result.error.message, expectedError.message);
-        if ("code" in expectedError)
-          assert.equal(
-            "code" in result.error ? result.error.code : undefined,
-            expectedError.code
-          );
-        if (index === bad.length - 1)
-          assert.ok(result.error instanceof TypeError);
+    const allSnapshotPaths = [
+      ...snapshotPaths,
+      ...many([path.join(root, "a.md")])
+    ];
+    let snapshotCount = 0;
+    await forEachRecordTextSnapshot(root, allSnapshotPaths, (result, index) => {
+      assert.equal(index, snapshotCount++);
+      if (index >= bad.length) {
+        assert.ok(result.ok);
+        return;
       }
-    );
+      assert.equal(result.ok, false);
+      if (result.ok) assert.fail("invalid text snapshot was accepted");
+      if (index === 0)
+        assert.equal(
+          "code" in result.error ? result.error.code : undefined,
+          "ENOENT"
+        );
+      else if (index === 1 || index === 3)
+        assert.match(result.error.message, /regular non-symbolic-link file/);
+      else if (index === 2)
+        assert.match(result.error.message, /non-symbolic-link directory/);
+      else if (index === 4)
+        assert.match(result.error.message, /escaped its canonical root/);
+      const expectedError = snapshotErrors[index]!;
+      assert.equal(result.error.name, expectedError.name);
+      assert.equal(result.error.message, expectedError.message);
+      if ("code" in expectedError)
+        assert.equal(
+          "code" in result.error ? result.error.code : undefined,
+          expectedError.code
+        );
+      if (index === bad.length - 1)
+        assert.ok(result.error instanceof TypeError);
+    });
+    assert.equal(snapshotCount, allSnapshotPaths.length);
   });
 });
 

@@ -112,7 +112,10 @@ relations:
     summary: 将查询投影移出持久索引
 ```
 
-每个 target 是合法 Decision ID，在同一来源记录中唯一，完整图无自环、无环。候选起草先检查类型、ID、重复与自环；new、candidates 与 show-candidate 的完整 target ID 只验语法，允许目标以后创建；目标尚未建立不降低 scaffoldValid 或隐藏候选，name 按[创建操作的选择集合](cli-operations.md#创建与继续候选)唯一解析。正式发布独立验证目标存在及最终完整图；候选建立前留在正式图外，活动前序也无需提前归档。
+每个 target 是合法 Decision ID，在同一来源记录中唯一，完整图无自环、无环。按阶段核对：
+
+- **候选起草**：检查类型、ID、重复与自环。`new`、`candidates` 和 `show-candidate` 的完整 target ID 只验语法，目标可以后创建；未建立 target 不降低 scaffoldValid 或隐藏候选。name 按[创建操作的选择集合](cli-operations.md#创建与继续候选)唯一解析。
+- **正式发布**：独立验证 target 存在及最终完整图。候选建立前留在正式图外，活动前序也无需提前归档。
 
 可选 summary 从来源记录视角说明该边：输入 trim 后为空则省略，非空须为单行且最多 40 个 Unicode 码点，超限拒绝。它补充边的说明，边身份、排序、去重和拓扑继续由 type、target 及领域图规则决定。
 

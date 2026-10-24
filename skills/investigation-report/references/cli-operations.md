@@ -71,7 +71,7 @@ show 通过安全 FileHandle 对同 inode、同一读取字节核对 frontmatter
 - 创建核对输入、可见身份冲突、集合安全和不覆盖条件；成功回显完整 ID、路径及 readiness，随后继续编辑该候选。readiness 未就绪不撤销创建；全局身份与关系冲突由正式发布门禁确认。
 - `show-candidate` 始终分别报告 `scaffoldValid`、`bodyReady`、`resourceReady`。结构合法但正文或资源未就绪仍可成功读取，语义审核和建立授权另外判断。
 
-`new` 的完整关系 target ID 只验领域 ID 语法，目标可以后创建；target name 在候选与发布正式身份（无索引时为可见正式 header 身份）中必须唯一，零项或歧义失败。关系摘要 target 使用同一集合。自身 ID 与 formedAt 日期、同日同名、legacy、目标安全及不覆盖门槛不变。
+`new` 的完整关系 target ID 只验领域 ID 语法，目标可以后创建；target name 在候选与可见正式身份中必须唯一，零项或歧义失败。关系摘要 target 使用同一选择集合。
 
 正式身份/位置优先来自合法发布索引；只有索引真正缺失时才作安全 header 身份发现。已有坏或不兼容索引必须显式恢复，具体范围和失败条件见[候选身份发现与索引状态](maintenance-recovery.md#候选身份发现与索引状态)。
 
@@ -140,13 +140,30 @@ show 通过安全 FileHandle 对同 inode、同一读取字节核对 frontmatter
 
 一批手工编辑可先共同完成，期间局部检查；在关系事务、正式删除、全量验收或暂存所选新来源前统一同步。已知合法变化先同步；任务要求当前全集结论或正在恢复集合时再全量检查。未解释异常先区分来源和索引问题，来源非法或成员安全问题先恢复来源。
 
-selected 同步先要求合法、canonical、当前 definition 的发布 baseline；缺失、损坏或不兼容时显式全量同步，不能当空基线。集合 metadata/revision 不变，name 只从 baseline 解析。只读取所选 baseline 已知路径、前后直接关系邻居、完整拆分/归并事件及所需资源 owner；必要未选依赖必须仍匹配发布投影和来源 revision，变化时显式补选或全量同步。
+### 选择性同步
 
-已知路径缺失按所选删除处理，完整组合关系与 owner 声明仍须合法；它不能区分真实删除和移动到未知位置。已知路径内身份更正必须显式同选旧、新 ID，并在本次读取中证明唯一；没有已读 locator 证明的新 ID 要求全量同步。不扫描未知位置，不保证发现未同步新增、移动、重复身份或新引用；full sync/check 承担这部分全集审计。未选条目与 revision 沿用发布事实，不要求无关当前正文完全未变。
+`sync-index --select` 在可信发布基线上接纳局部当前来源，仍发布完整索引。需要发现未知位置变化或取得当前全集来源结论时，使用全量 sync/check。
 
-选择性删除或已读同路径改 ID 还核对旧 owner 的已知路径：任何残留（含空树、不安全类型或大小写变体）均拒绝索引更新；不代删资源，应恢复来源或显式治理资源后全量同步，full sync 不会自动清除孤立树。初次准备与独立 fresh 均重新核对此范围，不扫描其他 owner。
+| 环节 | 范围与要求 |
+| --- | --- |
+| 基线 | 合法、canonical、当前 definition 的发布 baseline；缺失、损坏或不兼容时显式全量恢复，不当空基线。集合 metadata/revision 不变，name 从 baseline 解析。 |
+| 来源与依赖 | 读取所选已知路径、前后直接关系邻居、完整拆分/归并事件及所需资源 owner。必要未选依赖须匹配发布投影与来源 revision，否则显式补选或全量同步。 |
+| 已知路径缺失 | 按所选删除处理，完整组合关系与 owner 声明仍须合法；旧位置缺失不能区分真实删除和未知位置移动。 |
+| 同路径改 ID | 显式同选旧、新 ID，以本次已读 locator 证明唯一；没有已读位置证明的新 ID 要求全量同步。 |
+| 未读范围 | 未选条目与 revision 沿用发布事实，无关正文可以已有未同步变化。未知位置的新增、移动、重复身份或新引用由全量 sync/check 发现。 |
+| 发布保护 | 写前独立重读本次来源、必要依赖与实际 baseline，unchanged 也须通过；保留原生 baseline、metadata、选择保护、完整组合索引验收及发布后 readback。 |
 
-写前独立重读本次来源、必要依赖与实际 baseline，未变化也须通过；原生 baseline/metadata/选择保护、完整组合索引验收和发布后 readback 保持。selected 成功的 `coverage` 保存 `source: published-index+selected-current-sources`、`currentness: selected-and-dependencies`、排序后的 `checkedIds`：包括所选身份标签（含缺失删除及同路径更正的旧、新 ID）和实际读取的必要依赖，不保证每个标签当前存在，不表示未知位置发现完整；未选来源当前性未检查。CLI 同时说明这一边界。
+**旧 owner 约束**：选择性删除或同路径改 ID 时，准备与独立 fresh 均核对旧 owner 的已知路径缺失。任何残留（包括空树、不安全类型或大小写变体）均拒绝更新；应恢复来源或显式治理资源后全量同步。同步不会代删资源或自动清除孤立树，也不为此扫描其他 owner。
+
+成功 `coverage` 显式报告：
+
+- `source: published-index+selected-current-sources`；
+- `currentness: selected-and-dependencies`，未选来源当前性未检查；
+- 排序后的 `checkedIds`：所选身份标签及实际读取的必要依赖，包括缺失删除和同路径改 ID 的旧、新 ID。标签不保证当前存在，也不表示未知位置发现完整。
+
+CLI 同时说明上述覆盖边界。
+
+### 全量检查与同步结果
 
 全量只读 `check` 用首次采集的成员身份、同份源字节、解析结果及资源事实验证完整预期索引；采集中仍拒绝不安全替换，但不结束重读全集，不承诺结束新鲜度或跨文件原子快照。`check --id` 保持局部 scope；sync 与写事务仍独立 fresh。
 

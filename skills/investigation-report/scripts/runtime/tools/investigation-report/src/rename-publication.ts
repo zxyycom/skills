@@ -25,14 +25,14 @@ import {
 import type {
   InvestigationRenameHooks,
   InvestigationRenameResult,
-  PreparedRename,
-  ResourceMoveProgress
+  PreparedRename
 } from "./rename-contract.ts";
 import {
   moveResourceOwner,
   restoreResourceOwnerMove
 } from "./rename-resource.ts";
 import { verifyResourceOwnerCopy } from "./rename-resource-move.ts";
+import { createResourceMoveProgress } from "./rename-resource-proof.ts";
 import {
   errorText,
   renameFailure,
@@ -51,11 +51,7 @@ export async function publishRename(
   prepared: PreparedRename,
   hooks: InvestigationRenameHooks
 ): Promise<InvestigationRenameResult> {
-  const progress: ResourceMoveProgress = {
-    sourceRemovalStarted: false,
-    sourceRemoved: false,
-    targetClaimed: false
-  };
+  const progress = createResourceMoveProgress();
   const members = await investigationMembers(root);
   const changedPaths: string[] = [];
   const context = { root, prepared, hooks, progress, changedPaths };
@@ -130,7 +126,6 @@ function renameResourceLifecycle(context: RenameTransactionContext) {
       const errors = await restoreResourceOwnerMove(
         move,
         prepared.plan.oldId,
-        prepared.plan.newId,
         progress
       );
       if (errors.length > 0) throw new Error(errors.join("; "));
@@ -151,7 +146,7 @@ async function verifyFreshRename(
   if (prepared.resourceMove !== null) {
     phase.assertRoot(root);
     await phase.verifyMany(
-      [...(progress.sourceFiles ?? [])].map(([relative, before]) => ({
+      [...progress.sourceFiles].map(([relative, before]) => ({
         path: path.join(prepared.resourceMove!.from, relative),
         before
       }))

@@ -120,7 +120,6 @@ function systemErrorText(
 export function restoreReaderError(
   detail: Extract<ReaderReply[number], { ok: false }>["error"]
 ): Error {
-  if (detail instanceof Error) return detail;
   const error =
     detail.name === "TypeError"
       ? new TypeError(detail.message)

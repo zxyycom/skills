@@ -87,9 +87,19 @@ content 使用严格发布索引选择范围，仅在有关系条件时验完整
 
 诊断有可靠系统证据时才增加净化的 category、operation 和 target；权限或工具故障不映射为无条件重试。即时输出不保存日志、遥测或 receipt。只对真实 mutation 声明 scope/outcome。
 
-统一 discard 在单一集合锁内采集 layout 并分类候选/正式目标，将同阶段 layout 与 strict preparation 交给领域内部执行；公开候选/正式 SDK 入口仍各自取得锁。rename 只有显式 preflight 在锁外完整准备，正式执行仅轻量入口核对后锁内准备；后续 fresh、写后与恢复不复用旧阶段。
+统一 discard 在单一集合锁内采集 layout、分类候选/正式目标，并将同阶段 layout 与 strict preparation 交给领域执行；公开候选/正式 SDK 入口各自取得锁。rename 的显式 preflight 在锁外完整准备，正式执行在轻量入口核对后锁内准备；fresh、写后与恢复各取本阶段事实。
 
-rename/discard 的文件提案经共同计划归一化，unchanged 来源只作为保护，不计入 changedPaths；真实 changed writes 与 guards 使用相同安全批量验收。rename 的 beforePublish 后来源/index 聚合通过当前 phase 的完整 snapshot 完成；no-op 身份重备、target/owner absence、membership、资源移动及完整 postverify 保持各自职责。正式 discard 的 transaction fresh 新建 `InvestigationPreparation`，以 tombstone 所需父目录为真实 transaction root，来源采集交给当前 phase；图/资源计算仍执行，随后共同 guards 比较该实际观察。较早 hook 后集合/index 对照和 post collection 保留独立来源读取，不把它们统称为不可合并的领域成本。
+### rename/discard 的阶段适配
+
+文件提案经共同计划归一化后，unchanged 来源作为 guards，不计入 changedPaths；实际 writes 与 guards 使用相同的安全批量验收。
+
+| 阶段 | 本域适配责任 |
+| --- | --- |
+| rename 写前 | beforePublish 后的来源/index 有序聚合使用当前 phase 的完整 snapshot；另行完成 no-op 身份重备、target/owner absence、membership 和资源移动保护。 |
+| 正式 discard 的 transaction fresh | 新建 `InvestigationPreparation`，以 tombstone 所需父目录为真实 transaction root，将来源采集交给当前 phase，再计算图/资源并由共同 guards 比较实际观察。 |
+| 其他独立取证 | 较早 hook 后的集合/index 对照、post collection 和完整领域 postverify 各自在所属阶段读取并验证。 |
+
+phase 的绑定与复用条件见[共同文件验收](../record-operations/README.md#文件验收阶段的重叠保护)。
 
 ### 安全正文读取
 
@@ -97,7 +107,9 @@ show 的完整正文读取交给共同操作的 `source.ts`；本域提供所选
 
 ### 检查与同步
 
-全量 sync 的完整来源验收由领域采集；`selected-sync.ts` 提供本域解析、revision、关系/owner 依赖、完整组合图与直接资源验证，交给共同局部同步入口。selected 已知路径/未读基线与独立 fresh 边界由[共同操作](../record-operations/README.md#同阶段证据与后续复核)承接；调用者结果见 [CLI 检查与同步](../../skills/investigation-report/references/cli-operations.md#检查与同步)。删除/同路径改 ID 的旧 owner 已知位置须在准备与独立 fresh 中证明缺失，任何残留均要求显式资源治理，不自动删除、不扫描其他 owner。原始 native sync 与 stage 不变。
+全量 sync 由领域验收完整来源。局部同步由 `selected-sync.ts` 提供解析、revision、关系/owner 依赖、完整组合图和直接资源验证，再交给共同局部同步入口。删除或同路径改 ID 时，准备与独立 fresh 均须证明已知旧 owner 路径缺失；残留要求显式资源治理，不自动删除或扫描其他 owner。
+
+已知路径、未读基线与独立 fresh 的保证见[共同操作](../record-operations/README.md#同阶段证据与后续复核)，调用者结果见 [CLI 检查与同步](../../skills/investigation-report/references/cli-operations.md#检查与同步)。原生 sync 执行通用完整来源验证，stage 使用下节的独立协调器。
 
 全量 check 使用首次采集的同一份身份、源字节、解析结果与资源事实，每份正文读取一次；单阶段复用不构成跨调用缓存。同步（含预检）及其他写操作仍在各自边界重新取得可变来源，拒绝期间漂移。
 

@@ -5,6 +5,7 @@ import test from "node:test";
 import { observeSourceReads } from "./phase-verification-support.ts";
 import { prepareRename } from "../src/rename-preparation.ts";
 import { prepareRenameTransaction } from "../src/rename-transaction-plan.ts";
+import { createResourceMoveProgress } from "../src/rename-resource-proof.ts";
 import { verifyCommittedRename } from "../src/rename-verification.ts";
 import { InvestigationPreparation } from "../src/strict-preparation.ts";
 import type { ParsedInvestigationReport } from "../src/types.ts";
@@ -59,11 +60,7 @@ async function verifyRenamePreparation(candidate: boolean): Promise<void> {
         prepared: prepared.value,
         hooks: {},
         changedPaths: [],
-        progress: {
-          sourceRemovalStarted: false,
-          sourceRemoved: false,
-          targetClaimed: false
-        }
+        progress: createResourceMoveProgress()
       });
       for (const source of prepared.value.originalSources) {
         // The index-runtime freshness boundary independently reads the collection once.

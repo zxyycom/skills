@@ -3,6 +3,12 @@ import { constants, type Stats } from "node:fs";
 import path from "node:path";
 import { isPathWithinDirectory } from "../../shared/src/node/filesystem.ts";
 
+export type RecordSourceIdentity = Readonly<{ dev: number; ino: number }>;
+export type RecordSourcePathObservation = Readonly<{
+  entry: Stats;
+  parents: readonly RecordSourceIdentity[];
+}>;
+
 /** 两个记录域的公共 API 与 CLI 使用同一 canonical workspace/collection 边界。 */
 export async function canonicalRecordCollection(
   workspace: string,
@@ -85,8 +91,8 @@ export async function readRecordText(
 export function assertStableSource(
   before: Stats,
   after: Stats,
-  beforePath: Awaited<ReturnType<typeof inspectSourcePath>>,
-  afterPath: Awaited<ReturnType<typeof inspectSourcePath>>
+  beforePath: RecordSourcePathObservation,
+  afterPath: RecordSourcePathObservation
 ): void {
   const parentsMatch =
     beforePath.parents.length === afterPath.parents.length &&
@@ -110,7 +116,10 @@ function sameFileSnapshot(before: Stats, after: Stats): boolean {
   );
 }
 
-async function inspectSourcePath(root: string, target: string) {
+async function inspectSourcePath(
+  root: string,
+  target: string
+): Promise<RecordSourcePathObservation> {
   const rootIdentity = await inspectCollectionDirectory(root);
   const parents = [rootIdentity];
   let current = root;
@@ -129,8 +138,8 @@ async function inspectSourcePath(root: string, target: string) {
 }
 
 export function sameSourceIdentity(
-  left: Readonly<{ dev: number; ino: number }>,
-  right: Readonly<{ dev: number; ino: number }>
+  left: RecordSourceIdentity,
+  right: RecordSourceIdentity
 ): boolean {
   return left.dev === right.dev && left.ino === right.ino;
 }
@@ -138,7 +147,7 @@ export function sameSourceIdentity(
 /** 已解析的集合根在一个读取阶段内不能被替换为另一路径或 inode。 */
 export async function recordCollectionIdentity(
   root: string
-): Promise<Readonly<{ dev: number; ino: number }>> {
+): Promise<RecordSourceIdentity> {
   const resolved = path.resolve(root);
   if ((await fs.realpath(resolved)) !== resolved)
     throw new Error("record collection canonical identity changed");
@@ -147,7 +156,7 @@ export async function recordCollectionIdentity(
 
 async function inspectCollectionDirectory(
   root: string
-): Promise<Readonly<{ dev: number; ino: number }>> {
+): Promise<RecordSourceIdentity> {
   const stats = await fs.lstat(root);
   requireSourceDirectory(stats);
   return { dev: stats.dev, ino: stats.ino };

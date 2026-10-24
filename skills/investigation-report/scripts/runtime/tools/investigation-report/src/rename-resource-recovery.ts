@@ -26,12 +26,11 @@ import { errorText, lstatOrNull } from "./rename-support.ts";
 export async function restoreResourceOwnerMove(
   move: ResourceMove,
   oldId: string,
-  newId: string,
   progress: ResourceMoveProgress
 ): Promise<string[]> {
   if (!progress.targetClaimed) return [];
   const errors: string[] = [];
-  if (!progress.targetDirectories?.has("")) progress.uncertainWrite = true;
+  if (!progress.targetDirectories.has("")) progress.uncertainWrite = true;
   if (progress.uncertainWrite)
     errors.push(
       "resource copy ownership is unknown; retain the target owner for reconciliation"
@@ -60,7 +59,6 @@ export async function restoreResourceOwnerMove(
       "failed to remove this transaction's resource copy: " + errorText(error)
     );
   }
-  void newId;
   return errors;
 }
 async function restoreResourceSource(
@@ -70,9 +68,9 @@ async function restoreResourceSource(
 ): Promise<void> {
   await restoreRemovedResourceDirectories(move, progress);
   await restoreResourceSourceFiles(move, progress);
-  const directories = progress.sourceDirectories ?? [];
+  const directories = progress.sourceDirectories;
   for (const [relative, identity] of directories)
-    if (!progress.removedDirectories?.has(relative))
+    if (!progress.removedDirectories.has(relative))
       await verifyDirectory(path.join(move.from, relative), identity);
   await verifyResourceOwnerSnapshot(move.from, oldId, move.snapshot);
 }
@@ -80,7 +78,7 @@ async function restoreRemovedResourceDirectories(
   move: ResourceMove,
   progress: ResourceMoveProgress
 ): Promise<void> {
-  const removed = progress.removedDirectories ?? [];
+  const removed = progress.removedDirectories;
   const directories = [...removed].sort((left, right) =>
     directoryDepthDescending(right, left)
   );
@@ -88,7 +86,7 @@ async function restoreRemovedResourceDirectories(
     const target = path.join(move.from, relative);
     if ((await lstatOrNull(target)) !== null)
       throw new Error("Original resource directory reappeared: " + target);
-    const mode = progress.sourceDirectories!.get(relative)!.mode;
+    const mode = progress.sourceDirectories.get(relative)!.mode;
     await fs.mkdir(target, { mode });
     await fs.chmod(target, mode);
   }
@@ -98,10 +96,10 @@ async function restoreResourceSourceFiles(
   progress: ResourceMoveProgress
 ): Promise<void> {
   const root = move.root ?? path.dirname(path.dirname(move.from));
-  const files = progress.sourceFiles ?? [];
+  const files = progress.sourceFiles;
   for (const [relative, original] of files) {
     const target = path.join(move.from, relative);
-    if (!progress.removedFiles?.has(relative)) {
+    if (!progress.removedFiles.has(relative)) {
       await verifyRecordFile(root, target, original);
       continue;
     }
@@ -123,7 +121,7 @@ export async function removeResourceOwnerCopy(
   if (!progress.targetClaimed) {
     return;
   }
-  const rootIdentityKnown = progress.targetDirectories?.has("") === true;
+  const rootIdentityKnown = progress.targetDirectories.has("");
   if (progress.uncertainWrite || !rootIdentityKnown) {
     throw new Error(
       "Resource target contains an unknown write; retain it for reconciliation"
@@ -131,7 +129,7 @@ export async function removeResourceOwnerCopy(
   }
   const parent = path.dirname(move.from);
   const root = move.root ?? path.dirname(parent);
-  const files = progress.writtenFiles ?? [];
+  const files = progress.writtenFiles;
   for (const [relative, written] of files) {
     const target = path.join(move.to, relative);
     await verifyRecordFile(root, target, written);
@@ -143,7 +141,7 @@ async function removeOwnedResourceDirectories(
   owner: string,
   progress: ResourceMoveProgress
 ): Promise<void> {
-  const directories = progress.targetDirectories ?? [];
+  const directories = progress.targetDirectories;
   const ordered = [...directories].sort(([left], [right]) =>
     directoryDepthDescending(left, right)
   );
@@ -158,10 +156,10 @@ export async function verifyResourceOwnerCopy(
   progress: ResourceMoveProgress
 ): Promise<void> {
   const root = move.root ?? path.dirname(path.dirname(move.from));
-  const files = progress.writtenFiles ?? [];
+  const files = progress.writtenFiles;
   for (const [relative, written] of files)
     await verifyRecordFile(root, path.join(move.to, relative), written);
-  const directories = progress.targetDirectories ?? [];
+  const directories = progress.targetDirectories;
   for (const [relative, identity] of directories)
     await verifyDirectory(path.join(move.to, relative), identity);
 }

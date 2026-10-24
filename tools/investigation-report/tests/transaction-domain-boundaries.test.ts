@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
+import { createGitRepositoryFixture } from "../../shared/tests/git-fixture.ts";
 import { renameInvestigationRecordWithHooks } from "../src/rename.ts";
 import { setInvestigationRelationsWithWriter } from "../src/relation-transaction.ts";
 import {
@@ -11,38 +12,39 @@ import {
   withTempRoot
 } from "./fixture-support.ts";
 import { writeCollection, writeResource } from "./collection-support.ts";
+import { synchronizeInvestigationIndex } from "../src/validation.ts";
 
 test("Investigation same identity and path rename preserves noncanonical recorded bytes mode and index without unrelated health", async () => {
-  await withTempRoot("rename-true-noop", async (workspaceRoot) => {
-    await writeCollection(workspaceRoot, [
-      { id: "260828-same", sourcePath: "same.md" },
-      { id: "unrelated" }
-    ]);
+  await withTempRoot("rename-true-noop", async (parentDirectory) => {
+    const fixture = await createGitRepositoryFixture({
+      fixtureRoot: fileURLToPath(
+        new URL("./fixtures/rename-noop", import.meta.url)
+      ),
+      parentDirectory,
+      repositoryName: "repository",
+      userEmail: "test@example.invalid",
+      userName: "Test",
+      prepareRepository: async (workspaceRoot) => {
+        const synchronized = await synchronizeInvestigationIndex({
+          workspaceRoot
+        });
+        assert.deepEqual(synchronized.errors, []);
+        const root = investigationRoot(workspaceRoot);
+        const source = path.join(root, "same.md");
+        await fs.appendFile(source, "\n");
+        await fs.chmod(source, 0o640);
+        await fs.writeFile(
+          path.join(root, "unrelated.md"),
+          "malformed unrelated body\n"
+        );
+      }
+    });
+    const workspaceRoot = fixture.repositoryRoot;
     const root = investigationRoot(workspaceRoot);
     const source = path.join(root, "same.md");
     const index = path.join(root, "investigation-index.json");
-    const text = (await fs.readFile(source, "utf8")) + "\n";
-    await fs.writeFile(source, text);
-    await fs.chmod(source, 0o640);
-    await fs.writeFile(
-      path.join(root, "unrelated.md"),
-      "malformed unrelated body\n"
-    );
+    const text = await fs.readFile(source, "utf8");
     const indexBefore = await fs.readFile(index);
-    execFileSync("git", ["init", "--quiet", workspaceRoot]);
-    execFileSync("git", ["-C", workspaceRoot, "add", "."]);
-    execFileSync("git", [
-      "-C",
-      workspaceRoot,
-      "-c",
-      "user.name=fixture",
-      "-c",
-      "user.email=fixture@example.test",
-      "commit",
-      "--quiet",
-      "-m",
-      "fixture"
-    ]);
     const before = await fs.stat(source);
     const result = await renameInvestigationRecordWithHooks({
       source: "260828-same",
@@ -104,8 +106,6 @@ test("Investigation rename fresh proof rejects resource mode and inode drift wit
           false
         );
         await writeResource(workspaceRoot, "legacy/evidence.txt", "evidence\n");
-        const { synchronizeInvestigationIndex } =
-          await import("../src/validation.ts");
         assert.deepEqual(
           (await synchronizeInvestigationIndex({ workspaceRoot })).errors,
           []

@@ -128,9 +128,7 @@ async function executePreparedRecordTransaction<Value>(
       await options.resources.apply(plan.value);
     }
     if (plan.index !== null) await journal.apply(plan.index, true);
-    else
-      journal.committed =
-        writtenPaths.length > 0 || (options.resources?.changed() ?? false);
+    else journal.completeSourceActions(options.resources?.changed() ?? false);
     await verifyWritten(plan, writes);
     await options.verify(plan.value);
     verification = "passed";
@@ -186,7 +184,7 @@ async function executePreparedRecordTransaction<Value>(
     try {
       await options.cleanup(plan.value, writes);
     } catch (error) {
-      cleanupErrors.push(error);
+      journal.recordCleanupFailure(error);
     }
   }
   return {

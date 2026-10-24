@@ -25,25 +25,62 @@ import {
 
 /** 单次事务实际文件写入的归属与提交观察；领域资源与阶段顺序仍由事务脚本维护。 */
 export class RecordWriteJournal {
-  readonly root: string;
-  readonly writes: RecordWrittenFile[] = [];
-  readonly createdDirectories: RecordCreatedDirectory[] = [];
-  readonly writtenPaths: string[] = [];
-  readonly cleanupErrors: unknown[] = [];
-  committed = false;
-  uncertainWrite = false;
-  uncertainCommit = false;
+  readonly #root: string;
+  readonly #writes: RecordWrittenFile[] = [];
+  readonly #createdDirectories: RecordCreatedDirectory[] = [];
+  readonly #writtenPaths: string[] = [];
+  readonly #cleanupErrors: unknown[] = [];
+  #committed = false;
+  #uncertainWrite = false;
+  #uncertainCommit = false;
 
   constructor(root: string) {
-    this.root = root;
+    this.#root = root;
+  }
+
+  get writes(): readonly RecordWrittenFile[] {
+    return this.#writes;
+  }
+
+  get createdDirectories(): readonly RecordCreatedDirectory[] {
+    return this.#createdDirectories;
+  }
+
+  get writtenPaths(): readonly string[] {
+    return this.#writtenPaths;
+  }
+
+  get cleanupErrors(): readonly unknown[] {
+    return this.#cleanupErrors;
+  }
+
+  get committed(): boolean {
+    return this.#committed;
+  }
+
+  get uncertainWrite(): boolean {
+    return this.#uncertainWrite;
+  }
+
+  get uncertainCommit(): boolean {
+    return this.#uncertainCommit;
+  }
+
+  /** Candidate source actions commit once their final write or resource action completes. */
+  completeSourceActions(resourcesChanged: boolean): void {
+    this.#committed = this.#writtenPaths.length > 0 || resourcesChanged;
+  }
+
+  recordCleanupFailure(error: unknown): void {
+    this.#cleanupErrors.push(error);
   }
 
   async prepareParents(change: RecordFileWrite): Promise<void> {
     if (change.before === null && change.next !== null)
       await createRecordWriteParents(
-        this.root,
+        this.#root,
         change.path,
-        this.createdDirectories
+        this.#createdDirectories
       );
   }
 
@@ -53,7 +90,7 @@ export class RecordWriteJournal {
     await this.prepareParents(change);
     let identity: RecordWriteIdentity | null | undefined;
     try {
-      identity = await writeRecordFile(this.root, change);
+      identity = await writeRecordFile(this.#root, change);
     } catch (error) {
       if (commitPoint && error instanceof RecordAtomicCleanupError) {
         await this.capturePublishedCleanup(change, error);
@@ -62,8 +99,8 @@ export class RecordWriteJournal {
       await this.observeRejectedWrite(change, commitPoint);
       throw error;
     }
-    this.writtenPaths.push(change.path);
-    if (commitPoint) this.committed = true;
+    this.#writtenPaths.push(change.path);
+    if (commitPoint) this.#committed = true;
     await this.captureCompletedWrite(change, identity);
   }
 
@@ -71,12 +108,12 @@ export class RecordWriteJournal {
     change: RecordFileWrite,
     error: RecordAtomicCleanupError
   ): Promise<void> {
-    this.committed = true;
-    this.writtenPaths.push(change.path);
-    this.cleanupErrors.push(error);
-    this.writes.push({
+    this.#committed = true;
+    this.#writtenPaths.push(change.path);
+    this.#cleanupErrors.push(error);
+    this.#writes.push({
       change,
-      written: await captureRecordWrite(this.root, change, error.identity),
+      written: await captureRecordWrite(this.#root, change, error.identity),
       owned: error.identity !== undefined
     });
   }
@@ -85,19 +122,21 @@ export class RecordWriteJournal {
     change: RecordFileWrite,
     identity: RecordWriteIdentity | null | undefined
   ): Promise<void> {
-    const written = await captureRecordWrite(this.root, change, identity).catch(
-      (error: unknown) => {
-        this.uncertainWrite = true;
-        throw error;
-      }
-    );
+    const written = await captureRecordWrite(
+      this.#root,
+      change,
+      identity
+    ).catch((error: unknown) => {
+      this.#uncertainWrite = true;
+      throw error;
+    });
     const owned =
       identity !== undefined ||
       (change.before !== null &&
         written !== null &&
         change.before.dev === written.dev &&
         change.before.ino === written.ino);
-    this.writes.push({ change, written, owned });
+    this.#writes.push({ change, written, owned });
   }
 
   /** writer 拒绝仍可能已经写入；无实际 handle 归属证明时不自动覆盖当前路径。 */
@@ -106,17 +145,17 @@ export class RecordWriteJournal {
     commitPoint: boolean
   ): Promise<void> {
     try {
-      const current = await readRecordFileSnapshot(this.root, change.path);
+      const current = await readRecordFileSnapshot(this.#root, change.path);
       const changed = !sameRecordFile(current, change.before);
-      this.uncertainWrite ||= changed;
+      this.#uncertainWrite ||= changed;
       if (commitPoint && changed) {
-        this.uncertainCommit = true;
-        this.committed = recordWriteMatches(change, current);
+        this.#uncertainCommit = true;
+        this.#committed = recordWriteMatches(change, current);
       }
     } catch {
-      this.uncertainWrite = true;
-      if (commitPoint) this.uncertainCommit = true;
+      this.#uncertainWrite = true;
+      if (commitPoint) this.#uncertainCommit = true;
     }
-    if (this.uncertainWrite) this.writtenPaths.push(change.path);
+    if (this.#uncertainWrite) this.#writtenPaths.push(change.path);
   }
 }

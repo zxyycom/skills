@@ -42,7 +42,7 @@ relations: []
 
 ### 因果与共同收口
 
-已确认核心问题不是全量改写，而是共同计划与验收责任未完整收口。修复统一 unchanged 提案与 guard 表达、writes/index/guards 有序调度和写前 phase 交接。IR rename 在 hook 后以真实事务根安全观察来源/index，保留原有有序错误聚合；IR discard 只把 transaction fresh 的安全来源采集交给本阶段 phase，解析、图与资源验证仍执行。已选资源的 prepare 采集及显式 fresh 文件保护亦进入共同队列，目录证明保留顺序。index 提交职责、candidate 的实际最后动作和写入顺序不变，changedPaths 不再排除未写来源的成员保护。
+已确认核心问题不是全量改写，而是共同计划与验收责任未完整收口。修复统一 unchanged 提案与 guard 表达、writes/index/guards 有序调度和写前 phase 交接。IR rename 在 hook 后以真实事务根安全观察来源/index，保留原有有序错误聚合；IR discard 只把 transaction fresh 的安全来源采集交给本阶段 phase，解析、图与资源验证仍执行。已选资源的 prepare 采集及显式 fresh 文件保护亦进入共同队列，目录证明保留顺序。index 提交职责、candidate 的实际最后动作和写入顺序不变，changedPaths 只包含实际写入路径，未变来源仍接受成员保护。
 
 同阶段复用必须匹配 root、path、bytes、dev/ino、mode 和完整父链；领域取得 bytes 与父身份对象的独立副本，不能污染私有 actual。准备、写前、写后分别实际读取。canonical 缺失、NOFOLLOW、严格 UTF-8、权限/umask、实际写入 handle、CAS、owner、readback、恢复和清理失败事实均保持。结构/权限在 skip 前拒绝；仅内部非法计划与文件同时漂移的首错误优先级可能更早，未放宽拒绝条件。worker 阈值、受权限/input-type 约束时的 async 预选及生命周期未改变。
 

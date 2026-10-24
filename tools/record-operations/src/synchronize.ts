@@ -1,9 +1,7 @@
 import {
-  prepareSelectedStateIndexBaseline,
   prepareStateIndexFromSnapshot,
   syncStateIndexPrepared
 } from "../../index-runtime/src/prepared.ts";
-import { selectedBaselineDiagnostics } from "../../index-runtime/src/selected-sync.ts";
 import { isStateIndexText } from "../../index-runtime/src/index.ts";
 import type {
   JsonObject,
@@ -22,8 +20,12 @@ export type RecordSelectorPolicy = Readonly<{
   datedId: (selector: string) => string | null;
   nameFromId: (id: string) => string;
 }>;
+type ResolvedRecordSelectors = Readonly<{
+  errors: StateIndexDiagnostic[];
+  ids: string[];
+}>;
 
-/** 完整来源在领域边界验收；共同操作拥有 baseline→选择→构建→独立 fresh/发布顺序。 */
+/** 完整来源在领域边界验收；共同操作交接原生构建与独立 fresh/发布。 */
 export async function synchronizeRecordIndex<
   State extends object,
   Metadata extends JsonObject
@@ -34,112 +36,29 @@ export async function synchronizeRecordIndex<
     indexPath: string;
     mode: StateIndexSyncMode;
     snapshot: StateSnapshot<State, Metadata>;
-    selectors?: readonly string[];
-    /** Failed acquisition from this call cannot be retried as a new successful baseline. */
-    baselineFailure?: readonly StateIndexDiagnostic[];
-    selectorPolicy: RecordSelectorPolicy;
   }>
 ): Promise<StateIndexSyncResult> {
-  const rawErrors = validateSelectors(
-    options.selectors,
-    options.selectorPolicy,
-    options.indexPath
-  );
-  if (rawErrors.length > 0) return selectionFailure(options, rawErrors);
-  if (options.selectors !== undefined && options.baselineFailure !== undefined)
-    return {
-      ...selectionFailure(
-        options,
-        selectedBaselineDiagnostics(
-          [...options.baselineFailure],
-          options.indexPath
-        )
-      ),
-      state: "selected-baseline-invalid"
-    };
-  const baseline =
-    options.selectors === undefined
-      ? undefined
-      : await prepareSelectedStateIndexBaseline(options);
-  if (baseline?.status === "error") {
-    return {
-      ...selectionFailure(
-        options,
-        selectedBaselineDiagnostics(baseline.diagnostics, options.indexPath)
-      ),
-      state: "selected-baseline-invalid"
-    };
-  }
-  const selected =
-    options.selectors === undefined
-      ? undefined
-      : resolveSelectors(
-          options.selectors,
-          new Set([
-            ...Object.keys(options.snapshot.states),
-            ...(baseline?.status === "ok"
-              ? Object.keys(baseline.value.index.entries)
-              : [])
-          ]),
-          options.selectorPolicy,
-          options.indexPath
-        );
-  // Strict baseline parse/field failures precede selectors; canonical acceptance stays in native sync after resolution.
-  if (
-    selected !== undefined &&
-    selected.errors.length > 0 &&
-    baseline?.status === "ok"
-  )
-    return selectionFailure(options, selected.errors);
   const prepared = prepareStateIndexFromSnapshot(options);
   if (prepared.status === "error")
     return {
-      ...selectionFailure(options, prepared.diagnostics),
-      state: "source-invalid"
+      changed: false,
+      changedIds: [],
+      diagnostics: prepared.diagnostics,
+      indexPath: options.indexPath,
+      mode: options.mode,
+      namespace: options.definition.namespace,
+      scope: "all",
+      selectedIds: [],
+      state: "source-invalid",
+      status: "error"
     };
   return await syncStateIndexPrepared({
     context: options.context,
     definition: options.definition,
     indexPath: options.indexPath,
     mode: options.mode,
-    prepared: prepared.value,
-    ...(options.selectors === undefined
-      ? {}
-      : {
-          scope: {
-            kind: "selected",
-            selectedIds:
-              baseline?.status === "ok" ? selected!.ids : [...options.selectors]
-          }
-        }),
-    ...(baseline?.status === "ok" ? { baseline: baseline.value } : {})
+    prepared: prepared.value
   });
-}
-
-function selectionFailure<State extends object, Metadata extends JsonObject>(
-  options: Readonly<{
-    definition: StateIndexDefinition<State, Metadata>;
-    indexPath: string;
-    mode: StateIndexSyncMode;
-    selectors?: readonly string[];
-  }>,
-  diagnostics: StateIndexDiagnostic[]
-): Extract<
-  StateIndexSyncResult,
-  { status: "error"; mode: StateIndexSyncMode }
-> {
-  return {
-    changed: false,
-    changedIds: [],
-    diagnostics,
-    indexPath: options.indexPath,
-    mode: options.mode,
-    namespace: options.definition.namespace,
-    scope: options.selectors === undefined ? "all" : "selected",
-    selectedIds: [],
-    state: "selection-invalid",
-    status: "error"
-  };
 }
 
 export function validateSelectors(
@@ -179,7 +98,7 @@ export function resolveSelectors(
   policy: RecordSelectorPolicy,
   indexPath: string,
   allowUnknownDated = false
-) {
+): ResolvedRecordSelectors {
   const names = new Map<string, string[]>();
   for (const id of ids) {
     const name = policy.nameFromId(id);

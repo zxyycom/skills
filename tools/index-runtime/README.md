@@ -120,14 +120,18 @@ runtime state overlay 是 `id -> state`。同 ID 临时替换静态 entry，新 
 
 ## 同阶段内部准备证明
 
-`src/prepared.ts` 为已接入共同记录操作提供窄内部入口，不扩大公开索引 API：
+`src/prepared.ts` 向[共同记录操作](../record-operations/README.md)提供同调用、同阶段的内部证明；公开索引 API 仍独立严格验收。
 
-- 原生构建证明绑定同一 definition 引用及冻结描述/callback、root、indexPath 和不可变 index/字段物化。
-- selected baseline 由安全 FileHandle 取得实际 bytes/text，读取前后核对 canonical root 至文件父目录的完整真实目录身份链及文件身份、字节稳定性，并严格验结构、字段与 definition；selector 和 native sync 消费同一证明。selector 可先从严格投影解析选择，canonical 文本由 native selected sync 在 baseline 验收时拒绝，仍早于来源 build 与独立 fresh。证明的 index/text 不可变，bytes 以防御性复制返回。
-- 消费时复核证明来源和 canonical root/target；不能以伪造对象、其他 definition/path/index 或相同解码文本替换实际字节身份。对外 raw parse/query/reader/sync 不信任调用方声明的准备结果。
-- 证明只复用同调用同阶段事实，不替代后续 `readRevision`。full/selected sync 仍独立重取最终来源 revision，selected 保留完整来源、可信 baseline、collection metadata/revision 与未选变化保护。
+| 证明 | 绑定事实 |
+| --- | --- |
+| 原生构建 | 同一 definition 引用及冻结描述/callback、root、indexPath、不可变 index 与字段物化。 |
+| selected baseline | 经安全 FileHandle 取得的实际 bytes/text、canonical root 至父目录的完整真实身份链、文件身份与字节稳定性，以及严格结构、字段和 definition 验收。index/text 不可变，bytes 防御性复制。 |
 
-来源领域图证明与 native build 证明分别承担职责；本 owner 不接入候选 Markdown、生命周期或资源 owner 语义。stage 保持原协调器及其独立阶段义务。
+消费证明时复核其来源和 canonical root/target；伪造对象、其他 definition/path/index 或相同解码文本均不能替代实际字节身份。selector 与 native sync 消费同一 baseline 证明：selector 可先从严格投影解析选择，native selected sync 随后验收 canonical 文本，非 canonical 输入在来源 build 和独立 fresh 前拒绝。
+
+证明只复用本阶段事实。full/selected sync 仍独立读取最终来源 revision；通用 selected 仍验完整来源、可信 baseline、collection metadata/revision 和未选变化。DR/IR 的局部来源组合由共同记录操作承接，区别于该通用契约。
+
+领域图证明与 native build 证明分别交接；候选 Markdown、生命周期和资源 owner 语义留在领域。stage 的内部接点与阶段义务见下文“记录领域的内部暂存协调”。
 
 ## 索引路径边界
 
@@ -139,7 +143,7 @@ runtime state overlay 是 `id -> state`。同 ID 临时替换静态 entry，新 
 
 `read` 和 `readRevision` 必须产生相同结构化来源清单。任何可能改变 metadata 的输入都必须改变 metadata fingerprint；任何可能改变成员、state 或查询结果的输入都必须改变、增加或删除对应 ID fingerprint。
 
-完整 sync 的持久索引采集复用安全 baseline FileHandle：检查 canonical 包含边界、文件身份、读取稳定性与父目录身份，拒绝读取中 file/root/nested parent 替换。合法缺失、非法 UTF-8、解析错误与 I/O 失败仍按各自类别处理。DR/IR 全量只读 check 的首次来源策略由[共同记录操作](../record-operations/README.md)承接，不改变本节 sync 的独立 fresh 或其他消费者业务 scope。
+完整 sync 经安全 baseline FileHandle 采集持久索引，检查 canonical 包含边界、文件身份、读取稳定性与父目录身份，拒绝读取中的 file/root/nested parent 替换。合法缺失、非法 UTF-8、解析错误和 I/O 失败分别处理；同步始终独立 fresh。DR/IR 全量只读 check 的首次来源采集规则见[共同记录操作](../record-operations/README.md#同阶段证据与后续复核)。
 
 `syncStateIndex`：
 

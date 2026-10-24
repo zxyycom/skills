@@ -1,5 +1,35 @@
 export const domainInputOwnershipCases = [
   [
+    "tools/investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md",
+    "investigation-maintenance",
+    "test:investigation-report:transactional-maintenance"
+  ],
+  [
+    "tools/investigation-report/tests/fixtures/rename-noop/docs/investigations/unrelated.md",
+    "investigation-maintenance",
+    "test:investigation-report:transactional-maintenance"
+  ],
+  [
+    "tools/investigation-report/tests/transaction-domain-boundaries.test.ts",
+    "investigation-maintenance",
+    "test:investigation-report:transactional-maintenance"
+  ],
+  [
+    "tools/investigation-report/tests/checks/transactional-maintenance.ts",
+    "investigation-maintenance",
+    "test:investigation-report:transactional-maintenance"
+  ],
+  [
+    "tools/decision-records/tests/native-creation-mode-probe.ts",
+    "decision-maintenance",
+    "test:decision-records:lifecycle-and-recovery"
+  ],
+  [
+    "tools/investigation-report/tests/native-creation-mode-probe.ts",
+    "investigation-maintenance",
+    "test:investigation-report:transactional-maintenance"
+  ],
+  [
     "tools/decision-records/tests/candidate-operations.test.ts",
     "decision-maintenance",
     "test:decision-records:lifecycle-and-recovery"

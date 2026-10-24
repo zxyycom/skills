@@ -3,9 +3,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { verifyRecordFile } from "../../record-operations/src/transaction-files.ts";
 import { forEachRecordFileSnapshot } from "../../record-operations/src/reader-batch.ts";
-import type { RecordFileSnapshot } from "../../record-operations/src/transaction-files.ts";
 import type {
   ResourceMoveProgress,
+  ResourceDirectoryIdentity,
   ResourceOwnerSnapshot
 } from "./rename-contract.ts";
 import {
@@ -13,11 +13,19 @@ import {
   sameResourceOwnerSnapshot,
   scanResourceOwner
 } from "./rename-resource-snapshot.ts";
-export type DirectoryIdentity = Readonly<{
-  dev: number;
-  ino: number;
-  mode: number;
-}>;
+/** Every move starts with explicit empty ownership facts, including empty resource trees. */
+export function createResourceMoveProgress(): ResourceMoveProgress {
+  return {
+    targetClaimed: false,
+    sourceFiles: new Map(),
+    writtenFiles: new Map(),
+    removedFiles: new Set(),
+    sourceDirectories: new Map(),
+    targetDirectories: new Map(),
+    removedDirectories: new Set(),
+    uncertainWrite: false
+  };
+}
 
 /** Acquire exactly the resource source members whose later move/recovery must be protected. */
 export async function prepareResourceSourceProof(
@@ -28,8 +36,7 @@ export async function prepareResourceSourceProof(
     directories: readonly string[];
   }>
 ): Promise<ResourceMoveProgress> {
-  const sourceFiles = new Map<string, RecordFileSnapshot>();
-  const sourceDirectories = new Map<string, DirectoryIdentity>();
+  const progress = createResourceMoveProgress();
   await forEachRecordFileSnapshot(
     options.root,
     options.files.map((file) => path.join(options.owner, file.path)),
@@ -44,21 +51,15 @@ export async function prepareResourceSourceProof(
         throw new Error(
           "Prepared resource file disappeared or changed mode: " + file.path
         );
-      sourceFiles.set(file.path, snapshot);
+      progress.sourceFiles.set(file.path, snapshot);
     }
   );
   for (const relative of options.directories)
-    sourceDirectories.set(
+    progress.sourceDirectories.set(
       relative,
       await directoryIdentity(path.join(options.owner, relative))
     );
-  return {
-    sourceRemovalStarted: false,
-    sourceRemoved: false,
-    targetClaimed: false,
-    sourceFiles,
-    sourceDirectories
-  };
+  return progress;
 }
 
 export async function verifyResourceOwnerSnapshot(
@@ -81,24 +82,24 @@ export async function verifyResourceSourceProof(
   phase?: RecordVerificationPhase
 ): Promise<void> {
   if (phase === undefined) {
-    for (const [relative, snapshot] of progress.sourceFiles ?? [])
+    for (const [relative, snapshot] of progress.sourceFiles)
       await verifyRecordFile(root, path.join(owner, relative), snapshot);
   } else {
     phase.assertRoot(root);
     await phase.verifyMany(
-      [...(progress.sourceFiles ?? [])].map(([relative, before]) => ({
+      [...progress.sourceFiles].map(([relative, before]) => ({
         path: path.join(owner, relative),
         before
       }))
     );
   }
-  for (const [relative, identity] of progress.sourceDirectories ?? [])
+  for (const [relative, identity] of progress.sourceDirectories)
     await verifyDirectory(path.join(owner, relative), identity);
 }
 
 export async function directoryIdentity(
   target: string
-): Promise<DirectoryIdentity> {
+): Promise<ResourceDirectoryIdentity> {
   const stats = await fs.lstat(target);
   if (!stats.isDirectory() || stats.isSymbolicLink())
     throw new Error(
@@ -109,7 +110,7 @@ export async function directoryIdentity(
 
 export async function verifyDirectory(
   target: string,
-  expected: DirectoryIdentity
+  expected: ResourceDirectoryIdentity
 ): Promise<void> {
   const current = await directoryIdentity(target);
   if (JSON.stringify(current) !== JSON.stringify(expected))

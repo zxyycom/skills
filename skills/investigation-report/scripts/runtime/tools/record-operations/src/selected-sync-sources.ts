@@ -55,7 +55,7 @@ export class SelectedRecordSources<
   State extends { sourcePath: string },
   Metadata extends JsonObject
 > {
-  readonly checked: Set<string>;
+  readonly #checked: Set<string>;
   readonly #options: SelectedRecordDomain<State, Metadata>;
   readonly #baseline: StateIndex<State, Metadata>;
   readonly #selected: ReadonlySet<string>;
@@ -71,13 +71,17 @@ export class SelectedRecordSources<
     this.#options = options;
     this.#baseline = baseline;
     this.#selected = selected;
-    this.checked = new Set(selected);
+    this.#checked = new Set(selected);
     this.#states = { ...baseline.entries };
     this.#revisions = { ...baseline.sourceRevision.entries };
     for (const id of selected) {
       delete this.#states[id];
       delete this.#revisions[id];
     }
+  }
+
+  get checked(): ReadonlySet<string> {
+    return this.#checked;
   }
 
   snapshot(): StateSnapshot<State, Metadata> {
@@ -194,12 +198,12 @@ export class SelectedRecordSources<
       throw new Error(
         `Required dependency differs from published baseline: ${id}; select it explicitly or run full sync-index`
       );
-    this.checked.add(id);
+    this.#checked.add(id);
   }
 
   async verifyDomain(): Promise<void> {
     await this.#options.verifyResources?.(
-      [...this.checked].flatMap((id) =>
+      [...this.#checked].flatMap((id) =>
         this.#states[id] === undefined ? [] : [this.#states[id]!]
       )
     );

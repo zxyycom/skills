@@ -16,6 +16,7 @@ import { readRecordFileSnapshot } from "../../record-operations/src/transaction-
 
 import { scanResourceOwner } from "./rename-resource-snapshot.ts";
 import type { ResourceMove, ResourceMoveProgress } from "./rename-contract.ts";
+import { createResourceMoveProgress } from "./rename-resource-proof.ts";
 import {
   investigationFileWrite,
   investigationMembers
@@ -47,11 +48,7 @@ export async function createDiscardPublicationContext(
     trash,
     options.indexText === null ? "candidate" : "report.md"
   );
-  const progress: ResourceMoveProgress = options.resourceProgress ?? {
-    sourceRemovalStarted: false,
-    sourceRemoved: false,
-    targetClaimed: false
-  };
+  const progress = options.resourceProgress ?? createResourceMoveProgress();
   const members = await investigationMembers(options.root);
   return {
     options,

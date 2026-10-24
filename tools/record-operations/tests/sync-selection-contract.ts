@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
+import * as v from "valibot";
 
 type Observation = Readonly<{ ok: boolean; details: string }>;
 
@@ -12,7 +13,13 @@ export async function assertSyncSelectionPriority(
   }>
 ): Promise<void> {
   const canonical = await fs.readFile(options.indexPath, "utf8");
-  const index = JSON.parse(canonical);
+  const value: unknown = JSON.parse(canonical);
+  const index = v.parse(
+    v.looseObject({
+      entries: v.record(v.string(), v.looseObject({ name: v.string() }))
+    }),
+    value
+  );
   const noncanonical = JSON.stringify(index);
   await fs.writeFile(options.indexPath, noncanonical);
   for (const result of await options.synchronize("absent")) {
@@ -28,9 +35,15 @@ export async function assertSyncSelectionPriority(
     assert.match(result.details, /canonical persisted index/);
   }
   assert.equal(await fs.readFile(options.indexPath, "utf8"), noncanonical);
-  const invalidField = structuredClone(index);
-  const firstId = Object.keys(invalidField.entries)[0]!;
-  invalidField.entries[firstId].name = null;
+  const firstId = Object.keys(index.entries)[0];
+  assert.notEqual(firstId, undefined, "fixture must include a published entry");
+  const invalidField = {
+    ...index,
+    entries: {
+      ...index.entries,
+      [firstId!]: { ...index.entries[firstId!]!, name: null }
+    }
+  };
   for (const invalid of ["{invalid", JSON.stringify(invalidField)]) {
     await fs.writeFile(options.indexPath, invalid);
     for (const result of await options.synchronize("absent")) {

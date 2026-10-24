@@ -11,11 +11,6 @@ import {
   syncInvestigationStateIndex
 } from "./investigation-state-index.ts";
 import {
-  investigationNameFromId,
-  normalizeInvestigationSelectorInput,
-  parseDatedInvestigationId
-} from "./report-path.ts";
-import {
   collectValidatedInvestigationCollection,
   type InvestigationSnapshot,
   type ValidatedInvestigationCollection
@@ -78,7 +73,7 @@ export async function synchronizeFullCollection(
       errors: collection.errors,
       indexPath: collection.indexPath,
       reportCount: collection.reportCount,
-      selectors: selectors ?? [],
+      selectors: [],
       warnings: collection.warnings
     });
   }
@@ -92,7 +87,7 @@ export async function synchronizeFullCollection(
       errors: ["investigation collection must contain at least one report"],
       indexPath: collection.indexPath,
       reportCount: 0,
-      selectors: selectors ?? [],
+      selectors: [],
       warnings: collection.warnings
     });
   }
@@ -100,8 +95,7 @@ export async function synchronizeFullCollection(
     investigationRoot,
     collection,
     snapshot,
-    mode,
-    selectors
+    mode
   );
 }
 
@@ -109,30 +103,20 @@ async function synchronizeValidatedCollection(
   investigationRoot: string,
   collection: ValidatedInvestigationCollection,
   snapshot: InvestigationSnapshot,
-  mode: StateIndexSyncMode,
-  selectors: readonly string[] | undefined
+  mode: StateIndexSyncMode
 ): Promise<InvestigationIndexSyncResult> {
   const synchronized = await synchronizeRecordIndex({
     context: { root: investigationRoot },
     definition: createInvestigationStateIndexDefinition(),
     indexPath: investigationIndexFileName,
     mode,
-    snapshot,
-    ...(selectors === undefined ? {} : { selectors }),
-    selectorPolicy: {
-      label: "Investigation",
-      codePrefix: "investigation-report",
-      normalize: normalizeInvestigationSelectorInput,
-      datedId: (selector) => parseDatedInvestigationId(selector)?.id ?? null,
-      nameFromId: investigationNameFromId
-    }
+    snapshot
   });
-  return synchronizedSyncResult(collection, selectors, synchronized);
+  return synchronizedSyncResult(collection, synchronized);
 }
 
 function synchronizedSyncResult(
   collection: ValidatedInvestigationCollection,
-  selectors: readonly string[] | undefined,
   synchronized: Awaited<ReturnType<typeof syncInvestigationStateIndex>>
 ): InvestigationIndexSyncResult {
   const failure = synchronized.status === "error" ? synchronized : null;
@@ -158,7 +142,7 @@ function synchronizedSyncResult(
     reportCount: collection.reportCount,
     scope: synchronized.scope,
     selectedIds: synchronized.selectedIds,
-    selectors: selectors ?? [],
+    selectors: [],
     state: synchronized.state,
     warnings: collection.warnings
   });

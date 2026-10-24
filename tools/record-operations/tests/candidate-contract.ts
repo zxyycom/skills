@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import * as v from "valibot";
 
 type Observation = Readonly<{
   ok: boolean;
@@ -175,7 +176,11 @@ export async function assertCandidateOperationContract(
       "a legal published baseline is accepted"
     );
     const indexBytes = await fs.readFile(indexPath, "utf8");
-    const incompatible = JSON.parse(indexBytes);
+    const indexValue: unknown = JSON.parse(indexBytes);
+    const incompatible = v.parse(
+      v.looseObject({ definitionVersion: v.number() }),
+      indexValue
+    );
     incompatible.definitionVersion += 100;
     for (const invalid of ["invalid JSON\n", JSON.stringify(incompatible)]) {
       await fs.writeFile(indexPath, invalid);

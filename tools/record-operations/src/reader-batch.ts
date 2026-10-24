@@ -37,11 +37,7 @@ export async function forEachRecordText(
     paths,
     "text",
     async (reply, index) => {
-      if (!reply.ok)
-        return await consume(
-          { ok: false, error: restoreReaderError(reply.error) },
-          index
-        );
+      if (!reply.ok) return await consume(reply, index);
       if (reply.result.kind !== "text")
         throw new Error("Record reader returned the wrong contract");
       await consume({ ok: true, value: reply.result.value }, index);
@@ -60,11 +56,7 @@ export async function forEachRecordTextSnapshot(
     paths,
     "text-snapshot",
     async (reply, index) => {
-      if (!reply.ok)
-        return await consume(
-          { ok: false, error: restoreReaderError(reply.error) },
-          index
-        );
+      if (!reply.ok) return await consume(reply, index);
       if (reply.result.kind !== "text-snapshot")
         throw new Error("Record reader returned the wrong contract");
       await consume({ ok: true, value: reply.result.value }, index);
@@ -83,11 +75,7 @@ export async function forEachRecordFileSnapshot(
     paths,
     "snapshot",
     async (reply, index) => {
-      if (!reply.ok)
-        return await consume(
-          { ok: false, error: restoreReaderError(reply.error) },
-          index
-        );
+      if (!reply.ok) return await consume(reply, index);
       if (reply.result.kind !== "snapshot")
         throw new Error("Record reader returned the wrong contract");
       await consume({ ok: true, value: reply.result.value }, index);
@@ -96,16 +84,16 @@ export async function forEachRecordFileSnapshot(
   );
 }
 
-type ConsumeReply = (
-  reply: ReaderReply[number],
-  index: number
-) => Promise<void>;
+type ConsumeReply = (reply: RecordReadReply, index: number) => Promise<void>;
+type RecordReadReply =
+  | Extract<ReaderReply[number], { ok: true }>
+  | Readonly<{ ok: false; error: Error }>;
 
 async function readAsyncRecord(
   root: string,
   target: string,
   kind: ReaderRequest["kind"]
-): Promise<ReaderReply[number]> {
+): Promise<RecordReadReply> {
   try {
     if (kind === "text")
       return {
@@ -172,7 +160,12 @@ async function readBatch(
       for (const [index, reply] of replies.entries()) {
         signal?.throwIfAborted();
         worker.assertHealthy();
-        await consume(reply, offset + index);
+        await consume(
+          reply.ok
+            ? reply
+            : { ok: false, error: restoreReaderError(reply.error) },
+          offset + index
+        );
       }
       offset += replies.length;
     }
