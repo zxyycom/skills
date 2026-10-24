@@ -1,4 +1,0 @@
-Investigation rename ready: 261001-record-10000 -> 261001-renamed-record
-old name: record-10000; new name: renamed-record
-old sourcePath: 261001-record-10000.md; new sourcePath: renamed-record.md
-affected relations: candidate 0, formal 0; resource references: 0; owner moved: false

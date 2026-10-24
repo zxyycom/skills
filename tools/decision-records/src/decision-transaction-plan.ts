@@ -1,3 +1,4 @@
+import { normalizeRecordTransactionPlan } from "../../record-operations/src/transaction-plan.ts";
 import type { DecisionSourceCapture } from "./decision-strict-preparation.ts";
 import path from "node:path";
 import { decisionTransactionMembers } from "./decision-source-membership.ts";
@@ -67,7 +68,7 @@ export async function prepareDecisionTransactionPlan(
   const guards = [...acquired.originals]
     .filter(([filePath]) => !writePaths.has(filePath))
     .map(([filePath, before]) => ({ path: filePath, before }));
-  return {
+  return normalizeRecordTransactionPlan({
     value: {
       context,
       beforeMembers: acquired.beforeMembers,
@@ -77,7 +78,7 @@ export async function prepareDecisionTransactionPlan(
     writes: writeSet.writes,
     index,
     guards
-  };
+  });
 }
 
 async function prepareDecisionWrites(

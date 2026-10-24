@@ -186,3 +186,131 @@ test("Decision strict transferred proof retains independent fresh guards and fin
     );
   });
 });
+
+import { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
+import { recordReaderWorkerThreshold } from "../../record-operations/src/reader-batch.ts";
+import { prepareDecisionRename } from "../src/decision-rename-planning.ts";
+import {
+  verifyPlan,
+  verifyWritten
+} from "../../record-operations/src/transaction.ts";
+import fsSync from "node:fs";
+import { readRecordFileSnapshotSync } from "../../record-operations/src/reader-sync.ts";
+import {
+  candidateDecisionBody,
+  withTemporaryWorkspace,
+  writeDecision
+} from "./support.ts";
+import { syncDecisionIndex } from "../src/decision-state-index.ts";
+
+// A real threshold-sized write set exceeds the runner default on ordinary filesystems; no latency budget is asserted.
+test(
+  "Decision rename batches a real threshold sized changed source set in fresh and postwrite phases",
+  { timeout: 30000 },
+  async (t) => {
+    await withTemporaryWorkspace("rename-many-changed", async (root) => {
+      const source = "260901-original";
+      await writeDecision(
+        root,
+        "archive/" + source,
+        candidateDecisionBody({ id: source, title: "原始判断" })
+          .replace("status: candidate", "status: archived")
+          .replace("alignment: null", "alignment: aligned")
+          .replace("createdAt: null", "createdAt: 2026-09-01T00:00:00Z")
+      );
+      const ids = Array.from(
+        { length: recordReaderWorkerThreshold },
+        (_, index) => `260901-linked-${index}`
+      );
+      for (const id of ids)
+        await writeDecision(
+          root,
+          id,
+          candidateDecisionBody({
+            id,
+            title: "引用场景",
+            relations: [{ type: "修订", target: source }]
+          })
+        );
+      const sync = await syncDecisionIndex({
+        decisionsDirectory: path.join(root, "docs/decisions"),
+        mode: "write"
+      });
+      assert.equal(sync.status, "ok", JSON.stringify(sync));
+      const original: unknown = Object.getOwnPropertyDescriptor(
+        RecordVerificationPhase.prototype,
+        "verifyMany"
+      )?.value;
+      assert.ok(typeof original === "function");
+      const observed = t.mock.method(
+        RecordVerificationPhase.prototype,
+        "verifyMany"
+      );
+      const batches: number[] = [];
+      observed.mock.mockImplementation(async function (
+        this: RecordVerificationPhase,
+        ...args: Parameters<typeof observed>
+      ) {
+        batches.push(args[0].length);
+        await Reflect.apply(original, this, args);
+      });
+      const { context, capture } = await strictContext(root);
+      const prepared = prepareDecisionRename(context, {
+        source,
+        target: "renamed",
+        workspaceRoot: root
+      });
+      assert.equal(prepared.status, "ready", JSON.stringify(prepared));
+      if (prepared.status !== "ready")
+        assert.fail("Expected a ready real rename plan");
+      const plan = await prepareDecisionTransactionPlan(
+        context,
+        prepared.value.changes,
+        capture
+      );
+      assert.equal(plan.writes.length, recordReaderWorkerThreshold + 2);
+      await verifyPlan(plan, new RecordVerificationPhase(plan.root));
+      // Commit mechanics are covered by the small shared transaction contracts. Here
+      // the fixture establishes real changed bytes without 1,000 journal lifecycles.
+      const changes = [
+        ...plan.writes,
+        ...(plan.index === null ? [] : [plan.index])
+      ];
+      for (const change of changes) {
+        if (change.next === null) fsSync.unlinkSync(change.path);
+        else
+          fsSync.writeFileSync(change.path, change.next, { mode: change.mode });
+      }
+      const actual = changes.map((change) => {
+        const written = readRecordFileSnapshotSync(plan.root, change.path);
+        if (change.next === null) assert.equal(written, null);
+        else {
+          assert.ok(written);
+          assert.deepEqual(
+            Buffer.from(written.bytes),
+            Buffer.from(change.next)
+          );
+          assert.equal(written.mode, change.before?.mode ?? change.mode);
+          const located = fsSync.statSync(change.path);
+          assert.equal(written.dev, located.dev);
+          assert.equal(written.ino, located.ino);
+        }
+        return { change, written };
+      });
+      await verifyWritten(plan, actual);
+      assert.deepEqual(batches, [
+        recordReaderWorkerThreshold + 3,
+        recordReaderWorkerThreshold + 3
+      ]);
+      for (const id of ids)
+        assert.match(
+          await fs.readFile(decisionFilePath(root, id), "utf8"),
+          /target: "?260901-renamed/
+        );
+      await assert.rejects(
+        fs.access(decisionFilePath(root, "archive/" + source)),
+        { code: "ENOENT" }
+      );
+    });
+  }
+);

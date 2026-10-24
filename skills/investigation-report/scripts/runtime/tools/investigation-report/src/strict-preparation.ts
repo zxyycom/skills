@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import type { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
 import {
   forEachRecordTextSnapshot,
   type RecordReadResult
@@ -27,15 +28,21 @@ import type {
 export class InvestigationPreparation {
   readonly root: string;
   readonly directory: string;
+  private readonly verification: RecordVerificationPhase | undefined;
   private readonly snapshots = new Map<string, RecordTextSnapshot>();
   private readonly documents = new Map<
     string,
     Readonly<{ id: string; parsed: ParsedInvestigationReport }>
   >();
 
-  constructor(root: string, directory = root) {
+  constructor(
+    root: string,
+    directory = root,
+    verification?: RecordVerificationPhase
+  ) {
     this.root = path.resolve(root);
     this.directory = path.resolve(directory);
+    this.verification = verification;
   }
 
   async read(target: string): Promise<string> {
@@ -43,6 +50,21 @@ export class InvestigationPreparation {
       throw new Error(
         "Strict Investigation source was already captured: " + target
       );
+    if (this.verification !== undefined) {
+      let captured: RecordTextSnapshot | undefined;
+      await this.verification.captureTextSnapshots(
+        this.root,
+        [target],
+        (result) => {
+          if (!result.ok) throw result.error;
+          captured = result.value;
+        }
+      );
+      if (captured === undefined)
+        throw new Error("Verification source was not acquired: " + target);
+      this.snapshots.set(captured.path, captured);
+      return captured.text;
+    }
     const captured = await readRecordTextSnapshot(this.root, target);
     this.snapshots.set(captured.path, captured);
     return captured.text;
@@ -57,12 +79,22 @@ export class InvestigationPreparation {
         throw new Error(
           "Strict Investigation source was already captured: " + target
         );
-    await forEachRecordTextSnapshot(this.root, targets, (result, index) => {
+    const consumeSnapshot = (
+      result: RecordReadResult<RecordTextSnapshot>,
+      index: number
+    ) => {
       if (result.ok) {
         this.snapshots.set(result.value.path, result.value);
         consume({ ok: true, value: result.value.text }, index);
       } else consume(result, index);
-    });
+    };
+    if (this.verification !== undefined)
+      await this.verification.captureTextSnapshots(
+        this.root,
+        targets,
+        consumeSnapshot
+      );
+    else await forEachRecordTextSnapshot(this.root, targets, consumeSnapshot);
   }
 
   captured(target: string, text: string): RecordTextSnapshot {

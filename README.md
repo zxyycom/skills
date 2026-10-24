@@ -36,7 +36,9 @@
 
 [Skill Design Discovery](docs/skills/skill-design-discovery.md) 用于创建、显著扩展或大幅重构 skill 前的深度设计发现。它从现实案例、现有材料和行为证据中恢复目标、端到端流程、潜藏决策、约束来源、人机权限与验证义务，形成可交给实现入口的设计契约。实际 skill 位于 [`skills/skill-design-discovery/`](skills/skill-design-discovery/)。
 
-[Test Evidence Review](docs/skills/test-evidence-review.md) 在新增、修改、删除或评审测试实现时，以测试框架中最小可独立选择并报告结果的原生测试节点为入口，区分测试节点与文件、suite、脚本、CI job 等聚合容器或内部环节，并为本次范围内每个保留入口维护一个显式 case；索引支持按 Contract、Proves 和 Entry 快速检索，不负责发现或自动注册。工程校验和仅运行既有测试不会触发。实际 skill 位于 [`skills/test-evidence-review/`](skills/test-evidence-review/)。
+[Test Design](docs/skills/test-design.md) 从真实错误和行为契约出发，设计、编写与改进自动化测试。它选择最小充分边界、有区分力的数据和独立预期，核对结果、副作用、环境隔离与实际执行，兼顾辨错能力、合理重构兼容性和必要成本。实际 skill 位于 [`skills/test-design/`](skills/test-design/)。
+
+[Test Evidence Review](docs/skills/test-evidence-review.md) 审查保留的最小原生测试入口能支持什么证据，并维护 Case 的 Tests、Contract、Proves 与可选 tags。它区分测试节点与文件、suite、脚本、CI job 等容器或内部环节，支持查询和显式维护账本，不负责发现或自动注册。测试设计与改进由 Test Design 承接，两者可独立选用。实际 skill 位于 [`skills/test-evidence-review/`](skills/test-evidence-review/)。
 
 [AI-Ready Docs](docs/skills/ai-ready-docs.md) 负责把文档优化到适合 AI 阅读、理解和使用的状态。它让 AI 能从实际文本准确恢复用途、信息、关系、范围、权威性和边界，同时保持文档便于人类阅读与维护；人类侧是次级约束和常见收益，不是并列主目标。实际 skill 位于 [`skills/ai-ready-docs/`](skills/ai-ready-docs/)。
 

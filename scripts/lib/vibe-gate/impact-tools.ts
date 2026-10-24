@@ -100,8 +100,8 @@ const investigationMaintenanceInputs = [
   ...recordOperationInputs,
   "tools/investigation-report/src/{candidate*,discard*,publish*,relation-review*,relation-transaction*,rename*,strict-preparation,transaction-files}.ts",
   "tools/investigation-report/tests/publish-support.ts",
-  "tools/investigation-report/tests/rename-resource-fixture.ts",
-  "tools/investigation-report/tests/{transaction*,relation-review,discard,discard-recovery,publish,rename*,strict-preparation,candidate-discard-transaction,candidate-operations,result-integrity,execution-entry-contract}.test.ts",
+  "tools/investigation-report/tests/{rename-resource-fixture,phase-verification-support}.ts",
+  "tools/investigation-report/tests/{transaction*,relation-review,discard*,publish,rename*,resource-phase-verification,strict-preparation,candidate-discard-transaction,candidate-operations,result-integrity,execution-entry-contract}.test.ts",
   "tools/investigation-report/tests/checks/transactional-maintenance.ts"
 ];
 const investigationStageInputs = [

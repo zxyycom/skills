@@ -7,11 +7,11 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import { validateRecordTransactionWrites } from "./transaction-plan.ts";
 import { RecordVerificationPhase } from "./transaction-verification.ts";
 import { RecordWriteJournal } from "./transaction-journal.ts";
 import {
   readRecordFileSnapshot,
-  validateRecordWritePermissions,
   restoreRecordDirectories,
   restoreRecordWrites,
   sameRecordFile,
@@ -58,7 +58,7 @@ export async function runRecordTransaction<Value>(
     withLock?: (
       operation: () => Promise<RecordTransactionResult<Value>>
     ) => Promise<RecordTransactionResult<Value>>;
-    fresh: (value: Value) => Promise<void>;
+    fresh: (value: Value, phase: RecordVerificationPhase) => Promise<void>;
     verify: (value: Value) => Promise<void>;
     verifyRecovered: (value: Value) => Promise<void>;
     cleanup?: (
@@ -85,8 +85,9 @@ export async function runRecordTransaction<Value>(
     let plan: RecordTransactionPlan<Value>;
     try {
       plan = await options.prepare();
-      await options.fresh(plan.value);
-      await verifyPlan(plan);
+      const phase = new RecordVerificationPhase(plan.root);
+      await options.fresh(plan.value, phase);
+      await verifyPlan(plan, phase);
     } catch (error) {
       return { ...emptyResult<Value>(null), errors: [error] };
     }
@@ -240,27 +241,19 @@ async function verifyRecoveredFiles<Value>(
       await verifyRecordFile(plan.root, guard.path, guard.before);
 }
 
-async function verifyPlan<Value>(
-  plan: RecordTransactionPlan<Value>
+export async function verifyPlan<Value>(
+  plan: RecordTransactionPlan<Value>,
+  phase: RecordVerificationPhase
 ): Promise<void> {
-  const paths = new Set<string>();
-  const phase = new RecordVerificationPhase(plan.root);
-  for (const change of [
+  validateRecordTransactionWrites(plan);
+  await phase.verifyMany([
     ...plan.writes,
-    ...(plan.index === null ? [] : [plan.index])
-  ]) {
-    if (paths.has(change.path))
-      throw new Error(
-        "Transaction contains duplicate write path: " + change.path
-      );
-    validateRecordWritePermissions(change);
-    paths.add(change.path);
-    await phase.verify(change.path, change.before);
-  }
-  await phase.verifyMany(plan.guards ?? []);
+    ...(plan.index === null ? [] : [plan.index]),
+    ...(plan.guards ?? [])
+  ]);
 }
 
-async function verifyWritten<Value>(
+export async function verifyWritten<Value>(
   plan: RecordTransactionPlan<Value>,
   writes: readonly RecordWrittenFile[]
 ): Promise<void> {
@@ -268,17 +261,17 @@ async function verifyWritten<Value>(
   const written = new Map(
     writes.map((item) => [item.change.path, item.written])
   );
-  for (const change of [
-    ...plan.writes,
-    ...(plan.index === null ? [] : [plan.index])
-  ])
-    await phase.verify(
-      change.path,
-      written.has(change.path) ? written.get(change.path)! : change.before
-    );
-  await phase.verifyMany(
-    (plan.guards ?? []).filter((guard) => !written.has(guard.path))
-  );
+  await phase.verifyMany([
+    ...[...plan.writes, ...(plan.index === null ? [] : [plan.index])].map(
+      (change) => ({
+        path: change.path,
+        before: written.has(change.path)
+          ? written.get(change.path)!
+          : change.before
+      })
+    ),
+    ...(plan.guards ?? []).filter((guard) => !written.has(guard.path))
+  ]);
 }
 
 function emptyResult<Value>(

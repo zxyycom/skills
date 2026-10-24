@@ -25,6 +25,7 @@
    - `lightweight-judgment`: 仅在用户点名该 skill 时启用, 以 JEV 载体调用 JEV 或 OpenAI Decisions 进行低成本、低延迟的分类、候选选择、相关性筛选和评分; 配套自包含 CLI 支持单次请求、离线检查与响应校验。
    - `skill-design-discovery`: 在创建或重构 skill 前, 从现实材料恢复流程、判断、约束、权限和验证义务。
    - `investigation-report`: 以带稳定 ID、tags 与显式关系的单份报告保存可独立复核的调查背景、依据、结果与边界。
+   - `test-design`: 从真实错误和行为契约设计、编写与改进测试，选择最小充分边界、区分性数据和独立预期，兼顾辨错能力、合理重构兼容性与必要成本。
    - `test-evidence-review`: 以最小原生测试入口为单位审查测试证据，区分测试节点与聚合容器或内部环节，并维护带 Tests、可选 tags、Contract 与 Proves 的 Case-only 账本。
    - `ai-ready-docs`: 优化说明、规则、任务和工作流等文档, 使 AI 能准确理解和可靠使用。
    - `file-lifecycle-hygiene`: 以轻量习惯管理 agent 主导的文件输出、复制、移动和留存, 让最终产物与辅助物都有可理解的归宿。
@@ -53,7 +54,7 @@
 9. 新增 skill 时, 在 `skills/<skill-name>/` 放置本体, 在 `SKILL.md` frontmatter 写入初始 `metadata.version`, 按需在 `docs/skills/` 增加人类介绍, 再确认聚合打包和自更新脚本覆盖该 skill。
 10. 新增或调整主仓库自动化时放在 `scripts/`; 新增需要随 skill 分发的工具实现时放在 `tools/`, 真实跨工具运行时能力再进入 `tools/shared/` 或独立协议 owner; skill 专属规则仍留在对应 skill 目录。
 11. 打包产物、依赖目录和 workflow 运行产物不作为长期源文件提交。
-12. 新增、修改、删除或审查测试实现时，按 `skills/test-evidence-review/SKILL.md` 维护 `docs/test-evidence/cases/<semantic-slug>.md`；每个文件只保存一个 Case，当前账本覆盖 `test:*` 保留的全部最小原生测试入口，测试框架不限，但每个入口必须能被框架独立选择和单独报告。Case 使用 Tests、可选 tags、Contract 与 Proves；修改目录后同步 `test-evidence-index.json`，项目实体快照与覆盖策略按项目 owner 维护。
+12. 新增、修改、删除或审查测试实现时，按 `skills/test-design/SKILL.md` 判断测试设计与改进，按 `skills/test-evidence-review/SKILL.md` 维护 `docs/test-evidence/cases/<semantic-slug>.md`；每个文件只保存一个 Case，当前账本覆盖 `test:*` 保留的全部最小原生测试入口，测试框架不限，但每个入口必须能被框架独立选择和单独报告。Case 使用 Tests、可选 tags、Contract 与 Proves；修改目录后同步 `test-evidence-index.json`，项目实体快照与覆盖策略按项目 owner 维护。
 13. 当前 worktree 启用 `.githooks` 后，使用者即已授权 `post-commit` 按[项目工具链](docs/tooling.md#git-hook)定义自动推送。agent 获得当前 commit 授权后，不再为该自动推送单独请求授权或绕过 hook；当前任务明确要求停用或限制自动推送时，按该要求执行。此许可不覆盖手工调用 helper、手工或强制 push、其他 remote/ref。
 
 ## 写作约定

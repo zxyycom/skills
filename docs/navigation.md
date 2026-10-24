@@ -12,7 +12,8 @@
 | 使用或审阅某个 skill | `skills/<skill-name>/SKILL.md` | 该入口按读取策略指向的 `references/`、`scripts/` 或其他材料；按需读取对应 `docs/skills/<skill-name>.md` |
 | 排查或解决 Bug | [复杂 Bug 调查与报告](complex-bug-investigation.md) | 目标代码、测试和领域 owner；需要形成报告时，读取 [Investigation Report](../skills/investigation-report/SKILL.md) 及其固定契约 |
 | 维护或恢复非线性任务图 | [Task Graph](../skills/task-graph/SKILL.md) | [权威 task index](task-graph/task-graph-index.json)；需要持久 change、长期知识或代理编排时按该 skill 的交接条件读取对应 owner |
-| 新增、修改、删除或审查测试实现 | [Test Evidence Review](../skills/test-evidence-review/SKILL.md) | 项目测试约定、目标测试及被测契约；写入 case 时读取该 skill 的目录契约 |
+| 设计、编写、改进或审查测试实现 | [Test Design](../skills/test-design/SKILL.md) | 项目测试约定、目标测试及被测契约；保留入口与证明范围变化时按 [Test Evidence Review](../skills/test-evidence-review/SKILL.md) 维护账本 |
+| 查询、整理或修复测试证据 Case | [Test Evidence Review](../skills/test-evidence-review/SKILL.md) | 写入 Case 时读取该 skill 的目录契约；需要改进测试实现时再进入 Test Design |
 | 创建、显著扩展或大幅重构 skill | [Skill Maintainer](../skills/skill-maintainer/SKILL.md)、已有目标 skill 的 `SKILL.md` | 真实流程、关键判断、约束或验收仍隐含或冲突时读 [Skill Design Discovery](../skills/skill-design-discovery/SKILL.md)；涉及通用分发边界时读 [仓库模型](repository-model.md) |
 | 调整仓库定位、skill 选择与启用边界或通用分发边界 | [仓库模型](repository-model.md) | 涉及具体打包、发布或 updater 机制时读 [项目工具链](tooling.md)；只影响特定 skill 时读其行为 owner |
 | 修改项目级 agent 协作约定 | [AGENTS](../AGENTS.md) | 改变任务路由或内容 owner 时读本文；需要让文档更适合 AI 阅读和使用时读 [AI-Ready Docs](../skills/ai-ready-docs/SKILL.md) |

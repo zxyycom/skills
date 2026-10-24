@@ -1,9 +1,8 @@
+import type { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
 import fs from "node:fs/promises";
 import path from "node:path";
-import {
-  readRecordFileSnapshot,
-  verifyRecordFile
-} from "../../record-operations/src/transaction-files.ts";
+import { verifyRecordFile } from "../../record-operations/src/transaction-files.ts";
+import { forEachRecordFileSnapshot } from "../../record-operations/src/reader-batch.ts";
 import type { RecordFileSnapshot } from "../../record-operations/src/transaction-files.ts";
 import type {
   ResourceMoveProgress,
@@ -31,20 +30,23 @@ export async function prepareResourceSourceProof(
 ): Promise<ResourceMoveProgress> {
   const sourceFiles = new Map<string, RecordFileSnapshot>();
   const sourceDirectories = new Map<string, DirectoryIdentity>();
-  for (const file of options.files) {
-    const snapshot = await readRecordFileSnapshot(
-      options.root,
-      path.join(options.owner, file.path)
-    );
-    if (
-      snapshot === null ||
-      (file.mode !== undefined && snapshot.mode !== file.mode)
-    )
-      throw new Error(
-        "Prepared resource file disappeared or changed mode: " + file.path
-      );
-    sourceFiles.set(file.path, snapshot);
-  }
+  await forEachRecordFileSnapshot(
+    options.root,
+    options.files.map((file) => path.join(options.owner, file.path)),
+    (result, index) => {
+      if (!result.ok) throw result.error;
+      const file = options.files[index]!;
+      const snapshot = result.value;
+      if (
+        snapshot === null ||
+        (file.mode !== undefined && snapshot.mode !== file.mode)
+      )
+        throw new Error(
+          "Prepared resource file disappeared or changed mode: " + file.path
+        );
+      sourceFiles.set(file.path, snapshot);
+    }
+  );
   for (const relative of options.directories)
     sourceDirectories.set(
       relative,
@@ -75,10 +77,21 @@ export async function verifyResourceOwnerSnapshot(
 export async function verifyResourceSourceProof(
   root: string,
   owner: string,
-  progress: ResourceMoveProgress
+  progress: ResourceMoveProgress,
+  phase?: RecordVerificationPhase
 ): Promise<void> {
-  for (const [relative, snapshot] of progress.sourceFiles ?? [])
-    await verifyRecordFile(root, path.join(owner, relative), snapshot);
+  if (phase === undefined) {
+    for (const [relative, snapshot] of progress.sourceFiles ?? [])
+      await verifyRecordFile(root, path.join(owner, relative), snapshot);
+  } else {
+    phase.assertRoot(root);
+    await phase.verifyMany(
+      [...(progress.sourceFiles ?? [])].map(([relative, before]) => ({
+        path: path.join(owner, relative),
+        before
+      }))
+    );
+  }
   for (const [relative, identity] of progress.sourceDirectories ?? [])
     await verifyDirectory(path.join(owner, relative), identity);
 }

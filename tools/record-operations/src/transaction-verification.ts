@@ -1,18 +1,28 @@
 import path from "node:path";
 import {
   forEachRecordFileSnapshot,
-  recordReaderWorkerThreshold
+  recordReaderWorkerThreshold,
+  type RecordReadResult
 } from "./reader-batch.ts";
 import {
   readRecordFileSnapshot,
   sameRecordFile,
-  type RecordFileSnapshot
+  type RecordFileSnapshot,
+  type RecordTextSnapshot
 } from "./transaction-snapshot.ts";
 
-type RecordGuard = Readonly<{
+export type RecordGuard = Readonly<{
   path: string;
   before: RecordFileSnapshot | null;
 }>;
+export type RecordVerificationFailure = Readonly<{
+  kind: "changed" | "unreadable";
+  error: unknown;
+}>;
+type ReportFailure = (
+  failure: RecordVerificationFailure,
+  index: number
+) => void;
 type GuardRequest = Readonly<{ entryIndex: number; path: string }>;
 
 /** One namespace and one verification phase; observations never cross fresh/postwrite. */
@@ -28,25 +38,43 @@ export class RecordVerificationPhase {
     target: string,
     expected: RecordFileSnapshot | null
   ): Promise<void> {
-    const resolved = path.resolve(target);
-    if (
-      this.observed.has(resolved) &&
-      sameRecordFile(this.observed.get(resolved)!, expected)
-    ) {
-      return;
-    }
-    const actual = await readRecordFileSnapshot(this.root, resolved);
-    if (!sameRecordFile(actual, expected)) {
-      throw new Error("Transaction member changed: " + target);
-    }
-    // Retain the actual acquired bytes, not the caller's mutable expected bytes.
-    this.observed.set(resolved, actual);
+    await this.verifyEntry({ path: target, before: expected }, 0);
+  }
+
+  assertRoot(root: string): void {
+    if (path.resolve(root) !== this.root)
+      throw new Error(
+        "Verification source root does not match its phase: " + root
+      );
+  }
+
+  /** Acquire this phase's domain text facts; never accept an earlier phase's proof. */
+  async captureTextSnapshots(
+    root: string,
+    targets: readonly string[],
+    consume: (
+      result: RecordReadResult<RecordTextSnapshot>,
+      index: number
+    ) => void
+  ): Promise<void> {
+    this.assertRoot(root);
+    await forEachRecordFileSnapshot(this.root, targets, (result, index) => {
+      if (!result.ok) return consume(result, index);
+      const target = path.resolve(targets[index]!);
+      const captured = textObservation(this.root, target, result.value);
+      if (captured.ok) this.observed.set(target, result.value);
+      consume(captured, index);
+    });
   }
 
   /** One phase's ordered guards; an equivalent overlap still uses its actual observation. */
-  async verifyMany(entries: readonly RecordGuard[]): Promise<void> {
+  async verifyMany(
+    entries: readonly RecordGuard[],
+    report?: ReportFailure
+  ): Promise<void> {
     if (entries.length < recordReaderWorkerThreshold) {
-      for (const entry of entries) await this.verify(entry.path, entry.before);
+      for (const [index, entry] of entries.entries())
+        await this.verifyEntry(entry, index, report);
       return;
     }
     const requests = this.scheduleGuards(entries);
@@ -58,21 +86,78 @@ export class RecordVerificationPhase {
         const request = requests[index]!;
         // Recheck aliases against actual acquired bytes, never against expected references.
         while (cursor < request.entryIndex) {
-          const entry = entries[cursor++]!;
-          await this.verify(entry.path, entry.before);
+          await this.verifyEntry(entries[cursor]!, cursor++, report);
         }
-        const entry = entries[cursor++]!;
-        if (!result.ok) throw result.error;
-        if (!sameRecordFile(result.value, entry.before))
-          throw new Error("Transaction member changed: " + entry.path);
-        this.observed.set(request.path, result.value);
+        const entryIndex = cursor++;
+        const entry = entries[entryIndex]!;
+        if (!result.ok)
+          return this.fail(
+            { kind: "unreadable", error: result.error },
+            entryIndex,
+            report
+          );
+        if (!this.accept(entry, result.value))
+          this.fail(
+            {
+              kind: "changed",
+              error: new Error("Transaction member changed: " + entry.path)
+            },
+            entryIndex,
+            report
+          );
       }
     );
     while (cursor < entries.length) {
-      const entry = entries[cursor++]!;
-      await this.verify(entry.path, entry.before);
+      await this.verifyEntry(entries[cursor]!, cursor++, report);
     }
   }
+  private accept(
+    entry: RecordGuard,
+    actual: RecordFileSnapshot | null
+  ): boolean {
+    if (!sameRecordFile(actual, entry.before)) return false;
+    // Actual bytes stay private; callers only provide expectations or receive copies.
+    this.observed.set(path.resolve(entry.path), actual);
+    return true;
+  }
+
+  private async verifyEntry(
+    entry: RecordGuard,
+    index: number,
+    report?: ReportFailure
+  ): Promise<void> {
+    const resolved = path.resolve(entry.path);
+    if (
+      this.observed.has(resolved) &&
+      sameRecordFile(this.observed.get(resolved)!, entry.before)
+    )
+      return;
+    let actual: RecordFileSnapshot | null;
+    try {
+      actual = await readRecordFileSnapshot(this.root, resolved);
+    } catch (error) {
+      return this.fail({ kind: "unreadable", error }, index, report);
+    }
+    if (!this.accept(entry, actual))
+      this.fail(
+        {
+          kind: "changed",
+          error: new Error("Transaction member changed: " + entry.path)
+        },
+        index,
+        report
+      );
+  }
+
+  private fail(
+    failure: RecordVerificationFailure,
+    index: number,
+    report?: ReportFailure
+  ): void {
+    if (report === undefined) throw failure.error;
+    report(failure, index);
+  }
+
   /** Schedule only changed expectations; aliases are still rechecked against actual bytes. */
   private scheduleGuards(
     entries: readonly RecordGuard[]
@@ -89,5 +174,42 @@ export class RecordVerificationPhase {
       scheduled.set(resolved, entry.before);
     }
     return requests;
+  }
+}
+
+/** Domain consumers receive copies; mutable bytes cannot rewrite the phase's actual proof. */
+function textObservation(
+  root: string,
+  target: string,
+  actual: RecordFileSnapshot | null
+): RecordReadResult<RecordTextSnapshot> {
+  if (actual === null)
+    return {
+      ok: false,
+      error: Object.assign(new Error("Record source is missing: " + target), {
+        code: "ENOENT"
+      })
+    };
+  try {
+    const text = new TextDecoder("utf-8", {
+      fatal: true,
+      ignoreBOM: true
+    }).decode(actual.bytes);
+    return {
+      ok: true,
+      value: {
+        root,
+        path: target,
+        text,
+        snapshot: {
+          ...actual,
+          bytes: Buffer.from(actual.bytes),
+          parents: actual.parents.map((parent) => ({ ...parent }))
+        }
+      }
+    };
+  } catch (error) {
+    if (!(error instanceof Error)) throw error;
+    return { ok: false, error };
   }
 }

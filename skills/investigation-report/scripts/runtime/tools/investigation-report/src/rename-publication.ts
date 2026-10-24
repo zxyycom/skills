@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import type { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
 import {
   prepareRenameTransaction,
   type RenameTransactionContext
@@ -16,7 +17,6 @@ import {
   runRecordTransaction,
   type RecordTransactionResult
 } from "../../record-operations/src/transaction.ts";
-import { verifyRecordFile } from "../../record-operations/src/transaction-files.ts";
 import {
   investigationMembers,
   verifyInvestigationMembers,
@@ -61,7 +61,7 @@ export async function publishRename(
   const context = { root, prepared, hooks, progress, changedPaths };
   const transaction = await runRecordTransaction({
     prepare: () => prepareRenameTransaction(context),
-    fresh: () => verifyFreshRename(context, members),
+    fresh: (_value, phase) => verifyFreshRename(context, members, phase),
     verify: async () => {
       await verifyInvestigationMembers(root, members, changedPaths);
       if (!prepared.noChange) {
@@ -140,20 +140,23 @@ function renameResourceLifecycle(context: RenameTransactionContext) {
 
 async function verifyFreshRename(
   context: RenameTransactionContext,
-  members: readonly InvestigationMember[]
+  members: readonly InvestigationMember[],
+  phase: RecordVerificationPhase
 ): Promise<void> {
   const { root, prepared, progress, hooks } = context;
 
   if (!prepared.noChange) await hooks.beforePublish?.();
-  const errors = await verifyPreparedRename(root, prepared);
+  const errors = await verifyPreparedRename(root, prepared, phase);
   if (errors.length > 0) throw new Error(errors.join("; "));
-  if (prepared.resourceMove !== null)
-    for (const [relative, before] of progress.sourceFiles ?? [])
-      await verifyRecordFile(
-        root,
-        path.join(prepared.resourceMove.from, relative),
+  if (prepared.resourceMove !== null) {
+    phase.assertRoot(root);
+    await phase.verifyMany(
+      [...(progress.sourceFiles ?? [])].map(([relative, before]) => ({
+        path: path.join(prepared.resourceMove!.from, relative),
         before
-      );
+      }))
+    );
+  }
   if (prepared.noChange) {
     const fresh = await prepareRename(root, prepared.indexPath, {
       workspaceRoot: root,

@@ -89,6 +89,8 @@ content 使用严格发布索引选择范围，仅在有关系条件时验完整
 
 统一 discard 在单一集合锁内采集 layout 并分类候选/正式目标，将同阶段 layout 与 strict preparation 交给领域内部执行；公开候选/正式 SDK 入口仍各自取得锁。rename 只有显式 preflight 在锁外完整准备，正式执行仅轻量入口核对后锁内准备；后续 fresh、写后与恢复不复用旧阶段。
 
+rename/discard 的文件提案经共同计划归一化，unchanged 来源只作为保护，不计入 changedPaths；真实 changed writes 与 guards 使用相同安全批量验收。rename 的 beforePublish 后来源/index 聚合通过当前 phase 的完整 snapshot 完成；no-op 身份重备、target/owner absence、membership、资源移动及完整 postverify 保持各自职责。正式 discard 的 transaction fresh 新建 `InvestigationPreparation`，以 tombstone 所需父目录为真实 transaction root，来源采集交给当前 phase；图/资源计算仍执行，随后共同 guards 比较该实际观察。较早 hook 后集合/index 对照和 post collection 保留独立来源读取，不把它们统称为不可合并的领域成本。
+
 ### 安全正文读取
 
 show 的完整正文读取交给共同操作的 `source.ts`；本域提供所选 ID 和定位，并据发布指纹判断来源 warning。共同安全边界见[操作入口与责任](../record-operations/README.md#操作入口与责任)。

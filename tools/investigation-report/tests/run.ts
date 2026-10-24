@@ -93,3 +93,7 @@ await import("./transaction-creation-modes.test.ts");
 await import("./selected-local-contract.test.ts");
 
 await import("./execution-entry-contract.test.ts");
+
+await import("./rename-phase-verification.test.ts");
+await import("./discard-phase-verification.test.ts");
+await import("./resource-phase-verification.test.ts");

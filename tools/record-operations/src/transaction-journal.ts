@@ -1,3 +1,4 @@
+import { unchangedRecordWrite } from "./transaction-plan.ts";
 import {
   RecordAtomicCleanupError,
   validateRecordWritePermissions,
@@ -5,7 +6,6 @@ import {
   createRecordWriteParents,
   readRecordFileSnapshot,
   recordWriteMatches,
-  sameRecordBytes,
   sameRecordFile,
   writeRecordFile,
   type RecordCreatedDirectory,
@@ -40,7 +40,7 @@ export class RecordWriteJournal {
 
   async apply(change: RecordFileWrite, commitPoint: boolean): Promise<void> {
     validateRecordWritePermissions(change);
-    if (unchangedWrite(change)) return;
+    if (unchangedRecordWrite(change)) return;
     await this.prepareParents(change);
     let identity: RecordWriteIdentity | null | undefined;
     try {
@@ -110,13 +110,4 @@ export class RecordWriteJournal {
     }
     if (this.uncertainWrite) this.writtenPaths.push(change.path);
   }
-}
-
-function unchangedWrite(change: RecordFileWrite): boolean {
-  return (
-    change.before !== null &&
-    change.next !== null &&
-    sameRecordBytes(change.before.bytes, change.next) &&
-    (change.mode === undefined || change.mode === change.before.mode)
-  );
 }
