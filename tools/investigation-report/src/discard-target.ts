@@ -1,7 +1,5 @@
-import {
-  inspectInvestigationCollectionLayout,
-  type InvestigationCollectionLayout
-} from "./investigation-index-source.ts";
+import { discoverInvestigationCandidates } from "./candidate-discovery.ts";
+import { type InvestigationCollectionLayout } from "./investigation-index-source.ts";
 import {
   investigationSelectorEntries,
   resolveInvestigationSelector
@@ -23,7 +21,7 @@ export async function identifyInvestigationDiscardTarget(
 ): Promise<InvestigationDiscardTarget> {
   const layout =
     acquiredLayout ??
-    (await inspectInvestigationCollectionLayout(investigationsDirectory));
+    (await discoverInvestigationCandidates(investigationsDirectory));
   if (layout.errors.length > 0)
     return { errors: layout.errors, status: "error" };
   const candidate = resolveInvestigationSelector(

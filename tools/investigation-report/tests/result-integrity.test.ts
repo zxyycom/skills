@@ -109,7 +109,7 @@ test("investigation new retains created identity and path after lock release fai
       );
       assert.equal(exit, 1);
       assert.match(stdout, /candidate created: 261023-cli-created/u);
-      assert.match(stdout, /path: .*_candidate\.cli-created\n/u);
+      assert.match(stdout, /path: .*_candidate\.261023-cli-created\n/u);
       assert.match(stdout, /changed: true/u);
       assert.match(stderr, /collection-lock-release-failed/u);
       assert.doesNotMatch(stdout, /relationReview|publish preflight passed/u);
@@ -124,7 +124,7 @@ test("investigation new retains created path but fails verification when a dupli
     const link = fs.link;
     fs.link = async (from, to) => {
       await link(from, to);
-      if (String(to).endsWith("_candidate.created"))
+      if (String(to).endsWith("_candidate.261023-created"))
         await fs.copyFile(
           to,
           path.join(investigationRoot(root), "_candidate.other-locator")

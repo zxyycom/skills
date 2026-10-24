@@ -40,7 +40,7 @@ async function verifyInvestigationModes(
     expected
   );
   await assertMode(
-    path.join(root, "docs/investigations/native-mode.md"),
+    path.join(root, "docs/investigations/261023-native-mode.md"),
     0o640
   );
 }

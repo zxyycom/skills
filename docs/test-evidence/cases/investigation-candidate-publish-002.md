@@ -1,14 +1,13 @@
-### Case INVESTIGATION-CANDIDATE-PUBLISH-002: publish requires current baseline and relation closure
+### Case INVESTIGATION-CANDIDATE-PUBLISH-002: 发布基线与同批关系闭合
 
 Tests:
-- `test:c46568d58b65900fe08cf1a09713dc1c57b37cb2d4d5551dd2214ae49ee7886a`
+- `test:930c609a450602de353eedcde0a8a97ff40d41f937d3394dbff80167f0a3ef5a`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- publish 只能以新鲜正式索引为基线，且 selected candidates 的关系 target 必须在正式基线或同批 selection 内闭合。
+- publish 依赖合法发布基线和所选候选最终关系闭合，不证明未选前序正文当前。
 
 Proves:
-- 未选择且不存在的 relation target 阻断预检并保留 candidate。
-- 手工正式 Markdown 漂移先要求 `sync-index`；同步后相同候选可完成预检。
+- 缺失 relation target 阻断预检并保留候选；当前前序正文发生未同步漂移时，索引关系仍足够支持发布预检。

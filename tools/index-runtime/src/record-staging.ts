@@ -85,7 +85,7 @@ export async function readRecordStagePending(
 ): Promise<PendingSnapshot> {
   return await readPendingSnapshot(repository, {
     pathScope: options.pathScope,
-    payloadScope: options.scope === "index" ? "content-paths" : "scope",
+    payloadScope: "content-paths",
     contentPaths:
       options.scope === "index" ? [options.indexPath] : options.contentPaths
   });

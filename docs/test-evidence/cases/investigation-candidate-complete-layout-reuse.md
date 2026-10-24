@@ -1,13 +1,13 @@
-### Case INVESTIGATION-CANDIDATE-COMPLETE-LAYOUT-001: 候选准备复用完整正式身份与 owner 字节
+### Case INVESTIGATION-CANDIDATE-COMPLETE-LAYOUT-001: 候选准备消费发布 owner 声明
 
 Tests:
-- `test:2d6ec414a92b7423a35e2f05073291213f7f1b77022e60e201d9395a4dc6a088`
+- `test:0a11415296d2048aa1132670418da34a76c6322b60706f4109aaba8133e73083`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 同阶段已有完整非空正式来源时，候选准备直接复用身份和必需 owner 字节，不为同一身份依据额外读取索引或正文。
+- 候选资源 owner 的正式声明只来自合法发布索引，不为纯依赖读取正式正文。
 
 Proves:
-- 预先取得完整 layout 后，候选准备与读取的 fs.readFile 根直属路径观测为空，共享资源仍 ready，references 只包含候选及必需 owner；该读取计数本身不覆盖 fs.open／FileHandle。
+- 已有完整 layout 时仍读取发布索引；共享资源 ready，references 仅含所选候选和必要 owner，正式 owner 正文没有额外 readFile。

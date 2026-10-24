@@ -22,7 +22,8 @@ export type CandidateIdentityContext = Readonly<{
 }>;
 
 export async function loadCandidateIdentityContext(
-  decisionsDirectory: string
+  decisionsDirectory: string,
+  selectors?: readonly string[]
 ): Promise<CandidateIdentityContext> {
   const identity = await recordCollectionIdentity(decisionsDirectory);
   const collection = await prepareRecordCandidates({
@@ -43,9 +44,32 @@ export async function loadCandidateIdentityContext(
         sourcePath: state.sourcePath
       }));
     },
-    members: async () => await candidateMembers(decisionsDirectory),
+    members: async (published, indexStatus) => {
+      const publishedPaths = new Set(
+        published.map(({ sourcePath }) => sourcePath)
+      );
+      const members = (await candidateMembers(decisionsDirectory)).filter(
+        (member) => !publishedPaths.has(member.sourcePath)
+      );
+      if (selectors === undefined || indexStatus === "missing") return members;
+      if (selectors.length === 0) return [];
+      const canonical = new Set(selectors.map((selector) => selector + ".md"));
+      // Full IDs have a direct locator. Legacy arbitrary basenames need candidate-only discovery.
+      if (
+        selectors.every((selector) => /^\d{6}-/.test(selector)) &&
+        selectors.every((selector) =>
+          members.some((member) => member.sourcePath === selector + ".md")
+        )
+      )
+        return members.filter((member) => canonical.has(member.sourcePath));
+      return members;
+    },
     header: readDecisionCandidateHeader
   });
+  if (collection.indexStatus === "missing" && collection.formal.length > 0)
+    throw new Error(
+      "decision-index.json is missing for established Decisions; restore it or run sync-index explicitly."
+    );
   await assertDiscoveryDirectoryIdentity(decisionsDirectory, identity);
   return {
     decisionsDirectory,

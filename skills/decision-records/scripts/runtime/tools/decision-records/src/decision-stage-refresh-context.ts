@@ -9,22 +9,11 @@
  */
 import { sameBytes } from "../../shared/src/node/bytes.ts";
 import path from "node:path";
-import {
-  readRecordStagePending,
-  sameRecordStagePendingIndex
-} from "../../index-runtime/src/record-staging.ts";
-import {
-  readPendingSnapshot,
-  type PendingSnapshot
-} from "../../shared/src/version-control/pending-snapshot.ts";
-import type {
-  RevisionId,
-  VersionControlFile
-} from "../../shared/src/version-control/index.ts";
-import {
-  decisionIndexFileName,
-  parseDecisionIndex
-} from "./decision-state-index.ts";
+import type { PendingSnapshot } from "../../shared/src/version-control/pending-snapshot.ts";
+import { captureRefreshPending } from "./decision-stage-refresh-pending.ts";
+import { strictIndex, indexFromFile } from "./decision-stage-refresh-index.ts";
+import type { RevisionId } from "../../shared/src/version-control/index.ts";
+import { decisionIndexFileName } from "./decision-state-index.ts";
 import { ensureDecisionDirectoryPath } from "./decision-source-path-safety.ts";
 import { createDecisionNameLookup } from "./decision-record-lookup.ts";
 import {
@@ -32,9 +21,7 @@ import {
   isDecisionSourcePath,
   parseDatedDecisionId
 } from "./decision-path.ts";
-import { stageSourceFromFile } from "./decision-stage-sources.ts";
 import {
-  decisionRelativePath,
   decodeUtf8,
   readStageFile,
   repositoryPath
@@ -86,7 +73,7 @@ export async function loadRefreshContext(
       : strictIndex(workspaceText, "workspace " + indexPath);
   const { snapshot, pending, pendingIds } = await captureRefreshPending(
     options,
-    { revision, indexPath },
+    { indexPath, head, workspace },
     previous
   );
   const selectedIds = selectRefreshIds(
@@ -108,22 +95,6 @@ export async function loadRefreshContext(
   };
 }
 
-function strictIndex(text: string, label: string): DecisionIndex {
-  const parsed = parseDecisionIndex(text, label);
-  if (parsed.status === "error")
-    throw new Error(
-      label +
-        ": " +
-        parsed.diagnostics.map((item) => item.message).join("; ") +
-        "; run check / sync-index for recovery."
-    );
-  return Object.freeze(parsed.value);
-}
-function indexFromFile(file: VersionControlFile): DecisionIndex {
-  if (file.kind !== "regular")
-    throw new Error("Decision index must be a regular file: " + file.path);
-  return strictIndex(decodeUtf8(file.data, file.path), file.path);
-}
 export async function loadRefreshBaseline(
   options: RefreshOptions
 ): Promise<Pick<RefreshContext, "head" | "revision">> {
@@ -136,78 +107,21 @@ export async function loadRefreshBaseline(
           revision,
           repositoryPath(decisionScope, decisionIndexFileName)
         );
-  return { revision, head: file === null ? null : indexFromFile(file) };
-}
-
-/** Captures full pending identity while retaining only index and changed-source bytes. */
-async function captureRefreshPending(
-  options: RefreshOptions,
-  baseline: Pick<RefreshContext, "revision" | "indexPath">,
-  previous?: RefreshContext
-) {
-  const { repository, decisionScope } = options.opened;
-  const { revision, indexPath } = baseline;
-  // Only changed pending Markdown needs identity discovery; never rebuild HEAD Markdown.
-  const initial =
-    revision === null && options.scope !== "index"
-      ? await readPendingSnapshot(repository, {
-          pathScope: decisionScope,
-          contentPaths: []
-        })
-      : null;
-  const changed =
-    options.scope === "index"
-      ? []
-      : revision === null
-        ? initial!.members.map((file) => file.path)
-        : await repository.listPendingChangedPaths({
-            from: revision,
-            pathScopes: [decisionScope]
-          });
-  const changedMarkdown = changed.filter((file) =>
-    isDecisionSourcePath(decisionRelativePath(decisionScope, file))
-  );
-  const snapshot = await readRecordStagePending(repository, {
-    scope: options.scope,
-    indexPath,
-    pathScope: decisionScope,
-    contentPaths: [
-      indexPath,
-      ...(options.scope === "index" ? [] : changedMarkdown)
-    ]
-  });
-  const pendingFile = snapshot.files.find((file) => file.path === indexPath);
-  const pending =
-    previous !== undefined &&
-    sameRecordStagePendingIndex(previous.snapshot, snapshot, indexPath)
-      ? previous.pending
-      : options.scope === "domain"
-        ? null
-        : pendingFile === undefined
-          ? null
-          : indexFromFile(pendingFile);
-  const pendingSources =
-    options.scope === "index"
-      ? []
-      : snapshot.files
-          .filter((file) => changedMarkdown.includes(file.path))
-          .map((file) =>
-            stageSourceFromFile(
-              file,
-              decisionRelativePath(decisionScope, file.path)
-            )
-          );
-  const pendingIds = new Map<DecisionId, Set<string>>();
-  for (const source of pendingSources) {
-    const id = source.source.decisionId;
-    const paths = pendingIds.get(id) ?? new Set<string>();
-    paths.add(source.file.path);
-    pendingIds.set(id, paths);
+  if (revision !== null && file === null) {
+    const prefix = decisionScope + "/";
+    const members = await repository.listRevisionFiles(revision, {
+      pathScopes: [decisionScope]
+    });
+    if (
+      members.some((member) =>
+        isDecisionSourcePath(member.slice(prefix.length))
+      )
+    )
+      throw new Error(
+        "HEAD Decision index is missing for existing sources; restore a trusted historical index before staging."
+      );
   }
-  for (const [id, paths] of pendingIds)
-    if (paths.size > 1)
-      throw new Error("Conflicting pending Decision identity: " + id);
-  return { snapshot, pending, pendingIds };
+  return { revision, head: file === null ? null : indexFromFile(file) };
 }
 
 /** Resolve the complete captured identity union before selecting any domain writes. */

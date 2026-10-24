@@ -1,14 +1,13 @@
-### Case INVESTIGATION-CANDIDATE-DISCARD-004: destructive discards fail closed on invalid candidate references
+### Case INVESTIGATION-CANDIDATE-DISCARD-004: 正式删除不审计未选候选引用
 
 Tests:
-- `test:348e9e299ce246df663c20e1873e14397ff7c23a835c7c99506355c4d1983c45`
+- `test:7330e5a411d3fc13861c2a7815dc55cdb74af7d390465796dcec592f5e558479`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 删除正式 owner 资源前，正式 `discard` 必须能安全读取全部 candidate 的资源引用；合法 basename 但无效的 candidate 不能被当作无引用而绕过保护。
+- 正式 discard 的引用保护来自发布索引，未选候选内容非法不扩大删除事务。
 
 Proves:
-- candidate 资源引用无法解析时，正式 `discard --delete-owned-resources` 以零写入失败。
-- 正式报告和 owner resource 字节保持不变。
+- 候选正文不可解析时，授权删除正式 owner 及资源仍成功，未选候选字节保留。

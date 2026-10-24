@@ -13,10 +13,7 @@ import { candidatePathForInvestigationId } from "../src/candidate-path.ts";
 import { reportMarkdown, withTempRoot } from "./fixture-support.ts";
 import { writeCollection } from "./collection-support.ts";
 import { inspectInvestigationCollectionLayout } from "../src/investigation-index-source.ts";
-import {
-  synchronizeInvestigationIndex,
-  validateInvestigationReports
-} from "../src/validation.ts";
+import { validateInvestigationReports } from "../src/validation.ts";
 
 const candidateInput = {
   formedAt: "2026-09-02T12:00:00+00:00",
@@ -60,7 +57,9 @@ test("new atomically creates a canonical candidate scaffold without establishing
 
 test("new rejects invalid, duplicate, and formal-conflicting candidate identities without overwriting files", async () => {
   await withTempRoot("candidate-identities", async (root) => {
-    await writeCollection(root, [{ id: "formal-topic" }]);
+    await writeCollection(root, [
+      { id: "260902-formal-topic", formedAt: candidateInput.formedAt }
+    ]);
     const invalid = await createInvestigationCandidate({
       ...candidateInput,
       id: "not a report",
@@ -168,7 +167,7 @@ test("new rejects invalid, duplicate, and formal-conflicting candidate identitie
     assert.equal((await fs.lstat(linkedPath)).isSymbolicLink(), true);
     await fs.rm(linkedPath, { force: true });
 
-    const concurrentId = "concurrent";
+    const concurrentId = "260902-concurrent";
     const concurrent = await Promise.all(
       [0, 1].map(
         async () =>
@@ -196,7 +195,7 @@ test("new rejects invalid, duplicate, and formal-conflicting candidate identitie
   });
 });
 
-test("new blocks a legacy name collision until an explicit dated migration is complete", async () => {
+test("new allows legacy and cross-day same-name records while rejecting a complete ID collision", async () => {
   await withTempRoot("candidate-legacy-migration", async (root) => {
     const migratedCandidateId = "260902-legacy-topic";
     await writeCollection(root, [
@@ -205,55 +204,37 @@ test("new blocks a legacy name collision until an explicit dated migration is co
         id: "legacy-topic"
       }
     ]);
-    const blocked = await createInvestigationCandidate({
+    const created = await createInvestigationCandidate({
       ...candidateInput,
       id: "legacy-topic",
       workspaceRoot: root
     });
-    assert.equal(blocked.status, "error");
-    assert.equal(blocked.changed, false);
-    assert.match(blocked.errors.join("\n"), /migration-required/);
-    assert.ok(
-      blocked.diagnostics.some(
-        (diagnostic) =>
-          diagnostic.code === "investigation-report.migration-required"
-      )
-    );
-    await assert.rejects(
-      fs.access(
-        candidatePathForInvestigationId(
-          path.join(root, "docs", "investigations"),
-          migratedCandidateId
+    assert.equal(created.status, "ok");
+    assert.equal(created.candidate.id, migratedCandidateId);
+    assert.match(created.candidate.path, /_candidate\.260902-legacy-topic$/);
+    assert.equal(
+      (
+        await fs.readFile(
+          path.join(root, "docs/investigations/legacy-topic.md"),
+          "utf8"
         )
-      )
+      ).includes('id: "legacy-topic"'),
+      true
     );
-
-    const legacyPath = path.join(
-      root,
-      "docs",
-      "investigations",
-      "legacy-topic.md"
-    );
-    await fs.writeFile(
-      legacyPath,
-      (await fs.readFile(legacyPath, "utf8")).replace(
-        'id: "legacy-topic"',
-        'id: "260901-legacy-topic"'
-      ),
-      "utf8"
-    );
-    assert.deepEqual(
-      (await synchronizeInvestigationIndex({ workspaceRoot: root })).errors,
-      []
-    );
-    const retried = await createInvestigationCandidate({
+    const repeated = await createInvestigationCandidate({
       ...candidateInput,
       id: "legacy-topic",
       workspaceRoot: root
     });
-    assert.equal(retried.status, "ok");
-    assert.equal(retried.candidate.id, migratedCandidateId);
-    assert.match(retried.candidate.path, /_candidate\.260902-legacy-topic$/);
+    assert.equal(repeated.status, "error");
+    const nextDay = await createInvestigationCandidate({
+      ...candidateInput,
+      formedAt: "2026-09-03T12:00:00Z",
+      id: "legacy-topic",
+      workspaceRoot: root
+    });
+    assert.equal(nextDay.status, "ok");
+    assert.match(nextDay.candidate.path, /_candidate\.260903-legacy-topic$/);
   });
 });
 
@@ -309,14 +290,15 @@ test("candidate readiness requires every visible candidate-owned resource to hav
     assert.equal(created.status, "ok");
     const rootPath = path.join(root, "docs", "investigations");
     await fs.writeFile(
-      candidatePathForInvestigationId(rootPath, candidateInput.id),
+      candidatePathForInvestigationId(rootPath, candidateId),
       reportMarkdown({
-        id: candidateInput.id,
-        resources: ["candidate-topic/referenced.txt"]
+        id: candidateId,
+        formedAt: candidateInput.formedAt,
+        resources: ["260902-candidate-topic/referenced.txt"]
       }),
       "utf8"
     );
-    const resources = path.join(rootPath, "_resources", "candidate-topic");
+    const resources = path.join(rootPath, "_resources", candidateId);
     await fs.mkdir(resources, { recursive: true });
     await fs.writeFile(
       path.join(resources, "referenced.txt"),
@@ -330,7 +312,7 @@ test("candidate readiness requires every visible candidate-owned resource to hav
     );
 
     const candidate = await showInvestigationCandidate({
-      id: candidateInput.id,
+      id: candidateId,
       workspaceRoot: root
     });
     assert.equal(candidate.status, "ok");
@@ -347,7 +329,7 @@ test("candidate readiness requires every visible candidate-owned resource to hav
   });
 });
 
-test("new and candidate show discover only formal header identities without a published index", async () => {
+test("new and candidate show reject missing published indexes without reading existing formal headers", async () => {
   await withTempRoot("candidate-local-draft", async (root) => {
     await writeCollection(root, [{ id: "unrelated" }], false);
     const formalPath = path.join(root, "docs/investigations/unrelated.md");
@@ -371,16 +353,14 @@ test("new and candidate show discover only formal header identities without a pu
         ...candidateInput,
         workspaceRoot: root
       });
-      assert.equal(created.status, "ok");
-      assert.equal(created.changed, true);
-      assert.equal(created.candidate.readiness.scaffoldValid, true);
-      assert.equal(created.candidate.readiness.bodyReady, false);
+      assert.equal(created.status, "error");
+      assert.equal(created.changed, false);
       const shown = await showInvestigationCandidate({
         workspaceRoot: root,
         id: candidateId
       });
-      assert.equal(shown.status, "ok");
-      assert.equal(formalReads, 4);
+      assert.equal(shown.status, "error");
+      assert.equal(formalReads, 0);
     } finally {
       fs.open = open;
     }

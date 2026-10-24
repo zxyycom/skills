@@ -32,7 +32,7 @@ test("scoped investigation discovery treats an inherited legacy ID as absent fro
   });
 });
 
-test("candidate resource visibility discovers an unindexed formal legacy owner instead of an inherited entry", async () => {
+test("candidate resource readiness rejects an unpublished formal owner instead of discovering its body", async () => {
   await withTempRoot("legacy-owner-membership", async (root) => {
     await writeCollection(root, [{ id: "keep" }]);
     const directory = investigationRoot(root);
@@ -59,8 +59,11 @@ test("candidate resource visibility discovers an unindexed formal legacy owner i
       id: "shared"
     });
     assert.equal(shown.status, "ok");
-    assert.deepEqual(shown.candidate?.errors, []);
-    assert.equal(shown.candidate?.readiness.resourceReady, true);
+    assert.match(
+      shown.candidate?.errors.join("; ") ?? "",
+      /owner report constructor does not exist/
+    );
+    assert.equal(shown.candidate?.readiness.resourceReady, false);
   });
 });
 

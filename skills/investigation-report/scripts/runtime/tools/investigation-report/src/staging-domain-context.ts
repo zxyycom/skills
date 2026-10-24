@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import { isInvestigationSourcePath } from "./report-path.ts";
 import type { PendingSnapshot } from "../../shared/src/version-control/pending-snapshot.ts";
 import { readDomainPending } from "./staging-pending.ts";
 import path from "node:path";
@@ -154,30 +155,55 @@ export async function loadDomainSnapshot(
       ? await domainBaselineIndex(domain, canonicalDefinition, control)
       : { status: "ok", value: fixed };
   if (baseline.status === "error") return baseline;
-  let pendingFacts: Awaited<ReturnType<typeof readDomainPending>>;
+  const pendingFacts = await loadDomainPendingFacts(
+    domain,
+    baseline.value,
+    workspace.value,
+    control,
+    fixed
+  );
+  if (pendingFacts.status === "error") return pendingFacts;
+  return {
+    status: "ok",
+    value: {
+      ...pendingFacts.value,
+      baseline: baseline.value.baseline,
+      revision: baseline.value.revision,
+      ...workspace.value
+    }
+  };
+}
+
+async function loadDomainPendingFacts(
+  domain: DomainRepository,
+  baseline: DomainBaseline,
+  workspace: DomainWorkspaceFacts,
+  control: DomainStageControl,
+  fixed:
+    | Readonly<{ contentPaths?: readonly string[]; previous?: DomainSnapshot }>
+    | undefined
+): Promise<DomainStep<Awaited<ReturnType<typeof readDomainPending>>>> {
   try {
-    pendingFacts = await readDomainPending(
-      domain,
-      baseline.value,
-      canonicalDefinition,
-      control,
-      { contentPaths: fixed?.contentPaths, previous: fixed?.previous }
-    );
+    return {
+      status: "ok",
+      value: await readDomainPending(
+        domain,
+        baseline,
+        workspace.canonicalDefinition,
+        control,
+        {
+          contentPaths: fixed?.contentPaths,
+          previous: fixed?.previous,
+          workspaceIndex: workspace.workspaceIndex
+        }
+      )
+    };
   } catch (error) {
     return {
       status: "error",
       result: domainFailure(control, "pending-read-failed", error)
     };
   }
-  return {
-    status: "ok",
-    value: {
-      ...pendingFacts,
-      baseline: baseline.value.baseline,
-      revision: baseline.value.revision,
-      ...workspace.value
-    }
-  };
 }
 
 type DomainBaseline = Readonly<{
@@ -202,7 +228,24 @@ async function revisionBaselineIndex(
     revision,
     domain.repositoryIndexPath
   );
-  if (revisionFile === null) return null;
+  if (revisionFile === null) {
+    const paths = await domain.repository.listRevisionFiles(revision, {
+      pathScopes: [domain.investigationsScope]
+    });
+    if (
+      paths.some((file) =>
+        isInvestigationSourcePath(
+          path.posix.relative(domain.investigationsScope, file)
+        )
+      )
+    )
+      throw new Error(
+        "historical investigation index is missing for existing reports; restore a trustworthy historical index before selective stage"
+      );
+    return null;
+  }
+  if (revisionFile.kind !== "regular" && revisionFile.kind !== "executable")
+    throw new Error("historical investigation index must be an ordinary file");
   return parseStateIndex({
     definition: canonicalDefinition,
     expectation: expectationOf(canonicalDefinition),

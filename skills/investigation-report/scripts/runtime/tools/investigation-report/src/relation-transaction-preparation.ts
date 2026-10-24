@@ -17,7 +17,6 @@ import {
 } from "./investigation-state-index.ts";
 import type { InvestigationRelationSummaryInput } from "./relation-summary.ts";
 import {
-  publicationDependencyIds,
   publishedGraphErrors,
   readPublishedInvestigationDependencies,
   type PublishedInvestigationIndex,
@@ -211,13 +210,7 @@ async function readRelationDependencies(
   const selectedIds = new Set(
     replacements.map((replacement) => replacement.source)
   );
-  const nextStates = replacementRelationStates(collection.states, replacements);
-  const dependencies = [
-    ...new Set([
-      ...publicationDependencyIds(collection.states, selectedIds),
-      ...publicationDependencyIds(nextStates, selectedIds)
-    ])
-  ].sort();
+  const dependencies = [...selectedIds].sort();
   let sources: InvestigationSource[];
   try {
     sources = await readPublishedInvestigationDependencies(
@@ -229,22 +222,6 @@ async function readRelationDependencies(
     return relationDependencyFailure(options, selectedIds, error);
   }
   return { status: "ready", value: sources };
-}
-
-function replacementRelationStates(
-  states: ReadonlyMap<string, InvestigationIndexState>,
-  replacements: readonly InvestigationRelationReplacement[]
-): Map<string, InvestigationIndexState> {
-  const nextStates = new Map(states);
-  for (const replacement of replacements) {
-    const state = nextStates.get(replacement.source);
-    if (state !== undefined)
-      nextStates.set(replacement.source, {
-        ...state,
-        relations: [...replacement.relations]
-      });
-  }
-  return nextStates;
 }
 
 function relationDependencyFailure(

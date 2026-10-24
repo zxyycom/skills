@@ -1,13 +1,13 @@
-### Case INVESTIGATION-HISTORY-PAYLOAD-INTEGRITY-001: 有限历史保留不绕过全payload失败
+### Case INVESTIGATION-HISTORY-PAYLOAD-INTEGRITY-001: 无关历史 blob 损坏不阻断所选前序
 
 Tests:
-- `test:4159a2ccb1c07df1df52b9c3307864622c9aafc81765cbcce9359b21784af33a`
+- `test:82e2d8144d6fb0d951715e8032b53113dcf4b1158c90331c86190f817ba45be0`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 历史身份仅保留 prefix 时，直属 formal 来源的完整 payload 读取失败仍产生 history-check-unavailable。
+- 历史门禁只读取可信索引定位的必要前序，不审计无关 payload。
 
 Proves:
-- 无关直属 formal 对象的完整 payload 腐败时输出历史检查不可用警告，而不形成成功存在判断或错误的前序缺失警告。
+- 破坏无关正式报告 Git object 后，必要前序仍正常确认，不输出历史检查不可用或前序未记录 warning。

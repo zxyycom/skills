@@ -38,7 +38,7 @@ test("Investigation rename executes preparation only under lock while explicit p
       target: "renamed",
       preflight: true
     });
-    assert.equal(preview.status, "error");
+    assert.equal(preview.status, "ok");
     assert.doesNotMatch(JSON.stringify(preview), /collection-lock-busy/);
     assert.deepEqual(await fs.readFile(index), before);
     await fs.rm(lockPath(root));

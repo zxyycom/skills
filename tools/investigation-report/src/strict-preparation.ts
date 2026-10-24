@@ -36,6 +36,13 @@ export class InvestigationPreparation {
     this.verification = verification;
   }
 
+  async readOrCaptured(target: string): Promise<string> {
+    return (
+      this.snapshots.get(path.resolve(target))?.text ??
+      (await this.read(target))
+    );
+  }
+
   async read(target: string): Promise<string> {
     if (this.snapshots.has(path.resolve(target)))
       throw new Error(

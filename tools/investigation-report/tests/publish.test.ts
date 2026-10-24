@@ -17,7 +17,7 @@ import { synchronizeInvestigationIndex } from "../src/validation.ts";
 import { writeCollection } from "./collection-support.ts";
 import { candidatePath, createReadyCandidate } from "./publish-support.ts";
 
-test("publish requires selected relation closure and a fresh formal index", async () => {
+test("publish requires selected relation closure without auditing current dependency bodies", async () => {
   await withTempRoot("publish-baseline", async (root) => {
     await writeCollection(root, [{ id: "base" }]);
     await createReadyCandidate(root, "successor.md", {
@@ -53,7 +53,7 @@ test("publish requires selected relation closure and a fresh formal index", asyn
       preflight: true,
       workspaceRoot: root
     });
-    assert.ok(stale.errors.some((error) => error.includes("index")));
+    assert.deepEqual(stale.errors, []);
     await fs.writeFile(
       path.join(investigationRoot(root), "base.md"),
       reportMarkdown({ id: "base" }),

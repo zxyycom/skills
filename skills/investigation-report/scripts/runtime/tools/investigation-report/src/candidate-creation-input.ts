@@ -7,12 +7,8 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-import path from "node:path";
 import { err, ok, type Result } from "neverthrow";
-import {
-  candidatePathForInvestigationId,
-  candidatePathForInvestigationLocator
-} from "./candidate-path.ts";
+import { candidatePathForInvestigationId } from "./candidate-path.ts";
 import { parseInvestigationCandidateCreateOptions } from "./options.ts";
 import {
   datedInvestigationIdForName,
@@ -171,36 +167,7 @@ export async function allocateCandidatePath(
   investigationsDirectory: string,
   id: string
 ): Promise<string> {
-  const name = investigationNameFromId(id);
-  const candidateNamePath = candidatePathForInvestigationLocator(
-    investigationsDirectory,
-    name
-  );
-  const formalNamePath = path.join(investigationsDirectory, `${name}.md`);
-  const [candidateExists, formalExists] = await Promise.all([
-    pathExists(candidateNamePath),
-    pathExists(formalNamePath)
-  ]);
-  return candidateExists || formalExists
-    ? candidatePathForInvestigationId(investigationsDirectory, id)
-    : candidateNamePath;
-}
-async function pathExists(target: string): Promise<boolean> {
-  try {
-    await import("node:fs/promises").then(({ default: fs }) =>
-      fs.lstat(target)
-    );
-    return true;
-  } catch (error) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      error.code === "ENOENT"
-    )
-      return false;
-    throw error;
-  }
+  return candidatePathForInvestigationId(investigationsDirectory, id);
 }
 export function validateCandidateCreateOptions(
   candidate: PreparedInvestigationCandidateCreateOptions

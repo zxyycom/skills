@@ -85,7 +85,7 @@ test("local investigation stage ignores unrelated malformed and missing bodies a
   });
 });
 
-test("domain source selection includes direct resource owners without selecting them for publication and rejects their drift", async () => {
+test("domain source selection uses indexed owner declarations without reading pure dependency bodies", async () => {
   await withTempRoot("stage-owner-dependency", async (root) => {
     const resource = "owner/sample.txt";
     await fs.mkdir(path.join(investigationRoot(root), "_resources/owner"), {
@@ -127,7 +127,7 @@ test("domain source selection includes direct resource owners without selecting 
     const selection = resolved.value.sourceSelection;
     assert.deepEqual(selection, {
       deletedIds: [],
-      reportIds: ["one", "owner"],
+      reportIds: ["one"],
       resourceIds: [resource]
     });
     const observed = await observeReads(root, async () => {
@@ -151,7 +151,7 @@ test("domain source selection includes direct resource owners without selecting 
     });
     assert.deepEqual(
       observed.paths.filter((name) => name.endsWith(".md")).sort(),
-      ["one.md", "one.md", "owner.md", "owner.md"]
+      ["one.md", "one.md"]
     );
     const ownerPath = path.join(investigationRoot(root), "owner.md");
     await fs.writeFile(ownerPath, reportMarkdown({ id: "owner" }));
@@ -164,15 +164,13 @@ test("domain source selection includes direct resource owners without selecting 
         data: await fs.readFile(path.join(root, relative))
       });
     }
-    assert.throws(
-      () =>
-        validateDomainReportSources({
-          files,
-          index: loaded.value,
-          investigationsScope: "docs/investigations",
-          selection
-        }),
-      /required owner changed from the published source/u
+    assert.doesNotThrow(() =>
+      validateDomainReportSources({
+        files,
+        index: loaded.value,
+        investigationsScope: "docs/investigations",
+        selection
+      })
     );
     assert.equal(
       await fs.readFile(ownerPath, "utf8"),
@@ -202,8 +200,8 @@ test("investigation index stage validates global metadata relations and the fina
   assert.throws(() => definition.validateIndex?.(invalid), /missing/u);
 });
 
-test("domain phase comparison rechecks required owner and shared resource bytes", async () => {
-  for (const driftingPath of ["owner.md", "_resources/owner/sample.txt"]) {
+test("domain phase comparison rechecks directly consumed shared resource bytes", async () => {
+  for (const driftingPath of ["_resources/owner/sample.txt"]) {
     await withTempRoot("stage-dependency-drift", async (root) => {
       const resource = "owner/sample.txt";
       await fs.mkdir(path.join(investigationRoot(root), "_resources/owner"), {

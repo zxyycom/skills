@@ -1,14 +1,9 @@
 import type { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
 import { requireRecordTextSnapshot } from "../../record-operations/src/transaction-snapshot.ts";
 import path from "node:path";
-import { InvestigationPreparation } from "./strict-preparation.ts";
-import { inspectInvestigationCollectionLayout } from "./investigation-layout.ts";
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 import type { PreparedRename } from "./rename-contract.ts";
-import { asFormalSource, readCandidateSources } from "./rename-preparation.ts";
 import { errorText, lstatOrNull, readRegularText } from "./rename-support.ts";
-import { syncInvestigationStateIndex } from "./investigation-state-index.ts";
-import { collectValidatedInvestigationCollection } from "./validation.ts";
 
 export async function verifyPreparedRename(
   root: string,
@@ -152,50 +147,17 @@ export async function verifyCommittedRename(
   root: string,
   prepared: PreparedRename
 ): Promise<readonly string[]> {
-  const preparation = new InvestigationPreparation(root);
-  const layout = await inspectInvestigationCollectionLayout(root, {
-    preparation
-  });
-  const collection = await collectValidatedInvestigationCollection(root, {
-    allowEmptyCollection: true,
-    layout,
-    preparation
-  });
-  if (collection.errors.length > 0) return collection.errors;
-  const candidates = await readCandidateSources(root, layout.candidateIds, {
-    layout,
-    preparation
-  });
-  if ("result" in candidates) return candidates.result.errors;
-  if (await indexIsStale(root, collection))
+  for (const source of prepared.sources) {
+    const text = await readRegularText(path.join(root, source.sourcePath));
+    if (text !== source.text)
+      return [source.id + " changed after rename publication"];
+  }
+  if (
+    prepared.nextIndexText !== null &&
+    (await readRegularText(prepared.indexPath)) !== prepared.nextIndexText
+  )
     return ["investigation index is stale after rename"];
-  return await retiredIdentityErrors(root, prepared, [
-    ...collection.sources.map((source) =>
-      asFormalSource(
-        root,
-        source,
-        preparation.parsed(source),
-        collection.states.get(source.id)
-      )
-    ),
-    ...candidates.value
-  ]);
-}
-
-async function indexIsStale(
-  root: string,
-  collection: Awaited<
-    ReturnType<typeof collectValidatedInvestigationCollection>
-  >
-): Promise<boolean> {
-  if (collection.snapshot === null || collection.sources.length === 0)
-    return false;
-  const freshness = await syncInvestigationStateIndex({
-    investigationsDirectory: root,
-    mode: "check",
-    snapshot: collection.snapshot
-  });
-  return freshness.status === "error";
+  return await retiredIdentityErrors(root, prepared, prepared.sources);
 }
 
 async function retiredIdentityErrors(

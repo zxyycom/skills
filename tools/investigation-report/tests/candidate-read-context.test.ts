@@ -28,7 +28,7 @@ async function writeSharedCandidate(root: string): Promise<void> {
   );
 }
 
-test("candidate preparation reuses complete formal identities and owner bytes without reading the published index", async () => {
+test("candidate preparation uses published owner declarations without reading formal owner bytes", async () => {
   await withTempRoot("candidate-complete-layout", async (root) => {
     await writeSharedCandidate(root);
     await writeCollection(root, [
@@ -60,14 +60,14 @@ test("candidate preparation reuses complete formal identities and owner bytes wi
       assert.deepEqual(candidate.value.errors, []);
       assert.equal(candidate.value.readiness.resourceReady, true);
       assert.deepEqual([...context.references.keys()], ["next", "owner"]);
-      assert.deepEqual(reads, []);
+      assert.deepEqual(reads, ["investigation-index.json"]);
     } finally {
       fs.readFile = original;
     }
   });
 });
 
-test("candidate reads require explicit recovery for moved formal owners or unavailable indexes", async () => {
+test("candidate reads use indexed owner declarations despite source moves and require a valid index", async () => {
   await withTempRoot("candidate-owner-discovery", async (root) => {
     await writeSharedCandidate(root);
     await writeCollection(root, [
@@ -87,7 +87,7 @@ test("candidate reads require explicit recovery for moved formal owners or unava
       workspaceRoot: root,
       id: "next"
     });
-    assert.equal(indexed.status, "error");
+    assert.equal(indexed.status, "ok");
     await fs.writeFile(indexPath, "invalid JSON\n");
     const unindexed = await showInvestigationCandidate({
       workspaceRoot: root,
@@ -103,7 +103,7 @@ test("candidate reads require explicit recovery for moved formal owners or unava
   });
 });
 
-test("candidate partial layouts preserve required owner access failures", async () => {
+test("candidate resource readiness does not read an indexed formal owner body", async () => {
   await withTempRoot("candidate-owner-access", async (root) => {
     await writeSharedCandidate(root);
     await writeCollection(root, [
@@ -124,19 +124,15 @@ test("candidate partial layouts preserve required owner access failures", async 
         workspaceRoot: root,
         id: "next"
       });
-      assert.equal(denied.status, "error");
-      assert.equal(
-        denied.diagnostics[0]?.code,
-        "investigation-report.candidate-read-failed"
-      );
-      assert.equal(denied.diagnostics[0]?.causeCategory, "access-denied");
+      assert.equal(denied.status, "ok");
+      assert.equal(denied.candidate?.readiness.resourceReady, true);
     } finally {
       fs.open = original;
     }
   });
 });
 
-test("candidate partial layouts reject duplicate formal owner identities", async () => {
+test("candidate reads do not discover duplicate unselected formal bodies outside published locations", async () => {
   await withTempRoot("candidate-owner-duplicates", async (root) => {
     await writeSharedCandidate(root);
     await writeCollection(root, [
@@ -153,10 +149,7 @@ test("candidate partial layouts reject duplicate formal owner identities", async
       workspaceRoot: root,
       id: "next"
     });
-    assert.equal(duplicate.status, "error");
-    assert.equal(
-      duplicate.diagnostics[0]?.code,
-      "investigation-report.candidate-layout-unavailable"
-    );
+    assert.equal(duplicate.status, "ok");
+    assert.equal(duplicate.candidate?.readiness.resourceReady, true);
   });
 });

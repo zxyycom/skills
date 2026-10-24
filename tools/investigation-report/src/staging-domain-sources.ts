@@ -5,7 +5,6 @@ import type { VersionControlFile } from "../../shared/src/version-control/index.
 import { investigationSourceRevision } from "./investigation-source-revision.ts";
 import { parseInvestigationReport } from "./markdown.ts";
 import { buildInvestigationReportState } from "./report-validation.ts";
-import { investigationResourceOwnerReportId } from "./resource-reference.ts";
 import { validateInvestigationResourceOwnership } from "./resources.ts";
 import {
   compareText,
@@ -29,12 +28,9 @@ export function domainSourceSelection(
   const resourceIds = [
     ...new Set(currentIds.flatMap((id) => index.entries[id].resourceIds))
   ].sort(compareText);
-  const owners = resourceIds.map((id) =>
-    investigationResourceOwnerReportId(id)!
-  );
   return {
     deletedIds: selectedIds.filter((id) => !hasEntry(index, id)),
-    reportIds: [...new Set([...currentIds, ...owners])].sort(compareText),
+    reportIds: currentIds.sort(compareText),
     resourceIds
   };
 }
@@ -50,7 +46,9 @@ type DomainReportSources = Readonly<{
 export function validateDomainReportSources(
   options: DomainReportSources
 ): void {
-  const states = new Map<string, InvestigationIndexState>();
+  const states = new Map<string, InvestigationIndexState>(
+    Object.entries(options.index.entries)
+  );
   for (const id of options.selection.reportIds)
     states.set(id, validatedDomainReport(id, options));
   const errors = validateInvestigationResourceOwnership(

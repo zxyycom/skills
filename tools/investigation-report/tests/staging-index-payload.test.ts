@@ -34,28 +34,25 @@ async function prepare(root: string): Promise<void> {
 }
 
 for (const failure of ["missing"]) {
-  test(`stage index permits non-index pending ${failure} payload while all and domain retain full validation`, async () => {
+  test(`stage scopes preserve unrelated pending ${failure} payload without reading it`, async () => {
     await withTempRoot("stage-index-narrow", async (root) => {
       await prepare(root);
       const target = pendingObjectPath(root, otherPath);
       if (failure === "missing") await fs.unlink(target);
       const before = git(root, ["ls-files", "--stage"]);
       for (const scope of ["all", "domain"] as const) {
-        const full = await stage(root, scope);
-        assert.equal(full.status, "error");
-        assert.equal(full.state, "domain-stage-failed");
-        assert.ok(
-          full.diagnostics.some(
-            (diagnostic) =>
-              diagnostic.code ===
-              "investigation-report.stage-pending-read-failed"
-          )
+        const selected = await stage(root, scope);
+        assert.equal(selected.status, "ok", JSON.stringify(selected));
+        assert.equal(
+          git(root, ["ls-files", "--stage"])
+            .split("\n")
+            .find((line) => line.endsWith(otherPath)),
+          before.split("\n").find((line) => line.endsWith(otherPath))
         );
-        assert.equal(git(root, ["ls-files", "--stage"]), before);
       }
       const result = await stage(root);
       assert.equal(result.status, "ok", JSON.stringify(result));
-      assert.deepEqual(result.writtenPaths, [indexRelativePath]);
+      assert.deepEqual(result.writtenPaths, []);
       assert.equal(
         jsonObjectMember(
           jsonObjectMember(
@@ -69,8 +66,8 @@ for (const failure of ["missing"]) {
       assert.deepEqual(
         git(root, ["ls-files", "--stage"])
           .split("\n")
-          .filter((line) => !line.endsWith(indexRelativePath)),
-        before.split("\n").filter((line) => !line.endsWith(indexRelativePath))
+          .filter((line) => line.endsWith(otherPath)),
+        before.split("\n").filter((line) => line.endsWith(otherPath))
       );
       const unchanged = await stage(root);
       assert.equal(unchanged.state, "unchanged");
@@ -105,8 +102,8 @@ test("stage index preserves unselected partial pending mode and staged deletion"
     assert.deepEqual(
       git(root, ["ls-files", "--stage"])
         .split("\n")
-        .filter((line) => !line.endsWith(indexRelativePath)),
-      before.split("\n").filter((line) => !line.endsWith(indexRelativePath))
+        .filter((line) => line.endsWith(otherPath)),
+      before.split("\n").filter((line) => line.endsWith(otherPath))
     );
     assert.equal(
       git(root, ["show", `:${otherPath}`]),

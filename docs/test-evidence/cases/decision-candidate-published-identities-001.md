@@ -1,4 +1,4 @@
-### Case DECISION-CANDIDATE-PUBLISHED-IDENTITIES-001: 候选准备复用已验正式位置而不重读全集 header
+### Case DECISION-CANDIDATE-PUBLISHED-IDENTITIES-001: 候选准备复用正式发布身份而不重读正文
 
 Tests:
 - `test:4f946c54a75e183920ada1fa4d5deffb0f0ba31da01faf731b95fb5bde9dc508`
@@ -9,9 +9,9 @@ Tags:
 - `decision-records`
 
 Contract:
-- 合法发布基线提供正式 ID/sourcePath；候选局部准备不重读已知正式 header，不将未读的正式当前内容宣称已验。实际候选、未知位置和必要直接依赖仍安全读取，真实缺索引只发现 header 身份，不自动发布或恢复索引。
+- 合法发布索引提供正式 ID/sourcePath；候选准备不读取已知正式正文，纯索引关系依赖不另读。索引外候选按必要身份发现；已存在正式来源却无索引时明确恢复。
 
 Proves:
-- 20 条正式来源（root/archive 各 10，locator 与 ID 不同）及 2 候选下，readiness/list/show 各只安全读取 2 个候选，正式 open/handle.readFile/readFile 均零；new 不读正式来源，读取仅来自候选集合及自身事务验收，数量有常数上界。无关正式正文/headers 损坏不构成候选局部门禁。
-- 未知路径仍读取 header，不能按 basename 猜 ID；候选与发布 ID 重复、已知位置目录或 symlink 均失败；选中候选实际引用的正式依赖仍安全读取并对身份坏内容失败。坏 JSON/definition 不符不降级；真缺索引必须重新读取全部正式安全 header，坏 header 失败、坏正文但合法 header 可发现身份，且不生成索引。
-- root readdir 已返回普通 archive Dirent 后，archive readdir 入口被替换为外部 symlink 或具有相同发布 basename 的普通目录时，均拒绝目录身份漂移；不借读取正式 header/body 才发现问题，正式文件读取仍为零。
+- 20 条正式来源（root/archive 各 10，locator 与 ID 不同）及 2 候选下，readiness/list/show 各只安全读取 2 个候选，正式 open/handle.readFile/readFile 均零；new 只读必要候选和自身验收。
+- 未知路径必须安全分类；未知正式 header 不冒充已发布身份；候选与发布 ID 重复、已知位置目录或 symlink 均失败。所选候选引用正文已损坏的正式目标时仍仅使用索引，目标正文零读取。
+- 坏 JSON/definition 不降级；缺索引且 header 证明有正式来源时明确恢复，无法分类 header 同样失败，不生成索引。root/archive 目录替换被独立目录身份保护拒绝。

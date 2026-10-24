@@ -1,13 +1,13 @@
-### Case DECISION-TRANSACTION-UNCHANGED-FRESH-001: unchanged 仍独立验证相关来源
+### Case DECISION-TRANSACTION-UNCHANGED-FRESH-001: Unchanged 仍独立验证所选来源
 
 Tests:
-- `test:046f29e3386b52fa2ecbb18afb85315f51955aa53a8dc7fb0fe18fbeba39acdd`
+- `test:da4f40f51705de7ab8633f7289ed833fec4caa8aa6c228bc22454c6b2f549f35`
 
 Tags:
 - `decision-records`
 
 Contract:
-- unchanged 不能跳过适用来源、成员和索引保护，也不能扩大全集正文 scope。
+- unchanged 不能跳过所选来源和索引的 fresh/CAS 保护，也不能扩大为全集正文门禁。
 
 Proves:
-- 已无关系变化的请求在 prepare 与独立 fresh 之间遭相关来源编辑后返回 no-change，保留后来编辑和原索引。
+- 请求无关系变化，在来源快照与独立 fresh 之间实际编辑所选正文后返回 no-change；保留后来编辑与原索引。

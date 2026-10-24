@@ -19,13 +19,151 @@ import {
   indexPath,
   runGit,
   snapshot,
-  withTempRoot
+  withTempRoot,
+  writeFile
 } from "./staging-fixture.ts";
 import { resultValue } from "./support.ts";
 
 for (const scope of ["index", "all", "domain"]) {
   test(`record stage ${scope} reuses immutable deterministic target after two fresh acquisitions`, async () => {
     await exerciseRecordStage(scope, false);
+  });
+}
+
+for (const scope of ["index", "all", "domain"]) {
+  test(`record stage ${scope} reads selected payload and preserves unselected pending identities and deletion`, async () => {
+    if (scope !== "index" && scope !== "all" && scope !== "domain")
+      throw new Error("Invalid scope fixture");
+    await withTempRoot(async (tempRoot) => {
+      const source = { snapshot: snapshot({}, "empty") };
+      const definition = createDefinition(source, createControl());
+      const fixture = await createGitRepositoryFixture({
+        definition,
+        name: "record-selected-payload",
+        revision: snapshot({ A: "old A", B: "old B" }, "head"),
+        source,
+        tempRoot,
+        workspace: snapshot({ A: "new A", B: "new B" }, "work")
+      });
+      const selectedPath = "indexes/source-A.md";
+      const unselectedPath = "indexes/unselected.md";
+      const deletedPath = "indexes/deleted.md";
+      const linkedPath = "indexes/link";
+      for (const file of [selectedPath, unselectedPath, deletedPath])
+        await writeFile(fixture.repositoryRoot, file, file + "\n");
+      await fs.symlink(
+        "old-target",
+        path.join(fixture.repositoryRoot, linkedPath)
+      );
+      runGit(fixture.repositoryRoot, [
+        "add",
+        selectedPath,
+        unselectedPath,
+        deletedPath,
+        linkedPath
+      ]);
+      runGit(fixture.repositoryRoot, [
+        "commit",
+        "--quiet",
+        "--message",
+        "source representations"
+      ]);
+      runGit(fixture.repositoryRoot, ["rm", "--cached", deletedPath]);
+      await writeFile(
+        fixture.repositoryRoot,
+        unselectedPath,
+        "pending unselected payload\n"
+      );
+      runGit(fixture.repositoryRoot, ["add", unselectedPath]);
+      runGit(fixture.repositoryRoot, [
+        "update-index",
+        "--chmod=+x",
+        unselectedPath
+      ]);
+      const objectId = runGit(fixture.repositoryRoot, [
+        "rev-parse",
+        `:${unselectedPath}`
+      ]).trim();
+      await fs.unlink(
+        path.join(
+          fixture.repositoryRoot,
+          ".git/objects",
+          objectId.slice(0, 2),
+          objectId.slice(2)
+        )
+      );
+      const pendingBefore = runGit(fixture.repositoryRoot, [
+        "ls-files",
+        "--stage"
+      ]);
+      const repository = await openVersionControl(fixture.repositoryRoot);
+      const parse = (text: string) =>
+        resultValue(
+          parseStateIndex({ definition, sourcePath: indexPath, text })
+        );
+      const baseline = parse(fixture.revisionText!);
+      const workspace = parse(fixture.workspaceText);
+      const result = await stageRecordSelection({
+        repository,
+        revision: await repository.getCurrentRevision(),
+        scope,
+        indexPath,
+        acquire: async () => ({
+          baseline,
+          workspace,
+          pendingIndex: scope === "domain" ? null : baseline,
+          pending: await readRecordStagePending(repository, {
+            scope,
+            pathScope: "indexes",
+            indexPath,
+            contentPaths: [indexPath, selectedPath]
+          }),
+          selectedIds: ["A"],
+          workspaceEvidence: fixture.workspaceText,
+          workspaceBytes: Buffer.from(fixture.workspaceText),
+          context: null
+        }),
+        build: (target) => buildStateIndexFromSnapshot(definition, target),
+        serialize: (target) => serializeStateIndex(target, definition),
+        prepareDomain: async (phase) => ({
+          pending: phase.pending,
+          updates: [
+            {
+              path: selectedPath,
+              kind: "regular",
+              data: Buffer.from("selected target\n")
+            }
+          ],
+          sourceFiles: []
+        })
+      });
+      const changed =
+        scope === "index"
+          ? [indexPath]
+          : scope === "domain"
+            ? [selectedPath]
+            : [selectedPath, indexPath].sort();
+      assert.deepEqual(result.replacement.changedPaths, changed);
+      const retained = (text: string) =>
+        text
+          .split("\n")
+          .filter(
+            (line) => !changed.some((file) => line.endsWith("\t" + file))
+          );
+      assert.deepEqual(
+        retained(runGit(fixture.repositoryRoot, ["ls-files", "--stage"])),
+        retained(pendingBefore)
+      );
+      assert.equal(
+        runGit(fixture.repositoryRoot, ["ls-files", "--", deletedPath]),
+        ""
+      );
+      if (scope !== "index")
+        assert.equal(
+          runGit(fixture.repositoryRoot, ["show", `:${selectedPath}`]),
+          "selected target\n"
+        );
+    });
   });
 }
 for (const scope of ["index", "all"]) {

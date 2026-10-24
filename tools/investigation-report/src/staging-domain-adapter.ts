@@ -8,7 +8,10 @@ import {
   serializeStateIndex,
   type StateIndex
 } from "../../index-runtime/src/index.ts";
-import { samePendingSnapshots } from "../../shared/src/version-control/pending-snapshot.ts";
+import {
+  extendsPendingSnapshot,
+  samePendingSnapshots
+} from "../../shared/src/version-control/pending-snapshot.ts";
 import {
   loadDomainSnapshot,
   resolveDomainSelection,
@@ -84,7 +87,7 @@ export class InvestigationStageAdapter {
     stage: "prepare" | "verify",
     previous?: InvestigationRecordPhase
   ): Promise<InvestigationRecordPhase> {
-    const snapshot =
+    let snapshot =
       stage === "prepare"
         ? this.initial
         : stageValue(
@@ -97,6 +100,12 @@ export class InvestigationStageAdapter {
     const selection = stageValue(
       resolveDomainSelection(snapshot, this.control)
     );
+    if (this.control.input.scope !== "index") {
+      snapshot = await this.acquireSelectedSnapshot(
+        { snapshot, selection },
+        stage
+      );
+    }
     return {
       baseline: snapshot.baseline,
       workspace: snapshot.workspaceIndex,
@@ -113,6 +122,23 @@ export class InvestigationStageAdapter {
       workspaceBytes: snapshot.workspaceBytes,
       context: { snapshot, selection }
     };
+  }
+
+  private async acquireSelectedSnapshot(
+    context: PhaseContext,
+    stage: "prepare" | "verify"
+  ): Promise<DomainSnapshot> {
+    const { snapshot } = context;
+    const request = await this.request(context);
+    const acquired = await acquireDomainPhase(request, snapshot.pending);
+    if (acquired.status === "error")
+      throw sourcePreparationError(this.control, stage, acquired);
+    if (!extendsPendingSnapshot(snapshot.pending, acquired.value.pending))
+      throw new RecordStageError(
+        "pending-conflict",
+        "The pending snapshot changed during selected source acquisition"
+      );
+    return { ...snapshot, pending: acquired.value.pending };
   }
 
   async prepareDomain(

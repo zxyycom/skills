@@ -37,12 +37,6 @@ export type PublishTransactionContext = {
   rejected: InvestigationCandidatePublishResult | null;
   readonly cleanupWarnings: string[];
 };
-type PublicationGuard = Readonly<{
-  path: string;
-  before:
-    | import("../../record-operations/src/transaction-files.ts").RecordFileSnapshot
-    | null;
-}>;
 export async function preparePublishTransaction(
   context: PublishTransactionContext
 ): Promise<RecordTransactionPlan<PreparedPublication>> {
@@ -54,9 +48,6 @@ export async function preparePublishTransaction(
   );
   const members = await investigationMembers(options.root);
   const changedPaths = writes.map((change) => change.path);
-  guards.push(
-    ...(await unselectedCandidateGuards(options.root, members, changedPaths))
-  );
   const index = await publicationIndex(context, preparation);
   return {
     value: { preparation, members, changedPaths },
@@ -137,23 +128,6 @@ async function publicationSourceWrites(
     );
   }
   return { writes, guards };
-}
-async function unselectedCandidateGuards(
-  root: string,
-  members: readonly InvestigationMember[],
-  changedPaths: readonly string[]
-): Promise<PublicationGuard[]> {
-  const guards: PublicationGuard[] = [];
-  for (const member of members)
-    if (
-      path.basename(member.path).startsWith("_candidate.") &&
-      !changedPaths.includes(member.path)
-    )
-      guards.push({
-        path: member.path,
-        before: await readRecordFileSnapshot(root, member.path)
-      });
-  return guards;
 }
 async function publicationIndex(
   context: PublishTransactionContext,

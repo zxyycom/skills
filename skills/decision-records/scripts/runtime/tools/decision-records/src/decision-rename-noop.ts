@@ -13,7 +13,10 @@ import {
   runRecordTransaction,
   type RecordTransactionPlan
 } from "../../record-operations/src/transaction.ts";
-import { readRecordFileSnapshot } from "../../record-operations/src/transaction-files.ts";
+import {
+  readRecordFileSnapshot,
+  type RecordFileSnapshot
+} from "../../record-operations/src/transaction-files.ts";
 import {
   loadCandidateIdentityContext,
   type CandidateIdentityContext
@@ -26,7 +29,8 @@ import {
   parseDatedDecisionId,
   sourcePathForDecisionRename
 } from "./decision-path.ts";
-import { renameFailure } from "./decision-rename-failure.ts";
+import { parseDecisionIndex } from "./decision-state-index.ts";
+import { decisionSourceRevision } from "./decision-source-revision.ts";
 import { decisionFailure } from "./application-result.ts";
 import { transactionFileSystemDiagnostic } from "./decision-transaction.ts";
 import type {
@@ -55,7 +59,11 @@ export async function tryNoopDecisionRename(
     options.workspaceRoot ?? process.cwd(),
     options.decisionsDir ?? "docs/decisions"
   );
-  const identity = await loadCandidateIdentityContext(canonical.collectionRoot);
+  const selector = normalizeDecisionSelectorInput(options.source);
+  const { identity, selectors } = await loadNoopIdentity(
+    canonical.collectionRoot,
+    selector
+  );
   const source = resolveNoopSource(identity, options);
   if (source === null) {
     return null;
@@ -68,13 +76,27 @@ export async function tryNoopDecisionRename(
   if (target === null || target.status === "error") {
     return target;
   }
-  return await executeNoopRename(
-    canonical,
-    identity,
-    source,
-    target.plan,
-    options.preflight === true
-  );
+  return await executeNoopRename(canonical, identity, source, target.plan, {
+    selectors,
+    preflight: options.preflight === true
+  });
+}
+
+async function loadNoopIdentity(root: string, selector: string) {
+  const published =
+    parseDatedDecisionId(selector) === null
+      ? null
+      : await loadCandidateIdentityContext(root, []);
+  const selectors = published?.collection.formal.some(
+    ({ id }) => id === selector
+  )
+    ? []
+    : [selector];
+  const identity =
+    selectors.length === 0 && published !== null
+      ? published
+      : await loadCandidateIdentityContext(root, selectors);
+  return { identity, selectors };
 }
 
 /** 不可能同身份的请求不进入局部 no-op 读取，而继续原严格更名流程。 */
@@ -127,7 +149,7 @@ function resolveNoopSource(
   return { ...source, decisionId: source.decisionId, name };
 }
 
-/** 即使不写入，名称冲突与目标位置也必须满足本次动作的领域规则。 */
+/** 同名不是身份冲突；实际目标位置必须仍为所选来源位置。 */
 function prepareNoopTarget(
   identity: CandidateIdentityContext,
   source: NoopSource,
@@ -137,23 +159,6 @@ function prepareNoopTarget(
   | Extract<DecisionRenameResult, { status: "error" }>
   | null {
   const { name } = source;
-  if (
-    identity.records.some(
-      (record) =>
-        record.sourcePath !== source.sourcePath &&
-        identityName(record.decisionId) === name
-    )
-  )
-    return {
-      ...renameFailure(
-        "decision-records.rename-name-conflict",
-        "Target Decision name already exists in the current collection: " +
-          name,
-        "Choose a unique semantic name or resolve the existing record first.",
-        name
-      ),
-      plan: null
-    };
   const status = identity.collection.candidateById.has(source.decisionId)
     ? "candidate"
     : source.sourcePath.startsWith("archive/")
@@ -195,7 +200,8 @@ function noopRenamePlan(
 async function captureNoopRenamePlan(
   location: NoopLocation,
   source: NoopSource,
-  plan: DecisionRenamePlan
+  plan: DecisionRenamePlan,
+  published: boolean
 ): Promise<RecordTransactionPlan<DecisionRenamePlan>> {
   const sourcePath = path.join(location.collectionRoot, source.sourcePath);
   const indexPath = path.join(location.collectionRoot, "decision-index.json");
@@ -203,12 +209,13 @@ async function captureNoopRenamePlan(
     location.workspaceRoot,
     sourcePath
   );
-  if (
-    before === null ||
-    decisionIdFromMarkdown(
-      new TextDecoder("utf-8", { fatal: true }).decode(before.bytes)
-    ) !== source.decisionId
-  )
+  const text =
+    before === null
+      ? null
+      : new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(
+          before.bytes
+        );
+  if (text === null || decisionIdFromMarkdown(text) !== source.decisionId)
     throw new Error(
       "Decision no-op rename source identity changed: " + source.sourcePath
     );
@@ -216,6 +223,8 @@ async function captureNoopRenamePlan(
     location.workspaceRoot,
     indexPath
   );
+  if (published)
+    verifyNoopPublishedSource(indexBefore, source, text, indexPath);
   return {
     value: plan,
     root: location.workspaceRoot,
@@ -228,22 +237,61 @@ async function captureNoopRenamePlan(
   };
 }
 
+function verifyNoopPublishedSource(
+  indexBefore: RecordFileSnapshot | null,
+  source: NoopSource,
+  text: string,
+  indexPath: string
+): void {
+  const loaded =
+    indexBefore === null
+      ? null
+      : parseDecisionIndex(
+          new TextDecoder("utf-8", { fatal: true }).decode(indexBefore.bytes),
+          indexPath
+        );
+  const entry =
+    loaded?.status === "ok"
+      ? loaded.value.entries[source.decisionId]
+      : undefined;
+  if (
+    entry?.sourcePath !== source.sourcePath ||
+    loaded?.status !== "ok" ||
+    decisionSourceRevision([
+      { decisionId: source.decisionId, sourcePath: source.sourcePath, text }
+    ]).entries[source.decisionId] !==
+      loaded.value.sourceRevision.entries[source.decisionId]
+  )
+    throw new Error(
+      "Selected Decision source differs from published index; run sync-index: " +
+        source.sourcePath
+    );
+}
+
 async function executeNoopRename(
   location: NoopLocation,
   identity: CandidateIdentityContext,
   source: NoopSource,
   plan: DecisionRenamePlan,
-  preflight: boolean
+  options: Readonly<{ selectors: readonly string[]; preflight: boolean }>
 ): Promise<DecisionRenameResult> {
-  const prepared = await captureNoopRenamePlan(location, source, plan);
+  const prepared = await captureNoopRenamePlan(
+    location,
+    source,
+    plan,
+    identity.collection.formal.some(({ id }) => id === source.decisionId)
+  );
   const members = identitySignature(identity.records);
   const fresh = async () => {
-    const current = await loadCandidateIdentityContext(location.collectionRoot);
+    const current = await loadCandidateIdentityContext(
+      location.collectionRoot,
+      options.selectors
+    );
     if (identitySignature(current.records) !== members)
       throw new Error("Decision identities changed during no-op rename.");
   };
   const result = await runRecordTransaction({
-    preflight,
+    preflight: options.preflight,
     prepare: async () => prepared,
     fresh,
     verify: fresh,
@@ -266,7 +314,7 @@ async function executeNoopRename(
     changed: false,
     diagnostics: [],
     errors: [],
-    outcome: preflight ? "preflight" : "committed",
+    outcome: options.preflight ? "preflight" : "committed",
     plan,
     status: "ok"
   };

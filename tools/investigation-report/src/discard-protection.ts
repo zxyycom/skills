@@ -1,5 +1,5 @@
 import type { InvestigationPreparation } from "./strict-preparation.ts";
-import { collectValidatedInvestigationCollection } from "./validation.ts";
+import { readLocalPublication } from "./local-publication.ts";
 import { sameInvestigationSources } from "./investigation-index-source.ts";
 import {
   diagnosticFromError,
@@ -23,9 +23,23 @@ export async function discardProtectionFailure(
   collection: ValidatedInvestigationCollection,
   originalIndexText: string
 ): Promise<InvestigationReportDiscardResult | null> {
-  const protectedCollection = await collectValidatedInvestigationCollection(
-    options.root
-  );
+  let protectedCollection: Awaited<ReturnType<typeof readLocalPublication>>;
+  try {
+    protectedCollection = await readLocalPublication(
+      options.root,
+      collection.sources.map((source) => source.id)
+    );
+  } catch (error) {
+    return result(
+      options,
+      false,
+      [],
+      [
+        "investigation collection changed after discard validation; no files were written",
+        errorText(error)
+      ]
+    );
+  }
   if (
     protectedCollection.errors.length > 0 ||
     protectedCollection.snapshot === null ||

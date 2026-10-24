@@ -67,7 +67,7 @@ content 使用严格发布索引选择范围，仅在有关系条件时验完整
 
 候选动作由共同 owner 编排索引状态、安全身份发现、冲突、动作选择及列表 warning/显式目标失败；领域提供 locator 成员规则、解析、直接资源与 owner。合法索引与真正缺索引的发现范围见[候选恢复规则](../../skills/investigation-report/references/maintenance-recovery.md#候选身份发现与索引状态)。
 
-同一查询阶段复用候选源字节、ID→source 映射、引用与资源依据，正式资源 owner 按实际引用安全读取；缺发布基线而必须正式解析的 owner 失败。局部读取不验证无关正式正文/图。候选发现、严格全集采集与 stage layout 各按自己的成员规则取证。创建后只把自身已写 scaffold 与本次身份映射交给 readiness，不再次扫描候选全集。
+同一查询阶段复用候选源字节、ID→source 映射、引用与资源依据，正式资源 owner 声明从合法发布索引取得，不读取纯依赖 owner 正文；已有正式成员而缺发布基线时明确恢复，不能通过正式正文发现兜底。局部读取不验证无关正式正文/图。候选发现、严格全集采集与 stage layout 各按自己的成员规则取证。创建后只把自身已写 scaffold 与本次身份映射交给 readiness，不再次扫描候选全集。
 
 `new` 在身份归一化前取得一次有效 formedAt；显式非法值失败，不能回退默认。stdout 只集中回显身份、标题、路径与三项 readiness，warning/error 留在 stderr。readiness 不就绪与创建后解锁失败分别映射为自身准备事实与真实写入结果，具体见[候选操作契约](../../skills/investigation-report/references/cli-operations.md#创建与继续候选)。
 
@@ -87,19 +87,13 @@ content 使用严格发布索引选择范围，仅在有关系条件时验完整
 
 诊断有可靠系统证据时才增加净化的 category、operation 和 target；权限或工具故障不映射为无条件重试。即时输出不保存日志、遥测或 receipt。只对真实 mutation 声明 scope/outcome。
 
-统一 discard 在单一集合锁内采集 layout、分类候选/正式目标，并将同阶段 layout 与 strict preparation 交给领域执行；公开候选/正式 SDK 入口各自取得锁。rename 的显式 preflight 在锁外完整准备，正式执行在轻量入口核对后锁内准备；fresh、写后与恢复各取本阶段事实。
+统一 discard 在单一集合锁内用发布身份与候选有限枚举分类目标，并只采集所选正式来源；公开候选/正式 SDK 入口各自取得锁。rename 的显式 preflight 在锁外完整准备，正式执行在轻量入口核对后锁内准备；fresh、写后与恢复各取本阶段事实。
 
 ### rename/discard 的阶段适配
 
-文件提案经共同计划归一化后，unchanged 来源作为 guards，不计入 changedPaths；实际 writes 与 guards 使用相同的安全批量验收。
+`local-publication.ts` 取得严格发布索引与当前所选来源，所选正文须匹配索引状态和完整 revision。正式 rename 从索引发现 relation target／resource owner 引用者，仅读实际改写正文；正式 discard 仅验目标正文与其明确 owner 树，引用阻断从索引计算。未选候选不检查或自动修复引用。
 
-| 阶段 | 本域适配责任 |
-| --- | --- |
-| rename 写前 | beforePublish 后的来源/index 有序聚合使用当前 phase 的完整 snapshot；另行完成 no-op 身份重备、target/owner absence、membership 和资源移动保护。 |
-| 正式 discard 的 transaction fresh | 新建 `InvestigationPreparation`，以 tombstone 所需父目录为真实 transaction root，将来源采集交给当前 phase，再计算图/资源并由共同 guards 比较实际观察。 |
-| 其他独立取证 | 较早 hook 后的集合/index 对照、post collection 和完整领域 postverify 各自在所属阶段读取并验证。 |
-
-phase 的绑定与复用条件见[共同文件验收](../record-operations/README.md#文件验收阶段的重叠保护)。
+文件提案经共同计划归一化后，unchanged 来源作为 guards，不计入 changedPaths；实际 writes 与 guards 使用同一安全批量验收。写前独立验收所选快照、索引 CAS、目标缺失、成员安全与资源移动；写后只对真实写集和最终索引作 readback。未选正文不进入任一阶段的来源 proof。
 
 ### 安全正文读取
 
@@ -113,21 +107,21 @@ show 的完整正文读取交给共同操作的 `source.ts`；本域提供所选
 
 全量 check 使用首次采集的同一份身份、源字节、解析结果与资源事实，每份正文读取一次；单阶段复用不构成跨调用缓存。同步（含预检）及其他写操作仍在各自边界重新取得可变来源，拒绝期间漂移。
 
-前序历史 warning 依据固定 HEAD 的直属正式来源身份或合法 basename，而非 HEAD 索引声明。有直接关系时完整验证直属 formal payload，可只保留身份前三行所需前缀；不足时按固定 revision 补读。legacy、移动来源、缺失或不一致索引不改变 source-presence 语义；无关正式对象读取失败仍报告历史检查不可用。无直接关系时不获取历史。
+前序历史 warning 读取固定 HEAD 的合法索引，再只读取其定位的必要前序正文。无直接关系不取历史；缺历史索引仅在正式 namespace 真正空时可视为空，已有正式成员却缺索引、索引无效或所选历史身份不一致时保留 unavailable 诊断。无关 blob 损坏不影响局部历史门禁。
 
 ### stage 的目录与来源
 
 公开 scope、选择与安全前提见 [暂存操作契约](../../skills/investigation-report/references/cli-operations.md#待提交快照)。共同 scope 策略、H/W/P 投影兼容、pending 基底选中刷新与准备→fresh 复核→发布顺序由 [Index Runtime 内部记录暂存协调器](../index-runtime/README.md#记录领域的内部暂存协调)承接，本领域保留以下适配责任：
 
-`staging-domain-adapter.ts` 的单调用适配器管理固定 H 的资源成员事实与各阶段所需保留路径；可变字节仍逐阶段取得。`staging-domain-index.ts` 承接工作区索引原始字节、解析复用与完整 stage 图验证；`staging-pending.ts` 发现已变化 pending 正文的身份／旧位置并接线 pending 投影。pending 捕获通过共同 `readRecordStagePending`，`staging-domain-membership.ts` 按所需保留路径决定复用本阶段 snapshot 或扩展保留集；身份发现与内容捕获各有明确入口。
+`staging-domain-adapter.ts` 的单调用适配器管理固定 H 的资源成员事实与各阶段所需保留路径；可变字节仍逐阶段取得。`staging-domain-index.ts` 承接工作区索引原始字节、解析复用与完整 stage 图验证；`staging-pending.ts` 从所需索引或所选 canonical locator 定位 pending 身份／旧位置并接线 pending 投影。pending 捕获通过共同 `readRecordStagePending`，`staging-domain-membership.ts` 按所需保留路径决定复用本阶段 snapshot 或扩展保留集；身份发现与内容捕获各有明确入口。
 
 1. 准备和写前复核阶段各自维护目录名字索引，使用时仍核对身份、类型和 canonical 路径。同身份目录 metadata 改变时重新枚举，核对相关 exact、casefold 和缺失匹配；发现相关匹配、完整树成员或目录替换，容许无关 sibling 活动。目录事实只在本阶段有效。
 2. 两阶段在获取资源字节前检查资源根、owner 及全部路径分量，零引用或空树也不跳过。引用路径按领域字符契约，未引用成员只按安全普通文件路径检查。
-3. all/domain 从发布声明及已变化 pending 身份确定所选正文、旧位置、直接资源与正式 owner 依赖；每阶段验证相关来源投影、指纹与资源安全。index 不读取工作区正文。未同步工作区未知位置的身份重现由显式检查／同步发现，stage 只核对所选已知受管位置。
+3. all/domain 从发布声明及可局部定位的 pending 身份确定所选正文、旧位置与直接资源，正式 owner 声明只消费索引；每阶段验证相关来源投影、指纹与资源安全。index 不读取工作区正文。未同步工作区未知位置的身份重现由显式检查／同步发现，stage 只核对所选已知受管位置。
 4. all/domain 的阶段适配分别取得并验收可变工作区成员、字节、文件表示与目录事实。每阶段至多读一次 `core.fileMode`，关闭时复用本阶段完整 pending 表示依据。固定 revision 的 HEAD 资源成员可跨阶段复用；纯计算复用须满足共同协调器的新鲜等价证据，可变目录上下文仅在本阶段有效。
 5. 来源路径的真实系统失败与 symlink、case、成员问题分别承接。候选与查询的普通验证返回问题集合，stage 复核从详细检查取得 failure；无可靠信号时不猜类别或附会写入结果。
 
-all/domain 的 preservedPendingPaths 是本领域 scope 中相对固定 HEAD 已变化但不在目标内的 pending 路径，含 staged 删除；只从路径变化 metadata 取得，不为此读取全部 HEAD 正文。index/all 的索引以捕获的 pending 为基底组合选中投影，domain 保持 pending 索引字节或缺失状态。局部来源访问随所选对象、必要依赖及已暂存位置变化增长；完整索引、图和 pending 仍有集合级成本。
+all/domain 的 preservedPendingPaths 是本领域 scope 中相对固定 HEAD 已变化但不在目标内的 pending 路径，含 staged 删除；只从路径变化 metadata 取得，不为此读取全部 HEAD 正文。index/all 的索引以捕获的 pending 为基底组合选中投影，domain 保持 pending 索引字节或缺失状态。局部来源访问随所选对象、直接资源及可定位已暂存位置变化增长；完整索引、图和 pending 仍有集合级成本。
 
 ## 交付验证
 

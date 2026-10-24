@@ -1,7 +1,8 @@
 import {
   readPendingSnapshot,
   replacePendingSnapshot,
-  samePendingSnapshots
+  samePendingSnapshots,
+  extendsPendingSnapshot
 } from "../src/version-control/pending-snapshot.ts";
 import {
   assert,
@@ -24,6 +25,99 @@ import {
   objectPath,
   overwriteBlobPayload
 } from "./version-control-scoped-payload-test-support.ts";
+
+test(
+  "pending payload expansion preserves complete identities and selected absence",
+  gitTestOptions,
+  async () => {
+    await withTempRoot(async (temp) => {
+      const { repositoryRoot } = await createRepositoryFixture(temp);
+      const repository = await openVersionControl(repositoryRoot);
+      const initial = await readPendingSnapshot(repository, {
+        ...options,
+        contentPaths: [selected, "docs/absent"]
+      });
+      const expanded = await readPendingSnapshot(repository, {
+        ...options,
+        contentPaths: [selected, unselected, "docs/absent"]
+      });
+      assert.equal(extendsPendingSnapshot(initial, expanded), true);
+      assert.equal(extendsPendingSnapshot(expanded, initial), false);
+      assert.equal(samePendingSnapshots(initial, expanded), false);
+      assert.equal(
+        extendsPendingSnapshot(
+          initial,
+          await readPendingSnapshot(repository, {
+            ...options,
+            contentPaths: [selected, unselected]
+          })
+        ),
+        false
+      );
+    });
+  }
+);
+
+test(
+  "pending payload expansion rejects foreign forged scope and payload policies",
+  gitTestOptions,
+  async () => {
+    await withTempRoot(async (temp) => {
+      const { repositoryRoot } = await createRepositoryFixture(temp);
+      const repository = await openVersionControl(repositoryRoot);
+      const initial = await readPendingSnapshot(repository, options);
+      assert.equal(extendsPendingSnapshot({ ...initial }, initial), false);
+      assert.equal(
+        extendsPendingSnapshot(
+          initial,
+          await readPendingSnapshot(repository, {
+            ...options,
+            pathScope: selected
+          })
+        ),
+        false
+      );
+      assert.equal(
+        extendsPendingSnapshot(
+          initial,
+          await readPendingSnapshot(repository, {
+            ...options,
+            payloadScope: "scope"
+          })
+        ),
+        false
+      );
+      assert.equal(
+        extendsPendingSnapshot(
+          initial,
+          await readPendingSnapshot(
+            await openVersionControl(repositoryRoot),
+            options
+          )
+        ),
+        false
+      );
+    });
+  }
+);
+
+test(
+  "pending payload expansion rejects changed previous actual payload with stable object identity",
+  gitTestOptions,
+  async () => {
+    await withTempRoot(async (temp) => {
+      const { repositoryRoot } = await createRepositoryFixture(temp);
+      const repository = await openVersionControl(repositoryRoot);
+      const initial = await readPendingSnapshot(repository, options);
+      await overwriteBlobPayload(objectPath(repositoryRoot, selected));
+      const expanded = await readPendingSnapshot(repository, {
+        ...options,
+        contentPaths: [selected, unselected]
+      });
+      assert.equal(extendsPendingSnapshot(initial, expanded), false);
+    });
+  }
+);
 
 for (const failure of ["missing", "corrupt", "type"]) {
   test(
@@ -158,13 +252,9 @@ for (const drift of ["oid", "mode", "member"]) {
           runGit(repositoryRoot, ["update-index", "--chmod=+x", unselected]);
         if (drift === "member")
           runGit(repositoryRoot, ["rm", "--cached", unselected]);
-        assert.equal(
-          samePendingSnapshots(
-            snapshot,
-            await readPendingSnapshot(repository, options)
-          ),
-          false
-        );
+        const afterDrift = await readPendingSnapshot(repository, options);
+        assert.equal(samePendingSnapshots(snapshot, afterDrift), false);
+        assert.equal(extendsPendingSnapshot(snapshot, afterDrift), false);
         const before = await fs.readFile(
           path.join(repositoryRoot, ".git/index")
         );

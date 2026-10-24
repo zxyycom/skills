@@ -15,12 +15,7 @@ import {
   utcDecisionDate
 } from "./decision-path.ts";
 import { renameFailure } from "./decision-rename-failure.ts";
-import {
-  isDecisionCandidateRecord,
-  isEstablishedDecisionRecord,
-  type DecisionId,
-  type DecisionRecord
-} from "./types.ts";
+import { type DecisionId, type DecisionRecord } from "./types.ts";
 import type { DecisionApplicationFailure } from "./application-result.ts";
 import type {
   RenameTarget,
@@ -35,7 +30,8 @@ type RenameIdentity = Readonly<{
 export function resolveRenameTarget(
   source: RenameableDecisionRecord,
   records: readonly DecisionRecord[],
-  rawTarget: string
+  rawTarget: string,
+  sourcePaths: readonly string[] = []
 ):
   | Readonly<{ status: "ok"; value: RenameTarget }>
   | DecisionApplicationFailure {
@@ -43,7 +39,7 @@ export function resolveRenameTarget(
   if ("status" in identity) return identity;
   const conflict = renameIdentityConflict(source, records, identity);
   if (conflict !== null) return conflict;
-  return renameTargetLocation(source, records, identity);
+  return renameTargetLocation(source, records, identity, sourcePaths);
 }
 
 function resolveRenameIdentity(
@@ -155,40 +151,14 @@ function renameIdentityConflict(
       identity.decisionId
     );
   }
-  return renameNameConflict(otherRecords, identity.name);
-}
-
-function renameNameConflict(
-  records: readonly DecisionRecord[],
-  name: string
-): DecisionApplicationFailure | null {
-  if (
-    !records.some(
-      (record) =>
-        isRenameableDecisionRecord(record) &&
-        decisionNameFromId(record.decisionId) === name
-    )
-  )
-    return null;
-  return renameFailure(
-    "decision-records.rename-name-conflict",
-    "Target Decision name already exists in the current collection: " + name,
-    "Choose a unique semantic name or resolve the existing record first.",
-    name
-  );
-}
-function isRenameableDecisionRecord(
-  record: DecisionRecord
-): record is RenameableDecisionRecord {
-  return (
-    isDecisionCandidateRecord(record) || isEstablishedDecisionRecord(record)
-  );
+  return null;
 }
 
 function renameTargetLocation(
   source: RenameableDecisionRecord,
   records: readonly DecisionRecord[],
-  identity: RenameIdentity
+  identity: RenameIdentity,
+  sourcePaths: readonly string[]
 ):
   | Readonly<{ status: "ok"; value: RenameTarget }>
   | DecisionApplicationFailure {
@@ -201,11 +171,12 @@ function renameTargetLocation(
       source.sourcePath
     );
   }
-  const occupied = new Set(
-    records
+  const occupied = new Set([
+    ...sourcePaths.filter((sourcePath) => sourcePath !== source.sourcePath),
+    ...records
       .filter((record) => record.decisionPath !== source.decisionPath)
       .map((record) => record.sourcePath)
-  );
+  ]);
   const sourcePath = sourcePathForDecisionRename(
     identity.decisionId,
     identity.name,

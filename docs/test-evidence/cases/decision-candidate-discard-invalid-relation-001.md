@@ -1,4 +1,4 @@
-### Case DECISION-CANDIDATE-DISCARD-INVALID-RELATION-001: Discard 拒绝关系目标无效的候选
+### Case DECISION-CANDIDATE-DISCARD-INVALID-RELATION-001: Discard 拒绝所选候选的缺失关系目标
 
 Tests:
 - `test:12136384c530c8dd56c4c5de910a43c782317d6555a098cb99d16e945d0fa699`
@@ -7,8 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- Discard 前必须确认候选的全部关系目标都是可解析的有效决策记录，不能通过删除来源掩盖无效关系。
+- discard 的所选候选仍须通过自身关系目标存在性校验；未选候选正文不成为关系依赖的全局检查。
 
 Proves:
-- 候选指向缺少必需正文的扫描目标时，discard 返回目标无效诊断。
-- 拒绝后关系来源、无效目标与正式索引均保持不变。
+- 所选候选指向不存在的 missing-selected-target 时，discard 返回该目标诊断；关系来源、未选坏候选与正式索引均保持不变。

@@ -14,15 +14,19 @@ import {
   repositoryRelativePathFromFileSystemPath,
   VersionControlError,
   type VersionControlRepository,
-  type RevisionId,
-  type VersionControlFile
+  type RevisionId
 } from "../../shared/src/version-control/index.ts";
 import {
-  type RevisionFilePrefix,
-  readRevisionFilePrefixes
-} from "../../shared/src/version-control/revision-file-prefixes.ts";
+  expectationOf,
+  parseStateIndex
+} from "../../index-runtime/src/index.ts";
+import {
+  createInvestigationStateIndexDefinition,
+  investigationIndexFileName
+} from "./investigation-state-index.ts";
 import { investigationIdFromMarkdown } from "./markdown.ts";
 import { isInvestigationSourcePath } from "./report-path.ts";
+import type { PublishedInvestigationIndex } from "./published-preparation.ts";
 import type { InvestigationIndexState } from "./types.ts";
 
 export async function unrecordedPredecessorWarnings(
@@ -68,23 +72,20 @@ async function recordedInvestigationIdsAtHead(
             repository.rootDirectory,
             investigationsDirectory
           );
-    const sourcePaths = await headFormalSourcePaths(
+    const index = await readHeadInvestigationIndex(
       repository,
       revision,
       directoryScope
     );
-    if (sourcePaths.length === 0)
-      return { ids: new Set(), status: "available" };
-    const prefixes = await readRevisionFilePrefixes(repository, {
-      revision,
-      paths: sourcePaths,
-      prefixBytes: 16384
-    });
-    const files = await historyIdentityFiles(repository, revision, prefixes);
-    return {
-      ids: matchingRecordedIds(files, directoryScope, new Set(ids)),
-      status: "available"
-    };
+    const recorded =
+      index === null
+        ? new Set<string>()
+        : await readRecordedPredecessors(
+            { repository, revision, directoryScope },
+            index,
+            ids
+          );
+    return { ids: recorded, status: "available" };
   } catch (error) {
     if (error instanceof VersionControlError && error.code === "not-repository")
       return { status: "no-head" };
@@ -95,28 +96,76 @@ async function recordedInvestigationIdsAtHead(
   }
 }
 
-function matchingRecordedIds(
-  files: readonly VersionControlFile[],
-  directoryScope: string,
-  requested: ReadonlySet<string>
-): Set<string> {
-  return new Set(
-    files.flatMap((file) => {
-      const sourcePath =
-        directoryScope.length === 0
-          ? file.path
-          : file.path.slice(directoryScope.length + 1);
-      const id =
-        investigationIdFromMarkdown(
-          Buffer.from(
-            file.data.buffer,
-            file.data.byteOffset,
-            file.data.byteLength
-          ).toString("utf8")
-        ) ?? sourcePath.slice(0, -".md".length);
-      return requested.has(id) ? [id] : [];
-    })
-  );
+async function readHeadInvestigationIndex(
+  repository: VersionControlRepository,
+  revision: RevisionId,
+  directoryScope: string
+): Promise<PublishedInvestigationIndex | null> {
+  const indexPath =
+    directoryScope.length === 0
+      ? investigationIndexFileName
+      : `${directoryScope}/${investigationIndexFileName}`;
+  const source = await repository.readRevisionFile(revision, indexPath);
+  if (source === null) {
+    const paths = await headFormalSourcePaths(
+      repository,
+      revision,
+      directoryScope
+    );
+    if (paths.length > 0)
+      throw new Error(
+        "historical investigation index is missing for existing reports; recover the historical baseline before relying on predecessor warnings"
+      );
+    return null;
+  }
+  if (source.kind !== "regular" && source.kind !== "executable")
+    throw new Error("historical investigation index must be an ordinary file");
+  const definition = createInvestigationStateIndexDefinition();
+  const loaded = parseStateIndex({
+    definition,
+    expectation: expectationOf(definition),
+    sourcePath: indexPath,
+    text: Buffer.from(source.data).toString("utf8")
+  });
+  if (loaded.status === "error")
+    throw new Error(
+      "historical investigation index is invalid; recover the historical baseline"
+    );
+  return loaded.value;
+}
+
+type HeadInvestigationContext = Readonly<{
+  repository: VersionControlRepository;
+  revision: RevisionId;
+  directoryScope: string;
+}>;
+
+async function readRecordedPredecessors(
+  { repository, revision, directoryScope }: HeadInvestigationContext,
+  index: PublishedInvestigationIndex,
+  ids: Iterable<string>
+): Promise<Set<string>> {
+  const recorded = new Set<string>();
+  for (const id of new Set(ids)) {
+    const state = index.entries[id];
+    if (state === undefined) continue;
+    const target =
+      directoryScope.length === 0
+        ? state.sourcePath
+        : `${directoryScope}/${state.sourcePath}`;
+    const file = await repository.readRevisionFile(revision, target);
+    if (
+      file === null ||
+      (file.kind !== "regular" && file.kind !== "executable") ||
+      investigationIdFromMarkdown(Buffer.from(file.data).toString("utf8")) !==
+        id
+    )
+      throw new Error(
+        "historical selected Investigation identity is unavailable: " + id
+      );
+    recorded.add(id);
+  }
+  return recorded;
 }
 
 function historyCheckUnavailableWarning(
@@ -149,11 +198,6 @@ function uniqueSorted(values: readonly string[]): string[] {
   );
 }
 
-/** The third line must terminate inside the prefix; incomplete UTF-8 after it is immaterial. */
-function firstThreeLinesComplete(text: string): boolean {
-  return (text.match(/\r\n|\r|\n/gu)?.length ?? 0) >= 3;
-}
-
 async function headFormalSourcePaths(
   repository: VersionControlRepository,
   revision: RevisionId,
@@ -173,28 +217,4 @@ async function headFormalSourcePaths(
     return isInvestigationSourcePath(sourcePath);
   });
   return sourcePaths;
-}
-async function historyIdentityFiles(
-  repository: VersionControlRepository,
-  revision: RevisionId,
-  prefixes: readonly RevisionFilePrefix[]
-): Promise<VersionControlFile[]> {
-  const files: VersionControlFile[] = [];
-  for (const prefix of prefixes) {
-    const text = Buffer.from(
-      prefix.data.buffer,
-      prefix.data.byteOffset,
-      prefix.data.byteLength
-    ).toString("utf8");
-    if (prefix.complete || firstThreeLinesComplete(text)) files.push(prefix);
-    else {
-      const full = await repository.readRevisionFile(revision, prefix.path);
-      if (full === null)
-        throw new Error(
-          "a fixed revision source disappeared during history reading"
-        );
-      files.push(full);
-    }
-  }
-  return files;
 }

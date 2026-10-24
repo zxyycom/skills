@@ -1,0 +1,1241 @@
+{
+  "locatorExpectation": {
+    "timestamp": "2026-10-24T14:18:23.074033+00:00",
+    "kind": "method-only handoff expectation correction",
+    "authorization": "root confirmed IR owner specifies flat _candidate.<full ID>; do not rerun or replace sample",
+    "affectedSample": {
+      "domain": "investigation",
+      "scenario": "new",
+      "iteration": 1,
+      "mode": "normal"
+    },
+    "changes": [
+      {
+        "file": "methods/oracle.py",
+        "beforeSha256": "2a000c5f690c9b0b5fb3b0c0fc8b40916703546d61ab1b11574246612976241b",
+        "afterSha256": "1f220c71d3c4c72685e0ad2b2b000220334cda2ee02762f66a0e2d29615d05c7",
+        "exactBefore": "'_candidate.'+i+'/'+i+'.md'",
+        "exactAfter": "'_candidate.'+i"
+      },
+      {
+        "file": "methods/workload.py",
+        "beforeSha256": "39f1a333ef3c7eff9fc00fd544ef2ccfeb8d7c8c26116b1831c0884a29322d8d",
+        "afterSha256": "f53928cfb483a0babfeec539c2088a7a33589ffd9fe4675b7090c39d3bced91a",
+        "exactBefore": "'_candidate.'+i+'/'+i+'.md'",
+        "exactAfter": "'_candidate.'+i"
+      },
+      {
+        "file": "methods/controls.py",
+        "beforeSha256": "5186779f029e18785f468fe0f7aa1b1d466581b1e51a7971ab92bafeb00af7b5",
+        "afterSha256": "762a02798756c4a6337b07e3eec704e3b40d6c456dda1c7888b4e567b65c84d8",
+        "exactBefore": "'_candidate.'+i+'/'+i+'.md'",
+        "exactAfter": "'_candidate.'+i"
+      },
+      {
+        "file": "preparation/matrix.json",
+        "beforeSha256": "e787f85fa5d05f91731b63a103ea713736440fd53e48719afd9810a27cc54a2f",
+        "afterSha256": "198810a3c32629f572e334f1b95e18fc7b93838d2c71f18c5c0ca3f81333d328",
+        "exactBefore": "full ID candidate directory+basename;formal/index/pending unchanged",
+        "exactAfter": "full ID flat _candidate.<id> file;formal/index/pending unchanged"
+      }
+    ],
+    "sourceGeneratedDependencyChanges": false,
+    "rerun": false
+  },
+  "sameOriginalStateAdjudication": [
+    {
+      "originalObservationSha256": "09a6a27dad4ecd9f70d03f14c1a47d1bd0922482cdc0ab326dfea7f2efb1ec0b",
+      "methodCorrectionSha256": "440216135741fa7286dbdd46110ecc4fc914dec1b09639022c23e5720b3ef9a4",
+      "correctedObservation": {
+        "domain": "investigation",
+        "scenario": "new",
+        "iteration": 1,
+        "mode": "normal",
+        "metrics": {
+          "schemaVersion": 1,
+          "domain": "investigation",
+          "scenario": "new",
+          "iteration": 1,
+          "mode": "normal",
+          "argv": [
+            "node",
+            "/tmp/localize-record-acceptance-20261024-j2I1x1/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+            "--root",
+            "/tmp/localize-record-acceptance-20261024-j2I1x1/working/investigation-new",
+            "new",
+            "acceptance-new",
+            "--formed-at",
+            "2026-10-24T00:00:00Z",
+            "--title",
+            "Acceptance new",
+            "--question",
+            "固定问题",
+            "--tag",
+            "benchmark"
+          ],
+          "cwd": "/tmp/localize-record-acceptance-20261024-j2I1x1/working/investigation-new",
+          "startedAt": "2026-10-24T14:15:45.280516+00:00",
+          "finishedAt": "2026-10-24T14:15:47.946677+00:00",
+          "timeoutSeconds": 600.0,
+          "outcome": "exited",
+          "timedOut": false,
+          "exitCode": 0,
+          "wallSeconds": 2.6658784419996664,
+          "userSeconds": 2.853359,
+          "systemSeconds": 0.5393629999999999,
+          "cpuSeconds": 3.392722,
+          "maxRssKiB": 323528,
+          "minorFaults": 78476,
+          "majorFaults": 0,
+          "voluntaryContextSwitches": 2590,
+          "involuntaryContextSwitches": 14,
+          "stdout": {
+            "path": "/tmp/localize-record-acceptance-20261024-j2I1x1/runs/investigation-new/1-normal/process.stdout",
+            "bytes": 267,
+            "sha256": "0380a4e4b7c62bed7bd4b8de417985e9c91dad6ac56f0f7207b8aeba87c37ce7"
+          },
+          "stderr": {
+            "path": "/tmp/localize-record-acceptance-20261024-j2I1x1/runs/investigation-new/1-normal/process.stderr",
+            "bytes": 321,
+            "sha256": "791e61178652e02566f0a4175112d345504fc678bd1631f5958021662f354f80"
+          }
+        },
+        "before": {
+          "files": 10004,
+          "worktreeSha256": "4862be854e087d1fd7fc62b56e3a831bbe699b4d1d7fe2360613b983c1521058",
+          "pendingPaths": 10004,
+          "pendingSha256": "16fa696af3631b771224bd92b6b5327c3809ae4250e9c2762e89c729b8399468",
+          "head": "8e888e607dcdddc62fa60e44696a717513bdb99f",
+          "indexSha256": "fcd1a1f25824c8ca5d52eac3532336df39d1f7896936839938a2ec0d8e04201f"
+        },
+        "after": {
+          "files": 10005,
+          "worktreeSha256": "83bbf14de6752b6cb8a2a60497ffd2ba1c332e9d1480cb3a7cb7098a424798cc",
+          "pendingPaths": 10004,
+          "pendingSha256": "16fa696af3631b771224bd92b6b5327c3809ae4250e9c2762e89c729b8399468",
+          "head": "8e888e607dcdddc62fa60e44696a717513bdb99f",
+          "indexSha256": "fcd1a1f25824c8ca5d52eac3532336df39d1f7896936839938a2ec0d8e04201f"
+        },
+        "status": "passed",
+        "rawDirectory": "/tmp/localize-record-acceptance-20261024-j2I1x1/runs/investigation-new/1-normal",
+        "effect": {
+          "worktreeChangedPaths": [
+            "docs/investigations/_candidate.261024-acceptance-new"
+          ],
+          "pendingChangedPaths": [],
+          "createdIdentity": "261024-acceptance-new",
+          "createdLocator": "_candidate.261024-acceptance-new",
+          "checks": [
+            "complete W bytes/mode permitted delta",
+            "all unselected documents identical",
+            "P and HEAD invariant",
+            "index/formal invariant"
+          ]
+        },
+        "normalizedState": {
+          "worktreeSha256": "83bbf14de6752b6cb8a2a60497ffd2ba1c332e9d1480cb3a7cb7098a424798cc",
+          "pendingSha256": "16fa696af3631b771224bd92b6b5327c3809ae4250e9c2762e89c729b8399468",
+          "head": "8e888e607dcdddc62fa60e44696a717513bdb99f"
+        },
+        "normalization": [],
+        "outputEqualityKey": [
+          "0380a4e4b7c62bed7bd4b8de417985e9c91dad6ac56f0f7207b8aeba87c37ce7",
+          "791e61178652e02566f0a4175112d345504fc678bd1631f5958021662f354f80"
+        ],
+        "adjudication": "root-approved method expectation correction; same original CLI result and byte-identical after-state; no rerun"
+      }
+    },
+    {
+      "originalObservationSha256": "852ed52506ea2c938796a7afe94c7c6d5d7163fa7ca24f5da34c1a977209f5ea",
+      "timestamp": "2026-10-24T14:33:22.613988+00:00",
+      "methodCorrection": {
+        "kind": "method-only selected identity may have both old active and new archive locators",
+        "scenario": "decision/evolve-discard",
+        "beforeSha256": "f53928cfb483a0babfeec539c2088a7a33589ffd9fe4675b7090c39d3bced91a",
+        "afterSha256": "572a9d96a25644a607fcda18afad02ae013e7361e4f2013a1d5e85c8d0896832",
+        "addedAllowedLocator": "docs/decisions/archive/261001-record-09001.md",
+        "reason": "A is explicitly selected and actually archived by evolve; same identity already in authorized impact set",
+        "sameProbeWillBeAdjudicatedWithoutRerun": true
+      },
+      "correctedObservation": {
+        "domain": "decision",
+        "scenario": "evolve-discard",
+        "iteration": 4,
+        "mode": "instrumented",
+        "metrics": {
+          "schemaVersion": 1,
+          "domain": "decision",
+          "scenario": "evolve-discard",
+          "iteration": 4,
+          "mode": "instrumented",
+          "argv": [
+            "node",
+            "--import",
+            "/tmp/localize-record-acceptance-20261024-j2I1x1/methods/preload.mjs",
+            "/tmp/localize-record-acceptance-20261024-j2I1x1/snapshot/skills/decision-records/scripts/decision-records.ts",
+            "--root",
+            "/tmp/localize-record-acceptance-20261024-j2I1x1/working/decision-evolve-discard",
+            "evolve",
+            "--successor",
+            "aligned=261001-record-09002",
+            "--relation",
+            "修订=261001-record-09001",
+            "--discard",
+            "261001-record-10000",
+            "--delete-recorded"
+          ],
+          "cwd": "/tmp/localize-record-acceptance-20261024-j2I1x1/working/decision-evolve-discard",
+          "startedAt": "2026-10-24T14:31:01.897664+00:00",
+          "finishedAt": "2026-10-24T14:31:04.413287+00:00",
+          "timeoutSeconds": 600.0,
+          "outcome": "exited",
+          "timedOut": false,
+          "exitCode": 0,
+          "wallSeconds": 2.515402738004923,
+          "userSeconds": 2.74476,
+          "systemSeconds": 0.591444,
+          "cpuSeconds": 3.336204,
+          "maxRssKiB": 346720,
+          "minorFaults": 110761,
+          "majorFaults": 0,
+          "voluntaryContextSwitches": 4067,
+          "involuntaryContextSwitches": 17,
+          "stdout": {
+            "path": "/tmp/localize-record-acceptance-20261024-j2I1x1/runs/decision-evolve-discard/4-instrumented/process.stdout",
+            "bytes": 565,
+            "sha256": "912d6cde5c30fb111b2bb5c204c6c37302131bee2f8d73c1153849d161b2a195"
+          },
+          "stderr": {
+            "path": "/tmp/localize-record-acceptance-20261024-j2I1x1/runs/decision-evolve-discard/4-instrumented/process.stderr",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        "before": {
+          "files": 10003,
+          "worktreeSha256": "8d7fecf10a8acf26f394323a7e64a9022fb91767e70e2ad8d34a77eed8214cce",
+          "pendingPaths": 10003,
+          "pendingSha256": "8b42be31afdfa6e89d054f46cf52a5c9a486c1928b94aca42bcd789631be3c7e",
+          "head": "5f0cfcf1321f206f56c1cc7513a56f08c10629be",
+          "indexSha256": "13a991985b77d5002ae3245b95192b380e6295e5d54d525096205155aa7b531a"
+        },
+        "after": {
+          "files": 10002,
+          "worktreeSha256": "dbf5a9b19bd72922e5cb7061fc16243237453a040421ada399bac3901e70ba1d",
+          "pendingPaths": 10003,
+          "pendingSha256": "8b42be31afdfa6e89d054f46cf52a5c9a486c1928b94aca42bcd789631be3c7e",
+          "head": "5f0cfcf1321f206f56c1cc7513a56f08c10629be",
+          "indexSha256": "c8c5e78439aaa735a21b1cc9234325b8881722c21cd007733f90cb5a7747ff99"
+        },
+        "status": "passed",
+        "rawDirectory": "/tmp/localize-record-acceptance-20261024-j2I1x1/runs/decision-evolve-discard/4-instrumented",
+        "effect": {
+          "worktreeChangedPaths": [
+            "docs/decisions/261001-record-09001.md",
+            "docs/decisions/261001-record-09002.md",
+            "docs/decisions/261001-record-10000.md",
+            "docs/decisions/archive/261001-record-09001.md",
+            "docs/decisions/decision-index.json"
+          ],
+          "pendingChangedPaths": [],
+          "formal": 9999,
+          "relations": 8999,
+          "indexAndCompleteSourceRevision": "passed",
+          "resourceReferences": "not-applicable",
+          "checks": [
+            "complete W bytes/mode permitted delta",
+            "all unselected documents identical",
+            "P and HEAD invariant",
+            "full index projection/sourceRevision/resource consistency"
+          ]
+        },
+        "normalizedState": {
+          "worktreeSha256": "dbf5a9b19bd72922e5cb7061fc16243237453a040421ada399bac3901e70ba1d",
+          "pendingSha256": "8b42be31afdfa6e89d054f46cf52a5c9a486c1928b94aca42bcd789631be3c7e",
+          "head": "5f0cfcf1321f206f56c1cc7513a56f08c10629be"
+        },
+        "normalization": [],
+        "outputEqualityKey": [
+          "912d6cde5c30fb111b2bb5c204c6c37302131bee2f8d73c1153849d161b2a195",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        ],
+        "workload": {
+          "reads": {
+            "index": {
+              "calls": 9,
+              "bytes": 56728073,
+              "paths": [
+                "docs/decisions/decision-index.json"
+              ],
+              "unique": 1
+            },
+            "formal": {
+              "calls": 16,
+              "bytes": 6376,
+              "paths": [
+                "docs/decisions/261001-record-09001.md",
+                "docs/decisions/261001-record-09002.md",
+                "docs/decisions/261001-record-10000.md",
+                "docs/decisions/archive/261001-record-09001.md"
+              ],
+              "unique": 4
+            }
+          },
+          "gitBatches": [
+            {
+              "sequence": 4,
+              "command": "git",
+              "argv": [
+                "-C",
+                "/tmp/localize-record-acceptance-20261024-j2I1x1/working/decision-evolve-discard",
+                "cat-file",
+                "--batch"
+              ],
+              "stdoutBytes": 6303312,
+              "stderrBytes": 0,
+              "requests": [
+                "5b74602e961caefbb38f7a519ae09f8945acdd18"
+              ],
+              "batch": {
+                "blobs": [
+                  {
+                    "oid": "5b74602e961caefbb38f7a519ae09f8945acdd18",
+                    "bytes": 6303257,
+                    "roles": [
+                      "head:index",
+                      "pending:index"
+                    ]
+                  }
+                ],
+                "headerBytes": 54,
+                "payloadBytes": 6303257,
+                "trailerBytes": 1
+              },
+              "exitCode": 0
+            },
+            {
+              "sequence": 7,
+              "command": "git",
+              "argv": [
+                "-C",
+                "/tmp/localize-record-acceptance-20261024-j2I1x1/working/decision-evolve-discard",
+                "cat-file",
+                "--batch"
+              ],
+              "stdoutBytes": 1369,
+              "stderrBytes": 0,
+              "requests": [
+                "7c869a66e94204438374c0f9f99581268ad57ed8",
+                "84f6193a5063555eb5b546e620f70a133f65dccb",
+                "5d740c07004e44aea37a18910062e560992df1e9"
+              ],
+              "batch": {
+                "blobs": [
+                  {
+                    "oid": "7c869a66e94204438374c0f9f99581268ad57ed8",
+                    "bytes": 400,
+                    "roles": [
+                      "head:selected-formal",
+                      "pending:selected-formal"
+                    ]
+                  },
+                  {
+                    "oid": "84f6193a5063555eb5b546e620f70a133f65dccb",
+                    "bytes": 398,
+                    "roles": [
+                      "head:selected-formal",
+                      "pending:selected-formal"
+                    ]
+                  },
+                  {
+                    "oid": "5d740c07004e44aea37a18910062e560992df1e9",
+                    "bytes": 418,
+                    "roles": [
+                      "head:selected-formal",
+                      "pending:selected-formal"
+                    ]
+                  }
+                ],
+                "headerBytes": 150,
+                "payloadBytes": 1216,
+                "trailerBytes": 3
+              },
+              "exitCode": 0
+            }
+          ],
+          "threads": 1,
+          "threadsEnded": 1,
+          "unknown": [],
+          "counts": {},
+          "git": {
+            "batches": 2,
+            "blobs": 4,
+            "payloadBytes": 6304473,
+            "indexBlobReads": 1,
+            "selectedFormalBlobReads": 3,
+            "unselectedOrUnknown": []
+          },
+          "boundary": {
+            "unrelatedFormalReads": [],
+            "unrelatedResourceReads": [],
+            "unrelatedOrUnclassifiedGitPayload": [],
+            "status": "passed"
+          }
+        },
+        "adjudication": "Only expand allowed old/new locator of explicitly selected archived A; same original probe/state/events; no rerun"
+      }
+    },
+    {
+      "originalObservationSha256": "69491426bb153f8b9af0b638a7025f3f9d95aae472ba72071a5bc1fa09ec7659",
+      "timestamp": "2026-10-24T14:35:17.328791+00:00",
+      "methodCorrection": {
+        "kind": "method-only Git newly written selected payload classification",
+        "beforeSha256": "572a9d96a25644a607fcda18afad02ae013e7361e4f2013a1d5e85c8d0896832",
+        "afterSha256": "733550635a9fb7b151cef93154bc539217eb65e43a267fdcc023576142c66065",
+        "rule": "Preserve initial roles unknown; only resolve matching OID/size from independently captured actual final pending map, retain actual path/SHA/size and effective post role. Any unmatched or unselected path remains refusal.",
+        "trigger": "decision/stage-all probe readback of new selected A (420 B) and composed index (6302625 B)",
+        "sameProbeWillBeAdjudicatedWithoutRerun": true
+      },
+      "correctedObservation": {
+        "domain": "decision",
+        "scenario": "stage-all",
+        "iteration": 4,
+        "mode": "instrumented",
+        "metrics": {
+          "schemaVersion": 1,
+          "domain": "decision",
+          "scenario": "stage-all",
+          "iteration": 4,
+          "mode": "instrumented",
+          "argv": [
+            "node",
+            "--import",
+            "/tmp/localize-record-acceptance-20261024-j2I1x1/methods/preload.mjs",
+            "/tmp/localize-record-acceptance-20261024-j2I1x1/snapshot/skills/decision-records/scripts/decision-records.ts",
+            "--root",
+            "/tmp/localize-record-acceptance-20261024-j2I1x1/working/decision-stage-all",
+            "stage",
+            "261001-record-09001",
+            "--scope",
+            "all"
+          ],
+          "cwd": "/tmp/localize-record-acceptance-20261024-j2I1x1/working/decision-stage-all",
+          "startedAt": "2026-10-24T14:33:38.462260+00:00",
+          "finishedAt": "2026-10-24T14:33:41.967006+00:00",
+          "timeoutSeconds": 600.0,
+          "outcome": "exited",
+          "timedOut": false,
+          "exitCode": 0,
+          "wallSeconds": 3.504500476003159,
+          "userSeconds": 3.697329,
+          "systemSeconds": 0.9210579999999999,
+          "cpuSeconds": 4.618387,
+          "maxRssKiB": 554600,
+          "minorFaults": 221272,
+          "majorFaults": 0,
+          "voluntaryContextSwitches": 4196,
+          "involuntaryContextSwitches": 79,
+          "stdout": {
+            "path": "/tmp/localize-record-acceptance-20261024-j2I1x1/runs/decision-stage-all/4-instrumented/process.stdout",
+            "bytes": 462317,
+            "sha256": "4874c26450c1e6b0171746ca7406f4ccf06dd8d1db97a8a15c439e914610d46b"
+          },
+          "stderr": {
+            "path": "/tmp/localize-record-acceptance-20261024-j2I1x1/runs/decision-stage-all/4-instrumented/process.stderr",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        "before": {
+          "files": 10003,
+          "worktreeSha256": "7d58d32e492511c827dd5eb95af94e2ab00c55529db64794740546983b05c9b4",
+          "pendingPaths": 10002,
+          "pendingSha256": "1810f869bfdc1302ac0acc276977f9625dbd2cb742a44468b2a830b95367e882",
+          "head": "c692c0bcbdabcfb46dc4931979210c0f2a65a592",
+          "indexSha256": "2a7da9b9a05b45c3873289f049355097aa6aab1967c839e808febf017a5f1dc6"
+        },
+        "after": {
+          "files": 10003,
+          "worktreeSha256": "7d58d32e492511c827dd5eb95af94e2ab00c55529db64794740546983b05c9b4",
+          "pendingPaths": 10002,
+          "pendingSha256": "4dbb08e70e3af7ee035ca9fe6c6f0670fd5bcf7510adb639c5875bc4382ac355",
+          "head": "c692c0bcbdabcfb46dc4931979210c0f2a65a592",
+          "indexSha256": "2a7da9b9a05b45c3873289f049355097aa6aab1967c839e808febf017a5f1dc6"
+        },
+        "status": "passed",
+        "rawDirectory": "/tmp/localize-record-acceptance-20261024-j2I1x1/runs/decision-stage-all/4-instrumented",
+        "effect": {
+          "worktreeChangedPaths": [],
+          "pendingChangedPaths": [
+            "docs/decisions/261001-record-09001.md",
+            "docs/decisions/decision-index.json"
+          ],
+          "checks": [
+            "W byte/mode invariant",
+            "scope exact selected bytes/index composition",
+            "all unselected P identities including deletion/mode/OID invariant"
+          ]
+        },
+        "normalizedState": {
+          "worktreeSha256": "7d58d32e492511c827dd5eb95af94e2ab00c55529db64794740546983b05c9b4",
+          "pendingSha256": "4dbb08e70e3af7ee035ca9fe6c6f0670fd5bcf7510adb639c5875bc4382ac355",
+          "head": "c692c0bcbdabcfb46dc4931979210c0f2a65a592"
+        },
+        "normalization": [],
+        "outputEqualityKey": [
+          "4874c26450c1e6b0171746ca7406f4ccf06dd8d1db97a8a15c439e914610d46b",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        ],
+        "workload": {
+          "reads": {
+            "index": {
+              "calls": 2,
+              "bytes": 12606514,
+              "paths": [
+                "docs/decisions/decision-index.json"
+              ],
+              "unique": 1
+            },
+            "formal": {
+              "calls": 2,
+              "bytes": 840,
+              "paths": [
+                "docs/decisions/261001-record-09001.md"
+              ],
+              "unique": 1
+            },
+            "other": {
+              "calls": 1,
+              "bytes": 1112292,
+              "paths": [
+                ".git/index"
+              ],
+              "unique": 1
+            }
+          },
+          "gitBatches": [
+            {
+              "sequence": 4,
+              "command": "git",
+              "argv": [
+                "-C",
+                "/tmp/localize-record-acceptance-20261024-j2I1x1/working/decision-stage-all",
+                "cat-file",
+                "--batch"
+              ],
+              "stdoutBytes": 6303312,
+              "stderrBytes": 0,
+              "requests": [
+                "5b74602e961caefbb38f7a519ae09f8945acdd18"
+              ],
+              "batch": {
+                "blobs": [
+                  {
+                    "oid": "5b74602e961caefbb38f7a519ae09f8945acdd18",
+                    "bytes": 6303257,
+                    "roles": [
+                      "head:index"
+                    ]
+                  }
+                ],
+                "headerBytes": 54,
+                "payloadBytes": 6303257,
+                "trailerBytes": 1
+              },
+              "exitCode": 0
+            },
+            {
+              "sequence": 6,
+              "command": "git",
+              "argv": [
+                "-C",
+                "/tmp/localize-record-acceptance-20261024-j2I1x1/working/decision-stage-all",
+                "cat-file",
+                "--batch"
+              ],
+              "stdoutBytes": 6302680,
+              "stderrBytes": 0,
+              "requests": [
+                "dbe5ee79688e5950e33685663f4a18f1e8af1b5c"
+              ],
+              "batch": {
+                "blobs": [
+                  {
+                    "oid": "dbe5ee79688e5950e33685663f4a18f1e8af1b5c",
+                    "bytes": 6302625,
+                    "roles": [
+                      "pending:index"
+                    ]
+                  }
+                ],
+                "headerBytes": 54,
+                "payloadBytes": 6302625,
+                "trailerBytes": 1
+              },
+              "exitCode": 0
+            },
+            {
+              "sequence": 8,
+              "command": "git",
+              "argv": [
+                "-C",
+                "/tmp/localize-record-acceptance-20261024-j2I1x1/working/decision-stage-all",
+                "cat-file",
+                "--batch"
+              ],
+              "stdoutBytes": 6303131,
+              "stderrBytes": 0,
+              "requests": [
+                "7c869a66e94204438374c0f9f99581268ad57ed8",
+                "dbe5ee79688e5950e33685663f4a18f1e8af1b5c"
+              ],
+              "batch": {
+                "blobs": [
+                  {
+                    "oid": "7c869a66e94204438374c0f9f99581268ad57ed8",
+                    "bytes": 400,
+                    "roles": [
+                      "head:selected-formal",
+                      "pending:selected-formal"
+                    ]
+                  },
+                  {
+                    "oid": "dbe5ee79688e5950e33685663f4a18f1e8af1b5c",
+                    "bytes": 6302625,
+                    "roles": [
+                      "pending:index"
+                    ]
+                  }
+                ],
+                "headerBytes": 104,
+                "payloadBytes": 6303025,
+                "trailerBytes": 2
+              },
+              "exitCode": 0
+            },
+            {
+              "sequence": 10,
+              "command": "git",
+              "argv": [
+                "-C",
+                "/tmp/localize-record-acceptance-20261024-j2I1x1/working/decision-stage-all",
+                "cat-file",
+                "--batch"
+              ],
+              "stdoutBytes": 6302680,
+              "stderrBytes": 0,
+              "requests": [
+                "dbe5ee79688e5950e33685663f4a18f1e8af1b5c"
+              ],
+              "batch": {
+                "blobs": [
+                  {
+                    "oid": "dbe5ee79688e5950e33685663f4a18f1e8af1b5c",
+                    "bytes": 6302625,
+                    "roles": [
+                      "pending:index"
+                    ]
+                  }
+                ],
+                "headerBytes": 54,
+                "payloadBytes": 6302625,
+                "trailerBytes": 1
+              },
+              "exitCode": 0
+            },
+            {
+              "sequence": 12,
+              "command": "git",
+              "argv": [
+                "-C",
+                "/tmp/localize-record-acceptance-20261024-j2I1x1/working/decision-stage-all",
+                "cat-file",
+                "--batch"
+              ],
+              "stdoutBytes": 6303131,
+              "stderrBytes": 0,
+              "requests": [
+                "7c869a66e94204438374c0f9f99581268ad57ed8",
+                "dbe5ee79688e5950e33685663f4a18f1e8af1b5c"
+              ],
+              "batch": {
+                "blobs": [
+                  {
+                    "oid": "7c869a66e94204438374c0f9f99581268ad57ed8",
+                    "bytes": 400,
+                    "roles": [
+                      "head:selected-formal",
+                      "pending:selected-formal"
+                    ]
+                  },
+                  {
+                    "oid": "dbe5ee79688e5950e33685663f4a18f1e8af1b5c",
+                    "bytes": 6302625,
+                    "roles": [
+                      "pending:index"
+                    ]
+                  }
+                ],
+                "headerBytes": 104,
+                "payloadBytes": 6303025,
+                "trailerBytes": 2
+              },
+              "exitCode": 0
+            },
+            {
+              "sequence": 16,
+              "command": "git",
+              "argv": [
+                "-C",
+                "/tmp/localize-record-acceptance-20261024-j2I1x1/working/decision-stage-all",
+                "cat-file",
+                "--batch"
+              ],
+              "stdoutBytes": 6303131,
+              "stderrBytes": 0,
+              "requests": [
+                "7c869a66e94204438374c0f9f99581268ad57ed8",
+                "dbe5ee79688e5950e33685663f4a18f1e8af1b5c"
+              ],
+              "batch": {
+                "blobs": [
+                  {
+                    "oid": "7c869a66e94204438374c0f9f99581268ad57ed8",
+                    "bytes": 400,
+                    "roles": [
+                      "head:selected-formal",
+                      "pending:selected-formal"
+                    ]
+                  },
+                  {
+                    "oid": "dbe5ee79688e5950e33685663f4a18f1e8af1b5c",
+                    "bytes": 6302625,
+                    "roles": [
+                      "pending:index"
+                    ]
+                  }
+                ],
+                "headerBytes": 104,
+                "payloadBytes": 6303025,
+                "trailerBytes": 2
+              },
+              "exitCode": 0
+            },
+            {
+              "sequence": 21,
+              "command": "git",
+              "argv": [
+                "-C",
+                "/tmp/localize-record-acceptance-20261024-j2I1x1/working/decision-stage-all",
+                "cat-file",
+                "--batch"
+              ],
+              "stdoutBytes": 6303151,
+              "stderrBytes": 0,
+              "requests": [
+                "faa41d25ac006cfd9c5d50824f4d5e0b943c4257",
+                "e2fb0b1530becebd0c5090f33c9cbb473f5ec948"
+              ],
+              "batch": {
+                "blobs": [
+                  {
+                    "oid": "faa41d25ac006cfd9c5d50824f4d5e0b943c4257",
+                    "bytes": 420,
+                    "roles": [
+                      "unknown"
+                    ],
+                    "posteriorMembership": [
+                      {
+                        "path": "docs/decisions/261001-record-09001.md",
+                        "role": "post:selected-formal",
+                        "oid": "faa41d25ac006cfd9c5d50824f4d5e0b943c4257",
+                        "sha256": "f332e6ea7eaf421c603fdcf9a98c1cc7b60b5d4f7c40d75fdda759e39c77edba",
+                        "bytes": 420
+                      }
+                    ],
+                    "effectiveRoles": [
+                      "post:selected-formal"
+                    ]
+                  },
+                  {
+                    "oid": "e2fb0b1530becebd0c5090f33c9cbb473f5ec948",
+                    "bytes": 6302625,
+                    "roles": [
+                      "unknown"
+                    ],
+                    "posteriorMembership": [
+                      {
+                        "path": "docs/decisions/decision-index.json",
+                        "role": "post:index",
+                        "oid": "e2fb0b1530becebd0c5090f33c9cbb473f5ec948",
+                        "sha256": "999bb7c6eb62ecdeca8345bfb3ec0efe8f2a922f7db8bb898de1d1409fec7923",
+                        "bytes": 6302625
+                      }
+                    ],
+                    "effectiveRoles": [
+                      "post:index"
+                    ]
+                  }
+                ],
+                "headerBytes": 104,
+                "payloadBytes": 6303045,
+                "trailerBytes": 2
+              },
+              "exitCode": 0
+            }
+          ],
+          "threads": 1,
+          "threadsEnded": 1,
+          "unknown": [],
+          "counts": {},
+          "git": {
+            "batches": 7,
+            "blobs": 11,
+            "payloadBytes": 44120627,
+            "indexBlobReads": 7,
+            "selectedFormalBlobReads": 4,
+            "unselectedOrUnknown": [],
+            "initiallyUnclassifiedResolvedFromFinalPending": 2
+          },
+          "boundary": {
+            "unrelatedFormalReads": [],
+            "unrelatedResourceReads": [],
+            "unrelatedOrUnclassifiedGitPayload": [],
+            "status": "passed"
+          }
+        },
+        "adjudication": "Resolve initial unknown newly written blob OIDs through independent complete final P paths/SHA/size; same original probe/state/events; no rerun"
+      }
+    },
+    {
+      "originalObservationSha256": "2fe7422e511e1fc4dd09d4e834824b52048df06aa4a9b6e91059635a4ebff00f",
+      "timestamp": "2026-10-24T14:39:46.317385+00:00",
+      "methodCorrection": {
+        "kind": "method-only split current FS impact from explicit necessary Git history dependency",
+        "beforeSha256": "733550635a9fb7b151cef93154bc539217eb65e43a267fdcc023576142c66065",
+        "afterSha256": "1488f260f4de2c8a74c5dd2e0a71f7f941518a2ccbdc4112345744e3c2a801e5",
+        "authorization": "root confirmed Design 6 and IR historical per-path identity obligation",
+        "scope": "Only investigation/publish-predecessor direct target 261001-record-09999; no FS current-body permission expansion",
+        "sameProbeWillBeAdjudicatedWithoutRerun": true,
+        "roleBoundary": "Initial H/P memberships overlap and are retained; added historical identity witness is not a caller-stage or timing attribution"
+      },
+      "correctedObservation": {
+        "domain": "investigation",
+        "scenario": "publish-predecessor",
+        "iteration": 4,
+        "mode": "instrumented",
+        "metrics": {
+          "schemaVersion": 1,
+          "domain": "investigation",
+          "scenario": "publish-predecessor",
+          "iteration": 4,
+          "mode": "instrumented",
+          "argv": [
+            "node",
+            "--import",
+            "/tmp/localize-record-acceptance-20261024-j2I1x1/methods/preload.mjs",
+            "/tmp/localize-record-acceptance-20261024-j2I1x1/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+            "--root",
+            "/tmp/localize-record-acceptance-20261024-j2I1x1/working/investigation-publish-predecessor",
+            "publish",
+            "261001-candidate-1"
+          ],
+          "cwd": "/tmp/localize-record-acceptance-20261024-j2I1x1/working/investigation-publish-predecessor",
+          "startedAt": "2026-10-24T14:37:07.765440+00:00",
+          "finishedAt": "2026-10-24T14:37:14.008209+00:00",
+          "timeoutSeconds": 600.0,
+          "outcome": "exited",
+          "timedOut": false,
+          "exitCode": 0,
+          "wallSeconds": 6.242387508042157,
+          "userSeconds": 4.898859,
+          "systemSeconds": 2.449776,
+          "cpuSeconds": 7.348635,
+          "maxRssKiB": 446884,
+          "minorFaults": 176101,
+          "majorFaults": 0,
+          "voluntaryContextSwitches": 64967,
+          "involuntaryContextSwitches": 25,
+          "stdout": {
+            "path": "/tmp/localize-record-acceptance-20261024-j2I1x1/runs/investigation-publish-predecessor/4-instrumented/process.stdout",
+            "bytes": 308,
+            "sha256": "ee76319e481f741e94e8d16716f946ddf5fd8fa7e2197a36fb10d259f04cd97d"
+          },
+          "stderr": {
+            "path": "/tmp/localize-record-acceptance-20261024-j2I1x1/runs/investigation-publish-predecessor/4-instrumented/process.stderr",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        "before": {
+          "files": 10004,
+          "worktreeSha256": "470d22269bcbe45e523f343bb5eb931ce86e6f203329a0c55f15ff04a431b299",
+          "pendingPaths": 10004,
+          "pendingSha256": "2763f9fb8b7bbf6f0ceb8a24c70dd2fe8c3e44b2047b7dd870d352feb592e3ed",
+          "head": "4027319962965422b2a458608a8203d9b2f5d900",
+          "indexSha256": "fcd1a1f25824c8ca5d52eac3532336df39d1f7896936839938a2ec0d8e04201f"
+        },
+        "after": {
+          "files": 10004,
+          "worktreeSha256": "b044b1c199d073cbafbfe2d276904a5dab95ffe80146cb22306df700e13abf5e",
+          "pendingPaths": 10004,
+          "pendingSha256": "2763f9fb8b7bbf6f0ceb8a24c70dd2fe8c3e44b2047b7dd870d352feb592e3ed",
+          "head": "4027319962965422b2a458608a8203d9b2f5d900",
+          "indexSha256": "aa6d4f94512704ae87a4fc9f966f716b550c81ba074fa857e97e669af5f3f1a1"
+        },
+        "status": "passed",
+        "rawDirectory": "/tmp/localize-record-acceptance-20261024-j2I1x1/runs/investigation-publish-predecessor/4-instrumented",
+        "effect": {
+          "worktreeChangedPaths": [
+            "docs/investigations/261001-candidate-1.md",
+            "docs/investigations/_candidate.261001-candidate-1",
+            "docs/investigations/investigation-index.json"
+          ],
+          "pendingChangedPaths": [],
+          "formal": 10001,
+          "relations": 9001,
+          "indexAndCompleteSourceRevision": "passed",
+          "resourceReferences": "passed",
+          "checks": [
+            "complete W bytes/mode permitted delta",
+            "all unselected documents identical",
+            "P and HEAD invariant",
+            "full index projection/sourceRevision/resource consistency"
+          ]
+        },
+        "normalizedState": {
+          "worktreeSha256": "b044b1c199d073cbafbfe2d276904a5dab95ffe80146cb22306df700e13abf5e",
+          "pendingSha256": "2763f9fb8b7bbf6f0ceb8a24c70dd2fe8c3e44b2047b7dd870d352feb592e3ed",
+          "head": "4027319962965422b2a458608a8203d9b2f5d900"
+        },
+        "normalization": [],
+        "outputEqualityKey": [
+          "ee76319e481f741e94e8d16716f946ddf5fd8fa7e2197a36fb10d259f04cd97d",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        ],
+        "workload": {
+          "reads": {
+            "candidate": {
+              "calls": 9,
+              "bytes": 3471,
+              "paths": [
+                "docs/investigations/_candidate.261001-candidate-1",
+                "docs/investigations/_candidate.261001-candidate-2"
+              ],
+              "unique": 2
+            },
+            "index": {
+              "calls": 9,
+              "bytes": 46740950,
+              "paths": [
+                "docs/investigations/investigation-index.json"
+              ],
+              "unique": 1
+            },
+            "formal": {
+              "calls": 2,
+              "bytes": 830,
+              "paths": [
+                "docs/investigations/261001-candidate-1.md"
+              ],
+              "unique": 1
+            }
+          },
+          "gitBatches": [
+            {
+              "sequence": 6,
+              "command": "git",
+              "argv": [
+                "-C",
+                "/tmp/localize-record-acceptance-20261024-j2I1x1/working/investigation-publish-predecessor",
+                "cat-file",
+                "--batch"
+              ],
+              "stdoutBytes": 5193367,
+              "stderrBytes": 0,
+              "requests": [
+                "d4ba4d883b50a2c526031b2f383bc481b593eb9e"
+              ],
+              "batch": {
+                "blobs": [
+                  {
+                    "oid": "d4ba4d883b50a2c526031b2f383bc481b593eb9e",
+                    "bytes": 5193312,
+                    "roles": [
+                      "head:index",
+                      "pending:index"
+                    ]
+                  }
+                ],
+                "headerBytes": 54,
+                "payloadBytes": 5193312,
+                "trailerBytes": 1
+              },
+              "exitCode": 0
+            },
+            {
+              "sequence": 9,
+              "command": "git",
+              "argv": [
+                "-C",
+                "/tmp/localize-record-acceptance-20261024-j2I1x1/working/investigation-publish-predecessor",
+                "cat-file",
+                "--batch"
+              ],
+              "stdoutBytes": 430,
+              "stderrBytes": 0,
+              "requests": [
+                "10d1b528e193cde043981947c23b0e7f29864422"
+              ],
+              "batch": {
+                "blobs": [
+                  {
+                    "oid": "10d1b528e193cde043981947c23b0e7f29864422",
+                    "bytes": 379,
+                    "roles": [
+                      "head:unselected-formal",
+                      "pending:unselected-formal"
+                    ],
+                    "historicalDependencyMembership": {
+                      "path": "docs/investigations/261001-record-09999.md",
+                      "identity": "261001-record-09999",
+                      "oid": "10d1b528e193cde043981947c23b0e7f29864422",
+                      "bytes": 379,
+                      "sha256": "553fac8a43c22387a135f9841f60afb22719f058a434bd4fc6a53ae86567415a",
+                      "scope": "explicit direct predecessor historical identity"
+                    },
+                    "effectiveRoles": [
+                      "head:unselected-formal",
+                      "pending:unselected-formal",
+                      "scope:selected-history-dependency"
+                    ]
+                  }
+                ],
+                "headerBytes": 50,
+                "payloadBytes": 379,
+                "trailerBytes": 1
+              },
+              "exitCode": 0
+            },
+            {
+              "sequence": 16,
+              "command": "git",
+              "argv": [
+                "-C",
+                "/tmp/localize-record-acceptance-20261024-j2I1x1/working/investigation-publish-predecessor",
+                "cat-file",
+                "--batch"
+              ],
+              "stdoutBytes": 5193367,
+              "stderrBytes": 0,
+              "requests": [
+                "d4ba4d883b50a2c526031b2f383bc481b593eb9e"
+              ],
+              "batch": {
+                "blobs": [
+                  {
+                    "oid": "d4ba4d883b50a2c526031b2f383bc481b593eb9e",
+                    "bytes": 5193312,
+                    "roles": [
+                      "head:index",
+                      "pending:index"
+                    ]
+                  }
+                ],
+                "headerBytes": 54,
+                "payloadBytes": 5193312,
+                "trailerBytes": 1
+              },
+              "exitCode": 0
+            },
+            {
+              "sequence": 19,
+              "command": "git",
+              "argv": [
+                "-C",
+                "/tmp/localize-record-acceptance-20261024-j2I1x1/working/investigation-publish-predecessor",
+                "cat-file",
+                "--batch"
+              ],
+              "stdoutBytes": 430,
+              "stderrBytes": 0,
+              "requests": [
+                "10d1b528e193cde043981947c23b0e7f29864422"
+              ],
+              "batch": {
+                "blobs": [
+                  {
+                    "oid": "10d1b528e193cde043981947c23b0e7f29864422",
+                    "bytes": 379,
+                    "roles": [
+                      "head:unselected-formal",
+                      "pending:unselected-formal"
+                    ],
+                    "historicalDependencyMembership": {
+                      "path": "docs/investigations/261001-record-09999.md",
+                      "identity": "261001-record-09999",
+                      "oid": "10d1b528e193cde043981947c23b0e7f29864422",
+                      "bytes": 379,
+                      "sha256": "553fac8a43c22387a135f9841f60afb22719f058a434bd4fc6a53ae86567415a",
+                      "scope": "explicit direct predecessor historical identity"
+                    },
+                    "effectiveRoles": [
+                      "head:unselected-formal",
+                      "pending:unselected-formal",
+                      "scope:selected-history-dependency"
+                    ]
+                  }
+                ],
+                "headerBytes": 50,
+                "payloadBytes": 379,
+                "trailerBytes": 1
+              },
+              "exitCode": 0
+            }
+          ],
+          "threads": 1,
+          "threadsEnded": 1,
+          "unknown": [],
+          "counts": {},
+          "git": {
+            "batches": 4,
+            "blobs": 4,
+            "payloadBytes": 10387382,
+            "indexBlobReads": 2,
+            "selectedFormalBlobReads": 0,
+            "historicalDependencyBlobReads": 2,
+            "unselectedOrUnknown": [],
+            "initiallyUnclassifiedResolvedFromFinalPending": 0
+          },
+          "boundary": {
+            "unrelatedFormalReads": [],
+            "unrelatedResourceReads": [],
+            "unrelatedOrUnclassifiedGitPayload": [],
+            "status": "passed"
+          }
+        },
+        "adjudication": "Only explicit direct predecessor historical object is authorized; current FS scope unchanged; independent HEAD locator/OID/identity/SHA/size witness; same original probe/state/events; no rerun"
+      }
+    }
+  ],
+  "invalidInput": [
+    {
+      "timestamp": "2026-10-24T14:21:30.705782+00:00",
+      "classification": "method-invalid-input",
+      "originalObservationSha256": "252d1e286499c76a3b0f3938e95edd29d6fd85b862f4173531e67b9a0a41e695",
+      "originalProcessReexecuted": false,
+      "originalZeroWriteVerified": true,
+      "authority": "IR attached-resource section accepts local inline resource links, not arbitrary appended body text",
+      "correction": "move SELECTED_CURRENT_A before attached-resource heading; recalculate only selected sourceRevision",
+      "preparationScope": "Original independent preparation proved projection/revision/resource references, not all body-section grammar",
+      "replacementPolicy": "keep all original bytes/metrics; add one valid stage-all sample; 93 total CLI measurement processes for 92 accepted observations",
+      "repairs": [
+        {
+          "scope": "all",
+          "sourceBeforeSha256": "9b9ac95f547e28ada3b8de7c557589936c6c4ef6df51be97e8bf141bd1e4271e",
+          "sourceAfterSha256": "3c99afb2f6c9951b895d3d81eaac65ace53615e6fbe8a0c790e65ea1e3ec7d98",
+          "indexBeforeSha256": "529988b97ca24743fdb7bdaf0aa7179a076552418369f1a93d8accbde1ee7116",
+          "indexAfterSha256": "6b77e96d1abda565de5239a377fcd4ad3a21c76997e00fda3f934f1028dd3e8e",
+          "revisionBefore": "sha256:1e50141d15cdd857be01d3748d93de33053725b20172445a708e19865d73fc53",
+          "revisionAfter": "sha256:1957f980a2143c5e58e0d96a87cba15ede112b2c6521a1429c9c2553a79899a1",
+          "afterState": {
+            "files": 10005,
+            "worktreeSha256": "368a84474861392b00f2954f12ac00abeb9b240492a2f764c514305ac6adbe9b",
+            "pendingPaths": 10004,
+            "pendingSha256": "72bef71cd09782ca9b9000489e7d59729508d2117b334530341afb0b4e1b5c6f",
+            "head": "38465cd297319cd6fae0ee934a0b4a1f79442d92",
+            "indexSha256": "d1494f4bf165c11fb4f432af608a53878ebfe6c9a0ec37e08b24262cabdac540"
+          },
+          "oracle": {
+            "formal": 10000,
+            "relations": 9000,
+            "indexAndCompleteSourceRevision": "passed",
+            "resourceReferences": "passed"
+          }
+        },
+        {
+          "scope": "domain",
+          "sourceBeforeSha256": "9b9ac95f547e28ada3b8de7c557589936c6c4ef6df51be97e8bf141bd1e4271e",
+          "sourceAfterSha256": "3c99afb2f6c9951b895d3d81eaac65ace53615e6fbe8a0c790e65ea1e3ec7d98",
+          "indexBeforeSha256": "529988b97ca24743fdb7bdaf0aa7179a076552418369f1a93d8accbde1ee7116",
+          "indexAfterSha256": "6b77e96d1abda565de5239a377fcd4ad3a21c76997e00fda3f934f1028dd3e8e",
+          "revisionBefore": "sha256:1e50141d15cdd857be01d3748d93de33053725b20172445a708e19865d73fc53",
+          "revisionAfter": "sha256:1957f980a2143c5e58e0d96a87cba15ede112b2c6521a1429c9c2553a79899a1",
+          "afterState": {
+            "files": 10005,
+            "worktreeSha256": "368a84474861392b00f2954f12ac00abeb9b240492a2f764c514305ac6adbe9b",
+            "pendingPaths": 10004,
+            "pendingSha256": "72bef71cd09782ca9b9000489e7d59729508d2117b334530341afb0b4e1b5c6f",
+            "head": "38465cd297319cd6fae0ee934a0b4a1f79442d92",
+            "indexSha256": "d1494f4bf165c11fb4f432af608a53878ebfe6c9a0ec37e08b24262cabdac540"
+          },
+          "oracle": {
+            "formal": 10000,
+            "relations": 9000,
+            "indexAndCompleteSourceRevision": "passed",
+            "resourceReferences": "passed"
+          }
+        },
+        {
+          "scope": "index",
+          "sourceBeforeSha256": "9b9ac95f547e28ada3b8de7c557589936c6c4ef6df51be97e8bf141bd1e4271e",
+          "sourceAfterSha256": "3c99afb2f6c9951b895d3d81eaac65ace53615e6fbe8a0c790e65ea1e3ec7d98",
+          "indexBeforeSha256": "529988b97ca24743fdb7bdaf0aa7179a076552418369f1a93d8accbde1ee7116",
+          "indexAfterSha256": "6b77e96d1abda565de5239a377fcd4ad3a21c76997e00fda3f934f1028dd3e8e",
+          "revisionBefore": "sha256:1e50141d15cdd857be01d3748d93de33053725b20172445a708e19865d73fc53",
+          "revisionAfter": "sha256:1957f980a2143c5e58e0d96a87cba15ede112b2c6521a1429c9c2553a79899a1",
+          "afterState": {
+            "files": 10005,
+            "worktreeSha256": "368a84474861392b00f2954f12ac00abeb9b240492a2f764c514305ac6adbe9b",
+            "pendingPaths": 10004,
+            "pendingSha256": "72bef71cd09782ca9b9000489e7d59729508d2117b334530341afb0b4e1b5c6f",
+            "head": "38465cd297319cd6fae0ee934a0b4a1f79442d92",
+            "indexSha256": "d1494f4bf165c11fb4f432af608a53878ebfe6c9a0ec37e08b24262cabdac540"
+          },
+          "oracle": {
+            "formal": 10000,
+            "relations": 9000,
+            "indexAndCompleteSourceRevision": "passed",
+            "resourceReferences": "passed"
+          }
+        }
+      ]
+    }
+  ],
+  "finalReplayRecipeCorrection": {
+    "purpose": "Replay recipe now constructs the corrected legal IR stage body directly; existing measured fixtures are not rebuilt",
+    "beforeSha256": "12367167de11b9bca722232f7d47889da5fea8f6548c61eba48ffa09df341093",
+    "afterSha256": "9c33e63c3b926091f34b97d95400ce47a8c7c11ed6ec0ba1c19343e19ef8334e",
+    "exactBefore": "  a=c/idx['entries'][A]['sourcePath'];a.write_bytes(a.read_bytes()+b'\\nSELECTED_CURRENT_A\\n')",
+    "exactAfter": "  a=c/idx['entries'][A]['sourcePath']\n  if d=='investigation':a.write_text(a.read_text().replace('## 随附资源','SELECTED_CURRENT_A\\n\\n## 随附资源'))\n  else:a.write_bytes(a.read_bytes()+b'\\nSELECTED_CURRENT_A\\n')"
+  },
+  "replayRecipePreparationCorrection": {
+    "classification": "unmeasured replay-recipe preparation correction",
+    "cause": "original record-10000 has a 20-byte unique-content sentinel; explicit 0644 mode also needed under current umask",
+    "beforeSha256": "7fbc7b5ec656a2cf7eb1d19777a96940a4343b3271440af19146fc10a2fa2b65",
+    "afterSha256": "183c8f0ab04a451195d989dc7c4bb251e6e022147eee833b0f5b2bea317078e3",
+    "measuredSampleChanges": false
+  },
+  "untimedPreparationCancellation": {
+    "argv": [
+      "node",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/templates/investigation",
+      "check"
+    ],
+    "exitCode": -15,
+    "classification": "untimed preparation command cancelled by owner; excluded from 93 measurements",
+    "observedElapsed": "approximately 3m25s; no wait4 measurement collected",
+    "stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundlePath": "streams/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt"
+    },
+    "stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundlePath": "streams/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt"
+    }
+  }
+}

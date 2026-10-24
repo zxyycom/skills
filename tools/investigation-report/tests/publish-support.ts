@@ -23,6 +23,11 @@ export async function createReadyCandidate(
     relations: []
   });
   assert.equal(created.status, "ok", created.errors.join("; "));
+  if (created.candidate.path !== candidatePath(root, investigationId))
+    await fs.rename(
+      created.candidate.path,
+      candidatePath(root, investigationId)
+    );
   await fs.writeFile(
     candidatePath(root, investigationId),
     reportMarkdown({ ...options, id: investigationId }),

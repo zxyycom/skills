@@ -1,7 +1,7 @@
 ---
 title: 分离记录工具的局部操作与全集验收
 id: 261022-separate-record-local-operations-from-collection-audits
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-10-22T04:28:32Z
 purpose: 让单对象操作只承担本次结果必需的来源与领域保证。
@@ -27,9 +27,9 @@ relations:
 
 - 本判断适用于本仓库的 `skills/decision-records/` 与 `skills/investigation-report/`，不改变其他 skill 的验证责任。
 - Markdown 是内容事实源，持久索引保存可严格校验的发布投影。每次局部操作重新验收无关正文，会把存量成本重复附加到简单输入。
-- [全操作调查](../investigations/record-tools-all-operations-100k.md)记录了极端规模的小输入成本；这些测量不能直接推算日常收益，也不构成引入缓存体系的理由。
+- [全操作调查](../../investigations/record-tools-all-operations-100k.md)记录了极端规模的小输入成本；这些测量不能直接推算日常收益，也不构成引入缓存体系的理由。
 - 用户接受无关未同步问题在显式集合级验收时发现，要求保留最终领域约束、事务保护和高风险维护边界。
-- [前序判断](archive/investigation-local-validation-and-phase-facts.md)共同维护调查只读检查与局部暂存。本判断承接检查的首次对象语义并扩展普通维护的发布基线；暂存与阶段写入责任由[独立暂存判断](refresh-selected-records-in-pending.md)承接，两者共同保留前序仍有效的含义。
+- [前序判断](investigation-local-validation-and-phase-facts.md)共同维护调查只读检查与局部暂存。本判断承接检查的首次对象语义并扩展普通维护的发布基线；暂存与阶段写入责任由[独立暂存判断](../refresh-selected-records-in-pending.md)承接，两者共同保留前序仍有效的含义。
 
 ## 决策
 

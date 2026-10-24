@@ -108,7 +108,10 @@ test("ordinary selectors use dated IDs first and name fallback without reading p
     ]);
     assert.equal(created.exitCode, 0, created.stderr);
     assert.match(
-      await fs.readFile(decisionFilePath(workspaceRoot, "fresh-topic"), "utf8"),
+      await fs.readFile(
+        decisionFilePath(workspaceRoot, `${utcDecisionDate()}-fresh-topic`),
+        "utf8"
+      ),
       new RegExp(`id: ${utcDecisionDate()}-fresh-topic`)
     );
     const mismatch = await runSourceCli([
@@ -141,18 +144,34 @@ test("ordinary selectors use dated IDs first and name fallback without reading p
       "--title",
       "Legacy 冲突重试",
       "--purpose",
-      "同名 legacy 应先迁移。",
+      "同名 legacy 不阻断日期身份。",
       "--background",
       "新建不得隐式改名。",
       "--decision",
-      "零写入返回迁移要求。",
+      "保留旧身份并创建日期身份。",
       "--tag",
       "decision-records",
       "--root",
       workspaceRoot
     ]);
-    assert.equal(conflicted.exitCode, 1);
-    assert.match(conflicted.stderr, /migration-required/);
+    assert.equal(conflicted.exitCode, 0, conflicted.stderr);
+    assert.match(
+      await fs.readFile(
+        decisionFilePath(workspaceRoot, "legacy-date-conflict"),
+        "utf8"
+      ),
+      /id: legacy-date-conflict/
+    );
+    assert.match(
+      await fs.readFile(
+        decisionFilePath(
+          workspaceRoot,
+          `${utcDecisionDate()}-legacy-date-conflict`
+        ),
+        "utf8"
+      ),
+      new RegExp(`id: ${utcDecisionDate()}-legacy-date-conflict`)
+    );
 
     assert.equal(normalizeDecisionSelectorInput("topic.MD"), "topic");
     assert.equal(normalizeDecisionSelectorInput("topic.md.md"), "topic.md");

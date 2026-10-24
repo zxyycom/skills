@@ -50,7 +50,7 @@ async function prepare(root: string): Promise<void> {
   await sync(root);
 }
 
-test("Decision stage index permits non-index pending missing payload while all and domain retain full validation", async () => {
+test("Decision stage scopes preserve unselected missing pending payload without reading it", async () => {
   await withTempRoot("stage-index-narrow", async (root) => {
     await prepare(root);
     const target = pendingObjectPath(root, otherPath);
@@ -58,12 +58,17 @@ test("Decision stage index permits non-index pending missing payload while all a
     const before = git(root, ["ls-files", "--stage"]);
     for (const scope of ["all", "domain"] as const) {
       const full = await stage(root, scope);
-      assert.equal(full.status, "error");
-      assert.equal(git(root, ["ls-files", "--stage"]), before);
+      assert.equal(full.status, "ok", JSON.stringify(full));
+      const nonSelected = (text: string) =>
+        text.split("\n").filter((line) => line.endsWith(otherPath));
+      assert.deepEqual(
+        nonSelected(git(root, ["ls-files", "--stage"])),
+        nonSelected(before)
+      );
     }
     const result = await stage(root);
     assert.equal(result.status, "ok", JSON.stringify(result));
-    assert.deepEqual(result.writtenPaths, [indexRelativePath]);
+    assert.deepEqual(result.writtenPaths, []);
     assert.equal(
       jsonObjectMember(
         jsonObjectMember(
@@ -77,8 +82,8 @@ test("Decision stage index permits non-index pending missing payload while all a
     assert.deepEqual(
       git(root, ["ls-files", "--stage"])
         .split("\n")
-        .filter((line) => !line.endsWith(indexRelativePath)),
-      before.split("\n").filter((line) => !line.endsWith(indexRelativePath))
+        .filter((line) => line.endsWith(otherPath)),
+      before.split("\n").filter((line) => line.endsWith(otherPath))
     );
     const unchanged = await stage(root);
     assert.equal(unchanged.status, "ok");

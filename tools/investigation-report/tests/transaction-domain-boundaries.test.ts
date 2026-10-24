@@ -33,6 +33,10 @@ test("Investigation same identity and path rename preserves noncanonical recorde
         const source = path.join(root, "same.md");
         await fs.appendFile(source, "\n");
         await fs.chmod(source, 0o640);
+        assert.deepEqual(
+          (await synchronizeInvestigationIndex({ workspaceRoot })).errors,
+          []
+        );
         await fs.writeFile(
           path.join(root, "unrelated.md"),
           "malformed unrelated body\n"

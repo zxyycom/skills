@@ -1,13 +1,13 @@
-### Case INVESTIGATION-STAGE-OWNER-PENDING-DEPENDENCY-001: pending 缺少共享资源 owner 时要求补选
+### Case INVESTIGATION-STAGE-OWNER-PENDING-DEPENDENCY-001: 保留未选资源 owner 的 pending 删除
 
 Tests:
-- `test:e704ef9fd4e63ca397aeb6efc38ca83ec78dbdb3a174df346c0ec54d1277c609`
+- `test:328864a5f9318d2521e2aba8563c9780c5f85cb5a45a002b2366d54d10eb997b`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- all 检查必要 owner 的 pending 来源，缺失依赖要求显式补选，不自动暂存其他 owner。
+- 纯索引 owner 依赖不要求未选 pending 正文存在或可读，也不自动恢复其 staged 删除。
 
 Proves:
-- 所选报告引用的 owner 正文被 staged 删除时，单选失败且 pending 不变；显式同选 owner 后成功恢复完整配套暂存。
+- 只选择资源消费者时保留 owner staged 删除且成功；显式同选 owner 后才恢复完整配套正文。

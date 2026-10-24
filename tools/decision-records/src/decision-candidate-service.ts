@@ -19,7 +19,6 @@ import { validateCandidateCreationRequest } from "./decision-candidate-validatio
 import { resolveCandidateRelationSelectors } from "./decision-candidate-relations.ts";
 import {
   datedDecisionIdForName,
-  decisionNameFromId,
   parseDatedDecisionId,
   sourcePathForDecision,
   utcDecisionDate
@@ -160,8 +159,7 @@ async function createLockedDecisionCandidate(
     conflict: (scan, resolved) => {
       const invalid = validateCandidateCreationRequest(scan, resolved);
       if (invalid !== null) return invalid;
-      const migration = legacyNameConflict(scan, resolved);
-      return migration === null ? null : creationFailure(migration);
+      return null;
     },
     allocate: allocateCandidateSourcePath,
     writeAndReadiness: async (scan, resolved, sourcePath) => {
@@ -169,24 +167,19 @@ async function createLockedDecisionCandidate(
         resolved,
         path.join(decisionsDirectory, sourcePath),
         sourcePath,
-        async (created) => {
-          const current =
-            await loadCandidateIdentityContext(decisionsDirectory);
-          const expected = [
-            ...scan.records,
-            ...(created
-              ? [{ decisionId: resolved.decisionId, sourcePath }]
-              : [])
-          ];
-          const signature = (records: CandidateIdentityContext["records"]) =>
-            JSON.stringify(
-              [...records].sort((left, right) =>
-                left.sourcePath.localeCompare(right.sourcePath)
-              )
-            );
-          if (signature(current.records) !== signature(expected))
+        async () => {
+          // The creation primitive protects the exclusive target and reads back its bytes.
+          // Only the published snapshot is shared state; unrelated candidates are not guards.
+          const current = await loadCandidateIdentityContext(
+            decisionsDirectory,
+            []
+          );
+          if (
+            JSON.stringify(current.collection.formal) !==
+            JSON.stringify(scan.collection.formal)
+          )
             throw new Error(
-              "Decision candidate identities changed during creation."
+              "Decision published identities changed during creation."
             );
         }
       );
@@ -241,48 +234,11 @@ function prepareNewDecisionIdentity(
   return { request: { ...request, decisionId }, status: "ok" };
 }
 
-function legacyNameConflict(
-  scan: CandidateIdentityContext,
-  request: NewDecisionCandidateRequest
-): ReturnType<typeof decisionDiagnostic> | null {
-  const name = decisionNameFromId(request.decisionId);
-  const legacy = scan.records.find(
-    (record) =>
-      parseDatedDecisionId(record.decisionId) === null &&
-      decisionNameFromId(record.decisionId as DecisionId) === name
-  );
-  if (legacy === undefined) return null;
-  return decisionDiagnostic({
-    code: "decision-records.migration-required",
-    outcome: "no-change",
-    reason:
-      "Creating " +
-      request.decisionId +
-      " would make legacy Decision " +
-      legacy.decisionId +
-      " ambiguous by name.",
-    recovery:
-      "First run the rename preflight for " +
-      legacy.decisionId +
-      " and rename it to a dated ID, then retry new for " +
-      request.decisionId +
-      ".",
-    scope: "Decision candidate scaffold",
-    target: legacy.decisionId
-  });
-}
-
 function allocateCandidateSourcePath(
-  scan: CandidateIdentityContext,
+  _scan: CandidateIdentityContext,
   request: NewDecisionCandidateRequest
 ): ReturnType<typeof sourcePathForDecision> {
-  const name = decisionNameFromId(request.decisionId);
-  const nameCandidate = sourcePathForDecision(name, "candidate");
-  const nameArchive = sourcePathForDecision(name, "archived");
-  const occupied = new Set(scan.records.map((record) => record.sourcePath));
-  return occupied.has(nameCandidate) || occupied.has(nameArchive)
-    ? sourcePathForDecision(request.decisionId, "candidate")
-    : nameCandidate;
+  return sourcePathForDecision(request.decisionId, "candidate");
 }
 
 function candidateDirectoryFailure(

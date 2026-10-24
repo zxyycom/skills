@@ -1,3 +1,4 @@
+import { discoverInvestigationCandidates } from "./candidate-discovery.ts";
 import { prepareResourceSourceProof } from "./rename-resource-proof.ts";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -7,10 +8,9 @@ import {
   diagnosticFromError,
   type InvestigationDiagnostic
 } from "./diagnostics.ts";
-import { inspectInvestigationCollectionLayout } from "./investigation-index-source.ts";
 
 import { findCandidatePathForInvestigationId } from "./candidate-path.ts";
-import { readCandidateAuthoringResourceReferences } from "./candidate.ts";
+import { readLocalPublication } from "./local-publication.ts";
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 
 import {
@@ -102,7 +102,7 @@ async function preparedCandidateFile(
       status: "error";
     }>
 > {
-  const layout = await inspectInvestigationCollectionLayout(root);
+  const layout = await discoverInvestigationCandidates(root);
   if (layout.errors.length > 0)
     return { diagnostics: [], errors: layout.errors, status: "error" };
   if (!layout.candidateIds.includes(id)) return missingCandidatePreparation(id);
@@ -142,9 +142,16 @@ async function sharedCandidateResourceReferences(
   root: string,
   id: string
 ): Promise<string[]> {
-  const references = await readCandidateAuthoringResourceReferences(root, {
-    failOnInvalidSources: true
-  });
+  const layout = await discoverInvestigationCandidates(root);
+  const references =
+    layout.reportIds.length === 0 &&
+    layout.candidateCollection.indexStatus === "missing"
+      ? new Map<string, ReadonlySet<string>>()
+      : new Map(
+          [...(await readLocalPublication(root, [])).states].map(
+            ([source, state]) => [source, new Set(state.resourceIds)]
+          )
+        );
   const ownerPrefix = `${id}/`;
   return [...references]
     .filter(

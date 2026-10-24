@@ -15,7 +15,7 @@ import {
   type DecisionCandidateRecord,
   type DecisionId,
   type DecisionRecord,
-  type DecisionScan,
+  type DecisionPreparationContext,
   type DecisionSourcePath,
   type EstablishedDecisionRecord
 } from "./types.ts";
@@ -47,7 +47,7 @@ const decisionRenameScope =
   "Decision Markdown files and derived decision index";
 
 export function prepareDecisionRename(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   options: DecisionRenameOptions
 ): PreparedRenameStep {
   const source = resolveRenameSource(scan, options.source);
@@ -57,11 +57,19 @@ export function prepareDecisionRename(
   const target = resolveRenameTarget(
     source.record,
     scan.records,
-    options.target
+    options.target,
+    scan.sourceMembers
   );
   if (target.status !== "ok") {
     return target;
   }
+  if (
+    target.value.decisionId !== source.record.decisionId &&
+    scan.publishedBaseline?.entries[target.value.decisionId] !== undefined
+  )
+    return decisionFailure([
+      "Target Decision ID already exists: " + target.value.decisionId
+    ]);
   const unchanged =
     source.record.decisionId === target.value.decisionId &&
     source.record.sourcePath === target.value.sourcePath;
@@ -115,7 +123,7 @@ function decisionRenamePlan(
 }
 
 function resolveRenameSource(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   rawSource: string
 ):
   | Readonly<{ record: RenameableDecisionRecord; status: "ok" }>

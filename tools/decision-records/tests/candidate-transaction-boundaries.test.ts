@@ -1,3 +1,4 @@
+import { utcDecisionDate } from "../src/decision-path.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
@@ -18,7 +19,10 @@ const indexPath = (root: string) =>
 test("Decision candidate create preserves observed sourcePath and fails without readiness when published bytes are replaced", async () => {
   await withTemporaryWorkspace("transaction-new-readback", async (root) => {
     await fixture(root);
-    const target = path.join(root, "docs/decisions/new-proof.md");
+    const target = path.join(
+      root,
+      `docs/decisions/${utcDecisionDate()}-new-proof.md`
+    );
     const index = await fs.readFile(indexPath(root));
     const descriptor = Object.getOwnPropertyDescriptor(fs, "link");
     assert.ok(descriptor);
@@ -103,14 +107,14 @@ test("Decision candidate create reports cleanup pending with created path and no
       assert.match(result.stderr, /committed-cleanup-pending/);
       assert.match(
         result.stderr,
-        /object: docs\/\.cleanup-proof\.md\..+\.publish/
+        /object: docs\/\.\d{6}-cleanup-proof\.md\..+\.publish/
       );
     } finally {
       Object.defineProperty(fs, "unlink", descriptor);
     }
     assert.match(
       await fs.readFile(
-        path.join(root, "docs/decisions/cleanup-proof.md"),
+        path.join(root, `docs/decisions/${utcDecisionDate()}-cleanup-proof.md`),
         "utf8"
       ),
       /status: candidate/
@@ -172,7 +176,7 @@ test("Decision candidate rename and discard preserve existing formal index bytes
       );
       assert.match(
         await fs.readFile(decisionFilePath(root, reference), "utf8"),
-        /target: 261023-candidate-after/
+        /target: 261023-candidate-before/
       );
       await fs.unlink(decisionFilePath(root, reference));
       await assertIndexPreserved();

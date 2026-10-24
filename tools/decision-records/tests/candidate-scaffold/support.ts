@@ -15,7 +15,8 @@ import {
   writeDecision
 } from "../support.ts";
 
-export const candidateId = "create-decision-scaffold";
+import { utcDecisionDate } from "../../src/decision-path.ts";
+export const candidateId = utcDecisionDate() + "-create-decision-scaffold";
 
 export const newCandidateArguments = [
   "new",

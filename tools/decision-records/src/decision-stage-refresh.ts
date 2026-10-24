@@ -9,7 +9,6 @@ import {
   displayIndexRelativePath,
   displayRepositoryRelativePath
 } from "./decision-stage-paths.ts";
-import { relatedPublishedDecisionIds } from "./decision-source-dependencies.ts";
 import {
   stageRecordSelection,
   RecordStageError,
@@ -17,23 +16,14 @@ import {
   type RecordStageResult
 } from "../../index-runtime/src/record-staging.ts";
 import {
-  readPendingSnapshot,
-  samePendingSnapshots,
-  type PendingFileUpdate,
-  type PendingSnapshot
-} from "../../shared/src/version-control/pending-snapshot.ts";
-import {
   buildDecisionIndexFromSnapshot,
   serializeDecisionIndex
 } from "./decision-state-index.ts";
-import { decisionSourceRevision } from "./decision-source-revision.ts";
-import { stageSourceFromFile } from "./decision-stage-sources.ts";
 import {
   DecisionStageConflictError,
   repositoryPath
 } from "./decision-stage-support.ts";
 import type {
-  DecisionId,
   DecisionIndex,
   DecisionIndexState,
   DecisionIndexMetadata
@@ -79,18 +69,16 @@ export async function refreshDecisionStage(
       },
       build: buildDecisionIndexFromSnapshot,
       serialize: serializeDecisionIndex,
-      prepareDomain: async (phase, projection) => {
+      prepareDomain: async (phase) => {
         const updates = await collectRefreshSourceUpdates(
           options,
           phase.context
         );
-        const pending = await protectRefreshPendingDependencies(
-          options,
-          phase.context,
-          updates,
-          projection
-        );
-        return { pending, updates: [...updates.values()], sourceFiles: [] };
+        return {
+          pending: phase.context.snapshot,
+          updates: [...updates.values()],
+          sourceFiles: []
+        };
       }
     });
   } catch (error) {
@@ -148,95 +136,4 @@ function decisionStageSuccess(
       .map((file) => display(file.path)),
     callerOwnedPaths: callerOwnedPaths.map(display)
   };
-}
-
-/** The final acquisition retains selected/dependency bytes and protects the complete pending identity. */
-async function protectRefreshPendingDependencies(
-  options: RefreshOptions,
-  context: RefreshContext,
-  updates: ReadonlyMap<string, PendingFileUpdate>,
-  projection: DecisionIndex | null
-): Promise<PendingSnapshot> {
-  const { repository, decisionScope } = options.opened;
-  const { selectedIds, snapshot } = context;
-  const dependencyIds =
-    options.scope === "all" && projection !== null
-      ? [
-          ...relatedPublishedDecisionIds(projection, new Set(selectedIds))
-        ].filter((id) => projection.entries[id] !== undefined)
-      : [];
-  const dependencyPaths =
-    projection === null
-      ? []
-      : dependencyIds.map((id) =>
-          repositoryPath(decisionScope, projection.entries[id]!.sourcePath)
-        );
-  const retained = new Set(snapshot.files.map((file) => file.path));
-  const members = new Set(snapshot.members.map((file) => file.path));
-  // Complete payload validation already happened. Only missing dependency bytes
-  // need another acquisition; update payloads come from the validated workspace.
-  const needsDependencyContent = dependencyPaths.some(
-    (file) => members.has(file) && !retained.has(file) && !updates.has(file)
-  );
-  const complete = needsDependencyContent
-    ? await readPendingSnapshot(repository, {
-        pathScope: decisionScope,
-        contentPaths: [...retained, ...dependencyPaths]
-      })
-    : snapshot;
-  if (!samePendingSnapshots(snapshot, complete))
-    throw new DecisionStageConflictError(
-      "pending",
-      "pending-conflict: Pending decision snapshot changed during source preparation."
-    );
-  verifyRefreshDependencySources(
-    projection,
-    dependencyIds,
-    decisionScope,
-    updates,
-    complete
-  );
-  return complete;
-}
-
-function verifyRefreshDependencySources(
-  projection: DecisionIndex | null,
-  dependencyIds: readonly DecisionId[],
-  decisionScope: string,
-  updates: ReadonlyMap<string, PendingFileUpdate>,
-  complete: PendingSnapshot
-): void {
-  if (projection === null) {
-    return;
-  }
-  for (const id of dependencyIds) {
-    const entry = projection.entries[id]!;
-    const sourcePath = repositoryPath(decisionScope, entry.sourcePath);
-    const update = updates.get(sourcePath);
-    const file =
-      update === undefined
-        ? complete.files.find((item) => item.path === sourcePath)
-        : update.data === null
-          ? undefined
-          : update;
-    if (file === undefined || file.kind !== "regular") {
-      throw new Error(
-        "Selected stage requires the source of related Decision " +
-          id +
-          "; select that ID as well."
-      );
-    }
-    const source = stageSourceFromFile(file, entry.sourcePath);
-    if (
-      source.source.decisionId !== id ||
-      decisionSourceRevision([source.source]).entries[id] !==
-        projection.sourceRevision.entries[id]
-    ) {
-      throw new Error(
-        "Related pending Decision source differs from its index projection: " +
-          id +
-          "; select that ID as well."
-      );
-    }
-  }
 }

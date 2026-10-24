@@ -91,7 +91,7 @@ test("stage deletion rejects an unsynchronized source at a known old location", 
   });
 });
 
-test("stage all requires explicit selection when a shared resource owner is missing from pending", async () => {
+test("stage all preserves a pure dependency pending deletion without reading its body", async () => {
   await withTempRoot("stage-owner-pending-missing", async (root) => {
     await writeResource(root, "second/evidence.txt", "shared evidence\n");
     await writeCollection(root, [
@@ -106,11 +106,7 @@ test("stage all requires explicit selection when a shared resource owner is miss
       scope: "all",
       workspaceRoot: root
     });
-    assert.equal(denied.status, "error");
-    assert.match(
-      JSON.stringify(denied.diagnostics),
-      /explicitly select second/u
-    );
+    assert.equal(denied.status, "ok", JSON.stringify(denied));
     assert.equal(git(root, ["ls-files", "--stage"]), before);
     const completed = await stageInvestigationReports({
       reportIds: ["first", "second"],

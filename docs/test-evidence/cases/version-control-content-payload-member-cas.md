@@ -12,4 +12,4 @@ Contract:
 - content-paths只收窄payload验收，不收窄完整pending路径、模式与OID比较和锁内CAS。
 
 Proves:
-- 未选OID、模式或成员漂移导致快照比较失败且锁内替换拒绝，当前index不被发布覆盖。
+- 未选OID、模式或成员漂移导致精确比较、同阶段扩展比较失败且锁内替换拒绝，当前index不被发布覆盖。

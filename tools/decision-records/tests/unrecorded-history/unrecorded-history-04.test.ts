@@ -104,11 +104,11 @@ test("evolve discard flag still pauses for an unrecorded final predecessor", asy
   assert.match(stderr, /--keep-unrecorded-history/);
 });
 
-test("evolve discard rejects a predecessor referenced by another candidate", () =>
+test("evolve discard leaves an unselected candidate reference for its later publication", () =>
   withFixtureWorkspace(
     "referenced-evolution-discard",
     async (workspaceRoot) => {
-      const { indexPath, intermediatePath } =
+      const { intermediatePath } =
         await establishUnrecordedIntermediate(workspaceRoot);
       const referencingRelativePath = "reference-unrecorded-intermediate";
       const referencingPath = decisionFilePath(
@@ -128,8 +128,7 @@ test("evolve discard rejects a predecessor referenced by another candidate", () 
       );
       const successorCandidate = candidateDecisionBody();
       await fs.writeFile(successorPath, successorCandidate, "utf8");
-      const intermediateBefore = await fs.readFile(intermediatePath, "utf8");
-      const indexBefore = await fs.readFile(indexPath, "utf8");
+
       const rejected = await runSourceCli([
         "evolve",
         "--successor",
@@ -142,24 +141,29 @@ test("evolve discard rejects a predecessor referenced by another candidate", () 
         "--root",
         workspaceRoot
       ]);
-      assert.equal(rejected.exitCode, 1);
-      assert.match(
-        rejected.stderr,
-        /Cannot discard decision while it is still referenced/
-      );
-      assert.ok(rejected.stderr.includes(referencingRelativePath));
+      assert.equal(rejected.exitCode, 0, rejected.stderr);
+      assert.match(await fs.readFile(successorPath, "utf8"), /status: active/);
       assert.equal(
-        await fs.readFile(successorPath, "utf8"),
-        successorCandidate
+        await fs.readFile(referencingPath, "utf8"),
+        referencingCandidate
+      );
+      await assert.rejects(fs.access(intermediatePath), { code: "ENOENT" });
+      const later = await runSourceCli([
+        "publish",
+        referencingRelativePath,
+        "--alignment",
+        "aligned",
+        "--root",
+        workspaceRoot
+      ]);
+      assert.equal(later.exitCode, 1);
+      assert.match(
+        later.stderr,
+        new RegExp(unrecordedIntermediateRelativePath)
       );
       assert.equal(
         await fs.readFile(referencingPath, "utf8"),
         referencingCandidate
       );
-      assert.equal(
-        await fs.readFile(intermediatePath, "utf8"),
-        intermediateBefore
-      );
-      assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
     }
   ));

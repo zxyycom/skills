@@ -22,7 +22,9 @@ docs/decisions/
     └── <name-or-decision-id>.md    # archived
 ```
 
-同一集合内 ID 和 sourcePath 分别唯一，状态与目录位置一致；受管记录均为上述目录的直属 Markdown。生命周期移动保留 basename。关系、索引和单项回读使用 frontmatter ID，索引负责定位而不是反向定义记录事实。无日期旧 ID 继续可读，身份更正使用 `rename`。
+同一集合内 ID 和 sourcePath 分别唯一，状态与目录位置一致；受管记录均为上述目录的直属 Markdown。生命周期移动保留 basename。关系、索引和单项回读使用 frontmatter ID，索引负责定位而不是反向定义记录事实。
+
+新建默认完整 ID basename，候选转正保留 ID 与 basename。跨日或 legacy 同名允许，name 可重复；选择日期对象时可用完整日期 ID 消歧。无日期旧 ID 与既有语义 basename 继续可读，但 legacy 字面 selector 仍按 name 解析，可能歧义，处理见 [CLI 定位与选择](cli-operations.md#定位与选择)。身份更正使用 `rename`。
 
 ## 正文与候选准备
 
@@ -151,4 +153,4 @@ Git 待提交快照与领域状态分别维护：`stage` 只构造所选正式�
 
 ## 事务边界与零写动作
 
-普通维护保护已声明的局部依赖与最终领域图；严格 rename/discard/带删除 evolve 继续承担全集与历史义务。提交事实与写后验收见 [CLI 结果与恢复](cli-operations.md#结果与恢复)，真零写 rename、末条删除及候选索引边界见[身份更正与删除](cli-operations.md#身份更正与删除)；失败后的对账与 CAS 范围见[中断写入](maintenance-recovery.md#中断写入)。
+普通维护以合法发布索引提供身份、关系、状态和正式引用发现，只读取所选与实际改写正文并验证最终领域图；删除、更名及带删除 evolve 同样遵守局部范围。未选候选不自动维护关系，未来发布时重新验证。全量 check／sync 与内容发现承担各自明确的非局部读取责任，历史门禁只读取可定位的必要对象。提交事实与写后验收见 [CLI 结果与恢复](cli-operations.md#结果与恢复)，真零写 rename、末条删除及候选索引边界见[身份更正与删除](cli-operations.md#身份更正与删除)；失败后的对账与 CAS 范围见[中断写入](maintenance-recovery.md#中断写入)。

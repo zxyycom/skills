@@ -170,11 +170,24 @@ export function discardedDecisionReferenceErrors(
       successor
     ])
   );
-  const referencingIds = scan.records
+  const selectedReferencingIds = scan.records
     .flatMap((record) =>
       referencedDiscardedId(record, successorsById, discardedDecisionId)
     )
     .sort();
+  const selectedIds = new Set(scan.records.map((record) => record.decisionId));
+  const referencingIds = [
+    ...selectedReferencingIds,
+    ...Object.entries(scan.publishedBaseline?.entries ?? {}).flatMap(
+      ([id, entry]) =>
+        !selectedIds.has(id) &&
+        entry.relations.some(
+          (relation) => relation.target === discardedDecisionId
+        )
+          ? [id]
+          : []
+    )
+  ].sort();
   return referencingIds.length === 0
     ? []
     : [

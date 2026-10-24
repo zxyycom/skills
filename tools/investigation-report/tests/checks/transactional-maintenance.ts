@@ -28,3 +28,5 @@ await import("../execution-entry-contract.test.ts");
 await import("../rename-phase-verification.test.ts");
 await import("../discard-phase-verification.test.ts");
 await import("../resource-phase-verification.test.ts");
+
+await import("../local-publication.test.ts");

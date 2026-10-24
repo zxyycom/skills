@@ -149,7 +149,7 @@ export function publicationSnapshot(
   };
 }
 
-function validatePublishedDependency(
+export function validatePublishedDependency(
   index: PublishedInvestigationIndex,
   state: InvestigationIndexState,
   source: InvestigationSource

@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import { discoverInvestigationCandidates } from "./candidate-discovery.ts";
 import {
   prepareCandidateDiscard,
   type CandidateDiscardPreparation,
@@ -16,10 +17,7 @@ import {
 import path from "node:path";
 import { withInvestigationCollectionMutationLock } from "./collection-mutation-lock.ts";
 import { diagnosticFromError } from "./diagnostics.ts";
-import {
-  inspectInvestigationCollectionLayout,
-  type InvestigationCollectionLayout
-} from "./investigation-index-source.ts";
+import { type InvestigationCollectionLayout } from "./investigation-index-source.ts";
 import {
   investigationSelectorEntries,
   resolveInvestigationSelector
@@ -92,8 +90,7 @@ export async function discardCandidateWithinLock(options: {
   layout?: InvestigationCollectionLayout;
 }): Promise<InvestigationCandidateDiscardResult> {
   const layout =
-    options.layout ??
-    (await inspectInvestigationCollectionLayout(options.root));
+    options.layout ?? (await discoverInvestigationCandidates(options.root));
   if (layout.errors.length > 0) {
     return result(options.input, false, [], layout.errors, {
       mutation: discardMutation("no-change")

@@ -7,16 +7,11 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-import type { InvestigationPreparation } from "./strict-preparation.ts";
-import type { InvestigationCollectionLayout } from "./investigation-layout.ts";
 import path from "node:path";
-import { findCandidatePathForInvestigationId } from "./candidate-path.ts";
-import { inspectInvestigationCollectionLayout } from "./investigation-index-source.ts";
 import {
   parseInvestigationReport,
   replaceInvestigationReportIdentity
 } from "./markdown.ts";
-import { investigationIndexFileName } from "./investigation-state-index.ts";
 import {
   datedInvestigationIdForName,
   investigationNameFromId,
@@ -25,13 +20,7 @@ import {
   utcInvestigationDate
 } from "./report-path.ts";
 import type { RenameSource } from "./rename-contract.ts";
-import {
-  compareText,
-  errorText,
-  readRegularText,
-  renameStepFailure,
-  type RenameStep
-} from "./rename-support.ts";
+import { renameStepFailure, type RenameStep } from "./rename-support.ts";
 import type {
   InvestigationIndexState,
   InvestigationSource,
@@ -43,27 +32,6 @@ export function isNoOpRename(
   target: RenameTarget
 ): boolean {
   return source.id === target.id && source.sourcePath === target.sourcePath;
-}
-
-export async function inspectLayout(
-  root: string,
-  indexPath: string,
-  preparation?: InvestigationPreparation
-): Promise<
-  RenameStep<Awaited<ReturnType<typeof inspectInvestigationCollectionLayout>>>
-> {
-  try {
-    const layout = await inspectInvestigationCollectionLayout(root, {
-      preparation
-    });
-    return layout.errors.length === 0
-      ? { value: layout }
-      : renameStepFailure(indexPath, layout.errors);
-  } catch (error) {
-    return renameStepFailure(indexPath, [
-      "investigation collection could not be inspected: " + errorText(error)
-    ]);
-  }
 }
 
 export function asFormalSource(
@@ -88,129 +56,6 @@ export function asFormalSource(
     sourcePath: source.sourcePath,
     text: source.text
   };
-}
-
-type CapturedRenameCandidates = Readonly<{
-  layout: InvestigationCollectionLayout;
-  preparation: InvestigationPreparation;
-}>;
-
-export async function readCandidateSources(
-  root: string,
-  candidateIds: readonly string[],
-  captured?: CapturedRenameCandidates
-): Promise<RenameStep<RenameSource[]>> {
-  const candidates: RenameSource[] = [];
-  const sourcesById = new Map(
-    captured?.layout.candidateSources.map((source) => [source.id, source])
-  );
-  for (const id of candidateIds) {
-    const loaded = await readRenameCandidate({
-      root,
-      id,
-      source: sourcesById.get(id),
-      captured
-    });
-    if ("result" in loaded) return loaded;
-    candidates.push(loaded.value);
-  }
-  return { value: candidates };
-}
-
-type RenameCandidateRead = Readonly<{
-  root: string;
-  id: string;
-  source: InvestigationSource | undefined;
-  captured: CapturedRenameCandidates | undefined;
-}>;
-
-/** Acquire and validate one candidate, preserving the failure boundary of its locator. */
-async function readRenameCandidate(
-  input: RenameCandidateRead
-): Promise<RenameStep<RenameSource>> {
-  const { root, id, source, captured } = input;
-  const filePath =
-    captured === undefined
-      ? await findCandidatePathForInvestigationId(root, id)
-      : source && path.join(root, source.sourcePath);
-  if (!filePath) {
-    return renameStepFailure(path.join(root, investigationIndexFileName), [
-      `Investigation candidate ${id} has no current source path`
-    ]);
-  }
-  try {
-    const { text, parsed } = await readRenameCandidateDocument(
-      filePath,
-      id,
-      source,
-      captured
-    );
-    if (parsed.report === null || parsed.frontmatterErrors.length > 0) {
-      return renameStepFailure(path.join(root, investigationIndexFileName), [
-        ...parsed.frontmatterErrors,
-        `${id} candidate frontmatter cannot be renamed`
-      ]);
-    }
-    return {
-      value: {
-        candidate: true,
-        parsed,
-        document: parsed.report,
-        filePath,
-        id,
-        sourcePath: path.basename(filePath),
-        text
-      }
-    };
-  } catch (error) {
-    return renameStepFailure(path.join(root, investigationIndexFileName), [
-      `${id} candidate could not be read: ${errorText(error)}`
-    ]);
-  }
-}
-
-async function readRenameCandidateDocument(
-  filePath: string,
-  id: string,
-  source: InvestigationSource | undefined,
-  captured: CapturedRenameCandidates | undefined
-): Promise<Readonly<{ text: string; parsed: ParsedInvestigationReport }>> {
-  if (captured !== undefined) {
-    if (source === undefined)
-      throw new Error(
-        "Strict Investigation preparation has no candidate proof: " + id
-      );
-    return {
-      text: source.text,
-      parsed: captured.preparation.parsed(source, true)
-    };
-  }
-  const text = await readRegularText(filePath);
-  return { text, parsed: parseInvestigationReport(text, id) };
-}
-
-export function resolveRenameSource(
-  sources: readonly RenameSource[],
-  rawSource: string,
-  indexPath: string
-): RenameStep<RenameSource> {
-  const normalized = rawSource.replace(/\.md$/iu, "");
-  const dated = parseDatedInvestigationId(normalized);
-  const matches =
-    dated === null
-      ? sources.filter(
-          (source) => investigationNameFromId(source.id) === normalized
-        )
-      : sources.filter((source) => source.id === dated.id);
-  if (matches.length === 1) return { value: matches[0]! };
-  return renameStepFailure(indexPath, [
-    matches.length === 0
-      ? `Investigation rename source does not exist: ${normalized}`
-      : `Investigation rename source is ambiguous: ${normalized}; choose one standard ID: ${matches
-          .map((source) => source.id)
-          .sort(compareText)
-          .join(", ")}`
-  ]);
 }
 
 export type RenameTarget = Readonly<{
@@ -269,14 +114,6 @@ function targetConflict(
   if (sources.some((candidate) => candidate.id === target.id))
     return renameStepFailure(indexPath, [
       `Target Investigation ID already exists: ${target.id}`
-    ]);
-  if (
-    sources.some(
-      (candidate) => investigationNameFromId(candidate.id) === target.name
-    )
-  )
-    return renameStepFailure(indexPath, [
-      `Target Investigation name already exists: ${target.name}`
     ]);
   return null;
 }

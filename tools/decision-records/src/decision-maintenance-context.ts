@@ -1,46 +1,34 @@
-import { decisionTransactionMembers } from "./decision-source-membership.ts";
-import type { FilesystemDecisionCandidates } from "./decision-stage-contracts.ts";
-import { relatedPublishedDecisionIds } from "./decision-source-dependencies.ts";
-import { ensureDecisionDirectoryPath } from "./decision-source-path-safety.ts";
 import path from "node:path";
-import { isDeepStrictEqual } from "node:util";
-import { decisionIdFromMarkdown } from "./decision-metadata.ts";
-import { readFilesystemDecisionCandidates } from "./decision-stage-sources.ts";
-import { readStageFile } from "./decision-stage-support.ts";
+import { decisionTransactionMembers } from "./decision-source-membership.ts";
+import { loadCandidateIdentityContext } from "./decision-candidate-discovery.ts";
+import { ensureDecisionDirectoryPath } from "./decision-source-path-safety.ts";
 import { createDecisionNameLookup } from "./decision-record-lookup.ts";
-import { decisionSourceRevision } from "./decision-source-revision.ts";
+import { decisionIndexFileName } from "./decision-state-index.ts";
 import {
-  decisionIndexState,
-  decisionIndexFileName,
-  parseDecisionIndex
-} from "./decision-state-index.ts";
-import { isDecisionId, parseDatedDecisionId } from "./decision-path.ts";
-import { scanSourceFiles } from "./scan-records.ts";
+  isDecisionId,
+  normalizeDecisionSelectorInput,
+  parseDatedDecisionId
+} from "./decision-path.ts";
+import {
+  maintenanceBaseline,
+  readMaintenanceSource,
+  type MaintenanceSourceContext
+} from "./decision-maintenance-source.ts";
 import type { DecisionLifecycleRequest } from "./decision-lifecycle-service.ts";
 import type {
   DecisionId,
   DecisionIndex,
   DecisionRecord,
-  DecisionRelationOverride,
-  DecisionRelationOverrideGroup,
   DecisionPreparationContext,
-  DecisionScanOptions
+  DecisionScanOptions,
+  DecisionSuccessor
 } from "./types.ts";
 
-export function ordinaryDecisionRequest(
-  request: DecisionLifecycleRequest
-): boolean {
-  return (
-    request.action !== "discard" &&
-    (request.action !== "evolve" ||
-      (request.discardId === null && !request.deleteRecorded))
-  );
-}
-
-/** Published graph plus an explicitly bounded set of verified current sources. */
+/** Published graph plus selected sources and sources this operation actually rewrites. */
 export async function loadDecisionMaintenanceContext(
   options: DecisionScanOptions,
-  request: DecisionLifecycleRequest
+  request: DecisionLifecycleRequest,
+  rename = false
 ): Promise<DecisionPreparationContext> {
   const workspaceRoot = path.resolve(options.workspaceRoot ?? process.cwd());
   const decisionsDirectory = path.resolve(
@@ -48,33 +36,176 @@ export async function loadDecisionMaintenanceContext(
     options.decisionsDir ?? "docs/decisions"
   );
   await ensureDecisionDirectoryPath(workspaceRoot, decisionsDirectory);
-  const sourceMembers = await decisionTransactionMembers(decisionsDirectory);
   const indexPath = path.join(decisionsDirectory, decisionIndexFileName);
-  const indexText = (await readStageFile(indexPath)).toString("utf8");
-  const loaded = parseDecisionIndex(indexText, indexPath);
-  if (loaded.status === "error")
-    throw new Error(
-      "decision-index.json: " +
-        loaded.diagnostics.map((item) => item.message).join("; ") +
-        "; restore the sources and run sync-index explicitly."
-    );
-  const baseline = loaded.value;
-  const candidateSources =
-    request.action === "publish" || request.action === "evolve"
-      ? await readFilesystemDecisionCandidates(decisionsDirectory, "decisions")
-      : null;
+  const published = await maintenanceBaseline(decisionsDirectory, indexPath);
+  const records = await loadMaintenanceRecords(
+    request,
+    {
+      baseline: published.baseline,
+      decisionsDirectory,
+      indexPath
+    },
+    rename
+  );
+  return {
+    workspaceRoot,
+    decisionsDirectory,
+    indexPath,
+    indexRelativePath: path
+      .relative(workspaceRoot, indexPath)
+      .split(path.sep)
+      .join("/"),
+    indexText: published.text,
+    indexExists: published.exists,
+    records,
+    sourceErrors: [],
+    publishedBaseline: published.baseline,
+    ...(rename
+      ? { sourceMembers: await decisionTransactionMembers(decisionsDirectory) }
+      : {})
+  };
+}
+
+type MaintenanceLocation = Pick<
+  MaintenanceSourceContext,
+  "baseline" | "decisionsDirectory" | "indexPath"
+>;
+
+async function loadMaintenanceRecords(
+  request: DecisionLifecycleRequest,
+  location: MaintenanceLocation,
+  rename: boolean
+): Promise<DecisionRecord[]> {
+  const selectors = selectedRequestSelectors(request);
+  const candidateSources = await maintenanceCandidates(
+    request,
+    location,
+    selectors,
+    rename
+  );
   const availableIds = new Set([
-    ...Object.keys(baseline.entries).filter(isDecisionId),
-    ...(candidateSources?.sources.keys() ?? [])
+    ...Object.keys(location.baseline.entries).filter(isDecisionId),
+    ...(candidateSources?.collection.candidates
+      .map(({ id }) => id)
+      .filter(isDecisionId) ?? [])
   ]);
-  const names = createDecisionNameLookup(availableIds);
-  const selected = new Set<DecisionId>();
-  for (const selector of requestSelectors(request)) {
+  const sourceContext = { ...location, candidateSources, availableIds };
+  const resolve = maintenanceSelectorResolver(availableIds);
+  const selected = new Set(selectors.map(resolve));
+  if (rename) addRenameReferrers(location.baseline, selected);
+  const records: DecisionRecord[] = [];
+  await readSelectedMaintenanceSources(selected, records, sourceContext);
+  if (request.action === "publish" || request.action === "evolve") {
+    addActiveMaintenancePredecessors(request, records, selected, sourceContext);
+    await readSelectedMaintenanceSources(selected, records, sourceContext);
+  }
+  return records;
+}
+
+async function maintenanceCandidates(
+  request: DecisionLifecycleRequest,
+  location: MaintenanceLocation,
+  selectors: readonly string[],
+  rename: boolean
+) {
+  const needsCandidate =
+    rename ||
+    request.action === "publish" ||
+    request.action === "evolve" ||
+    request.action === "discard";
+  if (!needsCandidate) return null;
+  return await loadCandidateIdentityContext(
+    location.decisionsDirectory,
+    selectors.filter(
+      (selector) => !location.baseline.entries[selector as DecisionId]
+    )
+  );
+}
+
+function addRenameReferrers(
+  baseline: DecisionIndex,
+  selected: Set<DecisionId>
+): void {
+  const source = [...selected][0]!;
+  for (const [id, state] of Object.entries(baseline.entries))
+    if (
+      state.relations.some((relation) => relation.target === source) &&
+      isDecisionId(id)
+    )
+      selected.add(id);
+}
+
+async function readSelectedMaintenanceSources(
+  selected: ReadonlySet<DecisionId>,
+  records: DecisionRecord[],
+  context: MaintenanceSourceContext
+): Promise<void> {
+  for (const id of selected) {
+    if (records.some((record) => record.decisionId === id)) continue;
+    records.push(await readMaintenanceSource(id, context));
+  }
+}
+
+/** Only active direct predecessors are rewritten; archived targets remain index-only. */
+function addActiveMaintenancePredecessors(
+  request: Extract<DecisionLifecycleRequest, { action: "publish" | "evolve" }>,
+  records: readonly DecisionRecord[],
+  selected: Set<DecisionId>,
+  context: MaintenanceSourceContext
+): void {
+  const resolve = maintenanceSelectorResolver(context.availableIds);
+  const successors =
+    request.action === "publish"
+      ? [{ decisionId: request.decisionId }]
+      : request.successors;
+  for (const successor of successors) {
+    const relations = maintenanceSuccessorRelations(
+      request,
+      successor,
+      records,
+      resolve
+    );
+    for (const relation of relations) {
+      const target = resolve(relation.target);
+      if (context.baseline.entries[target]?.status === "active")
+        selected.add(target);
+    }
+  }
+}
+
+function maintenanceSuccessorRelations(
+  request: Extract<DecisionLifecycleRequest, { action: "publish" | "evolve" }>,
+  successor: Pick<DecisionSuccessor, "decisionId" | "relationOverride">,
+  records: readonly DecisionRecord[],
+  resolve: (selector: string) => DecisionId
+) {
+  const id = resolve(successor.decisionId);
+  const record = records.find((record) => record.decisionId === id)!;
+  const grouped =
+    request.action === "evolve"
+      ? request.relationOverrideGroups.find(
+          (group) => resolve(group.source) === id
+        )?.relationOverride
+      : undefined;
+  const fallback =
+    request.action === "evolve"
+      ? request.relationOverride
+      : { kind: "source" as const };
+  const override = grouped ?? successor.relationOverride ?? fallback;
+  return override.kind === "source"
+    ? record.projection.relations
+    : override.relations;
+}
+
+function maintenanceSelectorResolver(ids: ReadonlySet<DecisionId>) {
+  const names = createDecisionNameLookup(ids);
+  return (raw: string): DecisionId => {
+    const selector = normalizeDecisionSelectorInput(raw);
     const dated = parseDatedDecisionId(selector);
     const matches =
       dated === null
         ? (names.get(selector) ?? [])
-        : availableIds.has(dated.id)
+        : ids.has(dated.id)
           ? [dated.id]
           : [];
     if (matches.length !== 1)
@@ -87,174 +218,19 @@ export async function loadDecisionMaintenanceContext(
             ? "; choose one standard ID: " + matches.join(", ")
             : "")
       );
-    selected.add(matches[0]!);
-  }
-  const records: DecisionPreparationContext["records"] = [];
-  const sourceErrors: string[] = [];
-  const indexErrors: string[] = [];
-  const read = new Set<DecisionId>();
-  const readSelected = async () => {
-    for (const id of selected) {
-      if (read.has(id)) continue;
-      read.add(id);
-      const record = await readMaintenanceSource(id, {
-        baseline,
-        candidateSources,
-        decisionsDirectory,
-        availableIds,
-        indexPath,
-        sourceErrors,
-        indexErrors
-      });
-      records.push(record);
-    }
-  };
-  await readSelected();
-  // Direct before/after neighbours, then whole multi-member evolution events.
-  const anchors = new Set(selected);
-  for (const record of records)
-    for (const relation of record.projection.relations)
-      anchors.add(relation.target);
-  for (const id of relatedPublishedDecisionIds(baseline, anchors))
-    selected.add(id);
-  await readSelected();
-  if (sourceErrors.length > 0 || indexErrors.length > 0)
-    throw new Error([...sourceErrors, ...indexErrors].join("; "));
-  return {
-    workspaceRoot,
-    decisionsDirectory,
-    indexPath,
-    indexRelativePath: path
-      .relative(workspaceRoot, indexPath)
-      .split(path.sep)
-      .join("/"),
-    indexText,
-    indexExists: true,
-    records,
-    sourceErrors,
-    publishedBaseline: baseline,
-    sourceMembers
+    return matches[0]!;
   };
 }
 
-function requestSelectors(request: DecisionLifecycleRequest): string[] {
+export function selectedRequestSelectors(
+  request: DecisionLifecycleRequest
+): string[] {
   if ("decisionId" in request) return [request.decisionId];
-  switch (request.action) {
-    case "archive":
-      return [...request.decisionIds];
-    case "set-relations":
-      return relationGroupSelectors(request.relationOverrideGroups);
-    case "evolve":
-      return evolutionSelectors(request);
-  }
-}
-function overrideSelectors(override: DecisionRelationOverride): DecisionId[] {
-  return override.kind === "source"
-    ? []
-    : [
-        ...override.relations.map((relation) => relation.target),
-        ...(override.relationSummaries ?? []).map((summary) => summary.target)
-      ];
-}
-
-type MaintenanceSourceContext = Readonly<{
-  baseline: DecisionIndex;
-  candidateSources: FilesystemDecisionCandidates | null;
-  decisionsDirectory: string;
-  availableIds: ReadonlySet<DecisionId>;
-  indexPath: string;
-  sourceErrors: string[];
-  indexErrors: string[];
-}>;
-async function readMaintenanceSource(
-  id: DecisionId,
-  context: MaintenanceSourceContext
-): Promise<DecisionRecord> {
-  const {
-    baseline,
-    candidateSources,
-    decisionsDirectory,
-    availableIds,
-    indexPath,
-    sourceErrors,
-    indexErrors
-  } = context;
-  if (candidateSources?.duplicateIds.has(id))
-    throw new Error("Duplicate selected Decision identity: " + id);
-  const entry = baseline.entries[id];
-  const candidate = candidateSources?.sources.get(id)?.source;
-  const sourcePath = entry?.sourcePath ?? candidate?.sourcePath;
-  if (sourcePath === undefined)
-    throw new Error("Missing selected Decision source: " + id);
-  const decisionPath = path.join(decisionsDirectory, sourcePath);
-  await ensureDecisionDirectoryPath(
-    decisionsDirectory,
-    path.dirname(decisionPath)
-  );
-  const sourceText = (await readStageFile(decisionPath)).toString("utf8");
-  if (decisionIdFromMarkdown(sourceText) !== id)
-    throw new Error("Selected Decision identity drift: " + sourcePath);
-  const parsed = await scanSourceFiles({
-    availableDecisionIds: availableIds,
-    index: baseline,
-    indexErrors,
-    indexRelativePath: indexPath,
-    sourceErrors,
-    sourceFiles: [{ decisionId: id, decisionPath, sourcePath, sourceText }]
-  });
-  const record = parsed[0]!;
-  if (sourceErrors.length > 0) throw new Error(sourceErrors.join("; "));
-  verifyPublishedMaintenanceSource(baseline, id, record, sourceText);
-  return record;
-}
-function verifyPublishedMaintenanceSource(
-  baseline: DecisionIndex,
-  id: DecisionId,
-  record: DecisionRecord,
-  sourceText: string
-): void {
-  const entry = baseline.entries[id];
-  const sourcePath = record.sourcePath;
-  if (entry !== undefined) {
-    if (
-      record.document === null ||
-      !isDeepStrictEqual(
-        decisionIndexState(entry.sourcePath, record.document, id),
-        entry
-      ) ||
-      decisionSourceRevision([
-        { decisionId: id, sourcePath: entry.sourcePath, text: sourceText }
-      ]).entries[id] !== baseline.sourceRevision.entries[id]
-    ) {
-      throw new Error(
-        "Selected Decision source differs from published index; run sync-index: " +
-          sourcePath
-      );
-    }
-  }
-}
-
-function evolutionSelectors(
-  request: Extract<DecisionLifecycleRequest, { action: "evolve" }>
-): string[] {
-  const selectors: string[] = [];
-  for (const successor of request.successors) {
-    selectors.push(successor.decisionId);
-    if (successor.relationOverride !== undefined)
-      selectors.push(...overrideSelectors(successor.relationOverride));
-  }
-  selectors.push(...overrideSelectors(request.relationOverride));
-  for (const group of request.relationOverrideGroups)
-    selectors.push(group.source, ...overrideSelectors(group.relationOverride));
-  if (request.discardId !== null) selectors.push(request.discardId);
-  return selectors;
-}
-
-function relationGroupSelectors(
-  groups: readonly DecisionRelationOverrideGroup[]
-): string[] {
-  const selectors: string[] = [];
-  for (const group of groups)
-    selectors.push(group.source, ...overrideSelectors(group.relationOverride));
-  return selectors;
+  if (request.action === "archive") return [...request.decisionIds];
+  if (request.action === "set-relations")
+    return request.relationOverrideGroups.map((group) => group.source);
+  return [
+    ...request.successors.map((successor) => successor.decisionId),
+    ...(request.discardId === null ? [] : [request.discardId])
+  ];
 }

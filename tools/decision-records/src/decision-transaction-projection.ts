@@ -172,42 +172,83 @@ async function projectedIndex(
   const baseline = context.publishedBaseline;
   if (baseline === undefined)
     throw new Error("Published baseline required for local maintenance.");
-  const states = { ...baseline.entries };
-  const revisions = { ...baseline.sourceRevision.entries };
-  const ids = new Set([
-    ...Object.keys(states),
-    ...context.records.map((record) => record.decisionId)
-  ]);
-  for (const change of changes) {
-    const id = decisionIdFromMarkdown(change.expectedText);
-    if (id === null)
-      throw new Error("Prepared Decision identity is unavailable.");
-    if (change.nextText === null) {
-      delete states[id];
-      delete revisions[id];
-      continue;
-    }
-    const projected = await projectChangedDecision(
-      context,
-      change,
-      id,
-      change.nextText,
-      ids
-    );
-    states[id] = projected.state;
-    revisions[id] = projected.revision;
-  }
+  const projection: PublishedProjection = {
+    baseline,
+    states: { ...baseline.entries },
+    revisions: { ...baseline.sourceRevision.entries },
+    ids: projectedPublishedIds(baseline, changes)
+  };
+  for (const change of changes)
+    await applyPublishedChange(context, change, projection);
   const built = await buildDecisionIndexFromSnapshot({
     metadata: baseline.metadata,
     sourceRevision: {
       metadata: baseline.sourceRevision.metadata,
-      entries: revisions
+      entries: projection.revisions
     },
-    states
+    states: projection.states
   });
   if (built.status === "error")
     throw new Error(built.diagnostics.map((item) => item.message).join("; "));
   return built.value;
+}
+
+type PublishedProjection = {
+  readonly baseline: DecisionIndex;
+  readonly states: Record<string, DecisionIndexState>;
+  readonly revisions: Record<string, string>;
+  readonly ids: ReadonlySet<string>;
+};
+
+function projectedPublishedIds(
+  baseline: DecisionIndex,
+  changes: readonly DecisionFileChange[]
+): Set<string> {
+  const ids = new Set(Object.keys(baseline.entries));
+  for (const change of changes) {
+    const oldId = decisionIdFromMarkdown(change.expectedText);
+    if (oldId !== null) ids.delete(oldId);
+    if (change.nextText !== null) {
+      const identity = decisionSourceIdentityFromMarkdown(change.nextText);
+      if (identity.decisionId !== null && !identity.isCandidate)
+        ids.add(identity.decisionId);
+    }
+  }
+  return ids;
+}
+
+async function applyPublishedChange(
+  context: DecisionPreparationContext,
+  change: DecisionFileChange,
+  projection: PublishedProjection
+): Promise<void> {
+  const { baseline, states, revisions, ids } = projection;
+  const id = decisionIdFromMarkdown(change.expectedText);
+  if (id === null)
+    throw new Error("Prepared Decision identity is unavailable.");
+  delete states[id];
+  delete revisions[id];
+  if (change.nextText === null) return;
+  const identity = decisionSourceIdentityFromMarkdown(change.nextText);
+  if (identity.decisionId === null)
+    throw new Error("Projected Decision identity is unavailable.");
+  if (identity.isCandidate) return;
+  if (
+    identity.decisionId !== id &&
+    baseline.entries[identity.decisionId] !== undefined
+  )
+    throw new Error(
+      "Target Decision ID already exists: " + identity.decisionId
+    );
+  const projected = await projectChangedDecision(
+    context,
+    change,
+    identity.decisionId,
+    change.nextText,
+    ids
+  );
+  states[identity.decisionId] = projected.state;
+  revisions[identity.decisionId] = projected.revision;
 }
 
 async function projectChangedDecision(

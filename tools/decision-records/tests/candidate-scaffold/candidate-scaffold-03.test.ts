@@ -1,3 +1,4 @@
+import { utcDecisionDate } from "../../src/decision-path.ts";
 import type { DecisionId, DecisionTag } from "./support.ts";
 import {
   assert,
@@ -35,7 +36,7 @@ test("new binds a relation summary after resolving a direct predecessor selector
     ]);
     assert.equal(result.exitCode, 0, result.stderr);
     const candidate = await fs.readFile(
-      decisionFilePath(workspaceRoot, candidateName),
+      decisionFilePath(workspaceRoot, `${utcDecisionDate()}-${candidateName}`),
       "utf8"
     );
     assert.match(

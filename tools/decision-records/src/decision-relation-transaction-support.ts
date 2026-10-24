@@ -97,7 +97,8 @@ export function decisionRelationTransactionRequiresHistoryBaseline(
   if (
     relations.some(
       (relation) =>
-        findEstablishedDecisionRecord(records, relation.target) !== null
+        findEstablishedDecisionRecord(records, relation.target) !== null ||
+        scan.publishedBaseline?.entries[relation.target] !== undefined
     )
   ) {
     return true;

@@ -101,7 +101,7 @@ test("discard pauses before deleting a candidate recorded in Git HEAD", () =>
       ]);
       assert.equal(discarded.exitCode, 0, discarded.stderr);
       assert.match(discarded.stdout, /Discarded decision/);
-      assert.match(discarded.stderr, /use-other-valid-candidate\.md/);
+      assert.equal(discarded.stderr, "");
       assert.equal(await fileExists(discardedPath), false);
       assert.equal(
         await fs.readFile(otherCandidatePath, "utf8"),

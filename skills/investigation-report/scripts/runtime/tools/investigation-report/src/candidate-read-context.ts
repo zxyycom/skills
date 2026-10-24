@@ -16,7 +16,7 @@ import type {
 } from "./types.ts";
 import { parseInvestigationReport } from "./markdown.ts";
 import { prepareCandidateResources } from "./candidate-read-resources.ts";
-import { readCandidateFormalOwners } from "./candidate-formal-owners.ts";
+import { loadInvestigationQueryIndex } from "./investigation-state-index.ts";
 
 export type CandidateReadContext = Readonly<{
   sources: ReadonlyMap<string, InvestigationSource>;
@@ -38,18 +38,21 @@ export async function prepareCandidateReadContext(
   ]);
   const owners = [...new Set(selectedResources.map((id) => id.split("/")[0]!))];
   appendCandidateOwnerReferences(candidates, owners);
-  const formalSources = await readCandidateFormalOwners(
-    investigationsDirectory,
-    layout,
-    ids,
-    owners
-  );
-  for (const source of formalSources) {
-    appendParsedReferences(
-      candidates.references,
-      source.id,
-      parseInvestigationReport(source.text, source.id)
-    );
+  const formalSources: InvestigationSource[] = [];
+  const formalOwners = owners.filter((id) => layout.reportIds.includes(id));
+  if (formalOwners.length > 0) {
+    const loaded = await loadInvestigationQueryIndex({
+      investigationsDirectory
+    });
+    if (loaded.status === "error")
+      throw new Error(
+        "required formal resource owners need explicit index recovery"
+      );
+    for (const owner of formalOwners)
+      candidates.references.set(
+        owner,
+        new Set(loaded.value.entries[owner]!.resourceIds)
+      );
   }
   const { resources, ownerWarnings } = await prepareCandidateResources(
     investigationsDirectory,

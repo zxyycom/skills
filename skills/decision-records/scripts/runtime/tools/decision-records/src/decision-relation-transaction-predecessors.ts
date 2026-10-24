@@ -15,12 +15,15 @@ import {
 import type { PreparedSuccessor } from "./decision-relation-transaction-types.ts";
 import type {
   DecisionId,
+  DecisionIndex,
   DecisionRelation,
   DecisionRelationType,
   EstablishedDecisionRecord
 } from "./types.ts";
 
 type DirectPredecessorContext = Readonly<{
+  records: DecisionRecordLookup;
+  baseline: DecisionIndex | undefined;
   activeRecords: Map<DecisionId, EstablishedDecisionRecord>;
   errors: string[];
   historyAttentionTargets: UnrecordedHistoryAttentionTarget[];
@@ -29,13 +32,16 @@ type DirectPredecessorContext = Readonly<{
 
 export function directPredecessors(
   records: DecisionRecordLookup,
-  successors: readonly PreparedSuccessor[]
+  successors: readonly PreparedSuccessor[],
+  baseline?: DecisionIndex
 ): {
   activeRecords: EstablishedDecisionRecord[];
   errors: string[];
   historyAttentionTargets: UnrecordedHistoryAttentionTarget[];
 } {
   const context: DirectPredecessorContext = {
+    records,
+    baseline,
     activeRecords: new Map(),
     errors: [],
     historyAttentionTargets: [],
@@ -44,13 +50,7 @@ export function directPredecessors(
   for (const successor of successors) {
     const seenTargets = new Set<DecisionId>();
     for (const relation of successor.finalRelations) {
-      recordDirectPredecessor(
-        relation,
-        successor,
-        records,
-        seenTargets,
-        context
-      );
+      recordDirectPredecessor(relation, successor, seenTargets, context);
     }
   }
   return {
@@ -63,28 +63,22 @@ export function directPredecessors(
 function recordDirectPredecessor(
   relation: DecisionRelation,
   successor: PreparedSuccessor,
-  records: DecisionRecordLookup,
   seenTargets: Set<DecisionId>,
   context: DirectPredecessorContext
 ): void {
   const targetId = relation.target;
-  if (targetId === successor.record.decisionId) {
-    context.errors.push(
-      "Decision relation must not target itself: " + successor.record.decisionId
-    );
+  if (!admitPredecessorTarget(targetId, successor, seenTargets, context.errors))
+    return;
+  const predecessor = findEstablishedDecisionRecord(context.records, targetId);
+  const published = context.baseline?.entries[targetId];
+  if (predecessor === null && published?.status === "archived") {
+    context.historyAttentionTargets.push({
+      decisionId: targetId,
+      kind: "relation",
+      relationType: relation.type
+    });
     return;
   }
-  if (seenTargets.has(targetId)) {
-    context.errors.push(
-      "Decision relation target is repeated for " +
-        successor.record.decisionId +
-        ": " +
-        targetId
-    );
-    return;
-  }
-  seenTargets.add(targetId);
-  const predecessor = findEstablishedDecisionRecord(records, targetId);
   if (predecessor === null) {
     context.errors.push(
       "Evolution predecessor is not an established decision: " + targetId
@@ -102,6 +96,31 @@ function recordDirectPredecessor(
     kind: "relation",
     relationType: relation.type
   });
+}
+
+function admitPredecessorTarget(
+  targetId: DecisionId,
+  successor: PreparedSuccessor,
+  seenTargets: Set<DecisionId>,
+  errors: string[]
+): boolean {
+  if (targetId === successor.record.decisionId) {
+    errors.push(
+      "Decision relation must not target itself: " + successor.record.decisionId
+    );
+    return false;
+  }
+  if (seenTargets.has(targetId)) {
+    errors.push(
+      "Decision relation target is repeated for " +
+        successor.record.decisionId +
+        ": " +
+        targetId
+    );
+    return false;
+  }
+  seenTargets.add(targetId);
+  return true;
 }
 
 function relationTypesForPredecessor(

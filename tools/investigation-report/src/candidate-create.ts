@@ -4,18 +4,13 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import {
   canonicalizeInvestigationsDirectory,
-  investigationIndexFileName,
-  investigationNameFromId,
-  parseDatedInvestigationId
+  investigationIndexFileName
 } from "./report-path.ts";
 import {
   InvestigationCollectionMutationLockError,
   withInvestigationCollectionMutationLock
 } from "./collection-mutation-lock.ts";
-import {
-  diagnosticFromError,
-  genericInvestigationDiagnostic
-} from "./diagnostics.ts";
+import { diagnosticFromError } from "./diagnostics.ts";
 import {
   prepareCandidateCreate,
   resolveCandidateRelationSelectors,
@@ -180,27 +175,7 @@ function duplicateCandidateError(
     return createCandidateFailure("error", [
       `${candidate.id} investigation candidate already exists`
     ]);
-  const legacy = [...reportIds, ...candidateIds].find(
-    (id) =>
-      parseDatedInvestigationId(id) === null &&
-      investigationNameFromId(id) === investigationNameFromId(candidate.id)
-  );
-  if (legacy === undefined) return null;
-  return createCandidateFailure(
-    "error",
-    [
-      `migration-required: creating ${candidate.id} would make legacy Investigation ${legacy} ambiguous by name; run rename/preflight for ${legacy}, then retry new`
-    ],
-    [
-      genericInvestigationDiagnostic({
-        code: "investigation-report.migration-required",
-        reason:
-          "a legacy Investigation must be explicitly renamed before creating a same-name dated record",
-        recovery: `run rename/preflight for ${legacy}, complete the dated rename, then retry new for ${candidate.id}`,
-        target: legacy
-      })
-    ]
-  );
+  return null;
 }
 
 function completedCandidateLockFailure(

@@ -7,6 +7,13 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import {
+  readDecisionHistoryIndex,
+  historySourcePaths,
+  revisionDecisionIds,
+  verifyPublishedHistoryIds,
+  DecisionHistoryEvidenceError
+} from "./decision-history-sources.ts";
 import path from "node:path";
 import {
   openVersionControl,
@@ -15,16 +22,13 @@ import {
 } from "../../shared/src/version-control/index.ts";
 import {
   decisionAttention,
+  decisionFailure,
   decisionDiagnostic,
   decisionVersionControlFailure,
   type DecisionApplicationAttention,
   type DecisionApplicationFailure
 } from "./application-result.ts";
-import { decisionIdFromMarkdown } from "./decision-metadata.ts";
-import {
-  decisionIdFromSourcePath,
-  isDecisionSourcePath
-} from "./decision-path.ts";
+import { isDecisionId } from "./decision-path.ts";
 import type {
   DecisionId,
   DecisionRelationType,
@@ -60,7 +64,10 @@ export type UnrecordedHistoryAttentionTarget =
     };
 
 export async function loadDecisionHistoryBaseline(
-  scan: DecisionPreparationContext
+  scan: DecisionPreparationContext,
+  decisionIds: readonly DecisionId[] = scan.records
+    .map((record) => record.decisionId)
+    .filter(isDecisionId)
 ): Promise<DecisionHistoryBaselineResult> {
   let repository: VersionControlRepository;
   try {
@@ -90,7 +97,12 @@ export async function loadDecisionHistoryBaseline(
   }
 
   try {
-    return await loadRepositoryHeadBaseline(repository, relativeDirectory);
+    return await loadRepositoryHeadBaseline(
+      repository,
+      relativeDirectory,
+      scan,
+      decisionIds
+    );
   } catch (error) {
     return baselineFailure(error);
   }
@@ -98,22 +110,28 @@ export async function loadDecisionHistoryBaseline(
 
 async function loadRepositoryHeadBaseline(
   repository: VersionControlRepository,
-  relativeDirectory: string
+  relativeDirectory: string,
+  scan: DecisionPreparationContext,
+  decisionIds: readonly DecisionId[]
 ): Promise<DecisionHistoryBaselineResult> {
   const revision = await repository.getCurrentRevision();
   if (revision === null) return emptyHeadBaseline();
   const directoryScope = toRepositoryPath(relativeDirectory);
-  const sourcePaths = await revisionDecisionSourcePaths(
+  const prefix = directoryScope.length === 0 ? "" : directoryScope + "/";
+  const index = await readDecisionHistoryIndex(
     repository,
     revision,
     directoryScope
   );
+  if (index === null) return emptyHeadBaseline();
+  const wanted = new Set(decisionIds);
+  const sourcePaths = historySourcePaths(scan, index, wanted, prefix);
   const recordedDecisionIds = await revisionDecisionIds(
     repository,
     revision,
-    sourcePaths,
-    directoryScope
+    sourcePaths
   );
+  verifyPublishedHistoryIds(index, wanted, recordedDecisionIds);
   return {
     baseline: { kind: "git-head", label: "Git HEAD", recordedDecisionIds },
     status: "ok"
@@ -129,59 +147,6 @@ function emptyHeadBaseline(): DecisionHistoryBaselineResult {
     },
     status: "ok"
   };
-}
-
-async function revisionDecisionSourcePaths(
-  repository: VersionControlRepository,
-  revision: string,
-  directoryScope: string
-): Promise<string[]> {
-  const revisionFiles = await repositoryRevisionFiles(
-    repository,
-    revision,
-    directoryScope
-  );
-  const prefix = directoryScope.length === 0 ? "" : directoryScope + "/";
-  return revisionFiles.filter((filePath) =>
-    isDecisionSourcePath(filePath.slice(prefix.length))
-  );
-}
-
-async function repositoryRevisionFiles(
-  repository: VersionControlRepository,
-  revision: string,
-  directoryScope: string
-): Promise<string[]> {
-  return directoryScope.length === 0
-    ? repository.listRevisionFiles(revision)
-    : repository.listRevisionFiles(revision, { pathScopes: [directoryScope] });
-}
-
-async function revisionDecisionIds(
-  repository: VersionControlRepository,
-  revision: string,
-  sourcePaths: readonly string[],
-  directoryScope: string
-): Promise<Set<DecisionId>> {
-  if (sourcePaths.length === 0) return new Set<DecisionId>();
-  const files = await repository.readRevisionFiles(revision, {
-    pathScopes: sourcePaths
-  });
-  const prefix = directoryScope.length === 0 ? "" : directoryScope + "/";
-  return new Set(
-    files.flatMap((file) => decisionIdForRevisionFile(file, prefix))
-  );
-}
-
-function decisionIdForRevisionFile(
-  file: { data: Uint8Array; path: string },
-  prefix: string
-): DecisionId[] {
-  const sourcePath = file.path.slice(prefix.length);
-  const decoded = new TextDecoder("utf-8", { fatal: true }).decode(file.data);
-  const decisionId =
-    decisionIdFromMarkdown(decoded) ?? decisionIdFromSourcePath(sourcePath);
-  return decisionId === null ? [] : [decisionId];
 }
 
 export function prepareUnrecordedHistoryAttention(
@@ -280,6 +245,18 @@ function toRepositoryPath(filePath: string): string {
 }
 
 function baselineFailure(error: unknown): DecisionApplicationFailure {
+  if (error instanceof DecisionHistoryEvidenceError)
+    return decisionFailure([
+      decisionDiagnostic({
+        code: "decision-records.history-baseline-invalid",
+        reason: error.message,
+        outcome: "no-change",
+        scope: "Decision Markdown files and derived decision index",
+        target: "Decision history baseline",
+        recovery:
+          "Restore a trusted historical index and its selected source identities before retrying; do not infer recorded history by scanning unrelated blobs."
+      })
+    ]);
   return decisionVersionControlFailure(
     {
       action: "inspect Git HEAD before changing decision history",

@@ -174,7 +174,7 @@ test("scoped investigation discovery resolves moved and unpublished formal ident
   });
 });
 
-test("candidate listing shares one identity snapshot and candidate show reads only required formal owners", async () => {
+test("candidate listing shares one identity snapshot and candidate show uses indexed formal owners", async () => {
   await withTempRoot("candidate-acquisition", async (root) => {
     const directory = investigationRoot(root);
     await fs.mkdir(path.join(directory, "_resources", "formal"), {
@@ -212,7 +212,7 @@ test("candidate listing shares one identity snapshot and candidate show reads on
     assert.equal(shown.result.status, "ok");
     assert.deepEqual(
       shown.paths.filter((file) => file.endsWith(".md")),
-      [path.join(directory, "formal.md")]
+      []
     );
     assert.equal(
       shown.paths.filter((file) =>

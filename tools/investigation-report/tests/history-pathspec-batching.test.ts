@@ -26,7 +26,7 @@ function gitWithInput(
   }).trim();
 }
 
-test("history predecessor checks batch large HEAD source lists in source and distribution", async () => {
+test("history predecessor checks read only indexed predecessors despite large unrelated HEAD namespaces", async () => {
   await withTempRoot("history-pathspec-batching", async (root) => {
     await writeCollection(root, [
       { id: "base" },
@@ -38,6 +38,14 @@ test("history predecessor checks batch large HEAD source lists in source and dis
       ["hash-object", "-w", "--stdin"],
       "legacy report\n"
     );
+    const baseBlob = git(root, [
+      "rev-parse",
+      "HEAD:docs/investigations/base.md"
+    ]).trim();
+    const indexBlob = git(root, [
+      "rev-parse",
+      "HEAD:docs/investigations/investigation-index.json"
+    ]).trim();
     const names = [
       "base.md",
       ...Array.from(
@@ -48,7 +56,12 @@ test("history predecessor checks batch large HEAD source lists in source and dis
     const reportsTree = gitWithInput(
       root,
       ["mktree"],
-      names.map((name) => `100644 blob ${blob}\t${name}\n`).join("")
+      names
+        .map(
+          (name) =>
+            `100644 blob ${name === "base.md" ? baseBlob : blob}\t${name}\n`
+        )
+        .join("") + `100644 blob ${indexBlob}\tinvestigation-index.json\n`
     );
     const docsTree = gitWithInput(
       root,
@@ -102,8 +115,8 @@ test("history predecessor checks batch large HEAD source lists in source and dis
         (line) => line.includes('"event":"start"') && line.includes('"ls-tree"')
       );
     assert.ok(
-      queries.length > 2,
-      "the real CLI must split history path queries"
+      queries.length <= 5,
+      "the real CLI locates only its historical index and selected predecessor"
     );
     assert.ok(queries.every((line) => Buffer.byteLength(line) < 28_000));
   });

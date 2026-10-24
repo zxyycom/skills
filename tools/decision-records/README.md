@@ -83,7 +83,7 @@ relationReview 按规范 source ID 排序，覆盖全部所选成员，before �
 
 ### 候选操作
 
-候选动作通过共同 owner 编排索引状态、安全发现、身份冲突、所选准备及列表 warning/显式目标失败；领域负责 status/archive 位置、正文解析和直接依赖。`new` 的 target name 选择候选与可见正式身份，`show-candidate` 的 selector 只选择候选。合法索引与真正缺索引的身份发现范围见[候选恢复规则](../../skills/decision-records/references/maintenance-recovery.md#候选身份发现与索引状态)。
+候选动作通过共同 owner 编排索引状态、安全发现、身份冲突、所选准备及列表 warning/显式目标失败；领域负责 status/archive 位置、正文解析和显式选择。合法发布关系依赖只读索引，不读取当前正文。`new` 使用完整日期 ID basename，target name 选择候选与发布正式身份，`show-candidate` 的 selector 只选择候选。合法索引与真正缺索引的身份发现范围见[候选恢复规则](../../skills/decision-records/references/maintenance-recovery.md#候选身份发现与索引状态)。
 
 同阶段来源与 ID→source 映射直接交给所选 readiness 和 show；创建 stdout 的 readiness 来自自身实际写入并验收的 scaffold，无需再次扫描候选全集。它只表达自身准备，不声明全局关系闭合或采用授权。
 
@@ -91,11 +91,11 @@ relationReview 按规范 source ID 排序，覆盖全部所选成员，before �
 
 公开 scope、选择与结果保证见[暂存操作契约](../../skills/decision-records/references/cli-operations.md#待提交快照)。共同 scope 策略、H/W/P 投影兼容、pending 基底选中刷新与准备→fresh 复核→发布顺序由 [Index Runtime 内部记录暂存协调器](../index-runtime/README.md#记录领域的内部暂存协调)承接，本领域不另行维护同形流程。
 
-领域适配负责 ID／name 选择、status／alignment 与根或 archive 位置、正式正文的 ID／投影／来源指纹、已知旧位置及 pending-only 身份，并保留完整演进图闭合。index 不读取工作区正文；all/domain 每阶段独立验证所选来源及必要依赖，无关坏正文不作为局部门禁。未知位置的未同步身份重现由显式 check／sync 发现。
+领域适配负责 ID／name 选择、status／alignment 与根或 archive 位置、正式正文的 ID／投影／来源指纹、已知旧位置及 pending-only 身份，并保留完整演进图闭合；纯图依赖不另读正文。index 不读取工作区正文；all/domain 每阶段独立验证所选来源及必要依赖，无关坏正文不作为局部门禁。未知位置的未同步身份重现由显式 check／sync 发现。
 
 可变来源与成员只在本阶段有效；固定 H 的不可变事实可调用内复用。Decision 所选正文仍按既有常规文件表示写入，不套用 Investigation 资源树的执行位策略。各 scope 的 payload 与完整 pending 身份保证由上述共同协调器承接。
 
-`decision-stage-refresh.ts` 的 `decisionStageSuccess` 将共同协调结果映射为本领域成功 envelope：`preservedPendingPaths` 是 scope 中所有未更新 snapshot 成员，`pendingFileCount` 计完整 scope 成员，不改成仅相对 H 的变化路径。来源失败、pending conflict 与恢复失败按真实阶段映射，不把普通失败附会为 mutation。
+`decision-stage-refresh.ts` 的 `decisionStageSuccess` 将共同协调结果映射为本领域成功 envelope：`preservedPendingPaths` 是 scope 中所有未更新 snapshot 成员，`pendingFileCount` 计完整 scope 成员，不改成仅相对 H 的变化路径。来源失败、pending conflict 与恢复失败按真实阶段映射，不把普通失败附会为 mutation。所有 scope 的未选 pending 只保护完整路径、mode 与 OID，不读取其 payload；所选旧位置无可靠索引或 canonical locator 时明确恢复，不能读取全集 blob 发现身份。
 
 ## 非 stage 事务与恢复
 
@@ -103,13 +103,13 @@ relationReview 按规范 source ID 排序，覆盖全部所选成员，before �
 
 | 模块 | 领域责任 |
 | --- | --- |
-| `decision-transaction.ts` | 提供局部发布基线或严格全集的领域准备；普通维护只读取适用范围，首次 publish、严格 rename/discard 和带删除 evolve 也使用共同事务。 |
+| `decision-transaction.ts` | 提供局部发布基线及独立候选-only bootstrap；普通维护（含 rename/discard/带删除 evolve）只读取所选和实际改写来源，索引负责正式引用发现与图事实。 |
 | `decision-transaction-plan.ts` | 提供领域提案、适用来源与成员保护，经共同计划归一化形成实际写集。 |
 | `decision-transaction-projection.ts` | 构造领域索引投影。 |
 
 stage 使用上节的 Index Runtime 协调器。调用者的提交结果与对账动作见[操作结果](../../skills/decision-records/references/cli-operations.md#结果与恢复)和[恢复规则](../../skills/decision-records/references/maintenance-recovery.md#中断写入)。
 
-同 ID、同 sourcePath 的 rename 在合法发布投影或真实缺索引身份发现、必要来源安全及可见冲突确认后走独立 fresh 的零写路径，不规范正文、索引或 mode，不读取历史确认；真实 rename 继续严格验证全集和历史。删除末条正式记录保留合法空索引。
+同 ID、同 sourcePath 的 rename 在合法发布投影或真实缺索引身份发现、必要来源安全及可见冲突确认后走独立 fresh 的零写路径，不规范正文、索引或 mode，不读取历史确认；真实 rename 仅验证所选及实际改写的正式引用者，历史由 HEAD 索引定位必要 payload；未选候选不自动改写。删除末条正式记录保留合法空索引。
 
 ## 检查与同步
 

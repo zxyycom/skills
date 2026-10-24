@@ -148,5 +148,45 @@ export const domainInputOwnershipCases = [
     "tools/investigation-report/tests/execution-entry-contract.test.ts",
     "investigation-maintenance",
     "test:investigation-report:transactional-maintenance"
+  ],
+  [
+    "tools/decision-records/tests/localize-record-operations/identity.test.ts",
+    "decision-maintenance",
+    "test:decision-records:lifecycle-and-recovery"
+  ],
+  [
+    "tools/decision-records/tests/localize-record-operations/publication.test.ts",
+    "decision-maintenance",
+    "test:decision-records:lifecycle-and-recovery"
+  ],
+  [
+    "tools/decision-records/tests/localize-record-operations/history.test.ts",
+    "decision-maintenance",
+    "test:decision-records:lifecycle-and-recovery"
+  ],
+  [
+    "tools/decision-records/tests/localize-record-operations/rename-noop.test.ts",
+    "decision-maintenance",
+    "test:decision-records:lifecycle-and-recovery"
+  ],
+  [
+    "tools/decision-records/tests/localize-record-operations/stage.test.ts",
+    "decision-maintenance",
+    "test:decision-records:lifecycle-and-recovery"
+  ],
+  [
+    "tools/investigation-report/src/local-publication.ts",
+    "investigation-maintenance",
+    "test:investigation-report:transactional-maintenance"
+  ],
+  [
+    "tools/investigation-report/tests/local-publication.test.ts",
+    "investigation-maintenance",
+    "test:investigation-report:transactional-maintenance"
+  ],
+  [
+    "tools/decision-records/src/decision-history-sources.ts",
+    "decision-record",
+    "test:decision-records:record-and-established-graph"
   ]
 ] as const;

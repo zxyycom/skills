@@ -2,7 +2,6 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import {
   createInvestigationStateSnapshot,
-  inspectInvestigationCollectionLayout,
   type InvestigationCollectionLayout
 } from "./investigation-index-source.ts";
 import {
@@ -90,11 +89,8 @@ async function prepareInitialPublishContext(
   indexPath: string
 ): Promise<PublishPreparationStep<FormalPublishContext>> {
   // Only first establishment may discover the complete formal identity set.
-  const initial = await inspectInvestigationCollectionLayout(
-    investigationsDirectory
-  );
-  if (initial.errors.length > 0) return preparationFailure(initial.errors);
-  if (initial.reportIds.length > 0)
+  const members = await fs.readdir(investigationsDirectory);
+  if (members.some((name) => name.endsWith(".md")))
     return preparationFailure([
       "investigation index is missing for existing formal reports; run full sync-index before retrying publish"
     ]);

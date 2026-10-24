@@ -1,14 +1,13 @@
-### Case INVESTIGATION-CANDIDATE-DISCARD-005: candidate discard fails closed on invalid formal references
+### Case INVESTIGATION-CANDIDATE-DISCARD-005: 候选删除只消费发布资源声明
 
 Tests:
-- `test:f0cebcec54ed3d44e701067d53b847d6caac14507583f0c9c19aa80b0ca11440`
+- `test:63676bc3474ee6193f3cf0f003c466c2b015c63570c329c8d8cbeb100a1830d6`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- candidate owner resource 的删除必须可靠排除正式报告引用；正式报告的资源引用无法验证时，`discard` 必须 fail closed。
+- 候选 owner 删除排除索引可见正式引用，不验证未选正式正文的新手改。
 
 Proves:
-- 具有 candidate owner resource 链接但正文无效的正式 Markdown 会阻断候选删除。
-- candidate 与其 owner resource 保持原样。
+- 未同步正式正文新增候选资源链接且结构非法，不阻断候选及明确 owner 资源删除。

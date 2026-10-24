@@ -3,11 +3,16 @@ import {
   buildStateIndex,
   serializeStateIndex
 } from "../../index-runtime/src/index.ts";
-import { createInvestigationStateSnapshot } from "./investigation-index-source.ts";
+import {
+  publicationSnapshot,
+  publishedGraphErrors
+} from "./published-preparation.ts";
+import {
+  expectationOf,
+  parseStateIndex
+} from "../../index-runtime/src/index.ts";
 import { parseInvestigationReport } from "./markdown.ts";
 import { createInvestigationStateIndexDefinition } from "./investigation-state-index.ts";
-import { validateInvestigationRelationGraph } from "./relation-validation.ts";
-import { createInvestigationRelationContext } from "./relation-context.ts";
 import { buildInvestigationReportState } from "./report-validation.ts";
 import type { RenameSource } from "./rename-contract.ts";
 import {
@@ -23,7 +28,8 @@ export async function prepareNextIndex(
   root: string,
   indexPath: string,
   sources: readonly RenameSource[],
-  preparation?: InvestigationPreparation
+  preparation?: InvestigationPreparation,
+  retiredId?: string
 ): Promise<
   RenameStep<
     Readonly<{ nextIndexText: string | null; oldIndexText: string | null }>
@@ -34,7 +40,13 @@ export async function prepareNextIndex(
   if ("result" in previous) return previous;
   if (formal.length === 0)
     return { value: { nextIndexText: null, oldIndexText: previous.value } };
-  const projected = await projectRenamedIndex(root, indexPath, formal);
+  const projected = await projectRenamedIndex(
+    root,
+    indexPath,
+    formal,
+    previous.value,
+    retiredId
+  );
   if ("result" in projected) return projected;
   return {
     value: { nextIndexText: projected.value, oldIndexText: previous.value }
@@ -51,7 +63,7 @@ async function readRenameIndex(
       value:
         preparation === undefined
           ? await readRegularText(indexPath)
-          : await preparation.read(indexPath)
+          : await preparation.readOrCaptured(indexPath)
     };
   } catch (error) {
     return renameStepFailure(indexPath, [
@@ -63,9 +75,49 @@ async function readRenameIndex(
 async function projectRenamedIndex(
   root: string,
   indexPath: string,
-  sources: readonly RenameSource[]
+  sources: readonly RenameSource[],
+  previousText: string | null,
+  retiredId: string | undefined
 ): Promise<RenameStep<string>> {
-  const states = new Map<string, InvestigationIndexState>();
+  if (previousText === null)
+    return renameStepFailure(indexPath, [
+      "published index is required before formal rename"
+    ]);
+  const definition = createInvestigationStateIndexDefinition();
+  const parsed = parseStateIndex({
+    definition,
+    expectation: expectationOf(definition),
+    sourcePath: indexPath,
+    text: previousText
+  });
+  if (parsed.status === "error")
+    return renameStepFailure(indexPath, [
+      "published index is invalid; run full sync-index"
+    ]);
+  const baseline = parsed.value;
+  const states = new Map<string, InvestigationIndexState>(
+    Object.entries(baseline.entries)
+  );
+  if (retiredId !== undefined) states.delete(retiredId);
+  const projected = projectRenameSources(sources, states, indexPath);
+  if ("result" in projected) return projected;
+  const relationErrors = publishedGraphErrors(states);
+  if (relationErrors.length > 0)
+    return renameStepFailure(indexPath, relationErrors);
+  return await serializeRenamedIndex(
+    root,
+    indexPath,
+    projected.value,
+    states,
+    baseline
+  );
+}
+
+function projectRenameSources(
+  sources: readonly RenameSource[],
+  states: Map<string, InvestigationIndexState>,
+  indexPath: string
+): RenameStep<InvestigationSource[]> {
   const formalSources: InvestigationSource[] = [];
   for (const source of sources) {
     const built =
@@ -85,24 +137,28 @@ async function projectRenamedIndex(
       text: source.text
     });
   }
-  const relationErrors = validateInvestigationRelationGraph(
-    createInvestigationRelationContext(states)
-  );
-  if (relationErrors.length > 0)
-    return renameStepFailure(indexPath, relationErrors);
-  return await serializeRenamedIndex(root, indexPath, formalSources, states);
+  return { value: formalSources };
 }
 
 async function serializeRenamedIndex(
   root: string,
   indexPath: string,
   sources: readonly InvestigationSource[],
-  states: ReadonlyMap<string, InvestigationIndexState>
+  states: ReadonlyMap<string, InvestigationIndexState>,
+  baseline: import("./published-preparation.ts").PublishedInvestigationIndex
 ): Promise<RenameStep<string>> {
   try {
-    const snapshot = createInvestigationStateSnapshot(
-      sources,
-      sources.map((source) => states.get(source.id)!)
+    const revisions = { ...baseline.sourceRevision.entries };
+    for (const id of Object.keys(revisions))
+      if (!states.has(id)) delete revisions[id];
+    const snapshot = publicationSnapshot(
+      {
+        metadata: baseline.metadata,
+        sourceRevision: { ...baseline.sourceRevision, entries: revisions },
+        states: baseline.entries
+      },
+      states,
+      sources
     );
     const definition = createInvestigationStateIndexDefinition({ snapshot });
     const index = await buildStateIndex(definition, { root });

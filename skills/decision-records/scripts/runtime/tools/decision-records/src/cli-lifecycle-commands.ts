@@ -8,34 +8,14 @@
  * Rebuild: bun run sync:decision-records-cli
  */
 import { runPublishedDecisionLifecycle } from "./cli-maintenance-execution.ts";
-import { applyPreparedDecisionTransaction } from "./decision-transaction.ts";
-import { decisionFailure } from "./application-result.ts";
-import { printDecisionFailure } from "./cli-output.ts";
 import type { CliArgsFor } from "./cli-args.ts";
 import type { DecisionRecordsCliIo } from "./cli-io.ts";
-import { type DecisionLifecycleRequest } from "./decision-lifecycle-service.ts";
-import {
-  loadDecisionValidationContext,
-  type DecisionValidationOptions
-} from "./index.ts";
-import type { DecisionScan } from "./types.ts";
-import {
-  applyLockedCandidateLifecycle,
-  lifecyclePreflightFailure,
-  prepareLifecycleWithCurrentHistory,
-  printLifecyclePreflight
-} from "./cli-lifecycle-execution.ts";
-import {
-  decisionScanOptions,
-  type DecisionLocationArgs
-} from "./cli-location.ts";
-import { resolveDecisionLifecycleRequest } from "./cli-lifecycle-selection.ts";
 
 export async function runPublish(
   args: CliArgsFor<"publish">,
   io: DecisionRecordsCliIo
 ): Promise<number> {
-  const local = await runPublishedDecisionLifecycle(
+  return await runPublishedDecisionLifecycle(
     args,
     {
       action: "publish",
@@ -45,34 +25,13 @@ export async function runPublish(
     },
     io
   );
-  if (local !== null) return local;
-  const scan = await loadLifecycleScan(
-    args,
-    {
-      allowEmptyDecisionSet: true
-    },
-    io
-  );
-  return scan === null
-    ? 1
-    : await applyLifecycle(
-        args,
-        scan,
-        {
-          action: "publish",
-          alignment: args.alignment,
-          keepUnrecordedHistory: args.keepUnrecordedHistory,
-          decisionId: args.decisionId
-        },
-        io
-      );
 }
 
 export async function runReactivate(
   args: CliArgsFor<"reactivate">,
   io: DecisionRecordsCliIo
 ): Promise<number> {
-  return await runValidatedMaintenance(
+  return await runPublishedDecisionLifecycle(
     args,
     {
       action: "reactivate",
@@ -87,7 +46,7 @@ export async function runEvolve(
   args: CliArgsFor<"evolve">,
   io: DecisionRecordsCliIo
 ): Promise<number> {
-  const local = await runPublishedDecisionLifecycle(
+  return await runPublishedDecisionLifecycle(
     args,
     {
       action: "evolve",
@@ -100,37 +59,13 @@ export async function runEvolve(
     },
     io
   );
-  if (local !== null) return local;
-  const scan = await loadLifecycleScan(
-    args,
-    {
-      allowEmptyDecisionSet: true
-    },
-    io
-  );
-  return scan === null
-    ? 1
-    : await applyLifecycle(
-        args,
-        scan,
-        {
-          action: "evolve",
-          discardId: args.discardId,
-          deleteRecorded: args.deleteRecorded,
-          keepUnrecordedHistory: args.keepUnrecordedHistory,
-          relationOverride: args.relationOverride,
-          relationOverrideGroups: args.relationOverrideGroups,
-          successors: args.successors
-        },
-        io
-      );
 }
 
 export async function runSetRelations(
   args: CliArgsFor<"set-relations">,
   io: DecisionRecordsCliIo
 ): Promise<number> {
-  const local = await runPublishedDecisionLifecycle(
+  return await runPublishedDecisionLifecycle(
     args,
     {
       action: "set-relations",
@@ -139,33 +74,13 @@ export async function runSetRelations(
     },
     io
   );
-  if (local !== null) return local;
-  const scan = await loadLifecycleScan(
-    args,
-    {
-      allowEmptyDecisionSet: true
-    },
-    io
-  );
-  return scan === null
-    ? 1
-    : await applyLifecycle(
-        args,
-        scan,
-        {
-          action: "set-relations",
-          preflight: args.preflight,
-          relationOverrideGroups: args.relationOverrideGroups
-        },
-        io
-      );
 }
 
 export async function runMarkAligned(
   args: CliArgsFor<"mark-aligned">,
   io: DecisionRecordsCliIo
 ): Promise<number> {
-  return await runValidatedMaintenance(
+  return await runPublishedDecisionLifecycle(
     args,
     {
       action: "mark-aligned",
@@ -179,7 +94,7 @@ export async function runArchive(
   args: CliArgsFor<"archive">,
   io: DecisionRecordsCliIo
 ): Promise<number> {
-  return await runValidatedMaintenance(
+  return await runPublishedDecisionLifecycle(
     args,
     {
       action: "archive",
@@ -190,34 +105,12 @@ export async function runArchive(
   );
 }
 
-export async function runValidatedMaintenance(
-  args: DecisionLocationArgs,
-  request: DecisionLifecycleRequest,
-  io: DecisionRecordsCliIo
-): Promise<number> {
-  const local = await runPublishedDecisionLifecycle(args, request, io);
-  if (local !== null) return local;
-  const scan = await loadLifecycleScan(
-    args,
-    { allowEmptyDecisionSet: true },
-    io
-  );
-  return scan === null ? 1 : await applyLifecycle(args, scan, request, io);
-}
-
 export async function runDiscard(
   args: CliArgsFor<"discard">,
   io: DecisionRecordsCliIo
 ): Promise<number> {
-  const scan = await loadLifecycleScan(
+  return await runPublishedDecisionLifecycle(
     args,
-    { allowEmptyDecisionSet: true },
-    io
-  );
-  if (scan === null) return 1;
-  return await applyLifecycle(
-    args,
-    scan,
     {
       action: "discard",
       decisionId: args.decisionId,
@@ -225,59 +118,4 @@ export async function runDiscard(
     },
     io
   );
-}
-
-export async function loadLifecycleScan(
-  args: DecisionLocationArgs,
-  validationOptions: DecisionValidationOptions,
-  io: DecisionRecordsCliIo
-): Promise<DecisionScan | null> {
-  const { result } = await loadDecisionValidationContext(
-    decisionScanOptions(args),
-    validationOptions
-  );
-  if (result.errors.length > 0) {
-    printDecisionFailure(lifecyclePreflightFailure(result.errors), io);
-    return null;
-  }
-  return result.scan;
-}
-
-export async function applyLifecycle(
-  args: DecisionLocationArgs & { preflight?: boolean },
-  scan: DecisionScan,
-  request: DecisionLifecycleRequest,
-  io: DecisionRecordsCliIo
-): Promise<number> {
-  const resolved = resolveDecisionLifecycleRequest(scan, request);
-  if (resolved.status === "error") {
-    printDecisionFailure(resolved.failure, io);
-    return 1;
-  }
-  request = resolved.request;
-  if (
-    args.preflight === true &&
-    (request.action === "publish" ||
-      request.action === "evolve" ||
-      request.action === "reactivate" ||
-      request.action === "set-relations")
-  ) {
-    const prepared = await prepareLifecycleWithCurrentHistory(
-      scan,
-      request,
-      io
-    );
-    if (prepared === null) return 1;
-    const checked = await applyPreparedDecisionTransaction({
-      context: scan,
-      changes: prepared.changes,
-      preflight: true
-    });
-    if (checked.status === "error") {
-      printDecisionFailure(decisionFailure(checked.diagnostics), io);
-      return 1;
-    }
-    return printLifecyclePreflight(request.action, prepared, io);
-  }
-  return await applyLockedCandidateLifecycle(args, scan, request, io);
 }

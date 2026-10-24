@@ -1,13 +1,13 @@
-### Case DR-INDEX-PAYLOAD-CONSUMPTION-001: index只验收所消费payload，all和domain保留完整验收
+### Case DR-INDEX-PAYLOAD-CONSUMPTION-001: Stage 各 scope 仅读取所选 pending payload
 
 Tests:
-- `test:cba34bb14710f8cfd3087074144f73046c4b96f5fb061302111cbe25ab4545b3`
+- `test:63ee8ed60a6c5d6ecf517fdfe7563b67be8bf64caf9040cb947ccd61ae3f1f40`
 
 Tags:
 - `decision-records`
 
 Contract:
-- Decision index只验收目标索引payload，但保留全域pending成员身份；all/domain仍验收全域payload。
+- 所有 scope 保留完整 pending 路径、mode、OID；未选 payload 的即时可读性不作为本次验收责任。
 
 Proves:
-- 删除未选正文的Git对象后，all/domain失败且不写pending；index成功刷新所选投影，所有非索引成员保持原mode/OID，重复操作unchanged。
+- 删除未选正文 Git 对象后，all/domain/index 均成功，未选成员 mode/OID 保持；所选索引投影更新，重复 index 操作 unchanged。

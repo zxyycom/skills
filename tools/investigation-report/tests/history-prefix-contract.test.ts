@@ -37,7 +37,7 @@ for (const newline of ["lf", "crlf", "cr"]) {
 }
 
 for (const identity of ["legacy", "moved", "inconsistent-index"]) {
-  test(`history prefixes use real source presence for ${identity} HEAD identities`, async () => {
+  test(`history indexed lookup diagnoses unavailable ${identity} HEAD identities`, async () => {
     await withTempRoot("history-prefix-source-presence", async (root) => {
       await writeCollection(root, [
         { id: "base" },
@@ -66,10 +66,8 @@ for (const identity of ["legacy", "moved", "inconsistent-index"]) {
         { id: "next", relations: [{ type: "补充", target: "base" }] }
       ]);
       const result = await warnings(root);
-      if (identity === "inconsistent-index") {
-        assert.equal(result.length, 1);
-        assert.match(result[0]!, /前序报告 base 尚未进入 Git HEAD/u);
-      } else assert.deepEqual(result, []);
+      assert.equal(result.length, 1);
+      assert.match(result[0]!, /history-check-unavailable/u);
     });
   });
 }
@@ -99,7 +97,7 @@ test("history identity survives UTF8 cutoff after complete identity lines", () =
 });
 
 for (const failure of ["corrupt"]) {
-  test(`history bounded retention keeps unavailable warnings for unrelated formal ${failure} objects`, async () => {
+  test(`history indexed lookup ignores unrelated formal ${failure} objects`, async () => {
     await withTempRoot("history-prefix-object-failure", async (root) => {
       await writeCollection(root, [
         { id: "base" },
@@ -123,9 +121,7 @@ for (const failure of ["corrupt"]) {
         await fs.writeFile(object, bytes.subarray(0, bytes.length - 8));
       }
       const result = await warnings(root);
-      assert.equal(result.length, 1);
-      assert.match(result[0]!, /history-check-unavailable/u);
-      assert.ok(!result[0]!.includes("尚未进入 Git HEAD"));
+      assert.deepEqual(result, []);
     });
   });
 }

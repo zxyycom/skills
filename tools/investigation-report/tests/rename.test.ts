@@ -106,7 +106,7 @@ test("Investigation rename moves the report and owner resources while rewriting 
       candidate.candidate.path,
       "utf8"
     );
-    assert.match(renamedCandidate, /target: "260828-migrated"/u);
+    assert.match(renamedCandidate, /target: "legacy"/u);
     assert.match(renamedCandidate, /summary: "保留候选缘由"/u);
     const index = JSON.parse(
       await fs.readFile(path.join(root, "investigation-index.json"), "utf8")

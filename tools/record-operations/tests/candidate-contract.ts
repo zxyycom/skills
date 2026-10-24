@@ -99,6 +99,18 @@ export async function assertCandidateOperationContract(
 
     await reset();
     const formal = adapter.formal("261021-same");
+    await write(formal);
+    assert.equal((await adapter.list(root)).ok, false);
+    assert.equal((await adapter.create(root, "blocked", [])).ok, false);
+    const unindexed = adapter.candidate("261022-unindexed", true);
+    await write(unindexed);
+    assert.equal(
+      (await adapter.show(root, "261022-unindexed")).ok,
+      false,
+      "a directly located candidate cannot bypass missing formal index recovery"
+    );
+    await fs.unlink(path.join(directory, unindexed.sourcePath));
+    await adapter.sync(root);
     await write({
       ...formal,
       text: formal.text.replace(
@@ -132,7 +144,7 @@ export async function assertCandidateOperationContract(
     );
     assert.equal((await adapter.show(root, "bad")).ok, false);
     assert.equal((await adapter.show(root, "absent")).ok, false);
-    await assert.rejects(fs.lstat(indexPath), { code: "ENOENT" });
+    assert.equal((await fs.lstat(indexPath)).isFile(), true);
     assert.equal(
       (await adapter.create(root, "named-target", ["same"])).ok,
       false,

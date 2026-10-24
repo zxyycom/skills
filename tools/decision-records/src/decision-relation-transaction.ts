@@ -63,7 +63,11 @@ export function prepareDecisionRelationTransaction(
     records
   );
   if (discarded.status === "error") return discarded;
-  const predecessorSelection = directPredecessors(records, successors.records);
+  const predecessorSelection = directPredecessors(
+    records,
+    successors.records,
+    scan.publishedBaseline
+  );
   if (predecessorSelection.errors.length > 0)
     return decisionFailure(predecessorSelection.errors);
   const graphPlan: DecisionRelationGraphPlan = {

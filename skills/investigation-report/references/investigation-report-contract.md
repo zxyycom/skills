@@ -9,9 +9,9 @@
 | 对象 | 定义 |
 | --- | --- |
 | Investigation ID | frontmatter `id` 声明的稳定身份，不含路径或扩展名。新 ID 为有效日历日期组成的 `YYMMDD-<name>`，日期等于 formedAt 的 UTC 日。 |
-| name | 标准 ID 的日期后缀，使用 kebab-case；无日期 legacy ID 使用完整旧 ID。由 ID 派生为查询键，无需另存 frontmatter。 |
+| name | 标准 ID 的日期后缀，使用 kebab-case；无日期 legacy ID 使用完整旧 ID。由 ID 派生为可重复查询键，无需另存 frontmatter；日期对象可用完整日期 ID 消歧，legacy 歧义按 [CLI 定位与选择](cli-operations.md#定位与选择)处理。 |
 | sourcePath | 相对调查根的正式报告位置，basename 可以是 ID 或语义文件名；移动或改 basename 不改变身份。 |
-| candidate locator | `_candidate.<name-or-investigation-id>` 文件名，文件内仍声明完整 ID；候选处于正式集合和索引之外。 |
+| candidate locator | `_candidate.<name-or-investigation-id>` 文件名，文件内仍声明完整 ID；候选处于正式集合和索引之外；新建默认完整 ID basename，已有 locator 继续兼容。 |
 | resource ID | `_resources/` 下的 `<investigation-id>/<resource-subpath>`，首段明确资源 owner。 |
 | 工作区索引与 pending | 分别是工作树内的派生索引与 Git 暂存区内容，按各自维护动作更新。 |
 
@@ -159,10 +159,10 @@ Markdown 是报告的权威来源，索引是可重建的发布投影。投影�
 - selected 删除或同路径改 ID 时，已知旧 owner 路径必须缺失（包括空树）；本次只验证已知影响，资源清理由显式治理承担，不扫描其他 owner。
 - 资源可信度、报告质量和真实演进由 agent 审核；机械检查不能代替它们。
 
-已知合法正式来源手改先同步；任务要求当前全集结论或正在恢复集合时再全量检查，未解释的索引异常先检查诊断。普通维护按发布基线核对所选来源、必要依赖与最终领域图，未读取正文的当前问题由显式全量验收发现。首次发布可建立首批报告和索引；删除最后一份正式报告后保留合法空索引，区别于尚未初始化。具体前提、选择性同步和查询来源见 [CLI 检查与同步](cli-operations.md#检查与同步)及[查询与结果解释](cli-operations.md#查询与结果解释)。
+已知合法正式来源手改先同步；任务要求当前全集结论或正在恢复集合时再全量检查，未解释的索引异常先检查诊断。普通维护按发布基线核对所选及实际改写来源与最终组合图，纯索引依赖不追加正文取证；未读取正文的当前问题由其后显式检查、同步或成为所选对象时发现。未选候选引用不参与删除／更名自动维护，其后发布时重新验证。首次发布可建立首批报告和索引；删除最后一份正式报告后保留合法空索引，区别于尚未初始化。具体前提、选择性同步和查询来源见 [CLI 检查与同步](cli-operations.md#检查与同步)及[查询与结果解释](cli-operations.md#查询与结果解释)。
 
 ## 待提交快照
 
-`stage` 只构造 Git 待提交快照，不改变报告建立事实，也不代替索引同步。显式选择即按 scope 用当前完整版本刷新所选对象，未选 pending 保持；部分暂存会被所选对象完整版本取代。位置变化沿用同一 ID，身份更正显式同选旧、新 ID，已删除对象按旧 ID 选择；仅 pending 中的领域对象按其身份恢复选择与旧位置。
+`stage` 只构造 Git 待提交快照，不改变报告建立事实，也不代替索引同步。显式选择即按 scope 用当前完整版本刷新所选对象，未选 pending 保持；部分暂存会被所选对象完整版本取代。位置变化沿用同一 ID，身份更正显式同选旧、新 ID，已删除对象按旧 ID 选择；仅 pending 中的对象须能由可信索引或所选 canonical locator 定位；无法局部定位的非 canonical 来源显式恢复，不扫描全集 blob。
 
 默认快照包含所选索引投影、正式报告及完整 owner 资源树；可按任务只选择索引或领域文件。完整 owner 树包括未引用资源，未选报告、候选和其他 owner 的 pending 内容保持不变。成功只证明声明 scope，commit 与 push 另按授权执行。各 scope 的前提、依赖验证和失败边界见 [CLI 待提交快照](cli-operations.md#待提交快照)。

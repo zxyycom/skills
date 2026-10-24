@@ -149,11 +149,11 @@ test("candidate collection distinguishes missing invalid and stale established i
         ]);
         assert.equal(
           candidates.exitCode,
-          indexState === "invalid" ? 1 : 0,
+          indexState === "stale" ? 0 : 1,
           candidates.stderr
         );
-        if (indexState === "invalid")
-          assert.match(candidates.stderr, /explicitly sync-index/);
+        if (indexState !== "stale")
+          assert.match(candidates.stderr, /explicitly.*(sync-index|recover)/);
         else
           assert.match(candidates.stdout, new RegExp(candidateId), indexState);
         const shown = await runSourceCli([
@@ -164,11 +164,11 @@ test("candidate collection distinguishes missing invalid and stale established i
         ]);
         assert.equal(
           shown.exitCode,
-          indexState === "invalid" ? 1 : 0,
+          indexState === "stale" ? 0 : 1,
           shown.stderr
         );
-        if (indexState === "invalid")
-          assert.match(shown.stderr, /explicitly sync-index/);
+        if (indexState !== "stale")
+          assert.match(shown.stderr, /explicitly.*(sync-index|recover)/);
         else assert.match(shown.stdout, new RegExp(candidateId), indexState);
       }
     );

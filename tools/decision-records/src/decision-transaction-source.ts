@@ -49,9 +49,10 @@ export async function captureDecisionTransactionSources(
       "Decision index appeared after preparation: " + context.indexPath
     );
   originals.set(context.indexPath, indexBefore);
-  const beforeMembers = await decisionTransactionMembers(
-    context.decisionsDirectory
-  );
+  const beforeMembers =
+    context.publishedBaseline === undefined
+      ? await decisionTransactionMembers(context.decisionsDirectory)
+      : context.records.map((record) => record.sourcePath).sort();
   verifyPreparedDecisionMembers(context, beforeMembers);
   return { originals, indexBefore, beforeMembers };
 }
@@ -91,6 +92,7 @@ function verifyPreparedDecisionMembers(
   context: DecisionPreparationContext,
   beforeMembers: readonly string[]
 ): void {
+  if (context.publishedBaseline !== undefined) return;
   const preparedMembers =
     context.sourceMembers ??
     context.records.map((record) => record.sourcePath).sort();

@@ -40,7 +40,7 @@ import type { ResourceMoveProgress } from "./rename-contract.ts";
 import type { InvestigationSource } from "./types.ts";
 import type { ResourceTreeScan } from "./discard-history.ts";
 import { verifyInvestigationMembers } from "./transaction-files.ts";
-import { collectValidatedInvestigationCollection } from "./validation-collection.ts";
+import { readLocalPublication } from "./local-publication.ts";
 
 import {
   createDiscardPublicationContext,
@@ -112,23 +112,18 @@ async function validateDiscardFormalCollection(
   phase?: RecordVerificationPhase
 ): Promise<void> {
   if (context.options.indexText === null) return;
-  const collection = await collectValidatedInvestigationCollection(
+  const preparation = new InvestigationPreparation(
+    context.transactionRoot,
     context.options.root,
-    {
-      allowEmptyCollection: true,
-      preparation:
-        phase === undefined
-          ? undefined
-          : new InvestigationPreparation(
-              context.transactionRoot,
-              context.options.root,
-              phase
-            )
-    }
+    phase
   );
-  if (collection.errors.length > 0)
-    throw new Error(collection.errors.join("; "));
+  const ids =
+    phase === undefined
+      ? []
+      : context.options.originalSources.map((source) => source.id);
+  await readLocalPublication(context.options.root, ids, preparation);
 }
+
 async function applyDiscardResources(
   context: DiscardPublicationContext
 ): Promise<void> {

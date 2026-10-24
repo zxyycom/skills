@@ -36,7 +36,7 @@ const recordOperationInputs = [
 ];
 const decisionRecordInputs = [
   ...recordOperationInputs,
-  "tools/decision-records/src/{application-result,index,list-facets,markdown,projection,record,relation-*,scan*,types,decision-{history-baseline,index-*,location,metadata*,path,record-lookup,source-{revision,dependencies,path-safety},state-*,timestamp,trace-admission,validation}}.ts",
+  "tools/decision-records/src/{application-result,index,list-facets,markdown,projection,record,relation-*,scan*,types,decision-{history-{baseline,sources},index-*,location,metadata*,path,record-lookup,source-{revision,dependencies,path-safety},state-*,timestamp,trace-admission,validation}}.ts",
   "tools/decision-records/src/decision-query-context.ts",
   "tools/decision-records/tests/{support,support-record-fixture,support-git-fixture,domain-fixture,run}.ts",
   "tools/decision-records/tests/fixtures/**",
@@ -62,7 +62,7 @@ const decisionMaintenanceInputs = [
   "tools/decision-records/tests/reallocation-fixture.ts",
   "tools/decision-records/tests/native-creation-mode-probe.ts",
   "tools/decision-records/tests/support-local-contracts.ts",
-  "tools/decision-records/tests/{activation-archive,candidate-lifecycle,candidate-scaffold,candidate-operations,evolution,lifecycle-relations,relation-maintenance,rename,transaction-recovery,unrecorded-history,filesystem-boundaries}/**",
+  "tools/decision-records/tests/{activation-archive,candidate-lifecycle,candidate-scaffold,candidate-operations,evolution,lifecycle-relations,relation-maintenance,rename,transaction-recovery,unrecorded-history,filesystem-boundaries,localize-record-operations}/**",
   "tools/decision-records/tests/checks/lifecycle-and-recovery.ts"
 ];
 const decisionStageInputs = [
@@ -99,11 +99,11 @@ const investigationQueryInputs = [
 ];
 const investigationMaintenanceInputs = [
   ...recordOperationInputs,
-  "tools/investigation-report/src/{candidate*,discard*,publish*,relation-review*,relation-transaction*,rename*,strict-preparation,transaction-files}.ts",
+  "tools/investigation-report/src/{candidate*,discard*,local-publication,publish*,relation-review*,relation-transaction*,rename*,strict-preparation,transaction-files}.ts",
   "tools/investigation-report/tests/publish-support.ts",
   "tools/investigation-report/tests/native-creation-mode-probe.ts",
   "tools/investigation-report/tests/{rename-resource-fixture,phase-verification-support}.ts",
-  "tools/investigation-report/tests/{transaction*,relation-review,discard*,publish,rename*,resource-phase-verification,strict-preparation,candidate-discard-transaction,candidate-operations,result-integrity,execution-entry-contract}.test.ts",
+  "tools/investigation-report/tests/{transaction*,relation-review,discard*,publish,rename*,resource-phase-verification,strict-preparation,candidate-discard-transaction,candidate-operations,local-publication,result-integrity,execution-entry-contract}.test.ts",
   "tools/investigation-report/tests/fixtures/rename-noop/**",
   "tools/investigation-report/tests/checks/transactional-maintenance.ts"
 ];

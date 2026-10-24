@@ -1,3 +1,4 @@
+import { investigationNameFromId } from "./report-path.ts";
 import {
   readRecordStagePending,
   sameRecordStagePendingIndex
@@ -10,6 +11,7 @@ import {
   type StateIndexDefinition
 } from "../../index-runtime/src/index.ts";
 import {
+  extendsPendingSnapshot,
   readPendingSnapshot,
   type PendingSnapshot
 } from "../../shared/src/version-control/pending-snapshot.ts";
@@ -43,103 +45,265 @@ export async function readDomainPending(
     InvestigationIndexMetadata
   >,
   control: DomainStageControl,
-  options: Readonly<{
-    contentPaths?: readonly string[];
-    previous?: Pick<DomainSnapshot, "pending" | "pendingIndex">;
-  }> = {}
+  options: DomainPendingReadOptions = {}
 ): Promise<DomainPendingFacts> {
   const { contentPaths = [], previous } = options;
-  const reportPaths = await changedPendingReportPaths(
+  const { locatorPending, locatorIndex, canonicalPaths } =
+    await discoverDomainPendingLocators(
+      domain,
+      baseline,
+      definition,
+      control,
+      options
+    );
+  const reportPaths = selectedPendingReportPaths(
     domain,
-    baseline,
-    control
+    locatorIndex,
+    control.input.reportIds,
+    contentPaths,
+    canonicalPaths
   );
   const pending = await readRecordStagePending(domain.repository, {
     scope: control.input.scope,
     indexPath: domain.repositoryIndexPath,
     pathScope: domain.investigationsScope,
-    contentPaths: [...reportPaths, domain.repositoryIndexPath, ...contentPaths]
+    contentPaths: [
+      ...reportPaths,
+      ...(control.input.scope !== "domain" || locatorPending !== null
+        ? [domain.repositoryIndexPath]
+        : []),
+      ...contentPaths
+    ]
   });
-  const pendingIndex =
-    previous !== undefined &&
-    sameRecordStagePendingIndex(
-      previous.pending,
-      pending,
-      domain.repositoryIndexPath
-    )
-      ? previous.pendingIndex
-      : parseDomainPendingIndex(
-          pending,
-          baseline.baseline,
-          domain.repositoryIndexPath,
-          definition,
-          control.input.scope
-        );
+  if (
+    locatorPending !== null &&
+    !extendsPendingSnapshot(locatorPending, pending)
+  )
+    throw new Error(
+      "The pending index changed during selected locator acquisition"
+    );
+  const pendingIndex = pendingProjection(pending, previous, {
+    scope: control.input.scope,
+    locatorIndex,
+    indexPath: domain.repositoryIndexPath,
+    baseline: baseline.baseline,
+    definition
+  });
   const pendingReportPaths = pendingReportOwnership(pending.files, reportPaths);
   return { pending, pendingIndex, pendingReportPaths };
 }
 
-async function changedPendingReportPaths(
+function selectedPendingReportPaths(
   domain: DomainRepository,
-  baseline: Pick<DomainSnapshot, "revision">,
-  control: DomainStageControl
-): Promise<readonly string[]> {
-  const changed =
-    control.input.scope === "index"
-      ? []
-      : baseline.revision === null
-        ? (
-            await readPendingSnapshot(domain.repository, {
-              pathScope: domain.investigationsScope,
-              contentPaths: []
-            })
-          ).members.map((file) => file.path)
-        : await domain.repository.listPendingChangedPaths({
-            from: baseline.revision,
-            pathScopes: [domain.investigationsScope]
-          });
-  const reportPaths = changed.filter((file) =>
-    isInvestigationSourcePath(
-      path.posix.relative(domain.investigationsScope, file)
-    )
-  );
-  return reportPaths;
+  locatorIndex: DomainSnapshot["pendingIndex"],
+  selectors: readonly string[],
+  contentPaths: readonly string[],
+  canonicalPaths: readonly string[]
+): string[] {
+  return [
+    ...new Set([
+      ...Object.entries(locatorIndex?.entries ?? {})
+        .filter(([id]) =>
+          selectors.some(
+            (selector) =>
+              id === selector || investigationNameFromId(id) === selector
+          )
+        )
+        .map(([, state]) =>
+          path.posix.join(domain.investigationsScope, state.sourcePath)
+        ),
+      ...contentPaths.filter((file) =>
+        isInvestigationSourcePath(
+          path.posix.relative(domain.investigationsScope, file)
+        )
+      ),
+      ...canonicalPaths
+    ])
+  ];
 }
+
+type DomainPendingReadOptions = Readonly<{
+  contentPaths?: readonly string[];
+  workspaceIndex?: DomainSnapshot["workspaceIndex"];
+  previous?: Pick<DomainSnapshot, "pending" | "pendingIndex">;
+}>;
+
+type DomainPendingDefinition = StateIndexDefinition<
+  InvestigationIndexState,
+  InvestigationIndexMetadata
+>;
+
+type DomainPendingLocators = Readonly<{
+  locatorPending: PendingSnapshot | null;
+  locatorIndex: DomainSnapshot["pendingIndex"];
+  canonicalPaths: readonly string[];
+}>;
+
+async function discoverDomainPendingLocators(
+  domain: DomainRepository,
+  baseline: Pick<DomainSnapshot, "baseline" | "revision">,
+  definition: DomainPendingDefinition,
+  control: DomainStageControl,
+  options: DomainPendingReadOptions
+): Promise<DomainPendingLocators> {
+  const metadata =
+    control.input.scope === "index"
+      ? null
+      : await readPendingSnapshot(domain.repository, {
+          pathScope: domain.investigationsScope,
+          contentPaths: [],
+          payloadScope: "content-paths"
+        });
+  const canonicalPaths = selectedCanonicalPendingPaths(
+    domain,
+    metadata,
+    control
+  );
+  const needsPendingLocator =
+    control.input.scope === "domain" &&
+    requiresPendingLocator(
+      control.input.reportIds,
+      [baseline.baseline, options.workspaceIndex],
+      canonicalPaths
+    );
+  const locators =
+    control.input.scope === "domain" &&
+    metadata?.members.some(
+      (member) => member.path === domain.repositoryIndexPath
+    )
+      ? await readDomainLocatorIndex(
+          domain,
+          baseline.baseline,
+          definition,
+          control,
+          needsPendingLocator
+        )
+      : { locatorPending: null, locatorIndex: null };
+  return { ...locators, canonicalPaths };
+}
+
+function selectedCanonicalPendingPaths(
+  domain: DomainRepository,
+  metadata: PendingSnapshot | null,
+  control: DomainStageControl
+): string[] {
+  return (metadata?.members ?? [])
+    .filter((member) => {
+      const relative = path.posix.relative(
+        domain.investigationsScope,
+        member.path
+      );
+      if (!isInvestigationSourcePath(relative)) return false;
+      const locator = relative.slice(0, -3);
+      return control.input.reportIds.some(
+        (selector) =>
+          locator === selector || investigationNameFromId(locator) === selector
+      );
+    })
+    .map((member) => member.path);
+}
+
+function requiresPendingLocator(
+  selectors: readonly string[],
+  indexes: readonly (DomainSnapshot["baseline"] | undefined)[],
+  canonicalPaths: readonly string[]
+): boolean {
+  return selectors.some(
+    (selector) =>
+      !indexes.some((index) =>
+        Object.keys(index?.entries ?? {}).some(
+          (id) => id === selector || investigationNameFromId(id) === selector
+        )
+      ) &&
+      !canonicalPaths.some((sourcePath) => {
+        const locator = path.posix.basename(sourcePath, ".md");
+        return (
+          locator === selector || investigationNameFromId(locator) === selector
+        );
+      })
+  );
+}
+
+async function readDomainLocatorIndex(
+  domain: DomainRepository,
+  baseline: DomainSnapshot["baseline"],
+  definition: DomainPendingDefinition,
+  control: DomainStageControl,
+  required: boolean
+): Promise<Pick<DomainPendingLocators, "locatorPending" | "locatorIndex">> {
+  let locatorPending: PendingSnapshot | null = null;
+  let locatorIndex: DomainSnapshot["pendingIndex"] = null;
+  // Only index acquisition/parsing is optional; selected source failures propagate later.
+  try {
+    locatorPending = await readRecordStagePending(domain.repository, {
+      scope: control.input.scope,
+      indexPath: domain.repositoryIndexPath,
+      pathScope: domain.investigationsScope,
+      contentPaths: [domain.repositoryIndexPath]
+    });
+    locatorIndex = parseDomainPendingIndex(locatorPending, definition, {
+      baseline,
+      indexPath: domain.repositoryIndexPath,
+      scope: "domain"
+    });
+  } catch (error) {
+    if (required) throw error;
+  }
+  return { locatorPending, locatorIndex };
+}
+
+function pendingProjection(
+  pending: PendingSnapshot,
+  previous: DomainPendingReadOptions["previous"],
+  options: DomainPendingProjection &
+    Readonly<{
+      locatorIndex: DomainSnapshot["pendingIndex"];
+      definition: DomainPendingDefinition;
+    }>
+): DomainSnapshot["pendingIndex"] {
+  if (options.scope === "domain") return options.locatorIndex;
+  if (
+    previous !== undefined &&
+    sameRecordStagePendingIndex(previous.pending, pending, options.indexPath)
+  )
+    return previous.pendingIndex;
+  return parseDomainPendingIndex(pending, options.definition, options);
+}
+
+type DomainPendingProjection = Readonly<{
+  baseline: DomainSnapshot["baseline"];
+  indexPath: string;
+  scope: "all" | "domain" | "index";
+}>;
 
 function parseDomainPendingIndex(
   pending: PendingSnapshot,
-  baseline: DomainSnapshot["baseline"],
-  indexPath: string,
-  definition: StateIndexDefinition<
-    InvestigationIndexState,
-    InvestigationIndexMetadata
-  >,
-  scope: "all" | "domain" | "index"
+  definition: DomainPendingDefinition,
+  options: DomainPendingProjection
 ): DomainSnapshot["pendingIndex"] {
-  const indexFile = pending.files.find((file) => file.path === indexPath);
-  let pendingIndex: DomainSnapshot["pendingIndex"] = null;
-  if (scope !== "domain") {
-    if (indexFile === undefined && baseline !== null)
-      throw new Error(
-        "The pending index was deleted; restore that deletion before selective stage"
-      );
-    if (indexFile !== undefined) {
-      if (indexFile.kind === "symlink")
-        throw new Error("The pending index must be an ordinary file");
-      const parsed = parseStateIndex({
-        definition,
-        expectation: expectationOf(definition),
-        sourcePath: indexPath,
-        text: decodeUtf8(indexFile.data)
-      });
-      if (parsed.status === "error")
-        throw new Error(
-          parsed.diagnostics.map((item) => item.message).join("; ")
-        );
-      pendingIndex = parsed.value;
-    }
-  }
-  return pendingIndex;
+  const indexFile = pending.files.find(
+    (file) => file.path === options.indexPath
+  );
+  if (
+    indexFile === undefined &&
+    options.baseline !== null &&
+    options.scope !== "domain"
+  )
+    throw new Error(
+      "The pending index was deleted; restore that deletion before selective stage"
+    );
+  if (indexFile === undefined) return null;
+  if (indexFile.kind === "symlink")
+    throw new Error("The pending index must be an ordinary file");
+  const parsed = parseStateIndex({
+    definition,
+    expectation: expectationOf(definition),
+    sourcePath: options.indexPath,
+    text: decodeUtf8(indexFile.data)
+  });
+  if (parsed.status === "error")
+    throw new Error(parsed.diagnostics.map((item) => item.message).join("; "));
+  return parsed.value;
 }
 
 function pendingReportOwnership(

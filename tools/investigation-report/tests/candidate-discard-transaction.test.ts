@@ -19,7 +19,7 @@ import { synchronizeInvestigationIndex } from "../src/validation.ts";
 import { writeCollection } from "./collection-support.ts";
 import { candidatePath, createReadyCandidate } from "./publish-support.ts";
 
-test("discard identifies candidates and protects shared and recorded authoring resources without changing formal reports", async () => {
+test("candidate discard leaves unselected draft references untouched and protects recorded deletion", async () => {
   await withTempRoot("discard-candidate", async (root) => {
     await writeCollection(root, [{ id: "formal" }]);
     await createReadyCandidate(root, "candidate.md", {
@@ -43,7 +43,14 @@ test("discard identifies candidates and protects shared and recorded authoring r
       id: "candidate",
       workspaceRoot: root
     });
-    assert.ok(shared.errors.some((error) => error.includes("consumer")));
+    assert.deepEqual(shared.errors, []);
+    await fs.access(candidatePath(root, "consumer.md"));
+    await createReadyCandidate(root, "candidate.md", {
+      id: "candidate",
+      resources: ["candidate/evidence.txt"]
+    });
+    await fs.mkdir(path.dirname(resource), { recursive: true });
+    await fs.writeFile(resource, "evidence");
     assert.equal(
       await fs.readFile(
         path.join(investigationRoot(root), "formal.md"),
@@ -142,7 +149,7 @@ test("candidate discard reports pending cleanup after its tombstone commit", asy
   });
 });
 
-test("formal discard refuses owner resources still referenced by an authoring candidate", async () => {
+test("formal discard ignores unselected authoring resource references", async () => {
   await withTempRoot("formal-discard-candidate-reference", async (root) => {
     await writeCollection(
       root,
@@ -179,12 +186,13 @@ test("formal discard refuses owner resources still referenced by an authoring ca
       id: "formal",
       workspaceRoot: root
     });
-    assert.ok(discarded.errors.some((error) => error.includes("candidate")));
-    assert.equal(await fs.readFile(resource, "utf8"), "evidence");
+    assert.deepEqual(discarded.errors, []);
+    assert.equal(discarded.changed, true);
+    await assert.rejects(fs.access(resource));
   });
 });
 
-test("destructive discards fail closed when candidate resource references cannot be read", async () => {
+test("formal discard does not read malformed unselected candidate resource references", async () => {
   await withTempRoot("candidate-reference-read-failure", async (root) => {
     await writeCollection(
       root,
@@ -215,14 +223,20 @@ test("destructive discards fail closed when candidate resource references cannot
       id: "formal",
       workspaceRoot: root
     });
-    assert.equal(discarded.changed, false);
-    assert.ok(discarded.errors.some((error) => error.includes("candidate")));
-    assert.equal(await fs.readFile(resource, "utf8"), "evidence");
-    await fs.access(path.join(investigationRoot(root), "formal.md"));
+    assert.equal(discarded.changed, true);
+    assert.deepEqual(discarded.errors, []);
+    await assert.rejects(fs.access(resource));
+    await assert.rejects(
+      fs.access(path.join(investigationRoot(root), "formal.md"))
+    );
+    assert.equal(
+      await fs.readFile(candidatePath(root, "candidate.md"), "utf8"),
+      "invalid\n"
+    );
   });
 });
 
-test("candidate discard fails closed when formal resource references are invalid", async () => {
+test("candidate discard uses published resource declarations instead of unselected formal edits", async () => {
   await withTempRoot(
     "candidate-discard-invalid-formal-reference",
     async (root) => {
@@ -253,10 +267,10 @@ test("candidate discard fails closed when formal resource references are invalid
         id: "candidate",
         workspaceRoot: root
       });
-      assert.equal(discarded.changed, false);
-      assert.ok(discarded.errors.length > 0);
-      await fs.access(candidatePath(root, "candidate.md"));
-      assert.equal(await fs.readFile(resource, "utf8"), "evidence");
+      assert.equal(discarded.changed, true);
+      assert.deepEqual(discarded.errors, []);
+      await assert.rejects(fs.access(candidatePath(root, "candidate.md")));
+      await assert.rejects(fs.access(resource));
     }
   );
 });

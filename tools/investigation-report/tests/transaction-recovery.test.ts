@@ -279,7 +279,7 @@ test("set-relations release cleanup failure preserves committed bytes without a 
   });
 });
 
-test("set-relations preserves unrelated published entries while rejecting drift in a complete touched split event", async () => {
+test("set-relations uses indexed split closure without reading unselected split siblings", async () => {
   await withTempRoot("relations-local-dependencies", async (root) => {
     await writeCollection(root, [
       { id: "base" },
@@ -342,13 +342,17 @@ test("set-relations preserves unrelated published entries while rejecting drift 
         }
       ]
     });
-    assert.equal(rejected.changed, false);
-    assert.ok(
-      rejected.errors.some(
-        (error) => error.includes("right") && error.includes("sync-index")
-      )
+    assert.equal(rejected.changed, true);
+    assert.deepEqual(rejected.errors, []);
+    assert.notEqual(
+      await fs.readFile(`${directory}/left.md`, "utf8"),
+      beforeLeft
     );
-    assert.equal(await fs.readFile(`${directory}/left.md`, "utf8"), beforeLeft);
-    assert.equal(await fs.readFile(indexPath, "utf8"), currentIndex);
+    const updated = JSON.parse(await fs.readFile(indexPath, "utf8"));
+    assert.deepEqual(updated.entries.right, parsedIndex.entries.right);
+    assert.equal(
+      updated.sourceRevision.entries.right,
+      parsedIndex.sourceRevision.entries.right
+    );
   });
 });

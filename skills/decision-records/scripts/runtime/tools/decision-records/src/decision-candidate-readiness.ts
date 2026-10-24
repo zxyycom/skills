@@ -9,9 +9,7 @@
  */
 import path from "node:path";
 import type { CandidateSource } from "../../record-operations/src/candidate.ts";
-import { readRecordSource } from "../../record-operations/src/source.ts";
 import type { CandidateIdentityContext } from "./decision-candidate-discovery.ts";
-import { decisionIdFromMarkdown } from "./decision-metadata.ts";
 import { isDecisionId } from "./decision-path.ts";
 import { decisionIndexFileName } from "./decision-state-index.ts";
 import {
@@ -96,16 +94,16 @@ async function validateDirectCandidateDependencies(
       );
       continue;
     }
-    const source = await directCandidateDependency(
-      relation.target,
-      phase.identity
-    );
+    // Readiness checks published dependencies by their validated snapshot, not current text.
+    if (!phase.identity.collection.candidateById.has(relation.target)) continue;
+    const source = phase.identity.collection.candidateById.get(
+      relation.target
+    )!;
     const errors = await candidateDependencyErrors(source, phase);
-    if (errors.length > 0) {
+    if (errors.length > 0)
       throw new Error(
         "Direct candidate dependency is invalid: " + errors.join("; ")
       );
-    }
   }
   return warnings;
 }
@@ -126,32 +124,4 @@ async function candidateDependencyErrors(
     sourceFiles: [candidateSourceFile(source, phase)]
   });
   return errors;
-}
-
-async function directCandidateDependency(
-  id: DecisionId,
-  identity: CandidateIdentityContext
-): Promise<CandidateSource> {
-  const dependency = identity.collection.identityById.get(id);
-  if (dependency === undefined) {
-    throw new Error("Direct candidate dependency is unavailable: " + id);
-  }
-  const candidate = identity.collection.candidateById.get(id);
-  if (
-    identity.collection.indexStatus === "missing" &&
-    candidate === undefined
-  ) {
-    throw new Error(
-      "Direct formal dependency requires explicit index recovery: " + id
-    );
-  }
-  const text =
-    candidate?.text ??
-    (await readRecordSource({
-      collectionRoot: identity.decisionsDirectory,
-      sourcePath: dependency.sourcePath,
-      id,
-      idFromMarkdown: decisionIdFromMarkdown
-    }));
-  return { ...dependency, text };
 }

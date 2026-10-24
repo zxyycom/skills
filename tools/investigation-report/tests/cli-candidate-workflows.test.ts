@@ -36,7 +36,7 @@ test("candidate queries report readiness while formal sources and default checks
     assert.equal(created.status, "ok");
     const candidatePath = candidatePathForInvestigationId(
       path.join(root, "docs", "investigations"),
-      candidateInput.id
+      candidateId
     );
     await fs.writeFile(
       candidatePath,
@@ -116,7 +116,7 @@ test("candidate queries report readiness while formal sources and default checks
 
 test("candidate root safety failures block formal checks and candidate CLI keeps creation success separate from readiness", async () => {
   await withTempRoot("candidate-cli-and-safety", async (root) => {
-    await writeCollection(root, [{ id: "formal" }], false);
+    await writeCollection(root, [{ id: "formal" }]);
     const created = await runInvestigationCli(root, [
       "new",
       candidateInput.id,
@@ -135,7 +135,7 @@ test("candidate root safety failures block formal checks and candidate CLI keeps
     assert.match(created.stdout, /Investigation candidate created:/u);
     assert.match(created.stdout, /260902-candidate-topic/u);
     assert.match(created.stdout, /title: 候选调查/u);
-    assert.match(created.stdout, /path: .*_candidate\.candidate-topic/u);
+    assert.match(created.stdout, /path: .*_candidate\.260902-candidate-topic/u);
     assert.match(created.stdout, /scaffoldValid: true/u);
     assert.match(created.stdout, /bodyReady: false/u);
     assert.match(created.stdout, /resourceReady: true/u);

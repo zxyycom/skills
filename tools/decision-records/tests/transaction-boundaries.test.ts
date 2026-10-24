@@ -69,7 +69,7 @@ test("Decision lifecycle preflight ignores busy mutation lock and writes neither
   );
 });
 
-test("Decision unchanged maintenance still refuses dependency drift between prepare and fresh", async () => {
+test("Decision unchanged maintenance still refuses selected source drift between prepare and fresh", async () => {
   await withTemporaryWorkspace("transaction-unchanged-fresh", async (root) => {
     await fixture(root);
     const request: DecisionLifecycleRequest = {
@@ -91,19 +91,13 @@ test("Decision unchanged maintenance still refuses dependency drift between prep
       throw new Error("Expected relation preparation");
     assert.equal(prepared.changes.length, 0);
     const index = await fs.readFile(indexPath(root));
-    const descriptor = Object.getOwnPropertyDescriptor(fs, "readdir");
-    assert.ok(descriptor);
-    const readdir = fs.readdir.bind(fs);
+    const originalOpen = fs.open;
     let reads = 0;
-    Object.defineProperty(fs, "readdir", {
-      ...descriptor,
-      value: async (...args: Parameters<typeof fs.readdir>) => {
-        const entries = await readdir(...args);
-        if (String(args[0]) === context.decisionsDirectory && ++reads === 2)
-          await fs.appendFile(decisionFilePath(root, a), "\n- winner edit\n");
-        return entries;
-      }
-    });
+    fs.open = (async (...args) => {
+      if (String(args[0]) === decisionFilePath(root, a) && ++reads === 2)
+        await fs.appendFile(decisionFilePath(root, a), "\n- winner edit\n");
+      return originalOpen(...args);
+    }) as typeof fs.open;
     try {
       const result = await applyPreparedDecisionTransaction({
         context,
@@ -112,8 +106,9 @@ test("Decision unchanged maintenance still refuses dependency drift between prep
       assert.equal(result.status, "error");
       if (result.status === "error") assert.equal(result.outcome, "no-change");
     } finally {
-      Object.defineProperty(fs, "readdir", descriptor);
+      fs.open = originalOpen;
     }
+
     assert.match(
       await fs.readFile(decisionFilePath(root, a), "utf8"),
       /winner edit/
@@ -129,16 +124,17 @@ test("Decision same identity and path rename preserves noncanonical bytes modes 
     await fs.rename(decisionFilePath(root, a), source);
     await sync(root);
     commitWorkspace(root);
-    await fs.appendFile(
-      decisionFilePath(root, b),
-      "\n## 决策\n- 重复标题使无关正文失效。\n"
-    );
     await fs.writeFile(
       source,
       (await fs.readFile(source, "utf8")).replace(
         "relations: []",
         "relations: [ ]"
       )
+    );
+    await sync(root);
+    await fs.appendFile(
+      decisionFilePath(root, b),
+      "\n## 决策\n- 重复标题使无关正文失效。\n"
     );
     await fs.chmod(source, 0o750);
     const before = await fs.readFile(source);
@@ -158,23 +154,37 @@ test("Decision same identity and path rename preserves noncanonical bytes modes 
   });
 });
 
-test("Decision real rename retains full collection body validation", async () => {
+test("Decision real rename preserves unrelated invalid published sources", async () => {
   await withTemporaryWorkspace("transaction-rename-strict", async (root) => {
     await fixture(root);
     await fs.appendFile(
       decisionFilePath(root, b),
       "\n## 决策\n- 无关正文仍必须完整合法。\n"
     );
-    const source = await fs.readFile(decisionFilePath(root, a));
     const index = await fs.readFile(indexPath(root));
     const result = await renameDecisionRecord({
       workspaceRoot: root,
       source: a,
       target: "changed-name"
     });
-    assert.equal(result.status, "error");
-    assert.deepEqual(await fs.readFile(decisionFilePath(root, a)), source);
-    assert.deepEqual(await fs.readFile(indexPath(root)), index);
+    assert.equal(result.status, "ok", JSON.stringify(result));
+    if (result.status !== "ok") assert.fail("Expected local rename");
+    await assert.rejects(fs.access(decisionFilePath(root, a)), {
+      code: "ENOENT"
+    });
+    assert.match(
+      await fs.readFile(
+        path.join(root, "docs/decisions", result.plan.newSourcePath),
+        "utf8"
+      ),
+      /id: 260901-changed-name/
+    );
+    const after = parseIndex(await fs.readFile(indexPath(root), "utf8"));
+    assert.deepEqual(after.entries[b], parseIndex(index.toString()).entries[b]);
+    assert.match(
+      await fs.readFile(decisionFilePath(root, b), "utf8"),
+      /无关正文仍必须完整合法/
+    );
   });
 });
 

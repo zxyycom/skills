@@ -1,7 +1,7 @@
 ---
 title: 采用日期前缀记录身份
 id: 260904-adopt-date-prefixed-record-identities
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-04T15:51:50Z
 purpose: 让保留记录在语义同名时仍可稳定选择并保留形成日。

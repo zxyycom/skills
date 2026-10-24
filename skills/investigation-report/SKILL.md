@@ -5,7 +5,7 @@ description: >-
   以一份可独立复核的报告保存一轮形成时的背景、依据、结果和边界，
   并用稳定 Investigation ID、tags 和直接前序关系维护分类与认识演进。
 metadata:
-  version: "83"
+  version: "84"
 ---
 
 # Investigation Report
@@ -109,7 +109,7 @@ agent 在当前授权范围内，自行审查证据、报告边界、资源与�
 
 1. 用 `show-candidate` 核对结构、正文与资源 readiness，再独立完成语义审查和 publish 授权判断。
 2. 按[候选创建与发布](references/cli-operations.md#候选创建与发布)执行；需要写前审阅预计影响时单独预检。正式编辑、关系维护、身份更正或删除按对应契约执行。
-3. 已知合法正式来源手改先 `sync-index`；普通维护按本次来源、依赖和最终发布图交付。任务要求当前全集健康时，在维护批次验收运行全量 `check`；删除、身份更正和恢复保持各自严格验收。未解释的索引异常先检查诊断，只读审阅保持集合状态不变。
+3. 已知合法正式来源手改先 `sync-index`。普通维护（含删除、身份更正）按发布索引、所选及实际改写来源和最终组合图交付；未选正文或候选引用不作当前性证明。任务要求当前全集健康时，在维护批次验收运行全量 `check`。索引异常与恢复按[维护恢复](references/maintenance-recovery.md)处理；只读审阅保持集合状态不变。
 4. 任务要求 Git 待提交快照时，再按[暂存操作](references/cli-operations.md#待提交快照)执行 `stage`。commit 与 push 分别服从当前授权。
 
 ## 完成标准

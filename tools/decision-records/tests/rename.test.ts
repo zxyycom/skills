@@ -60,7 +60,7 @@ test("Decision rename keeps the established date, moves its source, and rebuilds
     );
   }));
 
-test("Decision rename rewrites candidate and established structured relation targets", () =>
+test("Decision rename rewrites published structured references and leaves unselected candidates unchanged", () =>
   withFixtureWorkspace("rename-relations", async (workspaceRoot) => {
     const candidatePath = decisionFilePath(workspaceRoot, "dependent.md");
     await fs.writeFile(
@@ -99,7 +99,7 @@ test("Decision rename rewrites candidate and established structured relation tar
     ]);
     assert.equal(result.exitCode, 0, result.stderr);
     const candidate = await fs.readFile(candidatePath, "utf8");
-    assert.match(candidate, /target: 260710-renamed-source/u);
+    assert.match(candidate, /target: 260710-use-source-cli/u);
     assert.match(candidate, /summary: 保留前序的理由/u);
     const established = await fs.readFile(establishedPath, "utf8");
     assert.match(established, /target: 260710-renamed-source/u);
@@ -108,10 +108,17 @@ test("Decision rename rewrites candidate and established structured relation tar
     assert.deepEqual(index.entries[currentDecisionId]?.relations, [
       { type: "修订", target: "260710-renamed-source", summary: "正式前序说明" }
     ]);
-    assert.equal(
-      (await runSourceCli(["check", "--root", workspaceRoot])).exitCode,
-      0
-    );
+    const later = await runSourceCli([
+      "publish",
+      "260712-dependent",
+      "--alignment",
+      "aligned",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(later.exitCode, 1);
+    assert.match(later.stderr, /260710-use-source-cli/);
+    assert.equal(await fs.readFile(candidatePath, "utf8"), candidate);
   }));
 
 test("Decision rename preflight is read-only and legacy candidates require an explicit dated target", () =>

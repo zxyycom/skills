@@ -1,14 +1,13 @@
-### Case DECISION-DISCARD-INVALID-ESTABLISHED-SOURCE-001: Discard 在非法已建立来源前零写入失败
+### Case DECISION-DISCARD-INVALID-ESTABLISHED-SOURCE-001: 局部候选删除不验证未选正式正文
 
 Tests:
-- `test:e2ed109ddeaf2378b3336c11e1f4b6785a695ffe31e759df0f57dd45ee4775fb`
+- `test:ec58a8559ac3caa9df9cf303bae3dea0890a2e5802fdbc7e76552de498e71b55`
 
 Tags:
 - `decision-records`
 
 Contract:
-- discard 必须先验证完整已建立来源；任何 archived alignment:null 来源都必须阻止 candidate discard，不能以删除后回滚替代写前拒绝。
+- discard 使用合法发布索引与所选候选，不替未选正式正文证明当前性。
 
 Proves:
-- 命令以 alignment/no-change 诊断失败且 stdout 为空。
-- candidate Markdown 的内容和 mtime 以及持久索引字节均保持不变。
+- 未选归档来源的 alignment 被外部改为 null 后，候选删除仍成功；该非法正文和正式索引原字节保持，所选候选确实退出。

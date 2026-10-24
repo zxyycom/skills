@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import { loadCandidateIdentityContext } from "./decision-candidate-discovery.ts";
 import type { DecisionSourceCapture } from "./decision-strict-preparation.ts";
 import {
   decisionAttention,
@@ -24,8 +25,11 @@ import { tryNoopDecisionRename } from "./decision-rename-noop.ts";
 import { decisionTransactionLockFailure } from "./decision-transaction-outcome.ts";
 import type { DecisionMutationOutcome } from "./application-result.ts";
 import { applyLockedDecisionChanges } from "./decision-transaction.ts";
-import { loadDecisionTransactionValidationContext } from "./scan-snapshot.ts";
-import { type DecisionScan, type DecisionScanOptions } from "./types.ts";
+import { loadDecisionMaintenanceContext } from "./decision-maintenance-context.ts";
+import {
+  type DecisionPreparationContext,
+  type DecisionScanOptions
+} from "./types.ts";
 import {
   prepareDecisionRename,
   type PreparedRenameStep
@@ -275,7 +279,7 @@ type LockedRenamePreparation = Extract<
   PreparedRenameStep,
   { status: "ready" }
 > & {
-  scan: DecisionScan;
+  scan: DecisionPreparationContext;
   sourceCapture?: DecisionSourceCapture;
 };
 
@@ -283,35 +287,71 @@ async function prepareDecisionRenameAtCurrentState(
   options: DecisionRenameOptions,
   requireConfirmation: boolean
 ): Promise<DecisionRenameResult | LockedRenamePreparation> {
-  const { result, sourceCapture } =
-    await loadDecisionTransactionValidationContext(options, {
-      allowEmptyDecisionSet: true
-    });
-  if (result.errors.length > 0) {
+  let scan: DecisionPreparationContext;
+  try {
+    scan = await loadDecisionMaintenanceContext(
+      options,
+      {
+        action: "discard",
+        decisionId: options.source as import("./types.ts").DecisionId,
+        deleteRecorded: true
+      },
+      true
+    );
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
     return {
-      ...decisionFailure(
-        result.errors.map((reason) =>
-          decisionDiagnostic({
-            code: "decision-records.rename-collection-invalid",
-            outcome: "no-change",
-            reason,
-            recovery:
-              "Correct the Decision collection and derived index before retrying rename.",
-            scope: decisionRenameScope,
-            target: "Decision rename"
-          })
-        )
-      ),
+      ...decisionFailure([
+        decisionDiagnostic({
+          code: /name is ambiguous/.test(reason)
+            ? "decision-records.rename-source-ambiguous"
+            : "decision-records.rename-collection-invalid",
+          reason,
+          outcome: "no-change",
+          target: options.source,
+          recovery:
+            "Inspect the selected source and published index; use a complete ID or explicitly recover the index before retrying."
+        })
+      ]),
       plan: null
     };
   }
-  const prepared = prepareDecisionRename(result.scan, options);
+  const prepared = prepareDecisionRename(scan, options);
   if (prepared.status !== "ready") return { ...prepared, plan: null };
-  const ready = { ...prepared, scan: result.scan, sourceCapture };
+  if (prepared.value.plan.newId !== prepared.value.plan.oldId) {
+    const targetIdentity = await loadCandidateIdentityContext(
+      scan.decisionsDirectory,
+      [prepared.value.plan.newId]
+    );
+    const collision = targetIdentity.collection.candidateById.get(
+      prepared.value.plan.newId
+    );
+    if (
+      collision !== undefined &&
+      collision.sourcePath !== prepared.value.source.sourcePath
+    )
+      return {
+        ...decisionFailure([
+          decisionDiagnostic({
+            code: "decision-records.rename-id-conflict",
+            outcome: "no-change",
+            reason:
+              "Target Decision ID already exists: " + prepared.value.plan.newId,
+            recovery:
+              "Choose an unused complete Decision ID; an existing candidate must not be overwritten or duplicated.",
+            target: prepared.value.plan.newId
+          })
+        ]),
+        plan: null
+      };
+  }
+  const ready = { ...prepared, scan };
   if (prepared.value.changes.length === 0) return ready;
-  const history = await loadDecisionHistoryBaseline(result.scan);
+  const history = await loadDecisionHistoryBaseline(scan, [
+    prepared.value.source.decisionId
+  ]);
   if (history.status === "error") return { ...history, plan: null };
-  const pending = await pendingDecisionRenameFailure(result.scan);
+  const pending = await pendingDecisionRenameFailure(scan);
   if (pending !== null) return { ...pending, plan: null };
   const recorded =
     history.baseline.kind === "git-head" &&

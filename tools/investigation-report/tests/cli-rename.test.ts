@@ -19,15 +19,15 @@ test("Investigation rename uses dated source IDs exactly and reports ambiguous n
       workspaceRoot
     });
     assert.equal(ambiguous.status, "error");
-    assert.match(ambiguous.errors.join("\n"), /source is ambiguous/u);
+    assert.match(ambiguous.errors.join("\n"), /name is ambiguous/u);
     const targetConflict = await renameInvestigationRecord({
       preflight: true,
       source: "260828-topic",
       target: "topic",
       workspaceRoot
     });
-    assert.equal(targetConflict.status, "error");
-    assert.match(targetConflict.errors.join("\n"), /name already exists/u);
+    assert.equal(targetConflict.status, "ok");
+    assert.equal(targetConflict.changed, false);
     const exact = await runInvestigationCli(workspaceRoot, [
       "rename",
       "260828-topic.md",

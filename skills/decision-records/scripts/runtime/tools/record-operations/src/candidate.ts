@@ -26,13 +26,16 @@ export type RecordCandidateCollection = Readonly<{
   candidateById: ReadonlyMap<string, CandidateSource>;
 }>;
 
-/** 候选动作的身份准备：坏索引不降级；只有真实缺失才使用 header 身份证据。 */
+/** 正式身份只取发布索引；成员发现与候选定位由领域限定，不借候选动作证明正式正文当前性。 */
 export async function prepareRecordCandidates(
   options: Readonly<{
     directory: string;
     indexFileName: string;
     loadPublished: () => Promise<readonly CandidateIdentity[]>;
-    members: () => Promise<readonly CandidateMember[]>;
+    members: (
+      published: readonly CandidateIdentity[],
+      indexStatus: "published" | "missing"
+    ) => Promise<readonly CandidateMember[]>;
     header: (
       text: string,
       member: CandidateMember
@@ -74,22 +77,30 @@ export async function prepareRecordCandidates(
         ]
       : [];
   const seen = new Map<string, string>();
-  for (const member of await options.members()) {
-    // 严格发布位置已提供正式身份，即使领域仅凭路径无法分类，也不重读当前 header。
-    // 此处不证明正式当前内容；未知位置和显式候选仍须安全读取。
+  for (const member of await options.members(published, indexStatus)) {
+    // 发布位置一律由索引承接，包括当前正文已手改为 candidate 的位置。
     const publishedId = publishedPaths.get(member.sourcePath);
-    if (publishedId !== undefined && member.kind !== "candidate") {
+    if (publishedId !== undefined) {
       seen.set(publishedId, member.sourcePath);
+      continue;
+    }
+    if (member.kind === "formal") {
+      if (indexStatus === "missing")
+        throw new Error(
+          "formal index is missing while formal sources exist; explicitly recover the published index before candidate operations"
+        );
       continue;
     }
     const text = await readRecordText(options.directory, member.sourcePath);
     const header = options.header(text, member);
-    if (header.id === null) {
-      if (header.kind !== "candidate")
+    if (header.kind === "formal") {
+      if (indexStatus === "missing")
         throw new Error(
-          member.sourcePath +
-            " must declare a unique valid frontmatter record ID"
+          "formal index is missing while formal sources exist; explicitly recover the published index before candidate operations"
         );
+      continue;
+    }
+    if (header.id === null) {
       warnings.push(
         member.sourcePath +
           " must declare a valid frontmatter record ID; skipped invalid candidate"
@@ -101,15 +112,12 @@ export async function prepareRecordCandidates(
       throw new Error(
         "record ID occurs in more than one source path: " + header.id
       );
-    if (header.kind === "candidate" && formal.has(header.id))
+    if (formal.has(header.id))
       throw new Error(
         "record exists as both candidate and formal: " + header.id
       );
     seen.set(header.id, member.sourcePath);
-    if (header.kind === "candidate")
-      candidates.push({ id: header.id, sourcePath: member.sourcePath, text });
-    else
-      formal.set(header.id, { id: header.id, sourcePath: member.sourcePath });
+    candidates.push({ id: header.id, sourcePath: member.sourcePath, text });
   }
   candidates.sort((left, right) =>
     left.id < right.id ? -1 : left.id > right.id ? 1 : 0

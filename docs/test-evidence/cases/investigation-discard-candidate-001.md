@@ -1,14 +1,13 @@
-### Case INVESTIGATION-DISCARD-CANDIDATE-001: discard 识别候选并保护共享与已记录资源
+### Case INVESTIGATION-DISCARD-CANDIDATE-001: 候选删除的明确范围与历史确认
 
 Tests:
-- `test:bba3191900593fbfd6b7963c19de20dc1a1ecab8a0529b59f9c3db88cada6b3a`
+- `test:fbd72ac7901f2d74403e378964af263e9ba92b245cc0288e58a6ea64a7d07aa9`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 统一 `discard` 按稳定 ID 识别候选目标，只删除该候选及确认的 owner 资源；共享引用和 Git HEAD 记录先阻断，正式报告与索引不属于该事务。
+- 统一 discard 只删除所选候选与授权 owner 树，不自动保护或改写未选候选引用；已进入 HEAD 的目标须确认。
 
 Proves:
-- 其他 candidate 引用 owner resource 时拒绝删除。
-- Git 已记录 candidate 需要独立确认；确认后 candidate 与 owner resource 删除，正式报告字节不变。
+- 未选消费者候选引用不阻断目标删除且自身保留；Git 已记录的候选需要确认，确认后只删除目标和 owner 树，正式正文不变。

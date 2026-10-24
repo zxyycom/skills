@@ -42,14 +42,14 @@ test("discard rejects candidates with invalid relation targets without mutation"
       await fs.writeFile(
         sourcePath,
         candidateDecisionBody({
-          relations: [{ type: "修订", target: invalidTargetRelativePath }]
+          relations: [{ type: "修订", target: "missing-selected-target" }]
         }),
         "utf8"
       );
 
       await assertRejectedDiscardPreserves({
         decisionPath: sourcePath,
-        expectedError: /target is not a valid scanned decision/,
+        expectedError: /missing-selected-target/,
         indexPath,
         relativePath: sourceRelativePath,
         workspaceRoot

@@ -119,10 +119,7 @@ test("publication and archive transitions preserve content and index atomicity",
       workspaceRoot
     ]);
     assert.equal(blockedWithoutIndex.exitCode, 1);
-    assert.match(
-      blockedWithoutIndex.stderr,
-      /decision-index\.json is required/
-    );
+    assert.match(blockedWithoutIndex.stderr, /formal index is missing/);
     assert.match(blockedWithoutIndex.stderr, /run sync-index/);
     assert.equal(await fs.readFile(lifecyclePath, "utf8"), activatedText);
     assert.equal(await fileExists(indexPath), false);

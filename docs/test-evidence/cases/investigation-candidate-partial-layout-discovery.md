@@ -1,13 +1,13 @@
-### Case INVESTIGATION-CANDIDATE-PARTIAL-DISCOVERY-001: 局部候选读取拒绝未恢复的必需正式 owner
+### Case INVESTIGATION-CANDIDATE-PARTIAL-DISCOVERY-001: 候选资源 owner 使用发布定位基线
 
 Tests:
-- `test:36cb633c6dc02ddc1e718ed4b3af2ab138af8f6f93b8ad429c84dfffb500da0b`
+- `test:73e9f70d5e8b13badab18506123d1d9faf854a2a87a00afc2fda4f8c7d9944f3`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 候选共享资源的必需正式 owner 必须能由有效发布基线可靠解析；位置未同步或索引不可用时须显式恢复，不以来源 fallback 或无索引 header 身份代替正式依赖证明。
+- 正式 owner 的当前正文位置不是候选资源声明的必要证据；索引缺失或损坏必须显式恢复。
 
 Proves:
-- 在同一共享资源 fixture 中，正式 owner 从索引记录的位置移到新路径后，show-candidate 返回 error；保持该移动并依次损坏、删除索引时同样返回 error，没有返回成功候选。
+- owner 当前路径移动不阻断候选读取；依次损坏或删除发布索引时返回 error。

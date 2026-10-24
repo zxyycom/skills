@@ -20,7 +20,7 @@ import {
   decisionTransactionLockFailure,
   transactionFailure
 } from "./decision-transaction-outcome.ts";
-import type { DecisionPreparationContext, DecisionScan } from "./types.ts";
+import type { DecisionPreparationContext } from "./types.ts";
 export { decisionTransactionLockFailure } from "./decision-transaction-outcome.ts";
 
 export type DecisionFileChange = {
@@ -50,7 +50,7 @@ export type DecisionTransactionResult = DecisionTransactionFacts &
 
 type DecisionChanges = Readonly<{
   changes: readonly DecisionFileChange[];
-  originalScan: DecisionScan;
+  originalScan: DecisionPreparationContext;
 }>;
 export async function applyDecisionChanges(
   options: DecisionChanges

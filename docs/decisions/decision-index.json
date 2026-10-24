@@ -77,7 +77,7 @@
       "260720-use-prebuilt-git-test-fixtures": "sha256:ac225d63ef270058dd2c269804c30ac046de4f2213a6b3b99df6de31ecc188cf",
       "260720-use-product-and-architecture-lenses": "sha256:2a28ffddead96c672fc128f5d610bbf5384805ac7edf05b2d8f6447b525cfb34",
       "260721-separate-test-entry-collection-from-ledger": "sha256:a89ef7535f81bdaa070fe5db01a3363b53d59587ae20b57fc7ab1ca213c3a8e9",
-      "260904-adopt-date-prefixed-record-identities": "sha256:a7aaf045f7a7084f86f9e701260f6fe7e75100b467e8d4ec68329410f0ef9e93",
+      "260904-adopt-date-prefixed-record-identities": "sha256:045c5c619144f16160aabd9920cb25cebe2b0aa9ffe63eb8a3b6b48ee965038b",
       "260904-complete-change-plans-by-deletion": "sha256:6333edce1e7cc7093e2c5ebad5b0248331f547d3cc4c1a5dff6b6154ad25dca6",
       "260904-current-change-plan-completion": "sha256:a6d7af7af3ae99600672182c67f8bf5b634ce95e269f6d36250d27eebd167c25",
       "260905-add-optional-relation-summaries": "sha256:a371437fae26e53c3b883efe81696ae36c0dc373038feb4a4a510689fd67f841",
@@ -139,13 +139,16 @@
       "261020-retain-release-version-control-isolation": "sha256:3187831faf378e199547da7d80794b5918a132652d5ee6fdcc65d71c96003e83",
       "261020-unify-gate-generated-artifact-prerequisite": "sha256:dadfc27ecd56b60a6042e853c9992988079247cb4be5e81481439b8520d6a682",
       "261021-allow-markdown-lint-receipts": "sha256:cdfc74f1d08ac5007a57ff3df2d32daeb3e8fc89022b9d57c34c3dedd973dca5",
-      "261022-refresh-selected-records-in-pending": "sha256:95e3b13c5798821dba502540218596ec991580c84329d270f718f9cff1a271af",
+      "261022-refresh-selected-records-in-pending": "sha256:043e366c0cfce0670e545ad759bbe4819d6548789066537d5e2d5ad6509b9e4f",
       "261022-scope-investigation-index-payload-validation": "sha256:7ae97d432be75b020bfa96b6cb8dfba88fda65acdd0ac820118458ddf75bdd8c",
-      "261022-scope-record-index-payload-validation": "sha256:97af9f53547727d115ec4182430b9319d12b5eb4c13c5012c83a70989bb04f51",
+      "261022-scope-record-index-payload-validation": "sha256:76a4a5ab11e04ed2e897dadd9253633c9d3e9ce38eff85488214a721367839a7",
       "261022-separate-quick-gate-from-complete-validation": "sha256:38418e687ffc5adb5244d3f32cde7c41e304786bad7118b6e3f55fae8e8c2c78",
-      "261022-separate-record-local-operations-from-collection-audits": "sha256:1a13d4fcf611a5a19df7772603c398c869fbafdffda601b85c0e52d6939fcd8e",
+      "261022-separate-record-local-operations-from-collection-audits": "sha256:c1930d0fca9164f605a8bdf9cedd0e77d59a7296889f7dce44f4af5cfff94695",
+      "261024-bound-record-operations-to-published-facts": "sha256:0b2816d33c81b7e861d69e2b2c0507037b22e0655012bac50c3d186fc220b9f4",
       "261024-bound-selected-record-sync-currentness": "sha256:7ca10a631d9c961d1622774e10f6b582ffa9258b0cd587fdca1cc500003c1856",
+      "261024-retain-dated-identities-without-name-migration": "sha256:e28289e29a806a895a85c11a68a4f84d10471abe90d8ac671b45790253670f4f",
       "261024-separate-test-design-from-evidence-catalog": "sha256:6cf6b51806fc6647e65a14245c39afe632e1a9d4a5d9c270f4bd946344b98b77",
+      "261024-validate-record-stage-selected-payloads": "sha256:0fc3635c4346ad2c4ef1899ba7cd8f4d8f82b54175bce0a29a5520e80b86086f",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -1862,9 +1865,9 @@
     },
     "260904-adopt-date-prefixed-record-identities": {
       "name": "adopt-date-prefixed-record-identities",
-      "sourcePath": "adopt-date-prefixed-record-identities.md",
+      "sourcePath": "archive/adopt-date-prefixed-record-identities.md",
       "title": "采用日期前缀记录身份",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-04T15:51:50Z",
       "purpose": "让保留记录在语义同名时仍可稳定选择并保留形成日。",
@@ -3233,9 +3236,9 @@
     },
     "261022-scope-record-index-payload-validation": {
       "name": "scope-record-index-payload-validation",
-      "sourcePath": "scope-record-index-payload-validation.md",
+      "sourcePath": "archive/scope-record-index-payload-validation.md",
       "title": "按消费范围验证两域索引暂存的 payload",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-10-22T17:11:45Z",
       "purpose": "让两域索引暂存承担相同内容验收，同时完整保护已有暂存身份与并发状态。",
@@ -3282,9 +3285,9 @@
     },
     "261022-separate-record-local-operations-from-collection-audits": {
       "name": "separate-record-local-operations-from-collection-audits",
-      "sourcePath": "separate-record-local-operations-from-collection-audits.md",
+      "sourcePath": "archive/separate-record-local-operations-from-collection-audits.md",
       "title": "分离记录工具的局部操作与全集验收",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-10-22T04:28:32Z",
       "purpose": "让单对象操作只承担本次结果必需的来源与领域保证。",
@@ -3301,6 +3304,30 @@
           "type": "拆分",
           "target": "261010-investigation-local-validation-and-phase-facts",
           "summary": "独立承接只读检查并扩展局部维护的来源责任"
+        }
+      ]
+    },
+    "261024-bound-record-operations-to-published-facts": {
+      "name": "bound-record-operations-to-published-facts",
+      "sourcePath": "261024-bound-record-operations-to-published-facts.md",
+      "title": "以发布快照与所选事实限定记录操作",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-24T13:59:51Z",
+      "purpose": "让普通及高风险记录操作只承担所选对象和实际影响范围的当前事实。",
+      "background": "发布索引已表达正式身份与关系，反复读取无关正文混淆了局部维护和全集审计责任。",
+      "decision": "普通维护只读取所选和实际改写正文，未同步的其他来源由显式检查与同步处理。",
+      "tags": [
+        "decision-records",
+        "investigation-report",
+        "responsibility-boundaries",
+        "validation-boundaries"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "261022-separate-record-local-operations-from-collection-audits",
+          "summary": "将删除及身份更正纳入局部来源责任并收窄候选引用维护"
         }
       ]
     },
@@ -3321,6 +3348,31 @@
       ],
       "relations": []
     },
+    "261024-retain-dated-identities-without-name-migration": {
+      "name": "retain-dated-identities-without-name-migration",
+      "sourcePath": "261024-retain-dated-identities-without-name-migration.md",
+      "title": "保留日期身份并解除同名迁移前置",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-24T13:59:55Z",
+      "purpose": "让不同形成日的同名记录独立存在，并让新对象可由返回身份与位置直接找到。",
+      "background": "日期 ID 已区分跨时间同名，强制迁移旧记录和优先语义文件名反而引入无关检查与定位成本。",
+      "decision": "继续使用日期加名称的完整 ID，新建默认完整 ID 文件名，跨日期与 legacy 同名不要求迁移。",
+      "tags": [
+        "artifact-identity",
+        "decision-records",
+        "investigation-report",
+        "naming",
+        "record-identity"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260904-adopt-date-prefixed-record-identities",
+          "summary": "保留日期与选择语义并取消legacy同名迁移前置"
+        }
+      ]
+    },
     "261024-separate-test-design-from-evidence-catalog": {
       "name": "separate-test-design-from-evidence-catalog",
       "sourcePath": "separate-test-design-from-evidence-catalog.md",
@@ -3337,6 +3389,31 @@
         "test-evidence-review"
       ],
       "relations": []
+    },
+    "261024-validate-record-stage-selected-payloads": {
+      "name": "validate-record-stage-selected-payloads",
+      "sourcePath": "261024-validate-record-stage-selected-payloads.md",
+      "title": "按所选路径验收记录暂存内容",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-24T13:59:54Z",
+      "purpose": "让两域暂存只读取实际消费的内容，同时完整保留未选暂存身份和并发保护。",
+      "background": "完整 pending 的路径、模式和对象身份足以保护未选条目，逐一读取其 payload 并不服务所选结果。",
+      "decision": "两域全部 stage scope 按所需路径验收 payload，完整成员身份、删除和 CAS 保护不变。",
+      "tags": [
+        "decision-records",
+        "investigation-report",
+        "responsibility-boundaries",
+        "validation-boundaries",
+        "version-control"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "261022-scope-record-index-payload-validation",
+          "summary": "把按消费范围验收扩展到全部记录暂存scope"
+        }
+      ]
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",

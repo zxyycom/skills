@@ -7,6 +7,12 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import { discoverInvestigationCandidates } from "./candidate-discovery.ts";
+import { readLocalPublication } from "./local-publication.ts";
+import { validatePublishedDependency } from "./published-preparation.ts";
+import { resolveInvestigationSelector } from "./investigation-selector.ts";
+import { investigationNameFromId } from "./report-path.ts";
+import { parseInvestigationReport } from "./markdown.ts";
 import { InvestigationPreparation } from "./strict-preparation.ts";
 import { prepareLocalNoOp } from "./rename-noop.ts";
 import {
@@ -20,27 +26,16 @@ import {
   repositoryRelativePathFromFileSystemPath,
   VersionControlError
 } from "../../shared/src/version-control/index.ts";
-import {
-  investigationIndexFileName,
-  syncInvestigationStateIndex
-} from "./investigation-state-index.ts";
+import { investigationIndexFileName } from "./investigation-state-index.ts";
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 import { prepareResourceMove } from "./rename-resource.ts";
 import { prepareNextIndex } from "./rename-index-projection.ts";
 import {
   asFormalSource,
-  inspectLayout,
   isNoOpRename,
-  readCandidateSources,
-  resolveRenameSource,
   resolveRenameTarget,
   rewriteSources,
   type RenameTarget
-} from "./rename-preparation-source.ts";
-export {
-  asFormalSource,
-  inspectLayout,
-  readCandidateSources
 } from "./rename-preparation-source.ts";
 import type {
   InvestigationRenameOptions,
@@ -50,14 +45,12 @@ import type {
   ResourceMove
 } from "./rename-contract.ts";
 import {
-  compareText,
   errorText,
   renameFailure,
   renameMutation,
   renameStepFailure,
   type RenameStep
 } from "./rename-support.ts";
-import { collectValidatedInvestigationCollection } from "./validation.ts";
 
 export async function prepareRename(
   root: string,
@@ -67,82 +60,137 @@ export async function prepareRename(
   const noOp = await prepareLocalNoOp(root, indexPath, options);
   if (noOp !== null) return noOp;
   const preparation = new InvestigationPreparation(root);
-  const sources = await loadRenameSources(root, indexPath, preparation);
-  if ("result" in sources) return sources;
-  const source = resolveRenameSource(sources.value, options.source, indexPath);
-  if ("result" in source) return source;
-  const target = resolveRenameTarget(
-    source.value,
-    sources.value,
-    options.target,
-    indexPath
-  );
-  if ("result" in target) return target;
-  return isNoOpRename(source.value, target.value)
-    ? noChangePreparation(indexPath, sources.value, source.value, target.value)
-    : await changedPreparation(
-        root,
-        indexPath,
-        { sources: sources.value, preparation },
-        source.value,
-        target.value
-      );
+  try {
+    const loaded = await loadRenameSources(
+      root,
+      indexPath,
+      options.source,
+      preparation
+    );
+    if ("result" in loaded) return loaded;
+    const { source, sources, identities } = loaded.value;
+    const target = resolveRenameTarget(
+      source,
+      identities,
+      options.target,
+      indexPath
+    );
+    if ("result" in target) return target;
+    return isNoOpRename(source, target.value)
+      ? noChangePreparation(indexPath, sources, source, target.value)
+      : await changedPreparation(
+          root,
+          indexPath,
+          { sources, preparation },
+          source,
+          target.value
+        );
+  } catch (error) {
+    return renameStepFailure(indexPath, [errorText(error)]);
+  }
 }
 
 async function loadRenameSources(
   root: string,
   indexPath: string,
+  selector: string,
+  preparation: InvestigationPreparation
+): Promise<
+  RenameStep<
+    Readonly<{
+      source: RenameSource;
+      sources: readonly RenameSource[];
+      identities: readonly Pick<RenameSource, "id" | "sourcePath">[];
+    }>
+  >
+> {
+  const discovered = await discoverInvestigationCandidates(root);
+  const identities = [...discovered.candidateCollection.identityById.values()];
+  const selected = resolveInvestigationSelector(
+    identities.map((entry) => ({
+      ...entry,
+      name: investigationNameFromId(entry.id)
+    })),
+    selector
+  );
+  if (selected.status === "error")
+    return renameStepFailure(indexPath, selected.errors);
+  const identity = discovered.candidateCollection.identityById.get(
+    selected.id
+  )!;
+  const candidate = discovered.candidateCollection.candidateById.get(
+    selected.id
+  );
+  const loaded =
+    candidate === undefined
+      ? {
+          value: await loadFormalRenameSources(root, selected.id, preparation)
+        }
+      : await loadCandidateRenameSource(
+          root,
+          indexPath,
+          candidate,
+          preparation
+        );
+  if ("result" in loaded) return loaded;
+  const sources = loaded.value;
+  const source = sources.find((entry) => entry.id === identity.id)!;
+  return { value: { source, sources, identities } };
+}
+
+async function loadCandidateRenameSource(
+  root: string,
+  indexPath: string,
+  candidate: Pick<RenameSource, "id" | "sourcePath">,
   preparation: InvestigationPreparation
 ): Promise<RenameStep<RenameSource[]>> {
-  const layout = await inspectLayout(root, indexPath, preparation);
-  if ("result" in layout) return layout;
-  const formal = await collectValidatedInvestigationCollection(root, {
-    allowEmptyCollection: true,
-    layout: layout.value,
-    preparation
+  const text = await preparation.read(path.join(root, candidate.sourcePath));
+  const parsed = parseInvestigationReport(text, candidate.id, {
+    allowEmptyCoreSections: true
   });
-  if (formal.errors.length > 0 || formal.snapshot === null)
-    return renameStepFailure(indexPath, formal.errors);
-  const freshness = await verifyRenameIndexFreshness(root, indexPath, formal);
-  if (freshness !== null) return freshness;
-  const candidates = await readCandidateSources(
-    root,
-    layout.value.candidateIds,
-    { layout: layout.value, preparation }
-  );
-  if ("result" in candidates) return candidates;
+  if (parsed.report === null || parsed.frontmatterErrors.length > 0)
+    return renameStepFailure(indexPath, parsed.frontmatterErrors);
   return {
     value: [
-      ...formal.sources.map((source) =>
-        asFormalSource(
-          root,
-          source,
-          preparation.parsed(source),
-          formal.states.get(source.id)
-        )
-      ),
-      ...candidates.value
-    ].sort((left, right) => compareText(left.id, right.id))
+      {
+        ...candidate,
+        text,
+        filePath: path.join(root, candidate.sourcePath),
+        candidate: true,
+        parsed,
+        document: parsed.report
+      }
+    ]
   };
 }
 
-async function verifyRenameIndexFreshness(
+async function loadFormalRenameSources(
   root: string,
-  indexPath: string,
-  formal: Awaited<ReturnType<typeof collectValidatedInvestigationCollection>>
-): Promise<RenameStep<never> | null> {
-  if (formal.snapshot === null) return null;
-  const freshness = await syncInvestigationStateIndex({
-    investigationsDirectory: root,
-    mode: "check",
-    snapshot: formal.snapshot
-  });
-  return freshness.status === "error" &&
-    !(formal.sources.length === 0 && freshness.state === "index-missing")
-    ? renameStepFailure(indexPath, [
-        "investigation index is not fresh for the current collection"
-      ])
-    : null;
+  selectedId: string,
+  preparation: InvestigationPreparation
+): Promise<RenameSource[]> {
+  const baseline = await readLocalPublication(root, [], preparation);
+  const affected = [...baseline.states].filter(
+    ([id, state]) =>
+      id === selectedId ||
+      state.relations.some((relation) => relation.target === selectedId) ||
+      state.resourceIds.some((resource) =>
+        resource.startsWith(selectedId + "/")
+      )
+  );
+  const sources: RenameSource[] = [];
+  for (const [id, state] of affected) {
+    const source = {
+      id,
+      sourcePath: state.sourcePath,
+      text: await preparation.read(path.join(root, state.sourcePath))
+    };
+    validatePublishedDependency(baseline.index, state, source);
+    sources.push(
+      asFormalSource(root, source, preparation.parsed(source), state)
+    );
+  }
+  return sources;
 }
 
 type RenamePreparationCollection = Readonly<{
@@ -171,7 +219,8 @@ async function changedPreparation(
     root,
     indexPath,
     rewritten.value,
-    preparation
+    preparation,
+    source.id === target.id ? undefined : source.id
   );
   if ("result" in index) return index;
   return {

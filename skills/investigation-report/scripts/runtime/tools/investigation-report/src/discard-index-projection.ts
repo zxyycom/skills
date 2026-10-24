@@ -12,7 +12,7 @@ import {
   serializeStateIndex
 } from "../../index-runtime/src/index.ts";
 
-import { createInvestigationStateSnapshot } from "./investigation-index-source.ts";
+import type { PublishedInvestigationSnapshot } from "./published-preparation.ts";
 import {
   createInvestigationStateIndexDefinition,
   investigationIndexDiagnosticMessages
@@ -22,24 +22,29 @@ import type { InvestigationIndexState } from "./types.ts";
 import {
   result,
   type DiscardCollectionOptions,
-  type DiscardStep,
-  type InvestigationCollectionSource
+  type DiscardStep
 } from "./discard.ts";
 import { discardStepFailure, discardStepValue } from "./discard-protection.ts";
 
 export async function buildDiscardIndexText(
   options: DiscardCollectionOptions,
   candidate: Readonly<{
-    sources: InvestigationCollectionSource[];
+    baseline: PublishedInvestigationSnapshot;
     states: Map<string, InvestigationIndexState>;
   }>
 ): Promise<DiscardStep<string>> {
-  const snapshot = createInvestigationStateSnapshot(
-    candidate.sources,
-    candidate.sources.map((source) =>
-      requiredInvestigationState(candidate.states, source.id)
-    )
-  );
+  const snapshot: PublishedInvestigationSnapshot = {
+    ...candidate.baseline,
+    states: Object.fromEntries(candidate.states),
+    sourceRevision: {
+      ...candidate.baseline.sourceRevision,
+      entries: Object.fromEntries(
+        Object.entries(candidate.baseline.sourceRevision.entries).filter(
+          ([id]) => candidate.states.has(id)
+        )
+      )
+    }
+  };
   const definition = createInvestigationStateIndexDefinition({ snapshot });
   const builtIndex = await buildStateIndex(definition, { root: options.root });
   return builtIndex.status === "error"
@@ -55,17 +60,4 @@ export async function buildDiscardIndexText(
         )
       )
     : discardStepValue(serializeStateIndex(builtIndex.value, definition));
-}
-
-function requiredInvestigationState(
-  states: ReadonlyMap<string, InvestigationIndexState>,
-  investigationId: string
-): InvestigationIndexState {
-  const state = states.get(investigationId);
-  if (state === undefined) {
-    throw new Error(
-      `validated investigation collection is missing state for ${investigationId}`
-    );
-  }
-  return state;
 }

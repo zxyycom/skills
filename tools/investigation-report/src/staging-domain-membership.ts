@@ -39,7 +39,8 @@ export async function acquireDomainPhase(
       request,
       reportPaths,
       baselinePaths,
-      resources.paths
+      resources.paths,
+      captured
     );
     const pending = await captureDomainPending(request, contentPaths, captured);
     return {
@@ -55,22 +56,17 @@ export async function acquireDomainPhase(
 async function captureDomainPending(
   request: DomainAcquisitionRequest,
   contentPaths: readonly string[],
-  captured?: PendingSnapshot
+  _captured?: PendingSnapshot
 ): Promise<PendingSnapshot> {
-  const retained = new Set(captured?.files.map((file) => file.path));
-  const members = new Set(captured?.members.map((file) => file.path));
-  return captured !== undefined &&
-    contentPaths.every((file) => !members.has(file) || retained.has(file))
-    ? captured
-    : await readRecordStagePending(request.repository, {
-        scope: request.scope,
-        indexPath: path.posix.join(
-          request.investigationsScope,
-          investigationIndexFileName
-        ),
-        pathScope: request.investigationsScope,
-        contentPaths
-      });
+  return await readRecordStagePending(request.repository, {
+    scope: request.scope,
+    indexPath: path.posix.join(
+      request.investigationsScope,
+      investigationIndexFileName
+    ),
+    pathScope: request.investigationsScope,
+    contentPaths
+  });
 }
 
 /** Retain only index content for index scope, or the sources consumed by domain validation. */
@@ -78,14 +74,30 @@ function selectedPendingContentPaths(
   request: DomainAcquisitionRequest,
   reportPaths: ReadonlySet<string>,
   baselinePaths: ReadonlySet<string>,
-  resourcePaths: readonly string[]
+  resourcePaths: readonly string[],
+  captured?: PendingSnapshot
 ): readonly string[] {
   if (request.scope === "index")
     return [
       path.posix.join(request.investigationsScope, investigationIndexFileName)
     ];
   return [
+    ...(request.scope === "domain" &&
+    request.pendingIndex === null &&
+    !captured?.files.some(
+      (file) =>
+        file.path ===
+        path.posix.join(request.investigationsScope, investigationIndexFileName)
+    )
+      ? []
+      : [
+          path.posix.join(
+            request.investigationsScope,
+            investigationIndexFileName
+          )
+        ]),
     ...reportPaths,
+    ...[...request.pendingReportPaths.values()].flat(),
     ...baselinePaths,
     ...resourcePaths,
     ...selectedReportPaths(

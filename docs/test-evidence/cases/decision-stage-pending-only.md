@@ -1,4 +1,4 @@
-### Case DECISION-STAGE-PENDING-ONLY-001: 仅pending存在的新增可移动和撤销
+### Case DECISION-STAGE-PENDING-ONLY-001: Stage 清理可定位旧路径并拒绝失定位 pending 身份
 
 Tests:
 - `test:66e129c33b9c616e1140c270486856f43bbdf87b04aa40696be2e4929bb34a1b`
@@ -7,7 +7,8 @@ Tags:
 - `decision-records`
 
 Contract:
-- domain/all 按固定 HEAD 已变化的 pending Markdown 身份清理旧位置，pending-only 对象可以再次移动或撤销。
+- stage 只从 H/W/P 索引与所选 canonical basename 定位旧来源，不扫描无关 pending blob 恢复任意路径身份。
 
 Proves:
-- 仅 domain 暂存的新对象改名后再次暂存清理旧路径，工作区撤销后再选同 ID 能移除仅 pending 存在的新位置。
+- domain 暂存新增后改名会清理 canonical 旧路径；任意 basename 的 pending-only 来源在 W 删除且三方索引都无定位后，所选 ID 明确失败且 pending tree 不变。
+- 恢复可信 pending 索引 locator 后，同一 ID 的 domain 清理成功移除旧 pending 路径。

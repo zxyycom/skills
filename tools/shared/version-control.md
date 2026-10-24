@@ -121,7 +121,7 @@ separator、EOF 和输出预算检查；缺失、腐败、输入失败及进程�
 
 #### Pending snapshot
 
-`pending-snapshot.ts` 提供 `readPendingSnapshot(repository, { pathScope, contentPaths, payloadScope? })`、`samePendingSnapshots` 与 `replacePendingSnapshot`。
+`pending-snapshot.ts` 提供 `readPendingSnapshot(repository, { pathScope, contentPaths, payloadScope? })`、`samePendingSnapshots`、`extendsPendingSnapshot` 与 `replacePendingSnapshot`。
 
 读取始终核对 scope 内完整成员及其唯一文件表示，返回全部成员的 `path`、`kind`，仅保留显式 `contentPaths` 的字节。`PendingPayloadScope` 决定实际 payload 的读取、指纹与失败边界：
 
@@ -131,9 +131,10 @@ separator、EOF 和输出预算检查；缺失、腐败、输入失败及进程�
 | `content-paths` | 只验证 `contentPaths` 对象的完整实际 payload；其余成员以完整路径、模式及对象 ID 保护身份，不验收其即时可读性与内容指纹。 |
 
 - **身份与比较**：共享层保存完整成员身份及策略内 payload 的实际指纹。比较须使用同一 repository 实例、scope 与 payload 策略取得的原始 opaque snapshot；`content-paths` 还要求 `contentPaths` 集合相同，默认 `scope` 允许不同的内容保留集。普通对象不能代替原始 snapshot，调用方不得修改返回的内容字节。
+- **同阶段扩展**：`extendsPendingSnapshot(before, after)` 只比较两个原始 `content-paths` snapshot，不执行 I/O。它要求同一 repository 实例和 scope、完整路径/mode/OID/stage 身份相同、before 的选择（含缺失路径）全部保留、此前实际 payload 指纹全部相同。用于先读必要索引定位再扩大所选 payload；不放松 `samePendingSnapshots` 的精确选集比较，也不代替后续 fresh 或锁内 CAS。
 - **替换与发布**：调用方提供原 snapshot、当前 revision 期望和显式 updates（文件或 `data: null` 删除）。`content-paths` 的 updates 必须位于原 `contentPaths`，避免写入扩大验收边界。边界取得更新目标的自有字节，变化路径与写入内容使用同一目标。锁内核对完整成员身份及策略内的实际内容指纹，只更新声明路径并保留其余条目；写后按相同策略验证目标再发布。范围外由原事务复制保护，失败及恢复服从范围替换契约。
 
-Decision Records 与 Investigation Report 的内部记录暂存协调器仅在 `stage --scope index` 显式选择 `content-paths`，内容路径只含目标索引；两域的 `all`／`domain` 及其他消费者继续使用默认完整 payload 验证。领域 scope 策略与阶段顺序由 [Index Runtime](../index-runtime/README.md#记录领域的内部暂存协调)承接，共享版本管理层不识别记录身份或资源 owner。
+Decision Records 与 Investigation Report 的内部记录暂存协调器在所有 stage scope 显式选择 `content-paths`：index 只选目标索引，all/domain 由领域限定所选来源、更新路径、资源与必要定位索引。其他消费者仍按自己的显式选择或默认完整 payload 契约执行。领域 scope 策略与阶段顺序由 [Index Runtime](../index-runtime/README.md#记录领域的内部暂存协调)承接，共享版本管理层不识别记录身份或资源 owner。
 
 #### Revision prefix
 

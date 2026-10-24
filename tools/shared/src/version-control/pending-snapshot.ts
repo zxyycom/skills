@@ -4,6 +4,11 @@ import {
   payloadFingerprints,
   sameFingerprints
 } from "./git-pending-snapshot-content.ts";
+import {
+  extendsPendingSnapshotIdentity,
+  samePendingSnapshotIdentities,
+  type SnapshotIdentity
+} from "./pending-snapshot-proof.ts";
 import { sameBytes } from "../node/bytes.ts";
 import type { GitRepositoryContext } from "./git-context.ts";
 import {
@@ -47,14 +52,6 @@ export type PendingSnapshot = Readonly<{
   files: readonly VersionControlFile[];
 }>;
 
-type SnapshotIdentity = Readonly<{
-  repository: VersionControlRepository;
-  pathScope: string;
-  payloadScope: PendingPayloadScope;
-  contentPaths: ReadonlySet<string>;
-  entries: readonly GitIndexEntry[];
-  fingerprints: ReadonlyMap<string, string>;
-}>;
 const identities = new WeakMap<PendingSnapshot, SnapshotIdentity>();
 
 /** Complete member identity; payload validation is full-scope unless explicitly narrowed. */
@@ -105,21 +102,20 @@ export function samePendingSnapshots(
   left: PendingSnapshot,
   right: PendingSnapshot
 ): boolean {
-  const before = identities.get(left);
-  const after = identities.get(right);
-  return (
-    before !== undefined &&
-    after !== undefined &&
-    before.repository === after.repository &&
-    before.pathScope === after.pathScope &&
-    before.payloadScope === after.payloadScope &&
-    (before.payloadScope === "scope" ||
-      (before.contentPaths.size === after.contentPaths.size &&
-        [...before.contentPaths].every((path) =>
-          after.contentPaths.has(path)
-        ))) &&
-    sameGitIndexEntries(before.entries, after.entries) &&
-    sameFingerprints(before.fingerprints, after.fingerprints)
+  return samePendingSnapshotIdentities(
+    identities.get(left),
+    identities.get(right)
+  );
+}
+
+/** 同阶段扩展 payload 选择时，保留完整成员身份与此前实际读到的 payload 证明。 */
+export function extendsPendingSnapshot(
+  before: PendingSnapshot,
+  after: PendingSnapshot
+): boolean {
+  return extendsPendingSnapshotIdentity(
+    identities.get(before),
+    identities.get(after)
   );
 }
 

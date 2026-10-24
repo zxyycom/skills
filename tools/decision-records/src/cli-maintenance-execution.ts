@@ -1,15 +1,10 @@
-import fs from "node:fs/promises";
 import path from "node:path";
-import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
 import { decisionFailure } from "./application-result.ts";
 import {
   DecisionCollectionLockError,
   withDecisionCollectionMutationLock
 } from "./decision-collection-mutation-lock.ts";
-import {
-  loadDecisionMaintenanceContext,
-  ordinaryDecisionRequest
-} from "./decision-maintenance-context.ts";
+import { loadDecisionMaintenanceContext } from "./decision-maintenance-context.ts";
 import { applyPreparedDecisionTransaction } from "./decision-transaction.ts";
 import { decisionIndexFileName } from "./decision-state-index.ts";
 import { resolveDecisionLifecycleRequest } from "./cli-lifecycle-selection.ts";
@@ -47,21 +42,17 @@ const noChanges: Extract<DecisionTransactionResult, { status: "ok" }> = {
 };
 type MaintenanceArgs = DecisionLocationArgs & { preflight?: boolean };
 
-/** null delegates only a high-risk operation or the first-publication bootstrap. */
 export async function runPublishedDecisionLifecycle(
   args: MaintenanceArgs,
   request: DecisionLifecycleRequest,
   io: DecisionRecordsCliIo
-): Promise<number | null> {
-  if (!ordinaryDecisionRequest(request)) return null;
+): Promise<number> {
   const indexPath = path.resolve(
     args.workspaceRoot,
     args.decisionsDir,
     decisionIndexFileName
   );
   try {
-    if (!(await publishedIndexAvailable(indexPath, request.action)))
-      return null;
     const result =
       args.preflight === true
         ? await executePublishedLifecycle(args, request, io)
@@ -74,22 +65,6 @@ export async function runPublishedDecisionLifecycle(
   } catch (error) {
     printPublishedLifecycleFailure(error, io);
     return 1;
-  }
-}
-
-async function publishedIndexAvailable(
-  indexPath: string,
-  action: DecisionLifecycleRequest["action"]
-): Promise<boolean> {
-  try {
-    await fs.lstat(indexPath);
-    return true;
-  } catch (error) {
-    if (!isFileSystemError(error, "ENOENT")) throw error;
-    if (action === "publish") return false;
-    throw new Error(
-      "decision-index.json is required; restore the sources and run sync-index explicitly."
-    );
   }
 }
 

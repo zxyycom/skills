@@ -1,13 +1,14 @@
-### Case DECISION-EVOLVE-DISCARD-REFERENCE-001: Evolve discard 拒绝仍被引用的决策
+### Case DECISION-EVOLVE-DISCARD-REFERENCE-001: Evolve 删除不自动维护未选候选引用
 
 Tests:
-- `test:efb4923981eb9b1e51a80263326ca81e6cf001a47aa384a593e99e5d59756f58`
+- `test:b1b90a66407c220cbe71dd2bc4fbde2a423085092711282bb8eb5ca8c195eee9`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 被剩余 candidate 或已建立记录引用的删除目标不能被 discard。
+- evolve 删除验证最终发布图与显式所选后继；未选候选引用由未来发布诊断。
 
 Proves:
-- CLI 报告引用 ID，且不会修改后继、引用记录、目标或索引。
+- 存在未选候选指向删除目标时，evolve 建立所选后继并删除目标，未选候选字节保持。
+- 随后发布未选候选因失效 target 失败，候选内容仍保持。

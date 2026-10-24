@@ -1,14 +1,13 @@
-### Case INVESTIGATION-STAGE-OWNER-DEPENDENCY-001: 资源 owner 是验证依赖而非写入目标
+### Case INVESTIGATION-STAGE-OWNER-DEPENDENCY-001: 正式 owner 是索引声明依赖而非正文输入
 
 Tests:
-- `test:1de304ad13f2065a23a62a9cbf6a14c6095928a84997421bd0325f6b09275499`
+- `test:d7fee0968ff0a494baef605008f929cd9ede86c19fb3d95f411c5a8fef151d6f`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 直接共享资源的正式 owner 须验证，不自动扩大写入选择。
+- 直接资源 owner 的声明从索引验证，不扩大正文读取或写入选择。
 
 Proves:
-- 真实领域 resolver 的 publication 选择仅含所选报告，而验证选择同时包含直接共享资源及正式 owner；malformed 无关报告不在显式来源读取范围。
-- 按该选择显式读取真实 FS 正文并校验成功；owner 发布声明改变后领域验证拒绝，现场变更字节保留。
+- resolver 的来源选择仅含所选报告与直接资源，读取观察不含 owner 正文；未选 owner 当前正文漂移不会被阶段来源验证读取或阻断。

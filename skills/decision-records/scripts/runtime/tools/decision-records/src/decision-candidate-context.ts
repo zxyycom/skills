@@ -33,11 +33,14 @@ export async function readCandidateSelection(
     options.decisionsDir ?? "docs/decisions"
   );
   const decisionsDirectory = canonical.collectionRoot;
-  const identity = await loadCandidateIdentityContext(decisionsDirectory);
   const normalized =
     selector === undefined
       ? undefined
       : normalizeDecisionSelectorInput(selector);
+  const identity = await loadCandidateIdentityContext(
+    decisionsDirectory,
+    normalized === undefined ? undefined : [normalized]
+  );
   const selected = await readRecordCandidates({
     collection: identity.collection,
     ...(normalized === undefined

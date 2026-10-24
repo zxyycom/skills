@@ -123,8 +123,32 @@ test("Decision domain stage cleans pending-only additions and repeated moves", a
     assert.equal((await stage(root, [id], "domain")).status, "ok");
     assert.doesNotMatch(runGit(root, ["ls-files"]), new RegExp(id + "\\.md"));
     assert.match(pending(root, "moved-local.md"), /待提交新增/);
+    const trustedIndex = await fs.readFile(
+      path.join(root, "docs/decisions/decision-index.json")
+    );
     await fs.rm(moved);
     await sync(root);
+    const before = runGit(root, ["write-tree"]);
+    const missingLocator = await stage(root, [id], "domain");
+    assert.equal(missingLocator.status, "error");
+    assert.match(
+      JSON.stringify(missingLocator),
+      /selector is missing or ambiguous/
+    );
+    assert.equal(runGit(root, ["write-tree"]), before);
+    // Restore a trusted locator as caller-owned pending index, then selected cleanup can proceed.
+    const currentIndex = await fs.readFile(
+      path.join(root, "docs/decisions/decision-index.json")
+    );
+    await fs.writeFile(
+      path.join(root, "docs/decisions/decision-index.json"),
+      trustedIndex
+    );
+    runGit(root, ["add", "docs/decisions/decision-index.json"]);
+    await fs.writeFile(
+      path.join(root, "docs/decisions/decision-index.json"),
+      currentIndex
+    );
     assert.equal((await stage(root, [id], "domain")).status, "ok");
     assert.doesNotMatch(runGit(root, ["ls-files"]), /moved-local.md/);
   });
@@ -189,7 +213,7 @@ test("Decision stage rejects missing selected published destinations without del
   });
 });
 
-test("Decision all stage requires related pending sources to match the composed index", async () => {
+test("Decision all stage uses index-only related dependencies without rewriting their pending payloads", async () => {
   await withTemporaryWorkspace("local-stage-dependency", async (root) => {
     await fixture(root, true);
     // Publish B as archived and A as its successor, then commit a coherent baseline.
@@ -217,10 +241,10 @@ test("Decision all stage requires related pending sources to match the composed 
     await sync(root);
     assert.equal((await stage(root, [b], "domain")).status, "ok");
     const before = runGit(root, ["write-tree"]);
-    const refused = await stage(root, [a]);
-    assert.equal(refused.status, "error");
-    assert.match(JSON.stringify(refused), /select that ID as well/);
+    const selectedOnly = await stage(root, [a]);
+    assert.equal(selectedOnly.status, "ok", JSON.stringify(selectedOnly));
     assert.equal(runGit(root, ["write-tree"]), before);
+    assert.match(pending(root, "archive/" + b + ".md"), /仅领域 B/);
     const selected = await stage(root, [a, b]);
     assert.equal(selected.status, "ok", JSON.stringify(selected));
     assert.equal(

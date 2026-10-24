@@ -140,7 +140,7 @@ test("discard rejects invalid candidate lifecycle or body without mutation", () 
     }
   ));
 
-test("discard preflights an invalid established source before touching a candidate", () =>
+test("discard ignores an unrelated invalid established source while preserving its published snapshot", () =>
   withFixtureWorkspace(
     "candidate-discard-invalid-established-source",
     async (workspaceRoot) => {
@@ -166,12 +166,7 @@ test("discard preflights an invalid established source before touching a candida
         ),
         "utf8"
       );
-      const preservedMtime = new Date("2000-01-01T00:00:00.000Z");
-      await fs.utimes(candidatePath, preservedMtime, preservedMtime);
-      const candidateBefore = await fs.readFile(candidatePath, "utf8");
-      const candidateMtimeBefore = (
-        await fs.stat(candidatePath, { bigint: true })
-      ).mtimeNs;
+      const archivedBefore = await fs.readFile(archivedPath, "utf8");
       const indexBefore = await fs.readFile(indexPath, "utf8");
 
       const discarded = await runSourceCli([
@@ -180,15 +175,9 @@ test("discard preflights an invalid established source before touching a candida
         "--root",
         workspaceRoot
       ]);
-      assert.equal(discarded.exitCode, 1);
-      assert.equal(discarded.stdout, "");
-      assert.match(discarded.stderr, /alignment/i);
-      assert.match(discarded.stderr, /outcome: no-change/);
-      assert.equal(await fs.readFile(candidatePath, "utf8"), candidateBefore);
-      assert.equal(
-        (await fs.stat(candidatePath, { bigint: true })).mtimeNs,
-        candidateMtimeBefore
-      );
+      assert.equal(discarded.exitCode, 0, discarded.stderr);
+      assert.equal(await fileExists(candidatePath), false);
+      assert.equal(await fs.readFile(archivedPath, "utf8"), archivedBefore);
       assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
     }
   ));

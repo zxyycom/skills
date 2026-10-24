@@ -219,6 +219,7 @@ export async function verifyDecisionTransactionMembers(
   value: PreparedDecisionTransaction,
   phase: "before" | "after"
 ): Promise<void> {
+  if (value.context.publishedBaseline !== undefined) return;
   const actual = await decisionTransactionMembers(
     value.context.decisionsDirectory
   );

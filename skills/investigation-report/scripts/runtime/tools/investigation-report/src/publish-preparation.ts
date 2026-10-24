@@ -7,15 +7,13 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import { discoverInvestigationCandidates } from "./candidate-discovery.ts";
 import { prepareFormalPublishContext } from "./publish-preparation-formal.ts";
 import {
   buildStateIndex,
   serializeStateIndex
 } from "../../index-runtime/src/index.ts";
-import {
-  inspectInvestigationCollectionLayout,
-  type InvestigationCollectionLayout
-} from "./investigation-index-source.ts";
+import { type InvestigationCollectionLayout } from "./investigation-index-source.ts";
 import {
   createInvestigationStateIndexDefinition,
   investigationIndexDiagnosticMessages
@@ -39,7 +37,6 @@ import {
   type InvestigationDiagnostic
 } from "./diagnostics.ts";
 import {
-  publicationDependencyIds,
   publicationSnapshot,
   readPublishedInvestigationDependencies,
   type PublishedInvestigationIndex,
@@ -290,16 +287,17 @@ async function readLayout(
   | InvestigationPublishPreparationResult
 > {
   try {
-    const layout = await inspectInvestigationCollectionLayout(
-      investigationsDirectory,
-      { readFormalSources: false }
+    const layout = await discoverInvestigationCandidates(
+      investigationsDirectory
     );
     return layout.errors.length === 0
       ? { status: "ok", value: layout }
       : preparationFailure(layout.errors);
-  } catch {
+  } catch (error) {
     return preparationFailure([
-      "investigation root could not be safely inspected before publish"
+      "investigation root could not be safely inspected before publish: " +
+        (error instanceof Error ? error.message : "unavailable") +
+        "; repair sources and explicitly sync-index"
     ]);
   }
 }
@@ -352,7 +350,7 @@ async function preparePublicationDependencies(
       const sources = await readPublishedInvestigationDependencies(
         investigationsDirectory,
         context.formal.publishedIndex,
-        publicationDependencyIds(context.states, new Set(ids)),
+        ids,
         context.formal.sources
       );
       return {

@@ -1,9 +1,9 @@
+import { discoverInvestigationCandidates } from "./candidate-discovery.ts";
 import path from "node:path";
 import { lockFailure as candidateDiscardLockFailure } from "./candidate-discard-support.ts";
 import { discardCandidateWithinLock } from "./candidate-discard.ts";
 import { withInvestigationCollectionMutationLock } from "./collection-mutation-lock.ts";
 import { InvestigationPreparation } from "./strict-preparation.ts";
-import { inspectInvestigationCollectionLayout } from "./investigation-layout.ts";
 import { discardFromCollection } from "./discard-loading.ts";
 import { writeTextAtomically } from "./discard-files.ts";
 import { investigationIndexFileName } from "./investigation-state-index.ts";
@@ -46,10 +46,7 @@ export async function discardInvestigationRecord(
           path.dirname(resolved.root),
           resolved.root
         );
-        const layout = await inspectInvestigationCollectionLayout(
-          resolved.root,
-          { preparation }
-        );
+        const layout = await discoverInvestigationCandidates(resolved.root);
         const target = await identifyInvestigationDiscardTarget(
           resolved.root,
           resolved.options.id,
@@ -81,7 +78,7 @@ export async function discardInvestigationRecord(
                 root: resolved.root,
                 write: writeTextAtomically
               },
-              { preparation, layout }
+              { preparation }
             );
       }
     );

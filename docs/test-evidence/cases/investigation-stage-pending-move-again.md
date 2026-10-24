@@ -1,13 +1,13 @@
-### Case INVESTIGATION-STAGE-PENDING-MOVE-AGAIN-001: 再次移动清理上次 pending 正文位置
+### Case INVESTIGATION-STAGE-PENDING-MOVE-AGAIN-001: 保留失去索引定位的旧 pending 路径
 
 Tests:
-- `test:e82bc579f3781cfd85d2ec79a9b7773a605bb436f8ba26535ffa2d946694ff09`
+- `test:b6e74c3345386fb270eb6a743cfe27cd804cc9b2a0dd923a0c2472245ca61da6`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- domain/all 选中同一身份再次移动时清理 HEAD 和已暂存的旧路径，保留最新 worktree 发布位置。
+- domain 不扫描未知 pending blob 认领其身份，旧位置只能按可信索引或所选 locator 局部定位。
 
 Proves:
-- 同一报告先移到 middle 再移到 final 并逐次暂存，HEAD 和 middle 两处均不在 pending，final 恰好存在。
+- 同一 ID 依次移动到 middle 与 final；domain 保留没有可信索引定位的 middle pending 路径，final 正常暂存，HEAD 已知旧位置退出。

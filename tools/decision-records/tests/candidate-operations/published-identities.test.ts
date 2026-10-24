@@ -106,8 +106,8 @@ test("Decision published candidate discovery still reads unknown locations and r
       loadCandidateIdentityContext(fixture.directory)
     );
     assert.equal(
-      discovered.value.collection.identityById.get("261021-extra")?.sourcePath,
-      "unindexed-location.md"
+      discovered.value.collection.identityById.has("261021-extra"),
+      false
     );
     assert.equal(discovered.counts.formal.handleReads, 0);
     assert.equal(discovered.counts.other.handleReads, 3);
@@ -122,13 +122,14 @@ test("Decision published candidate discovery still reads unknown locations and r
       })
     );
     const dependency = await observeCandidateReads(fixture, async () => {
-      await assert.rejects(
-        readCandidateSelection({ workspaceRoot: fixture.root }, "ready-one"),
-        /frontmatter|Direct candidate dependency/
+      const selected = await readCandidateSelection(
+        { workspaceRoot: fixture.root },
+        "ready-one"
       );
+      assert.equal(selected.records[0]?.decisionId, "261022-ready-one");
     });
-    assert.equal(dependency.counts.formal.opens, 1);
-    assert.equal(dependency.counts.formal.handleReads, 1);
+    assert.equal(dependency.counts.formal.opens, 0);
+    assert.equal(dependency.counts.formal.handleReads, 0);
     await fs.writeFile(selectedPath, selectedText);
     const duplicate = path.join(fixture.directory, "duplicate.md");
     await fs.writeFile(
@@ -178,13 +179,13 @@ test("Decision published candidate discovery still reads unknown locations and r
         path.join(fixture.directory, source.sourcePath),
         source.text.replace(/\n##[\s\S]*/u, "\nmalformed formal body\n")
       );
-    const missing = await observeCandidateReads(fixture, () =>
-      loadCandidateIdentityContext(fixture.directory)
-    );
-    assert.equal(missing.value.collection.indexStatus, "missing");
-    assert.equal(missing.value.collection.formal.length, 20);
-    assert.equal(missing.counts.formal.handleReads, 20);
-    await assert.rejects(fs.stat(fixture.indexPath), { code: "ENOENT" });
+    const missing = await observeCandidateReads(fixture, async () => {
+      await assert.rejects(
+        loadCandidateIdentityContext(fixture.directory),
+        /formal index is missing.*explicitly recover/
+      );
+    });
+    assert.equal(missing.counts.formal.handleReads, 1);
   });
 });
 

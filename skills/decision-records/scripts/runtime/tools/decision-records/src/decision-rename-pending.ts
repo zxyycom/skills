@@ -7,17 +7,19 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import { readPendingSnapshot } from "../../shared/src/version-control/pending-snapshot.ts";
 import path from "node:path";
 import {
   openVersionControl,
-  VersionControlError
+  VersionControlError,
+  type VersionControlRepository
 } from "../../shared/src/version-control/index.ts";
 import type { DecisionApplicationFailure } from "./application-result.ts";
 import { renameFailure } from "./decision-rename-planning.ts";
-import type { DecisionScan } from "./types.ts";
+import type { DecisionPreparationContext } from "./types.ts";
 
 export async function pendingDecisionRenameFailure(
-  scan: DecisionScan
+  scan: DecisionPreparationContext
 ): Promise<DecisionApplicationFailure | null> {
   try {
     const repository = await openVersionControl(scan.decisionsDirectory);
@@ -27,13 +29,7 @@ export async function pendingDecisionRenameFailure(
       scan.decisionsDirectory
     );
     if (scope === null) return null;
-    const changed =
-      revision === null
-        ? await repository.readPendingFiles({ pathScopes: [scope] })
-        : await repository.listPendingChangedPaths({
-            from: revision,
-            pathScopes: [scope]
-          });
+    const changed = await pendingRenamePaths(repository, revision, scope);
     if (changed.length === 0) return null;
     return renameFailure(
       "decision-records.rename-pending-stage-conflict",
@@ -55,6 +51,25 @@ export async function pendingDecisionRenameFailure(
       scan.indexRelativePath
     );
   }
+}
+
+async function pendingRenamePaths(
+  repository: VersionControlRepository,
+  revision: string | null,
+  scope: string
+) {
+  return revision === null
+    ? (
+        await readPendingSnapshot(repository, {
+          pathScope: scope,
+          contentPaths: [],
+          payloadScope: "content-paths"
+        })
+      ).members
+    : await repository.listPendingChangedPaths({
+        from: revision,
+        pathScopes: [scope]
+      });
 }
 
 function repositoryRelativeDecisionScope(

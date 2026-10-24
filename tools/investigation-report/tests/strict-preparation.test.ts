@@ -7,8 +7,6 @@ import { prepareRename } from "../src/rename-preparation.ts";
 import { prepareRenameTransaction } from "../src/rename-transaction-plan.ts";
 import { createResourceMoveProgress } from "../src/rename-resource-proof.ts";
 import { verifyCommittedRename } from "../src/rename-verification.ts";
-import { InvestigationPreparation } from "../src/strict-preparation.ts";
-import type { ParsedInvestigationReport } from "../src/types.ts";
 import { discardInvestigationReportWithWriter } from "../src/discard.ts";
 import { writeInvestigationTextAtomically } from "../src/transaction-files.ts";
 import {
@@ -46,15 +44,13 @@ async function verifyRenamePreparation(candidate: boolean): Promise<void> {
         }
       );
       if ("result" in prepared) assert.fail(prepared.result.errors.join("\n"));
-      const original = prepared.value.originalSources.find(
-        (source) => source.id === "untouched"
-      )!;
-      assert.strictEqual(
-        prepared.value.sources.find((source) => source.id === "untouched"),
-        original
+      assert.equal(
+        prepared.value.originalSources.some(
+          (source) => source.id === "untouched"
+        ),
+        false
       );
-      assert.strictEqual(original.document, original.parsed!.report);
-      assert.ok(original.state);
+      assert.equal(counts.get(path.join(root, "untouched.md")), 0);
       const transaction = await prepareRenameTransaction({
         root,
         prepared: prepared.value,
@@ -64,7 +60,11 @@ async function verifyRenamePreparation(candidate: boolean): Promise<void> {
       });
       for (const source of prepared.value.originalSources) {
         // The index-runtime freshness boundary independently reads the collection once.
-        assert.equal(counts.get(source.filePath), 2, source.filePath);
+        assert.equal(
+          counts.get(source.filePath),
+          candidate ? 2 : 1,
+          source.filePath
+        );
         const captured = prepared.value.preparation!.captured(
           source.filePath,
           source.text
@@ -94,7 +94,7 @@ test("strict formal rename hands captured sources and validated documents to its
   await verifyRenamePreparation(false);
 });
 
-test("strict candidate rename reuses complete layout source facts without rescanning candidates", async () => {
+test("strict candidate rename captures only its selected candidate for transaction proof", async () => {
   await verifyRenamePreparation(true);
 });
 
@@ -115,14 +115,14 @@ test("strict formal discard reuses preparation sources while retaining independe
         writeInvestigationTextAtomically,
         async () => {
           prepared = true;
-          for (const target of targets)
-            assert.equal(counts.get(target), 2, target);
+          assert.equal(counts.get(targets[0]!), 1);
+          assert.equal(counts.get(targets[1]!), 0);
         }
       );
       assert.equal(prepared, true);
       assert.deepEqual(result.errors, []);
       assert.equal(result.changed, true);
-      assert.ok(counts.get(targets[1]!)! > 2);
+      assert.equal(counts.get(targets[1]!), 0);
     });
   });
 });
@@ -155,36 +155,16 @@ async function committedRenameFixture(workspaceRoot: string) {
   return { root, prepared: prepared.value };
 }
 
-test("strict rename postwrite reuses one fresh layout and document per source while retaining index freshness reads", async (t) => {
+test("strict rename postwrite reads only actual rewritten sources and the expected index", async () => {
   await withTempRoot("strict-rename-postwrite", async (workspaceRoot) => {
     const { root, prepared } = await committedRenameFixture(workspaceRoot);
     const targets = prepared.sources.map((source) =>
       path.join(root, source.sourcePath)
     );
-    const observed = t.mock.method(
-      InvestigationPreparation.prototype,
-      "parsed"
-    );
-    const documents = new Map<string, ParsedInvestigationReport[]>();
     await observeSourceReads(targets, async (counts) => {
       assert.deepEqual(await verifyCommittedRename(root, prepared), []);
-      for (const call of observed.mock.calls) {
-        assert.ok(call.result);
-        const key = call.arguments[0].sourcePath;
-        const previous = documents.get(key) ?? [];
-        previous.push(call.result);
-        documents.set(key, previous);
-      }
-      for (const source of prepared.sources) {
-        assert.equal(
-          counts.get(path.join(root, source.sourcePath)),
-          2,
-          source.sourcePath
-        );
-        const parsed = documents.get(source.sourcePath)!;
-        assert.equal(parsed.length, 2, source.sourcePath);
-        assert.strictEqual(parsed[0], parsed[1]);
-      }
+      for (const source of prepared.sources)
+        assert.equal(counts.get(path.join(root, source.sourcePath)), 1);
     });
   });
 });
@@ -193,11 +173,11 @@ test("strict rename postwrite rejects source edits rather than reusing preparati
   await withTempRoot("strict-rename-postwrite-drift", async (workspaceRoot) => {
     const { root, prepared } = await committedRenameFixture(workspaceRoot);
     await fs.appendFile(
-      path.join(root, "untouched.md"),
+      path.join(root, prepared.plan.newSourcePath),
       "\n写入后的新证据。\n"
     );
     assert.deepEqual(await verifyCommittedRename(root, prepared), [
-      "investigation index is stale after rename"
+      prepared.plan.newId + " changed after rename publication"
     ]);
   });
 });

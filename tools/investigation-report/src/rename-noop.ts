@@ -1,3 +1,5 @@
+import { loadInvestigationQueryIndex } from "./investigation-state-index.ts";
+import { validatePublishedDependency } from "./published-preparation.ts";
 import path from "node:path";
 import { readRecordText } from "../../record-operations/src/source.ts";
 import { discoverInvestigationCandidates } from "./candidate-discovery.ts";
@@ -80,6 +82,22 @@ async function loadLocalNoopSource(
   const identity = discovered.candidateCollection.identityById.get(
     selected.id
   )!;
+  const source = await readNoopIdentity(
+    root,
+    indexPath,
+    identity,
+    discovered.candidateCollection.candidateById.has(identity.id)
+  );
+  if ("result" in source) return source;
+  return { value: { source: source.value, identities } };
+}
+
+async function readNoopIdentity(
+  root: string,
+  indexPath: string,
+  identity: Pick<RenameSource, "id" | "sourcePath">,
+  candidate: boolean
+): Promise<RenameStep<RenameSource>> {
   const text = await readRecordText(root, identity.sourcePath);
   const parsed = parseInvestigationReport(text, identity.id);
   if (
@@ -93,12 +111,39 @@ async function loadLocalNoopSource(
         ? parsed.frontmatterErrors
         : ["Rename source must retain its exact declared identity"]
     );
+  if (!candidate) {
+    const validated = await validateNoopPublication(root, indexPath, {
+      ...identity,
+      text
+    });
+    if (validated !== null) return validated;
+  }
   const source: RenameSource = {
     ...identity,
     text,
     filePath: path.join(root, identity.sourcePath),
-    candidate: discovered.candidateCollection.candidateById.has(identity.id),
+    candidate,
     document: parsed.report
   };
-  return { value: { source, identities } };
+  return { value: source };
+}
+
+async function validateNoopPublication(
+  root: string,
+  indexPath: string,
+  source: Pick<RenameSource, "id" | "sourcePath" | "text">
+): Promise<RenameStep<never> | null> {
+  const loaded = await loadInvestigationQueryIndex({
+    investigationsDirectory: root
+  });
+  if (loaded.status === "error")
+    return renameStepFailure(indexPath, [
+      "published index is unavailable; run full sync-index"
+    ]);
+  validatePublishedDependency(
+    loaded.value,
+    loaded.value.entries[source.id]!,
+    source
+  );
+  return null;
 }

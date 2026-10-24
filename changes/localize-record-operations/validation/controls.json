@@ -1,0 +1,508 @@
+[
+  {
+    "domain": "decision",
+    "control": "decision-unselected-corrupt",
+    "argv": [
+      "node",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/snapshot/skills/decision-records/scripts/decision-records.ts",
+      "--root",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/controls/decision-unselected-corrupt",
+      "publish",
+      "261001-candidate-1",
+      "--alignment",
+      "unaligned"
+    ],
+    "expectedExit": 0,
+    "exitCode": 0,
+    "startedAt": "2026-10-24T14:42:18.280335+00:00",
+    "before": {
+      "files": 10003,
+      "worktreeSha256": "1978b2fe05efb0788c9c0834d0e2f04b4e88d0702be0cc07890dec88036fe0a5",
+      "pendingPaths": 10003,
+      "pendingSha256": "8b42be31afdfa6e89d054f46cf52a5c9a486c1928b94aca42bcd789631be3c7e",
+      "head": "6e4588e1df827f2bcfe55a26da05823b85cf5e95",
+      "indexSha256": "13a991985b77d5002ae3245b95192b380e6295e5d54d525096205155aa7b531a"
+    },
+    "after": {
+      "files": 10003,
+      "worktreeSha256": "98acff25332a290dd8721c73d31ce92ae4ee22e2be67b3b69f3a5aeb20737b73",
+      "pendingPaths": 10003,
+      "pendingSha256": "8b42be31afdfa6e89d054f46cf52a5c9a486c1928b94aca42bcd789631be3c7e",
+      "head": "6e4588e1df827f2bcfe55a26da05823b85cf5e95",
+      "indexSha256": "5c55a96a824fc8976374bd8c0e13ca14124f2e6a3f5f70446d45c2107b0eb63a"
+    },
+    "stdout": {
+      "bytes": 192,
+      "sha256": "1304ad928f8cb34583bafbd7d9378bec421e426f1a3c23fb50d2e8d9186d8e7b",
+      "bundlePath": "streams/1304ad928f8cb34583bafbd7d9378bec421e426f1a3c23fb50d2e8d9186d8e7b.txt"
+    },
+    "stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bundlePath": "streams/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt"
+    },
+    "status": "passed",
+    "effect": {
+      "selectedPublication": "passed",
+      "unselectedCorruption": "byte/mode unchanged",
+      "unselectedPublishedIndex": "unchanged",
+      "selectedProjectionRevision": "passed",
+      "P/HEAD": "unchanged"
+    }
+  },
+  {
+    "domain": "decision",
+    "control": "decision-selected-drift",
+    "argv": [
+      "node",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/snapshot/skills/decision-records/scripts/decision-records.ts",
+      "--root",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/controls/decision-selected-drift",
+      "discard",
+      "261001-record-10000",
+      "--delete-recorded"
+    ],
+    "expectedExit": 1,
+    "exitCode": 1,
+    "startedAt": "2026-10-24T14:42:22.131832+00:00",
+    "before": {
+      "files": 10003,
+      "worktreeSha256": "ed786c67a0cd276ad8fab939387e856a3af3ec414d7505013fe0a249aa82e40b",
+      "pendingPaths": 10003,
+      "pendingSha256": "8b42be31afdfa6e89d054f46cf52a5c9a486c1928b94aca42bcd789631be3c7e",
+      "head": "36685fcebb74da85d34e21774cdda2d7ed265b7f",
+      "indexSha256": "13a991985b77d5002ae3245b95192b380e6295e5d54d525096205155aa7b531a"
+    },
+    "after": {
+      "files": 10003,
+      "worktreeSha256": "ed786c67a0cd276ad8fab939387e856a3af3ec414d7505013fe0a249aa82e40b",
+      "pendingPaths": 10003,
+      "pendingSha256": "8b42be31afdfa6e89d054f46cf52a5c9a486c1928b94aca42bcd789631be3c7e",
+      "head": "36685fcebb74da85d34e21774cdda2d7ed265b7f",
+      "indexSha256": "13a991985b77d5002ae3245b95192b380e6295e5d54d525096205155aa7b531a"
+    },
+    "stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bundlePath": "streams/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt"
+    },
+    "stderr": {
+      "bytes": 614,
+      "sha256": "32f6ea5aaff8f58db4f06a8434fc6c9e0261212b97276527e2987dc34aa2f5a1",
+      "bundlePath": "streams/32f6ea5aaff8f58db4f06a8434fc6c9e0261212b97276527e2987dc34aa2f5a1.txt"
+    },
+    "status": "passed",
+    "effect": {
+      "wholeWorktreePendingHead": "unchanged"
+    }
+  },
+  {
+    "domain": "decision",
+    "control": "decision-legacy-crossday-new",
+    "argv": [
+      "node",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/snapshot/skills/decision-records/scripts/decision-records.ts",
+      "--root",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/controls/decision-legacy-crossday-new",
+      "new",
+      "record-00001",
+      "--title",
+      "Acceptance new",
+      "--purpose",
+      "固定目的",
+      "--background",
+      "固定背景",
+      "--decision",
+      "固定决定",
+      "--tag",
+      "benchmark"
+    ],
+    "expectedExit": 0,
+    "exitCode": 0,
+    "startedAt": "2026-10-24T14:42:25.115445+00:00",
+    "before": {
+      "files": 10003,
+      "worktreeSha256": "8c4fb5820aad7c62ae06d83c4a54ef261a995b634b0f0cec00a2cbfefb92b7ab",
+      "pendingPaths": 10003,
+      "pendingSha256": "8b42be31afdfa6e89d054f46cf52a5c9a486c1928b94aca42bcd789631be3c7e",
+      "head": "de5aa84bbc7df5f05262f33b414d756b4d5d9a4b",
+      "indexSha256": "983f293f5d8c954f30f6150d93006bb6faf8661e53e34e6928f7f7ef30681e5c"
+    },
+    "after": {
+      "files": 10004,
+      "worktreeSha256": "58c755ccced7262f25fc73ecefa5c4972129beece23af9d0e3176ebbc27a6e2e",
+      "pendingPaths": 10003,
+      "pendingSha256": "8b42be31afdfa6e89d054f46cf52a5c9a486c1928b94aca42bcd789631be3c7e",
+      "head": "de5aa84bbc7df5f05262f33b414d756b4d5d9a4b",
+      "indexSha256": "983f293f5d8c954f30f6150d93006bb6faf8661e53e34e6928f7f7ef30681e5c"
+    },
+    "stdout": {
+      "bytes": 360,
+      "sha256": "a5065a0fb93c5f3d7dfbd2ded4a7d20062f460bab3f8f2b0b83eff3ae0a783e8",
+      "bundlePath": "streams/a5065a0fb93c5f3d7dfbd2ded4a7d20062f460bab3f8f2b0b83eff3ae0a783e8.txt"
+    },
+    "stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bundlePath": "streams/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt"
+    },
+    "status": "passed",
+    "effect": {
+      "newIdentity": "261024-record-00001",
+      "canonicalLocator": "261024-record-00001.md",
+      "oldLegacySource": "unchanged",
+      "index/P/HEAD": "unchanged"
+    }
+  },
+  {
+    "domain": "decision",
+    "control": "decision-same-day-collision",
+    "argv": [
+      "node",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/snapshot/skills/decision-records/scripts/decision-records.ts",
+      "--root",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/controls/decision-legacy-crossday-new",
+      "new",
+      "record-00001",
+      "--title",
+      "Acceptance new",
+      "--purpose",
+      "固定目的",
+      "--background",
+      "固定背景",
+      "--decision",
+      "固定决定",
+      "--tag",
+      "benchmark"
+    ],
+    "expectedExit": 1,
+    "exitCode": 1,
+    "startedAt": "2026-10-24T14:42:27.367886+00:00",
+    "before": {
+      "files": 10004,
+      "worktreeSha256": "58c755ccced7262f25fc73ecefa5c4972129beece23af9d0e3176ebbc27a6e2e",
+      "pendingPaths": 10003,
+      "pendingSha256": "8b42be31afdfa6e89d054f46cf52a5c9a486c1928b94aca42bcd789631be3c7e",
+      "head": "de5aa84bbc7df5f05262f33b414d756b4d5d9a4b",
+      "indexSha256": "983f293f5d8c954f30f6150d93006bb6faf8661e53e34e6928f7f7ef30681e5c"
+    },
+    "after": {
+      "files": 10004,
+      "worktreeSha256": "58c755ccced7262f25fc73ecefa5c4972129beece23af9d0e3176ebbc27a6e2e",
+      "pendingPaths": 10003,
+      "pendingSha256": "8b42be31afdfa6e89d054f46cf52a5c9a486c1928b94aca42bcd789631be3c7e",
+      "head": "de5aa84bbc7df5f05262f33b414d756b4d5d9a4b",
+      "indexSha256": "983f293f5d8c954f30f6150d93006bb6faf8661e53e34e6928f7f7ef30681e5c"
+    },
+    "stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bundlePath": "streams/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt"
+    },
+    "stderr": {
+      "bytes": 361,
+      "sha256": "3773551141279632e13cb9dd1d5c7750f997763fac5a5e3283b5f5f143c2c0c9",
+      "bundlePath": "streams/3773551141279632e13cb9dd1d5c7750f997763fac5a5e3283b5f5f143c2c0c9.txt"
+    },
+    "status": "passed",
+    "effect": {
+      "wholeWorktreePendingHead": "unchanged"
+    }
+  },
+  {
+    "domain": "decision",
+    "control": "decision-stale-candidate-publish",
+    "argv": [
+      "node",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/snapshot/skills/decision-records/scripts/decision-records.ts",
+      "--root",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/controls/decision-stale-candidate-publish",
+      "publish",
+      "261001-candidate-1",
+      "--alignment",
+      "unaligned"
+    ],
+    "expectedExit": 1,
+    "exitCode": 1,
+    "startedAt": "2026-10-24T14:42:29.898220+00:00",
+    "before": {
+      "files": 10003,
+      "worktreeSha256": "3c5c0e9fdba3938d73fb993acd492ba9b30fa5d2f8f0f6222ed39e996098d0a2",
+      "pendingPaths": 10003,
+      "pendingSha256": "390200ba83f4b9bbbccb646ccd109adc71e1c8d829f03d54151fab25409586ae",
+      "head": "59194c43f3c54ff41aa9d6a132e6857a4c587e8b",
+      "indexSha256": "c9db22c7ea354548c5b0450b874496aecb260625845900e2d86d59f6803ac0a3"
+    },
+    "after": {
+      "files": 10003,
+      "worktreeSha256": "3c5c0e9fdba3938d73fb993acd492ba9b30fa5d2f8f0f6222ed39e996098d0a2",
+      "pendingPaths": 10003,
+      "pendingSha256": "390200ba83f4b9bbbccb646ccd109adc71e1c8d829f03d54151fab25409586ae",
+      "head": "59194c43f3c54ff41aa9d6a132e6857a4c587e8b",
+      "indexSha256": "c9db22c7ea354548c5b0450b874496aecb260625845900e2d86d59f6803ac0a3"
+    },
+    "stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bundlePath": "streams/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt"
+    },
+    "stderr": {
+      "bytes": 670,
+      "sha256": "25ba2e7eacf268fa8880f345c2de20acb929961eda493ef67c222536def01497",
+      "bundlePath": "streams/25ba2e7eacf268fa8880f345c2de20acb929961eda493ef67c222536def01497.txt"
+    },
+    "status": "passed",
+    "effect": {
+      "wholeWorktreePendingHead": "unchanged"
+    }
+  },
+  {
+    "domain": "investigation",
+    "control": "investigation-unselected-corrupt",
+    "argv": [
+      "node",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/controls/investigation-unselected-corrupt",
+      "publish",
+      "261001-candidate-1"
+    ],
+    "expectedExit": 0,
+    "exitCode": 0,
+    "startedAt": "2026-10-24T14:42:33.287953+00:00",
+    "before": {
+      "files": 10004,
+      "worktreeSha256": "e907dad93f49368811062bee131e14e3a2e0b6e9dce1e897207eda43946844d5",
+      "pendingPaths": 10004,
+      "pendingSha256": "16fa696af3631b771224bd92b6b5327c3809ae4250e9c2762e89c729b8399468",
+      "head": "e0f970f6497ae7cbcb3b1769d616a0f7c7f2df31",
+      "indexSha256": "fcd1a1f25824c8ca5d52eac3532336df39d1f7896936839938a2ec0d8e04201f"
+    },
+    "after": {
+      "files": 10004,
+      "worktreeSha256": "5dfbc7303eacd0e897e520718430367d41f331c581a6c149a50e671d018efaec",
+      "pendingPaths": 10004,
+      "pendingSha256": "16fa696af3631b771224bd92b6b5327c3809ae4250e9c2762e89c729b8399468",
+      "head": "e0f970f6497ae7cbcb3b1769d616a0f7c7f2df31",
+      "indexSha256": "a56057962a422c96ff7d44117ade0a3e11b7a31b15e21118349b144e6923590d"
+    },
+    "stdout": {
+      "bytes": 146,
+      "sha256": "ca6983e5732979607acf06083a27c160b9f3ddc4afaf8b32cd011728e5e32f60",
+      "bundlePath": "streams/ca6983e5732979607acf06083a27c160b9f3ddc4afaf8b32cd011728e5e32f60.txt"
+    },
+    "stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bundlePath": "streams/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt"
+    },
+    "status": "passed",
+    "effect": {
+      "selectedPublication": "passed",
+      "unselectedCorruption": "byte/mode unchanged",
+      "unselectedPublishedIndex": "unchanged",
+      "selectedProjectionRevision": "passed",
+      "P/HEAD": "unchanged"
+    }
+  },
+  {
+    "domain": "investigation",
+    "control": "investigation-selected-drift",
+    "argv": [
+      "node",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/controls/investigation-selected-drift",
+      "discard",
+      "261001-record-10000",
+      "--delete-recorded"
+    ],
+    "expectedExit": 1,
+    "exitCode": 1,
+    "startedAt": "2026-10-24T14:42:40.892957+00:00",
+    "before": {
+      "files": 10004,
+      "worktreeSha256": "11d5fc2d3ab6f2dc61a05f7a5f8e204faa610dc9c772f05a8666dfbf4d27b076",
+      "pendingPaths": 10004,
+      "pendingSha256": "16fa696af3631b771224bd92b6b5327c3809ae4250e9c2762e89c729b8399468",
+      "head": "ca58f479709a249ba3a84f2dc986261192e1a72f",
+      "indexSha256": "fcd1a1f25824c8ca5d52eac3532336df39d1f7896936839938a2ec0d8e04201f"
+    },
+    "after": {
+      "files": 10004,
+      "worktreeSha256": "11d5fc2d3ab6f2dc61a05f7a5f8e204faa610dc9c772f05a8666dfbf4d27b076",
+      "pendingPaths": 10004,
+      "pendingSha256": "16fa696af3631b771224bd92b6b5327c3809ae4250e9c2762e89c729b8399468",
+      "head": "ca58f479709a249ba3a84f2dc986261192e1a72f",
+      "indexSha256": "fcd1a1f25824c8ca5d52eac3532336df39d1f7896936839938a2ec0d8e04201f"
+    },
+    "stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bundlePath": "streams/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt"
+    },
+    "stderr": {
+      "bytes": 350,
+      "sha256": "4d6406c34a3060924c304bca42d5d7110bf72a3872dd1e2f10f86c4472e3bb34",
+      "bundlePath": "streams/4d6406c34a3060924c304bca42d5d7110bf72a3872dd1e2f10f86c4472e3bb34.txt"
+    },
+    "status": "passed",
+    "effect": {
+      "wholeWorktreePendingHead": "unchanged"
+    }
+  },
+  {
+    "domain": "investigation",
+    "control": "investigation-legacy-crossday-new",
+    "argv": [
+      "node",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/controls/investigation-legacy-crossday-new",
+      "new",
+      "record-00001",
+      "--formed-at",
+      "2026-10-24T00:00:00Z",
+      "--title",
+      "Acceptance new",
+      "--question",
+      "固定问题",
+      "--tag",
+      "benchmark"
+    ],
+    "expectedExit": 0,
+    "exitCode": 0,
+    "startedAt": "2026-10-24T14:42:44.030802+00:00",
+    "before": {
+      "files": 10004,
+      "worktreeSha256": "5e82b244e2d6714c97492f1a7c3d848094aff8418e8431908dfb13832a9757b4",
+      "pendingPaths": 10004,
+      "pendingSha256": "16fa696af3631b771224bd92b6b5327c3809ae4250e9c2762e89c729b8399468",
+      "head": "8e888e607dcdddc62fa60e44696a717513bdb99f",
+      "indexSha256": "bfda63b2e3a46c673b843340d870e610f159d0fd43936d10b32cd3385a7bb178"
+    },
+    "after": {
+      "files": 10005,
+      "worktreeSha256": "2fc72765c33fb1b395f14cb46945ebb47fe6109cddfe1fc428e98f4f02a2211a",
+      "pendingPaths": 10004,
+      "pendingSha256": "16fa696af3631b771224bd92b6b5327c3809ae4250e9c2762e89c729b8399468",
+      "head": "8e888e607dcdddc62fa60e44696a717513bdb99f",
+      "indexSha256": "bfda63b2e3a46c673b843340d870e610f159d0fd43936d10b32cd3385a7bb178"
+    },
+    "stdout": {
+      "bytes": 280,
+      "sha256": "42cb2d37d3f356aad432d2a1f531c27a6214b18ac221f7cd2e4970f4201d535f",
+      "bundlePath": "streams/42cb2d37d3f356aad432d2a1f531c27a6214b18ac221f7cd2e4970f4201d535f.txt"
+    },
+    "stderr": {
+      "bytes": 313,
+      "sha256": "8a3c4c3e2a4e30a547959ecbdf340f397e20fc79649b3c92ba359de1cb7c8f42",
+      "bundlePath": "streams/8a3c4c3e2a4e30a547959ecbdf340f397e20fc79649b3c92ba359de1cb7c8f42.txt"
+    },
+    "status": "passed",
+    "effect": {
+      "newIdentity": "261024-record-00001",
+      "canonicalLocator": "_candidate.261024-record-00001",
+      "oldLegacySource": "unchanged",
+      "index/P/HEAD": "unchanged"
+    }
+  },
+  {
+    "domain": "investigation",
+    "control": "investigation-same-day-collision",
+    "argv": [
+      "node",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/controls/investigation-legacy-crossday-new",
+      "new",
+      "record-00001",
+      "--formed-at",
+      "2026-10-24T00:00:00Z",
+      "--title",
+      "Acceptance new",
+      "--question",
+      "固定问题",
+      "--tag",
+      "benchmark"
+    ],
+    "expectedExit": 1,
+    "exitCode": 1,
+    "startedAt": "2026-10-24T14:42:46.110442+00:00",
+    "before": {
+      "files": 10005,
+      "worktreeSha256": "2fc72765c33fb1b395f14cb46945ebb47fe6109cddfe1fc428e98f4f02a2211a",
+      "pendingPaths": 10004,
+      "pendingSha256": "16fa696af3631b771224bd92b6b5327c3809ae4250e9c2762e89c729b8399468",
+      "head": "8e888e607dcdddc62fa60e44696a717513bdb99f",
+      "indexSha256": "bfda63b2e3a46c673b843340d870e610f159d0fd43936d10b32cd3385a7bb178"
+    },
+    "after": {
+      "files": 10005,
+      "worktreeSha256": "2fc72765c33fb1b395f14cb46945ebb47fe6109cddfe1fc428e98f4f02a2211a",
+      "pendingPaths": 10004,
+      "pendingSha256": "16fa696af3631b771224bd92b6b5327c3809ae4250e9c2762e89c729b8399468",
+      "head": "8e888e607dcdddc62fa60e44696a717513bdb99f",
+      "indexSha256": "bfda63b2e3a46c673b843340d870e610f159d0fd43936d10b32cd3385a7bb178"
+    },
+    "stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bundlePath": "streams/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt"
+    },
+    "stderr": {
+      "bytes": 257,
+      "sha256": "fa0fb90be4f9c8811161f68662a3724edbdc9b515da7c5049ba2f05885ffe75e",
+      "bundlePath": "streams/fa0fb90be4f9c8811161f68662a3724edbdc9b515da7c5049ba2f05885ffe75e.txt"
+    },
+    "status": "passed",
+    "effect": {
+      "wholeWorktreePendingHead": "unchanged"
+    }
+  },
+  {
+    "domain": "investigation",
+    "control": "investigation-stale-candidate-publish",
+    "argv": [
+      "node",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/snapshot/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "/tmp/localize-record-acceptance-20261024-j2I1x1/controls/investigation-stale-candidate-publish",
+      "publish",
+      "261001-candidate-1"
+    ],
+    "expectedExit": 1,
+    "exitCode": 1,
+    "startedAt": "2026-10-24T14:42:48.464280+00:00",
+    "before": {
+      "files": 10004,
+      "worktreeSha256": "746a05e6134578a9e77fe013c1c657e322d169b2eff20b3327f0a037efb693e3",
+      "pendingPaths": 10004,
+      "pendingSha256": "8ce8b34cea198650a21fe92b62b46fd618eb1b2dc3d066220ee7b4e01f3efaa2",
+      "head": "c80e15c39d49f9fc8d7c1fd360907e73d7bb1b00",
+      "indexSha256": "4d161b903df04aff13f32f857caa9b3c3fb7233fe71a91820936e85c7a30a614"
+    },
+    "after": {
+      "files": 10004,
+      "worktreeSha256": "746a05e6134578a9e77fe013c1c657e322d169b2eff20b3327f0a037efb693e3",
+      "pendingPaths": 10004,
+      "pendingSha256": "8ce8b34cea198650a21fe92b62b46fd618eb1b2dc3d066220ee7b4e01f3efaa2",
+      "head": "c80e15c39d49f9fc8d7c1fd360907e73d7bb1b00",
+      "indexSha256": "4d161b903df04aff13f32f857caa9b3c3fb7233fe71a91820936e85c7a30a614"
+    },
+    "stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bundlePath": "streams/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt"
+    },
+    "stderr": {
+      "bytes": 254,
+      "sha256": "85591fe6387730bd8c46f85cd2f4ea244cb80e0728c7dc4f17af6e7d208cf780",
+      "bundlePath": "streams/85591fe6387730bd8c46f85cd2f4ea244cb80e0728c7dc4f17af6e7d208cf780.txt"
+    },
+    "status": "passed",
+    "effect": {
+      "wholeWorktreePendingHead": "unchanged"
+    }
+  }
+]

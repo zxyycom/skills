@@ -1,0 +1,393 @@
+[
+  {
+    "domain": "decision",
+    "id": "new",
+    "argv": [
+      "new",
+      "acceptance-new",
+      "--title",
+      "Acceptance new",
+      "--purpose",
+      "固定目的",
+      "--background",
+      "固定背景",
+      "--decision",
+      "固定决定",
+      "--tag",
+      "benchmark"
+    ],
+    "setup": "base",
+    "expected": "date ID and full basename; index/formal/pending unchanged",
+    "expectedExit": 0,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "decision",
+    "id": "publish-independent",
+    "argv": [
+      "publish",
+      "261001-candidate-1",
+      "--alignment",
+      "unaligned"
+    ],
+    "setup": "base",
+    "expected": "candidate becomes active with same ID;10001 formal;old formal unchanged",
+    "expectedExit": 0,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "decision",
+    "id": "publish-predecessor",
+    "argv": [
+      "publish",
+      "261001-candidate-1",
+      "--alignment",
+      "unaligned"
+    ],
+    "setup": "candidate-predecessor",
+    "expected": "same ID;A archived;10001 formal;relation retained",
+    "expectedExit": 0,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "decision",
+    "id": "discard-candidate",
+    "argv": [
+      "discard",
+      "261001-candidate-1",
+      "--delete-recorded"
+    ],
+    "setup": "base",
+    "expected": "C removed;index/formal unchanged",
+    "expectedExit": 0,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "decision",
+    "id": "discard-formal",
+    "argv": [
+      "discard",
+      "261001-record-10000",
+      "--delete-recorded"
+    ],
+    "setup": "base",
+    "expected": "Z removed;9999 formal",
+    "expectedExit": 0,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "decision",
+    "id": "rename-formal",
+    "argv": [
+      "rename",
+      "261001-record-08001",
+      "acceptance-renamed",
+      "--rename-recorded-decision"
+    ],
+    "setup": "base",
+    "expected": "P identity/path and incoming A changed;unselected candidate deliberately unchanged",
+    "expectedExit": 0,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "decision",
+    "id": "evolve-discard",
+    "argv": [
+      "evolve",
+      "--successor",
+      "aligned=261001-record-09002",
+      "--relation",
+      "修订=261001-record-09001",
+      "--discard",
+      "261001-record-10000",
+      "--delete-recorded"
+    ],
+    "setup": "base",
+    "expected": "A archived;B relation/alignment changed;Z deleted;9999 formal",
+    "expectedExit": 0,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "decision",
+    "id": "stage-all",
+    "argv": [
+      "stage",
+      "261001-record-09001",
+      "--scope",
+      "all"
+    ],
+    "setup": "stage",
+    "expected": "scope selected projection;full unselected pending mode/OID/deletion invariant;W invariant",
+    "expectedExit": 0,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "decision",
+    "id": "stage-domain",
+    "argv": [
+      "stage",
+      "261001-record-09001",
+      "--scope",
+      "domain"
+    ],
+    "setup": "stage",
+    "expected": "scope selected projection;full unselected pending mode/OID/deletion invariant;W invariant",
+    "expectedExit": 0,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "decision",
+    "id": "stage-index",
+    "argv": [
+      "stage",
+      "261001-record-09001",
+      "--scope",
+      "index"
+    ],
+    "setup": "stage",
+    "expected": "scope selected projection;full unselected pending mode/OID/deletion invariant;W invariant",
+    "expectedExit": 0,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "decision",
+    "id": "bad-index",
+    "argv": [
+      "new",
+      "acceptance-new",
+      "--title",
+      "Acceptance new",
+      "--purpose",
+      "固定目的",
+      "--background",
+      "固定背景",
+      "--decision",
+      "固定决定",
+      "--tag",
+      "benchmark"
+    ],
+    "setup": "bad-index",
+    "expected": "reject;W/P unchanged",
+    "expectedExit": 1,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "decision",
+    "id": "bootstrap",
+    "argv": [
+      "publish",
+      "261001-candidate-1",
+      "--alignment",
+      "unaligned"
+    ],
+    "setup": "bootstrap",
+    "expected": "0→1 formal;valid initial index;candidate ID retained",
+    "expectedExit": 0,
+    "formalCount": 0,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "investigation",
+    "id": "new",
+    "argv": [
+      "new",
+      "acceptance-new",
+      "--formed-at",
+      "2026-10-24T00:00:00Z",
+      "--title",
+      "Acceptance new",
+      "--question",
+      "固定问题",
+      "--tag",
+      "benchmark"
+    ],
+    "setup": "base",
+    "expected": "full ID flat _candidate.<id> file;formal/index/pending unchanged",
+    "expectedExit": 0,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "investigation",
+    "id": "publish-independent",
+    "argv": [
+      "publish",
+      "261001-candidate-1"
+    ],
+    "setup": "base",
+    "expected": "same ID published;10001 formal;old formal unchanged",
+    "expectedExit": 0,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "investigation",
+    "id": "publish-predecessor",
+    "argv": [
+      "publish",
+      "261001-candidate-1"
+    ],
+    "setup": "candidate-predecessor",
+    "expected": "same ID;index relation retained;10001 formal;predecessor current body unnecessary",
+    "expectedExit": 0,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "investigation",
+    "id": "discard-candidate-owner",
+    "argv": [
+      "discard",
+      "261001-candidate-2",
+      "--delete-recorded",
+      "--delete-owned-resources"
+    ],
+    "setup": "candidate-owner",
+    "expected": "D and only its owner tree removed;index/formal and baseline owner unchanged",
+    "expectedExit": 0,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "investigation",
+    "id": "discard-formal",
+    "argv": [
+      "discard",
+      "261001-record-10000",
+      "--delete-recorded"
+    ],
+    "setup": "base",
+    "expected": "Z removed;9999 formal",
+    "expectedExit": 0,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "investigation",
+    "id": "rename-formal-owner",
+    "argv": [
+      "rename",
+      "261001-record-00001",
+      "acceptance-renamed",
+      "--rename-recorded-report"
+    ],
+    "setup": "base",
+    "expected": "ID/path and formal incoming reference changed;owner tree moved;unselected candidate unchanged",
+    "expectedExit": 0,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "investigation",
+    "id": "stage-all",
+    "argv": [
+      "stage",
+      "261001-record-00001",
+      "--scope",
+      "all"
+    ],
+    "setup": "stage-owner",
+    "expected": "scope selected projection;owner complete tree only for domain/all;unselected pending mode/OID/deletion and W invariant",
+    "expectedExit": 0,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "investigation",
+    "id": "stage-domain",
+    "argv": [
+      "stage",
+      "261001-record-00001",
+      "--scope",
+      "domain"
+    ],
+    "setup": "stage-owner",
+    "expected": "scope selected projection;owner complete tree only for domain/all;unselected pending mode/OID/deletion and W invariant",
+    "expectedExit": 0,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "investigation",
+    "id": "stage-index",
+    "argv": [
+      "stage",
+      "261001-record-00001",
+      "--scope",
+      "index"
+    ],
+    "setup": "stage-owner",
+    "expected": "scope selected projection;owner complete tree only for domain/all;unselected pending mode/OID/deletion and W invariant",
+    "expectedExit": 0,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "investigation",
+    "id": "missing-index",
+    "argv": [
+      "new",
+      "acceptance-new",
+      "--formed-at",
+      "2026-10-24T00:00:00Z",
+      "--title",
+      "Acceptance new",
+      "--question",
+      "固定问题",
+      "--tag",
+      "benchmark"
+    ],
+    "setup": "missing-index",
+    "expected": "reject;W/P unchanged",
+    "expectedExit": 1,
+    "formalCount": 10000,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  },
+  {
+    "domain": "investigation",
+    "id": "bootstrap",
+    "argv": [
+      "publish",
+      "261001-candidate-1"
+    ],
+    "setup": "bootstrap",
+    "expected": "0→1 formal;valid initial index;same ID",
+    "expectedExit": 0,
+    "formalCount": 0,
+    "normalRepetitions": 3,
+    "probeRepetitions": 1
+  }
+]

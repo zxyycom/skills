@@ -29,7 +29,7 @@ relations:
 - 一份完整 JSON 索引容纳多个任务的条目；将 HEAD 一律作为组合基底会丢失此前独立暂存的其他记录，将整个工作区作为基底又会夹带未选变化。
 - 用户选择类似 git add 的刷新方式：明确选择 A 即采用 A 的当前完整版本，未选 B 保留原 pending；只需要对象级替换，不需要字段或正文片段合并。
 - 静态已有暂存版本与本次准备后发生的并发漂移是不同事实：前者可以被显式刷新，后者仍须拒绝覆盖。
-- [前序判断](archive/investigation-local-validation-and-phase-facts.md)同时维护只读检查与领域暂存。本判断完整承接暂存的局部依赖、资源安全和阶段保护，并扩展选中刷新；检查与普通维护边界由[发布基线判断](separate-record-local-operations-from-collection-audits.md)承接。
+- [前序判断](archive/investigation-local-validation-and-phase-facts.md)同时维护只读检查与领域暂存。本判断完整承接暂存的局部依赖、资源安全和阶段保护，并扩展选中刷新；检查与普通维护边界由[发布基线判断](261024-bound-record-operations-to-published-facts.md)承接。
 
 ## 决策
 
