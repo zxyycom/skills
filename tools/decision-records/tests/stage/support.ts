@@ -1,5 +1,6 @@
 import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
 import { syncDecisionIndex } from "../../src/decision-state-index.ts";
+import { a, fixture, formal, sync } from "../support-local-contracts.ts";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
@@ -44,6 +45,33 @@ export {
   withTemporaryWorkspace,
   writeDecision
 };
+
+export function parseJsonObject(text: string): Record<string, unknown> {
+  const value: unknown = JSON.parse(text);
+  assert.ok(
+    value !== null && typeof value === "object" && !Array.isArray(value)
+  );
+  return Object.fromEntries(Object.entries(value));
+}
+
+export function jsonObjectMember(
+  value: Record<string, unknown>,
+  key: string
+): Record<string, unknown> {
+  const member = value[key];
+  assert.ok(
+    member !== null && typeof member === "object" && !Array.isArray(member)
+  );
+  return Object.fromEntries(Object.entries(member));
+}
+
+export async function prepareUpdatedSelectedStageIndex(
+  root: string
+): Promise<void> {
+  await fixture(root, true);
+  await formal(root, a, "Updated selected");
+  await sync(root);
+}
 
 export async function createStageScaleFixture(
   workspaceRoot: string,

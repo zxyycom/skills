@@ -12,4 +12,4 @@ Contract:
 
 Proves:
 - 即使注入可省略全部 Check 的 incremental 计划，CI base、显式 release 与 release cold、兼容 full 与 cold full 仍向 Definition 传入 undefined activeToolIds；命令 flags 保持 base/release 原意，不携带 receipt tool flags，项目 lint 无 activation condition 且违规 Markdown 实际执行失败。
-- release 计划选择完整 64 项、snapshot 为 null，禁止探测 receipt 的 captureCommand 未被调用，发布返回 not-incremental。
+- release 计划选择完整 67 项、snapshot 为 null，禁止探测 receipt 的 captureCommand 未被调用，发布返回 not-incremental。

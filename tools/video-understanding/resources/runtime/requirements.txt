@@ -1,0 +1,2 @@
+whisper-ctranslate2==0.5.7
+av==18.1.0

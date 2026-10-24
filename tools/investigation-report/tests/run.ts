@@ -100,3 +100,5 @@ await import("./discard-phase-verification.test.ts");
 await import("./resource-phase-verification.test.ts");
 
 await import("./local-publication.test.ts");
+
+await import("./transaction-member-scan.test.ts");

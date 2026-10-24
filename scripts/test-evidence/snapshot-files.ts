@@ -105,11 +105,14 @@ export async function runSnapshotCommand(
 }
 
 export async function resolveAstGrep(workspaceRoot: string): Promise<string> {
+  // ast-grep owns this native Windows binary through its package postinstall.
+  // A .cmd shim cannot preserve the multiline --inline-rules argument.
   const executable = path.join(
     workspaceRoot,
     "node_modules",
-    ".bin",
-    process.platform === "win32" ? "ast-grep.cmd" : "ast-grep"
+    ...(process.platform === "win32"
+      ? ["@ast-grep", "cli", "ast-grep.exe"]
+      : [".bin", "ast-grep"])
   );
   await requireRegularProjectFile(
     workspaceRoot,

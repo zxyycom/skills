@@ -286,6 +286,8 @@
       "DECISION-SPLIT-SINGLE-SUCCESSOR-001": "sha256:33f3f9bc03b4cb76869ab022a1ebc1cd0e8d359a171662fa4c318503a9d2bd45",
       "DECISION-SPLIT-TRANSACTION-001": "sha256:7c3d009168ddbc737847f76cab9ca12c79ecf70ceada8c870b7d0523f43c68da",
       "DECISION-STAGE-ADDITION-001": "sha256:f3d1e849997fbe5b5707f6e5f02fb91d2e3dac7bde66522e4670bbfdb8e306fd",
+      "DECISION-STAGE-ALL-LOCATOR-EXTENSION-DRIFT-001": "sha256:48fa311de67fdc3905dd70076f12cb5de02154beec6ec8e577f9ac274c862d9b",
+      "DECISION-STAGE-ALL-LOCATOR-PARSE-REUSE-001": "sha256:a47915c94585ee9a83e332c1d7fc4068f00619135ae07b23760010f3a399f73a",
       "DECISION-STAGE-ARGV-SCOPE-WIRING-001": "sha256:055c295a727c989da567303510de8fd05cee6e1378ef2260a2c83489c90b1cea",
       "DECISION-STAGE-BAD-PENDING-001": "sha256:71b099edebb4801b1acaa12ec0ce31d7bb2df6438a5b51aa1aa7542bc1f54340",
       "DECISION-STAGE-BOOTSTRAP-001": "sha256:051de4d8af5645c065acd4c418e40e340d0c78d312ad526b5ba5f41fb3237197",
@@ -391,17 +393,18 @@
       "FILE-TEXT-SEARCH-UNICODE-CASE-001": "sha256:33bd599c40e9466fd82406d193090b48fe7221141b731abacc6ca01ae4c5b7f4",
       "FILE-TEXT-SEARCH-UNICODE-RANGE-001": "sha256:d7b1d476a2fe864ca543f15c6cf2e444d7f003bc96c9a05cfb3da3144a8911b6",
       "GATE-CLI-PATH-NORMALIZATION-001": "sha256:5ea1d7d270f8514f9109784d2b2e9262b3ee4a3d18a9be02604244d4c5689f46",
-      "GATE-CLI-PERFORMANCE-BOUNDARY-001": "sha256:fb22312d43a7e62fa15960d30c33a6a25978ab2e2d62aaf23a16445d20f30db5",
+      "GATE-CLI-PERFORMANCE-BOUNDARY-001": "sha256:0b9015d82892f2a17526ce1bf914cc2cac3aebfadf9a95438809465a69f15161",
       "GATE-CLI-PERFORMANCE-WRITE-FAILURE-001": "sha256:2d58943a0633c776ac36c1316c20a7b8f431021a7991022dd447dc21738bd045",
       "GATE-CLI-RESULT-001": "sha256:8dedaebd87b19b37d8e6e141b889b8fc3500bde734786bfe621e891a97143c93",
-      "GATE-DEFINITION-CATALOG-001": "sha256:e8310bee0cc2abcfca808023cb664165df7fd7915fe04039092d8a2746f97735",
+      "GATE-DEFINITION-CATALOG-001": "sha256:1f3e836d8e3ae423daf70017b4069b01ab43cbf7a154aef6ad24b7f60ca94fdd",
       "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:840553137473ceae45cb978aadc8f5631a73b768df520bcd332e0a61f513739d",
       "GATE-ENVIRONMENT-CHECK-001": "sha256:6bfa10c88126f8cc06410e12b3777caa46570e80b21ed2148aebc1d5e1cc1cab",
       "GATE-FILE-SELECTION-001": "sha256:51cf9d2d007ddd27b9d8ecf7727614f6c5751d7f87e7a7a07cc172176458f4fd",
       "GATE-GENERATED-INPUTS-001": "sha256:c6345a171d8ef7233a28a0c341560c0e22614507d3fec4d071113780bda0ea69",
-      "GATE-INCREMENTAL-ACTIVATION-001": "sha256:a6630ecd93f18e30b7ec691c4988c117a45d74ed88c4dc6f2f4bb28afa2421b5",
+      "GATE-INCREMENTAL-ACTIVATION-001": "sha256:48f6acf87e58baf10bd98a0913a84d4ded0fa75b78c982181d54edb1ddd568fc",
       "GATE-LAYOUT-IDENTITIES-001": "sha256:8415e7ef09ce64a423ca2dcb3cfa226a66056a48e7a50847f91525bf81c7fceb",
       "GATE-LAZY-RELATION-INPUT-OWNERSHIP-001": "sha256:eccd388239ec8ca5a32eed920217c795aa2ebfa1dc9be1229447a0dac47a4202",
+      "GATE-MARKDOWN-CAPACITY-001": "sha256:e5e65740baa5a0c10f987f15773a5330da066ef456e0f44b6ee7bc373289a28d",
       "GATE-MARKDOWN-LINT-001": "sha256:f257beff0a45c1ebcd519cb22a480fd66c6d19062f6c0179a65f1c5231fc8680",
       "GATE-MARKDOWN-NATIVE-FLAGS-001": "sha256:53791e37229e16b150930a7da904d5eca009037c768cbd2a6440dd1ef0287ad3",
       "GATE-MARKDOWN-NATIVE-LINKS-001": "sha256:294b95f2a41bd6faadcb79ecf95cb88f757ead172cd169cc8cfaafb15547d0d2",
@@ -421,6 +424,7 @@
       "GATE-MARKDOWN-PROOF-ROUTING-001": "sha256:fa35a1ede3f185fc7293320f1bd35f78c7a8c7d44e2c297d66cf6fe13786d639",
       "GATE-METRICS-BLOCKING-001": "sha256:5546bd4a7c5ff16cde55072822d38c73b06a6dcf50298a0d5bbee7aa9e0b380a",
       "GATE-NARROW-PUBLICATION-001": "sha256:9b1a885feb71db99753fbeac953410dce6f4c1eae64cf770c51c599c877ad935",
+      "GATE-NATIVE-COMMAND-LAUNCH-001": "sha256:462f00e38d6913483e9a096e7fc4dda34c12c92038c3ac60da55c594983a44f7",
       "GATE-PERFORMANCE-EXECUTED-SAMPLES-001": "sha256:a5b224a2fa57fa2b4c69592e9762ae46de758f18bd9f370cbd13cf0063e2177e",
       "GATE-PERFORMANCE-INVALID-001": "sha256:548e2f6386e4b6a0c4ad444d74db0d9f17e7257888b28d113328b6096703286f",
       "GATE-PERFORMANCE-NATIVE-STATISTICS-001": "sha256:2563d4697bdfed18c587c0c311a12fd07194192197eec08c3da20706f90c2797",
@@ -428,9 +432,9 @@
       "GATE-PERFORMANCE-STRICT-BUDGETS-001": "sha256:3d02e96b313ad7b02d51a6ad25eb79fe8f855a7bee40ac0b7aa9779157b08f4a",
       "GATE-PERFORMANCE-UNAVAILABLE-001": "sha256:a5beca486a1bce844bf1f3145ac261e9d5a2c5c8cc28345ed79b2998efc7760f",
       "GATE-PUBLIC-TEST-INPUTS-001": "sha256:503b615ced983c514825e620607bf462ec5b8fa0148eda5db61350eacaa219b6",
-      "GATE-QUICK-RECEIPT-ISOLATION-001": "sha256:78df56215e57c1740b5a7ae818aed3a46b91246ab07336a355b0a9f39f217a4c",
+      "GATE-QUICK-RECEIPT-ISOLATION-001": "sha256:930a1174bef89d504490848866a8e9ed052ff2fd6b5833a12216a3868be25169",
       "GATE-RECORD-OPERATIONS-INPUTS-001": "sha256:7804216cde32e5cd0fc6f91393b99115abbcb4430511cc91182a72760b59ac5b",
-      "GATE-RELEASE-FULL-EXECUTION-001": "sha256:7b51fa26395cff92d40a122dcaca1384fea8b6acbfa29b0f7dad59fb72b03b5c",
+      "GATE-RELEASE-FULL-EXECUTION-001": "sha256:c3cfc2fcb6487963b6c9a9120d524eb43ef1effa588028693dd17952493725fc",
       "GATE-RELEASE-PRIVATE-HANDOFF-001": "sha256:5ebfb193d0d330677b9aa1d2cd7c6d099aece718f10866de542ae0c0cd5bae98",
       "GATE-RELEASE-SNAPSHOT-TOCTOU-001": "sha256:ce8a7e7de4da0348eb484ea8527faabd1587456fadd73472d266702f91cb350c",
       "GATE-RELEASE-VERSION-FAILURE-001": "sha256:aefc8919acdfdfeb79cea41d51459052ab6f770ea70b18bce1ebce2243b0c6e3",
@@ -442,6 +446,7 @@
       "GATE-UNCLOSED-INPUT-DIAGNOSTIC-SAFETY-001": "sha256:27fae9916dc1c51e7820a2712e047759cb9e7e1d914ad8915cc49d2348e08bf9",
       "GATE-UNCLOSED-INPUT-DIAGNOSTICS-001": "sha256:38fbd3789ff27e5adab35f557b925a186f8ff4eed5c7fa56c4d542eb59a7b46c",
       "GATE-VALIDATION-INPUTS-001": "sha256:0aff9c51612f911548079ffc2d5759e5b5d9bf45c68031a81f74e4d8fbb5c511",
+      "GATE-VIDEO-INPUT-CLOSURE-001": "sha256:08a1f833683119658ad8e108c067bea959fe3811632385cb5b441442e1219d0c",
       "GENERATED-FILE-DECLARATION-001": "sha256:288495f474d1b91ca347075f9a93ce6ea910f9c84023ae9eb14bc0d4ebd0aa7f",
       "GENERATED-FILE-DECLARATION-CLEANUP-001": "sha256:26db2c3794331343d29730841c5ec2022567e394719a8d502049e517df15b43e",
       "GENERATED-FILE-DRIFT-001": "sha256:4e53dbd24a3fe5e22bc5b75a4bc335b605c5973bc0414f788cc46601ff1a0c88",
@@ -643,6 +648,10 @@
       "INVESTIGATION-LOCAL-PUBLICATION-BOUNDARY-001": "sha256:3e70f9e7b25eff025602b8d3396b763eed8e44251306b64c92e2e65cfe4eadc9",
       "INVESTIGATION-LOCAL-PUBLISH-001": "sha256:19224d417f4d982ab69f4cc61e05f29cc254e1607b230d4d5bc20a4976cf34bd",
       "INVESTIGATION-LOCAL-RELATION-DEPENDENCIES-001": "sha256:b6ba116307d5ac4dd0126d41a0565dbfcacd6c92787d94e8f3c07488ce2fa338",
+      "INVESTIGATION-MEMBER-SCAN-DRAIN-001": "sha256:c5cfa611f27788fe436af005330253328b3ff08204eacd57b192488d5a21b3f1",
+      "INVESTIGATION-MEMBER-SCAN-FRESH-001": "sha256:d12fd262b02a47cf9f6bd8a01d007b09b34f6bf97d96ab4f61536d342cd32527",
+      "INVESTIGATION-MEMBER-SCAN-METADATA-001": "sha256:99651bd27c0cec713f0abb9aab7630c299985f5480501ad5291bc689a127e5cb",
+      "INVESTIGATION-MEMBER-SCAN-UNSAFE-001": "sha256:bdbd2d868675054d85e3451e1531409f2917a2136a4e3032a8edaeefa7f9c0ba",
       "INVESTIGATION-NEW-CLEANUP-FACT-001": "sha256:2e54ae5af8a2dc49c0d0e0c25d43f3cad99435a2ec532cd28cfc7106d077c070",
       "INVESTIGATION-NEW-POSTWRITE-IDENTITY-001": "sha256:b9caa6aa446df5fa9c16aea9d9df72f77198289d358ca9fe300dedb38e91a886",
       "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:7c1c4d229f15339621b4e1dced9b498a9be967168bdea10c301cdffa7a477e8a",
@@ -965,7 +974,7 @@
       "RECORD-READER-PARENTS-001": "sha256:996619df0d0ceaded6f87af3adccaabad0ac36669333e8f8582f5481b1e11c0a",
       "RECORD-READER-PERMISSIONS-001": "sha256:ec1a66a66ebc1cc7751fbbe625893f810de39a8a10b2b45860ca5fd29865a754",
       "RECORD-READER-PHASE-001": "sha256:8684dd0dbf8e9545892af296eca7b435642f634523a98c530d046d1d38bacd1f",
-      "RECORD-READER-PROTOCOL-001": "sha256:410bed17da4245a4d197de75871d47e18272cb65efaa35e09d0d54752826aff4",
+      "RECORD-READER-PROTOCOL-001": "sha256:f1c4d2fd6d10990e8c4a292ea65e7f4d0ad5f18a7d9011ab442d32c1a0de2b2b",
       "RECORD-READER-REPRESENTATION-001": "sha256:7b596514ee2c86844cce69ac8bd92edc790e489524d90201f62274dd110ae248",
       "RECORD-READER-REVISION-001": "sha256:dc506b8c98ce14b1bd1b575e37845f47a69a7b7b860986f136e2880000bffccd",
       "RECORD-READER-SAFETY-001": "sha256:36179c0b7bb5ca4a42e2ef7239c58cc2a2e9c2ece7c5418d3362218849921678",
@@ -1026,7 +1035,8 @@
       "REPO-TASK-TARGET-001": "sha256:c9b1fda255a0e7feb7fc6380c49ff548ddd0459358fbc36d09ab0d2a75813227",
       "RESOLVED-FIRST-PARENT-ENDPOINTS-REUSE-001": "sha256:0f09aae11c06d4956ad6e8dc6ddd7b8527744ab4f3f863dba9d724b9958448a2",
       "RESOLVED-FIRST-PARENT-ENDPOINTS-VALIDATION-001": "sha256:6ecdbf5169794af69e0c13e6b3c57f72006769caa8223ce85a419c0627dc80c3",
-      "SKILL-PACKAGE-HASH-001": "sha256:8cf53d18f84b1589ac13c554c5822b699101cfc0bc30d28d3f19a7abba257f22",
+      "SKILL-PACKAGE-BASELINE-CONCURRENCY-001": "sha256:a041142ed41ba52c990a27c895021ade1b3cb7f4b129dab3f122a31fa00cd58f",
+      "SKILL-PACKAGE-HASH-001": "sha256:1628c382435fa675b4374e959a6dc28103a3e64555c83c6834981d2c15af914a",
       "SKILL-PACKAGE-HASH-002": "sha256:2487e02f1fc80948709a1a6b3308cb265b5c77fd6ae8c8d75aeb3714a206f736",
       "SKILL-PACKAGE-HASH-003": "sha256:667076f63ca8d89cfef6068fb97f1a756621bb9327546cec395e076d936b55f5",
       "SKILL-PACKAGE-HASH-004": "sha256:97cc3927d7c71307db5e63c9bb64cec1c8c80cf4c96f32504e01864db6aca65d",
@@ -1215,6 +1225,7 @@
       "TEST-EVIDENCE-MIGRATE-RECOVERY-001": "sha256:ad75c78b9135b5b5d811e0e8ac1522d83a70d9944e3509e8988cfd71adaed963",
       "TEST-EVIDENCE-MIGRATE-SOURCE-RACE-001": "sha256:95db29d437e67a10c513775c7a93b9db5f268e9c7c4a179d5d19b29086a9c420",
       "TEST-EVIDENCE-MIGRATE-WRITE-001": "sha256:86670fdbbd68f2fc8228f1ee171901365921d871c90db408f054761a7ec323af",
+      "TEST-EVIDENCE-NATIVE-AST-GREP-001": "sha256:d2cb743a6b6088b6f2b0b2ca0745aeb27f970f4dcac8f9b5f46ae3262e06a5f4",
       "TEST-EVIDENCE-PROJECT-AST-GREP-DECODE-001": "sha256:715ec30e956bba557534c3c833843f073824ce9fd7189dc0a5f8170d144eedb5",
       "TEST-EVIDENCE-PROJECT-COMMAND-001": "sha256:5e942e240e7ff6d87321f6f9345ffbb06fa4ec04340d5b7baf7f1d87d250f3ca",
       "TEST-EVIDENCE-PROJECT-COVERAGE-001": "sha256:e0467a1844d02898fa05b2094425ec1d76a5bc6fc6e1c95c35f041aa5a990487",
@@ -1311,7 +1322,44 @@
       "VERSION-CONTROL-WORKSPACE-EXECUTABLE-001": "sha256:db3f540cdebe28f98526b955971673528961d1997c2f4ced8b9b0ee06f36f4a9",
       "VERSION-CONTROL-WORKSPACE-FILE-SAFETY-001": "sha256:e9ca91330d7eb16c37eae3a462ed9a1edb719166761ba32a1efd9b1ded1ccba2",
       "VERSION-CONTROL-WORKSPACE-PHASE-BASIS-001": "sha256:45d5259701abd2e5370362115fe009194323c073d32dc720e3e4fa14e7149299",
-      "VERSION-CONTROL-WORKTREE-001": "sha256:49d1c9a3a480101304635e9023a083aff87c99c9ba93fe105162988868bd320d"
+      "VERSION-CONTROL-WORKTREE-001": "sha256:49d1c9a3a480101304635e9023a083aff87c99c9ba93fe105162988868bd320d",
+      "VIDEO-ARGUMENT-CONTRACT-001": "sha256:e6629516f0d5a4f2b22a0afb8f47428eaa56a93a63121299474bbf0489479e42",
+      "VIDEO-ARTIFACT-FROZEN-INSTALL-001": "sha256:901928308692b4dc1a98d449974ed35d805b46db625dde459865822f4d6d06e4",
+      "VIDEO-ARTIFACT-PORTABLE-ENTRY-001": "sha256:81059d85f1b4b5ec96d35df85a303a12bdc39c2deb2322affb57417d166a6b6c",
+      "VIDEO-ARTIFACT-PROCESS-CLEANUP-001": "sha256:490aac2e148a9af98a508c9d3c9660970fa0d30abdc88a38df2e79b759c49ccc",
+      "VIDEO-ARTIFACT-RESOURCE-BOUNDARY-001": "sha256:41c83ac90474347dce8ea9c409500788113dee3767e2d4d4e5c7e5a6527a5756",
+      "VIDEO-ARTIFACT-UPDATER-PRESERVATION-001": "sha256:4810c8b735a8cd366e52fe998bdb5df51f60d98c64ae9ff21e97deee5fb9baa3",
+      "VIDEO-ASR-LANGUAGE-001": "sha256:b24c5fa25a7cbc152d1c49581704b2fe879580aaae21e245315ba428a349cfa6",
+      "VIDEO-ASR-NATIVE-001": "sha256:440bc5f9273c277b8a5634f6779158ab77a5a9661d4311ff3f3505bda592f52e",
+      "VIDEO-ASR-TAIL-001": "sha256:78f6e51c8a0a4e7d5263d435bc8096ca4d86ad490badb3ae3c9c3cf5bfe5b78a",
+      "VIDEO-BOUNDED-PROJECTION-001": "sha256:a70f764b8b7f1eb2ff12368e09cbcb641dfbb7142ae5217265e2c91269eaeebb",
+      "VIDEO-CALIBRATION-VALIDATION-001": "sha256:190c6712ca59291ba92e0f0ecf779c16f9a4f1090a22d468200cbb7143610b9e",
+      "VIDEO-CONFIGURATION-PRECEDENCE-001": "sha256:e2a861d75fdf8f7ac35b21c6da74583536c357e01bb19604e827030ee0cc8059",
+      "VIDEO-CONFIGURATION-VALIDATION-001": "sha256:05cd4b91d2c20915db6199f4edf68a79a44fe2e74ccb1257bc80b9a6320bd646",
+      "VIDEO-CREDENTIAL-ISOLATION-001": "sha256:7adf6a0afe6448d19808b6eb016e2a7efd8a87da7b23ff48e0abb155a5367773",
+      "VIDEO-DEPENDENCY-RECOVERY-001": "sha256:d254c1afd5b08516a0c6bca25bb36c502cdd8db4c0d86460823c7a0fb0dd12ee",
+      "VIDEO-EVIDENCE-LOCATION-001": "sha256:890972159164d3327bb468b66d4fe605194b0fbd84646578f50b44721ef8ebec",
+      "VIDEO-EXPLICIT-ADOPTION-001": "sha256:410a2a5832532609a14dbad5071e2637c4acd6e5b28c6a8479cafc53173b72f5",
+      "VIDEO-HELP-ISOLATION-001": "sha256:949ab23229a8fd0618dc87e56082b9fe5310691c049166fe30ece30fafd06639",
+      "VIDEO-MANIFEST-INTEGRITY-001": "sha256:0cebda5217d006634aaed48ea5691cabd79b7cd1e16f51336ec350296f360531",
+      "VIDEO-MATERIAL-HISTORY-001": "sha256:78eb48c70644945b17bf4e18fcdbc1b7c8e7dad743f3710fc19496497836af3b",
+      "VIDEO-MEDIA-TIME-001": "sha256:0b96c2589915b214944ab39e7db0ca4140388714bffff6e51bcf86716298e7cf",
+      "VIDEO-OCR-COORDINATES-001": "sha256:82fdeba396448dc5d77f35e32d5a8748dae0e506d8eba000746cbeed41c3b4cf",
+      "VIDEO-OCR-LOCAL-RUNTIME-001": "sha256:693bb0ffa206df1797ef629d6efa4f6ade6a39062f18750481644b27b47683e0",
+      "VIDEO-OCR-OBSERVATION-001": "sha256:29dc3fc57c371174856aa878a4549db7cf6430629a23f298445dae2b65ea90c6",
+      "VIDEO-OUTPUT-SAFETY-001": "sha256:7af2d158ff928ad350b2abebf6d1c05c9462ade8ae079a0344ce5339dd348437",
+      "VIDEO-PHYSICAL-INSTALLATION-001": "sha256:4b596a876a0a05316ef378631396ec75a3a4c1ea091901ce20ba581d2bee57ca",
+      "VIDEO-PORTABLE-RUNTIME-001": "sha256:9aa532e6f5c5291f6b39e7bd1aa8e513c78ead2228b65b58376dbc980d5129b1",
+      "VIDEO-PRIMARY-FAILURE-001": "sha256:fb1d772f2df4d6d7ca05bb16130df27f739391d116b55f3c912530e589c5e96a",
+      "VIDEO-PROCESS-LIFECYCLE-001": "sha256:d6facdad87b09f852791eddcf24e83a6753e24ae940534bdaee6be0ec6afecb5",
+      "VIDEO-PUBLIC-IMPORT-001": "sha256:cc2aab9d732c06caf75c4ce93e8a286456ad8d7a35a2cbb78cbf7a2a676d7de5",
+      "VIDEO-QUERY-WINDOW-001": "sha256:84812a744142193fbd2095facd588248aa0a4e52ae88a089df8c2c2088c3bbbb",
+      "VIDEO-REUSE-INTEGRITY-001": "sha256:8754ec45444f0278dede31b727afd8dc0eb7eb0c0be62389124d564e13e58bf3",
+      "VIDEO-RUN-HISTORY-001": "sha256:210856eaa9c499e82cbe39a9a521255f8758879b8a0d657376db4dabb63f0f50",
+      "VIDEO-TEXT-OUTPUT-001": "sha256:f30fde863774286e6c4de40ffae872f986ae3073245042d3885342d69a33a75b",
+      "VIDEO-UNAVAILABLE-PROJECTION-001": "sha256:747b8b8b330723d482266b2c999dfd827b8e93e63aa71765f08982a0c388a295",
+      "VIDEO-VERSION-PROTECTION-001": "sha256:325e4a1fd8cdcd4392c73e265e46c6d0843972859773746121ed0b1689e50f6f",
+      "VIDEO-WRITER-CLEANUP-001": "sha256:98436bd82c845eddabeb471857e0f96b01e311af857b563f5de500c1c4996ec5"
     },
     "metadata": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
   },
@@ -4173,6 +4221,28 @@
         "test:7edba468217e7bf0bce3d62a8defd0676a6b0b97c2ca003ce7d8568f423ed79f"
       ]
     },
+    "DECISION-STAGE-ALL-LOCATOR-EXTENSION-DRIFT-001": {
+      "title": "all 暂存拒绝 locator 到扩展捕获之间的 pending 漂移",
+      "sourcePath": "cases/decision-stage-all-locator-extension-drift.md",
+      "tags": [
+        "decision-records",
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:eb71b1906bfd499b13f6e78d1b7f452f3c19408b88eee08b1f3a65dce60dfac8"
+      ]
+    },
+    "DECISION-STAGE-ALL-LOCATOR-PARSE-REUSE-001": {
+      "title": "all 暂存复用已验 locator 索引解析",
+      "sourcePath": "cases/decision-stage-all-locator-parse-reuse.md",
+      "tags": [
+        "decision-records",
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:ca064806ea21982904eea07660f7188a6716e2b85364f5d929f8d7343ed34af8"
+      ]
+    },
     "DECISION-STAGE-ARGV-SCOPE-WIRING-001": {
       "title": "Stage 参数解析与 scope 接线保留调用方暂存字节",
       "sourcePath": "cases/decision-stage-argv-scope-wiring-001.md",
@@ -5393,6 +5463,17 @@
         "test:b13f67230283c33eb5ed71939e5087bce7d5052ef207090f9fe18cdb9b43f2d6"
       ]
     },
+    "GATE-MARKDOWN-CAPACITY-001": {
+      "title": "完整链接容量与失败边界",
+      "sourcePath": "cases/gate-markdown-link-capacity.md",
+      "tags": [
+        "gate",
+        "markdown"
+      ],
+      "testIds": [
+        "test:91ca8cc85e63f782c0a5afa494478d561ce567c20b82992f61bd9a344817549c"
+      ]
+    },
     "GATE-MARKDOWN-LINT-001": {
       "title": "Markdown 门禁只启用六项批准规则并限制维护范围",
       "sourcePath": "cases/gate-markdown-lint-001.md",
@@ -5581,6 +5662,18 @@
       ],
       "testIds": [
         "test:1cf6a6d1a2b3d78d750d66998182ecc96562de7344646166c002f202b09a6ab2"
+      ]
+    },
+    "GATE-NATIVE-COMMAND-LAUNCH-001": {
+      "title": "Gate 通过受控命令边界调用本机工具",
+      "sourcePath": "cases/gate-native-command-launch.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:3f5a6dea9f83b8c7c8d539a49f24c8418c6b5cb1795ba195cfc846c1ae8311d7",
+        "test:cf4d3ad4e72eb86b5daea72670d6f78f1676f30cabeb93e136f4dd7e77efc1ea",
+        "test:f2d0b6d0a1e66b34ac4a7b5e1d4a6634af9e9c7b77a3f8ca7ce3460d568b6d9f"
       ]
     },
     "GATE-PERFORMANCE-EXECUTED-SAMPLES-001": {
@@ -5803,6 +5896,16 @@
       ],
       "testIds": [
         "test:9bff3192ef1cbd78cc63cc4122458c72b54c1d5f4a7d6b7ae1f36b65116b2ec8"
+      ]
+    },
+    "GATE-VIDEO-INPUT-CLOSURE-001": {
+      "title": "视频源码资源与分发副本共同失效对应输入证明",
+      "sourcePath": "cases/gate-video-input-closure.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:f66300742475f3f387855db15c67b7b7ad584b1a08a0c1bed45a2ec7aae51925"
       ]
     },
     "GENERATED-FILE-DECLARATION-001": {
@@ -7867,6 +7970,46 @@
       ],
       "testIds": [
         "test:744fbe3b2806a63e6adc3bd9e3bc0283004bee11f713a517a5515698427d2428"
+      ]
+    },
+    "INVESTIGATION-MEMBER-SCAN-DRAIN-001": {
+      "title": "有界元数据读取排空后按名字返回首错",
+      "sourcePath": "cases/investigation-member-scan-drain.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:2bb158927fd55da07769543d3bde4a59d7aeb6a3038219be195c302910f3e812"
+      ]
+    },
+    "INVESTIGATION-MEMBER-SCAN-FRESH-001": {
+      "title": "成员复核独立重取身份权限并保护排除路径安全",
+      "sourcePath": "cases/investigation-member-scan-fresh.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:198de8083ba8b3c3b653987d2a2a6f258b308dfe61eb621d14f9a3f39f8100b5"
+      ]
+    },
+    "INVESTIGATION-MEMBER-SCAN-METADATA-001": {
+      "title": "成员采集保持完整有序元数据且不读正文",
+      "sourcePath": "cases/investigation-member-scan-metadata.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:15925cd6babc004edcfe1b196a7927c9e07c052f24f7492205ebb996e4dbf4ca"
+      ]
+    },
+    "INVESTIGATION-MEMBER-SCAN-UNSAFE-001": {
+      "title": "成员采集拒绝符号链接与特殊文件",
+      "sourcePath": "cases/investigation-member-scan-unsafe.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:9557525c6f73bc69d9d0ecccb1a2ee6d7af7c4421969b92e33586e2e498899a8"
       ]
     },
     "INVESTIGATION-NEW-CLEANUP-FACT-001": {
@@ -11840,6 +11983,16 @@
         "test:7526a3564691ccc3213440f3da5b3a8bf7ff62f146db745d49732fb3917444eb"
       ]
     },
+    "SKILL-PACKAGE-BASELINE-CONCURRENCY-001": {
+      "title": "版本基线独立比较有界并发且保留早停",
+      "sourcePath": "cases/skill-package-baseline-concurrency.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:731f827e449b2b910fb3345f8d394a97db3ed83c9e95beea2e70d2fb81ea1809"
+      ]
+    },
     "SKILL-PACKAGE-HASH-001": {
       "title": "从 pending Git 内容收集有序 skill 文件",
       "sourcePath": "cases/skill-package-hash-001.md",
@@ -13738,6 +13891,16 @@
         "test:b7d66419ecab0ee7cf8fff317474abed420605c62c0c8d307c891041de7ce798"
       ]
     },
+    "TEST-EVIDENCE-NATIVE-AST-GREP-001": {
+      "title": "项目快照以原生 ast-grep 保留多行扫描参数",
+      "sourcePath": "cases/test-evidence-native-ast-grep.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:282a4b69ad4fe8a7cb190e545f6be9399c52960e1c2566b7963b255a11d71317"
+      ]
+    },
     "TEST-EVIDENCE-PROJECT-AST-GREP-DECODE-001": {
       "title": "ast-grep JSON 只接受可归属的 match 与合法 capture",
       "sourcePath": "cases/test-evidence-project-ast-grep-decode-001.md",
@@ -14736,6 +14899,431 @@
       ],
       "testIds": [
         "test:c17de1661d0aaf3b82d81d1f2a4201b1cf51b6d5232d3eacf9a3cd78c794f09e"
+      ]
+    },
+    "VIDEO-ARGUMENT-CONTRACT-001": {
+      "title": "命令参数按适用域严格解析",
+      "sourcePath": "cases/video-argument-contract.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:471968dd0a303b89d3eec570de1ec9d16f85107faeef75c0a8f39085bf8f60bf"
+      ]
+    },
+    "VIDEO-ARTIFACT-FROZEN-INSTALL-001": {
+      "title": "实际视频 zip 的独立依赖安装",
+      "sourcePath": "cases/video-artifact-frozen-install.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:2d0474a25dfae2fc8d97b714efdc97ad6bb223c48b03207d05a842dbe5288eb3"
+      ]
+    },
+    "VIDEO-ARTIFACT-PORTABLE-ENTRY-001": {
+      "title": "实际视频 zip 的双运行时公开入口",
+      "sourcePath": "cases/video-artifact-portable-entry.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:1f74def202ab07140558c65235d62c61034888fa3c6d2fa9015425de1d09656f"
+      ]
+    },
+    "VIDEO-ARTIFACT-PROCESS-CLEANUP-001": {
+      "title": "实际视频 zip 的进程树清理",
+      "sourcePath": "cases/video-artifact-process-cleanup.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:a50ab19a9a24911af60214b0beb79b7f5e16f596891118491867ac5912046348"
+      ]
+    },
+    "VIDEO-ARTIFACT-RESOURCE-BOUNDARY-001": {
+      "title": "实际视频 zip 的物理资源定位",
+      "sourcePath": "cases/video-artifact-resource-boundary.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:cdaebd8849166d680880ed97b14a6bde87e76bd9790edbab3094176e1de77455"
+      ]
+    },
+    "VIDEO-ARTIFACT-UPDATER-PRESERVATION-001": {
+      "title": "实际视频 zip 的离线更新与保留",
+      "sourcePath": "cases/video-artifact-updater-preservation.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:02088779340b25bb2fc7f53b73bb1d06da3e385e56cc7efa2b678161b1c2005c"
+      ]
+    },
+    "VIDEO-ASR-LANGUAGE-001": {
+      "title": "音轨与识别语言来源不混淆",
+      "sourcePath": "cases/video-asr-language.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:32d6b765dfaf48d8ace54522f75450f3da68704c0825e60e9057b1aec3e318ee",
+        "test:85be66b514b956d2b7e0ffa02d7c007ef78121353dab568ce35e2ffdd64f44b7",
+        "test:d9cb58d0412d0e2b0c6a74c90c4542356c5abd7b67a803f90ef93a662835dfb1"
+      ]
+    },
+    "VIDEO-ASR-NATIVE-001": {
+      "title": "ASR 原生参数与返回协议由媒体边界验证",
+      "sourcePath": "cases/video-asr-native.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:2a969a3806b5ff4818ef1648a4764b4f12ea73a64e6fa19ff615163191af709b"
+      ]
+    },
+    "VIDEO-ASR-TAIL-001": {
+      "title": "ASR 末端容差保持原始证据",
+      "sourcePath": "cases/video-asr-tail.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:1c48c71cddf6ae86aeb8a32d8fc3229db2c8396866379fbf4f0927375bc378c9",
+        "test:2b257cb4866acb45323618f315a6f4491fa5b0625c45f071800a99987d044833",
+        "test:4c13a157ca957b72d361091c25f3adcc242fe83dc21af8b3ffa29e7ba71b3771",
+        "test:686da4a31c86ccfa8933779cc34fc8a3bd380c5dfa2fc068d2916df559065736"
+      ]
+    },
+    "VIDEO-BOUNDED-PROJECTION-001": {
+      "title": "读取投影有界且保留依据",
+      "sourcePath": "cases/video-bounded-projection.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:26a3bf0055725eeb8452cbc4a83a9ada5ca9b28b1be6ce2cdc46e432dc73ab82",
+        "test:9d187f294674e654addc6b9c0cb4564584b1be456443bae3ef70e47c855e4cf9"
+      ]
+    },
+    "VIDEO-CALIBRATION-VALIDATION-001": {
+      "title": "校正分组和作用域验证先于发布",
+      "sourcePath": "cases/video-calibration-validation.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:bf64fb7bfd299ed4c4feea89b6855f1718fd1970f04cd9ee2963bba444159992",
+        "test:fa239408ff9aa3b588b8868f3acff36267ed1456389e04c3934f31cdef8eba29"
+      ]
+    },
+    "VIDEO-CONFIGURATION-PRECEDENCE-001": {
+      "title": "位置配置按字段继承且媒体缺省延迟解析",
+      "sourcePath": "cases/video-configuration-precedence.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:efc94176d75db53aa799838a5c44ef3ee23684c1e8acc1feaf10037c97f9c7c4",
+        "test:f8e8b8fe418fcb74a97a62f81c3ec99321eadafd72bd9405e327de235e4b1703"
+      ]
+    },
+    "VIDEO-CONFIGURATION-VALIDATION-001": {
+      "title": "所有已读取配置严格校验",
+      "sourcePath": "cases/video-configuration-validation.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:212ad707393dadc49ab18680fe65897a5c7f774874eeeb802cbe8b86052ff7c1",
+        "test:a758ad1c30a0c75cd4acbb57b5babf2e00c731290a6d421c0ea6da9cf34ecd51"
+      ]
+    },
+    "VIDEO-CREDENTIAL-ISOLATION-001": {
+      "title": "媒体环境与诊断不泄漏 ambient 凭据",
+      "sourcePath": "cases/video-credential-isolation.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:0a200b318558dfc3a468d2ff6d107e38b38f2aefb3b780180010cf1623bf9055",
+        "test:2859719998aaaffef7062969beaafb622016f2cf9dd691c8452d31050d725ea2",
+        "test:f59829da3c9c3772ce1c1c80a54b2e74c306896bc5925e4812300555185606aa",
+        "test:f76db0dd0c0448f1807ca23cb0d5e86477c2fc0ea1ae0b5775074bdeee1df9f4"
+      ]
+    },
+    "VIDEO-DEPENDENCY-RECOVERY-001": {
+      "title": "依赖按 Node 解析并显式恢复",
+      "sourcePath": "cases/video-dependency-recovery.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:1f02f20d86fa99940f5d0fb5ba40de1f30a61660f40eb17b62a6188a4dfaf995",
+        "test:487772a7535242e67cfe1fe1d8295b88d3fd964ef0e651b4c638a85d07a8bcd3",
+        "test:f4fd040bbb0ac255c1f697062c1ad91c0c2515521b6a10f6138075b365d77066"
+      ]
+    },
+    "VIDEO-EVIDENCE-LOCATION-001": {
+      "title": "规范素材路径决定集合身份",
+      "sourcePath": "cases/video-evidence-location.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:3b033040961ad56073ce537875e1c899464473c99ae81bf13723cd1589feeab7",
+        "test:5a5ba5345c70d6f2cb8d263ba8849e96edf5d1af4d7f1c9d6bb2faef7e6f8269",
+        "test:79dbd8ca435b8261d2af983576599b0fdf627e5ffac8573e3d12de4fea54302e"
+      ]
+    },
+    "VIDEO-EXPLICIT-ADOPTION-001": {
+      "title": "多来源采用与历史版本必须明确",
+      "sourcePath": "cases/video-explicit-adoption.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:061160873bb8bff9cb2d86eaaf937c4d3f5cd8b872eba77d76e17c6406524f80"
+      ]
+    },
+    "VIDEO-HELP-ISOLATION-001": {
+      "title": "帮助独立于配置且无数据副作用",
+      "sourcePath": "cases/video-help-isolation.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:096465bb1b5b7559bdb6dcbb8104bb589775fb0bd4276408032369464f2faaf5",
+        "test:b39272c44e16d5c94898ef390d95719ece5dd294b68f1c3135e6064b5a1c2c8e"
+      ]
+    },
+    "VIDEO-MANIFEST-INTEGRITY-001": {
+      "title": "清单身份一致性在全局边界验证",
+      "sourcePath": "cases/video-manifest-integrity.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:bf7623c612ba5c3b1809e1986ba9d4858001b8998f96ba4a1677e892c1f60cc8",
+        "test:f7ef9365df0b2961abde2d56cd82ffca911c719958eec990e512f3cefe62167b"
+      ]
+    },
+    "VIDEO-MATERIAL-HISTORY-001": {
+      "title": "独立材料累积与失败后的成功复用",
+      "sourcePath": "cases/video-material-history.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:38b7f9f0bd82b3c0ee7bf6daec13999442daff1b18e8464005ac71a271c1b032",
+        "test:8b767128e6a2035c298f4e6311ca457be64a61048504eb39a6c4ca10c0f8ffb9",
+        "test:c61a0486695bc323d49246fc96dd584af4220384f5cf3e5dee24662267627c1f"
+      ]
+    },
+    "VIDEO-MEDIA-TIME-001": {
+      "title": "媒体时钟与帧 PTS 保持一致",
+      "sourcePath": "cases/video-media-time.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:09dcb0e31f97429dd93a3c787b6bc8e91dbf7cbc91d411aa6fda250e5dc9106c",
+        "test:20c1ff316177af2febc7aff9173ae01b90e2d9391692e819d06412a9973e5f00",
+        "test:644597d9e7598d69367e12906255020a224212c5ab54f672a715086879f208fd",
+        "test:9220e6e1216ed369cdc4adc15d0da02189f16768930b93592872e178e7e7dc44"
+      ]
+    },
+    "VIDEO-OCR-COORDINATES-001": {
+      "title": "OCR 结果保持像素坐标与 ROI 契约",
+      "sourcePath": "cases/video-ocr-coordinates.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:280c36fa90c97a2a3da6747f64f245d85347c8935208f95eb79ed666b508d533",
+        "test:4c0fb2193a41847d44dc98886e9bc3360412e58185bcf0bbda1f8158ea2c4d89",
+        "test:e9f4904af2bcc026880a6604a619e9c6da2aefb09767d198002d2be65bb75f89"
+      ]
+    },
+    "VIDEO-OCR-LOCAL-RUNTIME-001": {
+      "title": "OCR workspace 与安装清单在启动前校验",
+      "sourcePath": "cases/video-ocr-local-runtime.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:084913a3f59cbfbaa7c9c87767144055422d126fb0a09a6a46c41c1c16a37fb3",
+        "test:2c563a8bc6c7b2f62757c4e4cde29ee5f6c6625b0d125c21227345d2d039f441"
+      ]
+    },
+    "VIDEO-OCR-OBSERVATION-001": {
+      "title": "OCR 保持原始观察身份",
+      "sourcePath": "cases/video-ocr-observation.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:23810b16736ac552930fd1d80bf2649e1eaa3c139c7ce740da418ada19cfe770",
+        "test:9fdb20b584c75685ae0abcaf009efc8f43b4ac652ecbf763407df4a29af33632"
+      ]
+    },
+    "VIDEO-OUTPUT-SAFETY-001": {
+      "title": "证据输出不覆盖未知目录或逃逸路径",
+      "sourcePath": "cases/video-output-safety.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:3486067f2f92eca4184255f23ce784ef68a63aaba33b9ebc5375d6931f4fd80d",
+        "test:9309a374d1817853833046af7605ec4eba97023589c4a54fcf287390ce6c5fbd",
+        "test:d74498158d6bab275fd88ea82b3649de69e31b59f243c7c6bf97e71c429502b3",
+        "test:dbff72f666b01940172689ca33f6611d0c4185eff1c788c7ca48fcb79f898d9b"
+      ]
+    },
+    "VIDEO-PHYSICAL-INSTALLATION-001": {
+      "title": "物理安装位置决定资源与包外边界",
+      "sourcePath": "cases/video-physical-installation.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:3d4dc064bd1e9feb4ecfc5908133df5fc637ba7a2cc6bba472bb8702cb42f773",
+        "test:fe309d1f3ce4f16ca785c58161947f7748ac9a375bd268d3c4ecdcc7c8a40506"
+      ]
+    },
+    "VIDEO-PORTABLE-RUNTIME-001": {
+      "title": "Node 与 Bun 独立运行完整分发入口",
+      "sourcePath": "cases/video-portable-runtime.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:6fc0f4fd577195ea9c42e66f58c13cb19c9c3ff17cfedf002bd38b102e8d2ccf",
+        "test:f594ea68442d8566ae6aa38625845436e0afd1a4be36b3677f2218d9633e962e"
+      ]
+    },
+    "VIDEO-PRIMARY-FAILURE-001": {
+      "title": "附属日志失败不覆盖主操作结论",
+      "sourcePath": "cases/video-primary-failure.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:5ccc94a6692389565c2a6611c4c0471def40c4679c2f26a3e61fa4c02a1a7dd6",
+        "test:70366ff4de065425ec030fe54218476ac7acbfb415e0c29c85457782a27db550",
+        "test:b6de2723ce99e606ec3d1935a5ba5d2820c2b24c99f6c69d4943173d3c87b1b5"
+      ]
+    },
+    "VIDEO-PROCESS-LIFECYCLE-001": {
+      "title": "进程失败超时取消与输出限额可区分",
+      "sourcePath": "cases/video-process-lifecycle.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:276bbb35a545d50e4abac52606d0dfa2def79ef60cd398ee82e85b4c72155a1e",
+        "test:5e3aca36e637fd0f5b93db22e6e575ec4e59348745702df67ab0e0cbe6c6baf8",
+        "test:f59829da3c9c3772ce1c1c80a54b2e74c306896bc5925e4812300555185606aa"
+      ]
+    },
+    "VIDEO-PUBLIC-IMPORT-001": {
+      "title": "公开导入保持窄 API 与无副作用",
+      "sourcePath": "cases/video-public-import.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:73c938bc8d3fb4c50f6e635d295aba9d71a6dd9b5b1a392a4cbbcbc1d758e4b6"
+      ]
+    },
+    "VIDEO-QUERY-WINDOW-001": {
+      "title": "读取窗口末端归一有界且可见",
+      "sourcePath": "cases/video-query-window.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:54e2293fe5a2d559e6ba7fab632a78cc58c1d1e25ebfc032de51a8f3aeb5b265",
+        "test:b95d957918643ef94227716484c3262bcb1ed93e09bc9715059adee0b2b3f614",
+        "test:ff3070c1245324697a3a0c3df55ec577aad239176a50009472ee4229305ba70c"
+      ]
+    },
+    "VIDEO-REUSE-INTEGRITY-001": {
+      "title": "复用受当前性和依赖材料约束",
+      "sourcePath": "cases/video-reuse-integrity.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:5887f4a9d90a911a4197900849d22084f85a0c29a4a386fa5d209ea00115dc1b",
+        "test:78b40a91b3c8884973ed84874ca49a12aa2f96e2fc1263dbe008a30ad2389731",
+        "test:f773dcca6c501f0e96fb532779d96f9e879d592f0bbe0f6a9c58269857acf6a1",
+        "test:fabff2bc7c1bc81a0b9f8a9eee6f341a263b7dbc4310b0737d168ee84199c607"
+      ]
+    },
+    "VIDEO-RUN-HISTORY-001": {
+      "title": "结构化运行记录不重复敏感正文",
+      "sourcePath": "cases/video-run-history.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:47e684009431cf9c7363b0ac67f8878e85e4fa09d81b3e0e851803973206ecf6",
+        "test:78af4c5a00ac803c9d781d1ac1fa479d1217d68dc9f94321abfcbbb2ccc62b26",
+        "test:95edb9d2113008a4105018eb03f1fb377491f530f235835a5697e779ce3818a0",
+        "test:fa615fc3feda3ce9aa648cd59bb674856fd43e2657acd18489c3090477399f97"
+      ]
+    },
+    "VIDEO-TEXT-OUTPUT-001": {
+      "title": "公共文本保留 Unicode 并转义控制字符",
+      "sourcePath": "cases/video-text-output.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:89740d62e3ee98972c62ba137822e91b2fc9ebc49631227f16794153f230b710"
+      ]
+    },
+    "VIDEO-UNAVAILABLE-PROJECTION-001": {
+      "title": "局部不可用不传播过期正文或静默换源",
+      "sourcePath": "cases/video-unavailable-projection.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:841799d4be33ece0ee4488769c7c12f6f73374ff3c11530b68a278f62cbda3cf",
+        "test:c828e35ec938cf070b2cc68a406c39ef2f4c9898480790eda689d65c6f88c800"
+      ]
+    },
+    "VIDEO-VERSION-PROTECTION-001": {
+      "title": "不支持的证据版本保持原文件",
+      "sourcePath": "cases/video-version-protection.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:20b99635773822f0290c1b9ea0e4b3b3056cc5bc573db3890df57775620ddf91",
+        "test:88f0c3102b5a5913ae1d63d818aed47c7b7c61656bc0deed3e04fcd892a43f4c",
+        "test:9497452574b2206c81ac8b8e424554ca96ae4241d0f9bc6458d297eafbde3e59",
+        "test:ca919ad00ea1dc254cb9e08f386b0a5110fe164dfe51d6842b5bf253fcf18adb",
+        "test:ec63f91e42de0f984ac8b06d3081ad62d8952398447d8b137eb9ffed6547209d"
+      ]
+    },
+    "VIDEO-WRITER-CLEANUP-001": {
+      "title": "独占写入和清理保护唯一有效快照",
+      "sourcePath": "cases/video-writer-cleanup.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:28dd59415730f6991db0ede41aa8432179b098903919deaa4ab6376f43d5614a",
+        "test:30e52a56cf4ca306f9b46cfedd901a4d5e2d99d3713ecf7ed01810f6fb5ba7a3",
+        "test:324d3eb9e6c6762c0e382b29d86b661e941bc72a52fcef75be55f0353050b7e8",
+        "test:46a0bd6a9425bd27741d772a9437ad161f708facc1ebcd0ca2a91e2c0dc2ac1b",
+        "test:83d13af581d0dc33a17473a86ec8f451980d33dc0708f64ca92a63c6bcfd6a32",
+        "test:9d2ec75785fa343942134c602a67fec0d1efe47723a40c3f9963d871c5e3c669",
+        "test:ffcc499c0eb9928024551ff80e9e333785d861a64241e07bd5c59751a4c04cb0"
       ]
     }
   }

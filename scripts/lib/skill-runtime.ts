@@ -45,6 +45,7 @@ export async function syncSkillRuntimeArtifacts(
 }
 
 const domainAdapters: Readonly<Record<string, string>> = {
+  "video-understanding": "video-understanding",
   "change-plan": "change-plan",
   "decision-records": "decision-records",
   "investigation-report": "investigation-report",

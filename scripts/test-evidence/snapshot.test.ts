@@ -1,8 +1,14 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { astGrepJson } from "./snapshot-ast-scan.ts";
+import {
+  astGrepJson,
+  astGrepPatternsJson,
+  SnapshotModuleScan
+} from "./snapshot-ast-scan.ts";
+import { resolveAstGrep } from "./snapshot-files.ts";
 import {
   createRepositoryTestEvidenceSnapshot,
   parseSkippedJUnit,
@@ -18,6 +24,33 @@ const fixtureTest = [
   'test("fixture registration", () => {});',
   ""
 ].join("\n");
+
+test("project snapshot ast-grep preserves multiline rules and Unicode source paths", async () => {
+  const directory = await fs.mkdtemp(
+    path.join(os.tmpdir(), "snapshot native 中文 ")
+  );
+  try {
+    const source = path.join(directory, "source 中文 with spaces.test.ts");
+    await fs.writeFile(source, fixtureTest, "utf8");
+    const executable = await resolveAstGrep(process.cwd());
+    const pattern = "test($NAME, $$$)";
+    const matches = await astGrepPatternsJson(
+      executable,
+      directory,
+      [pattern],
+      [source],
+      new SnapshotModuleScan(directory)
+    );
+    assert.deepEqual(matches.get(pattern), [
+      {
+        sourcePath: "source 中文 with spaces.test.ts",
+        variables: { NAME: '"fixture registration"' }
+      }
+    ]);
+  } finally {
+    await fs.rm(directory, { force: true, recursive: true });
+  }
+});
 
 test("ast-grep matches preserve optional and captured single variables", async () => {
   await withSnapshotFixture(

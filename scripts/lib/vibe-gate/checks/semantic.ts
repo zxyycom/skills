@@ -26,6 +26,32 @@ const bunTest = (file: string): GateCommand => ({
 
 export const semanticGateChecks = [
   {
+    checkId: "test:video-understanding:source-contracts",
+    toolIds: ["video-understanding"],
+    displayName: "Video Understanding source contracts",
+    requiredTag: undefined,
+    command: bunTest(
+      "./tools/video-understanding/tests/checks/source-contracts.ts"
+    )
+  },
+  {
+    checkId: "test:video-understanding:source-cli",
+    toolIds: ["video-understanding"],
+    displayName: "Video Understanding source CLI",
+    requiredTag: undefined,
+    command: bunTest("./tools/video-understanding/tests/checks/source-cli.ts")
+  },
+  {
+    checkId: "test:video-understanding:public-distribution",
+    toolIds: ["video-understanding"],
+    dependsOn: ["script:check:skill-updaters"],
+    displayName: "Video Understanding public distribution",
+    requiredTag: undefined,
+    command: bunTest(
+      "./tools/video-understanding/tests/checks/public-distribution.ts"
+    )
+  },
+  {
     checkId: "test:novel-cards:card-and-query-contract",
     toolIds: ["novel-cards"],
     dependsOn: ["script:check:skill-updaters"],

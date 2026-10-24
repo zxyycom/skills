@@ -1,0 +1,45 @@
+{
+  "videocr": {
+    "version": "1.6.0",
+    "profile": "windows-x64-cpu-paddle-ppocrv6-small-ch",
+    "program": "package/videocr-cli-CPU-v1.6.0/videocr-cli.exe",
+    "executables": [
+      {"path": "package/videocr-cli-CPU-v1.6.0/videocr-cli.exe", "sha256": "39643a0fc56808c7f153fdaa869a885301a10c91cbd2e19127e2e749a59c6228"},
+      {"path": "package/videocr-cli-CPU-v1.6.0/PaddleOCR-CPU-v3.7.0/paddleocr.exe", "sha256": "dd8db84dbfbfb4d8923d656c2db0f38af8a46f81a4a569d09b4af61d62473db2"}
+    ],
+    "models": [
+      {"path": "package/videocr-cli-CPU-v1.6.0/PaddleOCR.PP-OCRv6.support.files/det/PP-OCRv6_small_det/inference.json", "sha256": "89240f689a4a77aad75ef55a8df0a15c8e1d4980a327d17e58f24bbadde5aeab"},
+      {"path": "package/videocr-cli-CPU-v1.6.0/PaddleOCR.PP-OCRv6.support.files/det/PP-OCRv6_small_det/inference.pdiparams", "sha256": "5043d4ccc8d63402ccea8feefcee4db57077431a873e78d2191836a178a492da"},
+      {"path": "package/videocr-cli-CPU-v1.6.0/PaddleOCR.PP-OCRv6.support.files/det/PP-OCRv6_small_det/inference.yml", "sha256": "193f435274bf9f0b5f71a929bbfbcf148282df7e633b34e7c373e8f44741b516"},
+      {"path": "package/videocr-cli-CPU-v1.6.0/PaddleOCR.PP-OCRv6.support.files/rec/PP-OCRv6_small_rec/inference.json", "sha256": "f0bf53c853937a917affdd74467472167727f8ab0f0f7bded01c4a16c27e46e6"},
+      {"path": "package/videocr-cli-CPU-v1.6.0/PaddleOCR.PP-OCRv6.support.files/rec/PP-OCRv6_small_rec/inference.pdiparams", "sha256": "406e1e689c9a7fbb04178007a3fe10cf852afe7bf8bb3bc6dbb9d532b13bd907"},
+      {"path": "package/videocr-cli-CPU-v1.6.0/PaddleOCR.PP-OCRv6.support.files/rec/PP-OCRv6_small_rec/inference.yml", "sha256": "ab078671bb49f06228eadccd34f1bb501e157f7a047095ffb943ba81512c77d1"}
+    ],
+    "archive": {
+      "url": "https://github.com/timminator/VideOCR/releases/download/v1.6.0/videocr-cli-CPU-v1.6.0.7z",
+      "sha256": "d377613cf8ab0ff84af9b8bf23c6ab7823fd186dc39296d04d4636ac3590efc2"
+    }
+  },
+  "rapidocr": {
+    "version": "3.10.0",
+    "profile": "windows-x64-cpu-onnx-ppocrv6-small-ppocrv4-cls",
+    "program": "venv/Scripts/python.exe",
+    "models": [
+      {
+        "path": "models/PP-OCRv6_det_small.onnx",
+        "url": "https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv6/det/PP-OCRv6_det_small.onnx",
+        "sha256": "090f04abcd9d9a7498bc4ebf677e4cb9bdce1fe4197ddb7e529f1ef44e1ff94f"
+      },
+      {
+        "path": "models/PP-OCRv6_rec_small.onnx",
+        "url": "https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv6/rec/PP-OCRv6_rec_small.onnx",
+        "sha256": "6f327246b50388f3c176ae304bd95767ea6dc0c9ae92153ef8cbe210b3c14884"
+      },
+      {
+        "path": "models/ch_ppocr_mobile_v2.0_cls_mobile.onnx",
+        "url": "https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv4/cls/ch_ppocr_mobile_v2.0_cls_mobile.onnx",
+        "sha256": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c"
+      }
+    ]
+  }
+}

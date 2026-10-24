@@ -1,4 +1,9 @@
 import {
+  parseJsonObject,
+  jsonObjectMember,
+  prepareUpdatedSelectedStageIndex as prepare
+} from "./stage/support.ts";
+import {
   onWorkspaceIndexRead,
   pendingObjectPath,
   requiredIndexPayloadFailure,
@@ -26,29 +31,6 @@ const indexRelativePath = "docs/decisions/decision-index.json";
 const otherPath = "docs/decisions/" + b + ".md";
 const stage = (root: string, scope: "index" | "all" | "domain" = "index") =>
   stageDecision(root, [a], scope);
-function parseJsonObject(text: string): Record<string, unknown> {
-  const value: unknown = JSON.parse(text);
-  assert.ok(
-    value !== null && typeof value === "object" && !Array.isArray(value)
-  );
-  return Object.fromEntries(Object.entries(value));
-}
-function jsonObjectMember(
-  value: Record<string, unknown>,
-  key: string
-): Record<string, unknown> {
-  const member = value[key];
-  assert.ok(
-    member !== null && typeof member === "object" && !Array.isArray(member)
-  );
-  return Object.fromEntries(Object.entries(member));
-}
-
-async function prepare(root: string): Promise<void> {
-  await fixture(root, true);
-  await formal(root, a, "Updated selected");
-  await sync(root);
-}
 
 test("Decision stage scopes preserve unselected missing pending payload without reading it", async () => {
   await withTempRoot("stage-index-narrow", async (root) => {

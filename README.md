@@ -30,6 +30,8 @@
 
 [Novel Cards](docs/skills/novel-cards.md) 用详情与递归总结组织原创或续写：先改卡并从最高受影响层下传，再依据细纲与导演视角写作，正文反推只产出对照报告。章节按编号或标题定位，稳定身份不随重排变化；旧卡快照与统一变迁连接故事演进和作者修订，本地 CLI 自动查询跨卡关联。实际 skill 位于 [`skills/novel-cards/`](skills/novel-cards/)。
 
+[Image Creation](docs/skills/image-creation.md) 以提示词工程结合实际参考、可选三视图／简易3D结构引导完成图像创作与编辑。独立指南承接提示构建与完整模板、接口使用、逐次目的／实际原词／回看记录和存储；通过定向改写与保留回归交付图像，也支持仅提示词或诊断。实际 skill 位于 [`skills/image-creation/`](skills/image-creation/)。
+
 [Lightweight Judgment](docs/skills/lightweight-judgment.md) 在用户点名该 skill 后，以 JEV 载体调用 JEV 或 OpenAI Decisions，低成本、低延迟地完成局部分类、候选选择、相关性筛选和评分，再回到原任务。它把模型实测特点、请求组织与结果处理交给 agent，配套随包 TS CLI 提供本地检查、离线预览与单次请求。实际 skill 位于 [`skills/lightweight-judgment/`](skills/lightweight-judgment/)。
 
 [Skill Design Discovery](docs/skills/skill-design-discovery.md) 用于创建、显著扩展或大幅重构 skill 前的深度设计发现。它从现实案例、现有材料和行为证据中恢复目标、端到端流程、潜藏决策、约束来源、人机权限与验证义务，形成可交给实现入口的设计契约。实际 skill 位于 [`skills/skill-design-discovery/`](skills/skill-design-discovery/)。
@@ -63,6 +65,8 @@
 [Investigation Report](docs/skills/investigation-report.md) 在用户明确要求沉淀调查时，用稳定 Investigation ID 保存每轮形成时背景、调查目的、实际依据以及结果与边界。每份报告独立成立，以 tags 分类，并通过指向直接前序的关系表达认识演进；所有报告留在同一正式集合，报告级派生索引负责发现、筛选和关系查询。实际 skill 位于 [`skills/investigation-report/`](skills/investigation-report/)。
 
 [Decision Records](docs/skills/decision-records.md) 提供一套跨项目复用的长期决策记忆方案和配套 CLI。它用自包含 Markdown 保存长期决策的完整语义、生命周期、对齐状态和演进关系，并生成可重建的全生命周期 JSON 查询索引；配套 CLI 负责查询、检查、索引同步和受约束的维护事务。实际 skill 位于 [`skills/decision-records/`](skills/decision-records/)。
+
+[Video Understanding](docs/skills/video-understanding.md) 按任务范围读取视频字幕与画面，核对关键依据，交付总结、答案或操作步骤。随包 TS CLI 与独立媒体运行时协作，配置和证据保留在程序包外。实际 skill 位于 [`skills/video-understanding/`](skills/video-understanding/)。
 
 ## 发展方向
 

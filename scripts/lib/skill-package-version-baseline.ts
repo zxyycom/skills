@@ -291,19 +291,30 @@ export async function readSkillPackageSnapshotVersionBaselineFromRepository(
   const baselineSkills: Record<string, number | null> = {};
   const revisionFileCache = new Map<string, VersionControlFile | null>();
 
-  for (const tree of trees) {
-    const baselineVersion = await readChangedSkillBaselineVersion({
-      baselineRef,
-      currentFiles: snapshot.filesBySkill.get(tree.skillName) ?? [],
-      repository,
-      revision,
-      revisionFileCache,
-      skillBaselinePaths: baselinePathsBySkill.get(tree.skillName) ?? [],
-      tree,
-      workspaceRoot
-    });
-    if (baselineVersion !== undefined) {
-      baselineSkills[tree.skillName] = baselineVersion;
+  // Skills are independent; bound process fan-out while preserving each
+  // skill's lazy reads and first-change short circuit.
+  const concurrentSkills = 4;
+  for (let offset = 0; offset < trees.length; offset += concurrentSkills) {
+    const batch = trees.slice(offset, offset + concurrentSkills);
+    const versions = await Promise.all(
+      batch.map((tree) =>
+        readChangedSkillBaselineVersion({
+          baselineRef,
+          currentFiles: snapshot.filesBySkill.get(tree.skillName) ?? [],
+          repository,
+          revision,
+          revisionFileCache,
+          skillBaselinePaths: baselinePathsBySkill.get(tree.skillName) ?? [],
+          tree,
+          workspaceRoot
+        })
+      )
+    );
+    for (const [index, tree] of batch.entries()) {
+      const baselineVersion = versions[index];
+      if (baselineVersion !== undefined) {
+        baselineSkills[tree.skillName] = baselineVersion;
+      }
     }
   }
 

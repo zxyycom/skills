@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { releaseRequiredCheckIds } from "./definition.ts";
+import { gateCheckIds, releaseRequiredCheckIds } from "./definition.ts";
 import {
   publicGateDiagnostic,
   type GateInputClosureDiagnostic
@@ -76,7 +76,9 @@ function activationCounts(
     fallback,
     firstRun,
     reuse,
-    ...(scope === "quick" ? { disabled: 64 - quickGateCheckIds.length } : {})
+    ...(scope === "quick"
+      ? { disabled: gateCheckIds().length - quickGateCheckIds.length }
+      : {})
   };
 }
 
