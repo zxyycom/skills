@@ -1,9 +1,0 @@
-Decision records command completed with warnings:
-- code: decision-records.candidate-remains
-  object: 261001-candidate-1.md
-  reason: Decision candidate scaffold remains: 261001-candidate-1.md
-  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.
-- code: decision-records.candidate-remains
-  object: 261001-candidate-2.md
-  reason: Decision candidate scaffold remains: 261001-candidate-2.md
-  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.
