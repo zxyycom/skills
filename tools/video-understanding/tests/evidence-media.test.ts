@@ -131,9 +131,12 @@ test("ASR runtime owns native arguments and validates actual result language/seg
     );
     // Only the native process endpoint is substituted; the production runtime still loads and validates audio.json.
     const spawn = spyOn(childProcess, "spawn");
-    const systemRoot = process.env.SystemRoot;
+    const environment = process.env;
     try {
-      process.env.SystemRoot = path.join(directory, "Windows");
+      process.env = {
+        ...environment,
+        SystemRoot: path.join(directory, "Windows")
+      };
       const tools = await runtime({ appRoot, output, timeout: 0, resources });
       const transcribe = (request: AsrRequest) => {
         const child = new childProcess.ChildProcess();
@@ -238,7 +241,6 @@ test("ASR runtime owns native arguments and validates actual result language/seg
       );
     } finally {
       spawn.mockRestore();
-      if (systemRoot === undefined) delete process.env.SystemRoot;
-      else process.env.SystemRoot = systemRoot;
+      process.env = environment;
     }
   }));
