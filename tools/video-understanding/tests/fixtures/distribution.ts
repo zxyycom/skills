@@ -33,8 +33,9 @@ export async function copiedSkill(
     home: string;
   }) => Promise<void>
 ): Promise<void> {
-  const directory = await mkdtemp(path.join(tmpdir(), "video-candidate-test-"));
+  const temporary = await mkdtemp(path.join(tmpdir(), "video-candidate-test-"));
   try {
+    const directory = await realpath(temporary);
     assert.equal(directory.startsWith(root + path.sep), false);
     for (let ancestor = directory; ; ancestor = path.dirname(ancestor)) {
       await assert.rejects(access(path.join(ancestor, "node_modules")), {
@@ -56,7 +57,7 @@ export async function copiedSkill(
       home
     });
   } finally {
-    await rm(directory, { recursive: true, force: true });
+    await rm(temporary, { recursive: true, force: true });
   }
 }
 

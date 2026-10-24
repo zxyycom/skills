@@ -86,8 +86,8 @@ export async function extractArtifact() {
 export type ArtifactFixture = Awaited<ReturnType<typeof extractArtifact>>;
 
 export async function removeFixture(directory: string): Promise<void> {
-  const resolved = path.resolve(directory);
-  assert.equal(path.dirname(resolved), path.resolve(tmpdir()));
+  const resolved = await realpath(directory);
+  assert.equal(path.dirname(resolved), await realpath(tmpdir()));
   assert.ok(path.basename(resolved).startsWith("video-artifact-"));
   await rm(resolved, { recursive: true, force: true });
 }
