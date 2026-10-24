@@ -11,7 +11,7 @@ import {
 import { runInvestigationCli } from "./cli-support.ts";
 import { writeCollection } from "./collection-support.ts";
 
-test("CLI rejects repeated single-value options before any collection access or candidate creation", async () => {
+test("CLI rejects repeated single-value options without creating collection files", async () => {
   await withTempRoot("cli-single-options", async (root) => {
     const newArgs = [
       "new",

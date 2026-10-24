@@ -75,7 +75,7 @@
 2. 消费公开业务 data 时使用 provider 的 `parseData` 与 dependency reader。消费同 Run 私有对象时用 typed handoff，并以原 provider 对象读取；原生构造器直接接收声明，避免复制 Check 破坏对象身份。
 3. `mutex` 表达逻辑互斥，`resourceClaims` 表达可计数压力。命令通常占一个 `external-process`，全仓扫描通常占一个 `repository-scan`，实际同时消耗才组合。
 4. 通过现有声明 helper 保留 root、进程、扫描和 release CPU 容量，以及版本管理测试的 CPU 独占。性能 history 不能放宽硬约束；改变任务或命令方式时核对调度 identity 的时长可比性。
-5. 消费当前分发生成物的 Check 依赖 `script:check:skill-updaters`。它是 Gate 的统一生成 provider；领域 `check:*` / `sync:*` 是人工定位与同步入口。
+5. 需要可信当前分发产物来证明语义行为的 Check，依赖统一生成 provider `script:check:skill-updaters`；领域 `check:*` / `sync:*` 保留人工定位与同步。typecheck/type-aware lint 只检查当前程序质量，按完整 TS/MTS/manifest 输入执行，不以此证明生成一致性或增加 quick 的生成前置。
 
 ### 项目输入证明
 
@@ -83,8 +83,8 @@
 
 1. 在 `impact-tools.ts#gateToolInputs` 按独立源码职责维护能力 ID 与实际读取的 patterns，组合 `commonGateInputPatterns`；共享运行时、build adapters、fixtures、内部 ignored 文件、生成物、TS/MTS、manifest/lock 和配置均按真实消费纳入。flag 由 ID 派生，无须另列。声明时区分：
    - 同一能力可有多个消费者；源码与其分发副本属于同一能力时共同声明。
-   - 公共运行时与独立测试被不同命令消费时，分别声明输入能力；共同输入承接实际公共加载闭包与配置，而非整个 `scripts/` 或共享工具目录。
-   - 只读取目录身份或文件存在性的命令，用对应路径身份建模；内容输入覆盖实际读取的文件字节。
+   - 公共运行时与独立测试分别声明能力；每个 Check 订阅实际测试、fixtures/helpers 和传递运行闭包。共同输入承接实际公共加载与配置，额外复制/构建输入归实际 consumer。
+   - 区分目录/文件身份与字节消费；现有模型能表达时按事实建模，不能无损表达时保守保留字节。catalog 仍需覆盖 leaf 存在、可访问与删除，裁剪未读 helper 内容不等于去掉 leaf 输入。
 2. 在语义 Check 的 `toolIds`、包脚本的 `packageScriptToolSubscriptions` 或原生 lint 的 `markdownLintToolSubscription` 中显式订阅所需能力。原生 `any(...)` 组合能力 flags，`dependsOn` 独立声明成功前置。新读取域不在现有采集范围时，同步 `impact-paths.ts` 的磁盘目录/配置及已知 owner 判定，覆盖 Git ignore 下仍被命令读取的材料。
 3. Check 读取新外部工具或环境时，核对 `impact-toolchain.ts`。必要 probe 失败扩大执行；基础环境 Check 只承接既定 Git/Node/Bun/pnpm/SCC 政策，业务测试前置不自动扩成全 Gate 环境要求。
 4. 跨 owner import、构建/测试入口或动态读取来源变化时，同步复核 consumer 的订阅及能力 patterns，纳入传递闭包。consumer 自身源码变化会使当轮执行，但只有声明完整，才会覆盖新依赖后续单独变化；闭包无法确认时使用较宽输入或保持保守执行。两领域未归属文件检查是遗漏提示，不能代替依赖审查。
@@ -98,7 +98,7 @@
 同进程 CLI、真实 Node 和 Git fixture 的边界见[工具链](tooling.md#工具-cli-与-git-fixture-测试边界)。
 调整层级时逐项核对覆盖后继并更新 Case/index，成本按同机实际工作量另行报告。
 
-1. 确认精确测试入口。多个文件共同证明同一契约时，可建立只导入这些文件的 `tests/checks/<contract>.ts` 容器；Test Evidence 登记框架可独立选择与报告的最小原生测试入口，而非容器。
+1. 确认精确测试入口和实际加载边界。共同协议归共同 owner，两域 adapter 各自保留；源码 CLI 矩阵与真实生成 Node smoke 分别归位。多个文件共同证明同一契约时，可建立只导入这些文件的 `tests/checks/<contract>.ts` 容器；Test Evidence 登记框架可独立选择与报告的最小原生测试入口，而非容器。
 2. 在 `semanticGateChecks` 增加声明，例如消费分发制品的 Check：
 
    ```ts

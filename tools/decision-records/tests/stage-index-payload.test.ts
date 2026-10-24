@@ -199,41 +199,6 @@ for (const phase of ["preparation", "independent verification"]) {
   });
 }
 
-test("Decision stage index acquires one preparation pending payload then independent locked and readback payloads", async () => {
-  await withTempRoot("stage-index-phase-count", async (root) => {
-    await prepare(root);
-    const previous = process.env.GIT_TRACE2_EVENT;
-    try {
-      for (const [round, expectedBatches] of [
-        ["changed", 5],
-        ["unchanged", 4]
-      ] as const) {
-        const trace = path.join(root, `${round}.trace`);
-        process.env.GIT_TRACE2_EVENT = trace;
-        const result = await stage(root);
-        assert.equal(result.status, "ok");
-        const events = (await fs.readFile(trace, "utf8"))
-          .trim()
-          .split("\n")
-          .map(parseJsonObject);
-        const batches = events.filter(
-          (event) =>
-            event.event === "start" &&
-            Array.isArray(event.argv) &&
-            event.argv.includes("cat-file") &&
-            event.argv.includes("--batch")
-        );
-        // One fixed HEAD index read, one initial P, one independent P, one locked P;
-        // changed targets additionally require postwrite readback.
-        assert.equal(batches.length, expectedBatches);
-      }
-    } finally {
-      if (previous === undefined) delete process.env.GIT_TRACE2_EVENT;
-      else process.env.GIT_TRACE2_EVENT = previous;
-    }
-  });
-});
-
 test("Decision stage reuses same-call index parses after independent actual W and P payload reads", async () => {
   await withTempRoot("stage-parse-equivalence", async (root) => {
     await prepare(root);

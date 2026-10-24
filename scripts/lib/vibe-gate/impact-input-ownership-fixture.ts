@@ -1,43 +1,43 @@
 export const domainInputOwnershipCases = [
   [
     "tools/investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md",
-    "investigation-maintenance",
+    "investigation-maintenance-tests",
     "test:investigation-report:transactional-maintenance"
   ],
   [
     "tools/investigation-report/tests/fixtures/rename-noop/docs/investigations/unrelated.md",
-    "investigation-maintenance",
+    "investigation-maintenance-tests",
     "test:investigation-report:transactional-maintenance"
   ],
   [
     "tools/investigation-report/tests/transaction-domain-boundaries.test.ts",
-    "investigation-maintenance",
+    "investigation-maintenance-tests",
     "test:investigation-report:transactional-maintenance"
   ],
   [
     "tools/investigation-report/tests/checks/transactional-maintenance.ts",
-    "investigation-maintenance",
+    "investigation-maintenance-tests",
     "test:investigation-report:transactional-maintenance"
   ],
   [
     "tools/decision-records/tests/native-creation-mode-probe.ts",
-    "decision-maintenance",
+    "decision-maintenance-tests",
     "test:decision-records:lifecycle-and-recovery"
   ],
   [
     "tools/investigation-report/tests/native-creation-mode-probe.ts",
-    "investigation-maintenance",
+    "investigation-maintenance-tests",
     "test:investigation-report:transactional-maintenance"
   ],
   [
     "tools/decision-records/tests/candidate-operations.test.ts",
-    "decision-maintenance",
+    "decision-maintenance-tests",
     "test:decision-records:lifecycle-and-recovery"
   ],
   [
     "tools/investigation-report/tests/candidate-operations.test.ts",
-    "investigation-maintenance",
-    "test:investigation-report:transactional-maintenance"
+    "investigation-cli-tests",
+    "test:investigation-report:cli-contract"
   ],
   [
     "tools/decision-records/src/decision-source-membership.ts",
@@ -46,27 +46,27 @@ export const domainInputOwnershipCases = [
   ],
   [
     "tools/decision-records/tests/acquisition-safety.test.ts",
-    "decision-query",
+    "decision-query-tests",
     "test:decision-records:query-and-index-projection"
   ],
   [
     "tools/decision-records/tests/sync-preflight-lock.test.ts",
-    "decision-query",
+    "decision-query-tests",
     "test:decision-records:query-and-index-projection"
   ],
   [
     "tools/decision-records/tests/candidate-transaction-boundaries.test.ts",
-    "decision-maintenance",
+    "decision-maintenance-tests",
     "test:decision-records:lifecycle-and-recovery"
   ],
   [
     "tools/decision-records/tests/record-shared-transactions.test.ts",
-    "decision-maintenance",
+    "decision-maintenance-tests",
     "test:decision-records:lifecycle-and-recovery"
   ],
   [
     "tools/decision-records/tests/transaction-boundaries.test.ts",
-    "decision-maintenance",
+    "decision-maintenance-tests",
     "test:decision-records:lifecycle-and-recovery"
   ],
   [
@@ -76,32 +76,32 @@ export const domainInputOwnershipCases = [
   ],
   [
     "tools/investigation-report/tests/discard-recovery.test.ts",
-    "investigation-maintenance",
+    "investigation-maintenance-tests",
     "test:investigation-report:transactional-maintenance"
   ],
   [
     "tools/investigation-report/tests/rename-directory-recovery.test.ts",
-    "investigation-maintenance",
+    "investigation-maintenance-tests",
     "test:investigation-report:transactional-maintenance"
   ],
   [
     "tools/investigation-report/tests/rename-resource-fixture.ts",
-    "investigation-maintenance",
+    "investigation-maintenance-tests",
     "test:investigation-report:transactional-maintenance"
   ],
   [
     "tools/decision-records/tests/transaction-creation-modes.test.ts",
-    "decision-maintenance",
+    "decision-maintenance-tests",
     "test:decision-records:lifecycle-and-recovery"
   ],
   [
     "tools/investigation-report/tests/transaction-creation-modes.test.ts",
-    "investigation-maintenance",
+    "investigation-maintenance-tests",
     "test:investigation-report:transactional-maintenance"
   ],
   [
     "tools/decision-records/tests/transaction-strict-preparation.test.ts",
-    "decision-maintenance",
+    "decision-maintenance-tests",
     "test:decision-records:lifecycle-and-recovery"
   ],
   [
@@ -111,7 +111,7 @@ export const domainInputOwnershipCases = [
   ],
   [
     "tools/investigation-report/tests/strict-preparation.test.ts",
-    "investigation-maintenance",
+    "investigation-maintenance-tests",
     "test:investigation-report:transactional-maintenance"
   ],
   [
@@ -131,7 +131,7 @@ export const domainInputOwnershipCases = [
   ],
   [
     "tools/decision-records/tests/selected-local-contract.test.ts",
-    "decision-query",
+    "decision-query-tests",
     "test:decision-records:query-and-index-projection"
   ],
   [
@@ -141,37 +141,37 @@ export const domainInputOwnershipCases = [
   ],
   [
     "tools/investigation-report/tests/selected-local-contract.test.ts",
-    "investigation-query",
+    "investigation-query-tests",
     "test:investigation-report:index-and-query"
   ],
   [
     "tools/investigation-report/tests/execution-entry-contract.test.ts",
-    "investigation-maintenance",
+    "investigation-maintenance-tests",
     "test:investigation-report:transactional-maintenance"
   ],
   [
     "tools/decision-records/tests/localize-record-operations/identity.test.ts",
-    "decision-maintenance",
+    "decision-maintenance-tests",
     "test:decision-records:lifecycle-and-recovery"
   ],
   [
     "tools/decision-records/tests/localize-record-operations/publication.test.ts",
-    "decision-maintenance",
+    "decision-maintenance-tests",
     "test:decision-records:lifecycle-and-recovery"
   ],
   [
     "tools/decision-records/tests/localize-record-operations/history.test.ts",
-    "decision-maintenance",
+    "decision-maintenance-tests",
     "test:decision-records:lifecycle-and-recovery"
   ],
   [
     "tools/decision-records/tests/localize-record-operations/rename-noop.test.ts",
-    "decision-maintenance",
+    "decision-maintenance-tests",
     "test:decision-records:lifecycle-and-recovery"
   ],
   [
     "tools/decision-records/tests/localize-record-operations/stage.test.ts",
-    "decision-maintenance",
+    "decision-maintenance-tests",
     "test:decision-records:lifecycle-and-recovery"
   ],
   [
@@ -181,7 +181,7 @@ export const domainInputOwnershipCases = [
   ],
   [
     "tools/investigation-report/tests/local-publication.test.ts",
-    "investigation-maintenance",
+    "investigation-maintenance-tests",
     "test:investigation-report:transactional-maintenance"
   ],
   [

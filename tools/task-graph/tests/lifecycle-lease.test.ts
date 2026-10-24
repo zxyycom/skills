@@ -61,7 +61,7 @@ test("claim revalidates same-task and exclusion conflicts against the latest ind
   );
 });
 
-function prepareLeaseLifecycleIndex() {
+test("claim rejects duplicate lease UUIDs without changing the existing claim", () => {
   const collisionIndex = graphIndex([
     taskOperation("first", { control: { mode: "queued" } }),
     taskOperation("second", { control: { mode: "queued" } })
@@ -74,8 +74,10 @@ function prepareLeaseLifecycleIndex() {
   );
   assert.equal(collision.retryable, true);
   assert.deepEqual(firstCollisionClaim.index, beforeCollision);
+});
 
-  let index = graphIndex([
+test("complete and cancel require exactly one mutation precondition", () => {
+  const index = graphIndex([
     taskOperation("work", { control: { mode: "queued" } })
   ]);
   for (const precondition of [
@@ -109,6 +111,12 @@ function prepareLeaseLifecycleIndex() {
       "ARGUMENT_INVALID"
     );
   }
+});
+
+test("claim accepts inclusive lease duration bounds and rejects values outside them", () => {
+  const index = graphIndex([
+    taskOperation("work", { control: { mode: "queued" } })
+  ]);
   expectTaskGraphError(
     () =>
       claimTask(
@@ -163,12 +171,12 @@ function prepareLeaseLifecycleIndex() {
     ).data.expiresAt,
     "2026-08-07T08:00:00.000Z"
   );
+});
 
-  return index;
-}
-
-test("lease lifecycle enforces duration, renewal, expiry, and explicit claim recovery", () => {
-  let index = prepareLeaseLifecycleIndex();
+test("release clears the matching active lease and applies validated local control", () => {
+  const index = graphIndex([
+    taskOperation("work", { control: { mode: "queued" } })
+  ]);
   const claimed = claim(index, "task-000001");
   assert.equal(claimed.data.expiresAt, "2026-08-06T08:30:00.000Z");
   expectTaskGraphError(
@@ -202,6 +210,13 @@ test("lease lifecycle enforces duration, renewal, expiry, and explicit claim rec
       updatedAt: "2026-08-06T08:00:00.000Z"
     }
   });
+});
+
+test("renewal updates expiry and expired leases reject every lease-bound write", () => {
+  const index = graphIndex([
+    taskOperation("work", { control: { mode: "queued" } })
+  ]);
+  const claimed = claim(index, "task-000001");
   const renewed = renewTaskLease(
     claimed.index,
     {
@@ -281,6 +296,22 @@ test("lease lifecycle enforces duration, renewal, expiry, and explicit claim rec
   ]) {
     expectTaskGraphError(operation, "LEASE_EXPIRED");
   }
+});
+
+test("expired claim recovery rejects the wrong previous lease and preserves replacement attempt evidence", () => {
+  const index = graphIndex([
+    taskOperation("work", { control: { mode: "queued" } })
+  ]);
+  const claimed = claim(index, "task-000001");
+  const renewed = renewTaskLease(
+    claimed.index,
+    {
+      taskId: "task-000001",
+      leaseId: claimed.data.leaseId,
+      durationSeconds: 60
+    },
+    new Date("2026-08-06T08:10:00.000Z")
+  );
   expectTaskGraphError(
     () =>
       claimTask(
@@ -344,8 +375,10 @@ test("lease lifecycle enforces duration, renewal, expiry, and explicit claim rec
       expiresAt: "2026-08-06T08:42:00.000Z"
     }
   });
+});
 
-  index = graphIndex([
+test("claim recovery cannot replace an unexpired active lease", () => {
+  const index = graphIndex([
     taskOperation("active", { control: { mode: "queued" } })
   ]);
   const active = claim(index, "task-000001");

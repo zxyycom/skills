@@ -10,9 +10,11 @@ import fs from "node:fs";
 import path from "node:path";
 import http from "node:http";
 
-test("standalone Node TS performs one native Decisions HTTP exchange with compatible dependencies and preserves raw plus normalized", async () => {
+test("standalone Node TS performs one native Decisions HTTP exchange with compatible dependencies and preserves raw plus normalized", async (context) => {
   const fixture = logFixture();
   let count = 0;
+  let activeChild: ReturnType<typeof spawn> | undefined;
+  let childClosed: Promise<void> | undefined;
   const server = http.createServer((req, res) => {
     count++;
     let body = "";
@@ -107,6 +109,10 @@ test("standalone Node TS performs one native Decisions HTTP exchange with compat
           stdio: ["ignore", "pipe", "pipe"]
         }
       );
+      activeChild = child;
+      childClosed = new Promise<void>((closed) =>
+        child.once("close", () => closed())
+      );
       let stdout = "",
         stderr = "";
       child.stdout.on("data", (chunk) => {
@@ -115,8 +121,25 @@ test("standalone Node TS performs one native Decisions HTTP exchange with compat
       child.stderr.on("data", (chunk) => {
         stderr += String(chunk);
       });
-      child.on("error", reject);
-      child.on("close", (code) => resolve({ code, stdout, stderr }));
+      let failure: Error | undefined;
+      const fail = (error: Error) => {
+        failure ??= error;
+        child.kill("SIGKILL");
+      };
+      const abort = () => fail(new Error("native Decisions child aborted"));
+      context.signal.addEventListener("abort", abort, { once: true });
+      const deadline = setTimeout(
+        () => fail(new Error("native Decisions child timed out")),
+        3000
+      );
+      child.once("error", fail);
+      child.once("close", (code) => {
+        clearTimeout(deadline);
+        context.signal.removeEventListener("abort", abort);
+        if (failure !== undefined) reject(failure);
+        else resolve({ code, stdout, stderr });
+      });
+      if (context.signal.aborted) abort();
     });
     assert.equal(result.code, 0, result.stdout + result.stderr);
     assert.equal(count, 1);
@@ -129,11 +152,17 @@ test("standalone Node TS performs one native Decisions HTTP exchange with compat
     });
     assert.equal(decoded.meta.attempts, 1);
   } finally {
+    if (activeChild?.exitCode === null && activeChild.signalCode === null)
+      activeChild.kill("SIGKILL");
+    await childClosed;
     try {
-      if (server.listening)
-        await new Promise<void>((resolve, reject) =>
+      if (server.listening) {
+        const closed = new Promise<void>((resolve, reject) =>
           server.close((error) => (error ? reject(error) : resolve()))
         );
+        server.closeAllConnections();
+        await closed;
+      }
     } finally {
       fixture.cleanup();
     }

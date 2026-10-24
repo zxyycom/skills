@@ -1,7 +1,7 @@
-### Case INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001: set-relations atomically applies multi-source replacements and explicit clears
+### Case INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001: 关系替换与显式清空写入规范投影
 
 Tests:
-- `test:518f6e02394248f7ee7967b39bd5be6d9175afce0bcc34b1afa474557e4ab19a`
+- `test:04c20126b770a5196f9ec1c8ad87e1d1453aa10c16036b1facd3eda43d941a60`
 
 Tags:
 - `investigation-report`

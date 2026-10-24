@@ -10,4 +10,4 @@ Contract:
 - 状态与逐条来源 revision 可以同时为空，metadata revision 仍必须存在并产生合法空索引。
 
 Proves:
-- 空 state record 与空 `sourceRevision.entries` 成功物化为没有持久化条目的索引。
+- 精确物化 entries={}、sourceRevision={entries:{},metadata:"source:metadata"}，空记录仍保留 metadata revision。

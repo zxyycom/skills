@@ -72,36 +72,76 @@ test(
   gitTestOptions,
   async () => {
     await withTempRoot(async (temp) => {
-      const { repositoryRoot, currentRevision } =
-        await createRepositoryFixture(temp);
+      const { repositoryRoot } = await createRepositoryFixture(temp);
+      const binary = Buffer.from([0, 255, 254, 10, 1, 2]);
+      await fs.writeFile(path.join(repositoryRoot, contentPath), binary);
+      runGit(repositoryRoot, ["add", contentPath]);
+      runGit(repositoryRoot, [
+        "commit",
+        "--quiet",
+        "--message",
+        "binary prefix"
+      ]);
+      const revision = runGit(repositoryRoot, ["rev-parse", "HEAD"]).trim();
       const repository = await openVersionControl(repositoryRoot);
       const prefix = await readRevisionFilePrefixes(repository, {
-        revision: currentRevision,
+        revision,
         paths: [contentPath],
         prefixBytes: 3
       });
       assert.deepEqual(
         prefix.map((file) => ({
           path: file.path,
-          data: Buffer.from(file.data).toString(),
+          data: Buffer.from(file.data),
           complete: file.complete
         })),
-        [{ path: contentPath, data: "cur", complete: false }]
+        [
+          {
+            path: contentPath,
+            data: Buffer.from([0, 255, 254]),
+            complete: false
+          }
+        ]
       );
       const full = await readRevisionFilePrefixes(repository, {
-        revision: currentRevision,
+        revision,
         paths: [contentPath],
         prefixBytes: 100
       });
       assert.equal(full[0]?.complete, true);
-      assert.equal(Buffer.from(full[0]!.data).toString(), "current\n");
+      assert.deepEqual(Buffer.from(full[0]!.data), binary);
       assert.deepEqual(
         await readRevisionFilePrefixes(repository, {
-          revision: currentRevision,
+          revision,
           paths: [],
           prefixBytes: 0
         }),
         []
+      );
+      const objectId = runGit(repositoryRoot, [
+        "rev-parse",
+        `HEAD:${contentPath}`
+      ]).trim();
+      const objectPath = path.join(
+        repositoryRoot,
+        ".git",
+        "objects",
+        objectId.slice(0, 2),
+        objectId.slice(2)
+      );
+      const compressed = await fs.readFile(objectPath);
+      await fs.chmod(objectPath, 0o600);
+      await fs.writeFile(
+        objectPath,
+        compressed.subarray(0, compressed.length - 4)
+      );
+      await assert.rejects(
+        readRevisionFilePrefixes(repository, {
+          revision,
+          paths: [contentPath],
+          prefixBytes: 3
+        }),
+        (error: unknown) => hasVersionControlCode(error, "operation-failed")
       );
     });
   }

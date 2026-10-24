@@ -1,7 +1,7 @@
-### Case INVESTIGATION-CANDIDATE-PUBLISH-003: publish preserves resources and rolls back before index commit
+### Case INVESTIGATION-CANDIDATE-PUBLISH-003: 索引发布失败时恢复候选正文并保留资源
 
 Tests:
-- `test:8a479d55d316cd4389daf470a41fe79f682142cf228e967a73d8f07479d50e67`
+- `test:960481bd5e12f5b66c26133222698e0761f77b577b3f1f0d9f74f03ed7bbebaf`
 
 Tags:
 - `investigation-report`
@@ -10,6 +10,4 @@ Contract:
 - publish 不移动或改写 candidate resource；索引提交点前写入失败必须恢复 candidate，资源字节本身不构成 publish 漂移。
 
 Proves:
-- 注入索引写入失败时 candidate 与资源字节保留，且结果为 `rolled-back`。
-- 准备后以新文件替换同一资源路径时，成员 identity 漂移在写入前阻断 publish，candidate 保留。
-- 准备后只改变同一资源文件的字节仍可发布，报告正文链接原样成为正式内容。
+- 索引写入故障实际命中后返回 rolled-back，候选正文恢复且 owner resource 的完整字节保留。

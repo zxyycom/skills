@@ -10,4 +10,4 @@ Contract:
 - 固定revision的前缀读取保持二进制字节并明确complete；空请求不产生文件。
 
 Proves:
-- 有限预算返回正确prefix及complete=false；足够预算返回完整字节，空路径结果为空。
+- 含 NUL/FF/FE 的 blob 返回精确二进制 prefix、完整性标记与 full bytes；截断 loose blob 压缩尾后，即便已足够取得 prefix 仍报 operation-failed。

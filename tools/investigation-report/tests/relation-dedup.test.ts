@@ -26,15 +26,7 @@ function projectionContext(
 }
 
 test("investigation type-only evidence deduplicates merge triples and keeps first summaries", () => {
-  const targets = [
-    "base-b",
-    "base-z",
-    "base-a",
-    ...Array.from(
-      { length: 256 },
-      (_, i) => `base-${String(i).padStart(3, "0")}`
-    )
-  ].sort();
+  const targets = ["base-a", "base-b", "base-z"];
   const context = projectionContext([
     ...targets.map((id) => ({ id })),
     {

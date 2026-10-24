@@ -1,14 +1,9 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
 import path from "node:path";
 import test from "node:test";
 import { createCliProgram } from "../../src/cli-args.ts";
 import { runDecisionRecordsCli } from "../../src/cli.ts";
-import {
-  archivedRelativePath,
-  currentRelativePath,
-  generatedCliPath
-} from "../support.ts";
+import { archivedRelativePath, currentRelativePath } from "../support.ts";
 
 export type CliExecution = {
   exitCode: number;
@@ -28,18 +23,12 @@ export async function runCli(args: readonly string[]): Promise<CliExecution> {
   return { exitCode, stderr: stderr.join(""), stdout: stdout.join("") };
 }
 
-export function runNodeCli(args: readonly string[]) {
-  return spawnSync("node", [generatedCliPath, ...args], { encoding: "utf8" });
-}
-
 export {
   archivedRelativePath,
   assert,
   createCliProgram,
   currentRelativePath,
-  generatedCliPath,
   path,
   runDecisionRecordsCli,
-  spawnSync,
   test
 };

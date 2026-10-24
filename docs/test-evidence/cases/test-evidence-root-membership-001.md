@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-ROOT-MEMBERSHIP-001: Case 根目录拒绝额外成员
 
 Tests:
-- `test:ceb55166605c3185f153175276147fb2cacac4b9d0997f7687f91dbe56b8d6de`
+- `test:6d089a966c5e9f9c493f872ccbd21349ddc50c0e5770bbe1c711c2db4d9e26d0`
 
 Tags:
 - `test-evidence`

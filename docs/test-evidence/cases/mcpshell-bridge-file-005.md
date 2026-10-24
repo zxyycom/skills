@@ -10,4 +10,4 @@ Contract:
 - put 在 physical parent 验证后仍必须在提交前和提交后重新确认 cwd 位于 project root；发现 parent 被移出 root 时必须清理 temporary 或已提交 basename，并返回稳定 `path_rejected`。
 
 Proves:
-- fixture 在 remote temporary 出现后把 parent 移到 project 外并在原位置重建目录；result 为 `path_rejected`，移出的 parent 没有 destination，重建的项目目录为空，agent staging source 保持不变。
+- 确认已验证 cwd 且 receive 完成后，在 wc 提交前同步把 parent 移出 root 并重建原路径，外层 event 命中；返回 path_rejected，移出/重建目录均空，staging source 字节不变。

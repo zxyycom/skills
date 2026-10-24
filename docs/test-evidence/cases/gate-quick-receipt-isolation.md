@@ -11,4 +11,4 @@ Contract:
 
 Proves:
 - 默认调用向 Definition 传入 quick 与原样空 activeToolIds，执行 controls 保持空 flags；注入的发布器从未调用，旧 receipt 字节保持不变。
-- 同时含 markdown-lint 复用与重型 Check 执行的计划只在 quick decisions 投影保留前者；摘要分别给出 9 项执行、1 项复用、57 项禁用，完整两项计划另存，并公开 quick-scope 未发布原因。
+- 同时含 markdown-lint 复用与重型 Check 执行的计划只在 quick decisions 投影保留前者；摘要分别给出 9 项执行、1 项复用、59 项禁用，完整两项计划另存，并公开 quick-scope 未发布原因。

@@ -140,7 +140,7 @@ export function createGateDefinition(
             path.join(rootDir, ".log/vibe-check/cache/scheduler-history"),
           identityForTask: (task) => ({
             gateProfile: release ? "release" : "base",
-            implementationVersion: "gate-native-command-v4",
+            implementationVersion: "gate-native-command-v5",
             taskId: task.taskId,
             runtime: {
               node: process.version,

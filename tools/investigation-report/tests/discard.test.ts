@@ -269,6 +269,15 @@ test("discard rechecks owner resource membership drift before publishing", async
     await writeCollection(root, [
       { id: "report", resources: ["report/evidence.txt"] }
     ]);
+    const protectedPaths = [
+      path.join(investigationRoot(root), "report.md"),
+      resource,
+      path.join(investigationRoot(root), "investigation-index.json")
+    ];
+    const protectedBytes = await Promise.all(
+      protectedPaths.map((file) => fs.readFile(file))
+    );
+    let injected = false;
     const result = await discardInvestigationReportWithWriter(
       {
         deleteOwnedResources: true,
@@ -277,6 +286,7 @@ test("discard rechecks owner resource membership drift before publishing", async
       },
       async (target, text) => await fs.writeFile(target, text, "utf8"),
       async () => {
+        injected = true;
         await fs.writeFile(
           path.join(path.dirname(resource), "new-member.txt"),
           "new member",
@@ -290,8 +300,18 @@ test("discard rechecks owner resource membership drift before publishing", async
         error.includes("owned resources changed before discard publication")
       )
     );
-    await fs.access(path.join(investigationRoot(root), "report.md"));
-    await fs.access(resource);
+    assert.equal(injected, true);
+    assert.deepEqual(
+      await Promise.all(protectedPaths.map((file) => fs.readFile(file))),
+      protectedBytes
+    );
+    assert.equal(
+      await fs.readFile(
+        path.join(path.dirname(resource), "new-member.txt"),
+        "utf8"
+      ),
+      "new member"
+    );
   });
 });
 
@@ -372,30 +392,48 @@ test("sync-index rejects a concurrent rebuild while discard owns the collection"
         await fs.writeFile(target, text, "utf8");
       }
     );
-    await discardCommit;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      await Promise.race([
+        discardCommit,
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(
+            () =>
+              reject(
+                new Error("Timed out waiting for discard index publication")
+              ),
+            5_000
+          );
+        })
+      ]);
 
-    const blocked = await synchronizeInvestigationIndex({
-      workspaceRoot: root
-    });
-    assert.equal(blocked.changed, false);
-    assert.ok(
-      blocked.errors.some((error) =>
-        error.includes("investigation-report.collection-lock-busy")
-      )
-    );
-    assert.equal(
-      blocked.diagnostics[0]?.code,
-      "investigation-report.collection-lock-busy"
-    );
-    assert.equal(blocked.diagnostics[0]?.causeCategory, "busy");
-    assert.deepEqual(blocked.mutation, {
-      outcome: "no-change",
-      scope: "investigation report index collection"
-    });
-    assert.equal(await fs.readFile(indexPath, "utf8"), before);
+      const blocked = await synchronizeInvestigationIndex({
+        workspaceRoot: root
+      });
+      assert.equal(blocked.changed, false);
+      assert.ok(
+        blocked.errors.some((error) =>
+          error.includes("investigation-report.collection-lock-busy")
+        )
+      );
+      assert.equal(
+        blocked.diagnostics[0]?.code,
+        "investigation-report.collection-lock-busy"
+      );
+      assert.equal(blocked.diagnostics[0]?.causeCategory, "busy");
+      assert.deepEqual(blocked.mutation, {
+        outcome: "no-change",
+        scope: "investigation report index collection"
+      });
+      assert.equal(await fs.readFile(indexPath, "utf8"), before);
 
-    allowDiscardPublish();
-    assert.equal((await discard).changed, true);
+      allowDiscardPublish();
+      assert.equal((await discard).changed, true);
+    } finally {
+      clearTimeout(timer);
+      allowDiscardPublish();
+      await Promise.allSettled([discard]);
+    }
     const retried = await synchronizeInvestigationIndex({
       workspaceRoot: root
     });
@@ -407,7 +445,7 @@ test("sync-index rejects a concurrent rebuild while discard owns the collection"
   });
 });
 
-test("discard identifies a formal report, a missing target, and ambiguous names", async () => {
+test("discard identifies a formal report and rejects a missing target", async () => {
   await withTempRoot("discard-identify", async (root) => {
     await writeCollection(root, [{ id: "formal" }]);
     const formal = await discardInvestigationRecord({

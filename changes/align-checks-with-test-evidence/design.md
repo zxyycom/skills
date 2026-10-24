@@ -8,7 +8,7 @@
 - 当前审计输入为 `.log/vibe-check/audits/test-design-census-20261024-wx9KzT/` 下 summary、A–F report/tests/checks 及 review-checks、review-tests；它们是本 Change 的临时静态材料，详见 findings。未运行测试的审计结论不代表生产缺陷已复现。
 - 已用公开 `change-plan list/show` 核对既有计划；任务图显式 ID、SDK 与搁置的纠正方案有独立 Outcome，不在本计划中实施、刷新或结项。
 - 稳定规则来自 `docs/navigation.md` 路由到的行为 owner、`docs/tooling.md`、`docs/gate-check-authoring.md`、`docs/coding-style.md`、Test Design 与 Test Evidence Review；本文件只承接当前取舍和交接。
-- 当前他会话 investigation candidate 及 `_resources/` 工作不属本 Change；并行写入先明确文件所有权，统一 catalog／Case index／最终门禁由整合者维护。
+- 另一会话的 DR/Index Runtime 产品源码、生成物、11 个新 Case 及调查记录不属本 Change；用户已确认该会话暂停。共享 index 由当前整合窗口维护，最终暂存须按本 Change 归属隔离，不能用整文件暂存混入他方工作。
 
 ## Goals / Non-Goals
 
@@ -20,9 +20,9 @@
 
 ### Intended Change
 
-1. **先闭合责任。** 对 RC1–RC7 逐一记录最终 consumer：environment 的生成短命令 smoke、双域生成 worker、IR CLI 加载、typecheck program、validator、Test Evidence 分发入口与 LJ 生成 SQL。迁移到已有适当责任与在原处补订阅／provider 都可；实现者选择维护面更小且不丢观察的方案。typecheck 独立建模其程序输入，不连带扩大 formatter。
+1. **按实际消费闭合责任。** 已选方案：CP 生成短命令迁 public-distribution；共同 reader/事务/双域 worker 建共同 Check；IR 三个 CLI 加载叶子归 cli-contract；validator、TE public-boundary、LJ SQL consumer 补统一生成 provider。typecheck/lint 保守订阅 `typescript-program`（含 skill TS/MTS/manifests），只证当前程序质量、不证生成一致性，quick 不增加 provider，formatter 独立范围不变。
 2. **按独立失败 owner 调整结构。** 显示名先匹配实责；只在责任真的变化时拆合 Check／最小测试节点，并同步重跑命令、输入和 Case。共同十项事务测试及其他无领域 adapter 的共同 reader／verification 归共同 owner，领域 adapter 各留一份；共享 helper 不是自动去重依据。
-3. **输入裁剪须有消费证据。** 区分公共运行时加载、独立测试／fixture 和分发消费，优先在既有能力模型中表达。不按静态 sourceFiles 自动生成依赖。gate-tests 可裁剪未读取 helper 字节，但仍保留 catalog 对 leaf 的存在／可访问事实；现模型无法更细表达时允许保守触发，不为去掉每次重跑创建身份缓存。
+3. **输入裁剪须有消费证据。** 区分公共运行时加载、独立测试／fixture 和分发消费，优先在既有能力模型中表达。不按静态 sourceFiles 自动生成依赖。gate-tests 已裁剪未读取 helper/fixture 字节，leaf 字节继续保守覆盖存在、可访问与删除事实；现模型未独立表达纯 leaf 身份，不新增身份缓存。
 4. **补强辨错而不改变产品。** 无效 ID key、默认 content 同错、跨行准入、图片拒绝、恢复 bytes、hash、故障命中、只读 `--check`、publisher 停止及 CLI native durations 使用独立预期和外层观察。formalDrift 删除失效拒绝承诺或改成符合 owner 的成功场景；selected candidate/index 保护保留。CAS／symlink 注入优先有界事件；没有稳定 seam 时准确收窄承诺，显式保留证据边界，不通过大输入假造交错。
 5. **轻量化以责任连续为准。** 参数／shape 矩阵用已有轻量入口，保留代表性真实分发 Node；路径／已 mock Git 规则不建仓。只去掉无公开契约的私有声明名单／export 写法锁。工作量责任仍以 owner 为准，替换 Map.keys、relations.map、Date.parse、Array iterator 等实现探针时保留稳定解析／验证／资源观察；不能把精确总进程数当安全协议。
 6. **局部资源有生命周期。** 实际 fixture 环境隔离，临时目录可回收，等待有局部上界，失败 finally 释放屏障并等待 child／事务结算。保留必要真实 umask、Git、worker、锁、Node 模块解析和 frozen 安装证明。
@@ -42,17 +42,23 @@
 
 - 审计多为静态证据。先核当前源码再选择最小方案；未取得运行结果不得勾完成，目标变异只在隔离且有辨错收益时实施。
 - 移动测试可能扩大 barrel 顶层加载、漏聚合入口或重复注册；必须同时核包装入口、最终最小实体和能力闭包。
-- 输入越细维护成本越高，漏输入风险大于省跑收益；无法证明的闭包保守保留。lint type-aware 单列核对，不能套用 typecheck 推断。
-- 原生密钥容量大规模建议先查锁定版本契约／兼容风险，再保留小型项目消费证据；生产上限不变。256 MiB blob、分页阈值、深链栈、真实安装等有 owner 依据的规模不机械删除。
+- 输入越细维护成本越高，漏输入风险大于省跑收益；无法证明的闭包保守保留。lint type-aware 的原生读取 trace 未闭合，保持保守程序输入，不把接线回归当成读取 trace。
+- 原生密钥保留独立项目容量政策与小型消费证据，不重测上游超容量；生产上限不变。256 MiB blob、分页阈值、深链栈、真实安装等有 owner 依据的规模不机械删除。
 - mode 重叠测试方向相反，只有双向错误模型、完整 index bytes、零写和范围外保护都已在保留后继时才可合并，否则保留两项。
 - Git commit hook 可自动 push；用户已授权当前任务必要提交与该 hook 行为，但不覆盖手工 push、外部保护配置写入或真实服务调用。远端访问／执行环境不足时保留明确未完成项。
 
 ## Open Questions
 
-以下是实施内待核，不改变已授权 Outcome，也不应阻止先整改已确认项：
+实施取舍已收敛，没有等待用户选择的领域方案。剩余是验收与外部配置证据：
 
-- 当前锁定 Oxlint 的 type-aware 实际程序读取闭包；取得精确证据后补输入或记录无需扩展，不能先宣称安全或遗漏。
-- secret detector 精确版本的容量公开契约／具体兼容风险，以及能否用项目预算与小型消费保留责任。
-- auto-push CAS 与 MCPShell symlink 是否有可复用稳定阶段 seam；没有时收窄 Case 并清楚说明仍未证明目标交错。
-- 收窄 gate-tests 是否可沿现有模型表达 leaf 身份；不能时保留必要宽输入。
-- 远端当前 `package`／`video-windows` 身份、可获得的同 revision 运行及保护证据；不擅自修改远端配置。
+1. 当前精确隔离tree已取得typecheck、Case1680、test:check、changed与quick证据；同snapshot Linux冷release69/69及版本授权/打包已通过，最终相关revision的远端package/Windows同次zip及最终交付仍待完成，见[验证记录](verification.md)。
+2. 远端 main 当前无 branch protection、rulesets 为空；既有 workflow 发布依赖仍保留，但远端合并阻断尚未证明生效。需要配置时取得明确授权，不以本地测试代替。
+
+## Implementation Observations
+
+- 当前 Definition 69 项（environment 1、native 8、package 20、semantic 37、release 3），base 66、receipt-managed 58；quick 原 10 项与 total/P90/mean 的严格预算保持不变，其他 scope report-only。输入契约为 `project-tool-receipts-v7`，调度 identity 为 `gate-native-command-v5`，learned 策略及硬资源不变。
+- 原待核边界已定：lint 无完整原生读取 trace，采用充分程序输入；secret 保留项目限额与小型消费、不复测上游超容量；auto-push 没有稳定 CAS seam，准确保留有限证明；MCPShell 用既有 wc seam 确定命中；leaf 身份采用保守字节覆盖。
+- 阶段独立复核发现的 G1–G3 已闭合。新增 TE 项目能力只由三项项目 Check 订阅；DR strict-preparation 与当前 record consumer 的实际源码 CLI 闭包补齐（另一会话 frontmatter leaf 未迁移）；environment 补源码 validator，无生成前置。
+- 阶段目标运行、首次失败、节点后继与静态复核见 [findings](findings.md) 及其 handoff/review 路由；后续修复后公开实体采集与 Case/index 引用覆盖已取得 complete/1691 和通过；这是混合工作区，不代表全部测试已运行，也不代替排除他方工作后的提交快照验收。最终整合与 Gate 继续由 tasks 跟踪。
+- 长期 owner 同步限于 tooling 的当前运行事实与 authoring 的接入方法。共同 Check、源码 CLI 与生成信任边界执行既有责任契约，未达到另记长期决策的门槛；未改 Decision 或无关 README。
+- 首次隔离 changed 的指标失败按独立意图拆分，人工 run 输入新增两个精准 catalog 能力，只由真实 test:check/Case catalog 消费者订阅；27目标通过及九文件原生指标零finding见[Gate交接](gate-handoff.md)。依赖软链接引起的权限/输入问题仅修复验收环境；当前本方精确快照已通过本地变更验收，69/66/58、quick10和政策均不变。

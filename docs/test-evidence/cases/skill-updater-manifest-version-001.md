@@ -10,4 +10,4 @@ Contract:
 - Release manifest 声明版本必须与远端 `SKILL.md` 版本一致。
 
 Proves:
-- 版本不一致在安装前被拒绝且目标未被替换。
+- 源码 loadRemoteSkillFiles 对 manifest/package 版本不一致返回明确错误，不返回可安装文件；不是逐条真实 CLI 零写验证。

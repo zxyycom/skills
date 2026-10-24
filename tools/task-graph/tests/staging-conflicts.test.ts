@@ -108,7 +108,7 @@ test(
 );
 
 test(
-  "rejects regressing workspace watermarks without changing pending content",
+  "rejects a regressing workspace revision without changing pending content",
   testOptions,
   async () => {
     await withTempWorkspace(async (repositoryRoot) => {

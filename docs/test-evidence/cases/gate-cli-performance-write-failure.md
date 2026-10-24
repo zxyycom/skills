@@ -1,7 +1,7 @@
 ### Case GATE-CLI-PERFORMANCE-WRITE-FAILURE-001: 性能报告写入拒绝只新增 quick 阻断
 
 Tests:
-- `test:2fe5abf266077e4b3c04ded9d6b9b553aa5dd01eff90ffe84357514cbcd0108d`
+- `test:5a2905595f55a3a6a30aa4ae971eff18412a0efc4223e98fcdd5733cb475b61d`
 
 Tags:
 - `performance`

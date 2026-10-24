@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import os from "node:os";
 import test from "node:test";
 import * as v from "valibot";
 import {
@@ -18,7 +17,7 @@ import {
   testEvidenceSearchResultSchema,
   testEvidenceStageResultSchema
 } from "../src/core-schemas.ts";
-import { exec, fixture, fs, path } from "./core-test-support.ts";
+import { exec, fixture, fs, path, temporaryRoot } from "./core-test-support.ts";
 
 test("list and tags only load the index while show reads only its selected Case", async () => {
   const root = await fixture();
@@ -49,9 +48,7 @@ test(
   "search includes matches after the index query page boundary",
   { timeout: 20_000 },
   async () => {
-    const root = await fs.mkdtemp(
-      path.join(os.tmpdir(), "test-evidence-search-")
-    );
+    const root = await temporaryRoot("test-evidence-search-");
     const cases = path.join(root, "docs/test-evidence/cases");
     await fs.mkdir(cases, { recursive: true });
     for (let index = 0; index <= 1000; index += 1) {
@@ -144,7 +141,7 @@ test("search rejects stale Case indexes through its API and CLI", async () => {
   );
 });
 
-test("snapshot failure priorities reject malformed input, source mismatch, and unknown selection", async () => {
+test("snapshot validation reports malformed input, source mismatch, and unknown selection", async () => {
   const root = await fixture();
   const source = {
     projectId: "skills",
@@ -234,9 +231,7 @@ test("CLI writes domain failures as JSON stdout with a nonzero exit", async () =
   await invoke("oversized.json");
 });
 test("search blocks a Case body above the shared text-search resource limit", async () => {
-  const root = await fs.mkdtemp(
-    path.join(os.tmpdir(), "test-evidence-resource-")
-  );
+  const root = await temporaryRoot("test-evidence-resource-");
   const cases = path.join(root, "docs/test-evidence/cases");
   await fs.mkdir(cases, { recursive: true });
   await fs.writeFile(
@@ -380,4 +375,33 @@ test("unreadable indexes block list and show without a source fallback", async (
       ),
       JSON.stringify(result)
     );
+});
+
+test("source CLI rejects unknown, missing, repeated, and malformed usage through stderr", async () => {
+  const root = await fixture();
+  for (const [args, diagnostic] of [
+    [["--json", "list", "--unknown"], /unknown option '--unknown'/u],
+    [["--json", "show"], /missing required argument 'case-id'/u],
+    [
+      ["--json", "list", "--limit", "1", "--limit", "2"],
+      /option '--limit' may only be specified once/u
+    ],
+    [
+      ["--json", "list", "--limit", "zero"],
+      /option '--limit <number>' argument 'zero' is invalid/u
+    ]
+  ] as const) {
+    const stdout: string[] = [];
+    const stderr: string[] = [];
+    const code = await runTestEvidenceCatalogCli(args, {
+      cwd: root,
+      io: {
+        stdout: (text) => stdout.push(text),
+        stderr: (text) => stderr.push(text)
+      }
+    });
+    assert.equal(code, 2, args.join(" "));
+    assert.equal(stdout.join(""), "");
+    assert.match(stderr.join(""), diagnostic);
+  }
 });

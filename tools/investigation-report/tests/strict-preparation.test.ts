@@ -155,7 +155,7 @@ async function committedRenameFixture(workspaceRoot: string) {
   return { root, prepared: prepared.value };
 }
 
-test("strict rename postwrite reads only actual rewritten sources and the expected index", async () => {
+test("strict rename postwrite reads each actual rewritten source once", async () => {
   await withTempRoot("strict-rename-postwrite", async (workspaceRoot) => {
     const { root, prepared } = await committedRenameFixture(workspaceRoot);
     const targets = prepared.sources.map((source) =>

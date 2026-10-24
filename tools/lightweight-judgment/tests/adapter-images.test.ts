@@ -55,7 +55,7 @@ test("image dimensions retain distinct width and height from PNG and JPEG frame 
     });
 });
 
-test("image permissions scan every scope and malformed inline nodes refuse before credentials storage assets or HTTP", async () => {
+test("image permissions scan every scope and malformed inline nodes refuse before credential access logging or HTTP", async () => {
   const fixture = logFixture();
   try {
     for (const state of [
@@ -64,6 +64,21 @@ test("image permissions scan every scope and malformed inline nodes refuse befor
       { type: "input_image", image_url: "https://private.invalid" }
     ]) {
       for (const config of [openai, typesafe, router, {}]) {
+        let credentialReads = 0;
+        let fetches = 0;
+        const env: Record<string, string | undefined> = {};
+        for (const key of [
+          "NATIVE_KEY",
+          "TYPESAFE_KEY",
+          "ROUTER_KEY",
+          "OPENROUTER_API_KEY"
+        ])
+          Object.defineProperty(env, key, {
+            get() {
+              credentialReads++;
+              return "healthy-test-key";
+            }
+          });
         const outcome = await runCli(
           ["json", "--json", input(state)],
           configured(
@@ -71,11 +86,22 @@ test("image permissions scan every scope and malformed inline nodes refuse befor
               ...config,
               logging: { enabled: true, databasePath: fixture.databasePath }
             },
-            { env: {}, fetch: async () => assert.fail("images disabled") }
+            {
+              env,
+              fetch: async () => {
+                fetches++;
+                throw new Error("images disabled");
+              }
+            }
           )
         );
         assert.equal(outcome.exitCode, 2);
-        assert.equal(decodeFailure(outcome.stdout).meta.attempts, 0);
+        const failure = decodeFailure(outcome.stdout);
+        assert.equal(failure.error.kind, "input");
+        assert.match(failure.error.message, /^images: .*images=true/u);
+        assert.equal(failure.meta.attempts, 0);
+        assert.equal(credentialReads, 0);
+        assert.equal(fetches, 0);
         assert.equal(fs.existsSync(fixture.databasePath), false);
       }
     }

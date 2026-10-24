@@ -24,3 +24,4 @@ await import("./adapter-distribution.test.ts");
 await import("./adapter-transport.test.ts");
 
 await import("./adapter-regressions.test.ts");
+await import("./adapter-image-validation.test.ts");

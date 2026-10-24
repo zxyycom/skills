@@ -21,78 +21,103 @@ import { createStateIndexReaderFromPrepared } from "../src/reader.ts";
 import { readerLoadFixture } from "./reader-load-fixture.ts";
 import { preparationFixture } from "./prepared-fixture.ts";
 
-test("prepared readers consume strict field materialization once without weakening raw boundaries", async () => {
+test("prepared readers reuse validated snapshots without weakening raw boundaries", async () => {
   await withTempRoot(async (root) => {
-    const { definition, index } = readerLoadFixture();
+    const { calls, definition, index } = readerLoadFixture();
     const options = { context: { root }, definition, indexPath: "index.json" };
     await fs.writeFile(
       path.join(root, options.indexPath),
       JSON.stringify(index)
     );
-    const originalParse = Date.parse;
-    let extractions = 0;
-    // This file runs serially; restore the global extraction probe before returning.
-    Date.parse = (text) => {
-      extractions += 1;
-      return originalParse(text);
-    };
-    try {
-      const reader = resultValue(await loadStateIndexReader(options));
-      assert.equal(extractions, 2);
-      resultValue(reader.query());
-      resultValue(reader.get("a"));
-      resultValue(reader.all());
-      assert.equal(extractions, 2);
-      const memoryReader = createStateIndexReader({
-        definition,
-        index,
-        indexPath: "<memory>"
-      });
-      assert.equal(extractions, 4);
-      resultValue(memoryReader.query());
-      assert.equal(extractions, 4);
-      const prepared = resultValue(
-        prepareStateIndexFromSnapshot({
-          ...options,
-          snapshot: {
-            metadata: index.metadata,
-            sourceRevision: index.sourceRevision,
-            states: index.entries
-          }
-        })
-      );
-      assert.equal(extractions, 6);
-      const preparedReader = resultValue(
-        createStateIndexReaderFromPrepared({ ...options, prepared })
-      );
-      assert.equal(extractions, 6);
-      assert.equal(
-        resultValue(preparedReader.query()).entries[0]!.state,
-        prepared.index.entries.a
-      );
-      const invalid = {
-        ...index,
-        entries: {
-          ...index.entries,
-          a: { ...index.entries.a!, formedAt: "invalid" }
+    const reader = resultValue(await loadStateIndexReader(options));
+    assert.deepEqual(calls, {
+      metadataParses: 1,
+      parses: 2,
+      reads: 0,
+      revisionReads: 0,
+      validations: 1
+    });
+    resultValue(reader.query());
+    resultValue(reader.get("a"));
+    resultValue(reader.all());
+    assert.deepEqual(calls, {
+      metadataParses: 1,
+      parses: 2,
+      reads: 0,
+      revisionReads: 0,
+      validations: 1
+    });
+    const memoryReader = createStateIndexReader({
+      definition,
+      index,
+      indexPath: "<memory>"
+    });
+    assert.deepEqual(calls, {
+      metadataParses: 2,
+      parses: 4,
+      reads: 0,
+      revisionReads: 0,
+      validations: 2
+    });
+    resultValue(memoryReader.query());
+    assert.deepEqual(calls, {
+      metadataParses: 2,
+      parses: 4,
+      reads: 0,
+      revisionReads: 0,
+      validations: 2
+    });
+    const prepared = resultValue(
+      prepareStateIndexFromSnapshot({
+        ...options,
+        snapshot: {
+          metadata: index.metadata,
+          sourceRevision: index.sourceRevision,
+          states: index.entries
         }
-      };
-      assert.equal(
-        queryStateIndex({ definition, index: invalid }).status,
-        "error"
-      );
-      assert.throws(
-        () =>
-          createStateIndexReader({
-            definition,
-            index: invalid,
-            indexPath: "raw"
-          }),
-        /query-field-source-invalid/u
-      );
-    } finally {
-      Date.parse = originalParse;
-    }
+      })
+    );
+    assert.deepEqual(calls, {
+      metadataParses: 3,
+      parses: 6,
+      reads: 0,
+      revisionReads: 0,
+      validations: 3
+    });
+    const preparedReader = resultValue(
+      createStateIndexReaderFromPrepared({ ...options, prepared })
+    );
+    assert.deepEqual(calls, {
+      metadataParses: 3,
+      parses: 6,
+      reads: 0,
+      revisionReads: 0,
+      validations: 3
+    });
+    assert.equal(
+      resultValue(preparedReader.query()).entries[0]!.state,
+      prepared.index.entries.a
+    );
+    const invalid = {
+      ...index,
+      entries: {
+        ...index.entries,
+        a: { ...index.entries.a!, formedAt: "invalid" }
+      }
+    };
+    assert.equal(
+      queryStateIndex({ definition, index: invalid }).status,
+      "error"
+    );
+    assert.throws(
+      () =>
+        createStateIndexReader({
+          definition,
+          index: invalid,
+          indexPath: "raw"
+        }),
+      /query-field-source-invalid/u
+    );
   });
 });
 

@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-STAGE-BOOTSTRAP-001: 首次暂存建立所选测试证据索引
 
 Tests:
-- `test:e7e84d2636a2ad9742ff612fbf3e712eb8ddd2956926c85f55fb408078c1f583`
+- `test:42ea02a5d05acdedec5d637aadfa7e5813f1fe700e3c5c1028e584af21049489`
 
 Tags:
 - `test-evidence`

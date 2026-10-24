@@ -87,7 +87,7 @@ test("release full execution does not acquire or publish project input proofs", 
     });
     assert.equal(plan.kind, "release");
     assert.equal(plan.snapshot, null);
-    assert.equal(plan.activeCheckIds.length, 67);
+    assert.equal(plan.activeCheckIds.length, 69);
     assert.deepEqual(await publishFixtureReceipts(fixture, plan), {
       published: false,
       reason: "not-incremental"
@@ -163,6 +163,7 @@ const sharedFeatureInputCases = [
   {
     input: "tools/shared/src/file-text-search/index.ts",
     consumers: [
+      "test:decision-records:record-and-established-graph",
       "script:test:file-text-search",
       ...baseGateCheckIds.filter((id) => id.startsWith("test:test-evidence:")),
       "test:decision-records:query-and-index-projection",
@@ -175,7 +176,6 @@ const sharedFeatureInputCases = [
       "test:investigation-report:cli-contract"
     ],
     unrelated: [
-      "test:decision-records:record-and-established-graph",
       "test:decision-records:pending-stage",
       "script:test:relation-graph"
     ],

@@ -318,6 +318,10 @@ test("Investigation discard preserves empty cyclic and unknown writer failure fa
         { id: "retained" }
       ]);
       const root = investigationRoot(workspaceRoot);
+      const files = (await fs.readdir(root)).sort();
+      const bytes = await Promise.all(
+        files.map((name) => fs.readFile(path.join(root, name)))
+      );
       const result = await discardInvestigationReportWithWriter(
         { workspaceRoot, id: "selected" },
         async () => {
@@ -330,6 +334,12 @@ test("Investigation discard preserves empty cyclic and unknown writer failure fa
         result.diagnostics.some((diagnostic) =>
           diagnostic.detail?.includes(detail)
         )
+      );
+      assert.deepEqual(
+        await Promise.all(
+          files.map((name) => fs.readFile(path.join(root, name)))
+        ),
+        bytes
       );
       assert.deepEqual((await fs.readdir(root)).sort(), [
         "investigation-index.json",

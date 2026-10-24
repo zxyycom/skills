@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-STAGE-UNCHANGED-001: 无变化选择返回 Unchanged 且不制造 Pending
 
 Tests:
-- `test:e7e84d2636a2ad9742ff612fbf3e712eb8ddd2956926c85f55fb408078c1f583`
+- `test:b874f6e47971bf0e4a401f6f35a72cd180ad2c69e36af69bd3c5486345ad7a68`
 
 Tags:
 - `test-evidence`

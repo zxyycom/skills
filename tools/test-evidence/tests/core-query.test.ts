@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import os from "node:os";
 import test from "node:test";
 import * as v from "valibot";
 import {
@@ -19,7 +18,7 @@ import {
   testEvidenceSyncResultSchema,
   testEvidenceTagsResultSchema
 } from "../src/core-schemas.ts";
-import { fixture, fs, path } from "./core-test-support.ts";
+import { fixture, fs, path, temporaryRoot } from "./core-test-support.ts";
 
 test("Case-only index queries and tags do not need a snapshot", async () => {
   const root = await fixture();
@@ -66,7 +65,7 @@ test("Case-only index queries and tags do not need a snapshot", async () => {
     ).success
   );
 });
-test("show detects source replacement and search reads authoritative Case text", async () => {
+test("show rejects Case revision drift after an in-place append", async () => {
   const root = await fixture();
   await syncTestEvidenceIndex({ workspaceRoot: root, mode: "write" });
   assert.equal(
@@ -78,23 +77,18 @@ test("show detects source replacement and search reads authoritative Case text",
     ).case?.title,
     "access is rejected"
   );
-  const search = await searchTestEvidence({
-    workspaceRoot: root,
-    text: "permission"
-  });
-  assert.equal(search.total, 1);
   await fs.appendFile(
     path.join(root, "docs/test-evidence/cases/access.md"),
     "\n"
   );
-  assert.equal(
-    (
-      await showTestEvidenceCase({
-        workspaceRoot: root,
-        caseId: "AUTH-ROLE-ACCESS-001"
-      })
-    ).case,
-    null
+  const drifted = await showTestEvidenceCase({
+    workspaceRoot: root,
+    caseId: "AUTH-ROLE-ACCESS-001"
+  });
+  assert.equal(drifted.case, null);
+  assert.deepEqual(
+    drifted.diagnostics.map((entry) => entry.code),
+    ["state-index.index-stale"]
   );
 });
 test("reference validation has explicit snapshot states and allows unreferenced entities", async () => {
@@ -141,9 +135,7 @@ test("reference validation has explicit snapshot states and allows unreferenced 
     ).state,
     "references-invalid"
   );
-  const emptyRoot = await fs.mkdtemp(
-    path.join(os.tmpdir(), "test-evidence-empty-")
-  );
+  const emptyRoot = await temporaryRoot("test-evidence-empty-");
   await fs.mkdir(path.join(emptyRoot, "docs/test-evidence/cases"), {
     recursive: true
   });
@@ -164,34 +156,50 @@ test("Case validation rejects a duplicate ID", async () => {
     path.join(root, "docs/test-evidence/cases/access.md"),
     path.join(root, "docs/test-evidence/cases/duplicate.md")
   );
+  const report = await validateTestEvidence({ workspaceRoot: root });
+  assert.ok(
+    report.diagnostics.some((entry) => entry.code === "case.id-duplicate")
+  );
+});
+
+test("Case validation rejects unsupported Case filenames", async () => {
+  const root = await fixture();
   await fs.writeFile(
     path.join(root, "docs/test-evidence/cases/not_a_case.md"),
     "unsupported member\n"
   );
+  const report = await validateTestEvidence({ workspaceRoot: root });
+  assert.ok(
+    report.diagnostics.some((entry) => entry.code === "case.member-unsupported")
+  );
+});
+
+test("Case validation reports an unreadable UTF-8 Case source", async () => {
+  const root = await fixture();
   await fs.writeFile(
     path.join(root, "docs/test-evidence/cases/broken.md"),
     new Uint8Array([0xff])
   );
+  const report = await validateTestEvidence({ workspaceRoot: root });
+  assert.ok(
+    report.diagnostics.some((entry) => entry.code === "case.read-failed")
+  );
+});
+
+test("Case validation rejects unsupported catalog root members", async () => {
+  const root = await fixture();
   await fs.writeFile(
     path.join(root, "docs/test-evidence/unexpected.json"),
     "{}\n"
   );
   const report = await validateTestEvidence({ workspaceRoot: root });
   assert.ok(
-    report.diagnostics.some((entry) => entry.code === "case.id-duplicate")
-  );
-  assert.ok(
-    report.diagnostics.some((entry) => entry.code === "case.member-unsupported")
-  );
-  assert.ok(
-    report.diagnostics.some((entry) => entry.code === "case.read-failed")
-  );
-  assert.ok(
     report.diagnostics.some(
       (entry) => entry.code === "case.root-member-unsupported"
     )
   );
 });
+
 test("Case grammar requires a first-line fixed ID and one complete Case", async () => {
   const root = await fixture();
   const cases = path.join(root, "docs/test-evidence/cases");

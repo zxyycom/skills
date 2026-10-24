@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-OWNER-PENDING-DEPENDENCY-001: 保留未选资源 owner 的 pending 删除
 
 Tests:
-- `test:328864a5f9318d2521e2aba8563c9780c5f85cb5a45a002b2366d54d10eb997b`
+- `test:3019ecd5a891d5de9a60f16727ccddde09eb20fbe0660cde0f56cd35403397d9`
 
 Tags:
 - `investigation-report`

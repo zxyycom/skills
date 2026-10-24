@@ -49,6 +49,11 @@ export const expectedSemanticChecks: readonly (readonly [
     "./tools/change-plan/tests/checks/public-distribution.ts"
   ],
   [
+    "test:record-operations:shared-contract",
+    "bun",
+    "./tools/record-operations/tests/checks/shared-contract.ts"
+  ],
+  [
     "test:decision-records:record-and-established-graph",
     "bun",
     "./tools/decision-records/tests/checks/record-and-established-graph.ts"
@@ -67,6 +72,11 @@ export const expectedSemanticChecks: readonly (readonly [
     "test:decision-records:pending-stage",
     "bun",
     "./tools/decision-records/tests/stage.test.ts"
+  ],
+  [
+    "test:decision-records:cli-contract",
+    "bun",
+    "./tools/decision-records/tests/checks/cli-contract.ts"
   ],
   [
     "test:decision-records:public-distribution",
@@ -182,6 +192,12 @@ export const expectedSemanticChecks: readonly (readonly [
 
 export const expectedSemanticPrerequisites = new Map<string, readonly string[]>(
   [
+    ["test:record-operations:shared-contract", ["script:check:skill-updaters"]],
+    ["test:test-evidence:public-boundary", ["script:check:skill-updaters"]],
+    [
+      "test:lightweight-judgment:request-and-response",
+      ["script:check:skill-updaters"]
+    ],
     [
       "test:video-understanding:public-distribution",
       ["script:check:skill-updaters"]

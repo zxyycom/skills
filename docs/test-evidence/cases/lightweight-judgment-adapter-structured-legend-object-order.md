@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-ADAPTER-015: 结构化 legend 对象值等价
 
 Tests:
-- `test:24c24b23d97fb52b14ce264b7465b9c2206ddeee1b0e74ea0573ec065daa0b27`
+- `test:fb885b38288d5479721d88c2d50bcc22a6584b372483c43f38cf62613302dc66`
 
 Tags:
 - `lightweight-judgment`

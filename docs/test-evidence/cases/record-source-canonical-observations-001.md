@@ -1,7 +1,7 @@
 ### Case RECORD-SOURCE-CANONICAL-OBSERVATIONS-001: 每次安全读取独立确认 canonical 命名空间
 
 Tests:
-- `test:2447366f6989a7c2be95b6d9d9bf96acf77fb382ae77fc434727019843f53630`
+- `test:7a5b025254e48467033c79b3ab3b14e48b5ec005e2b5e8f941113fec1158eecd`
 
 Tags:
 - `record-operations`

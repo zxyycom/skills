@@ -173,7 +173,7 @@ test("relation filters project full matching edges from the same query snapshot"
   );
 });
 
-test("relation-filter evidence preserves complete UTF-16 ordering and CLI preview budgets", () => {
+test("relation-filter evidence preserves stable target ordering and CLI preview budgets", () => {
   const index = investigationIndexFixture([
     { id: "alpha" },
     { id: "bravo" },

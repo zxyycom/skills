@@ -75,7 +75,7 @@ test(
 );
 
 test(
-  "restores the original range after a pending write failure",
+  "preserves the original range and sanitized diagnostics after a pending prewrite failure",
   gitTestOptions,
   async () => {
     await withTempRoot(async (tempRoot) => {

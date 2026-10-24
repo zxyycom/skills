@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-STAGE-CONFLICT-001: 同索引既有 Pending 被拒绝并原样保留
 
 Tests:
-- `test:f3b1110c73debadbd2d84ffd038d1ab62f42bde9b514c6257d16d2c87abd0fa5`
+- `test:03665cf20e92fb6f3d3046ad07343fc7c5c6ff142491a34b29db0507c1c54f1d`
 
 Tags:
 - `test-evidence`

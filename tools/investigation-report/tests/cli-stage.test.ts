@@ -221,6 +221,11 @@ test("CLI stage --scope domain stages report Markdown and owner resources withou
     await writeCollection(root, [
       { id: "report", resources: ["report/evidence.txt"], title: "Changed" }
     ]);
+    await fs.writeFile(
+      path.join(resourceDirectory, "evidence.txt"),
+      "changed evidence\n",
+      "utf8"
+    );
     const result = await runInvestigationCli(root, [
       "stage",
       "--scope",
@@ -231,7 +236,7 @@ test("CLI stage --scope domain stages report Markdown and owner resources withou
     assert.match(result.stdout, /scope: domain/u);
     assert.match(
       result.stdout,
-      /written paths: docs\/investigations\/report\.md/u
+      /written paths: docs\/investigations\/_resources\/report\/evidence\.txt, docs\/investigations\/report\.md/u
     );
     assert.match(
       result.stdout,
@@ -240,6 +245,13 @@ test("CLI stage --scope domain stages report Markdown and owner resources withou
     assert.match(
       git(root, ["diff", "--cached", "--name-only"]),
       /docs\/investigations\/report\.md/u
+    );
+    assert.equal(
+      git(root, [
+        "show",
+        ":docs/investigations/_resources/report/evidence.txt"
+      ]),
+      "changed evidence\n"
     );
     assert.equal(
       git(root, [

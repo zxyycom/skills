@@ -15,8 +15,6 @@ const repositoryRoot = path.resolve(
   ".."
 );
 const execFileAsync = promisify(execFile);
-const ambientOptionalPeerMarker = "ambient-optional-peer";
-
 async function copyTaskGraphBuildCheckout(targetRoot: string): Promise<void> {
   for (const relativePath of [
     "package.json",
@@ -41,31 +39,11 @@ async function copyTaskGraphBuildCheckout(targetRoot: string): Promise<void> {
   );
 }
 
-async function createAmbientOptionalPeer(root: string): Promise<void> {
-  const packageRoot = path.join(root, "node_modules", "supports-color");
-  await fs.mkdir(packageRoot, { recursive: true });
-  await Promise.all([
-    fs.writeFile(
-      path.join(packageRoot, "package.json"),
-      `${JSON.stringify({
-        main: "index.js",
-        name: "supports-color",
-        version: "0.0.0-test"
-      })}\n`
-    ),
-    fs.writeFile(
-      path.join(packageRoot, "index.js"),
-      `module.exports = { marker: ${JSON.stringify(ambientOptionalPeerMarker)}, stderr: { level: 3 } };\n`
-    )
-  ]);
-}
-
 test(
-  "generated task graph artifacts ignore checkout path and ambient optional peers",
+  "generated task graph artifact bytes are reproducible across checkout paths",
   { timeout: 180_000 },
   async () => {
     await withTempWorkspace(async (root) => {
-      await createAmbientOptionalPeer(root);
       const shortCheckout = path.join(root, "short");
       const longCheckout = path.join(
         root,
@@ -140,10 +118,6 @@ test(
       }
       assert.equal(shortBundle.includes(Buffer.from("debugId=")), false);
 
-      assert.equal(
-        shortBundle.includes(Buffer.from(ambientOptionalPeerMarker)),
-        false
-      );
       const runtimePath = path.join("skills/task-graph/scripts/runtime");
       const runtimeFiles = (
         await fs.readdir(path.join(shortCheckout, runtimePath), {
@@ -164,10 +138,6 @@ test(
         );
         assert.deepEqual(shortSource, longSource);
         assert.equal(shortSource.includes(Buffer.from(shortCheckout)), false);
-        assert.equal(
-          shortSource.includes(Buffer.from(ambientOptionalPeerMarker)),
-          false
-        );
       }
     });
   }

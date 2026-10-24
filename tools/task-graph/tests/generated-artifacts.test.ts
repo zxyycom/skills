@@ -130,7 +130,7 @@ test("generated CLI task list text and JSON modes match source", async () => {
   });
 });
 
-test("generated module import is side-effect free in an empty tool home under supported Node", async () => {
+test("generated module import keeps stdout and stderr empty without creating the tool home under supported Node", async () => {
   await withTempWorkspace(async (root) => {
     const toolHome = path.join(root, "empty-tool-home");
     const imported = await execFileAsync(
@@ -287,8 +287,14 @@ test("distributed task-graph tree contains no native runtime or install artifact
     if (directory === undefined) break;
     for (const entry of await fs.readdir(directory, { withFileTypes: true })) {
       const target = path.join(directory, entry.name);
-      if (entry.isDirectory()) pending.push(target);
-      else files.push(path.relative(skillRoot, target).replaceAll("\\", "/"));
+      if (entry.isDirectory()) {
+        const relative = path.relative(skillRoot, target).replaceAll("\\", "/");
+        assert.notEqual(relative, "references/runtime");
+        assert.notEqual(entry.name, "node_modules");
+        assert.notEqual(entry.name, "npm-cache");
+        assert.equal(entry.name.startsWith(".install-"), false);
+        pending.push(target);
+      } else files.push(path.relative(skillRoot, target).replaceAll("\\", "/"));
     }
   }
   assert.ok(files.every((name) => !name.startsWith("references/runtime/")));

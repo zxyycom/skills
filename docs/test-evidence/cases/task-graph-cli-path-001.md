@@ -1,7 +1,7 @@
-### Case TASK-GRAPH-CLI-PATH-001: 路径失败返回 exit 1、单个 LF JSON 且 stderr 为空
+### Case TASK-GRAPH-CLI-PATH-001: 路径失败映射 JSON 退出码一
 
 Tests:
-- `test:f3600694876855f568e566464ab796057a157901ea178e998d61dcb7bb629f40`
+- `test:4ffa68ba8f380643a83d7ae522ef98b9966104f0ad9c3e4eb153868e38a71747`
 
 Tags:
 - `task-graph`
@@ -10,4 +10,4 @@ Contract:
 - 源码 CLI 入口中的路径读取失败仍属于协议内错误，不泄漏原始异常到 stderr 或启动级退出码。
 
 Proves:
-- 普通文件 root 返回 exit 1、单个 LF JSON 且 stderr 为空，并保留稳定路径错误 code。
+- callRawCli 的路径失败返回预期 JSON 错误与 exitCode=1；未把该 seam 未观察的 stderr 当作证据。

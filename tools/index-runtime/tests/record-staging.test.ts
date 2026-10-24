@@ -24,11 +24,15 @@ import {
 } from "./staging-fixture.ts";
 import { resultValue } from "./support.ts";
 
-for (const scope of ["index", "all", "domain"]) {
+for (const scope of ["index", "all"]) {
   test(`record stage ${scope} reuses immutable deterministic target after two fresh acquisitions`, async () => {
     await exerciseRecordStage(scope, false);
   });
 }
+
+test("record stage domain skips index projection after two fresh acquisitions", async () => {
+  await exerciseRecordStage("domain", false);
+});
 
 for (const scope of ["index", "all", "domain"]) {
   test(`record stage ${scope} reads selected payload and preserves unselected pending identities and deletion`, async () => {

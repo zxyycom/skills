@@ -5,7 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { baseGateCheckIds, prepareGateActivation } from "./impact.ts";
 
-test("non-repository fallback executes the complete base catalog", async () => {
+test("non-repository fallback selects all receipt-managed base checks", async () => {
   const nonRepository = await fs.mkdtemp(
     path.join(os.tmpdir(), "skills-gate-no-git-")
   );

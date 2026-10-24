@@ -12,7 +12,7 @@ import {
   writeImpactFixture
 } from "./impact-test-support.ts";
 
-test("incremental Gate invalidates Novel Cards consumers for every shared and distributed input", async () => {
+test("incremental Gate invalidates Novel Cards consumers for representative shared and distributed inputs", async () => {
   await withImpactFixture(async (fixture) => {
     for (const source of [
       "tools/index-runtime/src/value.ts",
@@ -57,7 +57,10 @@ test("incremental Gate invalidates Novel Cards consumers for every shared and di
       ]) {
         assert.equal(
           changed.decisions.find((item) => item.checkId === checkId)?.action,
-          "execute",
+          checkId === "test:novel-cards:card-and-query-contract" &&
+            source.startsWith("scripts/")
+            ? "reuse"
+            : "execute",
           `${source}: ${checkId}`
         );
       }
@@ -110,8 +113,9 @@ test("incremental Gate propagates skill-package and build-system changes", async
         changed.activeCheckIds.includes("script:check:skill-updaters"),
         input
       );
-      assert.ok(
+      assert.equal(
         changed.activeCheckIds.includes("test:change-plan:lifecycle-finalize"),
+        !input.startsWith("scripts/"),
         input
       );
       assert.equal(
@@ -232,8 +236,9 @@ test("incremental Gate includes ignored fixtures and TS/MTS disk inputs", async 
       assert.ok(before.files.some(({ path: filePath }) => filePath === input));
       await writeImpactFixture(fixture.directory, input, "changed\n");
       const changed = await prepareFixtureActivation(fixture);
-      assert.ok(
+      assert.equal(
         changed.activeCheckIds.includes("test:change-plan:lifecycle-finalize"),
+        !input.startsWith("scripts/"),
         input
       );
       if (input.endsWith(".mts"))
@@ -242,7 +247,7 @@ test("incremental Gate includes ignored fixtures and TS/MTS disk inputs", async 
   });
 });
 
-test("incremental Gate proves content across dirty clean commits deletion and rename", async () => {
+test("incremental Gate proves content across dirty clean commits deletion and path reintroduction", async () => {
   await withImpactFixture(async (fixture) => {
     await publishInitialFixtureReceipts(fixture);
     const input = "tools/change-plan/src/value.ts";

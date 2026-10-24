@@ -24,7 +24,7 @@ test("incremental Gate reuses only exact successful receipts", async () => {
   await withImpactFixture(async (fixture) => {
     assert.deepEqual(validateBaseGateImpactContracts(), []);
     assert.ok(baseGateCheckIds.includes("markdown-lint"));
-    assert.equal(baseGateCheckIds.length, 56);
+    assert.equal(baseGateCheckIds.length, 58);
     assert.ok(!baseGateCheckIds.includes("markdown-link-validation"));
     assert.ok(!baseGateCheckIds.includes("environment"));
     await publishInitialFixtureReceipts(fixture);
@@ -57,11 +57,10 @@ test("incremental Gate reuses only exact successful receipts", async () => {
     );
     // A shared tool activates every subscriber, even an exact-proof subscriber.
     const sharedTrigger = await prepareFixtureActivation(fixture);
-    assert.deepEqual(sharedTrigger.activeToolIds, ["repository-code"]);
+    assert.deepEqual(sharedTrigger.activeToolIds, ["typescript-program"]);
     assert.deepEqual(sharedTrigger.activeCheckIds, [
       "script:typecheck",
-      "script:lint",
-      "script:format:check"
+      "script:lint"
     ]);
     assert.equal(
       sharedTrigger.decisions.find(({ checkId }) => checkId === "script:lint")
@@ -127,7 +126,7 @@ test("incremental Gate rejects incomplete or inconsistent tool components despit
       { unrelated: "0".repeat(64) },
       {},
       { ...original.toolFingerprints, unrelated: "0".repeat(64) },
-      { "repository-code": "0".repeat(64) }
+      { "typescript-program": "0".repeat(64) }
     ];
     for (const toolFingerprints of components) {
       await writeReceiptManifest(
@@ -144,7 +143,7 @@ test("incremental Gate rejects incomplete or inconsistent tool components despit
           ?.action,
         "execute"
       );
-      assert.ok(plan.activeToolIds.includes("repository-code"));
+      assert.ok(plan.activeToolIds.includes("typescript-program"));
     }
   });
 });

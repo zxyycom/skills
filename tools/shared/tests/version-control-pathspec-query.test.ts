@@ -11,6 +11,7 @@ import {
   withTempRoot
 } from "./version-control-test-support.ts";
 import { mock } from "node:test";
+import { createGitClient } from "../src/version-control/git-command.ts";
 import { readRevisionFilePrefixes } from "../src/version-control/revision-file-prefixes.ts";
 import {
   gitPathspecBatches,
@@ -157,34 +158,33 @@ test(
   "Git path-query merging preserves within-batch duplicate records",
   gitTestOptions,
   async () => {
-    await withTempRoot(async (tempRoot) => {
-      const { repositoryRoot } = await createRepositoryFixture(tempRoot);
-      const context = gitContextForRepository(
-        await openVersionControl(repositoryRoot)
+    const context = {
+      rootDirectory: process.cwd(),
+      hooks: {},
+      git: createGitClient(process.cwd())
+    };
+    let calls = 0;
+    const raw = mock.method(context.git, "raw", async () =>
+      ++calls === 1 ? "same\0first\0" : "same\0same\0other\0"
+    );
+    try {
+      const result = await queryGitPathspecs(
+        context,
+        ["ls-files", "-z", "--"],
+        largeScopes()
       );
-      let calls = 0;
-      const raw = mock.method(context.git, "raw", async () =>
-        ++calls === 1 ? "same\0first\0" : "same\0same\0other\0"
+      assert.ok(calls > 1);
+      assert.equal(
+        result.split("\0").filter((record) => record === "same").length,
+        calls
       );
-      try {
-        const result = await queryGitPathspecs(
-          context,
-          ["ls-files", "-z", "--"],
-          largeScopes()
-        );
-        assert.ok(calls > 1);
-        assert.equal(
-          result.split("\0").filter((record) => record === "same").length,
-          calls
-        );
-        assert.equal(
-          result.split("\0").filter((record) => record === "other").length,
-          1
-        );
-      } finally {
-        raw.mock.restore();
-      }
-    });
+      assert.equal(
+        result.split("\0").filter((record) => record === "other").length,
+        1
+      );
+    } finally {
+      raw.mock.restore();
+    }
   }
 );
 
@@ -192,26 +192,25 @@ test(
   "Git path queries reject later batch failure without partial results",
   gitTestOptions,
   async () => {
-    await withTempRoot(async (tempRoot) => {
-      const { repositoryRoot } = await createRepositoryFixture(tempRoot);
-      const context = gitContextForRepository(
-        await openVersionControl(repositoryRoot)
-      );
-      let calls = 0;
-      const raw = mock.method(context.git, "raw", async () => {
-        if (++calls === 1) return "first\0";
-        throw new Error("later batch failure");
-      });
-      try {
-        await assert.rejects(
-          queryGitPathspecs(context, ["ls-files", "-z", "--"], largeScopes()),
-          /later batch failure/u
-        );
-        assert.equal(calls, 2);
-      } finally {
-        raw.mock.restore();
-      }
+    const context = {
+      rootDirectory: process.cwd(),
+      hooks: {},
+      git: createGitClient(process.cwd())
+    };
+    let calls = 0;
+    const raw = mock.method(context.git, "raw", async () => {
+      if (++calls === 1) return "first\0";
+      throw new Error("later batch failure");
     });
+    try {
+      await assert.rejects(
+        queryGitPathspecs(context, ["ls-files", "-z", "--"], largeScopes()),
+        /later batch failure/u
+      );
+      assert.equal(calls, 2);
+    } finally {
+      raw.mock.restore();
+    }
   }
 );
 

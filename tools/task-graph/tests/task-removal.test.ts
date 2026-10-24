@@ -142,7 +142,7 @@ test("bulk task removal is atomic, explicit, and preserves monotonic allocation"
   );
 });
 
-test("CLI exposes batch task removal and no scope command", async () => {
+test("CLI help discovers task removal and rejects the removed scope command", async () => {
   await withTempWorkspace(async (root) => {
     const helpChunks: string[] = [];
     const helpExit = await runTaskGraphCli(["--root", root, "--help"], {

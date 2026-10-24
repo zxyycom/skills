@@ -131,7 +131,7 @@ test("record search reports complete zero hits and validates effective budgets",
   });
 });
 
-test("record search preserves required reads resource failures and cancellation after display exhaustion", async () => {
+test("record search preserves required reads and resource failures after display exhaustion", async () => {
   await withFixture(
     { "a.md": "needle", "b.md": new Uint8Array([255]) },
     async (root) => {
@@ -148,14 +148,6 @@ test("record search preserves required reads resource failures and cancellation 
         (error: unknown) =>
           error instanceof FileTextSearchError &&
           error.code === "resource-limit"
-      );
-      await assert.rejects(
-        searchRecordText({
-          ...recordRequest(root, 2),
-          signal: AbortSignal.abort()
-        }),
-        (error: unknown) =>
-          error instanceof FileTextSearchError && error.code === "aborted"
       );
     }
   );
@@ -226,5 +218,24 @@ test("record search rejects candidate overflow before source validation or reads
       { code: "resource-limit" }
     );
     assert.equal(validated, false);
+  });
+});
+
+test("record search observes cancellation after an earlier hit exhausts the display budget", async () => {
+  await withFixture({ "a.md": "needle", "b.md": "needle" }, async (root) => {
+    const controller = new AbortController();
+    const validated: string[] = [];
+    await assert.rejects(
+      searchRecordText(
+        { ...recordRequest(root, 2, 1), signal: controller.signal },
+        (source) => {
+          validated.push(source.sourcePath);
+          if (source.sourcePath === "b.md") controller.abort();
+        }
+      ),
+      (error: unknown) =>
+        error instanceof FileTextSearchError && error.code === "aborted"
+    );
+    assert.deepEqual(validated, ["a.md", "b.md"]);
   });
 });

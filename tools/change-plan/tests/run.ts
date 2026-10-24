@@ -11,3 +11,4 @@ await import("./metadata.test.ts");
 await import("./repository-boundary.test.ts");
 
 await import("./source-distribution.test.ts");
+await import("./repository-command.test.ts");

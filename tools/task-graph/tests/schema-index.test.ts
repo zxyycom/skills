@@ -70,7 +70,9 @@ test("strict schema rejects unknown fields, illegal state unions, and duplicate 
       }),
     "REQUEST_INVALID"
   );
+});
 
+test("task graph error details preserve boolean JSON values in a prototype-free record", () => {
   const error = new TaskGraphError("ARGUMENT_INVALID", "boolean details", {
     accepted: true,
     rejected: false
@@ -97,6 +99,8 @@ test("canonical serialization keeps root task identity, sorting, LF, and round t
     zebra: "last",
     alpha: "first"
   };
+
+  index.tasks = Object.fromEntries(Object.entries(index.tasks).reverse());
 
   const text = serializeTaskIndex(index);
   assert.equal(text.endsWith("\n"), true);

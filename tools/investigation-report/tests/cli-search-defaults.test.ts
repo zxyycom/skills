@@ -48,6 +48,11 @@ test("CLI search defaults to content and distinguishes metadata output", async (
     assert.equal(defaultContent.status, 0, defaultContent.stderr);
     assert.equal(explicitContent.status, 0, explicitContent.stderr);
     assert.equal(defaultContent.stdout, explicitContent.stdout);
+    assert.match(
+      defaultContent.stdout,
+      /Source: kind=published-index\+current-text/u
+    );
+    assert.match(defaultContent.stdout, /^  \d+: .*Current indexed evidence/mu);
     assert.equal(metadata.status, 0, metadata.stderr);
     assert.match(metadata.stdout, /matchedFields: question/u);
     assert.doesNotMatch(metadata.stdout, /^  \d+: /mu);

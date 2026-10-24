@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-STAGE-EMPTY-001: 删除全部 Case 可形成合法空目标
 
 Tests:
-- `test:e7e84d2636a2ad9742ff612fbf3e712eb8ddd2956926c85f55fb408078c1f583`
+- `test:3fa6c46a0e760f773083b335c253d49ccc4917cae627074824214bd2bbe46a0e`
 
 Tags:
 - `test-evidence`

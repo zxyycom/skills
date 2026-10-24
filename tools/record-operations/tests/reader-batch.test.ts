@@ -19,7 +19,6 @@ import {
 } from "../src/transaction-snapshot.ts";
 import { readRecordFileSnapshotSync } from "../src/reader-sync.ts";
 import { RecordVerificationPhase } from "../src/transaction-verification.ts";
-import { readDecisionSourceRevision } from "../../decision-records/src/decision-index-source.ts";
 
 test("record worker batch preserves ordered text and complete root-bound snapshots", async () => {
   await fixture(async (root) => {
@@ -199,44 +198,6 @@ test("record worker batch preserves missing unsafe-path and strict UTF-8 failure
         assert.ok(result.error instanceof TypeError);
     });
     assert.equal(snapshotCount, allSnapshotPaths.length);
-  });
-});
-
-test("Decision large discovery retains its first worker failure without a later regular-file probe", async () => {
-  await fixture(async (root) => {
-    const unsafe = path.join(root, "000-bad.md");
-    await fs.symlink(path.join(root, "a.md"), unsafe);
-    for (let index = 0; index < recordReaderWorkerThreshold; index++)
-      fsSync.writeFileSync(
-        path.join(root, `source-${index}.md`),
-        `---\nid: 261024-source-${index}\nstatus: candidate\n---\n`
-      );
-    const lstat = fs.lstat;
-    const later = Object.assign(
-      new Error("later probe must not replace acquisition failure"),
-      { code: "EACCES" }
-    );
-    let probes = 0;
-    Object.defineProperty(fs, "lstat", {
-      configurable: true,
-      value: async (...args: Parameters<typeof fs.lstat>) => {
-        if (args[0] === unsafe) {
-          probes++;
-          throw later;
-        }
-        return await lstat(...args);
-      }
-    });
-    try {
-      await assert.rejects(
-        readDecisionSourceRevision(root, undefined),
-        /without symbolic links/
-      );
-      assert.equal(probes, 0);
-    } finally {
-      fs.lstat = lstat;
-    }
-    assert.equal(await fs.readlink(unsafe), path.join(root, "a.md"));
   });
 });
 

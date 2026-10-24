@@ -3,7 +3,7 @@ import test from "node:test";
 import { stageTestEvidenceIndex, syncTestEvidenceIndex } from "../src/core.ts";
 import { commitFixture, exec, fixture, fs, path } from "./core-test-support.ts";
 
-test("stage validates selection before Git and preserves an existing pending index", async () => {
+test("stage validates selection before consulting Git or creating an index", async () => {
   const root = await fixture();
   const invalid = await stageTestEvidenceIndex({
     workspaceRoot: root,
@@ -19,7 +19,9 @@ test("stage validates selection before Git and preserves an existing pending ind
   await assert.rejects(
     fs.lstat(path.join(root, "docs/test-evidence/test-evidence-index.json"))
   );
+});
 
+test("stage preserves an existing conflicting pending index", async () => {
   const stagedRoot = await commitFixture();
   await fs.appendFile(
     path.join(stagedRoot, "docs/test-evidence/cases/access.md"),
@@ -75,7 +77,7 @@ test("stage overlays only selected Case revisions onto the Git baseline", async 
   );
 });
 
-test("stage supports bootstrap, unchanged selections, missing IDs, and an empty target", async () => {
+test("stage bootstraps a missing HEAD index with only selected Cases", async () => {
   const bootstrap = await commitFixture(false);
   await syncTestEvidenceIndex({ workspaceRoot: bootstrap, mode: "write" });
   const bootstrapped = await stageTestEvidenceIndex({
@@ -97,13 +99,10 @@ test("stage supports bootstrap, unchanged selections, missing IDs, and an empty 
     ),
     ["AUTH-ROLE-ACCESS-001"]
   );
+});
 
+test("stage reports unchanged selection without modifying the Git index", async () => {
   const root = await commitFixture();
-  const indexPath = "docs/test-evidence/test-evidence-index.json";
-  const cachedBefore = await exec("git", ["show", `:${indexPath}`], {
-    cwd: root
-  });
-  const workingBefore = await fs.readFile(path.join(root, indexPath), "utf8");
   const unchanged = await stageTestEvidenceIndex({
     workspaceRoot: root,
     caseIds: ["AUTH-ROLE-ACCESS-001"]
@@ -115,6 +114,15 @@ test("stage supports bootstrap, unchanged selections, missing IDs, and an empty 
       .stdout,
     ""
   );
+});
+
+test("stage rejects missing selected Case IDs without changing working or pending bytes", async () => {
+  const root = await commitFixture();
+  const indexPath = "docs/test-evidence/test-evidence-index.json";
+  const cachedBefore = await exec("git", ["show", `:${indexPath}`], {
+    cwd: root
+  });
+  const workingBefore = await fs.readFile(path.join(root, indexPath), "utf8");
   const missing = await stageTestEvidenceIndex({
     workspaceRoot: root,
     caseIds: ["AUTH-ROLE-ACCESS-999"]
@@ -133,7 +141,10 @@ test("stage supports bootstrap, unchanged selections, missing IDs, and an empty 
     (await exec("git", ["show", `:${indexPath}`], { cwd: root })).stdout,
     cachedBefore.stdout
   );
+});
 
+test("stage removes all selected Cases from the Git index when the catalog becomes empty", async () => {
+  const root = await commitFixture();
   await fs.rm(path.join(root, "docs/test-evidence/cases/access.md"));
   await fs.rm(path.join(root, "docs/test-evidence/cases/second.md"));
   await syncTestEvidenceIndex({ workspaceRoot: root, mode: "write" });

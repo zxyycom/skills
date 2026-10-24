@@ -43,6 +43,7 @@ test("Investigation candidate rename has a read-only preflight and retains forme
       "utf8"
     );
     assert.match(candidate, /id: "260830-renamed-candidate"/u);
+    assert.match(candidate, /^formedAt: "2026-08-30T01:00:00\+00:00"$/mu);
     await assert.rejects(fs.access(candidatePath));
   });
 });

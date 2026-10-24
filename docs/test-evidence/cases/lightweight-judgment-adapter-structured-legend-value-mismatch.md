@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-ADAPTER-016: 结构化 legend 的数组与值边界
 
 Tests:
-- `test:a47e5cf79d05321c586335162b4f27012dbde415780e2af7d725a7e45a05e82c`
+- `test:293f37a442537dae50a3d6428b788ed0a3e239030b3056e37bf242c38e6f60b5`
 
 Tags:
 - `lightweight-judgment`

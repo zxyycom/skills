@@ -77,7 +77,15 @@ test("search excludes candidates resources and index bytes and rejects a missing
       "resource-only-term",
       "utf8"
     );
-    for (const query of ["candidate-only-term", "resource-only-term"]) {
+    const indexPath = `${directory}/investigation-index.json`;
+    const index = JSON.parse(await fs.readFile(indexPath, "utf8"));
+    index.entries.formal.title = "index-only-term";
+    await fs.writeFile(indexPath, JSON.stringify(index), "utf8");
+    for (const query of [
+      "candidate-only-term",
+      "resource-only-term",
+      "index-only-term"
+    ]) {
       const result = await searchInvestigationReports({
         query,
         workspaceRoot: root
@@ -89,7 +97,6 @@ test("search excludes candidates resources and index bytes and rejects a missing
         returned: 0
       });
     }
-    const indexPath = `${directory}/investigation-index.json`;
     await fs.rm(indexPath);
     const fallback = await searchInvestigationReports({
       query: "当前",

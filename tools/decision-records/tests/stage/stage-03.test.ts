@@ -85,7 +85,7 @@ test("stage applies selected additions modifications and deletions with exact pe
     assert.equal(index.entries[addedId].alignment, "aligned");
   }));
 
-test("stage rejects invalid duplicate and missing paths without changing the pending snapshot", async () => {
+test("stage rejects duplicate IDs and path-shaped selectors before opening a missing workspace", async () => {
   for (const ids of [
     [currentDecisionId, currentDecisionId],
     ["../outside.md"]

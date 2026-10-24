@@ -12,8 +12,7 @@ Contract:
 - 领域输入必须归属于明确工具能力；仓库级扫描覆盖不代替领域归属，工具变化只激活声明订阅者及其必要前置。
 
 Proves:
-- Decision stage、Investigation CLI、query 与 stage fixture 输入变化分别激活对应工具及订阅 Check，无关领域 Check 保持 reuse。
-- Decision 的 source-discovery 与 query-loaded-snapshot 测试按 record/query 能力归属；Investigation 的 candidate-read-context 与 current-index 测试按 record/query 能力归属。四项修改后输入均保持闭合，对应领域订阅 Check 重新执行，无关领域及 markdown-lint 保持复用。
-- Investigation CLI 变化同时重跑消费真实分发 CLI 的 collection-and-resources Check，不复用只适用于旧入口的通过结果。
-- 两领域未声明的源码或测试输入进入 unclassifiedPaths，全部项目 Check 执行且不能发布成功 receipt，原因为 inputs-unclosed。
-- Decision 局部维护、stage 刷新、来源依赖与安全路径模块及对应测试/共享 fixture 单独变化时均保留闭合增量模式，实际消费者重跑，无关领域与 Markdown 检查复用。
+- Decision stage、Investigation CLI、query 与 stage fixture 运行时沿实际 consumer 选择；同域测试字节只激活所属测试 Check，不使 live collection checks 因 sibling 测试变化失效。
+- Decision source-discovery/query-loaded-snapshot 与 IR candidate-read-context/current-index 的测试能力保持闭合并重跑所属 consumer，无关领域及 markdown-lint 复用。
+- IR CLI 运行时覆盖真实 source/分发消费者；DR 当前实际使用 source CLI 的 record consumer 保守包含 CLI/query/maintenance/stage/shared-search 闭包，不把这种接线当成分发消费。
+- 两领域未声明源码或测试进入 unclassifiedPaths，fallback 且不能发布成功 receipt；局部 operation/source safety runtime 与测试/helpers 分别传播到矩阵声明的真实订阅者。

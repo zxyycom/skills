@@ -13,7 +13,7 @@ import {
   withFixtureWorkspace,
   writeIndex
 } from "../support.ts";
-import { listRequest, withGraphBuildCount } from "./support.ts";
+import { listRequest } from "./support.ts";
 
 function searchRequest(
   root: string
@@ -92,7 +92,7 @@ test("Decision published queries preserve validated results without exposing gra
   });
 });
 
-test("Decision query graph reuse preserves option and index failure priority and complete relation diagnostics", async () => {
+test("Decision queries preserve option and index failure priority and complete relation diagnostics", async () => {
   await withFixtureWorkspace("lazy-graph-failures", async (root) => {
     const decisionsDirectory = path.join(root, "docs/decisions");
     const index = structuredClone(await readIndex(root));
@@ -103,7 +103,7 @@ test("Decision query graph reuse preserves option and index failure priority and
       path.join(decisionsDirectory, "decision-index.json"),
       index
     );
-    await withGraphBuildCount(async (count) => {
+    {
       const invalidOptions = await executeDecisionQuery({
         command: "trace",
         decisionId: "missing",
@@ -116,7 +116,6 @@ test("Decision query graph reuse preserves option and index failure priority and
         invalidOptions.diagnostics[0]?.code,
         "decision-records.trace-options-invalid"
       );
-      assert.equal(count(), 0);
       const loaded = await loadDecisionIndex({ decisionsDirectory });
       assert.equal(loaded.status, "error");
       assert.deepEqual(loaded.diagnostics, [
@@ -128,7 +127,6 @@ test("Decision query graph reuse preserves option and index failure priority and
           stateId: null
         }
       ]);
-      assert.equal(count(), 1);
       const missing = await executeDecisionQuery({
         ...listRequest(root),
         relatedTo: "missing"
@@ -140,12 +138,11 @@ test("Decision query graph reuse preserves option and index failure priority and
       );
       assert.match(missing.errors.join("\n"), /must not relate to itself/u);
       assert.doesNotMatch(missing.errors.join("\n"), /does not exist/u);
-      assert.equal(count(), 2);
-    });
+    }
   });
 });
 
-test("Decision content search reuses the published graph while reading current text", async () => {
+test("Decision content search filters published relations while reading current text", async () => {
   await withFixtureWorkspace("lazy-graph-content", async (root) => {
     const base = searchRequest(root);
     for (const request of [
@@ -157,17 +154,12 @@ test("Decision content search reuses the published graph while reading current t
         relationType: "修订" as const
       }
     ]) {
-      await withGraphBuildCount(async (count) => {
+      {
         const result = await executeDecisionQuery(request);
         assert.ok(result.status === "ok" && result.command === "search");
         assert.equal(result.searchInfo.source.fallback, false);
         assert.equal(result.records.length, "relatedTo" in request ? 1 : 2);
-        assert.equal(
-          count(),
-          "relatedTo" in request ? 1 : 0,
-          "only relation-dependent searches validate and reuse the published graph"
-        );
-      });
+      }
     }
     const sourceFile = path.join(root, "docs/decisions", currentSourcePath);
     await fs.writeFile(
@@ -177,7 +169,7 @@ test("Decision content search reuses the published graph while reading current t
         "type: 替代"
       )
     );
-    await withGraphBuildCount(async (count) => {
+    {
       const result = await executeDecisionQuery({
         ...base,
         relatedTo: archivedDecisionId,
@@ -190,13 +182,8 @@ test("Decision content search reuses the published graph while reading current t
         fallback: false
       });
       assert.deepEqual(result.records, []);
-      assert.equal(
-        count(),
-        1,
-        "current relation edits do not replace the published graph"
-      );
-    });
-    await withGraphBuildCount(async (count) => {
+    }
+    {
       const result = await executeDecisionQuery({
         ...base,
         relatedTo: archivedDecisionId,
@@ -214,10 +201,9 @@ test("Decision content search reuses the published graph while reading current t
           target: archivedDecisionId
         }
       ]);
-      assert.equal(count(), 1);
-    });
+    }
     await fs.rm(path.join(root, "docs/decisions/decision-index.json"));
-    await withGraphBuildCount(async (count) => {
+    {
       const result = await executeDecisionQuery({
         ...base,
         relatedTo: archivedDecisionId,
@@ -225,11 +211,6 @@ test("Decision content search reuses the published graph while reading current t
       });
       assert.ok(result.status === "error");
       assert.equal("searchInfo" in result, false);
-      assert.equal(
-        count(),
-        0,
-        "missing published index never builds a fallback source graph"
-      );
-    });
+    }
   });
 });

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-LAZY-SELECTOR-001: 缺失与歧义选择器在构图前返回诊断
 
 Tests:
-- `test:a229dda3f3f5f23b67341c2bb2a6148f4594d4c2d5cf3f80ead1d47c3d63b0d4`
+- `test:1bc49ff1f0edf000e54b2884f2a9c038296a600d56955e67fb0e3d9f3d995909`
 
 Tags:
 - `investigation-report`
@@ -10,4 +10,4 @@ Contract:
 - 未知或歧义 selector 必须保留原错误语义，并在图构建之前失败。
 
 Proves:
-- 关系筛选与完整 trace 投影入口对缺失或歧义名称给出一致错误，原始 relations 图投影次数保持为零。
+- missing 与歧义 same selector 在筛选/trace 入口给出一致错误，显式 graph provider 的调用数为零。

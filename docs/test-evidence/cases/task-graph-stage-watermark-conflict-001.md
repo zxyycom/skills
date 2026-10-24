@@ -1,13 +1,13 @@
-### Case TASK-GRAPH-STAGE-WATERMARK-CONFLICT-001: 工作区根水位回退时拒绝暂存
+### Case TASK-GRAPH-STAGE-WATERMARK-CONFLICT-001: 工作区 revision 回退不改 pending
 
 Tests:
-- `test:fbdb718fe87ca3e42bade88a8aba1cffd5a046f735bc15c6124492197a8cb5fe`
+- `test:cbdee5c1661865c13c9641651beb6ec3acca4e53fad29ca4c644ca12beb91d35`
 
 Tags:
 - `task-graph`
 
 Contract:
-- 候选工作区的根级 revision 或 nextTaskId 不得相对 Git HEAD 基线回退；冲突必须在 pending 写入前拒绝。
+- 工作区 revision 不能低于暂存基线；回退失败保留已有 pending 内容。
 
 Proves:
-- 候选 revision 小于 HEAD 时返回可重试 `REVISION_CONFLICT`，诊断同时给出基线与工作区 revision，且 pending 保持无变化。
+- 降低 workspace revision 后 stage 返回冲突，pending 字节不变；不将单 revision 样本称为多 watermark 覆盖。

@@ -122,6 +122,8 @@ test("Investigation rename fresh proof rejects resource mode and inode drift wit
           "evidence.txt"
         );
         const source = await fs.readFile(path.join(root, "legacy.md"));
+        const index = path.join(root, "investigation-index.json");
+        const beforeIndex = await fs.readFile(index);
         let winnerInode = 0;
         const result = await renameInvestigationRecordWithHooks(
           { source: "legacy", target: "migrated", workspaceRoot },
@@ -139,6 +141,7 @@ test("Investigation rename fresh proof rejects resource mode and inode drift wit
         );
         assert.equal(result.status, "error");
         assert.equal(result.changed, false);
+        assert.deepEqual(await fs.readFile(index), beforeIndex);
         assert.equal((await fs.stat(resource)).ino, winnerInode);
         if (drift === "mode")
           assert.equal((await fs.stat(resource)).mode & 0o7777, 0o600);

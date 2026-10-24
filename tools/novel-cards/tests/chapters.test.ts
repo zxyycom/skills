@@ -79,7 +79,7 @@ test("repeated chapter titles and cross-scope numbers return candidates without 
   });
 });
 
-test("renaming and renumbering chapters preserve stable IDs with a usable unique ID generator", async () => {
+test("renaming and renumbering chapters preserve stable IDs and new-id returns one usable ID", async () => {
   await project(async (root) => {
     await put(root, "book", markdown("book", { kind: "summary" }));
     await put(

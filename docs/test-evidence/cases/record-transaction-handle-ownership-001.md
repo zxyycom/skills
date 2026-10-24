@@ -1,8 +1,7 @@
 ### Case RECORD-TRANSACTION-HANDLE-OWNERSHIP-001: 共同恢复只认领实际写handle身份
 
 Tests:
-- `test:191a8b6f7402a6dd92d5c4638d32de3b1cfbf34e7bc68f57c9d3a3fa8df9f77e`
-- `test:e67c1149be031f1570aa629bc425858b7dfe8f910fa5318b461bea4aa752110b`
+- `test:6087baa4fe9ec092ea96ce76452c7198d637a06449cf874396367ff5828cda0e`
 
 Tags:
 - `decision-records`

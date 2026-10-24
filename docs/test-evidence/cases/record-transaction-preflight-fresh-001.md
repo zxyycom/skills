@@ -1,8 +1,7 @@
 ### Case RECORD-TRANSACTION-PREFLIGHT-FRESH-001: 共同预检零锁且 unchanged 仍核对 fresh
 
 Tests:
-- `test:445f6f32453937cd7b3cceabea8a573d0af2a4af1f7c80e493fc701ebec9bdb6`
-- `test:fa7432df11978a981230186b94750247c4093986ef6fed117ed1356599a2e902`
+- `test:f09f1728b2c011b3769fd88c65b2a0fa22fb0cfb370ddd4dc53ea112d4a00d34`
 
 Tags:
 - `decision-records`

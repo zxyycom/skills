@@ -19,3 +19,6 @@ await import("../cli-stage-resource-failure.test.ts");
 await import("../cli-search-summary.test.ts");
 
 await import("../cli-search-defaults.test.ts");
+await import("../discovery-dependencies.test.ts");
+await import("../candidate-operations.test.ts");
+await import("../result-integrity.test.ts");

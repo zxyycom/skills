@@ -11,6 +11,7 @@ type MetricToolMode = "missing" | "mismatch" | "probe-failure" | "ready";
 
 type FakeToolOptions = Readonly<{
   bunVersion?: string;
+  commandLogPath?: string;
   nodeVersion?: string;
   scc?: MetricToolMode;
 }>;
@@ -31,7 +32,8 @@ export async function createFakeToolPath(
       tools,
       metricTools,
       bunVersion,
-      nodeVersion
+      nodeVersion,
+      options.commandLogPath
     );
   } else {
     await createPosixFakeTools(
@@ -39,7 +41,8 @@ export async function createFakeToolPath(
       tools,
       metricTools,
       bunVersion,
-      nodeVersion
+      nodeVersion,
+      options.commandLogPath
     );
   }
   return bin;
@@ -51,6 +54,9 @@ function availableFakeTools(metricTools: { scc: MetricToolMode }): string[] {
     "bun",
     "pnpm",
     "codegraph",
+    "npm",
+    "corepack",
+    "go",
     ...(metricTools.scc === "missing" ? [] : ["scc"])
   ];
 }
@@ -60,12 +66,18 @@ async function createWindowsFakeTools(
   tools: readonly string[],
   metricTools: { scc: MetricToolMode },
   bunVersion: string,
-  nodeVersion: string
+  nodeVersion: string,
+  commandLogPath?: string
 ): Promise<void> {
   const dispatcherPath = path.join(bin, "fake-tool.mjs");
   await fs.writeFile(
     dispatcherPath,
-    windowsFakeToolDispatcher(metricTools, bunVersion, nodeVersion),
+    windowsFakeToolDispatcher(
+      metricTools,
+      bunVersion,
+      nodeVersion,
+      commandLogPath
+    ),
     "utf8"
   );
   for (const tool of tools) {
@@ -80,10 +92,15 @@ async function createWindowsFakeTools(
 function windowsFakeToolDispatcher(
   metricTools: { scc: MetricToolMode },
   bunVersion: string,
-  nodeVersion: string
+  nodeVersion: string,
+  commandLogPath?: string
 ): string {
   return [
+    'import fs from "node:fs";',
     "const [tool, command] = process.argv.slice(2);",
+    commandLogPath
+      ? `fs.appendFileSync(${JSON.stringify(commandLogPath)}, tool + ":" + command + "\\n");`
+      : "",
     `if (tool === 'node' && command === '--version') console.log(${JSON.stringify(`v${nodeVersion}`)});`,
     `else if (tool === 'bun' && command === '--version') console.log(${JSON.stringify(bunVersion)});`,
     "else if (tool === 'pnpm' && command === '--version') console.log('11.7.0');",
@@ -107,12 +124,18 @@ async function createPosixFakeTools(
   tools: readonly string[],
   metricTools: { scc: MetricToolMode },
   bunVersion: string,
-  nodeVersion: string
+  nodeVersion: string,
+  commandLogPath?: string
 ): Promise<void> {
   const dispatcherPath = path.join(bin, "fake-tool");
   await writeExecutable(
     dispatcherPath,
-    posixFakeToolDispatcher(metricTools, bunVersion, nodeVersion)
+    posixFakeToolDispatcher(
+      metricTools,
+      bunVersion,
+      nodeVersion,
+      commandLogPath
+    )
   );
   for (const tool of tools) await fs.link(dispatcherPath, path.join(bin, tool));
 }
@@ -120,13 +143,17 @@ async function createPosixFakeTools(
 function posixFakeToolDispatcher(
   metricTools: { scc: MetricToolMode },
   bunVersion: string,
-  nodeVersion: string
+  nodeVersion: string,
+  commandLogPath?: string
 ): string {
   return [
     "#!/bin/sh",
     "tool=${0##*/}",
     "command=$1",
     "shift",
+    commandLogPath
+      ? `printf '%s:%s\\n' "$tool" "$command" >> ${JSON.stringify(commandLogPath)}`
+      : "",
     'case "$tool:$command" in',
     `  node:--version) printf '%s\\n' ${JSON.stringify(`v${nodeVersion}`)} ;;`,
     `  bun:--version) printf '%s\\n' ${JSON.stringify(bunVersion)} ;;`,

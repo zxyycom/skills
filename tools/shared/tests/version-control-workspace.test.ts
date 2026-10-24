@@ -67,49 +67,37 @@ test(
   }
 );
 
-test(
-  "converts absolute descendants to normalized repository paths",
-  gitTestOptions,
-  async () => {
-    await withTempRoot(async (tempRoot) => {
-      const repositoryRoot = path.join(tempRoot, "repository-path");
-      await fs.mkdir(repositoryRoot, { recursive: true });
-      initializeRepository(repositoryRoot);
-      const repository = await openVersionControl(repositoryRoot);
-      assert.equal(
-        repositoryRelativePathFromFileSystemPath(
-          repository.rootDirectory,
-          path.join(repositoryRoot, "nested", "file.md")
-        ),
+test("converts absolute descendants to normalized repository paths", () => {
+  const repositoryRoot = path.resolve("repository-path");
+  assert.equal(
+    repositoryRelativePathFromFileSystemPath(
+      repositoryRoot,
+      path.join(repositoryRoot, "nested", "file.md")
+    ),
+    "nested/file.md"
+  );
+  assert.throws(
+    () =>
+      repositoryRelativePathFromFileSystemPath(
+        repositoryRoot,
         "nested/file.md"
-      );
-      assert.throws(
-        () =>
-          repositoryRelativePathFromFileSystemPath(
-            repository.rootDirectory,
-            "nested/file.md"
-          ),
-        (error: unknown) => hasVersionControlCode(error, "invalid-path")
-      );
-      assert.throws(
-        () =>
-          repositoryRelativePathFromFileSystemPath(
-            repository.rootDirectory,
-            repositoryRoot
-          ),
-        (error: unknown) => hasVersionControlCode(error, "invalid-path")
-      );
-      assert.throws(
-        () =>
-          repositoryRelativePathFromFileSystemPath(
-            repository.rootDirectory,
-            path.join(repositoryRoot, "..", "outside.md")
-          ),
-        (error: unknown) => hasVersionControlCode(error, "invalid-path")
-      );
-    });
-  }
-);
+      ),
+    (error: unknown) => hasVersionControlCode(error, "invalid-path")
+  );
+  assert.throws(
+    () =>
+      repositoryRelativePathFromFileSystemPath(repositoryRoot, repositoryRoot),
+    (error: unknown) => hasVersionControlCode(error, "invalid-path")
+  );
+  assert.throws(
+    () =>
+      repositoryRelativePathFromFileSystemPath(
+        repositoryRoot,
+        path.join(repositoryRoot, "..", "outside.md")
+      ),
+    (error: unknown) => hasVersionControlCode(error, "invalid-path")
+  );
+});
 
 test(
   "reads pending index content separately from workspace state",

@@ -234,8 +234,12 @@ test("Investigation rename migrates a legacy ID while retaining an unchanged sou
       /target: "260828-legacy"/u
     );
     await assert.rejects(fs.access(oldOwner));
-    await fs.access(
-      path.join(root, "_resources", "260828-legacy", "evidence.txt")
+    assert.equal(
+      await fs.readFile(
+        path.join(root, "_resources", "260828-legacy", "evidence.txt"),
+        "utf8"
+      ),
+      "evidence\n"
     );
     const index = JSON.parse(
       await fs.readFile(path.join(root, "investigation-index.json"), "utf8")

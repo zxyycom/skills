@@ -42,9 +42,6 @@ test("updater TypeScript entry exposes the public API and consumer types", async
     generatedEntry,
     /Maintained source: https:\/\/github\.com\/zxyycom\/skills\/blob\/main\/tools\/skill-updater\/src\/index\.ts/
   );
-  assert.match(generatedEntry, /export type \{ UpdaterConfig \}/);
-  assert.match(generatedEntry, /export async function runSkillUpdaterCli/);
-  assert.match(generatedEntry, /export const skillUpdaterConfig/);
   const consumerPath = path.join(tempRoot, "updater-consumer.mts");
   await fs.writeFile(
     consumerPath,

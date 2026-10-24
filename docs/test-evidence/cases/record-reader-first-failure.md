@@ -1,7 +1,7 @@
 ### Case RECORD-READER-FIRST-FAILURE-001: 大集合发现不以晚到探测掩盖首次读取失败
 
 Tests:
-- `test:189c415b3afd21cab3a791b79b0d627cc908e4c6b850ddccaa264e8fdea963e9`
+- `test:0ceadd8dc77d32a5eb5bf5b9a8268fd652bca6fca91467f1c49fa5841f761127`
 
 Tags:
 - `record-operations`

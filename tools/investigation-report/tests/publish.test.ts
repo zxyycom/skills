@@ -122,8 +122,8 @@ test("publish preflight validates complete merge and split candidate batches", a
   });
 });
 
-test("publish preserves candidate resources and rolls renamed candidates back when index publication fails", async () => {
-  await withTempRoot("publish-resource-rollback", async (root) => {
+test("publish restores candidate text and preserves owner resource bytes when index publication fails", async () => {
+  await withTempRoot("publish-resource-protocol", async (root) => {
     await createReadyCandidate(root, "resource-owner.md", {
       id: "resource-owner",
       resources: ["resource-owner/evidence.txt"]
@@ -158,15 +158,40 @@ test("publish preserves candidate resources and rolls renamed candidates back wh
     await assert.rejects(
       fs.access(path.join(investigationRoot(root), "resource-owner.md"))
     );
+  });
+});
 
+test("publish rejects owner resource inode drift before index publication", async () => {
+  await withTempRoot("publish-resource-protocol", async (root) => {
+    await createReadyCandidate(root, "resource-owner.md", {
+      id: "resource-owner",
+      resources: ["resource-owner/evidence.txt"]
+    });
+    const resource = path.join(
+      investigationRoot(root),
+      "_resources",
+      "resource-owner",
+      "evidence.txt"
+    );
+    await fs.mkdir(path.dirname(resource), { recursive: true });
+    await fs.writeFile(resource, "first bytes", "utf8");
+    const initialCandidate = await fs.readFile(
+      candidatePath(root, "resource-owner.md"),
+      "utf8"
+    );
     const replacement = path.join(
       path.dirname(resource),
       "replacement-evidence.txt"
     );
+    let indexWrites = 0;
     const identityDrift = await publishInvestigationCandidatesWithWriter(
       { ids: ["resource-owner.md"], workspaceRoot: root },
-      async () =>
-        assert.fail("index writer must not run after resource identity drift"),
+      async () => {
+        indexWrites += 1;
+        throw new Error(
+          "unexpected index publication after resource identity drift"
+        );
+      },
       async () => {
         await fs.writeFile(replacement, "same bytes", "utf8");
         await fs.rename(replacement, resource);
@@ -177,11 +202,35 @@ test("publish preserves candidate resources and rolls renamed candidates back wh
         error.includes("resources changed identity")
       )
     );
-    await fs.access(candidatePath(root, "resource-owner.md"));
+    assert.equal(indexWrites, 0);
+    assert.equal(
+      await fs.readFile(candidatePath(root, "resource-owner.md"), "utf8"),
+      initialCandidate
+    );
     await assert.rejects(
       fs.access(path.join(investigationRoot(root), "resource-owner.md"))
     );
+  });
+});
 
+test("publish accepts same-inode owner resource byte updates while preserving report text", async () => {
+  await withTempRoot("publish-resource-protocol", async (root) => {
+    await createReadyCandidate(root, "resource-owner.md", {
+      id: "resource-owner",
+      resources: ["resource-owner/evidence.txt"]
+    });
+    const resource = path.join(
+      investigationRoot(root),
+      "_resources",
+      "resource-owner",
+      "evidence.txt"
+    );
+    await fs.mkdir(path.dirname(resource), { recursive: true });
+    await fs.writeFile(resource, "first bytes", "utf8");
+    const initialCandidate = await fs.readFile(
+      candidatePath(root, "resource-owner.md"),
+      "utf8"
+    );
     const published = await publishInvestigationCandidatesWithWriter(
       { ids: ["resource-owner.md"], workspaceRoot: root },
       async (target, text) =>
@@ -200,7 +249,7 @@ test("publish preserves candidate resources and rolls renamed candidates back wh
   });
 });
 
-test("publish rechecks candidate, formal source, and index drift before changing files", async () => {
+test("publish rechecks selected candidate drift before changing files", async () => {
   await withTempRoot("publish-candidate-drift", async (root) => {
     await writeCollection(root, [{ id: "formal" }]);
     await createReadyCandidate(root, "candidate.md");
@@ -228,7 +277,9 @@ test("publish rechecks candidate, formal source, and index drift before changing
       beforeFormal
     );
   });
+});
 
+test("publish rechecks index drift before changing files", async () => {
   await withTempRoot("publish-formal-index-drift", async (root) => {
     await writeCollection(root, [{ id: "formal" }]);
     await createReadyCandidate(root, "candidate.md", {
@@ -236,23 +287,11 @@ test("publish rechecks candidate, formal source, and index drift before changing
       relations: [{ type: "补充", target: "formal" }]
     });
     const candidate = candidatePath(root, "candidate.md");
-    const formal = path.join(investigationRoot(root), "formal.md");
     const index = path.join(
       investigationRoot(root),
       "investigation-index.json"
     );
     const beforeCandidate = await fs.readFile(candidate, "utf8");
-    const formalDrift = await publishInvestigationCandidatesWithWriter(
-      { ids: ["candidate.md"], workspaceRoot: root },
-      async () =>
-        assert.fail("index writer must not run after formal source drift"),
-      async () => await fs.appendFile(formal, "\n", "utf8")
-    );
-    assert.equal(formalDrift.changed, false);
-    assert.ok(formalDrift.errors.length > 0);
-    assert.equal(await fs.readFile(candidate, "utf8"), beforeCandidate);
-    await fs.writeFile(formal, reportMarkdown({ id: "formal" }), "utf8");
-
     const beforeIndex = await fs.readFile(index, "utf8");
     const indexDrift = await publishInvestigationCandidatesWithWriter(
       { ids: ["candidate.md"], workspaceRoot: root },
@@ -263,6 +302,43 @@ test("publish rechecks candidate, formal source, and index drift before changing
     assert.ok(indexDrift.errors.length > 0);
     assert.equal(await fs.readFile(candidate, "utf8"), beforeCandidate);
     assert.equal(await fs.readFile(index, "utf8"), `${beforeIndex}\n`);
+  });
+});
+
+test("publish accepts unselected dependency body drift while preserving its current bytes", async () => {
+  await withTempRoot("publish-dependency-body-drift", async (root) => {
+    await writeCollection(root, [{ id: "formal" }]);
+    await createReadyCandidate(root, "candidate.md", {
+      id: "candidate",
+      relations: [{ type: "补充", target: "formal" }]
+    });
+    const formal = path.join(investigationRoot(root), "formal.md");
+    const before = await fs.readFile(formal, "utf8");
+    const published = await publishInvestigationCandidatesWithWriter(
+      { ids: ["candidate.md"], workspaceRoot: root },
+      async (target, text) => await fs.writeFile(target, text, "utf8"),
+      async () => await fs.appendFile(formal, "\n", "utf8")
+    );
+    assert.deepEqual(published.errors, []);
+    assert.equal(published.changed, true);
+    assert.equal(await fs.readFile(formal, "utf8"), before + "\n");
+    const index = JSON.parse(
+      await fs.readFile(
+        path.join(investigationRoot(root), "investigation-index.json"),
+        "utf8"
+      )
+    );
+    assert.deepEqual(index.entries.candidate.relations, [
+      { type: "补充", target: "formal" }
+    ]);
+    assert.match(
+      await fs.readFile(
+        path.join(investigationRoot(root), "candidate.md"),
+        "utf8"
+      ),
+      /id: "candidate"/u
+    );
+    await assert.rejects(fs.access(candidatePath(root, "candidate.md")));
   });
 });
 

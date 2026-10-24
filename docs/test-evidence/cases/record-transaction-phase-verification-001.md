@@ -1,9 +1,9 @@
 ### Case RECORD-TRANSACTION-PHASE-VERIFICATION-001: 同阶段重叠保护只复用完整相同事实
 
 Tests:
-- `test:36eb5b8087e549ea1523d38bdbbd122a797e44563bbe67071eb2d28d86265836`
-- `test:511a05071c83044e739d33672defe3e031db3fb73ef7b3216c47653191b2e3dd`
-- `test:ddb6a5715d4714ee5eebd251f9388eb758225aa57fa60fca99af5ca520dcf410`
+- `test:065dc3941a37e11319e77de56cefb980fb9a4182d30fa633711aa773367dd733`
+- `test:a29b953a0f0cf84cd0bdb7a8b240229c3718185c32db1c0ba31fc2e52ff9d34d`
+- `test:ae199e0990c588fbf239c9c757bf3d79dc62bc194038a0ff5e1b10a345f50403`
 
 Tags:
 - `record-operations`

@@ -72,15 +72,25 @@ test("UTF-8 BOM cards retain original bytes through snapshot and failed batch ro
     await synchronize(root);
     const input = await batchFile(root, transition(), updates());
     let count = 0;
+    let failureInjected = false;
     await assert.rejects(
       applyTransition(root, input, async (target, text, directory) => {
         count += 1;
-        if (count === 3) throw new Error("fail after BOM object replacement");
+        if (count === 3) {
+          failureInjected = true;
+          throw new Error("fail after BOM object replacement");
+        }
         await atomicTransactionWrite(target, text, directory);
       }),
       failure("transaction-failed")
     );
-    assert.equal(await fs.readFile(file, "utf8"), original);
+    assert.equal(
+      failureInjected,
+      true,
+      "third writer must reach the injected fault"
+    );
+    assert.ok(count >= 3);
+    assert.deepEqual(await fs.readFile(file), Buffer.from(original));
     assert.equal((await currentSource(root)).records.length, 3);
     await applyTransition(root, input);
     assert.equal(

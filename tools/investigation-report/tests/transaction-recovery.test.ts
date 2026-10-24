@@ -171,12 +171,19 @@ test("set-relations is idempotent and leaves unrelated report fields unchanged",
       ],
       workspaceRoot: root
     };
-    assert.equal((await setInvestigationRelations(options)).changed, true);
     const path = `${investigationRoot(root)}/next.md`;
+    const before = await fs.readFile(path, "utf8");
+    assert.equal((await setInvestigationRelations(options)).changed, true);
     const bytes = await fs.readFile(path, "utf8");
     assert.equal((await setInvestigationRelations(options)).changed, false);
     assert.equal(await fs.readFile(path, "utf8"), bytes);
-    assert.ok(bytes.includes('title: "Next"'));
+    assert.equal(
+      bytes.replace(
+        /relations:\n  - type: "补充"\n    target: "base"/u,
+        "relations: []"
+      ),
+      before
+    );
   });
 });
 
@@ -275,6 +282,15 @@ test("set-relations release cleanup failure preserves committed bytes without a 
       await fs.readFile(`${investigationRoot(root)}/next.md`, "utf8"),
       /target: "base"/u
     );
+    const index = JSON.parse(
+      await fs.readFile(
+        `${investigationRoot(root)}/investigation-index.json`,
+        "utf8"
+      )
+    );
+    assert.deepEqual(index.entries.next.relations, [
+      { type: "补充", target: "base" }
+    ]);
     await fs.rm(lockPath, { force: true });
   });
 });

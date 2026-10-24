@@ -1,11 +1,10 @@
 import assert from "node:assert/strict";
-import os from "node:os";
 import test from "node:test";
 import { queryTestEvidence, syncTestEvidenceIndex } from "../src/core.ts";
-import { fs, path } from "./core-test-support.ts";
+import { fs, path, temporaryRoot } from "./core-test-support.ts";
 
 test("indexed Case filters compose exact matches, lexical order, and paging", async () => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "test-evidence-query-"));
+  const root = await temporaryRoot("test-evidence-query-");
   const cases = path.join(root, "docs/test-evidence/cases");
   await fs.mkdir(cases, { recursive: true });
   await Promise.all(

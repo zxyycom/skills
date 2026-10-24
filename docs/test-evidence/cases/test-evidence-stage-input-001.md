@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-STAGE-INPUT-001: 暂存入口在仓库访问前校验固定 Case ID
 
 Tests:
-- `test:f3b1110c73debadbd2d84ffd038d1ab62f42bde9b514c6257d16d2c87abd0fa5`
+- `test:66653188816321ebabc8b845da4b0def39c3b6e4ca897b37164fbf44106b0eac`
 
 Tags:
 - `test-evidence`

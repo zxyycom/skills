@@ -21,7 +21,7 @@ import {
   withFixtureWorkspace,
   writeIndex
 } from "../support.ts";
-import { listRequest, withGraphBuildCount } from "./support.ts";
+import { listRequest } from "./support.ts";
 
 function recordsIn(
   index: Awaited<ReturnType<typeof readIndex>>
@@ -31,12 +31,12 @@ function recordsIn(
   );
 }
 
-test("Decision record snapshots build lazily once across validation trace and adjacent relation filters", async () => {
+test("Decision record snapshots access graphs lazily and reuse identity across validation trace and relation filters", async (t) => {
   await withFixtureWorkspace("lazy-graph-context", async (root) => {
     const records = recordsIn(await readIndex(root));
-    await withGraphBuildCount(async (count) => {
+    {
       const snapshot = decisionRelationRecordSnapshot(records);
-      assert.equal(count(), 0);
+      const graphAccess = t.mock.method(snapshot, "getRelationGraph");
       const plain = filterDecisionRelationRecords(snapshot, {});
       assert.ok(plain.status === "ok");
       assert.deepEqual(plain.records, records);
@@ -48,12 +48,15 @@ test("Decision record snapshots build lazily once across validation trace and ad
         direction: "both"
       });
       assert.equal(direction.status, "error");
-      assert.equal(count(), 0);
+      assert.equal(
+        graphAccess.mock.callCount(),
+        0,
+        "plain and invalid selectors do not access the graph provider"
+      );
       assert.deepEqual(
         decisionRelationConsistencyIssues(snapshot.getRelationGraph),
         []
       );
-      assert.equal(count(), 1);
       const graph = snapshot.getRelationGraph();
       assert.equal(snapshot.getRelationGraph(), graph);
       const trace = traceDecisionRelations(
@@ -130,18 +133,16 @@ test("Decision record snapshots build lazily once across validation trace and ad
           )
         );
       }
-      assert.equal(count(), 1);
-    });
+    }
   });
 });
 
 test("Decision freshly loaded snapshots isolate changed relations while earlier snapshots retain their graph", async () => {
   await withFixtureWorkspace("lazy-graph-isolation", async (root) => {
     const decisionsDirectory = path.join(root, "docs/decisions");
-    await withGraphBuildCount(async (count) => {
+    {
       const first = await loadDecisionIndexSnapshot({ decisionsDirectory });
       assert.ok(first.status === "ok");
-      assert.equal(count(), 1);
       const firstGraph = first.value.getRelationGraph();
       const changed = structuredClone(first.value.index);
       changed.entries[currentDecisionId].relations = [];
@@ -151,7 +152,6 @@ test("Decision freshly loaded snapshots isolate changed relations while earlier 
       );
       const second = await loadDecisionIndexSnapshot({ decisionsDirectory });
       assert.ok(second.status === "ok");
-      assert.equal(count(), 2);
       assert.notEqual(second.value.getRelationGraph(), firstGraph);
       const previous = filterDecisionRelationRecords(
         decisionIndexRecordSnapshot(first.value),
@@ -168,14 +168,12 @@ test("Decision freshly loaded snapshots isolate changed relations while earlier 
       );
       assert.deepEqual(current.records, []);
       assert.equal(first.value.getRelationGraph(), firstGraph);
-      assert.equal(count(), 2);
       const reloaded = await executeDecisionQuery({
         ...listRequest(root),
         relatedTo: archivedDecisionId
       });
       assert.ok(reloaded.status === "ok" && reloaded.command === "list");
       assert.equal(reloaded.total, 0);
-      assert.equal(count(), 3);
-    });
+    }
   });
 });

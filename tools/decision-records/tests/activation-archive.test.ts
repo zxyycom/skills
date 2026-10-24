@@ -19,7 +19,47 @@ import {
   withFixtureWorkspace
 } from "./support.ts";
 
-test("publication and archive transitions preserve content and index atomicity", () =>
+async function publishedLifecycleFixture(workspaceRoot: string) {
+  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+  const indexPath = path.join(decisionsDirectory, "decision-index.json");
+  const lifecycleRelativePath = "use-markdown-establishment.md";
+  const lifecyclePath = decisionFilePath(workspaceRoot, lifecycleRelativePath);
+  const archivedPath = path.join(
+    decisionsDirectory,
+    "archive",
+    lifecycleRelativePath
+  );
+  await fs.mkdir(path.dirname(lifecyclePath), { recursive: true });
+  await fs.writeFile(lifecyclePath, candidateDecisionBody(), "utf8");
+
+  const publication = await runSourceCli([
+    "publish",
+    lifecycleRelativePath,
+    "--alignment",
+    "unaligned",
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(publication.exitCode, 0, publication.stderr);
+  assert.doesNotMatch(publication.stdout, /pending/i);
+  assert.doesNotMatch(publication.stderr, /pending/i);
+  const activatedText = await fs.readFile(lifecyclePath, "utf8");
+  const createdAt = activatedText.match(/^createdAt: (.+)$/m)?.[1];
+  assert.match(createdAt ?? "", /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/);
+  findIndexEntry(await readIndex(indexPath), lifecycleRelativePath);
+
+  return {
+    decisionsDirectory,
+    indexPath,
+    lifecycleRelativePath,
+    lifecyclePath,
+    archivedPath,
+    activatedText,
+    createdAt
+  };
+}
+
+test("established decisions reject active reactivation and repeated publication without writes", () =>
   withFixtureWorkspace("activation-archive", async (workspaceRoot) => {
     assert.equal(await fileExists(path.join(workspaceRoot, ".git")), false);
 
@@ -66,36 +106,12 @@ test("publication and archive transitions preserve content and index atomicity",
       );
     assert.equal(await fs.readFile(establishedPath, "utf8"), establishedText);
     assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
+  }));
 
-    const lifecycleRelativePath = "use-markdown-establishment.md";
-    const lifecyclePath = decisionFilePath(
-      workspaceRoot,
-      lifecycleRelativePath
-    );
-    const archivedPath = path.join(
-      decisionsDirectory,
-      "archive",
-      lifecycleRelativePath
-    );
-    await fs.mkdir(path.dirname(lifecyclePath), { recursive: true });
-    await fs.writeFile(lifecyclePath, candidateDecisionBody(), "utf8");
-
-    const publication = await runSourceCli([
-      "publish",
-      lifecycleRelativePath,
-      "--alignment",
-      "unaligned",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(publication.exitCode, 0, publication.stderr);
-    assert.doesNotMatch(publication.stdout, /pending/i);
-    assert.doesNotMatch(publication.stderr, /pending/i);
-    const activatedText = await fs.readFile(lifecyclePath, "utf8");
-    const createdAt = activatedText.match(/^createdAt: (.+)$/m)?.[1];
-    assert.match(createdAt ?? "", /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/);
-    findIndexEntry(await readIndex(indexPath), lifecycleRelativePath);
-
+test("publication establishes candidate identity and preserves bytes on repeated publication", () =>
+  withFixtureWorkspace("activation-archive", async (workspaceRoot) => {
+    const { lifecycleRelativePath, lifecyclePath, activatedText } =
+      await publishedLifecycleFixture(workspaceRoot);
     const repeatedPublication = await runSourceCli([
       "publish",
       lifecycleRelativePath,
@@ -110,7 +126,12 @@ test("publication and archive transitions preserve content and index atomicity",
       /publish establishes a decision candidate/
     );
     assert.equal(await fs.readFile(lifecyclePath, "utf8"), activatedText);
+  }));
 
+test("mark-aligned requires a published baseline and succeeds after explicit missing-index recovery", () =>
+  withFixtureWorkspace("activation-archive", async (workspaceRoot) => {
+    const { indexPath, lifecycleRelativePath, lifecyclePath, activatedText } =
+      await publishedLifecycleFixture(workspaceRoot);
     await fs.rm(indexPath);
     const blockedWithoutIndex = await runSourceCli([
       "mark-aligned",
@@ -148,7 +169,25 @@ test("publication and archive transitions preserve content and index atomicity",
         .alignment,
       "aligned"
     );
+  }));
 
+test("archive and reactivation preserve creation identity after invalid-index recovery", () =>
+  withFixtureWorkspace("activation-archive", async (workspaceRoot) => {
+    const {
+      decisionsDirectory,
+      indexPath,
+      lifecycleRelativePath,
+      lifecyclePath,
+      archivedPath,
+      createdAt
+    } = await publishedLifecycleFixture(workspaceRoot);
+    const aligned = await runSourceCli([
+      "mark-aligned",
+      lifecycleRelativePath,
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(aligned.exitCode, 0, aligned.stderr);
     await fs.writeFile(indexPath, "{ invalid json\n", "utf8");
     const blockedWithInvalidIndex = await runSourceCli([
       "archive",
@@ -246,7 +285,12 @@ test("publication and archive transitions preserve content and index atomicity",
       (await syncDecisionIndex({ decisionsDirectory, mode: "write" })).status,
       "ok"
     );
+  }));
 
+test("discard removes an archived decision from both its path and ID-keyed index", () =>
+  withFixtureWorkspace("activation-archive", async (workspaceRoot) => {
+    const { indexPath, lifecycleRelativePath, archivedPath } =
+      await publishedLifecycleFixture(workspaceRoot);
     const archivedAgain = await runSourceCli([
       "archive",
       lifecycleRelativePath,
@@ -267,8 +311,12 @@ test("publication and archive transitions preserve content and index atomicity",
     assert.equal(
       Object.hasOwn(
         (await readIndex(indexPath)).entries,
-        lifecycleRelativePath
+        "use-markdown-establishment"
       ),
       false
+    );
+    assert.deepEqual(
+      (await validateDecisionRecords({ workspaceRoot })).errors,
+      []
     );
   }));

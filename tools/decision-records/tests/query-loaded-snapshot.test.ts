@@ -112,6 +112,21 @@ test("Decision list preserves filter intersections facets and relation evidence 
   await withLargePublishedSnapshot(
     "loaded-snapshot-filters",
     async ({ ids, index, location }) => {
+      for (const [suffix, changes] of [
+        ["alignment", { alignment: "unaligned" }],
+        ["tags", { tags: ["unrelated"] }],
+        ["type", { relations: [{ type: "替代", target: archivedDecisionId }] }],
+        ["direction", { relations: [] }]
+      ] as const) {
+        const id = decisionIdForTest(`261020-interference-${suffix}`);
+        addSnapshotRecord(index, id);
+        Object.assign(index.entries[id], changes);
+      }
+      await writeIndex(
+        path.join(location.workspaceRoot, "docs/decisions/decision-index.json"),
+        index
+      );
+
       const listed = await executeDecisionQuery({
         alignment: "all",
         command: "list",

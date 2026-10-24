@@ -10,5 +10,5 @@ Contract:
 - `environment.js check` 只诊断环境与仓库配置，不能借检查写入 Git config 或文件 mode。
 
 Proves:
-- 缺失仓库 setup 时检查失败，并给出运行 `environment.js setup` 的行动诊断。
-- 检查前后的仓库 local config 和 pre-commit mode 完全相同。
+- 缺 repository setup 的 check 失败并提示 setup；local config 与 pre-commit mode 完全不变。
+- fake dispatcher 的独立命令日志不含 pnpm install、npm、corepack 或 go 调用，检查没有进入安装器。

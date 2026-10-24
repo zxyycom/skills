@@ -231,9 +231,28 @@ async function withTemporaryRoot(
   const tempRoot = await fs.mkdtemp(
     path.join(os.tmpdir(), `change-plan-${suiteName}-`)
   );
+  // 隔离覆盖准备及被测 API/CLI 子进程；fixture 串行执行，退出时恢复调用方环境。
+  const inheritedGit = Object.fromEntries(
+    Object.entries(process.env).filter(([name]) => name.startsWith("GIT_"))
+  );
+  for (const name of Object.keys(inheritedGit)) delete process.env[name];
+  Object.assign(process.env, {
+    GIT_CONFIG_NOSYSTEM: "1",
+    GIT_CONFIG_GLOBAL: os.devNull,
+    GIT_CONFIG_COUNT: "3",
+    GIT_CONFIG_KEY_0: "core.hooksPath",
+    GIT_CONFIG_VALUE_0: path.join(tempRoot, "disabled-hooks"),
+    GIT_CONFIG_KEY_1: "commit.gpgSign",
+    GIT_CONFIG_VALUE_1: "false",
+    GIT_CONFIG_KEY_2: "tag.gpgSign",
+    GIT_CONFIG_VALUE_2: "false"
+  });
   try {
     await run(tempRoot);
   } finally {
+    for (const name of Object.keys(process.env))
+      if (name.startsWith("GIT_")) delete process.env[name];
+    Object.assign(process.env, inheritedGit);
     await fs.rm(tempRoot, { force: true, recursive: true });
   }
 }

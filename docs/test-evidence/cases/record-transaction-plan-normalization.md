@@ -1,7 +1,7 @@
 ### Case RECORD-TRANSACTION-PLAN-NORMALIZATION-001: 共同计划归一化不弱化有效性与保护
 
 Tests:
-- `test:2ecb1710f2fe7cde4d2531ee4e1447af2f02692d719707e86ff5f789b1285f6e`
+- `test:92df4384cd045ab3bfe02851381dfbfbf35407467c203c1d945ac68527529152`
 
 Tags:
 - `record-operations`

@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-LEDGER-ENTITY-SCHEMA-001: Reference snapshot 明确拒绝无效来源与未知 Case
 
 Tests:
-- `test:66d35d8fc37a3b36db5726792d11eda84023c2c0da21adcdc51adc8e28bfb186`
+- `test:44e497b1c1b311e49165d61a7bfe5126dc8b881867f5d4ab6b0837eed3b78968`
 
 Tags:
 - `test-evidence`

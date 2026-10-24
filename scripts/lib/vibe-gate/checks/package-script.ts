@@ -48,7 +48,11 @@ export type GatePackageScriptCheckId = `script:${GatePackageScript}`;
 export const packageScriptToolSubscriptions = {
   "test:environment": ["environment"],
   "test:index-runtime": ["index-runtime"],
-  "test:check": ["gate-tests"],
+  "test:check": [
+    "gate-tests",
+    "decision-test-catalog",
+    "investigation-test-catalog"
+  ],
   "test:skill-updater": ["skill-updater"],
   "test:skill-validator": ["skill-validator"],
   "test:relation-graph": ["relation-graph", "relation-graph-tests"],
@@ -56,8 +60,8 @@ export const packageScriptToolSubscriptions = {
   "test:version-control": ["version-control"],
   "test:skill-package-hash": ["skill-package-hash"],
   "test:skill-release-publisher": ["skill-release-publisher"],
-  typecheck: ["repository-code"],
-  lint: ["repository-code"],
+  typecheck: ["typescript-program"],
+  lint: ["typescript-program"],
   validate: ["repository-validation"],
   "check:investigations": [
     "investigation-record",
@@ -79,7 +83,11 @@ export const packageScriptToolSubscriptions = {
     "file-text-search",
     "relation-graph"
   ],
-  "check:test-evidence-catalog": ["repository-material"],
+  "check:test-evidence-catalog": [
+    "repository-material",
+    "decision-test-catalog",
+    "investigation-test-catalog"
+  ],
   "check:skill-updaters": ["generated-artifacts"],
   "test:generated-file": ["generated-file"],
   "format:check": ["repository-code"],
@@ -90,7 +98,8 @@ export const packageScriptToolSubscriptions = {
 export const packageScriptDependencies: Readonly<
   Partial<Record<GatePackageScript, readonly GatePackageScriptCheckId[]>>
 > = {
-  "test:skill-updater": ["script:check:skill-updaters"]
+  "test:skill-updater": ["script:check:skill-updaters"],
+  "test:skill-validator": ["script:check:skill-updaters"]
 };
 
 export function packageScriptCheckId(
@@ -106,7 +115,12 @@ export function createPackageScriptCheck(
   const checkId = packageScriptCheckId(script);
   return commandCheck({
     checkId,
-    displayName: `Script: ${script}`,
+    displayName:
+      script === "test:environment"
+        ? "Repository bootstrap and maintenance wiring"
+        : script === "check:skill-updaters"
+          ? "All skill runtime generation consistency"
+          : `Script: ${script}`,
     ...gateCheckDeclaration(
       checkId,
       configuration,

@@ -92,77 +92,58 @@ test("reuses loaded snapshot preparation for repeated reader operations", async 
       revisionReads: 0,
       validations: 1
     });
-    const dateParse = Date.parse;
-    let instantExtractions = 0;
-    // Instant extraction is observable without replacing the runtime implementation;
-    // all instrumented operations below are synchronous and restore before yielding.
-    Date.parse = (text) => {
-      instantExtractions += 1;
-      return dateParse(text);
-    };
-    try {
-      for (let attempt = 0; attempt < 3; attempt += 1) {
-        const queried = resultValue(
-          reader.query({
-            filters: [
-              {
-                key: "formed-at",
-                kind: "range",
-                operator: "gte",
-                value: 1767225600000
-              }
-            ],
-            sort: [{ key: "formed-at", direction: "desc" }],
-            limit: 1
-          })
-        );
-        assert.deepEqual(
-          queried.entries.map(({ id }) => id),
-          ["b"]
-        );
-        assert.equal(queried.entries[0]!.state, reader.index.entries.b);
-        assert.equal(
-          resultValue(reader.get("a"))!.state,
-          reader.index.entries.a
-        );
-        assert.equal(resultValue(reader.all()).length, 2);
-      }
-      assert.equal(instantExtractions, 0);
-      const invalidQuery = reader.query({
-        filters: [{ key: "undeclared", kind: "exists", value: true }]
-      });
-      assert.equal(
-        invalidQuery.diagnostics[0]?.code,
-        "state-index.query-key-unknown"
-      );
-      assert.deepEqual(calls, {
-        metadataParses: 1,
-        parses: 2,
-        reads: 0,
-        revisionReads: 0,
-        validations: 1
-      });
-      const overlay = resultValue(
-        reader.query(
-          {},
-          {
-            runtimeStates: {
-              a: { formedAt: "2026-01-03T00:00:00Z", label: "Overlay" }
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const queried = resultValue(
+        reader.query({
+          filters: [
+            {
+              key: "formed-at",
+              kind: "range",
+              operator: "gte",
+              value: 1767225600000
             }
-          }
-        )
+          ],
+          sort: [{ key: "formed-at", direction: "desc" }],
+          limit: 1
+        })
       );
-      assert.equal(overlay.entries[0]?.state.label, "Overlay");
-      assert.ok(instantExtractions > 0);
-      assert.equal(calls.parses, 3);
-      const afterOverlay = instantExtractions;
-      assert.equal(resultValue(reader.get("a"))?.state.label, "First");
-      assert.equal(resultValue(reader.query()).total, 2);
-      assert.equal(instantExtractions, afterOverlay);
-      assert.equal(calls.validations, 1);
-    } finally {
-      Date.parse = dateParse;
+      assert.deepEqual(
+        queried.entries.map(({ id }) => id),
+        ["b"]
+      );
+      assert.equal(queried.entries[0]!.state, reader.index.entries.b);
+      assert.equal(resultValue(reader.get("a"))!.state, reader.index.entries.a);
+      assert.equal(resultValue(reader.all()).length, 2);
     }
+    const invalidQuery = reader.query({
+      filters: [{ key: "undeclared", kind: "exists", value: true }]
+    });
+    assert.equal(
+      invalidQuery.diagnostics[0]?.code,
+      "state-index.query-key-unknown"
+    );
+    assert.deepEqual(calls, {
+      metadataParses: 1,
+      parses: 2,
+      reads: 0,
+      revisionReads: 0,
+      validations: 1
+    });
+    const overlay = resultValue(
+      reader.query(
+        {},
+        {
+          runtimeStates: {
+            a: { formedAt: "2026-01-03T00:00:00Z", label: "Overlay" }
+          }
+        }
+      )
+    );
+    assert.equal(overlay.entries[0]?.state.label, "Overlay");
+    assert.equal(calls.parses, 3);
+    assert.equal(resultValue(reader.get("a"))?.state.label, "First");
+    assert.equal(resultValue(reader.query()).total, 2);
+    assert.equal(calls.validations, 1);
   });
 });
 

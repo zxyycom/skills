@@ -124,26 +124,65 @@ test("operating system releases a child process native lock without stale metada
         windowsHide: true
       }
     );
+    let childError: Error | undefined;
+    child.once("error", (error) => {
+      childError = error;
+    });
+    const closed = new Promise<void>((resolve) => {
+      child.once("close", () => resolve());
+    });
+    let deadline: ReturnType<typeof setTimeout> | undefined;
+    const exited = Promise.race([
+      closed,
+      new Promise<never>((_resolve, reject) => {
+        deadline = setTimeout(() => {
+          child.kill("SIGKILL");
+          reject(new Error("native lock holder did not close within 5000 ms"));
+        }, 5_000);
+      })
+    ]);
+    // 退出可能先于 ready 观察；先接住拒绝，再在正常或 finally 路径等待同一结果。
+    void exited.catch(() => {});
     try {
+      let ready = false;
       for (let attempt = 0; attempt < 100; attempt += 1) {
+        if (childError !== undefined) throw childError;
+        assert.equal(
+          child.exitCode,
+          null,
+          "native lock holder exited before ready"
+        );
+        assert.equal(
+          child.signalCode,
+          null,
+          "native lock holder was killed before ready"
+        );
         try {
-          if ((await fs.readFile(readyPath, "utf8")) === "ready") break;
-        } catch {
-          await new Promise<void>((resolve) => setTimeout(resolve, 10));
+          ready = (await fs.readFile(readyPath, "utf8")) === "ready";
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
         }
+        if (ready) break;
+        await new Promise<void>((resolve) => setTimeout(resolve, 10));
       }
-      assert.equal(await fs.readFile(readyPath, "utf8"), "ready");
+      assert.equal(
+        ready,
+        true,
+        "native lock holder did not become ready within 100 attempts"
+      );
       child.kill("SIGKILL");
-      await new Promise<void>((resolve, reject) => {
-        child.once("error", reject);
-        child.once("close", () => resolve());
-      });
+      await exited;
       const created = await createTask(service, 0, "after-exit");
       assert.equal(created.revision, 1);
       assert.equal(await fs.readFile(service.store.lockPath, "utf8"), "");
     } finally {
-      if (child.exitCode === null && child.signalCode === null)
-        child.kill("SIGKILL");
+      try {
+        if (child.exitCode === null && child.signalCode === null)
+          child.kill("SIGKILL");
+        await closed;
+      } finally {
+        clearTimeout(deadline);
+      }
     }
   });
 });

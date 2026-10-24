@@ -7,7 +7,7 @@ import { withTempRoot, investigationRoot } from "./fixture-support.ts";
 import { writeCollection } from "./collection-support.ts";
 import { observeSourceReads } from "./phase-verification-support.ts";
 import { renameInvestigationRecordWithHooks } from "../src/rename.ts";
-test("Investigation rename shares hook fresh source and index observations without crossing postwrite phases", async (t) => {
+test("Investigation rename acquires fresh source observations after the hook and shares overlapping guards", async (t) => {
   await withTempRoot("rename-shared-fresh", async (workspaceRoot) => {
     await writeCollection(workspaceRoot, [
       { id: "legacy" },

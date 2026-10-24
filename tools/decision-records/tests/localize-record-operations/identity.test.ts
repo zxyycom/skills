@@ -35,12 +35,26 @@ test("Decision canonical creation allows legacy and cross-date names while prese
       relations: [],
       tags: ["decision-records" as DecisionTag]
     };
+    const startedDate = new Date()
+      .toISOString()
+      .slice(2, 10)
+      .replaceAll("-", "");
     const created = await createDecisionCandidate(request);
+    const completedDate = new Date()
+      .toISOString()
+      .slice(2, 10)
+      .replaceAll("-", "");
     assert.equal(created.status, "ok", JSON.stringify(created));
     if (created.status !== "ok" || !created.created)
       assert.fail("Expected candidate creation");
-    const expectedId = utcDecisionDate() + "-reusable-name";
-    assert.equal(created.decisionId, expectedId);
+    assert.ok(
+      [
+        `${startedDate}-reusable-name`,
+        `${completedDate}-reusable-name`
+      ].includes(created.decisionId),
+      "creation uses the independently observed UTC day, including a possible midnight rollover"
+    );
+    const expectedId = created.decisionId;
     assert.equal(created.sourcePath, expectedId + ".md");
     const createdPath = path.join(root, "docs/decisions", created.sourcePath);
     const before = await fs.readFile(createdPath);
@@ -167,4 +181,36 @@ test("Decision legacy name ambiguity is recoverable by explicitly renaming the d
     assert.equal(legacy.records[0]?.decisionId, "shared-legacy-name");
     assert.deepEqual(await fs.readFile(legacyPath), before);
   });
+});
+
+test("Decision date identity uses the UTC calendar day for 2026-01-01T00:30:00+01:00", () => {
+  assert.equal(
+    utcDecisionDate(new Date("2026-01-01T00:30:00+01:00")),
+    "251231"
+  );
+});
+
+test("Decision date identity uses the UTC calendar day for 2024-03-01T00:30:00+01:00", () => {
+  assert.equal(
+    utcDecisionDate(new Date("2024-03-01T00:30:00+01:00")),
+    "240229"
+  );
+});
+
+test("Decision date identity uses the UTC calendar day for 2025-03-01T00:30:00+01:00", () => {
+  assert.equal(
+    utcDecisionDate(new Date("2025-03-01T00:30:00+01:00")),
+    "250228"
+  );
+});
+
+test("Decision date identity uses the UTC calendar day for 2000-01-01T00:00:00Z", () => {
+  assert.equal(utcDecisionDate(new Date("2000-01-01T00:00:00Z")), "000101");
+});
+
+test("Decision date identity uses the UTC calendar day for 2026-12-31T23:30:00-01:00", () => {
+  assert.equal(
+    utcDecisionDate(new Date("2026-12-31T23:30:00-01:00")),
+    "270101"
+  );
 });

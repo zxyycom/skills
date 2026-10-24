@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-LEDGER-CLI-NODE-SMOKE-001: 分发 TS 的 Node 进程边界保持当前公共 API
 
 Tests:
-- `test:51b392c2f95b0c5d2ac92fe8e12ff4ce047023212c58da5394a8f99f0650c1ad`
+- `test:b1e01a7911c501a975edad8a983f443526e5bb5b7bec2551ae16521f19381a2c`
 
 Tags:
 - `test-evidence`

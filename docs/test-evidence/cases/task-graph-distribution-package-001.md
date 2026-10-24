@@ -10,4 +10,4 @@ Contract:
 - Skill 分发只提供 runtime 探测与安装 argv，不包含 runtime manifest、npm lockfile、`.node`、npm cache 或 `.install-*`。
 
 Proves:
-- 递归检查 task-graph skill 树确认 runtime 资产目录、native 二进制与安装期路径全部缺失。
+- 递归同时检查文件与目录身份，确认无 runtime 资产、native 二进制、node_modules、npm-cache 或 .install-*；空安装目录也不能逃过检查。

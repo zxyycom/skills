@@ -16,7 +16,7 @@ export function assertNativeCreationModes(
     const output = execFileSync(
       "node",
       [fileURLToPath(probe), String(mask), String(expected)],
-      { encoding: "utf8" }
+      { encoding: "utf8", timeout: 20_000 }
     );
     assert.match(output, /native creation and first index verified/);
   }

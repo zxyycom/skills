@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-ACTIVATION-INDEX-001: 激活前收敛未索引的已建立记录
 
 Tests:
-- `test:02a44feddbdeef43b84e9dd47da32f7586ab78a37b0fb4542a486cdce161954f`
+- `test:d997e4509dcf592bb76f3e371ac4339dfa4e4213f1b74f4f3e4daeee3b01a014`
 
 Tags:
 - `decision-records`

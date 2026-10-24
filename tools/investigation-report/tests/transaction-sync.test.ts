@@ -74,7 +74,7 @@ test("sync-index preserves post-rename uncertainty when lock cleanup also fails"
   });
 });
 
-test("set-relations atomically applies multi-source replacements and explicit clears", async () => {
+test("set-relations applies multi-source replacements and explicit clears", async () => {
   await withTempRoot("replace", async (root) => {
     await writeCollection(root, [
       { id: "base" },

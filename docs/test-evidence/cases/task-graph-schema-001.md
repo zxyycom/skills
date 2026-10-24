@@ -10,5 +10,4 @@ Contract:
 - 严格索引与 apply Schema 拒绝未知字段、不合法的 control 判别联合、保留字典 key，以及存量索引中的重复 running lease ID。
 
 Proves:
-- 未知字段、互斥状态组合、保留 reference key 和跨 task 重复 lease 都返回稳定结构或语义错误。
-- TaskGraphError detail 使用无原型 JSON-safe 对象，其中的 boolean 保持原始 boolean，并可被 JSON 序列化而不变成字符串。
+- 未知 root/request 字段、非法 control 联合、重复 running lease 与保留 references key 均被各自 schema 入口拒绝。

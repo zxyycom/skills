@@ -55,7 +55,7 @@ export const semanticGateChecks = [
     checkId: "test:novel-cards:card-and-query-contract",
     toolIds: ["novel-cards"],
     dependsOn: ["script:check:skill-updaters"],
-    displayName: "Novel Cards card integrity and standalone query",
+    displayName: "Novel Cards runtime, history and transactions",
     requiredTag: undefined,
     command: bunTest(
       "./tools/novel-cards/tests/checks/card-and-query-contract.ts"
@@ -63,8 +63,10 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:lightweight-judgment:request-and-response",
+    dependsOn: ["script:check:skill-updaters"],
     toolIds: ["lightweight-judgment"],
-    displayName: "Lightweight Judgment request and response boundary",
+    displayName:
+      "Lightweight Judgment requests, responses, logs and migrations",
     requiredTag: undefined,
     command: bunTest(
       "./tools/lightweight-judgment/tests/checks/request-and-response.ts"
@@ -105,8 +107,33 @@ export const semanticGateChecks = [
     command: bunTest("./tools/change-plan/tests/checks/public-distribution.ts")
   },
   {
+    checkId: "test:record-operations:shared-contract",
+    toolIds: [
+      "record-operations",
+      "record-operations-tests",
+      "record-reader-distribution"
+    ],
+    dependsOn: ["script:check:skill-updaters"],
+    displayName: "Record Operations shared transactions and readers",
+    requiredTag: undefined,
+    command: bunTest(
+      "./tools/record-operations/tests/checks/shared-contract.ts"
+    )
+  },
+  {
     checkId: "test:decision-records:record-and-established-graph",
-    toolIds: ["decision-record", "relation-graph"],
+    // The current acquisition regression includes a real source sync-index
+    // call. Its CLI module closure remains an input while that node is here.
+    toolIds: [
+      "decision-record-tests",
+      "decision-record",
+      "decision-query",
+      "decision-maintenance",
+      "decision-stage",
+      "decision-cli",
+      "file-text-search",
+      "relation-graph"
+    ],
     displayName: "Decision Records record and established graph",
     requiredTag: undefined,
     command: bunTest(
@@ -116,6 +143,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:decision-records:query-and-index-projection",
     toolIds: [
+      "decision-query-tests",
       "decision-record",
       "decision-query",
       "decision-maintenance",
@@ -133,6 +161,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:decision-records:lifecycle-and-recovery",
     toolIds: [
+      "decision-maintenance-tests",
       "decision-record",
       "decision-query",
       "decision-maintenance",
@@ -149,14 +178,37 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:decision-records:pending-stage",
-    toolIds: ["decision-record", "decision-stage", "relation-graph"],
+    toolIds: [
+      "decision-stage-tests",
+      "decision-record",
+      "decision-stage",
+      "relation-graph"
+    ],
     displayName: "Decision Records pending stage",
     requiredTag: undefined,
     command: bunTest("./tools/decision-records/tests/stage.test.ts")
   },
   {
+    checkId: "test:decision-records:cli-contract",
+    toolIds: [
+      "decision-cli-tests",
+      "decision-record",
+      "decision-query",
+      "decision-maintenance",
+      "decision-stage",
+      "decision-cli",
+      "file-text-search",
+      "record-search-output",
+      "relation-graph"
+    ],
+    displayName: "Decision Records source CLI contract",
+    requiredTag: undefined,
+    command: bunTest("./tools/decision-records/tests/checks/cli-contract.ts")
+  },
+  {
     checkId: "test:decision-records:public-distribution",
     toolIds: [
+      "decision-distribution-tests",
       "decision-record",
       "decision-query",
       "decision-maintenance",
@@ -177,6 +229,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:investigation-report:collection-and-resources",
     toolIds: [
+      "investigation-record-tests",
       "investigation-record",
       "investigation-maintenance",
       "investigation-query",
@@ -196,6 +249,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:investigation-report:index-and-query",
     toolIds: [
+      "investigation-query-tests",
       "investigation-record",
       "investigation-query",
       "investigation-maintenance",
@@ -212,6 +266,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:investigation-report:transactional-maintenance",
     toolIds: [
+      "investigation-maintenance-tests",
       "investigation-record",
       "investigation-query",
       "investigation-maintenance",
@@ -227,6 +282,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:investigation-report:pending-stage",
     toolIds: [
+      "investigation-stage-tests",
       "investigation-record",
       "investigation-query",
       "investigation-maintenance",
@@ -244,6 +300,7 @@ export const semanticGateChecks = [
     checkId: "test:investigation-report:cli-contract",
     dependsOn: ["script:check:skill-updaters"],
     toolIds: [
+      "investigation-cli-tests",
       "investigation-record",
       "investigation-query",
       "investigation-maintenance",
@@ -294,7 +351,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:task-graph:cli-rendering",
     toolIds: ["task-graph"],
-    displayName: "Task Graph CLI rendering",
+    displayName: "Task Graph CLI contracts and rendering",
     requiredTag: undefined,
     command: bunTest("./tools/task-graph/tests/checks/cli-rendering.ts")
   },
@@ -329,6 +386,7 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:test-evidence:public-boundary",
+    dependsOn: ["script:check:skill-updaters"],
     toolIds: ["test-evidence"],
     displayName: "Test Evidence public API and CLI boundary",
     requiredTag: undefined,
@@ -336,21 +394,21 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:test-evidence:project-snapshot",
-    toolIds: ["test-evidence"],
+    toolIds: ["test-evidence", "test-evidence-project"],
     displayName: "Test Evidence project snapshot producer",
     requiredTag: undefined,
     command: bunTest("./scripts/test-evidence/snapshot.test.ts")
   },
   {
     checkId: "test:test-evidence:project-reference-check",
-    toolIds: ["test-evidence"],
+    toolIds: ["test-evidence", "test-evidence-project"],
     displayName: "Test Evidence project reference check",
     requiredTag: undefined,
     command: bunTest("./scripts/test-evidence/check.test.ts")
   },
   {
     checkId: "test:test-evidence:migration",
-    toolIds: ["test-evidence"],
+    toolIds: ["test-evidence", "test-evidence-project"],
     displayName: "Test Evidence migration",
     requiredTag: undefined,
     command: bunTest("./scripts/test-evidence/migrate.test.ts")

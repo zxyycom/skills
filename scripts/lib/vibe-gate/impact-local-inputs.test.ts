@@ -207,16 +207,14 @@ test("incremental Gate routes domain capability inputs only to their declared su
         input: "tools/decision-records/src/decision-stage-prepare.ts",
         toolId: "decision-stage",
         execute: [
+          "test:decision-records:record-and-established-graph",
           "test:decision-records:pending-stage",
           "test:decision-records:query-and-index-projection",
           "test:decision-records:lifecycle-and-recovery",
           "test:decision-records:public-distribution",
           "script:check:decisions"
         ],
-        reuse: [
-          "test:decision-records:record-and-established-graph",
-          "test:investigation-report:pending-stage"
-        ]
+        reuse: ["test:investigation-report:pending-stage"]
       },
       {
         input: "tools/investigation-report/src/cli-query-commands.ts",
@@ -234,67 +232,53 @@ test("incremental Gate routes domain capability inputs only to their declared su
       },
       {
         input: "tools/decision-records/tests/source-discovery.test.ts",
-        toolId: "decision-record",
-        execute: [
-          "test:decision-records:record-and-established-graph",
+        toolId: "decision-record-tests",
+        execute: ["test:decision-records:record-and-established-graph"],
+        reuse: [
           "test:decision-records:query-and-index-projection",
           "test:decision-records:lifecycle-and-recovery",
           "test:decision-records:pending-stage",
           "test:decision-records:public-distribution",
+          "test:decision-records:cli-contract",
           "script:check:decisions"
-        ],
-        reuse: [
-          "test:investigation-report:collection-and-resources",
-          "markdown-lint"
         ]
       },
       {
         input: "tools/decision-records/tests/query-loaded-snapshot.test.ts",
-        toolId: "decision-query",
-        execute: [
-          "test:decision-records:query-and-index-projection",
-          "test:decision-records:lifecycle-and-recovery",
-          "test:decision-records:public-distribution",
-          "script:check:decisions"
-        ],
+        toolId: "decision-query-tests",
+        execute: ["test:decision-records:query-and-index-projection"],
         reuse: [
           "test:decision-records:record-and-established-graph",
+          "test:decision-records:lifecycle-and-recovery",
           "test:decision-records:pending-stage",
-          "test:investigation-report:index-and-query",
-          "markdown-lint"
+          "test:decision-records:public-distribution",
+          "test:decision-records:cli-contract",
+          "script:check:decisions"
         ]
       },
       {
         input:
           "tools/investigation-report/tests/candidate-read-context.test.ts",
-        toolId: "investigation-record",
-        execute: [
-          "test:investigation-report:collection-and-resources",
+        toolId: "investigation-record-tests",
+        execute: ["test:investigation-report:collection-and-resources"],
+        reuse: [
           "test:investigation-report:index-and-query",
           "test:investigation-report:transactional-maintenance",
           "test:investigation-report:pending-stage",
           "test:investigation-report:cli-contract",
           "script:check:investigations"
-        ],
-        reuse: [
-          "test:decision-records:record-and-established-graph",
-          "markdown-lint"
         ]
       },
       {
         input: "tools/investigation-report/tests/current-index.test.ts",
-        toolId: "investigation-query",
-        execute: [
+        toolId: "investigation-query-tests",
+        execute: ["test:investigation-report:index-and-query"],
+        reuse: [
           "test:investigation-report:collection-and-resources",
-          "test:investigation-report:index-and-query",
           "test:investigation-report:transactional-maintenance",
           "test:investigation-report:pending-stage",
           "test:investigation-report:cli-contract",
           "script:check:investigations"
-        ],
-        reuse: [
-          "test:decision-records:query-and-index-projection",
-          "markdown-lint"
         ]
       },
       {
@@ -313,14 +297,15 @@ test("incremental Gate routes domain capability inputs only to their declared su
       {
         input:
           "tools/investigation-report/tests/fixtures/staging-source-path/value.txt",
-        toolId: "investigation-stage",
-        execute: [
+        toolId: "investigation-stage-tests",
+        execute: ["test:investigation-report:pending-stage"],
+        reuse: [
           "test:investigation-report:collection-and-resources",
           "test:investigation-report:index-and-query",
-          "test:investigation-report:pending-stage",
-          "test:investigation-report:cli-contract"
-        ],
-        reuse: ["test:investigation-report:transactional-maintenance"]
+          "test:investigation-report:transactional-maintenance",
+          "test:investigation-report:cli-contract",
+          "script:check:investigations"
+        ]
       }
     ]) {
       const plan = await prepareChangedFixtureActivation(fixture, group.input);

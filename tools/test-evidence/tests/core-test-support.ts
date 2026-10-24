@@ -2,13 +2,29 @@ import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { afterEach } from "node:test";
 import { promisify } from "node:util";
 import { syncTestEvidenceIndex } from "../src/core.ts";
 
 export const exec = promisify(execFile);
 export { fs, path };
+const temporaryRoots: string[] = [];
+afterEach(async () => {
+  await Promise.all(
+    temporaryRoots
+      .splice(0)
+      .map((root) => fs.rm(root, { recursive: true, force: true }))
+  );
+});
+
+export async function temporaryRoot(prefix: string): Promise<string> {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
+  temporaryRoots.push(root);
+  return root;
+}
+
 export async function fixture(): Promise<string> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "test-evidence-core-"));
+  const root = await temporaryRoot("test-evidence-core-");
   const cases = path.join(root, "docs/test-evidence/cases");
   await fs.mkdir(cases, { recursive: true });
   await fs.writeFile(

@@ -18,7 +18,7 @@ import {
   writeIndex
 } from "./support.ts";
 
-test("activation reconciles unindexed established records before committing a candidate", () =>
+test("publication preserves established records accepted by explicit index synchronization", () =>
   withFixtureWorkspace("candidate-activation-index", async (workspaceRoot) => {
     const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
     const indexPath = path.join(decisionsDirectory, "decision-index.json");

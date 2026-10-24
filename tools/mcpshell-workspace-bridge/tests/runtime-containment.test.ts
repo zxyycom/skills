@@ -33,13 +33,16 @@ test("workspace put binds its final commit to the verified parent during a symli
   await fs.mkdir(safeParent);
   await fs.mkdir(outsideParent);
   await fs.symlink(safeParent, link);
-  const source = Buffer.alloc(8 * 1024 * 1024, 0x62);
+  const source = Buffer.from("verified parent payload\n");
   await fs.writeFile(path.join(value.staging, "source.bin"), source);
+  const event = path.join(value.staging, "swap-event");
   const previous = {
+    MCPSHELL_FIXTURE_SWAP_EVENT: process.env.MCPSHELL_FIXTURE_SWAP_EVENT,
     MCPSHELL_FIXTURE_SWAP_LINK: process.env.MCPSHELL_FIXTURE_SWAP_LINK,
     MCPSHELL_FIXTURE_SWAP_OUTSIDE: process.env.MCPSHELL_FIXTURE_SWAP_OUTSIDE,
     MCPSHELL_FIXTURE_SWAP_PARENT: process.env.MCPSHELL_FIXTURE_SWAP_PARENT
   };
+  process.env.MCPSHELL_FIXTURE_SWAP_EVENT = event;
   process.env.MCPSHELL_FIXTURE_SWAP_LINK = link;
   process.env.MCPSHELL_FIXTURE_SWAP_OUTSIDE = outsideParent;
   process.env.MCPSHELL_FIXTURE_SWAP_PARENT = safeParent;
@@ -60,6 +63,8 @@ test("workspace put binds its final commit to the verified parent during a symli
       }
     }
   }
+  assert.equal(await fs.readFile(event, "utf8"), "swapped-before-commit\n");
+  assert.equal(await fs.readlink(link), outsideParent);
   assert.deepEqual(
     await fs.readFile(path.join(safeParent, "kept.bin")),
     source
@@ -86,13 +91,16 @@ test("workspace put rejects a verified parent moved outside the project and clea
   const value = await fixture();
   const parent = path.join(value.project, "moving-parent");
   const movedParent = path.join(path.dirname(value.project), "moved-parent");
-  const source = Buffer.alloc(8 * 1024 * 1024, 0x63);
+  const source = Buffer.from("moved parent payload\n");
   await fs.mkdir(parent);
   await fs.writeFile(path.join(value.staging, "source.bin"), source);
+  const event = path.join(value.staging, "move-event");
   const previous = {
+    MCPSHELL_FIXTURE_MOVE_EVENT: process.env.MCPSHELL_FIXTURE_MOVE_EVENT,
     MCPSHELL_FIXTURE_MOVE_OUTSIDE: process.env.MCPSHELL_FIXTURE_MOVE_OUTSIDE,
     MCPSHELL_FIXTURE_MOVE_PARENT: process.env.MCPSHELL_FIXTURE_MOVE_PARENT
   };
+  process.env.MCPSHELL_FIXTURE_MOVE_EVENT = event;
   process.env.MCPSHELL_FIXTURE_MOVE_PARENT = parent;
   process.env.MCPSHELL_FIXTURE_MOVE_OUTSIDE = movedParent;
   try {
@@ -116,6 +124,8 @@ test("workspace put rejects a verified parent moved outside the project and clea
       }
     }
   }
+  assert.equal(await fs.readFile(event, "utf8"), "moved-before-commit\n");
+  assert.deepEqual(await fs.readdir(movedParent), []);
   await assert.rejects(fs.access(path.join(movedParent, "escaped.bin")));
   assert.deepEqual(await fs.readdir(parent), []);
   assert.deepEqual(

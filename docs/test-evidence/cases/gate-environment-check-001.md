@@ -11,5 +11,5 @@ Contract:
 - Gate 环境入口通过原生命令执行 node scripts/environment.js gate，继承环境并保存 transcript；环境入口只检查必要工具版本而不要求 repository setup；每个其他生产 Check 显式依赖它，不能绕过失败环境。
 
 Proves:
-- 环境命令 argv、inherit 与 transcript 配置准确，timeout 为 30 秒且 output byte limit 为 1 MiB；完整 release Definition 中所有其他 Check 都包含环境前置。
-- 精确工具版本在未配置 repository setup 或 CodeGraph index 的工作区通过；Bun 版本漂移退出 1 并明确报告实际和期望版本。
+- 环境命令 argv、inherit/transcript、30秒 timeout/1MiB output limit 精确；完整 Definition 的所有其它 Check 依赖环境。
+- 精确版本在无 setup/CodeGraph index 的 fixture 通过，Bun mismatch 失败并报告实际/期望；独立 fake 工具日志没有 pnpm install、npm/corepack/go 安装器调用。

@@ -10,8 +10,10 @@ afterEach(async () => {
   await Promise.all(fixtures.splice(0).map((value) => value.cleanup()));
 });
 
-export async function fixture(): Promise<BridgeFixture> {
-  const value = await createBridgeFixture();
+export async function fixture(
+  options: Readonly<{ git?: boolean }> = {}
+): Promise<BridgeFixture> {
+  const value = await createBridgeFixture(options);
   fixtures.push(value);
   return value;
 }

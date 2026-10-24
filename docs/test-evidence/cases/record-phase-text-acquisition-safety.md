@@ -1,7 +1,7 @@
 ### Case RECORD-PHASE-TEXT-SAFETY-001: 当前验收阶段采集文本保持根与可变事实隔离
 
 Tests:
-- `test:c928bff834f2713ee416f7a9c56ebcaaad5438d823d9e0705ee124589fba5bef`
+- `test:2b066f694e88258b21e2cb1c7c52ab7fb012a91582b4472c14c3f4442d4f5278`
 
 Tags:
 - `record-operations`

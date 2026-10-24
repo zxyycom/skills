@@ -10,6 +10,5 @@ Contract:
 - 环境入口必须复用精确的 SCC 4.0.0；missing、mismatch 和 probe failure 都提供恢复诊断，`setup` 不负责安装该全局工具。
 
 Proves:
-- 准备好的精确版本使 setup 成功。
-- 缺失、版本不匹配与 probe failure 都使 check 失败并指出对应恢复动作。
-- 缺失 SCC 时 setup 在仓库写入和工具安装前退出，并明确说明该脚本不会安装全局前置条件。
+- 精确 SCC 版本使 setup 成功；missing、mismatch、probe failure 的 check 均给出对应恢复诊断。
+- 缺 SCC setup 在仓库写入与工具安装前退出，独立命令日志没有 pnpm install/npm/corepack/go 调用；不安装全局前置。

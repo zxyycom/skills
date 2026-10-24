@@ -11,3 +11,5 @@ import "./impact-local-inputs.test.ts";
 import "./impact-input-ownership.test.ts";
 import "./impact-markdown.test.ts";
 import "./impact-markdown-publication.test.ts";
+
+import "./impact-check-responsibilities.test.ts";

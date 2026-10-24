@@ -21,7 +21,8 @@ test("environment check reports missing repository setup without writing it", as
   );
   try {
     const root = await createRepository(tempRoot, "unchecked repository");
-    const fakeTools = await createFakeToolPath(tempRoot);
+    const commandLogPath = path.join(tempRoot, "tool-calls.log");
+    const fakeTools = await createFakeToolPath(tempRoot, { commandLogPath });
     const configBefore = run(
       "git",
       ["config", "--local", "--list"],
@@ -37,6 +38,10 @@ test("environment check reports missing repository setup without writing it", as
     const check = runEnvironment(root, "check", fakeTools);
 
     assert.equal(check.status, 1);
+    assert.doesNotMatch(
+      await fs.readFile(commandLogPath, "utf8"),
+      /^(?:pnpm:install|npm:|corepack:|go:)/mu
+    );
     assert.match(check.stdout, /repository setup/u);
     assert.match(check.stdout, /environment\.js setup/u);
     assert.equal(
@@ -75,9 +80,10 @@ test("environment requires exact SCC without installing it", async () => {
       .split(path.delimiter)
       .filter((directory) => !sccDirectories.has(directory))
       .join(path.delimiter);
+    const commandLogPath = path.join(tempRoot, "missing-tool-calls.log");
     const missingTools = await createFakeToolPath(
       path.join(tempRoot, "missing"),
-      { scc: "missing" }
+      { scc: "missing", commandLogPath }
     );
     const missingEnvironment = environmentWith(missingTools, pathWithoutScc);
     const missing = runEnvironment(
@@ -105,6 +111,10 @@ test("environment requires exact SCC without installing it", async () => {
     );
     assert.equal(missingSetup.status, 1);
     assert.match(missingSetup.stderr, /does not install them/u);
+    assert.doesNotMatch(
+      await fs.readFile(commandLogPath, "utf8"),
+      /^(?:pnpm:install|npm:|corepack:|go:)/mu
+    );
     assert.equal(
       run("git", ["config", "--local", "--get", "core.hooksPath"], missingRoot)
         .status,
@@ -143,10 +153,17 @@ test("Gate environment check stops on tool drift without requiring repository se
       tempRoot,
       "Gate environment repository"
     );
-    const readyTools = await createFakeToolPath(path.join(tempRoot, "ready"));
+    const commandLogPath = path.join(tempRoot, "gate-tool-calls.log");
+    const readyTools = await createFakeToolPath(path.join(tempRoot, "ready"), {
+      commandLogPath
+    });
     const ready = runEnvironment(root, "gate", readyTools);
     requireSuccess(ready, "Gate environment with exact tools");
     assert.match(ready.stdout, /Gate environment is ready/u);
+    assert.doesNotMatch(
+      await fs.readFile(commandLogPath, "utf8"),
+      /^(?:pnpm:install|npm:|corepack:|go:)/mu
+    );
     assert.doesNotMatch(ready.stdout, /repository setup|codegraph index/u);
 
     const driftedTools = await createFakeToolPath(

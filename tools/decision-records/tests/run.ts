@@ -81,12 +81,9 @@ await import("./transaction-strict-preparation.test.ts");
 
 await import("./selected-local-contract.test.ts");
 
-await import("../../record-operations/tests/reader-batch.test.ts");
-await import("../../record-operations/tests/reader-snapshot.test.ts");
-await import("../../record-operations/tests/reader-worker-runtime.test.ts");
-
 await import("./localize-record-operations/identity.test.ts");
 await import("./localize-record-operations/publication.test.ts");
 await import("./localize-record-operations/history.test.ts");
 await import("./localize-record-operations/rename-noop.test.ts");
 await import("./localize-record-operations/stage.test.ts");
+await import("./cli-node-protocol.test.ts");

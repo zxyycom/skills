@@ -235,7 +235,7 @@ test("stats nearest rank uses exact decimal ranks at integer boundaries and tiny
   );
 });
 
-test("stats invalid tag grouping diagnoses group by keys before database access", async () => {
+test("stats invalid tag grouping reports group by keys rather than a missing database", async () => {
   for (const key of ["", "bad key", "bad=key", "x".repeat(65), "1invalid"]) {
     const outcome = await runCli(
       [

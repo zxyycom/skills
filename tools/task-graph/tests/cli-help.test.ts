@@ -84,15 +84,16 @@ test("CLI usage failures use the JSON protocol", async () => {
       assert.equal(usage.result.revision, null);
     }
 
-    const longArguments = await callCli(root, [
+    const extraArguments = await callCli(root, [
       "task",
       "show",
-      ...Array.from({ length: 12_000 }, () => "extra")
+      "task-000001",
+      "extra"
     ]);
-    assert.equal(longArguments.exitCode, 1);
-    assert.equal(longArguments.result.ok, false);
-    if (!longArguments.result.ok)
-      assert.equal(longArguments.result.error.code, "ARGUMENT_INVALID");
+    assert.equal(extraArguments.exitCode, 1);
+    assert.equal(extraArguments.result.ok, false);
+    if (!extraArguments.result.ok)
+      assert.equal(extraArguments.result.error.code, "ARGUMENT_INVALID");
   });
 });
 

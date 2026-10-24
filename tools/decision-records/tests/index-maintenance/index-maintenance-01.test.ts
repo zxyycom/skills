@@ -130,11 +130,9 @@ async function assertCanonicalIndexRebuild({
   );
 }
 
-async function assertSourceAndIndexDriftHandling({
+async function assertRequiredPurpose({
   currentDecision,
   currentDecisionPath,
-  indexPath,
-  originalIndexText,
   workspaceRoot
 }: IndexMaintenanceFixture): Promise<void> {
   await fs.writeFile(
@@ -151,7 +149,15 @@ async function assertSourceAndIndexDriftHandling({
     )
   );
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
+}
 
+async function assertLegalUnaligned({
+  currentDecision,
+  currentDecisionPath,
+  indexPath,
+  originalIndexText,
+  workspaceRoot
+}: IndexMaintenanceFixture): Promise<void> {
   const ordinaryUnalignedDecision = currentDecision.replace(
     "alignment: aligned",
     "alignment: unaligned"
@@ -164,7 +170,15 @@ async function assertSourceAndIndexDriftHandling({
   );
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
   await fs.writeFile(indexPath, originalIndexText, "utf8");
+}
 
+async function assertInvalidAlignment({
+  currentDecision,
+  currentDecisionPath,
+  indexPath,
+  originalIndexText,
+  workspaceRoot
+}: IndexMaintenanceFixture): Promise<void> {
   const invalidEstablishedSource = currentDecision.replace(
     "alignment: aligned",
     "alignment: null"
@@ -190,7 +204,13 @@ async function assertSourceAndIndexDriftHandling({
   }
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
   await fs.writeFile(indexPath, originalIndexText, "utf8");
+}
 
+async function assertPublishedQueriesWithInvalidBody({
+  currentDecision,
+  currentDecisionPath,
+  workspaceRoot
+}: IndexMaintenanceFixture): Promise<void> {
   await fs.writeFile(
     currentDecisionPath,
     currentDecision.replace(
@@ -232,7 +252,13 @@ async function assertSourceAndIndexDriftHandling({
     )
   );
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
+}
 
+async function assertTitleLength({
+  currentDecision,
+  currentDecisionPath,
+  workspaceRoot
+}: IndexMaintenanceFixture): Promise<void> {
   await fs.writeFile(
     currentDecisionPath,
     currentDecision.replace("title: 使用生成 CLI", "title: 很短"),
@@ -246,7 +272,13 @@ async function assertSourceAndIndexDriftHandling({
     )
   );
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
+}
 
+async function assertPublishedRelations({
+  currentDecision,
+  currentDecisionPath,
+  workspaceRoot
+}: IndexMaintenanceFixture): Promise<void> {
   await fs.writeFile(
     currentDecisionPath,
     currentDecision.replace(
@@ -284,7 +316,14 @@ async function assertSourceAndIndexDriftHandling({
     )
   );
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
+}
 
+async function assertTitleSynchronization({
+  currentDecision,
+  currentDecisionPath,
+  indexPath,
+  workspaceRoot
+}: IndexMaintenanceFixture): Promise<void> {
   const driftedDecision = currentDecision.replace(
     "title: 使用生成 CLI",
     "title: 使用同步后的生成 CLI"
@@ -306,14 +345,53 @@ async function assertSourceAndIndexDriftHandling({
   assert.equal(synchronizedEntry.createdAt, "2026-07-11T14:15:16+08:00");
 }
 
-async function runIndexMaintenanceAssertions(
-  workspaceRoot: string
-): Promise<void> {
-  const fixture = await createIndexMaintenanceFixture(workspaceRoot);
-  await assertIndexDefinitionAndProjectionValidation(fixture);
-  await assertCanonicalIndexRebuild(fixture);
-  await assertSourceAndIndexDriftHandling(fixture);
-}
+test("index maintenance validates definition recovery and projection validation", () =>
+  withFixtureWorkspace("index-maintenance", async (root) => {
+    await assertIndexDefinitionAndProjectionValidation(
+      await createIndexMaintenanceFixture(root)
+    );
+  }));
 
-test("index maintenance detects drift and synchronizes canonical decision states", () =>
-  withFixtureWorkspace("index-maintenance", runIndexMaintenanceAssertions));
+test("index maintenance validates canonical index rebuild", () =>
+  withFixtureWorkspace("index-maintenance", async (root) => {
+    await assertCanonicalIndexRebuild(
+      await createIndexMaintenanceFixture(root)
+    );
+  }));
+
+test("index maintenance validates required purpose metadata", () =>
+  withFixtureWorkspace("index-maintenance", async (root) => {
+    await assertRequiredPurpose(await createIndexMaintenanceFixture(root));
+  }));
+
+test("index maintenance validates legal unaligned state", () =>
+  withFixtureWorkspace("index-maintenance", async (root) => {
+    await assertLegalUnaligned(await createIndexMaintenanceFixture(root));
+  }));
+
+test("index maintenance validates invalid alignment zero-write protection", () =>
+  withFixtureWorkspace("index-maintenance", async (root) => {
+    await assertInvalidAlignment(await createIndexMaintenanceFixture(root));
+  }));
+
+test("index maintenance validates published queries with invalid current body", () =>
+  withFixtureWorkspace("index-maintenance", async (root) => {
+    await assertPublishedQueriesWithInvalidBody(
+      await createIndexMaintenanceFixture(root)
+    );
+  }));
+
+test("index maintenance validates source title length validation", () =>
+  withFixtureWorkspace("index-maintenance", async (root) => {
+    await assertTitleLength(await createIndexMaintenanceFixture(root));
+  }));
+
+test("index maintenance validates published relations despite current relation drift", () =>
+  withFixtureWorkspace("index-maintenance", async (root) => {
+    await assertPublishedRelations(await createIndexMaintenanceFixture(root));
+  }));
+
+test("index maintenance validates explicit synchronization of current title projection", () =>
+  withFixtureWorkspace("index-maintenance", async (root) => {
+    await assertTitleSynchronization(await createIndexMaintenanceFixture(root));
+  }));

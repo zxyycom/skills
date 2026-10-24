@@ -1,8 +1,7 @@
 ### Case RECORD-TRANSACTION-WINNER-PROTECTION-001: 共同恢复保护后来编辑与未写成员
 
 Tests:
-- `test:2d4c99489633593af24e8e7b41aba05f340b1b35cb30f7a77fc191e609a80287`
-- `test:43a48f30865e9cfe9a9d2689064f3e5d0e9ba8f7fc061e66cd2e10df3abcba83`
+- `test:a0be876b3aedf5041599e71ce43bae1266c07f7cf81f28234dc35bc394d3fd8a`
 
 Tags:
 - `decision-records`

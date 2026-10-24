@@ -175,7 +175,7 @@ test("updater installs into an empty target directory", async () => {
   );
 });
 
-test("updater check reports an unversioned installed skill", async () => {
+test("updater check reports an unversioned installed skill without zip downloads or file changes", async () => {
   const unversionedTarget = path.join(tempRoot, "unversioned-target");
   await fs.mkdir(unversionedTarget);
   await fs.writeFile(
@@ -192,8 +192,24 @@ test("updater check reports an unversioned installed skill", async () => {
     "utf8"
   );
 
+  await fs.mkdir(path.join(unversionedTarget, "custom"));
+  await fs.writeFile(
+    path.join(unversionedTarget, "custom", "keep.bin"),
+    Buffer.from([0, 255, 1])
+  );
+  const namesBefore = (
+    await fs.readdir(unversionedTarget, { recursive: true })
+  ).sort();
+  const markdownBefore = await fs.readFile(
+    path.join(unversionedTarget, "SKILL.md")
+  );
+  const customBefore = await fs.readFile(
+    path.join(unversionedTarget, "custom", "keep.bin")
+  );
+  const fetchMarkerPath = path.join(tempRoot, "unversioned-fetch.jsonl");
   const unversioned = runUpdater(mockFetchPath, {
     args: ["--check"],
+    fetchMarkerPath,
     manifest: validManifest,
     release: validRelease,
     targetDir: unversionedTarget,
@@ -204,6 +220,33 @@ test("updater check reports an unversioned installed skill", async () => {
   assert.match(
     unversioned.stdout,
     /Status: update available \(local version unknown\)/
+  );
+  assert.deepEqual(
+    (await fs.readdir(unversionedTarget, { recursive: true })).sort(),
+    namesBefore
+  );
+  assert.deepEqual(
+    await fs.readFile(path.join(unversionedTarget, "SKILL.md")),
+    markdownBefore
+  );
+  assert.deepEqual(
+    await fs.readFile(path.join(unversionedTarget, "custom", "keep.bin")),
+    customBefore
+  );
+  const requests = (await fs.readFile(fetchMarkerPath, "utf8"))
+    .trim()
+    .split("\n");
+  assert.equal(
+    requests.some((url) => url.startsWith("https://api.github.com/repos/")),
+    true
+  );
+  assert.equal(
+    requests.some((url) => url.endsWith(".zip")),
+    false
+  );
+  assert.equal(
+    requests.some((url) => url.endsWith("skill-release-manifest.json")),
+    true
   );
 });
 

@@ -3,22 +3,8 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import {
-  requireSuccess,
-  run,
-  workspaceRoot
-} from "./environment-test-process.ts";
+import { requireSuccess, run } from "./environment-test-process.ts";
 import { createRepository } from "./environment-test-repository.ts";
-test("repository short command change-plan invokes its owned skill CLI", () => {
-  const result = run(
-    "bun",
-    ["run", "--silent", "change-plan", "--", "--help"],
-    workspaceRoot
-  );
-  requireSuccess(result, "bun run change-plan -- --help");
-  assert.match(result.stdout, /change-plan\.ts check-all/u);
-});
-
 test("task-graph package command defaults to the main root and accepts an explicit project root", async () => {
   const tempRoot = await fs.mkdtemp(
     path.join(os.tmpdir(), "skills task launcher ")

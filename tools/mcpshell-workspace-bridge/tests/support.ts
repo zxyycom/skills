@@ -14,13 +14,16 @@ export type BridgeFixture = Readonly<{
   project: string;
   skill: string;
   staging: string;
+  sshCalls: string;
 }>;
 
 async function git(directory: string, args: string[]): Promise<void> {
   await execFileAsync("git", ["-C", directory, ...args]);
 }
 
-export async function createBridgeFixture(): Promise<BridgeFixture> {
+export async function createBridgeFixture(
+  options: Readonly<{ git?: boolean }> = {}
+): Promise<BridgeFixture> {
   const root = await fs.mkdtemp(
     path.join(os.tmpdir(), "mcpshell-workspace-bridge-")
   );
@@ -29,6 +32,8 @@ export async function createBridgeFixture(): Promise<BridgeFixture> {
   const agentProject = path.join(root, "agent");
   const skill = path.join(agentProject, "skills", "mcpshell-workspace-tools");
   const bin = path.join(root, "bin");
+  const sshCalls = path.join(root, "ssh-calls");
+  await fs.writeFile(sshCalls, "");
   const failBin = path.join(root, "fail-bin");
   const commitBin = path.join(root, "commit-bin");
   await fs.mkdir(path.join(skill, "references"), { recursive: true });
@@ -45,41 +50,16 @@ export async function createBridgeFixture(): Promise<BridgeFixture> {
   await fs.writeFile(
     path.join(bin, "ssh"),
     `#!/bin/sh
+printf 'called\\n' >> "$(dirname "$0")/../ssh-calls"
 [ "$1" = "-T" ] && shift
 backend=$1
 shift
 case "$backend" in
   fixture) exec /bin/sh -c "$1" ;;
-  swap)
-    (
-      attempt=0
-      while [ ! -e "$MCPSHELL_FIXTURE_SWAP_PARENT"/.mcpshell-transfer.* ]; do
-        attempt=$((attempt + 1))
-        [ "$attempt" -lt 200 ] || exit 0
-        sleep 0.005
-      done
-      rm -f "$MCPSHELL_FIXTURE_SWAP_LINK"
-      ln -s "$MCPSHELL_FIXTURE_SWAP_OUTSIDE" "$MCPSHELL_FIXTURE_SWAP_LINK"
-    ) &
-    exec /bin/sh -c "$1"
-    ;;
   link-failure)
     PATH="$(dirname "$0")/../fail-bin:$PATH" exec /bin/sh -c "$1"
     ;;
-  parent-move)
-    (
-      attempt=0
-      while [ ! -e "$MCPSHELL_FIXTURE_MOVE_PARENT"/.mcpshell-transfer.* ]; do
-        attempt=$((attempt + 1))
-        [ "$attempt" -lt 200 ] || exit 0
-        sleep 0.005
-      done
-      mv "$MCPSHELL_FIXTURE_MOVE_PARENT" "$MCPSHELL_FIXTURE_MOVE_OUTSIDE"
-      mkdir -p "$MCPSHELL_FIXTURE_MOVE_PARENT"
-    ) &
-    exec /bin/sh -c "$1"
-    ;;
-  get-swap|destination-swap)
+  swap|parent-move|get-swap|destination-swap)
     PATH="$(dirname "$0"):$PATH" exec /bin/sh -c "$1"
     ;;
   marker-loss)
@@ -119,6 +99,21 @@ printf '%s' "$MCPSHELL_FIXTURE_COMMIT_REPLACEMENT" > "$MCPSHELL_FIXTURE_COMMIT_O
   await fs.writeFile(
     path.join(bin, "wc"),
     `#!/bin/sh
+# wc 在已验证父目录内、接收完毕后且提交前执行。
+if [ -n "\${MCPSHELL_FIXTURE_SWAP_LINK:-}" ]; then
+  [ "$(pwd -P)" = "$MCPSHELL_FIXTURE_SWAP_PARENT" ] || exit 71
+  [ -f .mcpshell-transfer.* ] || exit 72
+  rm -f "$MCPSHELL_FIXTURE_SWAP_LINK" || exit 73
+  ln -s "$MCPSHELL_FIXTURE_SWAP_OUTSIDE" "$MCPSHELL_FIXTURE_SWAP_LINK" || exit 74
+  printf 'swapped-before-commit\\n' > "$MCPSHELL_FIXTURE_SWAP_EVENT" || exit 75
+fi
+if [ -n "\${MCPSHELL_FIXTURE_MOVE_PARENT:-}" ]; then
+  [ "$(pwd -P)" = "$MCPSHELL_FIXTURE_MOVE_PARENT" ] || exit 76
+  [ -f .mcpshell-transfer.* ] || exit 77
+  mv "$MCPSHELL_FIXTURE_MOVE_PARENT" "$MCPSHELL_FIXTURE_MOVE_OUTSIDE" || exit 78
+  mkdir -p "$MCPSHELL_FIXTURE_MOVE_PARENT" || exit 79
+  printf 'moved-before-commit\\n' > "$MCPSHELL_FIXTURE_MOVE_EVENT" || exit 80
+fi
 if [ -n "\${MCPSHELL_FIXTURE_GET_SWAP_LINK:-}" ]; then
   rm -f "$MCPSHELL_FIXTURE_GET_SWAP_LINK"
   ln -s "$MCPSHELL_FIXTURE_GET_SWAP_OUTSIDE" "$MCPSHELL_FIXTURE_GET_SWAP_LINK"
@@ -131,12 +126,14 @@ PATH=/usr/bin:/bin exec wc "$@"
 `
   );
   await fs.chmod(path.join(bin, "wc"), 0o755);
-  await git(project, ["init", "-q"]);
-  await git(project, ["config", "user.email", "fixture@example.invalid"]);
-  await git(project, ["config", "user.name", "fixture"]);
   await fs.writeFile(path.join(project, "tracked.txt"), "before\n");
-  await git(project, ["add", "."]);
-  await git(project, ["commit", "-qm", "initial"]);
+  if (options.git) {
+    await git(project, ["init", "-q"]);
+    await git(project, ["config", "user.email", "fixture@example.invalid"]);
+    await git(project, ["config", "user.name", "fixture"]);
+    await git(project, ["add", "."]);
+    await git(project, ["commit", "-qm", "initial"]);
+  }
   return {
     agentProject,
     bridgeConfig: {
@@ -147,6 +144,7 @@ PATH=/usr/bin:/bin exec wc "$@"
     cleanup: () => fs.rm(root, { force: true, recursive: true }),
     project,
     skill,
+    sshCalls,
     staging
   };
 }

@@ -193,6 +193,10 @@ test("project package script validation preserves maintenance CLI delegations an
 });
 
 test("format scripts cover repository automation and distributable tool sources", async () => {
+  assert.deepEqual(formatPackageScripts, {
+    format: "oxfmt --write '{scripts/**/*.{ts,js},tools/**/*.ts}'",
+    "format:check": "oxfmt --check '{scripts/**/*.{ts,js},tools/**/*.ts}'"
+  });
   const tempRoot = await fs.mkdtemp(
     path.join(os.tmpdir(), "skills format package scripts ")
   );

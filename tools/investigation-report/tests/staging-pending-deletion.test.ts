@@ -91,7 +91,7 @@ test("stage deletion rejects an unsynchronized source at a known old location", 
   });
 });
 
-test("stage all preserves a pure dependency pending deletion without reading its body", async () => {
+test("stage all preserves a pure dependency pending deletion until explicitly selected", async () => {
   await withTempRoot("stage-owner-pending-missing", async (root) => {
     await writeResource(root, "second/evidence.txt", "shared evidence\n");
     await writeCollection(root, [

@@ -37,7 +37,8 @@ type TestHarness = {
   root: string;
   run: (
     mode: "rolling" | "snapshot",
-    releases?: Readonly<Record<string, readonly PublishedAsset[]>>
+    releases?: Readonly<Record<string, readonly PublishedAsset[]>>,
+    failZipUpload?: boolean
   ) => Promise<PublisherRun>;
 };
 
@@ -74,6 +75,41 @@ test("rolling publication replaces packages before manifest and removes stale as
       (command) => commandAction(command) === "gh:delete-asset"
     );
     assert.equal(deleted?.arguments.includes("removed.zip"), true);
+  });
+});
+
+test("rolling publication stops after zip upload failure and can be retried", async () => {
+  await withHarness("complete", async ({ root, run }) => {
+    const releases = {
+      "skills-latest": [{ digest: null, name: "removed.zip", size: 2 }]
+    };
+    const failed = await run("rolling", releases, true);
+    assert.equal(failed.status, 1);
+    assert.match(failed.stderr, /injected zip upload failure/u);
+    assert.deepEqual(failed.commands.map(commandAction), [
+      "gh:view",
+      "git:tag",
+      "git:push",
+      "gh:upload"
+    ]);
+    assert.deepEqual(assetNames(failed.commands.at(-1), root), [
+      "alpha.zip",
+      "beta.zip"
+    ]);
+    const recovered = await run("rolling", releases);
+    assert.equal(recovered.status, 0, recovered.stderr);
+    assert.deepEqual(recovered.commands.map(commandAction), [
+      "gh:view",
+      "git:tag",
+      "git:push",
+      "gh:upload",
+      "gh:upload",
+      "gh:delete-asset",
+      "gh:edit"
+    ]);
+    assert.deepEqual(assetNames(recovered.commands[4], root), [
+      "skill-release-manifest.json"
+    ]);
   });
 });
 
@@ -183,7 +219,7 @@ async function withHarness(
 
     await run({
       root,
-      run: async (mode, releases = {}) => {
+      run: async (mode, releases = {}, failZipUpload = false) => {
         await fs.writeFile(releaseStatePath, JSON.stringify(releases), "utf8");
         await fs.writeFile(commandLogPath, "", "utf8");
         const result = spawnSync(process.execPath, [publisherPath, mode], {
@@ -192,6 +228,7 @@ async function withHarness(
           env: {
             ...process.env,
             FAKE_COMMAND_LOG: commandLogPath,
+            FAKE_FAIL_ZIP_UPLOAD: failZipUpload ? "1" : "",
             FAKE_RELEASE_STATE: releaseStatePath,
             GH_TOKEN: "test-token",
             GITHUB_SHA: commitSha,
@@ -242,6 +279,7 @@ async function writeFakeTools(root: string): Promise<string> {
       'import fs from "node:fs";',
       "const [tool, ...arguments_] = process.argv.slice(2);",
       'fs.appendFileSync(process.env.FAKE_COMMAND_LOG, JSON.stringify({ tool, arguments: arguments_ }) + "\\n");',
+      'if (process.env.FAKE_FAIL_ZIP_UPLOAD === "1" && tool === "gh" && arguments_[1] === "upload" && arguments_.some((argument) => argument.endsWith(".zip"))) { console.error("injected zip upload failure"); process.exit(7); }',
       'if (tool === "gh" && arguments_[0] === "release" && arguments_[1] === "view") {',
       "  const tag = arguments_[2];",
       '  const releases = JSON.parse(fs.readFileSync(process.env.FAKE_RELEASE_STATE, "utf8"));',

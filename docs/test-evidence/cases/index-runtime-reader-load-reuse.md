@@ -14,7 +14,7 @@ Contract:
 - current reader 每次打开读取一次 revision，stale 优先于领域解析失败；打开后保持绑定快照，后续打开重新读取文件，不跨调用缓存索引。
 
 Proves:
-- parser 输出、输入对象、definition 描述符和磁盘文件变化不影响已打开 reader；index 的 state、metadata 和 revision 拒绝写入且公开形状不泄漏查询值。
-- 重复 query/get/all 不增加 metadata/state parser、集合 validator 或时间字段提取次数，查询返回原快照的 state；非法查询仍失败，overlay 经解析后只影响本次结果。
-- 两个加载入口拒绝非法 metadata、查询字段、完整集合和越界路径，definition identity 或描述符错误不能建立 reader；冻结的非法原始索引仍被原始查询及内存 reader 构造入口拒绝。
-- current 打开只读取一次 revision，stale 且 state 畸形时不执行领域解析；重新打开读取新文件，即使 revision 未变也不复用旧 reader。
+- parser 输出、输入对象、definition 描述符与磁盘变化不影响已打开 reader；state/metadata/revision 拒绝写入且不泄漏查询值。
+- 重复 query/get/all 不增加 fixture parser、validator 或读取次数；overlay 仅解析本次变化并保持原 reader 结果，不声明内建时间提取次数。
+- 两个加载入口拒绝非法 metadata、查询字段、完整集合与越界路径；非法 definition 或冻结 raw 索引不能绕过校验。
+- current 打开读取一次 revision，stale 优先于 state 解析；再次打开读取新文件，不跨调用复用旧 reader。

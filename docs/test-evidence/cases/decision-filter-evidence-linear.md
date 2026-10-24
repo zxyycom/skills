@@ -1,13 +1,13 @@
-### Case DECISION-FILTER-EVIDENCE-LINEAR-001: 私有追加消除命中数组平方复制
+### Case DECISION-FILTER-EVIDENCE-LINEAR-001: 关系证据保留首摘要去重与稳定目标顺序
 
 Tests:
-- `test:853856d60bf84f2f95fe681a2328b6db1b0c558081c281fe43399991222bad96`
+- `test:a88ac358d554b94c6d0fe046b14d262ddbcf5e8c3cef9902f97a9c7bd2d03421`
 
 Tags:
 - `decision-records`
 
 Contract:
-- type-only 关系筛选保持完整 tuple 去重、code-unit 排序、summary 与独立调用结果，不在追加时复制累计命中数组。
+- type-only 筛选对关系 tuple 去重，保留首摘要、稳定目标顺序及独立输出，不改输入记录。
 
 Proves:
-- d=10/100/1000 的反序边与重复 tuple 返回完整且有序证据；证据数组 iterator 访问受线性上限约束，重复调用不共享输出数组。
+- 3/10 条反序边加重复 tuple 返回完整按目标排序证据与对应摘要；重复调用的证据数组不同，无关系条件不增加输入 filterRelations。

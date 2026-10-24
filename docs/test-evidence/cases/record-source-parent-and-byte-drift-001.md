@@ -1,7 +1,7 @@
 ### Case RECORD-SOURCE-PARENT-AND-BYTE-DRIFT-001: 安全来源读取保留父链与字节漂移保护
 
 Tests:
-- `test:bb266a11d98701d6b5331cce989424a26a1eede4535a07fe2923d8523070eae3`
+- `test:3ceeeb1476fffdd441361a9ce3d113ad2b3d0daad5b5c367c4c4567b6be3bd3f`
 
 Tags:
 - `record-operations`

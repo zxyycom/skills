@@ -16,6 +16,26 @@ import {
   withFixtureWorkspace
 } from "./support.ts";
 
+async function waitForLockEvent(
+  event: Promise<void>,
+  label: string
+): Promise<void> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    await Promise.race([
+      event,
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(
+          () => reject(new Error(`Timed out waiting for ${label}`)),
+          5_000
+        );
+      })
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 test("sync-index fails while a decision transaction holds the collection lock", () =>
   withFixtureWorkspace("transaction-sync-index-lock", async (workspaceRoot) => {
     const currentPath = decisionFilePath(workspaceRoot, currentSourcePath);
@@ -28,6 +48,9 @@ test("sync-index fails while a decision transaction holds the collection lock", 
     const currentBefore = await fs.readFile(currentPath, "utf8");
     const indexBefore = await fs.readFile(indexPath, "utf8");
     let releaseWrite: () => void = () => {};
+    const released = new Promise<void>((resolve) => {
+      releaseWrite = resolve;
+    });
     let signalBlocked: () => void = () => {};
     let blocked = false;
     const writeBlocked = new Promise<void>((resolve) => {
@@ -37,9 +60,7 @@ test("sync-index fails while a decision transaction holds the collection lock", 
       if (!blocked && path.resolve(filePath) === currentPath) {
         blocked = true;
         signalBlocked();
-        await new Promise<void>((resolve) => {
-          releaseWrite = resolve;
-        });
+        await released;
       }
     });
     let transaction:
@@ -59,7 +80,10 @@ test("sync-index fails while a decision transaction holds the collection lock", 
         ],
         originalScan: await scanDecisionRecords({ workspaceRoot })
       });
-      await writeBlocked;
+      await waitForLockEvent(
+        writeBlocked,
+        "transaction source write while holding the collection lock"
+      );
 
       const blockedSync = await runSourceCli([
         "sync-index",
@@ -77,6 +101,7 @@ test("sync-index fails while a decision transaction holds the collection lock", 
       assert.equal((await transaction).status, "ok");
     } finally {
       releaseWrite();
+      if (transaction) await Promise.allSettled([transaction]);
       restoreWrites();
     }
 
@@ -116,6 +141,9 @@ test("decision transaction fails while sync-index holds the collection lock", ()
     assert.ok(descriptor);
     const rename = fs.rename.bind(fs);
     let releaseRename: () => void = () => {};
+    const released = new Promise<void>((resolve) => {
+      releaseRename = resolve;
+    });
     let signalBlocked: () => void = () => {};
     let blocked = false;
     const renameBlocked = new Promise<void>((resolve) => {
@@ -127,9 +155,7 @@ test("decision transaction fails while sync-index holds the collection lock", ()
         if (!blocked && path.resolve(to) === indexPath) {
           blocked = true;
           signalBlocked();
-          await new Promise<void>((resolve) => {
-            releaseRename = resolve;
-          });
+          await released;
         }
         await rename(from, to);
       }
@@ -139,7 +165,10 @@ test("decision transaction fails while sync-index holds the collection lock", ()
       | undefined;
     try {
       synchronization = runSourceCli(["sync-index", "--root", workspaceRoot]);
-      await renameBlocked;
+      await waitForLockEvent(
+        renameBlocked,
+        "sync index publication while holding the collection lock"
+      );
 
       const transactionResult = await applyDecisionChanges({
         changes: [
@@ -169,6 +198,7 @@ test("decision transaction fails while sync-index holds the collection lock", ()
       assert.equal((await synchronization).exitCode, 0);
     } finally {
       releaseRename();
+      if (synchronization) await Promise.allSettled([synchronization]);
       Object.defineProperty(fs, "rename", descriptor);
     }
 

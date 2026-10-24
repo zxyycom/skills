@@ -1,13 +1,13 @@
-### Case TEST-EVIDENCE-SNAPSHOT-INPUTS-001: 快照输入与选择边界优先阻断
+### Case TEST-EVIDENCE-SNAPSHOT-INPUTS-001: 快照结构来源与选择失败状态分离
 
 Tests:
-- `test:66d35d8fc37a3b36db5726792d11eda84023c2c0da21adcdc51adc8e28bfb186`
+- `test:44e497b1c1b311e49165d61a7bfe5126dc8b881867f5d4ab6b0837eed3b78968`
 
 Tags:
 - `test-evidence`
 
 Contract:
-- 引用检查必须分别优先报告无效快照、expected source 不匹配和未知 Case 选择，不能将它们误报为引用缺失。
+- 引用检查区分无效快照、expected source 不匹配与未知 Case 选择，不把单独失败样本称为组合故障优先级证明。
 
 Proves:
 - 非法版本、错误 revision 与未知 Case ID 分别返回 snapshot-invalid、source-mismatch 和 case-invalid。

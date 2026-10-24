@@ -18,7 +18,6 @@ import { collectValidatedInvestigationCollection } from "../src/validation-colle
 import { writeCollection } from "./collection-support.ts";
 import { investigationRoot, withTempRoot } from "./fixture-support.ts";
 import { investigationIndexFixture } from "./index-fixture.ts";
-import { observeGraphBuilds } from "./relation-context-support.ts";
 
 function relationFixture() {
   return structuredClone(
@@ -38,9 +37,8 @@ function relationFixture() {
   );
 }
 
-test("investigation plain list and metadata search build no relation graph", (t) => {
+test("investigation plain list and metadata search omit relation evidence and metadata leaves the graph unaccessed", (t) => {
   const index = relationFixture();
-  const builds = observeGraphBuilds(t, Object.values(index.entries));
   const query = prepareQuery({ workspaceRoot: "/tmp", limit: 2 });
   assert.ok(query.isOk());
   const listed = queryLoadedInvestigationIndex(
@@ -58,7 +56,6 @@ test("investigation plain list and metadata search build no relation graph", (t)
   assert.ok(
     listed.value.entries.every((entry) => !("filterRelations" in entry))
   );
-  builds(0);
 
   const search = prepareSearch({
     workspaceRoot: "/tmp",
@@ -66,27 +63,28 @@ test("investigation plain list and metadata search build no relation graph", (t)
     in: "metadata"
   });
   assert.ok(search.isOk());
+  const context = createInvestigationRelationContext(
+    Object.entries(index.entries)
+  );
+  const graph = t.mock.method(context, "graph");
   const searched = searchLoadedInvestigationMetadata(
-    createInvestigationRelationContext(Object.entries(index.entries)),
+    context,
     search.value.indexPath,
     search.value
   );
   assert.equal(searched.status, "ok");
   assert.equal(searched.searchInfo?.counts.matched.value, 3);
   assert.ok(searched.entries.every((entry) => !("filterRelations" in entry)));
-  builds(0);
+  assert.equal(graph.mock.callCount(), 0);
 });
 
-test("investigation validation filtering and trace share one graph per snapshot", (t) => {
+test("investigation validation filtering and trace share one graph per snapshot", () => {
   const index = relationFixture();
   const before = JSON.stringify(index.entries);
-  const builds = observeGraphBuilds(t, Object.values(index.entries));
   const context = createInvestigationRelationContext(
     Object.entries(index.entries)
   );
-  builds(0);
   assert.deepEqual(validateInvestigationRelationGraph(context), []);
-  builds(1);
   const graph = context.graph();
   const typeOnly = filterRelationsByEntry(context, { relationType: "修正" });
   assert.ok(typeOnly.isOk());
@@ -148,37 +146,25 @@ test("investigation validation filtering and trace share one graph per snapshot"
   );
   assert.deepEqual(validateInvestigationRelationGraph(context), []);
   assert.strictEqual(context.graph(), graph);
-  builds(1);
   assert.equal(JSON.stringify(index.entries), before);
 });
 
-test("investigation relation scopes isolate replacement and rollback snapshots", (t) => {
+test("investigation relation scopes isolate replacement and rollback snapshots", () => {
   const index = relationFixture();
   const states = new Map(Object.entries(index.entries));
   const original = states.get("next");
   assert.ok(original !== undefined);
-  const unchangedBuilds = observeGraphBuilds(t, [
-    index.entries.base!,
-    index.entries.center!
-  ]);
-  const originalBuilds = observeGraphBuilds(t, [original]);
   const first = createInvestigationRelationContext(states);
   const before = first.graph();
-  originalBuilds(1);
-  unchangedBuilds(1);
 
   const replacement = {
     ...original,
     relations: [{ type: "复查" as const, target: "base" }]
   };
-  const replacementBuilds = observeGraphBuilds(t, [replacement]);
   states.set("next", replacement);
   const changed = createInvestigationRelationContext(states);
   assert.deepEqual(validateInvestigationRelationGraph(changed), []);
   assert.notStrictEqual(changed.graph(), before);
-  replacementBuilds(1);
-  originalBuilds(1);
-  unchangedBuilds(2);
   assert.deepEqual(
     traceInvestigationRelations(first, "center", {
       direction: "successors",
@@ -207,19 +193,16 @@ test("investigation relation scopes isolate replacement and rollback snapshots",
   assert.deepEqual(restored.graph().edges, before.edges);
   assert.strictEqual(first.graph(), before);
   assert.equal(changed.graph().states.get("next"), replacement);
-  replacementBuilds(1);
-  originalBuilds(2);
-  unchangedBuilds(3);
 });
 
-test("investigation unknown and ambiguous selectors fail before graph construction", (t) => {
+test("investigation unknown and ambiguous selectors fail without accessing the graph provider", (t) => {
   const index = structuredClone(
     investigationIndexFixture([{ id: "261020-same" }, { id: "261021-same" }])
   );
-  const builds = observeGraphBuilds(t, Object.values(index.entries));
   const context = createInvestigationRelationContext(
     Object.entries(index.entries)
   );
+  const graph = t.mock.method(context, "graph");
   for (const selector of ["missing", "same"]) {
     const filtered = filterRelationsByEntry(context, { relatedTo: selector });
     assert.ok(filtered.isErr());
@@ -234,11 +217,11 @@ test("investigation unknown and ambiguous selectors fail before graph constructi
     });
     assert.equal(traced.status, "error");
     assert.deepEqual(traced.errors, filtered.error);
+    assert.equal(graph.mock.callCount(), 0);
   }
-  builds(0);
 });
 
-test("investigation content search reuses its supplied projection graph", async (t) => {
+test("investigation content search reuses its supplied projection graph", async () => {
   await withTempRoot("lazy-fallback", async (root) => {
     await writeCollection(
       root,
@@ -256,7 +239,6 @@ test("investigation content search reuses its supplied projection graph", async 
       investigationRoot(root)
     );
     assert.deepEqual(collection.errors, []);
-    const builds = observeGraphBuilds(t, collection.states.values());
     const graph = collection.relations.graph();
     const prepared = prepareSearch({
       workspaceRoot: root,
@@ -286,6 +268,5 @@ test("investigation content search reuses its supplied projection graph", async 
       { sourceId: "next", type: "补充", target: "base", summary: "当前证据" }
     ]);
     assert.strictEqual(collection.relations.graph(), graph);
-    builds(0);
   });
 });

@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-LEDGER-API-OPTIONS-001: 公共 API 对无效 options 返回结构化领域失败
 
 Tests:
-- `test:e9a1ab88fdf23ef343e1b640ea22d320690ea69e6256035033dc358ac865aaef`
+- `test:50016a4b60a971fbf0dbab619bec2f78062b328c0541e785743ff60da23ff032`
 
 Tags:
 - `test-evidence`

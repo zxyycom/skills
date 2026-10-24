@@ -42,7 +42,7 @@ test("CLI index info preserves the unsupported schema error code", async () => {
   });
 });
 
-test("CLI maps path failures to JSON exit one with empty stderr", async () => {
+test("CLI maps path failures to JSON exit one", async () => {
   await withTempWorkspace(async (root) => {
     const rootFile = path.join(root, "not-a-directory");
     await fs.writeFile(rootFile, "ordinary file\n", "utf8");

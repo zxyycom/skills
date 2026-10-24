@@ -18,7 +18,7 @@ import {
   repositoryRoot
 } from "./generated-artifacts-support.ts";
 
-test("generated distribution matches current source API, schema bytes, and metadata", async () => {
+test("generated distribution exposes the source runtime API and matching CLI version", async () => {
   const generatedApi = await import(pathToFileURL(generatedScriptPath).href);
   assert.deepEqual(Object.keys(sourceApi).sort(), [...publicRuntimeExports]);
   assert.deepEqual(Object.keys(generatedApi).sort(), [...publicRuntimeExports]);
@@ -45,52 +45,29 @@ test("generated distribution matches current source API, schema bytes, and metad
   });
   assert.equal(generatedExit, sourceExit);
   assert.deepEqual(generatedOutput, sourceOutput);
+});
 
-  const script = await fs.readFile(generatedScriptPath, "utf8");
-  assert.match(
-    script,
-    /Maintained source: https:\/\/github\.com\/zxyycom\/skills\/blob\/main\/tools\/task-graph\/src\/cli\.ts/u
-  );
-  assert.match(script, /Rebuild: bun run sync:task-graph-cli/u);
-  assert.match(script, /runtime\/tools\/task-graph\/src\/cli\.ts/u);
-  assert.doesNotMatch(script, /debugId=/u);
-
+test("generated SDK declarations support public type consumers without leaking private APIs", async () => {
   const declaration = await fs.readFile(generatedDeclarationPath, "utf8");
-  assert.match(declaration, /export \* from "\.\/task-graph-sdk\/cli\.mjs";/u);
   const declarationFiles = (await fs.readdir(generatedDeclarationDirectory))
     .filter((filename) => filename.endsWith(".d.mts"))
     .sort();
-  assert.deepEqual(declarationFiles, [
-    "cli-contract.d.mts",
-    "cli.d.mts",
-    "engine-apply.d.mts",
-    "engine-claim.d.mts",
-    "engine-content.d.mts",
-    "engine-lifecycle.d.mts",
-    "engine-removal.d.mts",
-    "engine.d.mts",
-    "errors.d.mts",
-    "graph-projection.d.mts",
-    "graph-topology.d.mts",
-    "graph-validation.d.mts",
-    "graph.d.mts",
-    "index.d.mts",
-    "service.d.mts",
-    "types.d.mts"
-  ]);
   const declarations = await Promise.all(
-    declarationFiles.map(
-      async (filename) =>
-        await fs.readFile(
-          path.join(generatedDeclarationDirectory, filename),
-          "utf8"
-        )
-    )
+    declarationFiles.map(async (name) => {
+      const filename = path.join(generatedDeclarationDirectory, name);
+      return { filename, source: await fs.readFile(filename, "utf8") };
+    })
   );
-  const declarationTree = [declaration, ...declarations].join("\n");
+  const declarationTree = [
+    declaration,
+    ...declarations.map(({ source }) => source)
+  ].join("\n");
   assert.match(declarationTree, /export type TaskListItem\b/u);
   assert.doesNotMatch(declarationTree, /\bTaskSummary\b/u);
-  for (const generatedDeclaration of [declaration, ...declarations]) {
+  for (const { filename, source: generatedDeclaration } of [
+    { filename: generatedDeclarationPath, source: declaration },
+    ...declarations
+  ]) {
     assert.match(
       generatedDeclaration,
       /Generated task graph SDK TypeScript declaration/u
@@ -99,7 +76,14 @@ test("generated distribution matches current source API, schema bytes, and metad
     for (const match of generatedDeclaration.matchAll(
       /\bfrom\s+["']([^"']+)["']/gu
     )) {
-      assert.match(match[1] ?? "", /^\.\//u);
+      const reference = match[1] ?? "";
+      assert.match(reference, /^\.\//u);
+      await fs.access(
+        path.resolve(
+          path.dirname(filename),
+          reference.replace(/\.mjs$/u, ".d.mts")
+        )
+      );
     }
   }
   for (const exportedName of publicRuntimeExports) {
@@ -226,6 +210,17 @@ test("generated distribution matches current source API, schema bytes, and metad
       { cwd: root, windowsHide: true }
     );
   });
+});
+
+test("generated runtime metadata identifies source and rebuild without local paths or debug artifacts", async () => {
+  const script = await fs.readFile(generatedScriptPath, "utf8");
+  assert.match(
+    script,
+    /Maintained source: https:\/\/github\.com\/zxyycom\/skills\/blob\/main\/tools\/task-graph\/src\/cli\.ts/u
+  );
+  assert.match(script, /Rebuild: bun run sync:task-graph-cli/u);
+  assert.match(script, /runtime\/tools\/task-graph\/src\/cli\.ts/u);
+  assert.doesNotMatch(script, /debugId=/u);
 
   const copiedRenderer = await fs.readFile(
     path.join(
@@ -241,6 +236,8 @@ test("generated distribution matches current source API, schema bytes, and metad
   );
   assert.equal(script.includes(repositoryRoot), false);
   assert.equal(script.includes(repositoryRoot.replaceAll("\\", "\\\\")), false);
+});
 
+test("distributed schema matches source bytes and validates consumer boundary values", async () => {
   await assertDistributedSchema(generatedSchemaPath);
 });

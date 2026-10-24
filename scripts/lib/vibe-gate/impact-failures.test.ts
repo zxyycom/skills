@@ -70,7 +70,7 @@ test("incremental Gate falls back when the toolchain snapshot is unavailable", a
   });
 });
 
-test("incremental Gate rejects corrupt and failed receipts", async () => {
+test("incremental Gate rejects corrupt receipt manifests and unsuccessful Runs", async () => {
   await withImpactFixture(async (fixture) => {
     await fs.mkdir(fixture.cacheDirectory, { recursive: true });
     await fs.writeFile(

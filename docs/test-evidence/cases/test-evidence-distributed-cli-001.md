@@ -1,13 +1,13 @@
 ### Case TEST-EVIDENCE-DISTRIBUTED-CLI-001: 分发 TS 在 Node 中仅暴露当前公共 API
 
 Tests:
-- `test:51b392c2f95b0c5d2ac92fe8e12ff4ce047023212c58da5394a8f99f0650c1ad`
+- `test:b1e01a7911c501a975edad8a983f443526e5bb5b7bec2551ae16521f19381a2c`
 
 Tags:
 - `test-evidence`
 
 Contract:
-- 分发的 TS 模块必须可由 Node 无副作用导入，并且只导出当前定义的公共 API。
+- 分发 TS 可在支持的 Node 中导入，不运行 CLI 输出且仅导出当前公开 API。
 
 Proves:
-- Node 动态导入成功，导出键恰为当前公共集合；全部公开操作函数均可调用。
+- 真实 Node 动态导入成功并且 stdout/stderr 保持预期无 CLI 输出，导出键恰为当前公共集合，公开操作均为函数；不声明任意全局零副作用。

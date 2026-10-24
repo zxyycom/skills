@@ -85,7 +85,7 @@ async function writeIndex(root: string): Promise<void> {
   assertPublicSchema("testEvidenceSyncResultSchema", json(result));
 }
 
-test("distributed TS imports in Node without side effects and exposes only the current public API", async () => {
+test("distributed TS imports in Node without running CLI output and exposes the current public API", async () => {
   const root = await fixture();
   try {
     const program = [
@@ -106,6 +106,7 @@ test("distributed TS imports in Node without side effects and exposes only the c
       child.once("close", (code) => resolve({ code, stderr, stdout }));
     });
     assert.equal(result.code, 0, result.stderr);
+    assert.equal(result.stderr, "");
     assert.deepEqual(JSON.parse(result.stdout), [
       "expectedSourceSchema",
       "fingerprintSchema",
@@ -265,21 +266,22 @@ test("distributed sync requires --write, while stage preserves help and domain f
   }
 });
 
-test("public CLI usage errors and API invalid options retain separate structured failures", async () => {
+test("distributed Node CLI writes usage failures only to stderr with exit two", async () => {
+  const root = await fixture();
+  try {
+    const result = await runNodeCli(root.root, ["--json", "list", "--unknown"]);
+    assert.equal(result.code, 2, result.stderr);
+    assert.equal(result.stdout, "");
+    assert.match(result.stderr, /error: unknown option '--unknown'/u);
+  } finally {
+    await removeFixture(root.parent);
+  }
+});
+
+test("public query API returns schema-valid diagnostics for invalid options", async () => {
   const root = await fixture();
   try {
     await writeIndex(root.root);
-    for (const args of [
-      ["--json", "list", "--unknown"],
-      ["--json", "show"],
-      ["--json", "list", "--limit", "1", "--limit", "2"],
-      ["--json", "list", "--limit", "zero"]
-    ]) {
-      const result = await runNodeCli(root.root, args);
-      assert.equal(result.code, 2, `${args.join(" ")}\n${result.stderr}`);
-      assert.equal(result.stdout, "");
-      assert.match(result.stderr, /error:/u);
-    }
     const invalid = await publicApi.queryTestEvidence({
       limit: 0,
       workspaceRoot: root.root

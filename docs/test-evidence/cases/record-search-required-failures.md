@@ -1,13 +1,13 @@
 ### Case RECORD-SEARCH-FAILURE-001: 显示耗尽后仍保留必需读取与资源失败
 
 Tests:
-- `test:18ff13fe0c73f7b18396d4dd73633165597e87d439bd3d79d787989e27858118`
+- `test:bfba9235d789831d4ca06cbb2815ee6567b7a7771a074b33544ca667f5804268`
 
 Tags:
 - `record-search`
 
 Contract:
-- 正文读取、资源上限或取消是失败，不以显示耗尽为由跳过或伪造成功部分结果。
+- 显示预算耗尽后仍需完成必需读取，非法 UTF-8 或请求字节上限不能伪装成功。
 
 Proves:
-- 后续非法 UTF-8、请求字节上限和已取消请求分别保持 invalid-utf8、resource-limit 和 aborted 错误。
+- 较早命中耗尽显示后，后续非法 UTF-8 与请求字节上限分别保持 invalid-utf8/resource-limit 错误。

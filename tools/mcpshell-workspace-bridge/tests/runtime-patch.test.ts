@@ -6,7 +6,7 @@ import { runWorkspaceOperation } from "../src/runtime.ts";
 import { fixture, runtime } from "./runtime-test-support.ts";
 
 test("workspace apply patch creates, updates, deletes, and atomically rejects a later invalid hunk", async () => {
-  const value = await fixture();
+  const value = await fixture({ git: true });
   const create = await runWorkspaceOperation(
     "apply-patch",
     {
@@ -52,6 +52,7 @@ test("workspace apply patch creates, updates, deletes, and atomically rejects a 
     "after\n"
   );
   await assert.rejects(fs.access(path.join(value.project, "new.txt")));
+  assert.match(await fs.readFile(value.sshCalls, "utf8"), /^called\n/u);
 });
 
 test("workspace apply patch rejects escape paths and oversized text before SSH", async () => {
@@ -73,4 +74,5 @@ test("workspace apply patch rejects escape paths and oversized text before SSH",
     runtime(value)
   );
   assert.equal(oversized.failure_kind, "text_too_large");
+  assert.equal(await fs.readFile(value.sshCalls, "utf8"), "");
 });

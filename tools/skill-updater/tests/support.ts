@@ -111,7 +111,7 @@ await fs.writeFile(
     "const fetchMarkerPath = process.env.SKILLS_TEST_FETCH_MARKER_PATH;",
     "globalThis.fetch = async (input) => {",
     "  const url = String(input);",
-    "  if (fetchMarkerPath) fs.writeFileSync(fetchMarkerPath, url, 'utf8');",
+    "  if (fetchMarkerPath) fs.appendFileSync(fetchMarkerPath, url + '\\n', 'utf8');",
     "  if (url.startsWith('https://api.github.com/repos/')) {",
     "    return new Response(releaseJson, { status: 200 });",
     "  }",

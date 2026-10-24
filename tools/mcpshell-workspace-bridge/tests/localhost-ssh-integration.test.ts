@@ -61,7 +61,7 @@ test(
     skip: localhostE2ESkip()
   },
   async () => {
-    const fixture = await createBridgeFixture();
+    const fixture = await createBridgeFixture({ git: true });
     let sshd: LocalhostSshd | undefined;
     let client: McpShellStdioSmokeClient | undefined;
     try {

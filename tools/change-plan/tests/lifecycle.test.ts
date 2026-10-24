@@ -118,14 +118,14 @@ test("plan rejects noncanonical metadata without mutation", () =>
     }
   }));
 
-test("plan refreshes the baseline without inspecting the old distance", () =>
+test("plan refreshes the baseline without being blocked by an unusable old distance", () =>
   withTempRoot("lifecycle-distance-failure", async (tempRoot) => {
     const changeDirectory = await writePlan(
       path.join(tempRoot, "changes"),
       "inspection-failure",
       {
         metadata: {
-          baseCommit: "a".repeat(256 * 1024),
+          baseCommit: validBaseCommit,
           stage: "plan"
         }
       }

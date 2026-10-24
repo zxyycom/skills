@@ -85,7 +85,7 @@ test("initializer applies idempotently and preserves unrelated TOML bytes", asyn
     { action: "create", resource: ".codex/config.toml" }
   ]);
   const once = await fs.readFile(configPath, "utf8");
-  assert.match(once, /^# personal note/m);
+  assert.equal(once.slice(0, unrelated.length), unrelated);
   assert.match(once, /\[mcp_servers\.workspace_bridge\]/u);
   assert.doesNotMatch(once, new RegExp(value.bridgeConfig.projectRoot, "u"));
   const repeated = await runInitializer(request, paths(value));

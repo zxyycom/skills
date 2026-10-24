@@ -11,10 +11,7 @@ await import("../rename-validation.test.ts");
 
 await import("../candidate-discard-transaction.test.ts");
 
-await import("../result-integrity.test.ts");
 await import("../transaction-boundaries.test.ts");
-
-await import("../candidate-operations.test.ts");
 
 await import("../transaction-domain-boundaries.test.ts");
 await import("../transaction-file-writer.test.ts");

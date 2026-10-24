@@ -64,6 +64,15 @@ test("configuration file selection and model timeout precedence are explicit", a
     ).stdout
   );
   assert.equal(diagnostics.result.timeoutMs, 100);
+  const configuredTimeout = decodeSuccess(
+    (
+      await runCli(["doctor"], {
+        ...rt,
+        env: { LIGHTWEIGHT_JUDGMENT_CONFIG: "/env", CUSTOM: "fixture" }
+      })
+    ).stdout
+  );
+  assert.equal(configuredTimeout.result.timeoutMs, 99);
   const defaults = decodeSuccess((await runCli(["doctor"], runtime())).stdout);
   assert.equal(defaults.result.timeoutMs, 15000);
 });

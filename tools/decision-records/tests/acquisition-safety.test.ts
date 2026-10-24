@@ -1,20 +1,14 @@
+import fsSync from "node:fs";
+import { readDecisionSourceRevision } from "../src/decision-index-source.ts";
+import { fixture } from "../../record-operations/tests/reader-fixture.ts";
+import { recordReaderWorkerThreshold } from "../../record-operations/src/reader-batch.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
-import type {
-  PathLike,
-  ObjectEncodingOptions,
-  BufferEncodingOption
-} from "node:fs";
 import path from "node:path";
-import {
-  readRecordText,
-  recordCollectionIdentity
-} from "../../record-operations/src/source.ts";
 import { scanDecisionRecords } from "../src/scan.ts";
 import {
   currentSourcePath,
-  archivedSourcePath,
   decisionFilePath,
   withFixtureWorkspace
 } from "./support.ts";
@@ -41,138 +35,6 @@ test("Decision full scan rejects invalid UTF-8 in initially acquired sources and
           : scan.index === null,
         true
       );
-    });
-  }
-});
-
-test("Record source reads independently prove canonical namespaces without repeated root resolutions", async () => {
-  await withFixtureWorkspace("source-canonical-observations", async (root) => {
-    const collection = path.join(root, "docs/decisions");
-    const sources = await Promise.all(
-      [currentSourcePath, archivedSourcePath].map(async (sourcePath) => ({
-        sourcePath,
-        text: await fs.readFile(decisionFilePath(root, sourcePath), "utf8")
-      }))
-    );
-    const realpath = fs.realpath;
-    const open = fs.open;
-    const canonicalPaths: string[] = [];
-    let opens = 0;
-    function observedRealpath(
-      target: PathLike,
-      options?: ObjectEncodingOptions | BufferEncoding | null
-    ): Promise<string>;
-    function observedRealpath(
-      target: PathLike,
-      options: BufferEncodingOption
-    ): Promise<NonSharedBuffer>;
-    function observedRealpath(
-      target: PathLike,
-      options?:
-        | ObjectEncodingOptions
-        | BufferEncoding
-        | BufferEncodingOption
-        | null
-    ): Promise<string | NonSharedBuffer>;
-    async function observedRealpath(
-      target: PathLike,
-      options?:
-        | ObjectEncodingOptions
-        | BufferEncoding
-        | BufferEncodingOption
-        | null
-    ): Promise<string | NonSharedBuffer> {
-      canonicalPaths.push(String(target));
-      if (
-        options === "buffer" ||
-        (typeof options === "object" && options?.encoding === "buffer")
-      )
-        return await realpath(target, { encoding: "buffer" });
-      return await realpath(target, options);
-    }
-    fs.realpath = observedRealpath;
-    fs.open = async (...args) => {
-      opens += 1;
-      return await open(...args);
-    };
-    try {
-      for (const phase of ["prepare", "fresh"]) {
-        canonicalPaths.length = 0;
-        opens = 0;
-        for (const { sourcePath, text } of sources)
-          assert.equal(await readRecordText(collection, sourcePath), text);
-        assert.deepEqual(
-          canonicalPaths,
-          sources.flatMap(({ sourcePath }) => [
-            collection,
-            path.join(collection, sourcePath),
-            path.join(collection, sourcePath)
-          ]),
-          `${phase}: each read proves its canonical root and both target observations`
-        );
-        assert.equal(opens, sources.length, `${phase}: every source is opened`);
-      }
-    } finally {
-      fs.realpath = realpath;
-      fs.open = open;
-    }
-    const alias = path.join(root, "collection-alias");
-    await fs.symlink(collection, alias);
-    await assert.rejects(
-      readRecordText(alias, "../outside.md"),
-      /record collection canonical identity changed before reading/
-    );
-    await assert.rejects(
-      recordCollectionIdentity(alias),
-      /record collection canonical identity changed/
-    );
-  });
-});
-
-test("Record source reads reject same-inode parent replacement and in-read byte drift", async () => {
-  for (const mutation of ["root", "archive", "bytes"] as const) {
-    await withFixtureWorkspace("source-read-" + mutation, async (root) => {
-      const collection = path.join(root, "docs/decisions");
-      const sourcePath =
-        mutation === "archive" ? archivedSourcePath : currentSourcePath;
-      const file = decisionFilePath(root, sourcePath);
-      const initial = await fs.stat(file);
-      const open = fs.open;
-      let changed = false;
-      fs.open = async (...args) => {
-        const handle = await open(...args);
-        if (String(args[0]) === file && !changed) {
-          if (mutation === "bytes") {
-            const readFile = handle.readFile.bind(handle);
-            Object.defineProperty(handle, "readFile", {
-              value: async () => {
-                const bytes = await readFile();
-                await fs.appendFile(file, "concurrent body edit\n");
-                changed = true;
-                return bytes;
-              }
-            });
-          } else {
-            const parent = path.dirname(file);
-            const displaced = path.join(root, "displaced-source-parent");
-            await fs.rename(parent, displaced);
-            await fs.mkdir(parent);
-            await fs.link(path.join(displaced, path.basename(file)), file);
-            changed = true;
-          }
-        }
-        return handle;
-      };
-      try {
-        await assert.rejects(
-          readRecordText(collection, sourcePath),
-          /record source changed while reading the file/
-        );
-      } finally {
-        fs.open = open;
-      }
-      assert.equal(changed, true, mutation);
-      assert.equal((await fs.stat(file)).ino, initial.ino, mutation);
     });
   }
 });
@@ -249,5 +111,43 @@ test("Decision failed initial source acquisition is reported once without a seco
     } finally {
       Object.defineProperty(fs, "open", descriptor);
     }
+  });
+});
+
+test("Decision large discovery retains its first worker failure without a later regular-file probe", async () => {
+  await fixture(async (root) => {
+    const unsafe = path.join(root, "000-bad.md");
+    await fs.symlink(path.join(root, "a.md"), unsafe);
+    for (let index = 0; index < recordReaderWorkerThreshold; index++)
+      fsSync.writeFileSync(
+        path.join(root, `source-${index}.md`),
+        `---\nid: 261024-source-${index}\nstatus: candidate\n---\n`
+      );
+    const lstat = fs.lstat;
+    const later = Object.assign(
+      new Error("later probe must not replace acquisition failure"),
+      { code: "EACCES" }
+    );
+    let probes = 0;
+    Object.defineProperty(fs, "lstat", {
+      configurable: true,
+      value: async (...args: Parameters<typeof fs.lstat>) => {
+        if (args[0] === unsafe) {
+          probes++;
+          throw later;
+        }
+        return await lstat(...args);
+      }
+    });
+    try {
+      await assert.rejects(
+        readDecisionSourceRevision(root, undefined),
+        /without symbolic links/
+      );
+      assert.equal(probes, 0);
+    } finally {
+      fs.lstat = lstat;
+    }
+    assert.equal(await fs.readlink(unsafe), path.join(root, "a.md"));
   });
 });

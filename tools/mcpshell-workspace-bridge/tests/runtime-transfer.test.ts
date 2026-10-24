@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
@@ -21,6 +22,9 @@ test("workspace put and get preserve binary and empty-file bytes with both endpo
   );
   assert.equal(binaryPut.ok, true);
   assert.equal(binaryPut.evidence?.bytes, binary.length);
+  const binarySha = createHash("sha256").update(binary).digest("hex");
+  const emptySha = createHash("sha256").update(Buffer.alloc(0)).digest("hex");
+  assert.equal(binaryPut.evidence?.sha256, binarySha);
   const emptyPut = await runWorkspaceOperation(
     "put-file",
     { sourcePath: "empty.bin", destinationPath: "empty.bin" },
@@ -28,6 +32,25 @@ test("workspace put and get preserve binary and empty-file bytes with both endpo
     runtime(value)
   );
   assert.equal(emptyPut.ok, true);
+  assert.equal(emptyPut.evidence?.bytes, 0);
+  assert.equal(emptyPut.evidence?.sha256, emptySha);
+  assert.deepEqual(
+    await fs.readFile(path.join(value.project, "empty.bin")),
+    Buffer.alloc(0)
+  );
+  const emptyGet = await runWorkspaceOperation(
+    "get-file",
+    { sourcePath: "empty.bin", destinationPath: "empty-roundtrip.bin" },
+    value.bridgeConfig,
+    runtime(value)
+  );
+  assert.equal(emptyGet.ok, true, emptyGet.stderr);
+  assert.equal(emptyGet.evidence?.bytes, 0);
+  assert.equal(emptyGet.evidence?.sha256, emptySha);
+  assert.deepEqual(
+    await fs.readFile(path.join(value.staging, "empty-roundtrip.bin")),
+    Buffer.alloc(0)
+  );
   const get = await runWorkspaceOperation(
     "get-file",
     { sourcePath: "from-agent.bin", destinationPath: "roundtrip.bin" },
@@ -39,7 +62,8 @@ test("workspace put and get preserve binary and empty-file bytes with both endpo
     await fs.readFile(path.join(value.staging, "roundtrip.bin")),
     binary
   );
-  assert.equal(get.evidence?.sha256, binaryPut.evidence?.sha256);
+  assert.equal(get.evidence?.bytes, binary.length);
+  assert.equal(get.evidence?.sha256, binarySha);
 });
 
 test("workspace file transfer respects replace, rejects escapes, and cleans failed receives", async () => {

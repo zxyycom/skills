@@ -131,8 +131,10 @@ test("changed, moved and deleted cards invalidate persisted indexes without gues
     await fs.unlink(path.join(root, "cards/moved.md"));
     await assert.rejects(currentSource(root), failure("index-invalid"));
     await synchronize(root);
+    const current = await currentSource(root);
+    assert.deepEqual(current.records, []);
     assert.throws(
-      () => selectCard([], "stable", false),
+      () => selectCard(current.records, "stable", false),
       failure("card-not-found")
     );
   });

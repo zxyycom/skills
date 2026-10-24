@@ -142,8 +142,8 @@ for (const drift of ["bytes", "mode", "member", "head"]) {
           contentPaths: [contentPath]
         });
         if (drift === "bytes") {
-          await writeFile(repositoryRoot, "docs/sentinel.txt", "fresh\n");
-          runGit(repositoryRoot, ["add", "docs/sentinel.txt"]);
+          await writeFile(repositoryRoot, "docs/staged.bin", "fresh bytes\n");
+          runGit(repositoryRoot, ["add", "docs/staged.bin"]);
         }
         if (drift === "mode")
           runGit(repositoryRoot, [

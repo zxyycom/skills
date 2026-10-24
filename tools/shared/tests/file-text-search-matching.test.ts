@@ -94,52 +94,40 @@ test("selects root-relative regular files equivalently from patterns and explici
 });
 
 test("all and any can match terms on different physical lines, while phrase cannot", async () => {
-  await withFixture(
-    { "record.md": "Alpha\nbeta\nalpha beta\n" },
-    async (root) => {
-      const all = await searchFileText(
-        request(
-          root,
-          { kind: "files", sourcePaths: ["record.md"] },
-          "alpha beta"
-        )
-      );
-      const any = await searchFileText(
-        request(
-          root,
-          { kind: "files", sourcePaths: ["record.md"] },
-          "missing beta",
-          "any"
-        )
-      );
-      const phrase = await searchFileText(
-        request(
-          root,
-          { kind: "files", sourcePaths: ["record.md"] },
-          "alpha beta",
-          "phrase"
-        )
-      );
-      assert.deepEqual(
-        all.hits[0]?.previews
-          .filter((preview) => preview.ranges.length > 0)
-          .map((preview) => preview.line),
-        [1, 2, 3]
-      );
-      assert.deepEqual(
-        any.hits[0]?.previews
-          .filter((preview) => preview.ranges.length > 0)
-          .map((preview) => preview.line),
-        [2, 3]
-      );
-      assert.deepEqual(
-        phrase.hits[0]?.previews
-          .filter((preview) => preview.ranges.length > 0)
-          .map((preview) => preview.line),
-        [3]
-      );
-    }
-  );
+  await withFixture({ "record.md": "Alpha\nbeta\n" }, async (root) => {
+    const all = await searchFileText(
+      request(root, { kind: "files", sourcePaths: ["record.md"] }, "alpha beta")
+    );
+    const any = await searchFileText(
+      request(
+        root,
+        { kind: "files", sourcePaths: ["record.md"] },
+        "missing beta",
+        "any"
+      )
+    );
+    const phrase = await searchFileText(
+      request(
+        root,
+        { kind: "files", sourcePaths: ["record.md"] },
+        "alpha beta",
+        "phrase"
+      )
+    );
+    assert.deepEqual(
+      all.hits[0]?.previews
+        .filter((preview) => preview.ranges.length > 0)
+        .map((preview) => preview.line),
+      [1, 2]
+    );
+    assert.deepEqual(
+      any.hits[0]?.previews
+        .filter((preview) => preview.ranges.length > 0)
+        .map((preview) => preview.line),
+      [2]
+    );
+    assert.deepEqual(phrase.hits, []);
+  });
 });
 
 test("normalizes NFKC, case, and Unicode whitespace while retaining original UTF-16 coordinates", async () => {

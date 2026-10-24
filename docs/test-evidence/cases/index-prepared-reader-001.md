@@ -1,13 +1,13 @@
-### Case INDEX-PREPARED-READER-001: 严格字段物化沿准备证明交给 reader
+### Case INDEX-PREPARED-READER-001: reader 复用已验证快照并保留 raw 边界
 
 Tests:
-- `test:da0a764c1337284c5fbf16e17997ee387d7719f7aeece01d0c032931f5a2e3b1`
+- `test:c77cecdf31b059c764b06986b94d7c8100c8e371138d8070f1da3ccc4860a939`
 
 Tags:
 - `index-runtime`
 
 Contract:
-- 严格 reader 复用同阶段字段物化，raw 输入仍独立验证。
+- 严格加载形成的准备证据可供 reader 复用；raw 输入仍独立校验。
 
 Proves:
-- 严格加载后多次 reader 查询不重做 parse/字段提取；raw reader/query 仍拒绝坏输入。
+- reader query/get/all 不增加 fixture 自有 metadata/state parser 或集合 validator 调用，prepared 交接不重新校验；raw reader/query 仍拒绝坏字段，不以 Date.parse 等私有提取次数作证明。

@@ -68,7 +68,10 @@ test("graph validation rejects cycles and dangling references", () => {
       issue.includes("is missing")
     )
   );
+});
 
+test("ancestor traversal returns the complete nearest-first lineage for an 8000-level chain", () => {
+  // 层级契约没有固定深度上限；保留既有深链样本以区分递归栈限制，8000 不是产品上限。
   const deep = graphIndex([taskOperation("root")]);
   const template = structuredClone(deep.tasks["task-000001"]!);
   for (let number = 2; number <= 8_000; number += 1) {
@@ -83,8 +86,13 @@ test("graph validation rejects cycles and dangling references", () => {
     };
   }
   const ancestors = ancestorIds(deep, "task-008000");
-  assert.equal(ancestors.length, 7_999);
-  assert.equal(ancestors.at(-1), "task-000001");
+  assert.deepEqual(
+    ancestors,
+    Array.from(
+      { length: 7_999 },
+      (_, index) => `task-${String(7_999 - index).padStart(6, "0")}`
+    )
+  );
 });
 
 test("relations enforce symmetric exclusions and reject conflicting inherited pairs", () => {

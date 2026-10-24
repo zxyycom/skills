@@ -151,6 +151,14 @@ test("discard restores report resources and index when index publication fails",
       "investigation-index.json"
     );
     const beforeIndex = await fs.readFile(indexPath, "utf8");
+    const report = path.join(investigationRoot(root), "report.md");
+    const beforeFiles = await Promise.all(
+      [report, resource, indexPath].map(async (file) => ({
+        file,
+        bytes: await fs.readFile(file),
+        mode: (await fs.stat(file)).mode & 0o777
+      }))
+    );
     let writes = 0;
     const result = await discardInvestigationReportWithWriter(
       { deleteOwnedResources: true, id: "report", workspaceRoot: root },
@@ -171,7 +179,11 @@ test("discard restores report resources and index when index publication fails",
       "investigation-report.discard-publish-failed"
     );
     assert.equal(await fs.readFile(indexPath, "utf8"), beforeIndex);
-    await fs.access(path.join(investigationRoot(root), "report.md"));
-    await fs.access(resource);
+    assert.ok(writes >= 1, "index publication failure was injected");
+    assert.match(result.errors.join("\n"), /simulated index failure/u);
+    for (const before of beforeFiles) {
+      assert.deepEqual(await fs.readFile(before.file), before.bytes);
+      assert.equal((await fs.stat(before.file)).mode & 0o777, before.mode);
+    }
   });
 });

@@ -11,7 +11,7 @@ import {
   malformedReadDefinition,
   snapshot
 } from "./protocol-test-support.ts";
-test("extracts closed query sources and rejects invalid source values", async () => {
+test("rejects invalid values for declared text query sources", async () => {
   const definition = defineStateIndexDefinition<JsonObject>({
     ...baseDefinition("invalid-text-key"),
     queryFields: [
@@ -52,6 +52,10 @@ test("materializes an empty state and source-revision record", async () => {
   const result = await buildStateIndex(definition, { root: "." });
   assert.equal(result.status, "ok");
   assert.deepEqual(result.status === "ok" ? result.value.entries : null, {});
+  assert.deepEqual(
+    result.status === "ok" ? result.value.sourceRevision : null,
+    { entries: {}, metadata: "source:metadata" }
+  );
 });
 
 test("reports malformed source snapshots", async () => {

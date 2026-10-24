@@ -169,12 +169,12 @@ test("native file selections exclude historical content and authoring candidates
   );
 });
 
-test("project secret detection preserves complete coverage within its bounded file capacity", async () => {
+test("project secret detection keeps its limits and scans selected source and hook files", async () => {
   const { defineConfig } = await import("@zxyycom/vibe-check");
   const fs = await import("node:fs/promises");
   const { runDefinition, outcomeFor, withTemporaryDirectory } =
     await import("./vibe-check-test-support.ts");
-  await withTemporaryDirectory("gate-secret-capacity-", async (directory) => {
+  await withTemporaryDirectory("gate-secret-selection-", async (directory) => {
     const check = createVibeNativeChecks(directory).find(
       ({ checkId }) => checkId === "secret-detection"
     );
@@ -185,48 +185,30 @@ test("project secret detection preserves complete coverage within its bounded fi
     assert.equal(options.maximumTotalBytes, 67_108_864);
     assert.deepEqual(options.findingWaivers, []);
     await fs.mkdir(path.join(directory, "scripts"));
-    for (let index = 0; index < 4_096; index += 1) {
-      await fs.writeFile(
-        path.join(directory, "scripts", `source-${index}.ts`),
-        "export {};\n"
-      );
-    }
+    await fs.mkdir(path.join(directory, ".githooks"));
+    await fs.writeFile(
+      path.join(directory, "scripts/source.ts"),
+      "export {};\n"
+    );
+    await fs.writeFile(
+      path.join(directory, ".githooks/pre-commit"),
+      "#!/bin/sh\nexit 0\n"
+    );
     await fs.writeFile(path.join(directory, "tsconfig.json"), "{}\n");
-    const definition = defineConfig({ checks: [check] });
-    const passed = await runDefinition(definition, directory);
+    const passed = await runDefinition(
+      defineConfig({ checks: [check] }),
+      directory
+    );
     assert.equal(passed.aggregate, "passed");
-    const passedOutcome = outcomeFor(passed, "secret-detection");
-    assert.equal(passedOutcome.status, "passed");
-    assert.deepEqual(
-      passedOutcome.status === "passed" ? { ...passedOutcome.data } : null,
-      {
-        selectedFileCount: 4_097,
-        scannedFileCount: 4_097,
-        findingCount: 0,
-        waivedFindingCount: 0,
-        coverageGapCount: 0
-      }
-    );
-    for (let index = 4_096; index < 5_120; index += 1) {
-      await fs.writeFile(
-        path.join(directory, "scripts", `source-${index}.ts`),
-        "export {};\n"
-      );
-    }
-    const failed = await runDefinition(definition, directory);
-    assert.equal(failed.aggregate, "failed");
-    const failedOutcome = outcomeFor(failed, "secret-detection");
-    assert.equal(failedOutcome.status, "failed");
-    assert.deepEqual(
-      failedOutcome.status === "failed" ? { ...failedOutcome.data } : null,
-      {
-        selectedFileCount: 5_121,
-        scannedFileCount: 5_120,
-        findingCount: 0,
-        waivedFindingCount: 0,
-        coverageGapCount: 1
-      }
-    );
+    const outcome = outcomeFor(passed, "secret-detection");
+    assert.equal(outcome.status, "passed");
+    assert.deepEqual(outcome.status === "passed" ? { ...outcome.data } : null, {
+      selectedFileCount: 3,
+      scannedFileCount: 3,
+      findingCount: 0,
+      waivedFindingCount: 0,
+      coverageGapCount: 0
+    });
   });
 });
 

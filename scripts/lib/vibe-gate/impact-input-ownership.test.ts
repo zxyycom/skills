@@ -82,7 +82,7 @@ test("incremental Gate closes lazy relation inputs through their existing capabi
       {
         input:
           "tools/decision-records/tests/lazy-relation-graph/context.test.ts",
-        toolId: "decision-query",
+        toolId: "decision-query-tests",
         execute: ["test:decision-records:query-and-index-projection"],
         reuse: [
           "test:decision-records:record-and-established-graph",
@@ -93,13 +93,13 @@ test("incremental Gate closes lazy relation inputs through their existing capabi
       {
         input:
           "tools/decision-records/tests/lazy-relation-graph/queries.test.ts",
-        toolId: "decision-query",
+        toolId: "decision-query-tests",
         execute: ["test:decision-records:query-and-index-projection"],
         reuse: ["test:decision-records:record-and-established-graph"]
       },
       {
         input: "tools/decision-records/tests/lazy-relation-graph/support.ts",
-        toolId: "decision-query",
+        toolId: "decision-query-tests",
         execute: ["test:decision-records:query-and-index-projection"],
         reuse: ["test:decision-records:record-and-established-graph"]
       },
@@ -135,19 +135,19 @@ test("incremental Gate closes lazy relation inputs through their existing capabi
       },
       {
         input: "tools/investigation-report/tests/relation-context.test.ts",
-        toolId: "investigation-query",
+        toolId: "investigation-query-tests",
         execute: ["test:investigation-report:index-and-query"],
         reuse: ["test:decision-records:query-and-index-projection"]
       },
       {
         input: "tools/investigation-report/tests/relation-order.test.ts",
-        toolId: "investigation-query",
+        toolId: "investigation-query-tests",
         execute: ["test:investigation-report:index-and-query"],
         reuse: ["test:decision-records:query-and-index-projection"]
       },
       {
         input: "tools/investigation-report/tests/relation-context-support.ts",
-        toolId: "investigation-query",
+        toolId: "investigation-query-tests",
         execute: ["test:investigation-report:index-and-query"],
         reuse: ["test:decision-records:query-and-index-projection"]
       },
@@ -192,8 +192,7 @@ test("incremental Gate recognizes shared record operations only in actual domain
     for (const input of [
       "tools/record-operations/src/query.ts",
       "tools/record-operations/src/synchronize.ts",
-      "tools/record-operations/src/candidate.ts",
-      "tools/record-operations/tests/query-contract.ts"
+      "tools/record-operations/src/candidate.ts"
     ]) {
       const plan = await prepareChangedFixtureActivation(fixture, input);
       assert.equal(plan.kind, "incremental");
@@ -230,6 +229,45 @@ test("incremental Gate recognizes shared record operations only in actual domain
         0
       );
     }
+  });
+});
+
+test("incremental Gate isolates shared query adapter helpers from unrelated checks", async () => {
+  await withImpactFixture(async (fixture) => {
+    const helper = await prepareChangedFixtureActivation(
+      fixture,
+      "tools/record-operations/tests/query-contract.ts"
+    );
+    for (const checkId of [
+      "test:decision-records:query-and-index-projection",
+      "test:investigation-report:cli-contract"
+    ])
+      assert.equal(
+        helper.decisions.find((decision) => decision.checkId === checkId)
+          ?.action,
+        "execute",
+        checkId
+      );
+    for (const checkId of [
+      "test:decision-records:lifecycle-and-recovery",
+      "test:investigation-report:index-and-query",
+      "test:investigation-report:transactional-maintenance",
+      "test:record-operations:shared-contract",
+      "script:check:decisions",
+      "script:check:investigations",
+      "script:test:check"
+    ])
+      assert.equal(
+        helper.decisions.find((decision) => decision.checkId === checkId)
+          ?.action,
+        "reuse",
+        checkId
+      );
+  });
+});
+
+test("incremental Gate assigns domain-owned inputs to their actual consumers", async () => {
+  await withImpactFixture(async (fixture) => {
     for (const [input, toolId, checkId] of domainInputOwnershipCases) {
       const plan = await prepareChangedFixtureActivation(fixture, input);
       assert.equal(plan.kind, "incremental");

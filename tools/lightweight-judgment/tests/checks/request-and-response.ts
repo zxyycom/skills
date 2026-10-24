@@ -20,3 +20,4 @@ await import("../adapter-images.test.ts");
 await import("../adapter-jev.test.ts");
 await import("../adapter-logging.test.ts");
 await import("../adapter-transport.test.ts");
+await import("../adapter-image-validation.test.ts");

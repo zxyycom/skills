@@ -57,6 +57,20 @@ test("stage --scope domain writes the report and its complete owner resource tre
       "docs/investigations/_resources/first/unreferenced.txt",
       "docs/investigations/first.md"
     ]);
+    for (const [member, expected] of [
+      ["first/evidence.txt", "modified evidence\n"],
+      ["first/unreferenced.txt", "unreferenced notes\n"],
+      ["first/nested/nested.txt", "nested evidence\n"]
+    ] as const) {
+      assert.equal(
+        git(root, ["show", `:docs/investigations/_resources/${member}`]),
+        expected
+      );
+    }
+    assert.match(
+      git(root, ["show", ":docs/investigations/first.md"]),
+      /title: "Changed"/u
+    );
     const pending = git(root, ["diff", "--cached", "--name-status"]);
     assert.match(
       pending,
@@ -232,7 +246,7 @@ test("stage --scope domain preserves staged index pending bytes and reports the 
   });
 });
 
-test("stage --scope all writes the index projection, report, and owner tree atomically", async () => {
+test("stage --scope all writes the index projection, report, and owner tree", async () => {
   await withTempRoot("stage-all-scope", async (root) => {
     await writeResource(root, "first/evidence.txt", "evidence\n");
     await writeCollection(root, [

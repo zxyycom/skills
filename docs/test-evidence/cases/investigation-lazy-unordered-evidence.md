@@ -7,7 +7,7 @@ Tags:
 - `investigation-report`
 
 Contract:
-- 构图保持输入边序不影响 filterRelations 的 UTF-16 来源、类型、target 稳定排序及摘要。
+- 不同输入边序不改变关系证据的稳定目标顺序、tuple 归并与摘要。
 
 Proves:
 - 正序与逆序条目/关系投影均返回按 target 排序的两条归并证据和原摘要。

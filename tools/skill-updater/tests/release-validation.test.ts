@@ -1,117 +1,76 @@
 import assert from "node:assert/strict";
-import fs from "node:fs/promises";
+import test, { mock } from "node:test";
 import path from "node:path";
-import test from "node:test";
 import { zipSync } from "fflate";
+import {
+  loadRemoteSkillFiles,
+  resolveRemoteSkillPackage
+} from "../src/release.ts";
 import {
   skillName,
   validRelease,
   skillMarkdown,
-  runUpdater,
-  tempRoot,
-  mockFetchPath,
   remoteSkillMarkdown,
+  skillUpdaterConfig,
   zipData,
-  validManifest
+  runUpdater,
+  mockFetchPath,
+  validManifest,
+  tempRoot
 } from "./support.ts";
 
-test("updater rejects a manifest version that differs from the package", async () => {
-  const mismatchTarget = path.join(tempRoot, "mismatch-target");
-  await fs.mkdir(mismatchTarget);
-  const mismatchSkillMarkdown = skillMarkdown(1, "# Keep this skill");
-  await fs.writeFile(
-    path.join(mismatchTarget, "SKILL.md"),
-    mismatchSkillMarkdown,
-    "utf8"
+async function withAssetResponse(
+  data: Uint8Array,
+  run: () => Promise<void>
+): Promise<void> {
+  const fetch = mock.method(
+    globalThis,
+    "fetch",
+    async () => new Response(Buffer.from(data))
   );
+  try {
+    await run();
+  } finally {
+    fetch.mock.restore();
+  }
+}
 
-  const mismatch = runUpdater(mockFetchPath, {
-    args: ["--yes"],
-    manifest: {
-      ...validManifest,
-      skills: { [skillName]: { version: 3 } }
-    },
-    release: validRelease,
-    targetDir: mismatchTarget,
-    zipData
+test("updater rejects a manifest version that differs from the package", async () => {
+  await withAssetResponse(zipData, async () => {
+    await assert.rejects(
+      loadRemoteSkillFiles(skillUpdaterConfig, validRelease, { version: 3 }),
+      /does not match skill-release-manifest\.json version/u
+    );
   });
-  assert.equal(mismatch.status, 1);
-  assert.match(
-    mismatch.stderr,
-    /does not match skill-release-manifest\.json version/
-  );
-  assert.equal(
-    await fs.readFile(path.join(mismatchTarget, "SKILL.md"), "utf8"),
-    mismatchSkillMarkdown
-  );
 });
 
 test("updater rejects a remote package owned by another skill", async () => {
-  const wrongRemoteTarget = path.join(tempRoot, "wrong-remote-target");
-  await fs.mkdir(wrongRemoteTarget);
-  const wrongRemoteLocalMarkdown = skillMarkdown(1, "# Keep this skill");
-  await fs.writeFile(
-    path.join(wrongRemoteTarget, "SKILL.md"),
-    wrongRemoteLocalMarkdown,
-    "utf8"
-  );
-  const wrongRemoteSkillMarkdown = skillMarkdown(
-    2,
-    "# Different remote skill",
-    "different-skill"
-  );
   const wrongRemoteZipData = zipSync({
-    [`${skillName}/SKILL.md`]: Buffer.from(wrongRemoteSkillMarkdown, "utf8")
+    [`${skillName}/SKILL.md`]: Buffer.from(
+      skillMarkdown(2, "# Different remote skill", "different-skill")
+    )
   });
-
-  const wrongRemote = runUpdater(mockFetchPath, {
-    args: ["--yes"],
-    manifest: validManifest,
-    release: validRelease,
-    targetDir: wrongRemoteTarget,
-    zipData: wrongRemoteZipData
+  await withAssetResponse(wrongRemoteZipData, async () => {
+    await assert.rejects(
+      loadRemoteSkillFiles(skillUpdaterConfig, validRelease, { version: 2 }),
+      /identifies skill "different-skill" in SKILL\.md, but this updater expects "ai-ready-docs"/u
+    );
   });
-  assert.equal(wrongRemote.status, 1);
-  assert.match(
-    wrongRemote.stderr,
-    /identifies skill "different-skill" in SKILL\.md, but this updater expects "ai-ready-docs"/
-  );
-  assert.doesNotMatch(wrongRemote.stdout, /Updated skill successfully\./);
-  assert.equal(
-    await fs.readFile(path.join(wrongRemoteTarget, "SKILL.md"), "utf8"),
-    wrongRemoteLocalMarkdown
-  );
 });
 
 test("updater rejects aliased non-canonical package paths", async () => {
-  const aliasedRemoteTarget = path.join(tempRoot, "aliased-remote-target");
-  await fs.mkdir(aliasedRemoteTarget);
-  const aliasedRemoteLocalMarkdown = skillMarkdown(1, "# Keep this skill");
-  await fs.writeFile(
-    path.join(aliasedRemoteTarget, "SKILL.md"),
-    aliasedRemoteLocalMarkdown,
-    "utf8"
-  );
   const aliasedRemoteZipData = zipSync({
-    [`${skillName}/SKILL.md`]: Buffer.from(remoteSkillMarkdown, "utf8"),
+    [`${skillName}/SKILL.md`]: Buffer.from(remoteSkillMarkdown),
     [`${skillName}/references/../SKILL.md`]: Buffer.from(
-      skillMarkdown(2, "# Must not replace the validated entry"),
-      "utf8"
+      skillMarkdown(2, "# Must not replace the validated entry")
     )
   });
-  const aliasedRemote = runUpdater(mockFetchPath, {
-    args: ["--yes"],
-    manifest: validManifest,
-    release: validRelease,
-    targetDir: aliasedRemoteTarget,
-    zipData: aliasedRemoteZipData
+  await withAssetResponse(aliasedRemoteZipData, async () => {
+    await assert.rejects(
+      loadRemoteSkillFiles(skillUpdaterConfig, validRelease, { version: 2 }),
+      /non-canonical skill path/u
+    );
   });
-  assert.equal(aliasedRemote.status, 1);
-  assert.match(aliasedRemote.stderr, /non-canonical skill path/);
-  assert.equal(
-    await fs.readFile(path.join(aliasedRemoteTarget, "SKILL.md"), "utf8"),
-    aliasedRemoteLocalMarkdown
-  );
 });
 
 test("updater reports invalid release payloads", () => {
@@ -123,22 +82,15 @@ test("updater reports invalid release payloads", () => {
     zipData
   });
   assert.equal(invalidRelease.status, 1);
-  assert.match(invalidRelease.stderr, /GitHub release response .* is invalid/);
-  assert.match(invalidRelease.stderr, /assets/);
+  assert.match(invalidRelease.stderr, /GitHub release response .* is invalid/u);
+  assert.match(invalidRelease.stderr, /assets/u);
 });
 
-test("updater reports invalid manifest payloads", () => {
-  const invalidManifest = runUpdater(mockFetchPath, {
-    args: ["--check"],
-    manifest: {},
-    release: validRelease,
-    targetDir: path.join(tempRoot, "invalid-manifest-target"),
-    zipData
+test("updater reports invalid manifest payloads", async () => {
+  await withAssetResponse(Buffer.from("{}"), async () => {
+    await assert.rejects(
+      resolveRemoteSkillPackage(skillUpdaterConfig, validRelease),
+      /contains invalid skill-release-manifest\.json:[\s\S]*schemaVersion/u
+    );
   });
-  assert.equal(invalidManifest.status, 1);
-  assert.match(
-    invalidManifest.stderr,
-    /contains invalid skill-release-manifest\.json/
-  );
-  assert.match(invalidManifest.stderr, /schemaVersion/);
 });

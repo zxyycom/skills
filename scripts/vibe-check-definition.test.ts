@@ -19,7 +19,7 @@ test("gate Definition keeps the complete catalog and incremental selection", () 
   const definition = createGateDefinition([], {
     activeToolIds: ["repository-code"]
   });
-  assert.equal(gateCheckIds().length, 67);
+  assert.equal(gateCheckIds().length, 69);
   assert.deepEqual(
     definition.checks.map(({ checkId }) => checkId),
     gateCheckIds()
@@ -44,7 +44,7 @@ test("gate Definition keeps the complete catalog and incremental selection", () 
     definition.checks.find(({ checkId }) => checkId === "script:typecheck")
       ?.enabledByFlags,
     {
-      when: { kind: "any", conditions: ["gate-tool:repository-code"] },
+      when: { kind: "any", conditions: ["gate-tool:typescript-program"] },
       propagateDependsOn: true
     }
   );
@@ -73,7 +73,7 @@ test("gate Definition keeps scheduler, output, and release DAG contracts", () =>
     release.scheduler.resourceCapacities,
     releaseGateResourceCapacities
   );
-  assert.equal(releaseRequiredCheckIds.length, 64);
+  assert.equal(releaseRequiredCheckIds.length, 66);
   assert.deepEqual(
     release.checks.find(({ checkId }) => checkId === "release:skill-prepare")
       ?.dependsOn,

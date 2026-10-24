@@ -91,9 +91,18 @@ test("Investigation unified discard classifies and prepares under one lock for f
       const originalOpen = fs.open;
       let lockAcquisitions = 0;
       let unlockedSourceRead = false;
+      const selectedPath =
+        kind === "candidate"
+          ? candidatePath(root, "candidate.md")
+          : path.join(investigationRoot(root), "formal.md");
+      let selectedReads = 0;
       fs.open = (async (...args) => {
         if (args[0] === lockPath(root)) lockAcquisitions += 1;
-        if (typeof args[0] === "string" && args[0].endsWith(".md")) {
+        if (args[0] === selectedPath) selectedReads += 1;
+        if (
+          typeof args[0] === "string" &&
+          (args[0].endsWith(".md") || args[0] === selectedPath)
+        ) {
           if (!(await fs.stat(lockPath(root)).catch(() => null)))
             unlockedSourceRead = true;
         }
@@ -112,6 +121,10 @@ test("Investigation unified discard classifies and prepares under one lock for f
       assert.equal(result.changed, true);
       assert.equal(lockAcquisitions, 1);
       assert.equal(unlockedSourceRead, false);
+      assert.ok(
+        selectedReads > 0,
+        "the selected formal or candidate source is actually acquired under lock"
+      );
       if (kind === "candidate") {
         await assert.rejects(fs.access(candidatePath(root, "candidate.md")));
         assert.deepEqual(await fs.readFile(index), before);

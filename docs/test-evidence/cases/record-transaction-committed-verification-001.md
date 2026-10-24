@@ -1,8 +1,7 @@
 ### Case RECORD-TRANSACTION-COMMITTED-VERIFICATION-001: 共同事务区分提交后验收与清理失败
 
 Tests:
-- `test:78ff4fb25772bff1757396da45f17c42b50b6f251116ebbef4babdc2f1f606b6`
-- `test:befb2de8f459f6da91d89dde69b965812fc179cb90727c2b734275c9ec979922`
+- `test:0df493e38b3a9602050f78f6214ec5449e43b06ad3505ebd696bdb3e8b01a7fa`
 
 Tags:
 - `decision-records`

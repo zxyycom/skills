@@ -10,5 +10,4 @@ Contract:
 - 根级任务字典中的父子森林与继承展开依赖必须无环，关系只能指向现存 task。
 
 Proves:
-- 父子环、展开依赖环和悬空引用均被识别。
-- 8,000 层父链以线性遍历返回完整 ancestor 集合，不消耗递归调用栈。
+- parent cycle、合并 dependency cycle 与 dangling target 分别产生对应图错误，失败不能形成合法图。

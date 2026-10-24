@@ -10,4 +10,4 @@ Contract:
 - patch 的路径与 64 KiB 文本上限必须在启动 SSH 前拒绝。
 
 Proves:
-- `..` patch path 返回 `path_rejected`；超限 patch 返回 `text_too_large`。
+- escape path 与 oversized text 返回本地拒绝；独立 SSH calls 文件均为空，同 fixture 的正向真实 Git patch 节点确认该记录机制健康。

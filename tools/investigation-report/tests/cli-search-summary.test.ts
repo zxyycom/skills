@@ -5,7 +5,7 @@ import { withTempRoot } from "./fixture-support.ts";
 import { runInvestigationCli } from "./cli-support.ts";
 import { writeCollection } from "./collection-support.ts";
 
-test("distributed investigation search prints exact metadata and lower-bound content summaries on proper channels", async () => {
+test("source investigation CLI search prints exact metadata and lower-bound content summaries on proper channels", async () => {
   await withTempRoot("search-info-cli", async (root) => {
     await writeCollection(root, [{ id: "a" }, { id: "b" }, { id: "c" }]);
     const metadata = await runInvestigationCli(root, [
