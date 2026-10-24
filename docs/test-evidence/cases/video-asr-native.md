@@ -10,4 +10,4 @@ Contract:
 - ASR 边界使用离线本地模型参数，显式语言与 initial prompt 只在有值时传入；返回的语言和 segments 必须有效。
 
 Proves:
-- 捕获的原生 argv 保留 helper、缓存、CPU 和离线选项；实际 audio.json 被解析校验，缺失语言、非法 timing 和文件缺失被明确拒绝且不改原始结果。
+- 使用隔离的 Windows 环境路径并替换原生进程端点，捕获的 argv 保留 helper、缓存、CPU 和离线选项；实际 audio.json 被解析校验，缺失语言、非法 timing 和文件缺失被明确拒绝且不改原始结果。fixture 在结束时恢复宿主环境，不证明 Linux 媒体运行支持。
