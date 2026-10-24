@@ -227,11 +227,15 @@
       "DECISION-METADATA-SEARCH-001": "sha256:40dfcfb67ca1af1eef6514c62d7257f0b696ab250b334993f3c422a49bb990c1",
       "DECISION-METADATA-SEARCH-INDEX-001": "sha256:617baea23c6c3cca5b1a654a77cb5807b72bc09b074613246716bcd504ac4c9d",
       "DECISION-METADATA-WINDOW-001": "sha256:09f657f866a32abfa2956b31d8b73bae3843933de49dc1bda7a5b4920ab715e8",
+      "DECISION-NATIVE-BUILD-ISOLATION-001": "sha256:97287a1927fa14a1f70f06f57d974e9bcb02b71cd0385a21fb069c85a96055ea",
+      "DECISION-NATIVE-BUILD-RELATIONS-001": "sha256:034c6090f799e09b18857cb0c71b5556df75ed62c6dee63f15fec6739b50f676",
+      "DECISION-NATIVE-BUILD-VALIDATION-001": "sha256:01498337374bacf207398f607ddff950c5035fdbae68d2291da514de8105710b",
       "DECISION-NEW-ACTUAL-READBACK-001": "sha256:bc1be7b3a4d21631cedc416a18c8012fc0ddb78e70e55013183ace842ef97762",
       "DECISION-NEW-CLEANUP-ONLY-001": "sha256:e14525acf6f9db83581d81675b2a58bb22cf36f14fce0bf6cadc8605f905795f",
       "DECISION-PUBLISHED-INDEX-FAIL-CLOSED-001": "sha256:1406b305016ce706df5330ca6374ca119f4e6f5b5aff57e59c3632c1b9fccbec",
       "DECISION-PUBLISHED-QUERY-NO-SOURCE-001": "sha256:f2bb795a59b4915cd55b823ceb4bbc0f50faa7fdaf49fcfcccca468743e95656",
       "DECISION-QUERY-INDEX-MEMBERSHIP-001": "sha256:79d1ca9c1e710754ebeea14ae27a539b41ba48a41e05ce4e0043907fe96d3b24",
+      "DECISION-RAW-INDEX-VALIDATION-001": "sha256:505d1126a0c8fe4bca1368ba935d2366e412e7fb4941b8c795cd8b82e0b46cd8",
       "DECISION-REALLOCATION-CANDIDATE-001": "sha256:594300cf32842ac397dcc52bfb27d7f87131ed18d959b46dc8dd28ad3e8ffa23",
       "DECISION-REALLOCATION-CLOSURE-001": "sha256:12570c29b9e24da19610ec511bfdfa77cb00ff19e5bd8ffdb78a12a16d2d9720",
       "DECISION-REALLOCATION-CONNECTIVITY-001": "sha256:b662df76cd94986ba2688f24697c2b638450a8e4179db384704f9cc04c14887a",
@@ -3680,6 +3684,36 @@
         "test:c0a474a591b9a45c247246b4d6958379b89d7535087bac35a01d7ddf8e14c4db"
       ]
     },
+    "DECISION-NATIVE-BUILD-ISOLATION-001": {
+      "title": "构建归一化并隔离来源快照",
+      "sourcePath": "cases/decision-native-build-isolation.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:be28d1b5c7161519765d0a47676b26954fece2db9c880424fb3af9398d1bdc30"
+      ]
+    },
+    "DECISION-NATIVE-BUILD-RELATIONS-001": {
+      "title": "原生构建后验证完整领域关系图",
+      "sourcePath": "cases/decision-native-build-relations.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:4d86d2c5118095357576e5a5a3ec1a7627aa9e55daa990220d85670c2dabe0a8"
+      ]
+    },
+    "DECISION-NATIVE-BUILD-VALIDATION-001": {
+      "title": "原生构建失败保持严格验收与诊断优先序",
+      "sourcePath": "cases/decision-native-build-validation.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:73e8a59b0be63cfb10de30a52e7d0eb0bdaa1b4593fc87f93a336c6aca056ac6"
+      ]
+    },
     "DECISION-NEW-ACTUAL-READBACK-001": {
       "title": "候选创建按实际字节验收结果",
       "sourcePath": "cases/decision-new-actual-readback-001.md",
@@ -3728,6 +3762,16 @@
       ],
       "testIds": [
         "test:d9704ac514289db75b4d1f945ccf5017bbeacdbe1dcb28c16ee8b166cd4e2b7b"
+      ]
+    },
+    "DECISION-RAW-INDEX-VALIDATION-001": {
+      "title": "冻结 raw 输入不能绕过严格验收",
+      "sourcePath": "cases/decision-raw-index-validation.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:b76ad203ae1bee26519f645044e8eab58b3de0b208b82b5c33e3dd25af1ac37d"
       ]
     },
     "DECISION-REALLOCATION-CANDIDATE-001": {

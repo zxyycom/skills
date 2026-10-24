@@ -1,15 +1,14 @@
 import {
+  decisionIndexSnapshotFromValidatedIndex,
   loadCurrentDecisionIndexSnapshot,
   loadDecisionIndexSnapshot,
   parseDecisionIndexSnapshot,
-  snapshotIndex,
-  validateDecisionIndexSnapshot
+  snapshotIndex
 } from "./decision-index-snapshot.ts";
 import {
   buildStateIndex,
   serializeStateIndex,
   syncStateIndex,
-  type StateIndex,
   type StateIndexResult,
   type StateSnapshot,
   type StateIndexSyncMode,
@@ -114,18 +113,16 @@ export async function buildDecisionIndexFromSnapshot(
   );
   return built.status === "error"
     ? built
-    : validateDecisionIndex(built.value, decisionIndexFileName);
+    : snapshotIndex(
+        decisionIndexSnapshotFromValidatedIndex(
+          built.value,
+          decisionIndexFileName
+        )
+      );
 }
 
 export function serializeDecisionIndex(index: DecisionIndex): string {
   return serializeStateIndex(index, createDecisionStateIndexDefinition());
-}
-
-function validateDecisionIndex(
-  index: StateIndex<DecisionIndexState, DecisionIndexMetadata>,
-  sourcePath: string
-): StateIndexResult<DecisionIndex> {
-  return snapshotIndex(validateDecisionIndexSnapshot(index, sourcePath));
 }
 
 export {

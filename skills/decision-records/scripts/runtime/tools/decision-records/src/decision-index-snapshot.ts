@@ -197,13 +197,14 @@ export function parseDecisionIndexSnapshot(
     : decisionIndexSnapshotFromValidatedIndex(parsed.value, sourcePath);
 }
 
-function decisionIndexSnapshotFromValidatedIndex(
+// 内部接点：输入须已在同阶段通过结构、metadata/state、查询字段及 definition 验收。
+// 默认验收完整领域关系图；queryOnly 将验收留给 relationErrors 的消费者。
+export function decisionIndexSnapshotFromValidatedIndex(
   validatedIndex: ReadonlyStateIndex<DecisionIndexState, DecisionIndexMetadata>,
   sourcePath: string,
   queryOnly = false
 ): StateIndexResult<DecisionIndexSnapshot> {
-  // The strict parser/loader proved this domain shape. Existing query DTOs use
-  // mutable array types, while the snapshot's actual values stay frozen.
+  // 适配只读输入以兼容现有 Decision DTO 的可变数组类型；不改变输入的对象或冻结状态。
   const index = validatedIndex as StateIndex<
     DecisionIndexState,
     DecisionIndexMetadata
@@ -237,8 +238,7 @@ function decisionIndexSnapshotFromValidatedIndex(
   return {
     diagnostics: [],
     status: "ok",
-    // The state-index parser and decision definition have validated this exact
-    // schema and key projection before it crosses the public decision boundary.
+    // definition 已验收 state 与 ID；此处将索引身份收窄为本领域固定的 namespace/definitionVersion。
     value: {
       entries,
       getRelationGraph,
