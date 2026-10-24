@@ -1,0 +1,26 @@
+--- $WORK/base/tools/investigation-report/src/markdown.ts
++++ $WORK/proto/tools/investigation-report/src/markdown.ts
+@@ -136,9 +136,7 @@
+ 
+ /** Reads the declared identity before full report validation during scanning. */
+ export function investigationIdFromMarkdown(markdown: string): string | null {
+-  return investigationIdFromFrontmatter(
+-    normalizeMarkdownNewlines(markdown).split("\n")
+-  );
++  return investigationIdFromFrontmatter(markdown.split(/\r\n?|\n/u, 3));
+ }
+ 
+ export function replaceInvestigationReportRelations(
+--- $WORK/base/skills/investigation-report/scripts/runtime/tools/investigation-report/src/markdown.ts
++++ $WORK/proto/skills/investigation-report/scripts/runtime/tools/investigation-report/src/markdown.ts
+@@ -145,9 +145,7 @@
+ 
+ /** Reads the declared identity before full report validation during scanning. */
+ export function investigationIdFromMarkdown(markdown: string): string | null {
+-  return investigationIdFromFrontmatter(
+-    normalizeMarkdownNewlines(markdown).split("\n")
+-  );
++  return investigationIdFromFrontmatter(markdown.split(/\r\n?|\n/u, 3));
+ }
+ 
+ export function replaceInvestigationReportRelations(

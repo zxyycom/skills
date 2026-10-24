@@ -877,6 +877,41 @@
       ],
       "title": "记录身份更正的共同计划与阶段验收差异"
     },
+    "261024-record-global-throughput-and-memory": {
+      "formedAt": "2026-10-24T15:59:55Z",
+      "name": "record-global-throughput-and-memory",
+      "question": "局部操作收敛后，全量检查与同步的剩余吞吐和内存成本由哪些阶段产生，哪些隔离优化值得落地？",
+      "relations": [
+        {
+          "summary": "在局部化后定位全量检查与同步的剩余成本",
+          "target": "261024-record-tools-entry-matrix-10k",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261024-record-global-throughput-and-memory/audit.json",
+        "261024-record-global-throughput-and-memory/correctness.json",
+        "261024-record-global-throughput-and-memory/environment-and-inputs.json",
+        "261024-record-global-throughput-and-memory/implementation-methods.md",
+        "261024-record-global-throughput-and-memory/implementation-verification.json",
+        "261024-record-global-throughput-and-memory/measurements.json",
+        "261024-record-global-throughput-and-memory/methods.md",
+        "261024-record-global-throughput-and-memory/profiles.json",
+        "261024-record-global-throughput-and-memory/protocol.md",
+        "261024-record-global-throughput-and-memory/prototype-dr.patch",
+        "261024-record-global-throughput-and-memory/prototype-ir.patch",
+        "261024-record-global-throughput-and-memory/provenance.json",
+        "261024-record-global-throughput-and-memory/summary.csv"
+      ],
+      "sourcePath": "261024-record-global-throughput-and-memory.md",
+      "tags": [
+        "decision-records",
+        "investigation-report",
+        "performance",
+        "scale-testing"
+      ],
+      "title": "记录工具全量检查与同步的吞吐及内存调查"
+    },
     "261024-record-tools-entry-matrix-10k": {
       "formedAt": "2026-10-24T10:59:25Z",
       "name": "record-tools-entry-matrix-10k",
@@ -1604,6 +1639,7 @@
       "261022-record-stage-convergence-10k": "sha256:c8d51362bb46c8dda5b711e3fbdd3ac6f1ce92325005870f0501494cdb15067d",
       "261022-record-tools-local-contracts-1w": "sha256:b4662c7c1cf3248491db6a5e9b9a44d2d353329d2242112ccda3f67954e050d2",
       "261024-align-record-rename-verification": "sha256:9dd528772b765ccfd04508a25db5368100cdcc672f80f2e6788033ae5de56b4e",
+      "261024-record-global-throughput-and-memory": "sha256:c4e55609eb82029d33158c27bccd738e799c89bd36792103ae1e9b826d1a72b4",
       "261024-record-tools-entry-matrix-10k": "sha256:bdb7464449dcae7a158bd1e6d18ed8adae29de35855b26dc3d814ac6ba092149",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",

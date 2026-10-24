@@ -9,6 +9,7 @@
  */
 import { parseSections, requireNonEmptyField } from "./markdown.ts";
 import {
+  DecisionMarkdownSource,
   parseDecisionMarkdown,
   type DecisionSourceMetadata
 } from "./decision-metadata.ts";
@@ -66,20 +67,35 @@ async function validateDecisionRelations(options: {
   }
 }
 
-export async function validateDecisionBody(options: {
-  body: string;
+type DecisionBodyValidationOptions = {
   /** @deprecated Compatibility input; retained while callers migrate. */
   decisionId?: string;
   expectedDecisionId?: string;
   errors: string[];
   sourcePath: string;
   targetExists: DecisionRelationTargetExists;
-}): Promise<ValidatedDecisionBody | null> {
+};
+
+export async function validateDecisionBody(
+  options: DecisionBodyValidationOptions & { body: string }
+): Promise<ValidatedDecisionBody | null> {
+  return await validateDecisionMarkdownSource(
+    new DecisionMarkdownSource(options.body),
+    options
+  );
+}
+
+/** Internal scan handoff: source identity, text and frontmatter stay together. */
+export async function validateDecisionMarkdownSource(
+  source: DecisionMarkdownSource,
+  options: DecisionBodyValidationOptions
+): Promise<ValidatedDecisionBody | null> {
   const { sourcePath, errors } = options;
   const errorCountBeforeValidation = errors.length;
-  const parsedMarkdown = parseDecisionMarkdown(
-    decisionMarkdownParseOptions(options)
-  );
+  const parsedMarkdown = source.parse({
+    errors,
+    relativePath: sourcePath
+  });
   const body = parsedMarkdown?.body ?? "";
   validateExpectedDecisionId(options, parsedMarkdown);
   if (!body.startsWith("## 目的\n")) {
@@ -108,18 +124,6 @@ export async function validateDecisionBody(options: {
     sections.bodyReady,
     errors.length === errorCountBeforeValidation
   );
-}
-
-function decisionMarkdownParseOptions(options: {
-  body: string;
-  errors: string[];
-  sourcePath: string;
-}): Parameters<typeof parseDecisionMarkdown>[0] {
-  return {
-    errors: options.errors,
-    markdown: options.body,
-    relativePath: options.sourcePath
-  };
 }
 
 function validateExpectedDecisionId(

@@ -71,7 +71,10 @@ test("Decision membership carries source bytes and parsed identity into scanning
       sourceErrors
     );
     assert.deepEqual([...availableDecisionIds], ["261020-original"]);
-    assert.equal(source.decisionId, "261020-original");
+    assert.equal(
+      source.markdownSource?.identity().decisionId,
+      "261020-original"
+    );
     assert.equal(source.sourceText, original);
     await fs.writeFile(
       decisionPath,
@@ -94,7 +97,7 @@ test("Decision membership carries source bytes and parsed identity into scanning
       [...(await validateSourceMembership([fresh], [], []))],
       ["261020-next"]
     );
-    assert.equal(fresh.decisionId, "261020-next");
+    assert.equal(fresh.markdownSource?.identity().decisionId, "261020-next");
   });
 });
 
@@ -112,7 +115,7 @@ test("Decision membership retains failed identity parsing and scanning reports m
       sourceErrors
     );
     assert.equal(availableDecisionIds.size, 0);
-    assert.equal(source.decisionId, null);
+    assert.equal(source.markdownSource?.identity().decisionId, null);
     assert.equal(source.sourceText, text);
     const records = await scanSourceFiles({
       availableDecisionIds,

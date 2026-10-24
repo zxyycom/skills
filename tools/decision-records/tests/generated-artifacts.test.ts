@@ -44,6 +44,8 @@ test(
     assert.deepEqual(declarationFiles, [
       "cli-io.d.mts",
       "cli.d.mts",
+      "decision-metadata-types.d.mts",
+      "decision-metadata.d.mts",
       "decision-rename.d.mts",
       "index.d.mts",
       "scan-contracts.d.mts",

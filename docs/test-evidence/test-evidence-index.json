@@ -290,7 +290,13 @@
       "DECISION-SET-RELATIONS-PREFLIGHT-CLEAR-001": "sha256:116c994a9f2884f5f2d3876c3b0dd7ba1042eeebcec33367b6384a107cdd1aae",
       "DECISION-SET-RELATIONS-REPLACE-001": "sha256:fb5626c7208dd3494bbfce890af6164777bc526c81deb3c78f36a9502fd7f877",
       "DECISION-SHOW-OUTPUT-001": "sha256:6509a7dd741ac6b42be209cad95a88ac110c2fce5d17aea2bc28282b8405837e",
+      "DECISION-SOURCE-BYTE-BINDING-001": "sha256:2a6ab2a3e480df768b50ad226d286ebb2f7bd714cecf28ff3d0487183548bdbd",
+      "DECISION-SOURCE-DIAGNOSTICS-001": "sha256:0036d4b709e5844575c0484dad283d8deb89e6e68a4cc8d4d03cc6c863a80d2d",
+      "DECISION-SOURCE-DUPLICATE-MEMBERSHIP-001": "sha256:38cb04c844f0332821ccb0b96f9c9593dd730df7f1be6fc035805de88a7ff245",
+      "DECISION-SOURCE-FRESH-REVISION-001": "sha256:e77301b9e507345906a890847681c557513bfa1efa822859e6b0255cd055e6aa",
+      "DECISION-SOURCE-RAW-BOUNDARY-001": "sha256:38f497dc55623b06b48164db6305cefe2ede3b29400d1c63540918cfaae53003",
       "DECISION-SOURCE-REVISION-FRESH-001": "sha256:a435ce50d00403df555de97dd5fdf958a9de5eb35d347b2aefbd0aa92286dcd9",
+      "DECISION-SOURCE-SYNC-GUARD-001": "sha256:91872fb38b3700b1b44217aede0378ab37511a5584d4247902f5154cde820cf1",
       "DECISION-SPLIT-CLOSURE-001": "sha256:2e1cecf9a938e0439888efb8b1dfbe1426c304e75092089a58ca10fa9e3ffe2d",
       "DECISION-SPLIT-EXTENSION-001": "sha256:8feb8da97005d523f79cc711d48524510787040abd9b9839b330f61846222564",
       "DECISION-SPLIT-MIXED-RELATIONS-001": "sha256:86a2d98104f18bf4d5b21d5ed4dcd2eb8ca890ddceececb14f18b2ec8080d45b",
@@ -4311,6 +4317,56 @@
         "test:c5c37382a86b650ade735fe2ef9cbeb3f45e2954aff08edffc47c39fd9902315"
       ]
     },
+    "DECISION-SOURCE-BYTE-BINDING-001": {
+      "title": "同阶段扫描绑定原始字节与身份正文",
+      "sourcePath": "cases/decision-source-frontmatter-byte-binding.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:620b212d14f99325db40c77cc7203b2db4354e54a257d7fb3fceab10b0803c62"
+      ]
+    },
+    "DECISION-SOURCE-DIAGNOSTICS-001": {
+      "title": "解析交接保留错误类型与顺序",
+      "sourcePath": "cases/decision-source-frontmatter-diagnostics.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:b7ef685ea6fb8a89b7162cb7e2579278047311173fb47df48e18fb8eec0a7233"
+      ]
+    },
+    "DECISION-SOURCE-DUPLICATE-MEMBERSHIP-001": {
+      "title": "无效记录仍参与声明身份重复检测",
+      "sourcePath": "cases/decision-source-frontmatter-duplicate-membership.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:962d328aa0e7158cf7d366df6d3f06fb23b5477ace25c8445d72a4f51cff9f92"
+      ]
+    },
+    "DECISION-SOURCE-FRESH-REVISION-001": {
+      "title": "独立 fresh 重新读取并解析来源",
+      "sourcePath": "cases/decision-source-frontmatter-fresh-revision.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:b6a01affa5135a2cbe8b29c8edcf3e7c5a632658b28fae516e1a735c577d6ea3"
+      ]
+    },
+    "DECISION-SOURCE-RAW-BOUNDARY-001": {
+      "title": "原始 Markdown 验证不接纳外部解析捷径",
+      "sourcePath": "cases/decision-source-frontmatter-raw-boundary.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:3cc12324727e5e184a3fb53dfcaa969b8a090df79bc0e999371b083e58fa3f4e"
+      ]
+    },
     "DECISION-SOURCE-REVISION-FRESH-001": {
       "title": "独立来源发现重新观察字节身份与候选状态",
       "sourcePath": "cases/decision-source-revision-fresh.md",
@@ -4319,6 +4375,16 @@
       ],
       "testIds": [
         "test:737018312a8c42220cda1444fa0258bc40d7a7c719ceb8fd89a781508030ecda"
+      ]
+    },
+    "DECISION-SOURCE-SYNC-GUARD-001": {
+      "title": "同步不能以早先解析覆盖 fresh 失败",
+      "sourcePath": "cases/decision-source-frontmatter-sync-guard.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:5a9a775f6a7cab8a3df7d79e9628b8001f1da6164db8c6888c540b74d9ac08da"
       ]
     },
     "DECISION-SPLIT-CLOSURE-001": {

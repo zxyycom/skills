@@ -1,0 +1,172 @@
+{
+  "sampleCount": 86,
+  "populationCounts": {
+    "smoke": 8,
+    "matrix": 32,
+    "initial-dr-check-ab-possible-correctness-overlap": 6,
+    "dr-other-ab": 18,
+    "prototype-probe": 2,
+    "quiet-dr-check-ab": 6,
+    "short-ir-check-ab": 6,
+    "long-ir-check-ab": 6,
+    "long-ir-probe": 2
+  },
+  "formalNormal": 66,
+  "formalDiagnostics": 12,
+  "failedSamples": 0,
+  "timeouts": 0,
+  "discardedSamples": 0,
+  "checks": [
+    {
+      "base": "pair-check-0-base",
+      "prototype": "pair-check-0-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "pair-check-1-base",
+      "prototype": "pair-check-1-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "pair-check-2-base",
+      "prototype": "pair-check-2-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "pair-sync-0-base",
+      "prototype": "pair-sync-0-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "pair-sync-1-base",
+      "prototype": "pair-sync-1-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "pair-sync-2-base",
+      "prototype": "pair-sync-2-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "pair-changed-0-base",
+      "prototype": "pair-changed-0-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "pair-changed-1-base",
+      "prototype": "pair-changed-1-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "pair-changed-2-base",
+      "prototype": "pair-changed-2-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "pair-preflight-0-base",
+      "prototype": "pair-preflight-0-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "pair-preflight-1-base",
+      "prototype": "pair-preflight-1-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "pair-preflight-2-base",
+      "prototype": "pair-preflight-2-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "quiet-check-0-base",
+      "prototype": "quiet-check-0-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "quiet-check-1-base",
+      "prototype": "quiet-check-1-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "quiet-check-2-base",
+      "prototype": "quiet-check-2-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "short-ir-pair-0-base",
+      "prototype": "short-ir-pair-0-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "short-ir-pair-1-base",
+      "prototype": "short-ir-pair-1-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "short-ir-pair-2-base",
+      "prototype": "short-ir-pair-2-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "long-pair-0-base",
+      "prototype": "long-pair-0-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "long-pair-1-base",
+      "prototype": "long-pair-1-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "base": "long-pair-2-base",
+      "prototype": "long-pair-2-proto",
+      "exitStreamsIndexAndFinalFileDeltaEqual": true
+    },
+    {
+      "matrixDomain": "dr",
+      "case": "check",
+      "normalAndDiagnosticEqual": true
+    },
+    {
+      "matrixDomain": "dr",
+      "case": "sync",
+      "normalAndDiagnosticEqual": true
+    },
+    {
+      "matrixDomain": "dr",
+      "case": "changed",
+      "normalAndDiagnosticEqual": true
+    },
+    {
+      "matrixDomain": "dr",
+      "case": "preflight",
+      "normalAndDiagnosticEqual": true
+    },
+    {
+      "matrixDomain": "ir",
+      "case": "check",
+      "normalAndDiagnosticEqual": true
+    },
+    {
+      "matrixDomain": "ir",
+      "case": "sync",
+      "normalAndDiagnosticEqual": true
+    },
+    {
+      "matrixDomain": "ir",
+      "case": "changed",
+      "normalAndDiagnosticEqual": true
+    },
+    {
+      "matrixDomain": "ir",
+      "case": "preflight",
+      "normalAndDiagnosticEqual": true
+    }
+  ],
+  "limits": [
+    "Assertions compare complete observed output bytes, index content, and final ordinary-file SHA/size/mode deltas; no independent product index oracle.",
+    "No filesystem syscall trace, transient file/lock audit, directory inode or byte-equal rewrite detection.",
+    "Function timers inclusive and diagnostic-only, not additive normal wall decomposition.",
+    "wait4 ru_maxrss largest process RSS including Node worker threads, not simultaneous descendant RSS sum."
+  ]
+}

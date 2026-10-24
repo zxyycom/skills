@@ -1,0 +1,93 @@
+{
+  "exportedAt": "2026-10-24T16:17:07Z",
+  "pathTokens": {
+    "$WORK": "本轮唯一隔离实验根；其base/proto/fixture相对关系保持",
+    "$REPO": "冻结来源主仓库根",
+    "$EXTERNAL_OPTIONAL": "矩阵实际读取的外部optional依赖根；AB另复制同字节包到base/node_modules"
+  },
+  "methodFiles": [
+    {
+      "name": "prepare.py",
+      "originalSha256": "c6299f702b0bace4691f2a9e715aa1bee2c7ed4be35a55287084d61d5251feb4",
+      "displaySha256": "ba615959a4ed783658566449b33dbfa31172bd6192cbdaff8c556799efa5a94e"
+    },
+    {
+      "name": "bench.py",
+      "originalSha256": "1cbb03efc1278dc350db6abcc5704ffee756aada4d4d1ecfef1b744f4adb10d8",
+      "displaySha256": "1cbb03efc1278dc350db6abcc5704ffee756aada4d4d1ecfef1b744f4adb10d8"
+    },
+    {
+      "name": "fix-measure.py",
+      "originalSha256": "3176f0025be2f68a18a2a8b38cf76c9df4cda7da5b3e3e8f594ccb167610ba81",
+      "displaySha256": "3176f0025be2f68a18a2a8b38cf76c9df4cda7da5b3e3e8f594ccb167610ba81"
+    },
+    {
+      "name": "profile-runtime.ts",
+      "originalSha256": "1cb4cb04216aef14fba9f320f291352172caa95fd71af1046147efb02584209b",
+      "displaySha256": "1cb4cb04216aef14fba9f320f291352172caa95fd71af1046147efb02584209b"
+    },
+    {
+      "name": "loader.mjs",
+      "originalSha256": "961c1335bc5fadfa1e78c1d3770d7b53459b949a51989f6cd71cd6c656ebfed4",
+      "displaySha256": "961c1335bc5fadfa1e78c1d3770d7b53459b949a51989f6cd71cd6c656ebfed4"
+    },
+    {
+      "name": "instrument.py",
+      "originalSha256": "0171acd12cd6d359e18228b69c94533babe167c876e89bce34b0e4a1db71fb21",
+      "displaySha256": "0171acd12cd6d359e18228b69c94533babe167c876e89bce34b0e4a1db71fb21"
+    },
+    {
+      "name": "instrument-proto.py",
+      "originalSha256": "99b8f1703a44524bd3460206b77d3cc4ff2edfd02d0b2433cccd50c95e6d8430",
+      "displaySha256": "99b8f1703a44524bd3460206b77d3cc4ff2edfd02d0b2433cccd50c95e6d8430"
+    },
+    {
+      "name": "patch-prototype.py",
+      "originalSha256": "099b9eef5a50ceba789d474bafb14edf52685085552a52083e11c41b024fc76b",
+      "displaySha256": "099b9eef5a50ceba789d474bafb14edf52685085552a52083e11c41b024fc76b"
+    },
+    {
+      "name": "patch-ir-prototype.py",
+      "originalSha256": "b1539f3374be5aefcfdfc206e81bc879d721ef77c52f54f892b3aaefbe6e214b",
+      "displaySha256": "b1539f3374be5aefcfdfc206e81bc879d721ef77c52f54f892b3aaefbe6e214b"
+    },
+    {
+      "name": "correctness.py",
+      "originalSha256": "66123a308e100ea0fdf966cfa920394188627e951e5a8a7e931366404e7741b6",
+      "displaySha256": "66123a308e100ea0fdf966cfa920394188627e951e5a8a7e931366404e7741b6"
+    },
+    {
+      "name": "identity-correctness.mjs",
+      "originalSha256": "14b0d0ef18fb11f376a3e5efa39bee9e75aedb8915cf902e864c2a0ac5675fbb",
+      "displaySha256": "14b0d0ef18fb11f376a3e5efa39bee9e75aedb8915cf902e864c2a0ac5675fbb"
+    },
+    {
+      "name": "quiet-and-long.py",
+      "originalSha256": "c3572e679eadbc852365d05beabd74f5f3c7c6261f73e7fc9857bae4def38bd2",
+      "displaySha256": "c3572e679eadbc852365d05beabd74f5f3c7c6261f73e7fc9857bae4def38bd2"
+    },
+    {
+      "name": "summarize.py",
+      "originalSha256": "716cc4efe9edd1fbb994e25b7f6b435d9b1c12665e689f86e2a703230047e778",
+      "displaySha256": "716cc4efe9edd1fbb994e25b7f6b435d9b1c12665e689f86e2a703230047e778"
+    }
+  ],
+  "corrections": [
+    {
+      "error": "/usr/bin/time absent",
+      "effect": "smoke measured invocation did not start; fixture initial sync completed",
+      "correction": "os.wait4 child resource usage and monotonic wall, no external utility",
+      "discardedSamples": 0
+    },
+    {
+      "error": "smoke and matrix initially reused a tag and stdout file name",
+      "effect": "two original smoke stdout paths overwritten by matrix; all 86 sample metadata and original smoke content SHA retained, identical original byte streams recovered from prototype/source smoke with matching SHA",
+      "resolution": "classify rows by actual argv fixture root; retain original tag and population; deduplicate streams by exact observed SHA"
+    },
+    {
+      "error": "initial AB started before correctness process completion was confirmed",
+      "effect": "initial check 3 pairs conservatively marked possible overlap, not removed",
+      "resolution": "retain them separately; independent predeclared check 3 pairs after no correctness child was observed"
+    }
+  ]
+}

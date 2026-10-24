@@ -107,7 +107,7 @@ export async function readMaintenanceSource(
     indexErrors,
     indexRelativePath: indexPath,
     sourceErrors,
-    sourceFiles: [{ decisionId: id, decisionPath, sourcePath, sourceText }]
+    sourceFiles: [{ decisionPath, sourcePath, sourceText }]
   });
   if (sourceErrors.length > 0 || indexErrors.length > 0)
     throw new Error([...sourceErrors, ...indexErrors].join("; "));

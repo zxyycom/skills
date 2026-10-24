@@ -1,9 +1,12 @@
 import {
-  decisionIdFromMarkdown,
+  DecisionMarkdownSource,
   establishedDecisionMetadataFromSource
 } from "./decision-metadata.ts";
 import { isDecisionSourcePath } from "./decision-path.ts";
-import { validateDecisionBody, type ValidatedDecisionBody } from "./record.ts";
+import {
+  validateDecisionMarkdownSource,
+  type ValidatedDecisionBody
+} from "./record.ts";
 import {
   emptyDecisionProjection,
   selectProjection,
@@ -76,21 +79,19 @@ async function scanReadableSourceFile(
   sourceText: string,
   context: ScanSourceContext
 ): Promise<DecisionRecord> {
-  const decisionId =
-    sourceFile.decisionId === undefined
-      ? decisionIdFromMarkdown(sourceText)
-      : sourceFile.decisionId;
+  const source =
+    sourceFile.markdownSource ?? new DecisionMarkdownSource(sourceText);
+  const decisionId = source.identity().decisionId;
   const indexEntry = indexedSourceEntry(context.index, decisionId);
   const recordErrors: string[] = [];
-  const sourceDocument = await validateDecisionBody({
-    body: sourceText,
+  const sourceDocument = await validateDecisionMarkdownSource(source, {
     errors: recordErrors,
     sourcePath: sourceFile.sourcePath,
     targetExists: context.targetExists
   });
   const sourceState = scannedSourceState(
     sourceFile,
-    sourceText,
+    source.text,
     sourceDocument,
     indexEntry,
     recordErrors

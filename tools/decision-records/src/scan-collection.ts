@@ -5,7 +5,7 @@ import {
 } from "../../record-operations/src/reader-batch.ts";
 import { readRecordText } from "../../record-operations/src/source.ts";
 import path from "node:path";
-import { decisionIdFromMarkdown } from "./decision-metadata.ts";
+import { DecisionMarkdownSource } from "./decision-metadata.ts";
 import { decisionIndexFileName } from "./decision-state-index.ts";
 import { addCollectionError, errorText } from "./scan-support.ts";
 import type { SourceFile, SourceFileMembers } from "./scan-contracts.ts";
@@ -141,8 +141,8 @@ export async function validateSourceMembership(
     let decisionId: DecisionId | null = null;
     const text = await readSourceText(sourceFile, sourceErrors);
     if (text !== null) {
-      decisionId = decisionIdFromMarkdown(text);
-      sourceFile.decisionId = decisionId;
+      sourceFile.markdownSource = new DecisionMarkdownSource(text);
+      decisionId = sourceFile.markdownSource.identity().decisionId;
     }
     if (decisionId === null) continue;
     const members = sourceFilesById.get(decisionId);

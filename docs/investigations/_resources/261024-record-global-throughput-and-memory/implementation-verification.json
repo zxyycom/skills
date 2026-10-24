@@ -1,0 +1,792 @@
+{
+  "acquiredAt": "2026-10-24T16:49:07.207932+00:00",
+  "node": "v26.8.2",
+  "scope": "2-record actual Node CLI small fixture; work counts and equivalence, not timing or capacity",
+  "cli": [
+    {
+      "scenario": "check",
+      "variant": "baseline",
+      "exitCode": 0,
+      "stdout": "Decision records check passed (2 decisions, 1 active, 1 aligned, 0 unaligned, 1 archived, 0 candidate scaffolds, 0 body-ready candidates).\n",
+      "stderr": "",
+      "metrics": {
+        "mode": "baseline",
+        "yaml": 4,
+        "sourceOpens": 2
+      },
+      "before": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "77ad61866664b881834304cf9238f99d314d0c740a2dbee99de85515280cd731",
+          "mode": 436
+        }
+      },
+      "after": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "77ad61866664b881834304cf9238f99d314d0c740a2dbee99de85515280cd731",
+          "mode": 436
+        }
+      },
+      "command": [
+        "node",
+        "--import",
+        "<counter-hook>",
+        "tools/decision-records/src/cli.ts",
+        "check",
+        "--root",
+        "<isolated-fixture>"
+      ]
+    },
+    {
+      "scenario": "check",
+      "variant": "current",
+      "exitCode": 0,
+      "stdout": "Decision records check passed (2 decisions, 1 active, 1 aligned, 0 unaligned, 1 archived, 0 candidate scaffolds, 0 body-ready candidates).\n",
+      "stderr": "",
+      "metrics": {
+        "mode": "current",
+        "yaml": 2,
+        "sourceOpens": 2
+      },
+      "before": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "77ad61866664b881834304cf9238f99d314d0c740a2dbee99de85515280cd731",
+          "mode": 436
+        }
+      },
+      "after": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "77ad61866664b881834304cf9238f99d314d0c740a2dbee99de85515280cd731",
+          "mode": 436
+        }
+      },
+      "command": [
+        "node",
+        "--import",
+        "<counter-hook>",
+        "tools/decision-records/src/cli.ts",
+        "check",
+        "--root",
+        "<isolated-fixture>"
+      ]
+    },
+    {
+      "scenario": "check",
+      "variant": "generated",
+      "exitCode": 0,
+      "stdout": "Decision records check passed (2 decisions, 1 active, 1 aligned, 0 unaligned, 1 archived, 0 candidate scaffolds, 0 body-ready candidates).\n",
+      "stderr": "",
+      "metrics": {
+        "mode": "current",
+        "yaml": 2,
+        "sourceOpens": 2
+      },
+      "before": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "77ad61866664b881834304cf9238f99d314d0c740a2dbee99de85515280cd731",
+          "mode": 436
+        }
+      },
+      "after": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "77ad61866664b881834304cf9238f99d314d0c740a2dbee99de85515280cd731",
+          "mode": 436
+        }
+      },
+      "command": [
+        "node",
+        "--import",
+        "<counter-hook>",
+        "skills/decision-records/scripts/decision-records.ts",
+        "check",
+        "--root",
+        "<isolated-fixture>"
+      ]
+    },
+    {
+      "scenario": "sync-unchanged",
+      "variant": "baseline",
+      "exitCode": 0,
+      "stdout": "Decision index is up to date.\n",
+      "stderr": "",
+      "metrics": {
+        "mode": "baseline",
+        "yaml": 6,
+        "sourceOpens": 4
+      },
+      "before": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "77ad61866664b881834304cf9238f99d314d0c740a2dbee99de85515280cd731",
+          "mode": 436
+        }
+      },
+      "after": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "77ad61866664b881834304cf9238f99d314d0c740a2dbee99de85515280cd731",
+          "mode": 436
+        }
+      },
+      "command": [
+        "node",
+        "--import",
+        "<counter-hook>",
+        "tools/decision-records/src/cli.ts",
+        "sync-index",
+        "--root",
+        "<isolated-fixture>"
+      ]
+    },
+    {
+      "scenario": "sync-unchanged",
+      "variant": "current",
+      "exitCode": 0,
+      "stdout": "Decision index is up to date.\n",
+      "stderr": "",
+      "metrics": {
+        "mode": "current",
+        "yaml": 4,
+        "sourceOpens": 4
+      },
+      "before": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "77ad61866664b881834304cf9238f99d314d0c740a2dbee99de85515280cd731",
+          "mode": 436
+        }
+      },
+      "after": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "77ad61866664b881834304cf9238f99d314d0c740a2dbee99de85515280cd731",
+          "mode": 436
+        }
+      },
+      "command": [
+        "node",
+        "--import",
+        "<counter-hook>",
+        "tools/decision-records/src/cli.ts",
+        "sync-index",
+        "--root",
+        "<isolated-fixture>"
+      ]
+    },
+    {
+      "scenario": "sync-unchanged",
+      "variant": "generated",
+      "exitCode": 0,
+      "stdout": "Decision index is up to date.\n",
+      "stderr": "",
+      "metrics": {
+        "mode": "current",
+        "yaml": 4,
+        "sourceOpens": 4
+      },
+      "before": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "77ad61866664b881834304cf9238f99d314d0c740a2dbee99de85515280cd731",
+          "mode": 436
+        }
+      },
+      "after": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "77ad61866664b881834304cf9238f99d314d0c740a2dbee99de85515280cd731",
+          "mode": 436
+        }
+      },
+      "command": [
+        "node",
+        "--import",
+        "<counter-hook>",
+        "skills/decision-records/scripts/decision-records.ts",
+        "sync-index",
+        "--root",
+        "<isolated-fixture>"
+      ]
+    },
+    {
+      "scenario": "sync-changed",
+      "variant": "baseline",
+      "exitCode": 0,
+      "stdout": "Rebuilt docs/decisions/decision-index.json from decision Markdown files.\n",
+      "stderr": "",
+      "metrics": {
+        "mode": "baseline",
+        "yaml": 6,
+        "sourceOpens": 4
+      },
+      "before": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "36f2c324545e0fc678c2f18eef55679f2bef8985737d986176a9eb1e85798d95",
+          "mode": 436
+        }
+      },
+      "after": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "a03131bfab0b643145f15477b722b3fa0bc55ec97c6a5957efab31c7b794e94e",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "36f2c324545e0fc678c2f18eef55679f2bef8985737d986176a9eb1e85798d95",
+          "mode": 436
+        }
+      },
+      "command": [
+        "node",
+        "--import",
+        "<counter-hook>",
+        "tools/decision-records/src/cli.ts",
+        "sync-index",
+        "--root",
+        "<isolated-fixture>"
+      ]
+    },
+    {
+      "scenario": "sync-changed",
+      "variant": "current",
+      "exitCode": 0,
+      "stdout": "Rebuilt docs/decisions/decision-index.json from decision Markdown files.\n",
+      "stderr": "",
+      "metrics": {
+        "mode": "current",
+        "yaml": 4,
+        "sourceOpens": 4
+      },
+      "before": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "36f2c324545e0fc678c2f18eef55679f2bef8985737d986176a9eb1e85798d95",
+          "mode": 436
+        }
+      },
+      "after": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "a03131bfab0b643145f15477b722b3fa0bc55ec97c6a5957efab31c7b794e94e",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "36f2c324545e0fc678c2f18eef55679f2bef8985737d986176a9eb1e85798d95",
+          "mode": 436
+        }
+      },
+      "command": [
+        "node",
+        "--import",
+        "<counter-hook>",
+        "tools/decision-records/src/cli.ts",
+        "sync-index",
+        "--root",
+        "<isolated-fixture>"
+      ]
+    },
+    {
+      "scenario": "sync-changed",
+      "variant": "generated",
+      "exitCode": 0,
+      "stdout": "Rebuilt docs/decisions/decision-index.json from decision Markdown files.\n",
+      "stderr": "",
+      "metrics": {
+        "mode": "current",
+        "yaml": 4,
+        "sourceOpens": 4
+      },
+      "before": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "36f2c324545e0fc678c2f18eef55679f2bef8985737d986176a9eb1e85798d95",
+          "mode": 436
+        }
+      },
+      "after": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "a03131bfab0b643145f15477b722b3fa0bc55ec97c6a5957efab31c7b794e94e",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "36f2c324545e0fc678c2f18eef55679f2bef8985737d986176a9eb1e85798d95",
+          "mode": 436
+        }
+      },
+      "command": [
+        "node",
+        "--import",
+        "<counter-hook>",
+        "skills/decision-records/scripts/decision-records.ts",
+        "sync-index",
+        "--root",
+        "<isolated-fixture>"
+      ]
+    },
+    {
+      "scenario": "sync-preflight",
+      "variant": "baseline",
+      "exitCode": 0,
+      "stdout": "Decision index sync preflight passed; complete projection not published.\n",
+      "stderr": "",
+      "metrics": {
+        "mode": "baseline",
+        "yaml": 6,
+        "sourceOpens": 4
+      },
+      "before": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "36f2c324545e0fc678c2f18eef55679f2bef8985737d986176a9eb1e85798d95",
+          "mode": 436
+        }
+      },
+      "after": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "36f2c324545e0fc678c2f18eef55679f2bef8985737d986176a9eb1e85798d95",
+          "mode": 436
+        }
+      },
+      "command": [
+        "node",
+        "--import",
+        "<counter-hook>",
+        "tools/decision-records/src/cli.ts",
+        "sync-index",
+        "--preflight",
+        "--root",
+        "<isolated-fixture>"
+      ]
+    },
+    {
+      "scenario": "sync-preflight",
+      "variant": "current",
+      "exitCode": 0,
+      "stdout": "Decision index sync preflight passed; complete projection not published.\n",
+      "stderr": "",
+      "metrics": {
+        "mode": "current",
+        "yaml": 4,
+        "sourceOpens": 4
+      },
+      "before": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "36f2c324545e0fc678c2f18eef55679f2bef8985737d986176a9eb1e85798d95",
+          "mode": 436
+        }
+      },
+      "after": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "36f2c324545e0fc678c2f18eef55679f2bef8985737d986176a9eb1e85798d95",
+          "mode": 436
+        }
+      },
+      "command": [
+        "node",
+        "--import",
+        "<counter-hook>",
+        "tools/decision-records/src/cli.ts",
+        "sync-index",
+        "--preflight",
+        "--root",
+        "<isolated-fixture>"
+      ]
+    },
+    {
+      "scenario": "sync-preflight",
+      "variant": "generated",
+      "exitCode": 0,
+      "stdout": "Decision index sync preflight passed; complete projection not published.\n",
+      "stderr": "",
+      "metrics": {
+        "mode": "current",
+        "yaml": 4,
+        "sourceOpens": 4
+      },
+      "before": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "36f2c324545e0fc678c2f18eef55679f2bef8985737d986176a9eb1e85798d95",
+          "mode": 436
+        }
+      },
+      "after": {
+        "docs/decisions/archive/260710-use-source-cli.md": {
+          "sha256": "897e07de9863466b0ca9bfc3353079563825ab0155a2d9530697b8d123097f6e",
+          "mode": 436
+        },
+        "docs/decisions/decision-index.json": {
+          "sha256": "0c3578bd36926d06dd7764ce7db0181feb00db0f97ea121beee91112a288c3c8",
+          "mode": 436
+        },
+        "docs/decisions/use-generated-cli.md": {
+          "sha256": "36f2c324545e0fc678c2f18eef55679f2bef8985737d986176a9eb1e85798d95",
+          "mode": 436
+        }
+      },
+      "command": [
+        "node",
+        "--import",
+        "<counter-hook>",
+        "skills/decision-records/scripts/decision-records.ts",
+        "sync-index",
+        "--preflight",
+        "--root",
+        "<isolated-fixture>"
+      ]
+    }
+  ],
+  "mutations": [
+    {
+      "mode": "current",
+      "pattern": "Decision membership",
+      "command": [
+        "node",
+        "--import",
+        "<in-memory-mutation-hook>",
+        "--test",
+        "--test-name-pattern=Decision membership",
+        "tools/decision-records/tests/source-frontmatter-reuse.test.ts"
+      ],
+      "exitCode": 0,
+      "stdout": "✔ Decision membership retains invalid-record identities while duplicate IDs stay unavailable to relations (13.621698ms)\nℹ tests 1\nℹ suites 0\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 232.414149\n",
+      "stderr": ""
+    },
+    {
+      "mode": "mutant-membership",
+      "pattern": "Decision membership",
+      "command": [
+        "node",
+        "--import",
+        "<in-memory-mutation-hook>",
+        "--test",
+        "--test-name-pattern=Decision membership",
+        "tools/decision-records/tests/source-frontmatter-reuse.test.ts"
+      ],
+      "exitCode": 1,
+      "stdout": "✖ Decision membership retains invalid-record identities while duplicate IDs stay unavailable to relations (13.670643ms)\nℹ tests 1\nℹ suites 0\nℹ pass 0\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 239.382044\n\n✖ failing tests:\n\ntest at tools/decision-records/tests/source-frontmatter-reuse.test.ts:122:1\n✖ Decision membership retains invalid-record identities while duplicate IDs stay unavailable to relations (13.670643ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  \n    [\n  +   'shared',\n      'referencing'\n    ]\n  \n      at TestContext.<anonymous> (file://tools/decision-records/tests/source-frontmatter-reuse.test.ts:133:10)\n      at async Test.run (node:internal/test_runner/test:1409:7)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: [ 'shared', 'referencing' ],\n    expected: [ 'referencing' ],\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n",
+      "stderr": ""
+    },
+    {
+      "mode": "current",
+      "pattern": "Decision raw validators|Decision same-acquisition scan retains",
+      "command": [
+        "node",
+        "--import",
+        "<in-memory-mutation-hook>",
+        "--test",
+        "--test-name-pattern=Decision raw validators|Decision same-acquisition scan retains",
+        "tools/decision-records/tests/source-frontmatter-reuse.test.ts"
+      ],
+      "exitCode": 0,
+      "stdout": "✔ Decision raw validators reject malformed Markdown despite caller-supplied parsed frontmatter (4.850835ms)\n✔ Decision same-acquisition scan retains frontmatter failures before body diagnostics (3.959281ms)\nℹ tests 2\nℹ suites 0\nℹ pass 2\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 231.902326\n",
+      "stderr": ""
+    },
+    {
+      "mode": "mutant-yaml",
+      "pattern": "Decision raw validators|Decision same-acquisition scan retains",
+      "command": [
+        "node",
+        "--import",
+        "<in-memory-mutation-hook>",
+        "--test",
+        "--test-name-pattern=Decision raw validators|Decision same-acquisition scan retains",
+        "tools/decision-records/tests/source-frontmatter-reuse.test.ts"
+      ],
+      "exitCode": 1,
+      "stdout": "✖ Decision raw validators reject malformed Markdown despite caller-supplied parsed frontmatter (5.78904ms)\n✖ Decision same-acquisition scan retains frontmatter failures before body diagnostics (1.811287ms)\nℹ tests 2\nℹ suites 0\nℹ pass 0\nℹ fail 2\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 254.066958\n\n✖ failing tests:\n\ntest at tools/decision-records/tests/source-frontmatter-reuse.test.ts:46:1\n✖ Decision raw validators reject malformed Markdown despite caller-supplied parsed frontmatter (5.78904ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  \n    [\n  +   'raw.md frontmatter is missing title',\n  +   'raw.md frontmatter is missing id',\n  +   'raw.md frontmatter is missing status',\n  +   'raw.md frontmatter is missing alignment',\n  +   'raw.md frontmatter is missing createdAt',\n  +   'raw.md frontmatter is missing purpose',\n  +   'raw.md frontmatter is missing background',\n  +   'raw.md frontmatter is missing decision',\n  +   'raw.md frontmatter is missing tags',\n  +   'raw.md frontmatter is missing relations',\n  +   'raw.md frontmatter fields must use order: title, id, status, alignment, createdAt, purpose, background, decision, tags, relations',\n  +   'raw.md frontmatter id must be a pure Decision ID',\n  +   'raw.md frontmatter title must be a string',\n  +   'raw.md frontmatter purpose must be a string',\n  +   'raw.md frontmatter background must be a string',\n  +   'raw.md frontmatter decision must be a string',\n  +   'raw.md frontmatter tags must be a non-empty array',\n  +   'raw.md frontmatter relations must be an array',\n  +   'raw.md frontmatter status must be candidate, active, or archived',\n  +   'raw.md frontmatter alignment must be aligned, unaligned, or null',\n  +   'raw.md frontmatter createdAt must be an RFC 3339 timestamp precise to seconds with an explicit timezone'\n  -   'raw.md frontmatter must be a YAML mapping'\n    ]\n  \n      at TestContext.<anonymous> (file://tools/decision-records/tests/source-frontmatter-reuse.test.ts:59:10)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at Test.start (node:internal/test_runner/test:1262:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: [ 'raw.md frontmatter is missing title', 'raw.md frontmatter is missing id', 'raw.md frontmatter is missing status', 'raw.md frontmatter is missing alignment', 'raw.md frontmatter is missing createdAt', 'raw.md frontmatter is missing purpose', 'raw.md frontmatter is missing background', 'raw.md frontmatter is missing decision', 'raw.md frontmatter is missing tags', 'raw.md frontmatter is missing relations', 'raw.md frontmatter fields must use order: title, id, status, alignment, createdAt, purpose, background, decision, tags, relations', 'raw.md frontmatter id must be a pure Decision ID', 'raw.md frontmatter title must be a string', 'raw.md frontmatter purpose must be a string', 'raw.md frontmatter background must be a string', 'raw.md frontmatter decision must be a string', 'raw.md frontmatter tags must be a non-empty array', 'raw.md frontmatter relations must be an array', 'raw.md frontmatter status must be candidate, active, or archived', 'raw.md frontmatter alignment must be aligned, unaligned, or null', 'raw.md frontmatter createdAt must be an RFC 3339 timestamp precise to seconds with an explicit timezone' ],\n    expected: [ 'raw.md frontmatter must be a YAML mapping' ],\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n\ntest at tools/decision-records/tests/source-frontmatter-reuse.test.ts:97:1\n✖ Decision same-acquisition scan retains frontmatter failures before body diagnostics (1.811287ms)\n  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /frontmatter must be a YAML mapping$/. Input:\n  \n  'invalid.md frontmatter is missing title'\n  \n      at TestContext.<anonymous> (file://tools/decision-records/tests/source-frontmatter-reuse.test.ts:109:12)\n      at async Test.run (node:internal/test_runner/test:1409:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 'invalid.md frontmatter is missing title',\n    expected: /frontmatter must be a YAML mapping$/,\n    operator: 'match',\n    diff: 'simple'\n  }\n",
+      "stderr": ""
+    },
+    {
+      "mode": "current",
+      "pattern": "Decision fresh revision independently",
+      "command": [
+        "node",
+        "--import",
+        "<in-memory-mutation-hook>",
+        "--test",
+        "--test-name-pattern=Decision fresh revision independently",
+        "tools/decision-records/tests/source-frontmatter-reuse.test.ts"
+      ],
+      "exitCode": 0,
+      "stdout": "✔ Decision fresh revision independently rereads and reparses after an acquired scan (33.456527ms)\nℹ tests 1\nℹ suites 0\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 258.647629\n",
+      "stderr": ""
+    },
+    {
+      "mode": "mutant-fresh",
+      "pattern": "Decision fresh revision independently",
+      "command": [
+        "node",
+        "--import",
+        "<in-memory-mutation-hook>",
+        "--test",
+        "--test-name-pattern=Decision fresh revision independently",
+        "tools/decision-records/tests/source-frontmatter-reuse.test.ts"
+      ],
+      "exitCode": 1,
+      "stdout": "✖ Decision fresh revision independently rereads and reparses after an acquired scan (35.717381ms)\nℹ tests 1\nℹ suites 0\nℹ pass 0\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 284.824845\n\n✖ failing tests:\n\ntest at tools/decision-records/tests/source-frontmatter-reuse.test.ts:153:1\n✖ Decision fresh revision independently rereads and reparses after an acquired scan (35.717381ms)\n  AssertionError [ERR_ASSERTION]: Missing expected rejection.\n      at async file://tools/decision-records/tests/source-frontmatter-reuse.test.ts:198:5\n      at async withTemporaryWorkspace (file://tools/decision-records/tests/support.ts:145:12)\n      at async TestContext.<anonymous> (file://tools/decision-records/tests/source-frontmatter-reuse.test.ts:154:3)\n      at async Test.run (node:internal/test_runner/test:1409:7)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    expected: /physical.md must declare a valid frontmatter Decision ID/,\n    operator: 'rejects',\n    diff: 'simple'\n  }\n",
+      "stderr": ""
+    }
+  ],
+  "baselineRevision": "a661d059fd782a476d094410c40fe706ff394d3a",
+  "changedDomainSources": {
+    "tools/decision-records/src/decision-metadata.ts": {
+      "baselineSha256": "f74534c27a92cc1309eb5c73dc0fb582f17ef7db91159d378bb717b7268df8dc",
+      "currentSha256": "10ec7ca4737d1aabcbb4b6c44599bb270d56b08b3c4b2fffa343deb65faf85d6"
+    },
+    "tools/decision-records/src/record.ts": {
+      "baselineSha256": "79edc1aea4fce33a2a8be0a48f3d7fb6b9f8be4d294b7d05ec4e6e668d247281",
+      "currentSha256": "76b0ee57e8ebc9c37940a5ea0452067868838a14920b1bb2ea1d91b2133e2b5d"
+    },
+    "tools/decision-records/src/scan-contracts.ts": {
+      "baselineSha256": "e9aa671970dfaa7c52def9ef984155d31f35ee2b186cc987cf01a53c604c4400",
+      "currentSha256": "1050d9cb4ed193ee62c97ff490978e326d3e80c54bc506161fc07ae564a7dbb3"
+    },
+    "tools/decision-records/src/scan-collection.ts": {
+      "baselineSha256": "038bcca8785b47a3f398706073b527a92469d800ee608b7672e0aa48aac1b8a8",
+      "currentSha256": "23ab7540a3d35f8923f3cd7c64fe03c58b16c4c2533681c6b964db2ed2a28809"
+    },
+    "tools/decision-records/src/scan-records.ts": {
+      "baselineSha256": "24bfe9744f0a26565710d93b5247517671e4e6599c6d7cddc43493db14b671b4",
+      "currentSha256": "969eb1c549092c2025cd1b4e0b708912c75fe215d5f1512c0373fb5c0216712b"
+    },
+    "tools/decision-records/src/decision-candidate-readiness.ts": {
+      "baselineSha256": "3acbc3467164df98f188a35ca119a2b3a81fae7a51936d8a9dceae7714fd1fb2",
+      "currentSha256": "b7e88b1e54448c5e568eee350a87cdcad1604de388793ecbc956382c8dea620e"
+    },
+    "tools/decision-records/src/decision-maintenance-source.ts": {
+      "baselineSha256": "ec958d49a86906488e8aa2bd0f9179aa60ae7a05752f0abbc606c08e2f783795",
+      "currentSha256": "62510de3ba49cbeae863e9384836a8484060bb67b24730900f32f9c1f2717776"
+    }
+  },
+  "instrumentation": {
+    "yaml": "Only increment immediately before yaml.parse(match[1]) in tools/shared/src/markdown/frontmatter.ts; same suffix also matches generated runtime.",
+    "sourceOpens": "Wrap fs.promises.open; count calls whose path contains /docs/decisions/ and ends in .md. Tiny fixture does not use worker branch.",
+    "baseline": "Load the seven task-modified DR domain modules from baselineRevision in the Node load hook; all other dependencies are the same current workspace modules.",
+    "equivalence": "For each scenario, compare complete exitCode/stdout/stderr and every final ordinary-file SHA-256 plus mode; original two-record fixture is copied for each run.",
+    "limits": "Small fixture; not an independent index oracle, real workload timing, capacity limit, multi-process memory or worker threshold qualification."
+  },
+  "registeredTests": [
+    {
+      "name": "Decision raw validators reject malformed Markdown despite caller-supplied parsed frontmatter",
+      "file": "tools/decision-records/tests/source-frontmatter-reuse.test.ts",
+      "id": "test:3cc12324727e5e184a3fb53dfcaa969b8a090df79bc0e999371b083e58fa3f4e",
+      "case": "docs/test-evidence/cases/decision-source-frontmatter-raw-boundary.md",
+      "registrationStatus": "skipped"
+    },
+    {
+      "name": "Decision same-acquisition scan preserves normalized body and exact raw source bytes",
+      "file": "tools/decision-records/tests/source-frontmatter-reuse.test.ts",
+      "id": "test:620b212d14f99325db40c77cc7203b2db4354e54a257d7fb3fceab10b0803c62",
+      "case": "docs/test-evidence/cases/decision-source-frontmatter-byte-binding.md",
+      "registrationStatus": "skipped"
+    },
+    {
+      "name": "Decision same-acquisition scan retains frontmatter failures before body diagnostics",
+      "file": "tools/decision-records/tests/source-frontmatter-reuse.test.ts",
+      "id": "test:b7ef685ea6fb8a89b7162cb7e2579278047311173fb47df48e18fb8eec0a7233",
+      "case": "docs/test-evidence/cases/decision-source-frontmatter-diagnostics.md",
+      "registrationStatus": "skipped"
+    },
+    {
+      "name": "Decision membership retains invalid-record identities while duplicate IDs stay unavailable to relations",
+      "file": "tools/decision-records/tests/source-frontmatter-reuse.test.ts",
+      "id": "test:962d328aa0e7158cf7d366df6d3f06fb23b5477ace25c8445d72a4f51cff9f92",
+      "case": "docs/test-evidence/cases/decision-source-frontmatter-duplicate-membership.md",
+      "registrationStatus": "skipped"
+    },
+    {
+      "name": "Decision fresh revision independently rereads and reparses after an acquired scan",
+      "file": "tools/decision-records/tests/source-frontmatter-reuse.test.ts",
+      "id": "test:b6a01affa5135a2cbe8b29c8edcf3e7c5a632658b28fae516e1a735c577d6ea3",
+      "case": "docs/test-evidence/cases/decision-source-frontmatter-fresh-revision.md",
+      "registrationStatus": "skipped"
+    },
+    {
+      "name": "Decision sync rejects malformed fresh bytes without publishing an index from an earlier parse",
+      "file": "tools/decision-records/tests/source-frontmatter-reuse.test.ts",
+      "id": "test:5a9a775f6a7cab8a3df7d79e9628b8001f1da6164db8c6888c540b74d9ac08da",
+      "case": "docs/test-evidence/cases/decision-source-frontmatter-sync-guard.md",
+      "registrationStatus": "skipped"
+    }
+  ],
+  "aggregateValidation": {
+    "command": "bun run test:decision-records-cli",
+    "initial": {
+      "passed": 394,
+      "failed": 1,
+      "failure": "generated-artifacts portable API hardcoded declaration list missing the two actual new closure files"
+    },
+    "final": {
+      "passed": 395,
+      "failed": 0
+    },
+    "finalSummary": "0 fail\nRan 395 tests across 1 file. [48.79s]"
+  },
+  "staticValidation": {
+    "formatCheck": "passed; 10 task source/test paths",
+    "typeAwareLint": "passed; 10 task source/test paths",
+    "wholeRepositoryTsgoNoEmit": "passed at final execution",
+    "diffCheck": "passed; task tracked source/test paths",
+    "wholeRepositoryChangedGate": "owned by integrating agent; not run as part of this slice"
+  }
+}

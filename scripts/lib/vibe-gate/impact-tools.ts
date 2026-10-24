@@ -84,6 +84,7 @@ const investigationTestSupportInputs = [
 ];
 const decisionRecordTestInputs = [
   ...decisionTestSupportInputs,
+  "tools/decision-records/tests/source-frontmatter-reuse.test.ts",
   "tools/decision-records/tests/{metadata,body-field-validation,type-path-invariants,record-guards,layout-index,relation-validation,trace-event-admission,state-snapshot,source-discovery,scan-index-reuse,trace-admission-complexity}.test.ts",
   "tools/decision-records/tests/{record-guards,metadata}/**",
   "tools/decision-records/tests/checks/record-and-established-graph.ts"

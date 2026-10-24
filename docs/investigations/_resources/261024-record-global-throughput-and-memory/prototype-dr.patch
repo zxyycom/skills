@@ -1,0 +1,216 @@
+--- base/decision-records/src/scan-contracts.ts
++++ proto/decision-records/src/scan-contracts.ts
+@@ -3,6 +3,7 @@
+ export type DecisionStoredIndexEntry = DecisionIndex["entries"][DecisionId];
+ 
+ export type SourceFile = {
++  sourceFrontmatter?: import("../../shared/src/markdown/frontmatter.ts").Frontmatter | null;
+   decisionPath: string;
+   /** Identity parsed from sourceText; null records an unsuccessful parse. */
+   decisionId?: DecisionId | null;
+--- base/decision-records/src/scan-collection.ts
++++ proto/decision-records/src/scan-collection.ts
+@@ -6,6 +6,7 @@
+ import { readRecordText } from "../../record-operations/src/source.ts";
+ import path from "node:path";
+ import { decisionIdFromMarkdown } from "./decision-metadata.ts";
++import { parseYamlFrontmatter } from "../../shared/src/markdown/frontmatter.ts";
+ import { decisionIndexFileName } from "./decision-state-index.ts";
+ import { addCollectionError, errorText } from "./scan-support.ts";
+ import type { SourceFile, SourceFileMembers } from "./scan-contracts.ts";
+@@ -141,7 +142,8 @@
+     let decisionId: DecisionId | null = null;
+     const text = await readSourceText(sourceFile, sourceErrors);
+     if (text !== null) {
+-      decisionId = decisionIdFromMarkdown(text);
++      sourceFile.sourceFrontmatter = parseYamlFrontmatter(text.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n"));
++      decisionId = decisionIdFromMarkdown(text, sourceFile.sourceFrontmatter);
+       sourceFile.decisionId = decisionId;
+     }
+     if (decisionId === null) continue;
+--- base/decision-records/src/decision-metadata.ts
++++ proto/decision-records/src/decision-metadata.ts
+@@ -40,6 +40,7 @@
+   errors: string[];
+   markdown: string;
+   relativePath: string;
++  sourceFrontmatter?: ReturnType<typeof parseYamlFrontmatter>;
+ }): ParsedDecisionMarkdown | null {
+   const { errors, markdown: rawMarkdown, relativePath } = options;
+   const markdown = rawMarkdown.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
+@@ -49,7 +50,7 @@
+     return null;
+   }
+ 
+-  const frontmatter = parseYamlFrontmatter(markdown);
++  const frontmatter = options.sourceFrontmatter === undefined ? parseYamlFrontmatter(markdown) : options.sourceFrontmatter;
+   if (!frontmatter) {
+     errors.push(relativePath + " must start with YAML frontmatter");
+     return null;
+@@ -72,18 +73,18 @@
+ }
+ 
+ /** Reads only the declared identity for source discovery before full validation. */
+-export function decisionIdFromMarkdown(markdown: string): DecisionId | null {
+-  return decisionSourceIdentityFromMarkdown(markdown).decisionId;
++export function decisionIdFromMarkdown(markdown: string, sourceFrontmatter?: ReturnType<typeof parseYamlFrontmatter>): DecisionId | null {
++  return decisionSourceIdentityFromMarkdown(markdown, sourceFrontmatter).decisionId;
+ }
+ 
+ /** Reads discovery identity and candidate status from the same source bytes. */
+-export function decisionSourceIdentityFromMarkdown(markdown: string): Readonly<{
++export function decisionSourceIdentityFromMarkdown(markdown: string, sourceFrontmatter?: ReturnType<typeof parseYamlFrontmatter>): Readonly<{
+   decisionId: DecisionId | null;
+   isCandidate: boolean;
+ }> {
+-  const frontmatter = parseYamlFrontmatter(
++  const frontmatter = sourceFrontmatter === undefined ? parseYamlFrontmatter(
+     markdown.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n")
+-  );
++  ) : sourceFrontmatter;
+   if (frontmatter === null || frontmatter.error !== null) {
+     return { decisionId: null, isCandidate: false };
+   }
+--- base/decision-records/src/record.ts
++++ proto/decision-records/src/record.ts
+@@ -59,6 +59,7 @@
+ 
+ export async function validateDecisionBody(options: {
+   body: string;
++  sourceFrontmatter?: import("../../shared/src/markdown/frontmatter.ts").Frontmatter | null;
+   /** @deprecated Compatibility input; retained while callers migrate. */
+   decisionId?: string;
+   expectedDecisionId?: string;
+@@ -102,12 +103,14 @@
+ }
+ 
+ function decisionMarkdownParseOptions(options: {
++  sourceFrontmatter?: import("../../shared/src/markdown/frontmatter.ts").Frontmatter | null;
+   body: string;
+   errors: string[];
+   sourcePath: string;
+ }): Parameters<typeof parseDecisionMarkdown>[0] {
+   return {
+     errors: options.errors,
++    sourceFrontmatter: options.sourceFrontmatter,
+     markdown: options.body,
+     relativePath: options.sourcePath
+   };
+--- base/decision-records/src/scan-records.ts
++++ proto/decision-records/src/scan-records.ts
+@@ -84,6 +84,7 @@
+   const recordErrors: string[] = [];
+   const sourceDocument = await validateDecisionBody({
+     body: sourceText,
++    sourceFrontmatter: sourceFile.sourceFrontmatter,
+     errors: recordErrors,
+     sourcePath: sourceFile.sourcePath,
+     targetExists: context.targetExists
+--- base/decision-records/src/scan-contracts.ts
++++ proto/decision-records/src/scan-contracts.ts
+@@ -12,6 +12,7 @@
+ export type DecisionStoredIndexEntry = DecisionIndex["entries"][DecisionId];
+ 
+ export type SourceFile = {
++  sourceFrontmatter?: import("../../shared/src/markdown/frontmatter.ts").Frontmatter | null;
+   decisionPath: string;
+   /** Identity parsed from sourceText; null records an unsuccessful parse. */
+   decisionId?: DecisionId | null;
+--- base/decision-records/src/scan-collection.ts
++++ proto/decision-records/src/scan-collection.ts
+@@ -15,6 +15,7 @@
+ import { readRecordText } from "../../record-operations/src/source.ts";
+ import path from "node:path";
+ import { decisionIdFromMarkdown } from "./decision-metadata.ts";
++import { parseYamlFrontmatter } from "../../shared/src/markdown/frontmatter.ts";
+ import { decisionIndexFileName } from "./decision-state-index.ts";
+ import { addCollectionError, errorText } from "./scan-support.ts";
+ import type { SourceFile, SourceFileMembers } from "./scan-contracts.ts";
+@@ -150,7 +151,8 @@
+     let decisionId: DecisionId | null = null;
+     const text = await readSourceText(sourceFile, sourceErrors);
+     if (text !== null) {
+-      decisionId = decisionIdFromMarkdown(text);
++      sourceFile.sourceFrontmatter = parseYamlFrontmatter(text.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n"));
++      decisionId = decisionIdFromMarkdown(text, sourceFile.sourceFrontmatter);
+       sourceFile.decisionId = decisionId;
+     }
+     if (decisionId === null) continue;
+--- base/decision-records/src/decision-metadata.ts
++++ proto/decision-records/src/decision-metadata.ts
+@@ -49,6 +49,7 @@
+   errors: string[];
+   markdown: string;
+   relativePath: string;
++  sourceFrontmatter?: ReturnType<typeof parseYamlFrontmatter>;
+ }): ParsedDecisionMarkdown | null {
+   const { errors, markdown: rawMarkdown, relativePath } = options;
+   const markdown = rawMarkdown.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
+@@ -58,7 +59,7 @@
+     return null;
+   }
+ 
+-  const frontmatter = parseYamlFrontmatter(markdown);
++  const frontmatter = options.sourceFrontmatter === undefined ? parseYamlFrontmatter(markdown) : options.sourceFrontmatter;
+   if (!frontmatter) {
+     errors.push(relativePath + " must start with YAML frontmatter");
+     return null;
+@@ -81,18 +82,18 @@
+ }
+ 
+ /** Reads only the declared identity for source discovery before full validation. */
+-export function decisionIdFromMarkdown(markdown: string): DecisionId | null {
+-  return decisionSourceIdentityFromMarkdown(markdown).decisionId;
++export function decisionIdFromMarkdown(markdown: string, sourceFrontmatter?: ReturnType<typeof parseYamlFrontmatter>): DecisionId | null {
++  return decisionSourceIdentityFromMarkdown(markdown, sourceFrontmatter).decisionId;
+ }
+ 
+ /** Reads discovery identity and candidate status from the same source bytes. */
+-export function decisionSourceIdentityFromMarkdown(markdown: string): Readonly<{
++export function decisionSourceIdentityFromMarkdown(markdown: string, sourceFrontmatter?: ReturnType<typeof parseYamlFrontmatter>): Readonly<{
+   decisionId: DecisionId | null;
+   isCandidate: boolean;
+ }> {
+-  const frontmatter = parseYamlFrontmatter(
++  const frontmatter = sourceFrontmatter === undefined ? parseYamlFrontmatter(
+     markdown.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n")
+-  );
++  ) : sourceFrontmatter;
+   if (frontmatter === null || frontmatter.error !== null) {
+     return { decisionId: null, isCandidate: false };
+   }
+--- base/decision-records/src/record.ts
++++ proto/decision-records/src/record.ts
+@@ -68,6 +68,7 @@
+ 
+ export async function validateDecisionBody(options: {
+   body: string;
++  sourceFrontmatter?: import("../../shared/src/markdown/frontmatter.ts").Frontmatter | null;
+   /** @deprecated Compatibility input; retained while callers migrate. */
+   decisionId?: string;
+   expectedDecisionId?: string;
+@@ -111,12 +112,14 @@
+ }
+ 
+ function decisionMarkdownParseOptions(options: {
++  sourceFrontmatter?: import("../../shared/src/markdown/frontmatter.ts").Frontmatter | null;
+   body: string;
+   errors: string[];
+   sourcePath: string;
+ }): Parameters<typeof parseDecisionMarkdown>[0] {
+   return {
+     errors: options.errors,
++    sourceFrontmatter: options.sourceFrontmatter,
+     markdown: options.body,
+     relativePath: options.sourcePath
+   };
+--- base/decision-records/src/scan-records.ts
++++ proto/decision-records/src/scan-records.ts
+@@ -93,6 +93,7 @@
+   const recordErrors: string[] = [];
+   const sourceDocument = await validateDecisionBody({
+     body: sourceText,
++    sourceFrontmatter: sourceFile.sourceFrontmatter,
+     errors: recordErrors,
+     sourcePath: sourceFile.sourcePath,
+     targetExists: context.targetExists

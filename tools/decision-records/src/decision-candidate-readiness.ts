@@ -63,7 +63,6 @@ function candidateSourceFile(
   phase: CandidateReadPhase
 ): Readonly<SourceFile> {
   return {
-    decisionId: source.id as DecisionId,
     sourcePath: source.sourcePath,
     decisionPath: path.join(
       phase.identity.decisionsDirectory,

@@ -1,11 +1,12 @@
+import type { DecisionMarkdownSource } from "./decision-metadata.ts";
 import type { DecisionId, DecisionIndex, DecisionRecord } from "./types.ts";
 
 export type DecisionStoredIndexEntry = DecisionIndex["entries"][DecisionId];
 
 export type SourceFile = {
   decisionPath: string;
-  /** Identity parsed from sourceText; null records an unsuccessful parse. */
-  decisionId?: DecisionId | null;
+  /** Discovery and formal validation share only this acquisition. */
+  markdownSource?: DecisionMarkdownSource;
   sourcePath: string;
   sourceText?: string;
   sourceReadFailed?: true;

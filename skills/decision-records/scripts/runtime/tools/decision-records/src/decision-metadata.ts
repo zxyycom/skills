@@ -45,39 +45,71 @@ const frontmatterKeys = [
 ] as const;
 const frontmatterKeySet: ReadonlySet<string> = new Set(frontmatterKeys);
 
+/** Owns discovery and validation of one acquisition's immutable Markdown bytes. */
+export class DecisionMarkdownSource {
+  readonly text: string;
+  readonly #markdown: string;
+  readonly #frontmatter: ReturnType<typeof parseYamlFrontmatter>;
+
+  constructor(markdown: string) {
+    this.text = markdown;
+    this.#markdown = markdown.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
+    this.#frontmatter = parseYamlFrontmatter(this.#markdown);
+  }
+
+  identity(): Readonly<{
+    decisionId: DecisionId | null;
+    isCandidate: boolean;
+  }> {
+    const frontmatter = this.#frontmatter;
+    if (frontmatter === null || frontmatter.error !== null) {
+      return { decisionId: null, isCandidate: false };
+    }
+    return {
+      decisionId: isDecisionId(frontmatter.values.id)
+        ? frontmatter.values.id
+        : null,
+      isCandidate: frontmatter.values.status === "candidate"
+    };
+  }
+
+  parse(options: {
+    errors: string[];
+    relativePath: string;
+  }): ParsedDecisionMarkdown | null {
+    const { errors, relativePath } = options;
+    const markdown = this.#markdown;
+    const frontmatterMatch = markdown.match(frontmatterPattern);
+    const frontmatter = this.#frontmatter;
+    if (!frontmatterMatch || frontmatter === null) {
+      errors.push(relativePath + " must start with YAML frontmatter");
+      return null;
+    }
+    if (frontmatter.error !== null) {
+      errors.push(relativePath + " frontmatter " + frontmatter.error);
+      return null;
+    }
+
+    validateFrontmatterKeys(frontmatter.keys, relativePath, errors);
+    const fields = parseDecisionFields(
+      frontmatter.values,
+      relativePath,
+      errors
+    );
+    if (fields === null) return null;
+    return {
+      body: markdown.slice(frontmatterMatch[0].length).replace(/^\n+/, ""),
+      ...fields
+    };
+  }
+}
+
 export function parseDecisionMarkdown(options: {
   errors: string[];
   markdown: string;
   relativePath: string;
 }): ParsedDecisionMarkdown | null {
-  const { errors, markdown: rawMarkdown, relativePath } = options;
-  const markdown = rawMarkdown.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
-  const frontmatterMatch = markdown.match(frontmatterPattern);
-  if (!frontmatterMatch) {
-    errors.push(relativePath + " must start with YAML frontmatter");
-    return null;
-  }
-
-  const frontmatter = parseYamlFrontmatter(markdown);
-  if (!frontmatter) {
-    errors.push(relativePath + " must start with YAML frontmatter");
-    return null;
-  }
-  if (frontmatter.error !== null) {
-    errors.push(relativePath + " frontmatter " + frontmatter.error);
-    return null;
-  }
-
-  validateFrontmatterKeys(frontmatter.keys, relativePath, errors);
-  const fields = parseDecisionFields(frontmatter.values, relativePath, errors);
-  if (fields === null) {
-    return null;
-  }
-
-  return {
-    body: markdown.slice(frontmatterMatch[0].length).replace(/^\n+/, ""),
-    ...fields
-  };
+  return new DecisionMarkdownSource(options.markdown).parse(options);
 }
 
 /** Reads only the declared identity for source discovery before full validation. */
@@ -90,18 +122,7 @@ export function decisionSourceIdentityFromMarkdown(markdown: string): Readonly<{
   decisionId: DecisionId | null;
   isCandidate: boolean;
 }> {
-  const frontmatter = parseYamlFrontmatter(
-    markdown.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n")
-  );
-  if (frontmatter === null || frontmatter.error !== null) {
-    return { decisionId: null, isCandidate: false };
-  }
-  return {
-    decisionId: isDecisionId(frontmatter.values.id)
-      ? frontmatter.values.id
-      : null,
-    isCandidate: frontmatter.values.status === "candidate"
-  };
+  return new DecisionMarkdownSource(markdown).identity();
 }
 
 function validateFrontmatterKeys(

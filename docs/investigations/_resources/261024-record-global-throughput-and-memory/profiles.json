@@ -1,0 +1,2189 @@
+[
+  {
+    "source": "base-probe-dr-changed-0-probe.1901047-0.json",
+    "reads": {
+      "success": 20000,
+      "failed": 0,
+      "bytes": 6717850
+    },
+    "calls": {
+      "decision-records/src/scan-snapshot.ts:scanDecisionSnapshot": {
+        "count": 1,
+        "ms": 3161.9378580000002
+      },
+      "decision-records/src/scan-snapshot.ts:acquireDecisionCollection": {
+        "count": 1,
+        "ms": 3147.8905809999997
+      },
+      "decision-records/src/scan-snapshot.ts:scanCollectedSourceFiles": {
+        "count": 1,
+        "ms": 2699.051252
+      },
+      "decision-records/src/scan-collection.ts:validateSourceMembership": {
+        "count": 1,
+        "ms": 1812.226244
+      },
+      "decision-records/src/scan-collection.ts:acquireCollectionText": {
+        "count": 1,
+        "ms": 1094.2960600000001
+      },
+      "record-operations/src/reader-batch.ts:forEachRecordText": {
+        "count": 2,
+        "ms": 4556.840473
+      },
+      "decision-records/src/decision-metadata.ts:decisionIdFromMarkdown": {
+        "count": 10000,
+        "ms": 695.4411359999776
+      },
+      "shared/src/markdown/frontmatter.ts:parseYamlFrontmatter": {
+        "count": 30000,
+        "ms": 2394.9754600000106
+      },
+      "decision-records/src/scan-records.ts:scanSourceFiles": {
+        "count": 1,
+        "ms": 879.5947000000001
+      },
+      "decision-records/src/record.ts:validateDecisionBody": {
+        "count": 10000,
+        "ms": 721.5717690000115
+      },
+      "decision-records/src/decision-metadata.ts:parseDecisionMarkdown": {
+        "count": 10000,
+        "ms": 660.5546269999923
+      },
+      "decision-records/src/decision-source-revision.ts:decisionSourceRevision": {
+        "count": 2,
+        "ms": 64.37428199999931
+      },
+      "record-operations/src/synchronize.ts:synchronizeRecordIndex": {
+        "count": 1,
+        "ms": 3933.0105919999996
+      }
+    },
+    "stageEndMemory": [
+      {
+        "name": "record-operations/src/reader-batch.ts:forEachRecordText",
+        "at": 1859.911554,
+        "memory": {
+          "rss": 239276032,
+          "heapTotal": 105873408,
+          "heapUsed": 52865648,
+          "external": 11460522,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-collection.ts:acquireCollectionText",
+        "at": 1860.051334,
+        "memory": {
+          "rss": 239276032,
+          "heapTotal": 105873408,
+          "heapUsed": 52871104,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-collection.ts:validateSourceMembership",
+        "at": 2577.877014,
+        "memory": {
+          "rss": 242421760,
+          "heapTotal": 120963072,
+          "heapUsed": 76005432,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-records.ts:scanSourceFiles",
+        "at": 3457.64114,
+        "memory": {
+          "rss": 254742528,
+          "heapTotal": 136261632,
+          "heapUsed": 72187432,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:scanCollectedSourceFiles",
+        "at": 3464.55513,
+        "memory": {
+          "rss": 255528960,
+          "heapTotal": 137523200,
+          "heapUsed": 76094024,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:acquireDecisionCollection",
+        "at": 3464.622615,
+        "memory": {
+          "rss": 255528960,
+          "heapTotal": 137523200,
+          "heapUsed": 76095752,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:scanDecisionSnapshot",
+        "at": 3477.412395,
+        "memory": {
+          "rss": 258936832,
+          "heapTotal": 140808192,
+          "heapUsed": 95112824,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/decision-source-revision.ts:decisionSourceRevision",
+        "at": 3524.85869,
+        "memory": {
+          "rss": 261951488,
+          "heapTotal": 139202560,
+          "heapUsed": 78522152,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "record-operations/src/reader-batch.ts:forEachRecordText",
+        "at": 7295.951163,
+        "memory": {
+          "rss": 308609024,
+          "heapTotal": 170487808,
+          "heapUsed": 103006832,
+          "external": 11461858,
+          "arrayBuffers": 145041
+        }
+      },
+      {
+        "name": "decision-records/src/decision-source-revision.ts:decisionSourceRevision",
+        "at": 7324.765373,
+        "memory": {
+          "rss": 311885824,
+          "heapTotal": 172609536,
+          "heapUsed": 114050904,
+          "external": 11461858,
+          "arrayBuffers": 145041
+        }
+      },
+      {
+        "name": "record-operations/src/synchronize.ts:synchronizeRecordIndex",
+        "at": 7464.059507,
+        "memory": {
+          "rss": 363114496,
+          "heapTotal": 177905664,
+          "heapUsed": 80752624,
+          "external": 37498921,
+          "arrayBuffers": 16221762
+        }
+      }
+    ],
+    "omittedPerRecordMemoryEvents": 10000
+  },
+  {
+    "source": "base-probe-dr-check-0-probe.1899906-0.json",
+    "reads": {
+      "success": 0,
+      "failed": 0,
+      "bytes": 0
+    },
+    "calls": {
+      "decision-records/src/scan-snapshot.ts:scanDecisionSnapshot": {
+        "count": 1,
+        "ms": 57.57261
+      },
+      "decision-records/src/scan-snapshot.ts:acquireDecisionCollection": {
+        "count": 1,
+        "ms": 54.72722999999996
+      },
+      "decision-records/src/scan-snapshot.ts:scanCollectedSourceFiles": {
+        "count": 1,
+        "ms": 36.144975000000045
+      },
+      "decision-records/src/scan-collection.ts:validateSourceMembership": {
+        "count": 1,
+        "ms": 21.595392999999945
+      },
+      "decision-records/src/scan-collection.ts:acquireCollectionText": {
+        "count": 1,
+        "ms": 0.09896400000002359
+      },
+      "decision-records/src/decision-metadata.ts:decisionIdFromMarkdown": {
+        "count": 3,
+        "ms": 12.355035000000044
+      },
+      "shared/src/markdown/frontmatter.ts:parseYamlFrontmatter": {
+        "count": 6,
+        "ms": 21.08258000000012
+      },
+      "decision-records/src/scan-records.ts:scanSourceFiles": {
+        "count": 1,
+        "ms": 13.930070999999998
+      },
+      "decision-records/src/record.ts:validateDecisionBody": {
+        "count": 3,
+        "ms": 12.780656999999906
+      },
+      "decision-records/src/decision-metadata.ts:parseDecisionMarkdown": {
+        "count": 3,
+        "ms": 11.446805000000154
+      },
+      "decision-records/src/decision-source-revision.ts:decisionSourceRevision": {
+        "count": 1,
+        "ms": 0.49301600000001145
+      },
+      "record-operations/src/check.ts:checkCollectedRecordIndex": {
+        "count": 1,
+        "ms": 11.598111000000017
+      }
+    },
+    "stageEndMemory": [
+      {
+        "name": "decision-records/src/scan-collection.ts:acquireCollectionText",
+        "at": 525.073889,
+        "memory": {
+          "rss": 118714368,
+          "heapTotal": 27799552,
+          "heapUsed": 22478664,
+          "external": 7162973,
+          "arrayBuffers": 825343
+        }
+      },
+      {
+        "name": "decision-records/src/scan-collection.ts:validateSourceMembership",
+        "at": 546.385104,
+        "memory": {
+          "rss": 119762944,
+          "heapTotal": 28323840,
+          "heapUsed": 23989264,
+          "external": 7167900,
+          "arrayBuffers": 830230
+        }
+      },
+      {
+        "name": "decision-records/src/scan-records.ts:scanSourceFiles",
+        "at": 560.574526,
+        "memory": {
+          "rss": 120549376,
+          "heapTotal": 29372416,
+          "heapUsed": 24526480,
+          "external": 7167900,
+          "arrayBuffers": 830230
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:scanCollectedSourceFiles",
+        "at": 560.827687,
+        "memory": {
+          "rss": 120549376,
+          "heapTotal": 29372416,
+          "heapUsed": 24337072,
+          "external": 7167900,
+          "arrayBuffers": 830230
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:acquireDecisionCollection",
+        "at": 560.885434,
+        "memory": {
+          "rss": 120549376,
+          "heapTotal": 29372416,
+          "heapUsed": 24338648,
+          "external": 7167900,
+          "arrayBuffers": 830230
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:scanDecisionSnapshot",
+        "at": 561.254711,
+        "memory": {
+          "rss": 120549376,
+          "heapTotal": 29372416,
+          "heapUsed": 24363784,
+          "external": 7167900,
+          "arrayBuffers": 830230
+        }
+      },
+      {
+        "name": "decision-records/src/decision-source-revision.ts:decisionSourceRevision",
+        "at": 562.14206,
+        "memory": {
+          "rss": 120549376,
+          "heapTotal": 29634560,
+          "heapUsed": 24397808,
+          "external": 7167900,
+          "arrayBuffers": 830230
+        }
+      },
+      {
+        "name": "record-operations/src/check.ts:checkCollectedRecordIndex",
+        "at": 574.137629,
+        "memory": {
+          "rss": 120942592,
+          "heapTotal": 29634560,
+          "heapUsed": 19235992,
+          "external": 6550022,
+          "arrayBuffers": 212352
+        }
+      }
+    ],
+    "omittedPerRecordMemoryEvents": 3
+  },
+  {
+    "source": "base-probe-dr-check-0-probe.1900461-0.json",
+    "reads": {
+      "success": 10000,
+      "failed": 0,
+      "bytes": 3358890
+    },
+    "calls": {
+      "decision-records/src/scan-snapshot.ts:scanDecisionSnapshot": {
+        "count": 1,
+        "ms": 6297.280233
+      },
+      "decision-records/src/scan-snapshot.ts:acquireDecisionCollection": {
+        "count": 1,
+        "ms": 6277.477008999999
+      },
+      "decision-records/src/scan-snapshot.ts:scanCollectedSourceFiles": {
+        "count": 1,
+        "ms": 4899.813253
+      },
+      "decision-records/src/scan-collection.ts:validateSourceMembership": {
+        "count": 1,
+        "ms": 3321.7351700000004
+      },
+      "decision-records/src/scan-collection.ts:acquireCollectionText": {
+        "count": 1,
+        "ms": 2012.478862
+      },
+      "record-operations/src/reader-batch.ts:forEachRecordText": {
+        "count": 1,
+        "ms": 2010.8668069999999
+      },
+      "decision-records/src/decision-metadata.ts:decisionIdFromMarkdown": {
+        "count": 10000,
+        "ms": 1263.7914599999494
+      },
+      "shared/src/markdown/frontmatter.ts:parseYamlFrontmatter": {
+        "count": 20000,
+        "ms": 2269.4452910000264
+      },
+      "decision-records/src/scan-records.ts:scanSourceFiles": {
+        "count": 1,
+        "ms": 1567.8959769999992
+      },
+      "decision-records/src/record.ts:validateDecisionBody": {
+        "count": 10000,
+        "ms": 1271.1089729999812
+      },
+      "decision-records/src/decision-metadata.ts:parseDecisionMarkdown": {
+        "count": 10000,
+        "ms": 1143.5122210000318
+      },
+      "decision-records/src/decision-source-revision.ts:decisionSourceRevision": {
+        "count": 1,
+        "ms": 46.14864399999988
+      },
+      "record-operations/src/check.ts:checkCollectedRecordIndex": {
+        "count": 1,
+        "ms": 606.956835
+      }
+    },
+    "stageEndMemory": [
+      {
+        "name": "record-operations/src/reader-batch.ts:forEachRecordText",
+        "at": 4356.709523,
+        "memory": {
+          "rss": 249724928,
+          "heapTotal": 121982976,
+          "heapUsed": 77150488,
+          "external": 11460522,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-collection.ts:acquireCollectionText",
+        "at": 4357.02011,
+        "memory": {
+          "rss": 249724928,
+          "heapTotal": 121982976,
+          "heapUsed": 77155944,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-collection.ts:validateSourceMembership",
+        "at": 5666.080834,
+        "memory": {
+          "rss": 253526016,
+          "heapTotal": 139169792,
+          "heapUsed": 102621760,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-records.ts:scanSourceFiles",
+        "at": 7234.208001,
+        "memory": {
+          "rss": 267288576,
+          "heapTotal": 154206208,
+          "heapUsed": 98803400,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:scanCollectedSourceFiles",
+        "at": 7243.841226,
+        "memory": {
+          "rss": 268206080,
+          "heapTotal": 155467776,
+          "heapUsed": 102738616,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:acquireDecisionCollection",
+        "at": 7243.973492,
+        "memory": {
+          "rss": 268206080,
+          "heapTotal": 155467776,
+          "heapUsed": 102740344,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:scanDecisionSnapshot",
+        "at": 7261.372259,
+        "memory": {
+          "rss": 271482880,
+          "heapTotal": 159277056,
+          "heapUsed": 120540264,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/decision-source-revision.ts:decisionSourceRevision",
+        "at": 7312.355645,
+        "memory": {
+          "rss": 275939328,
+          "heapTotal": 157147136,
+          "heapUsed": 100982120,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "record-operations/src/check.ts:checkCollectedRecordIndex",
+        "at": 7928.356334,
+        "memory": {
+          "rss": 320012288,
+          "heapTotal": 178765824,
+          "heapUsed": 83784736,
+          "external": 21799864,
+          "arrayBuffers": 5503900
+        }
+      }
+    ],
+    "omittedPerRecordMemoryEvents": 10000
+  },
+  {
+    "source": "base-probe-dr-preflight-0-probe.1901297-0.json",
+    "reads": {
+      "success": 20000,
+      "failed": 0,
+      "bytes": 6717850
+    },
+    "calls": {
+      "decision-records/src/scan-snapshot.ts:scanDecisionSnapshot": {
+        "count": 1,
+        "ms": 3813.854929
+      },
+      "decision-records/src/scan-snapshot.ts:acquireDecisionCollection": {
+        "count": 1,
+        "ms": 3795.1622859999998
+      },
+      "decision-records/src/scan-snapshot.ts:scanCollectedSourceFiles": {
+        "count": 1,
+        "ms": 3296.3537640000004
+      },
+      "decision-records/src/scan-collection.ts:validateSourceMembership": {
+        "count": 1,
+        "ms": 1875.197205
+      },
+      "decision-records/src/scan-collection.ts:acquireCollectionText": {
+        "count": 1,
+        "ms": 919.5910209999998
+      },
+      "record-operations/src/reader-batch.ts:forEachRecordText": {
+        "count": 2,
+        "ms": 4899.165675
+      },
+      "decision-records/src/decision-metadata.ts:decisionIdFromMarkdown": {
+        "count": 10000,
+        "ms": 918.7592710000054
+      },
+      "shared/src/markdown/frontmatter.ts:parseYamlFrontmatter": {
+        "count": 30000,
+        "ms": 3116.560400000012
+      },
+      "decision-records/src/scan-records.ts:scanSourceFiles": {
+        "count": 1,
+        "ms": 1411.6783729999997
+      },
+      "decision-records/src/record.ts:validateDecisionBody": {
+        "count": 10000,
+        "ms": 1149.882303999976
+      },
+      "decision-records/src/decision-metadata.ts:parseDecisionMarkdown": {
+        "count": 10000,
+        "ms": 1031.2239100000043
+      },
+      "decision-records/src/decision-source-revision.ts:decisionSourceRevision": {
+        "count": 2,
+        "ms": 79.03745099999833
+      },
+      "record-operations/src/synchronize.ts:synchronizeRecordIndex": {
+        "count": 1,
+        "ms": 4497.312551999999
+      }
+    },
+    "stageEndMemory": [
+      {
+        "name": "record-operations/src/reader-batch.ts:forEachRecordText",
+        "at": 1701.530573,
+        "memory": {
+          "rss": 239304704,
+          "heapTotal": 106921984,
+          "heapUsed": 55956912,
+          "external": 11460522,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-collection.ts:acquireCollectionText",
+        "at": 1701.651768,
+        "memory": {
+          "rss": 239304704,
+          "heapTotal": 106921984,
+          "heapUsed": 55962368,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-collection.ts:validateSourceMembership",
+        "at": 2657.200385,
+        "memory": {
+          "rss": 241532928,
+          "heapTotal": 123846656,
+          "heapUsed": 80340952,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-records.ts:scanSourceFiles",
+        "at": 4069.184647,
+        "memory": {
+          "rss": 256868352,
+          "heapTotal": 138620928,
+          "heapUsed": 76629792,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:scanCollectedSourceFiles",
+        "at": 4078.145371,
+        "memory": {
+          "rss": 257654784,
+          "heapTotal": 139882496,
+          "heapUsed": 80559296,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:acquireDecisionCollection",
+        "at": 4078.249495,
+        "memory": {
+          "rss": 257654784,
+          "heapTotal": 139882496,
+          "heapUsed": 80561024,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:scanDecisionSnapshot",
+        "at": 4095.282722,
+        "memory": {
+          "rss": 260931584,
+          "heapTotal": 143691776,
+          "heapUsed": 98237480,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/decision-source-revision.ts:decisionSourceRevision",
+        "at": 4159.295151,
+        "memory": {
+          "rss": 263553024,
+          "heapTotal": 142086144,
+          "heapUsed": 81687808,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "record-operations/src/reader-batch.ts:forEachRecordText",
+        "at": 8544.419032,
+        "memory": {
+          "rss": 310288384,
+          "heapTotal": 172580864,
+          "heapUsed": 109860160,
+          "external": 11466034,
+          "arrayBuffers": 149217
+        }
+      },
+      {
+        "name": "decision-records/src/decision-source-revision.ts:decisionSourceRevision",
+        "at": 8571.787326,
+        "memory": {
+          "rss": 313565184,
+          "heapTotal": 174964736,
+          "heapUsed": 120584816,
+          "external": 11466034,
+          "arrayBuffers": 149217
+        }
+      },
+      {
+        "name": "record-operations/src/synchronize.ts:synchronizeRecordIndex",
+        "at": 8667.133917,
+        "memory": {
+          "rss": 352813056,
+          "heapTotal": 198926336,
+          "heapUsed": 144864504,
+          "external": 21799720,
+          "arrayBuffers": 5503756
+        }
+      }
+    ],
+    "omittedPerRecordMemoryEvents": 10000
+  },
+  {
+    "source": "base-probe-dr-sync-0-probe.1900766-0.json",
+    "reads": {
+      "success": 20000,
+      "failed": 0,
+      "bytes": 6717780
+    },
+    "calls": {
+      "decision-records/src/scan-snapshot.ts:scanDecisionSnapshot": {
+        "count": 1,
+        "ms": 3406.806079
+      },
+      "decision-records/src/scan-snapshot.ts:acquireDecisionCollection": {
+        "count": 1,
+        "ms": 3393.907044
+      },
+      "decision-records/src/scan-snapshot.ts:scanCollectedSourceFiles": {
+        "count": 1,
+        "ms": 2973.76213
+      },
+      "decision-records/src/scan-collection.ts:validateSourceMembership": {
+        "count": 1,
+        "ms": 2094.981322
+      },
+      "decision-records/src/scan-collection.ts:acquireCollectionText": {
+        "count": 1,
+        "ms": 1331.081814
+      },
+      "record-operations/src/reader-batch.ts:forEachRecordText": {
+        "count": 2,
+        "ms": 4433.501102
+      },
+      "decision-records/src/decision-metadata.ts:decisionIdFromMarkdown": {
+        "count": 10000,
+        "ms": 736.0920629999782
+      },
+      "shared/src/markdown/frontmatter.ts:parseYamlFrontmatter": {
+        "count": 30000,
+        "ms": 2305.086928000005
+      },
+      "decision-records/src/scan-records.ts:scanSourceFiles": {
+        "count": 1,
+        "ms": 870.7887029999997
+      },
+      "decision-records/src/record.ts:validateDecisionBody": {
+        "count": 10000,
+        "ms": 721.0050960000058
+      },
+      "decision-records/src/decision-metadata.ts:parseDecisionMarkdown": {
+        "count": 10000,
+        "ms": 664.3558289999855
+      },
+      "decision-records/src/decision-source-revision.ts:decisionSourceRevision": {
+        "count": 2,
+        "ms": 60.852714000000105
+      },
+      "record-operations/src/synchronize.ts:synchronizeRecordIndex": {
+        "count": 1,
+        "ms": 3543.326318
+      }
+    },
+    "stageEndMemory": [
+      {
+        "name": "record-operations/src/reader-batch.ts:forEachRecordText",
+        "at": 2038.869013,
+        "memory": {
+          "rss": 235151360,
+          "heapTotal": 106397696,
+          "heapUsed": 48402880,
+          "external": 11460522,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-collection.ts:acquireCollectionText",
+        "at": 2039.094681,
+        "memory": {
+          "rss": 235151360,
+          "heapTotal": 106397696,
+          "heapUsed": 48408336,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-collection.ts:validateSourceMembership",
+        "at": 2802.860432,
+        "memory": {
+          "rss": 237903872,
+          "heapTotal": 122535936,
+          "heapUsed": 70437624,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-records.ts:scanSourceFiles",
+        "at": 3673.851782,
+        "memory": {
+          "rss": 250748928,
+          "heapTotal": 136523776,
+          "heapUsed": 99618608,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:scanCollectedSourceFiles",
+        "at": 3681.449985,
+        "memory": {
+          "rss": 251535360,
+          "heapTotal": 137117696,
+          "heapUsed": 70360376,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:acquireDecisionCollection",
+        "at": 3681.535033,
+        "memory": {
+          "rss": 251535360,
+          "heapTotal": 137117696,
+          "heapUsed": 70362104,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:scanDecisionSnapshot",
+        "at": 3693.26536,
+        "memory": {
+          "rss": 254550016,
+          "heapTotal": 140763136,
+          "heapUsed": 88717080,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/decision-source-revision.ts:decisionSourceRevision",
+        "at": 3736.492324,
+        "memory": {
+          "rss": 258351104,
+          "heapTotal": 142622720,
+          "heapUsed": 106500096,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "record-operations/src/reader-batch.ts:forEachRecordText",
+        "at": 7172.340126,
+        "memory": {
+          "rss": 308400128,
+          "heapTotal": 168669184,
+          "heapUsed": 123692944,
+          "external": 11483458,
+          "arrayBuffers": 166641
+        }
+      },
+      {
+        "name": "decision-records/src/decision-source-revision.ts:decisionSourceRevision",
+        "at": 7198.795911,
+        "memory": {
+          "rss": 309972992,
+          "heapTotal": 170266624,
+          "heapUsed": 134421464,
+          "external": 11483458,
+          "arrayBuffers": 166641
+        }
+      },
+      {
+        "name": "record-operations/src/synchronize.ts:synchronizeRecordIndex",
+        "at": 7292.259058,
+        "memory": {
+          "rss": 347860992,
+          "heapTotal": 194813952,
+          "heapUsed": 128435280,
+          "external": 21799720,
+          "arrayBuffers": 5503756
+        }
+      }
+    ],
+    "omittedPerRecordMemoryEvents": 10000
+  },
+  {
+    "source": "base-probe-ir-changed-0-probe.1901863-0.json",
+    "reads": {
+      "success": 20000,
+      "failed": 0,
+      "bytes": 6817850
+    },
+    "calls": {
+      "investigation-report/src/validation-collection.ts:collectValidatedInvestigationCollection": {
+        "count": 1,
+        "ms": 4780.352935
+      },
+      "investigation-report/src/investigation-layout.ts:inspectInvestigationCollectionLayout": {
+        "count": 2,
+        "ms": 7544.500466
+      },
+      "record-operations/src/reader-batch.ts:forEachRecordText": {
+        "count": 2,
+        "ms": 7064.115557
+      },
+      "investigation-report/src/markdown.ts:investigationIdFromMarkdown": {
+        "count": 20000,
+        "ms": 82.49046799993175
+      },
+      "investigation-report/src/validation-collection.ts:collectionStates": {
+        "count": 1,
+        "ms": 300.6997249999995
+      },
+      "investigation-report/src/markdown.ts:parseInvestigationReport": {
+        "count": 10000,
+        "ms": 214.917636999985
+      },
+      "investigation-report/src/resources.ts:validateFullInvestigationResources": {
+        "count": 1,
+        "ms": 85.94490899999983
+      },
+      "investigation-report/src/investigation-source-revision.ts:prepareInvestigationSources": {
+        "count": 2,
+        "ms": 306.9328209999994
+      },
+      "record-operations/src/synchronize.ts:synchronizeRecordIndex": {
+        "count": 1,
+        "ms": 4803.3821880000005
+      }
+    },
+    "stageEndMemory": [
+      {
+        "name": "record-operations/src/reader-batch.ts:forEachRecordText",
+        "at": 5275.312883,
+        "memory": {
+          "rss": 161767424,
+          "heapTotal": 49467392,
+          "heapUsed": 34892408,
+          "external": 6546974,
+          "arrayBuffers": 209344
+        }
+      },
+      {
+        "name": "investigation-report/src/investigation-layout.ts:inspectInvestigationCollectionLayout",
+        "at": 5626.968543,
+        "memory": {
+          "rss": 164126720,
+          "heapTotal": 63221760,
+          "heapUsed": 40763656,
+          "external": 6547014,
+          "arrayBuffers": 209344
+        }
+      },
+      {
+        "name": "investigation-report/src/validation-collection.ts:collectionStates",
+        "at": 5928.090633,
+        "memory": {
+          "rss": 164974592,
+          "heapTotal": 66678784,
+          "heapUsed": 40245176,
+          "external": 6547014,
+          "arrayBuffers": 209344
+        }
+      },
+      {
+        "name": "investigation-report/src/resources.ts:validateFullInvestigationResources",
+        "at": 6048.448741,
+        "memory": {
+          "rss": 167059456,
+          "heapTotal": 68517888,
+          "heapUsed": 33167352,
+          "external": 6547304,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "investigation-report/src/investigation-source-revision.ts:prepareInvestigationSources",
+        "at": 6294.568456,
+        "memory": {
+          "rss": 170074112,
+          "heapTotal": 70148096,
+          "heapUsed": 47795312,
+          "external": 6547304,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "investigation-report/src/validation-collection.ts:collectValidatedInvestigationCollection",
+        "at": 6300.766075,
+        "memory": {
+          "rss": 172433408,
+          "heapTotal": 72753152,
+          "heapUsed": 54129232,
+          "external": 6547304,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "record-operations/src/reader-batch.ts:forEachRecordText",
+        "at": 10629.039361,
+        "memory": {
+          "rss": 256671744,
+          "heapTotal": 125239296,
+          "heapUsed": 71294176,
+          "external": 6481705,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "investigation-report/src/investigation-layout.ts:inspectInvestigationCollectionLayout",
+        "at": 10703.902486,
+        "memory": {
+          "rss": 258899968,
+          "heapTotal": 130080768,
+          "heapUsed": 75265296,
+          "external": 6481705,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "investigation-report/src/investigation-source-revision.ts:prepareInvestigationSources",
+        "at": 10766.482823,
+        "memory": {
+          "rss": 260734976,
+          "heapTotal": 131678208,
+          "heapUsed": 86023360,
+          "external": 6481705,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "record-operations/src/synchronize.ts:synchronizeRecordIndex",
+        "at": 11105.537725,
+        "memory": {
+          "rss": 308543488,
+          "heapTotal": 151040000,
+          "heapUsed": 82810640,
+          "external": 27680377,
+          "arrayBuffers": 13167891
+        }
+      }
+    ],
+    "omittedPerRecordMemoryEvents": 0
+  },
+  {
+    "source": "base-probe-ir-check-0-probe.1899994-0.json",
+    "reads": {
+      "success": 0,
+      "failed": 0,
+      "bytes": 0
+    },
+    "calls": {
+      "investigation-report/src/validation-collection.ts:collectValidatedInvestigationCollection": {
+        "count": 1,
+        "ms": 27.01491500000003
+      },
+      "investigation-report/src/investigation-layout.ts:inspectInvestigationCollectionLayout": {
+        "count": 1,
+        "ms": 9.877067000000011
+      },
+      "investigation-report/src/markdown.ts:investigationIdFromMarkdown": {
+        "count": 3,
+        "ms": 0.3621430000000032
+      },
+      "investigation-report/src/validation-collection.ts:collectionStates": {
+        "count": 1,
+        "ms": 2.8230389999999943
+      },
+      "investigation-report/src/markdown.ts:parseInvestigationReport": {
+        "count": 3,
+        "ms": 1.9276759999999626
+      },
+      "investigation-report/src/resources.ts:validateFullInvestigationResources": {
+        "count": 1,
+        "ms": 12.504372999999987
+      },
+      "investigation-report/src/investigation-source-revision.ts:prepareInvestigationSources": {
+        "count": 1,
+        "ms": 0.34543199999995977
+      },
+      "record-operations/src/check.ts:checkCollectedRecordIndex": {
+        "count": 1,
+        "ms": 9.273853000000031
+      }
+    },
+    "stageEndMemory": [
+      {
+        "name": "investigation-report/src/investigation-layout.ts:inspectInvestigationCollectionLayout",
+        "at": 494.662956,
+        "memory": {
+          "rss": 113537024,
+          "heapTotal": 27013120,
+          "heapUsed": 21618144,
+          "external": 6884061,
+          "arrayBuffers": 546431
+        }
+      },
+      {
+        "name": "investigation-report/src/validation-collection.ts:collectionStates",
+        "at": 497.621418,
+        "memory": {
+          "rss": 114192384,
+          "heapTotal": 27275264,
+          "heapUsed": 21962248,
+          "external": 6884101,
+          "arrayBuffers": 546431
+        }
+      },
+      {
+        "name": "investigation-report/src/resources.ts:validateFullInvestigationResources",
+        "at": 510.915039,
+        "memory": {
+          "rss": 114716672,
+          "heapTotal": 27537408,
+          "heapUsed": 22191440,
+          "external": 6884391,
+          "arrayBuffers": 612257
+        }
+      },
+      {
+        "name": "investigation-report/src/investigation-source-revision.ts:prepareInvestigationSources",
+        "at": 511.55059,
+        "memory": {
+          "rss": 114716672,
+          "heapTotal": 27537408,
+          "heapUsed": 22216832,
+          "external": 6884391,
+          "arrayBuffers": 612257
+        }
+      },
+      {
+        "name": "investigation-report/src/validation-collection.ts:collectValidatedInvestigationCollection",
+        "at": 511.661907,
+        "memory": {
+          "rss": 114716672,
+          "heapTotal": 27537408,
+          "heapUsed": 22219784,
+          "external": 6884391,
+          "arrayBuffers": 612257
+        }
+      },
+      {
+        "name": "record-operations/src/check.ts:checkCollectedRecordIndex",
+        "at": 522.076705,
+        "memory": {
+          "rss": 115634176,
+          "heapTotal": 28585984,
+          "heapUsed": 22780856,
+          "external": 6887092,
+          "arrayBuffers": 614958
+        }
+      }
+    ],
+    "omittedPerRecordMemoryEvents": 0
+  },
+  {
+    "source": "base-probe-ir-check-0-probe.1901389-0.json",
+    "reads": {
+      "success": 10000,
+      "failed": 0,
+      "bytes": 3408890
+    },
+    "calls": {
+      "investigation-report/src/validation-collection.ts:collectValidatedInvestigationCollection": {
+        "count": 1,
+        "ms": 2007.02345
+      },
+      "investigation-report/src/investigation-layout.ts:inspectInvestigationCollectionLayout": {
+        "count": 1,
+        "ms": 1752.047883
+      },
+      "record-operations/src/reader-batch.ts:forEachRecordText": {
+        "count": 1,
+        "ms": 1689.4299270000001
+      },
+      "investigation-report/src/markdown.ts:investigationIdFromMarkdown": {
+        "count": 10000,
+        "ms": 19.173514999986764
+      },
+      "investigation-report/src/validation-collection.ts:collectionStates": {
+        "count": 1,
+        "ms": 151.83746799999972
+      },
+      "investigation-report/src/markdown.ts:parseInvestigationReport": {
+        "count": 10000,
+        "ms": 102.14211500000056
+      },
+      "investigation-report/src/resources.ts:validateFullInvestigationResources": {
+        "count": 1,
+        "ms": 19.40686599999981
+      },
+      "investigation-report/src/investigation-source-revision.ts:prepareInvestigationSources": {
+        "count": 1,
+        "ms": 60.58494800000017
+      },
+      "record-operations/src/check.ts:checkCollectedRecordIndex": {
+        "count": 1,
+        "ms": 655.175788
+      }
+    },
+    "stageEndMemory": [
+      {
+        "name": "record-operations/src/reader-batch.ts:forEachRecordText",
+        "at": 2764.449965,
+        "memory": {
+          "rss": 163196928,
+          "heapTotal": 49991680,
+          "heapUsed": 35522536,
+          "external": 6546974,
+          "arrayBuffers": 209344
+        }
+      },
+      {
+        "name": "investigation-report/src/investigation-layout.ts:inspectInvestigationCollectionLayout",
+        "at": 2813.836228,
+        "memory": {
+          "rss": 165556224,
+          "heapTotal": 63746048,
+          "heapUsed": 40956768,
+          "external": 6547014,
+          "arrayBuffers": 209344
+        }
+      },
+      {
+        "name": "investigation-report/src/validation-collection.ts:collectionStates",
+        "at": 2966.131213,
+        "memory": {
+          "rss": 166735872,
+          "heapTotal": 67203072,
+          "heapUsed": 40679080,
+          "external": 6547014,
+          "arrayBuffers": 209344
+        }
+      },
+      {
+        "name": "investigation-report/src/resources.ts:validateFullInvestigationResources",
+        "at": 3002.824572,
+        "memory": {
+          "rss": 170143744,
+          "heapTotal": 69910528,
+          "heapUsed": 39533352,
+          "external": 6547304,
+          "arrayBuffers": 275170
+        }
+      },
+      {
+        "name": "investigation-report/src/investigation-source-revision.ts:prepareInvestigationSources",
+        "at": 3063.938693,
+        "memory": {
+          "rss": 176926720,
+          "heapTotal": 74571776,
+          "heapUsed": 42429488,
+          "external": 6547304,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "investigation-report/src/validation-collection.ts:collectValidatedInvestigationCollection",
+        "at": 3068.670603,
+        "memory": {
+          "rss": 177844224,
+          "heapTotal": 75866112,
+          "heapUsed": 48812800,
+          "external": 6547304,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "record-operations/src/check.ts:checkCollectedRecordIndex",
+        "at": 3724.994874,
+        "memory": {
+          "rss": 272220160,
+          "heapTotal": 152334336,
+          "heapUsed": 86505168,
+          "external": 14920873,
+          "arrayBuffers": 4529587
+        }
+      }
+    ],
+    "omittedPerRecordMemoryEvents": 0
+  },
+  {
+    "source": "base-probe-ir-preflight-0-probe.1902138-0.json",
+    "reads": {
+      "success": 20000,
+      "failed": 0,
+      "bytes": 6817850
+    },
+    "calls": {
+      "investigation-report/src/validation-collection.ts:collectValidatedInvestigationCollection": {
+        "count": 1,
+        "ms": 3223.240513
+      },
+      "investigation-report/src/investigation-layout.ts:inspectInvestigationCollectionLayout": {
+        "count": 2,
+        "ms": 5370.012393000001
+      },
+      "record-operations/src/reader-batch.ts:forEachRecordText": {
+        "count": 2,
+        "ms": 5215.352085
+      },
+      "investigation-report/src/markdown.ts:investigationIdFromMarkdown": {
+        "count": 20000,
+        "ms": 44.19785299996238
+      },
+      "investigation-report/src/validation-collection.ts:collectionStates": {
+        "count": 1,
+        "ms": 215.91391600000043
+      },
+      "investigation-report/src/markdown.ts:parseInvestigationReport": {
+        "count": 10000,
+        "ms": 139.51143500003127
+      },
+      "investigation-report/src/resources.ts:validateFullInvestigationResources": {
+        "count": 1,
+        "ms": 21.00297099999989
+      },
+      "investigation-report/src/investigation-source-revision.ts:prepareInvestigationSources": {
+        "count": 2,
+        "ms": 167.76328899999953
+      },
+      "record-operations/src/synchronize.ts:synchronizeRecordIndex": {
+        "count": 1,
+        "ms": 3498.974378
+      }
+    },
+    "stageEndMemory": [
+      {
+        "name": "record-operations/src/reader-batch.ts:forEachRecordText",
+        "at": 4322.603734,
+        "memory": {
+          "rss": 166813696,
+          "heapTotal": 50253824,
+          "heapUsed": 35177040,
+          "external": 6546974,
+          "arrayBuffers": 209344
+        }
+      },
+      {
+        "name": "investigation-report/src/investigation-layout.ts:inspectInvestigationCollectionLayout",
+        "at": 4377.736604,
+        "memory": {
+          "rss": 169435136,
+          "heapTotal": 63483904,
+          "heapUsed": 40986880,
+          "external": 6547014,
+          "arrayBuffers": 209344
+        }
+      },
+      {
+        "name": "investigation-report/src/validation-collection.ts:collectionStates",
+        "at": 4593.947262,
+        "memory": {
+          "rss": 170745856,
+          "heapTotal": 66678784,
+          "heapUsed": 41335672,
+          "external": 6547014,
+          "arrayBuffers": 209344
+        }
+      },
+      {
+        "name": "investigation-report/src/resources.ts:validateFullInvestigationResources",
+        "at": 4643.440234,
+        "memory": {
+          "rss": 173498368,
+          "heapTotal": 70668288,
+          "heapUsed": 40761424,
+          "external": 6547304,
+          "arrayBuffers": 275170
+        }
+      },
+      {
+        "name": "investigation-report/src/investigation-source-revision.ts:prepareInvestigationSources",
+        "at": 4727.356529,
+        "memory": {
+          "rss": 177467392,
+          "heapTotal": 71983104,
+          "heapUsed": 44363096,
+          "external": 6547304,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "investigation-report/src/validation-collection.ts:collectValidatedInvestigationCollection",
+        "at": 4733.421176,
+        "memory": {
+          "rss": 178909184,
+          "heapTotal": 73277440,
+          "heapUsed": 50648040,
+          "external": 6547304,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "record-operations/src/reader-batch.ts:forEachRecordText",
+        "at": 7801.356901,
+        "memory": {
+          "rss": 261312512,
+          "heapTotal": 129646592,
+          "heapUsed": 63779880,
+          "external": 6481705,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "investigation-report/src/investigation-layout.ts:inspectInvestigationCollectionLayout",
+        "at": 7873.790341,
+        "memory": {
+          "rss": 263278592,
+          "heapTotal": 133292032,
+          "heapUsed": 64782728,
+          "external": 6481705,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "investigation-report/src/investigation-source-revision.ts:prepareInvestigationSources",
+        "at": 7958.389403,
+        "memory": {
+          "rss": 266293248,
+          "heapTotal": 135086080,
+          "heapUsed": 75248168,
+          "external": 6481705,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "record-operations/src/synchronize.ts:synchronizeRecordIndex",
+        "at": 8233.614119,
+        "memory": {
+          "rss": 299233280,
+          "heapTotal": 154910720,
+          "heapUsed": 99038728,
+          "external": 14920873,
+          "arrayBuffers": 4529587
+        }
+      }
+    ],
+    "omittedPerRecordMemoryEvents": 0
+  },
+  {
+    "source": "base-probe-ir-sync-0-probe.1901526-0.json",
+    "reads": {
+      "success": 20000,
+      "failed": 0,
+      "bytes": 6817780
+    },
+    "calls": {
+      "investigation-report/src/validation-collection.ts:collectValidatedInvestigationCollection": {
+        "count": 1,
+        "ms": 2413.9342699999997
+      },
+      "investigation-report/src/investigation-layout.ts:inspectInvestigationCollectionLayout": {
+        "count": 2,
+        "ms": 4097.520758000001
+      },
+      "record-operations/src/reader-batch.ts:forEachRecordText": {
+        "count": 2,
+        "ms": 3868.461653
+      },
+      "investigation-report/src/markdown.ts:investigationIdFromMarkdown": {
+        "count": 20000,
+        "ms": 76.16264199994976
+      },
+      "investigation-report/src/validation-collection.ts:collectionStates": {
+        "count": 1,
+        "ms": 291.4545699999999
+      },
+      "investigation-report/src/markdown.ts:parseInvestigationReport": {
+        "count": 10000,
+        "ms": 182.11352899998474
+      },
+      "investigation-report/src/resources.ts:validateFullInvestigationResources": {
+        "count": 1,
+        "ms": 25.677044999999907
+      },
+      "investigation-report/src/investigation-source-revision.ts:prepareInvestigationSources": {
+        "count": 2,
+        "ms": 208.3439130000006
+      },
+      "record-operations/src/synchronize.ts:synchronizeRecordIndex": {
+        "count": 1,
+        "ms": 3731.1834910000002
+      }
+    },
+    "stageEndMemory": [
+      {
+        "name": "record-operations/src/reader-batch.ts:forEachRecordText",
+        "at": 2862.82801,
+        "memory": {
+          "rss": 165613568,
+          "heapTotal": 52613120,
+          "heapUsed": 26972824,
+          "external": 6612573,
+          "arrayBuffers": 274943
+        }
+      },
+      {
+        "name": "investigation-report/src/investigation-layout.ts:inspectInvestigationCollectionLayout",
+        "at": 2937.787692,
+        "memory": {
+          "rss": 167579648,
+          "heapTotal": 63275008,
+          "heapUsed": 30948480,
+          "external": 6612613,
+          "arrayBuffers": 274943
+        }
+      },
+      {
+        "name": "investigation-report/src/validation-collection.ts:collectionStates",
+        "at": 3235.589809,
+        "memory": {
+          "rss": 168890368,
+          "heapTotal": 66879488,
+          "heapUsed": 45799672,
+          "external": 6612613,
+          "arrayBuffers": 274943
+        }
+      },
+      {
+        "name": "investigation-report/src/resources.ts:validateFullInvestigationResources",
+        "at": 3300.182911,
+        "memory": {
+          "rss": 171380736,
+          "heapTotal": 70414336,
+          "heapUsed": 42883888,
+          "external": 6612903,
+          "arrayBuffers": 340769
+        }
+      },
+      {
+        "name": "investigation-report/src/investigation-source-revision.ts:prepareInvestigationSources",
+        "at": 3393.437088,
+        "memory": {
+          "rss": 173584384,
+          "heapTotal": 73293824,
+          "heapUsed": 44173624,
+          "external": 6612903,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "investigation-report/src/validation-collection.ts:collectValidatedInvestigationCollection",
+        "at": 3400.446254,
+        "memory": {
+          "rss": 174895104,
+          "heapTotal": 74686464,
+          "heapUsed": 50409352,
+          "external": 6612903,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "record-operations/src/reader-batch.ts:forEachRecordText",
+        "at": 6396.38529,
+        "memory": {
+          "rss": 259018752,
+          "heapTotal": 131948544,
+          "heapUsed": 65600240,
+          "external": 6481705,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "investigation-report/src/investigation-layout.ts:inspectInvestigationCollectionLayout",
+        "at": 6523.64597,
+        "memory": {
+          "rss": 261378048,
+          "heapTotal": 133644288,
+          "heapUsed": 98176880,
+          "external": 6481705,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "investigation-report/src/investigation-source-revision.ts:prepareInvestigationSources",
+        "at": 6639.354858,
+        "memory": {
+          "rss": 263868416,
+          "heapTotal": 136790016,
+          "heapUsed": 76616888,
+          "external": 6481705,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "record-operations/src/synchronize.ts:synchronizeRecordIndex",
+        "at": 7133.137538,
+        "memory": {
+          "rss": 296984576,
+          "heapTotal": 157540352,
+          "heapUsed": 100823800,
+          "external": 14920873,
+          "arrayBuffers": 4529587
+        }
+      }
+    ],
+    "omittedPerRecordMemoryEvents": 0
+  },
+  {
+    "source": "long-base-probe.1904997-0.json",
+    "reads": {
+      "success": 10000,
+      "failed": 0,
+      "bytes": 83088890
+    },
+    "calls": {
+      "investigation-report/src/validation-collection.ts:collectValidatedInvestigationCollection": {
+        "count": 1,
+        "ms": 1271.966944
+      },
+      "investigation-report/src/investigation-layout.ts:inspectInvestigationCollectionLayout": {
+        "count": 1,
+        "ms": 1012.197052
+      },
+      "record-operations/src/reader-batch.ts:forEachRecordText": {
+        "count": 1,
+        "ms": 930.8208659999999
+      },
+      "investigation-report/src/markdown.ts:investigationIdFromMarkdown": {
+        "count": 10000,
+        "ms": 55.180662000007715
+      },
+      "investigation-report/src/validation-collection.ts:collectionStates": {
+        "count": 1,
+        "ms": 150.62439399999994
+      },
+      "investigation-report/src/markdown.ts:parseInvestigationReport": {
+        "count": 10000,
+        "ms": 122.75307100000964
+      },
+      "investigation-report/src/resources.ts:validateFullInvestigationResources": {
+        "count": 1,
+        "ms": 12.64361400000007
+      },
+      "investigation-report/src/investigation-source-revision.ts:prepareInvestigationSources": {
+        "count": 1,
+        "ms": 82.28851200000008
+      },
+      "record-operations/src/check.ts:checkCollectedRecordIndex": {
+        "count": 1,
+        "ms": 337.80216099999984
+      }
+    },
+    "stageEndMemory": [
+      {
+        "name": "record-operations/src/reader-batch.ts:forEachRecordText",
+        "at": 1206.560457,
+        "memory": {
+          "rss": 380198912,
+          "heapTotal": 247123968,
+          "heapUsed": 186389536,
+          "external": 6481375,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "investigation-report/src/investigation-layout.ts:inspectInvestigationCollectionLayout",
+        "at": 1279.893033,
+        "memory": {
+          "rss": 383344640,
+          "heapTotal": 264663040,
+          "heapUsed": 187132136,
+          "external": 6481415,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "investigation-report/src/validation-collection.ts:collectionStates",
+        "at": 1430.719372,
+        "memory": {
+          "rss": 385703936,
+          "heapTotal": 265646080,
+          "heapUsed": 198897880,
+          "external": 6481415,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "investigation-report/src/resources.ts:validateFullInvestigationResources",
+        "at": 1453.664928,
+        "memory": {
+          "rss": 388849664,
+          "heapTotal": 267829248,
+          "heapUsed": 195680200,
+          "external": 6481705,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "investigation-report/src/investigation-source-revision.ts:prepareInvestigationSources",
+        "at": 1536.138044,
+        "memory": {
+          "rss": 392781824,
+          "heapTotal": 269524992,
+          "heapUsed": 210098712,
+          "external": 6481705,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "investigation-report/src/validation-collection.ts:collectValidatedInvestigationCollection",
+        "at": 1539.560845,
+        "memory": {
+          "rss": 393961472,
+          "heapTotal": 270819328,
+          "heapUsed": 216383800,
+          "external": 6481705,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "record-operations/src/check.ts:checkCollectedRecordIndex",
+        "at": 1878.185946,
+        "memory": {
+          "rss": 443453440,
+          "heapTotal": 305938432,
+          "heapUsed": 262402832,
+          "external": 14920590,
+          "arrayBuffers": 4529304
+        }
+      }
+    ],
+    "omittedPerRecordMemoryEvents": 0
+  },
+  {
+    "source": "long-proto-probe.1905019-0.json",
+    "reads": {
+      "success": 10000,
+      "failed": 0,
+      "bytes": 83088890
+    },
+    "calls": {
+      "investigation-report/src/validation-collection.ts:collectValidatedInvestigationCollection": {
+        "count": 1,
+        "ms": 1262.3833849999999
+      },
+      "investigation-report/src/investigation-layout.ts:inspectInvestigationCollectionLayout": {
+        "count": 1,
+        "ms": 960.7509510000001
+      },
+      "record-operations/src/reader-batch.ts:forEachRecordText": {
+        "count": 1,
+        "ms": 929.609514
+      },
+      "investigation-report/src/markdown.ts:investigationIdFromMarkdown": {
+        "count": 10000,
+        "ms": 7.4249809999842
+      },
+      "investigation-report/src/validation-collection.ts:collectionStates": {
+        "count": 1,
+        "ms": 177.9886590000001
+      },
+      "investigation-report/src/markdown.ts:parseInvestigationReport": {
+        "count": 10000,
+        "ms": 143.36909100000048
+      },
+      "investigation-report/src/resources.ts:validateFullInvestigationResources": {
+        "count": 1,
+        "ms": 15.499548000000004
+      },
+      "investigation-report/src/investigation-source-revision.ts:prepareInvestigationSources": {
+        "count": 1,
+        "ms": 89.36272299999996
+      },
+      "record-operations/src/check.ts:checkCollectedRecordIndex": {
+        "count": 1,
+        "ms": 343.87461400000007
+      }
+    },
+    "stageEndMemory": [
+      {
+        "name": "record-operations/src/reader-batch.ts:forEachRecordText",
+        "at": 1208.694177,
+        "memory": {
+          "rss": 378486784,
+          "heapTotal": 246337536,
+          "heapUsed": 186881832,
+          "external": 6481375,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "investigation-report/src/investigation-layout.ts:inspectInvestigationCollectionLayout",
+        "at": 1232.84835,
+        "memory": {
+          "rss": 382025728,
+          "heapTotal": 249606144,
+          "heapUsed": 199955752,
+          "external": 6481415,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "investigation-report/src/validation-collection.ts:collectionStates",
+        "at": 1411.135223,
+        "memory": {
+          "rss": 384647168,
+          "heapTotal": 265646080,
+          "heapUsed": 220547184,
+          "external": 6481415,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "investigation-report/src/resources.ts:validateFullInvestigationResources",
+        "at": 1441.23862,
+        "memory": {
+          "rss": 388055040,
+          "heapTotal": 269029376,
+          "heapUsed": 216337736,
+          "external": 6481705,
+          "arrayBuffers": 209571
+        }
+      },
+      {
+        "name": "investigation-report/src/investigation-source-revision.ts:prepareInvestigationSources",
+        "at": 1530.795214,
+        "memory": {
+          "rss": 393297920,
+          "heapTotal": 268726272,
+          "heapUsed": 200842080,
+          "external": 6481705,
+          "arrayBuffers": 209288
+        }
+      },
+      {
+        "name": "investigation-report/src/validation-collection.ts:collectValidatedInvestigationCollection",
+        "at": 1534.396296,
+        "memory": {
+          "rss": 394084352,
+          "heapTotal": 270053376,
+          "heapUsed": 207066160,
+          "external": 6481705,
+          "arrayBuffers": 209288
+        }
+      },
+      {
+        "name": "record-operations/src/check.ts:checkCollectedRecordIndex",
+        "at": 1879.085825,
+        "memory": {
+          "rss": 441700352,
+          "heapTotal": 303955968,
+          "heapUsed": 254672264,
+          "external": 14920590,
+          "arrayBuffers": 4529304
+        }
+      }
+    ],
+    "omittedPerRecordMemoryEvents": 0
+  },
+  {
+    "source": "proto-probe-dr-check-0-probe.1904336-0.json",
+    "reads": {
+      "success": 10000,
+      "failed": 0,
+      "bytes": 3358890
+    },
+    "calls": {
+      "decision-records/src/scan-snapshot.ts:scanDecisionSnapshot": {
+        "count": 1,
+        "ms": 1990.1977820000002
+      },
+      "decision-records/src/scan-snapshot.ts:acquireDecisionCollection": {
+        "count": 1,
+        "ms": 1978.9341220000001
+      },
+      "decision-records/src/scan-snapshot.ts:scanCollectedSourceFiles": {
+        "count": 1,
+        "ms": 1613.3973250000001
+      },
+      "decision-records/src/scan-collection.ts:validateSourceMembership": {
+        "count": 1,
+        "ms": 1421.3267030000002
+      },
+      "decision-records/src/scan-collection.ts:acquireCollectionText": {
+        "count": 1,
+        "ms": 809.004309
+      },
+      "record-operations/src/reader-batch.ts:forEachRecordText": {
+        "count": 1,
+        "ms": 808.119594
+      },
+      "shared/src/markdown/frontmatter.ts:parseYamlFrontmatter": {
+        "count": 10000,
+        "ms": 586.6759100000097
+      },
+      "decision-records/src/decision-metadata.ts:decisionIdFromMarkdown": {
+        "count": 10000,
+        "ms": 2.5605200000063633
+      },
+      "decision-records/src/scan-records.ts:scanSourceFiles": {
+        "count": 1,
+        "ms": 187.19630199999983
+      },
+      "decision-records/src/record.ts:validateDecisionBody": {
+        "count": 10000,
+        "ms": 77.78519599998344
+      },
+      "decision-records/src/decision-metadata.ts:parseDecisionMarkdown": {
+        "count": 10000,
+        "ms": 37.30244999998558
+      },
+      "decision-records/src/decision-source-revision.ts:decisionSourceRevision": {
+        "count": 1,
+        "ms": 31.535601000000042
+      },
+      "record-operations/src/check.ts:checkCollectedRecordIndex": {
+        "count": 1,
+        "ms": 383.50342899999987
+      }
+    },
+    "stageEndMemory": [
+      {
+        "name": "record-operations/src/reader-batch.ts:forEachRecordText",
+        "at": 1447.448087,
+        "memory": {
+          "rss": 235286528,
+          "heapTotal": 107446272,
+          "heapUsed": 48229904,
+          "external": 11460522,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-collection.ts:acquireCollectionText",
+        "at": 1447.579501,
+        "memory": {
+          "rss": 235286528,
+          "heapTotal": 107446272,
+          "heapUsed": 48235360,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-collection.ts:validateSourceMembership",
+        "at": 2059.802201,
+        "memory": {
+          "rss": 242757632,
+          "heapTotal": 129089536,
+          "heapUsed": 83905688,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-records.ts:scanSourceFiles",
+        "at": 2247.186121,
+        "memory": {
+          "rss": 250753024,
+          "heapTotal": 137048064,
+          "heapUsed": 70630984,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:scanCollectedSourceFiles",
+        "at": 2251.751035,
+        "memory": {
+          "rss": 251539456,
+          "heapTotal": 138309632,
+          "heapUsed": 74558168,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:acquireDecisionCollection",
+        "at": 2251.838217,
+        "memory": {
+          "rss": 251539456,
+          "heapTotal": 138309632,
+          "heapUsed": 74559424,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:scanDecisionSnapshot",
+        "at": 2261.580776,
+        "memory": {
+          "rss": 254816256,
+          "heapTotal": 141594624,
+          "heapUsed": 92497416,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/decision-source-revision.ts:decisionSourceRevision",
+        "at": 2295.497232,
+        "memory": {
+          "rss": 259272704,
+          "heapTotal": 143716352,
+          "heapUsed": 108247320,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "record-operations/src/check.ts:checkCollectedRecordIndex",
+        "at": 2689.288341,
+        "memory": {
+          "rss": 320040960,
+          "heapTotal": 184242176,
+          "heapUsed": 120231208,
+          "external": 21799720,
+          "arrayBuffers": 5503756
+        }
+      }
+    ],
+    "omittedPerRecordMemoryEvents": 10000
+  },
+  {
+    "source": "proto-probe-dr-sync-0-probe.1904368-0.json",
+    "reads": {
+      "success": 20000,
+      "failed": 0,
+      "bytes": 6717780
+    },
+    "calls": {
+      "decision-records/src/scan-snapshot.ts:scanDecisionSnapshot": {
+        "count": 1,
+        "ms": 2169.281727
+      },
+      "decision-records/src/scan-snapshot.ts:acquireDecisionCollection": {
+        "count": 1,
+        "ms": 2157.997604
+      },
+      "decision-records/src/scan-snapshot.ts:scanCollectedSourceFiles": {
+        "count": 1,
+        "ms": 1766.1491039999999
+      },
+      "decision-records/src/scan-collection.ts:validateSourceMembership": {
+        "count": 1,
+        "ms": 1570.242562
+      },
+      "decision-records/src/scan-collection.ts:acquireCollectionText": {
+        "count": 1,
+        "ms": 884.009388
+      },
+      "record-operations/src/reader-batch.ts:forEachRecordText": {
+        "count": 2,
+        "ms": 4016.007251
+      },
+      "shared/src/markdown/frontmatter.ts:parseYamlFrontmatter": {
+        "count": 20000,
+        "ms": 1650.8793750000473
+      },
+      "decision-records/src/decision-metadata.ts:decisionIdFromMarkdown": {
+        "count": 10000,
+        "ms": 3.46230700000433
+      },
+      "decision-records/src/scan-records.ts:scanSourceFiles": {
+        "count": 1,
+        "ms": 191.05603699999983
+      },
+      "decision-records/src/record.ts:validateDecisionBody": {
+        "count": 10000,
+        "ms": 78.03884199997765
+      },
+      "decision-records/src/decision-metadata.ts:parseDecisionMarkdown": {
+        "count": 10000,
+        "ms": 38.34266299997762
+      },
+      "decision-records/src/decision-source-revision.ts:decisionSourceRevision": {
+        "count": 2,
+        "ms": 71.10810799999945
+      },
+      "record-operations/src/synchronize.ts:synchronizeRecordIndex": {
+        "count": 1,
+        "ms": 3557.3475470000003
+      }
+    },
+    "stageEndMemory": [
+      {
+        "name": "record-operations/src/reader-batch.ts:forEachRecordText",
+        "at": 1538.982865,
+        "memory": {
+          "rss": 238579712,
+          "heapTotal": 105349120,
+          "heapUsed": 52664144,
+          "external": 11460522,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-collection.ts:acquireCollectionText",
+        "at": 1539.093832,
+        "memory": {
+          "rss": 238579712,
+          "heapTotal": 105349120,
+          "heapUsed": 52669600,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-collection.ts:validateSourceMembership",
+        "at": 2225.240546,
+        "memory": {
+          "rss": 246968320,
+          "heapTotal": 128827392,
+          "heapUsed": 89688256,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-records.ts:scanSourceFiles",
+        "at": 2416.484832,
+        "memory": {
+          "rss": 254963712,
+          "heapTotal": 136523776,
+          "heapUsed": 76115864,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:scanCollectedSourceFiles",
+        "at": 2420.994844,
+        "memory": {
+          "rss": 255750144,
+          "heapTotal": 137523200,
+          "heapUsed": 80043816,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:acquireDecisionCollection",
+        "at": 2421.136688,
+        "memory": {
+          "rss": 255750144,
+          "heapTotal": 137523200,
+          "heapUsed": 80055424,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/scan-snapshot.ts:scanDecisionSnapshot",
+        "at": 2431.558217,
+        "memory": {
+          "rss": 259026944,
+          "heapTotal": 140808192,
+          "heapUsed": 97992336,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "decision-records/src/decision-source-revision.ts:decisionSourceRevision",
+        "at": 2483.610975,
+        "memory": {
+          "rss": 262828032,
+          "heapTotal": 140251136,
+          "heapUsed": 81613088,
+          "external": 11460562,
+          "arrayBuffers": 143745
+        }
+      },
+      {
+        "name": "record-operations/src/reader-batch.ts:forEachRecordText",
+        "at": 5916.521807,
+        "memory": {
+          "rss": 302514176,
+          "heapTotal": 168570880,
+          "heapUsed": 80782904,
+          "external": 11475682,
+          "arrayBuffers": 158865
+        }
+      },
+      {
+        "name": "decision-records/src/decision-source-revision.ts:decisionSourceRevision",
+        "at": 5946.241937,
+        "memory": {
+          "rss": 304480256,
+          "heapTotal": 170168320,
+          "heapUsed": 91994120,
+          "external": 11475682,
+          "arrayBuffers": 158865
+        }
+      },
+      {
+        "name": "record-operations/src/synchronize.ts:synchronizeRecordIndex",
+        "at": 6047.056315,
+        "memory": {
+          "rss": 342835200,
+          "heapTotal": 191381504,
+          "heapUsed": 119346456,
+          "external": 21804328,
+          "arrayBuffers": 5508364
+        }
+      }
+    ],
+    "omittedPerRecordMemoryEvents": 10000
+  }
+]

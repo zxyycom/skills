@@ -6,12 +6,13 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import type { DecisionMarkdownSource } from "./decision-metadata.mjs";
 import type { DecisionId, DecisionIndex, DecisionRecord } from "./types.mjs";
 export type DecisionStoredIndexEntry = DecisionIndex["entries"][DecisionId];
 export type SourceFile = {
     decisionPath: string;
-    /** Identity parsed from sourceText; null records an unsuccessful parse. */
-    decisionId?: DecisionId | null;
+    /** Discovery and formal validation share only this acquisition. */
+    markdownSource?: DecisionMarkdownSource;
     sourcePath: string;
     sourceText?: string;
     sourceReadFailed?: true;
