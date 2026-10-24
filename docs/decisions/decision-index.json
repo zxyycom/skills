@@ -147,6 +147,7 @@
       "261024-bound-record-operations-to-published-facts": "sha256:0b2816d33c81b7e861d69e2b2c0507037b22e0655012bac50c3d186fc220b9f4",
       "261024-bound-selected-record-sync-currentness": "sha256:7ca10a631d9c961d1622774e10f6b582ffa9258b0cd587fdca1cc500003c1856",
       "261024-retain-dated-identities-without-name-migration": "sha256:e28289e29a806a895a85c11a68a4f84d10471abe90d8ac671b45790253670f4f",
+      "261024-separate-image-creation-from-execution": "sha256:0330e2e90ee580c8f5703b1ea0f66d89af9f5acf3bdb2f23481fc4cdfb362d7d",
       "261024-separate-test-design-from-evidence-catalog": "sha256:6cf6b51806fc6647e65a14245c39afe632e1a9d4a5d9c270f4bd946344b98b77",
       "261024-validate-record-stage-selected-payloads": "sha256:0fc3635c4346ad2c4ef1899ba7cd8f4d8f82b54175bce0a29a5520e80b86086f",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
@@ -3372,6 +3373,22 @@
           "summary": "保留日期与选择语义并取消legacy同名迁移前置"
         }
       ]
+    },
+    "261024-separate-image-creation-from-execution": {
+      "name": "separate-image-creation-from-execution",
+      "sourcePath": "separate-image-creation-from-execution.md",
+      "title": "图像创作以成图闭环组织并与生成执行分工",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-24T06:07:41Z",
+      "purpose": "让图像创作持续对齐用户用途并保留可核对的输入与验收边界",
+      "background": "视觉要求、参考输入和非目标回归不能仅由生成工具调用成功证明",
+      "decision": "由image-creation维护视觉任务与看图迭代，调用和参数归当前执行能力",
+      "tags": [
+        "image-creation",
+        "skill-design"
+      ],
+      "relations": []
     },
     "261024-separate-test-design-from-evidence-catalog": {
       "name": "separate-test-design-from-evidence-catalog",

@@ -30,6 +30,8 @@
 
 [Novel Cards](docs/skills/novel-cards.md) 用详情与递归总结组织原创或续写：先改卡并从最高受影响层下传，再依据细纲与导演视角写作，正文反推只产出对照报告。章节按编号或标题定位，稳定身份不随重排变化；旧卡快照与统一变迁连接故事演进和作者修订，本地 CLI 自动查询跨卡关联。实际 skill 位于 [`skills/novel-cards/`](skills/novel-cards/)。
 
+[Image Creation](docs/skills/image-creation.md) 以提示词工程结合实际参考、可选三视图／简易3D结构引导完成图像创作与编辑。独立指南承接提示构建与完整模板、接口使用、逐次目的／实际原词／回看记录和存储；通过定向改写与保留回归交付图像，也支持仅提示词或诊断。实际 skill 位于 [`skills/image-creation/`](skills/image-creation/)。
+
 [Lightweight Judgment](docs/skills/lightweight-judgment.md) 在用户点名该 skill 后，以 JEV 载体调用 JEV 或 OpenAI Decisions，低成本、低延迟地完成局部分类、候选选择、相关性筛选和评分，再回到原任务。它把模型实测特点、请求组织与结果处理交给 agent，配套随包 TS CLI 提供本地检查、离线预览与单次请求。实际 skill 位于 [`skills/lightweight-judgment/`](skills/lightweight-judgment/)。
 
 [Skill Design Discovery](docs/skills/skill-design-discovery.md) 用于创建、显著扩展或大幅重构 skill 前的深度设计发现。它从现实案例、现有材料和行为证据中恢复目标、端到端流程、潜藏决策、约束来源、人机权限与验证义务，形成可交给实现入口的设计契约。实际 skill 位于 [`skills/skill-design-discovery/`](skills/skill-design-discovery/)。
