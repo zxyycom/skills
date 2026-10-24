@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { RunResult } from "@zxyycom/vibe-check";
 import type { GateActivationPlan } from "./impact-activation.ts";
+import { gateCheckIds, releaseRequiredCheckIds } from "./definition.ts";
 import {
   isQuickGateCheck,
   quickGateCheckIds,
@@ -58,8 +59,8 @@ export async function reportGatePerformance(
     scope === "quick"
       ? quickGateCheckIds.length
       : scope === "release"
-        ? 64
-        : 61;
+        ? gateCheckIds().length
+        : releaseRequiredCheckIds.length;
   const reused = forceFullExecution
     ? 0
     : selectedDecisions.filter(({ action }) => action === "reuse").length;
@@ -80,7 +81,7 @@ export async function reportGatePerformance(
           eligible,
           execute: eligible - reused,
           reuse: reused,
-          disabled: 64 - eligible
+          disabled: gateCheckIds().length - eligible
         },
         nativeResult: {
           kind: result.kind,

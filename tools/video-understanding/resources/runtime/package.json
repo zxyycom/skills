@@ -1,0 +1,17 @@
+{
+  "name": "personal-video-analyzer-runtime",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.9.0",
+  "dependencies": {
+    "mcp-video-analyzer": "0.10.1"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.18.0",
+      "onFail": "download"
+    }
+  },
+  "devDependencies": {}
+}

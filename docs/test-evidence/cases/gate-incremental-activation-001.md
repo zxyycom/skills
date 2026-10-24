@@ -26,7 +26,7 @@ Tags:
 - `repository-tooling`
 
 Contract:
-- changed 完整变更验收为 52 项项目命令与 markdown-lint 共 53 项 Check 维护输入成功 receipt；其余七项原生材料与环境 Check 每轮实际执行。只有声明输入闭合、工具与环境身份精确、所选命令通过、最终 Run 成功且起止快照一致时才发布证明；release 全量执行，原生 dependsOn 负责必要前置激活。
+- changed 完整变更验收为 55 项项目命令与 markdown-lint 共 56 项 Check 维护输入成功 receipt；其余七项原生材料与环境 Check 每轮实际执行。只有声明输入闭合、工具与环境身份精确、所选命令通过、最终 Run 成功且起止快照一致时才发布证明；release 全量执行，原生 dependsOn 负责必要前置激活。
 
 Proves:
 - 首次运行选择全部有证明契约的 Check，成功后形成可复用 receipt；稳定输入可全部省略；缺少一个 Check receipt 会激活其工具及全部订阅者，生成前置显式进入执行集合，全部实际执行 Check 通过后才发布。
@@ -34,7 +34,7 @@ Proves:
 - 文档变化激活其工具订阅者而不激活无关领域；shared、skill-package 与 build-system 输入变化使相关项目证明失效，语义聚合入口变化使 Gate 自测失效，领域生成统一消费全部 skill/updater 输入。
 - Novel Cards consumer 在 Index Runtime、shared、构建适配、公开入口、runtime、manifest、锁文件与 fixtures 变化时重新执行，统一生成 Check 同时按其真实输入失效。
 - 未知 owner 与叶子 symlink 使输入不闭合且每次执行，不能发布；symlink ancestor、Git 越界或非 UTF-8 路径、超过 20000 文件或 512 MiB 输入预算、EACCES 读取失败均 fallback，不缓存 unavailable 身份。
-- 环境或工具身份变化使全部项目命令失效，父 shell 的 _ 记账变化不影响身份；必要工具探测失败与非 Git 工作区执行全量 fallback，release 选择完整 64 项。
+- 环境或工具身份变化使全部项目命令失效，父 shell 的 _ 记账变化不影响身份；必要工具探测失败与非 Git 工作区执行全量 fallback，release 选择完整 67 项。
 - 损坏 receipt、未通过命令、最终 Run 失败、不可写 cache、结束快照失败或起止漂移均不能发布成功证明；Run 失败时即使全部项目命令 passed，也不创建 receipt 目录。
 - updater 测试的分发包输入限定为实际加载的 ai-ready-docs：无关 MCPShell 包变化只使统一生成 provider 重新执行，updater 仍复用；ai-ready-docs 包字节变化使 updater 重新执行。
 - shared 的 file-text-search 与 graph 输入按真实 consumer 分别失效：record-search-output.ts 变化只使实际搜索/分发消费者重新执行，Decision Records 非搜索查询/生命周期、两领域维护 check、Test Evidence 五项与专用 file-text-search 测试保持复用；index.ts 变化仍激活全部真实 file-text-search consumer；无关领域与另一子域测试保持复用。

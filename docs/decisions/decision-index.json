@@ -146,6 +146,8 @@
       "261022-separate-record-local-operations-from-collection-audits": "sha256:c1930d0fca9164f605a8bdf9cedd0e77d59a7296889f7dce44f4af5cfff94695",
       "261024-bound-record-operations-to-published-facts": "sha256:0b2816d33c81b7e861d69e2b2c0507037b22e0655012bac50c3d186fc220b9f4",
       "261024-bound-selected-record-sync-currentness": "sha256:7ca10a631d9c961d1622774e10f6b582ffa9258b0cd587fdca1cc500003c1856",
+      "261024-keep-video-configuration-outside-installation": "sha256:3630e8154c3dff9de110ccbd27d2d3a8697b51bd83e78f8edeead6c7180cdf87",
+      "261024-require-windows-video-acceptance-for-aggregate-release": "sha256:9832687f36388a19f952df866a5bf22cabc8e8bc3991354c6a7723787661b852",
       "261024-retain-dated-identities-without-name-migration": "sha256:e28289e29a806a895a85c11a68a4f84d10471abe90d8ac671b45790253670f4f",
       "261024-separate-image-creation-from-execution": "sha256:0330e2e90ee580c8f5703b1ea0f66d89af9f5acf3bdb2f23481fc4cdfb362d7d",
       "261024-separate-test-design-from-evidence-catalog": "sha256:6cf6b51806fc6647e65a14245c39afe632e1a9d4a5d9c270f4bd946344b98b77",
@@ -3346,6 +3348,39 @@
         "decision-records",
         "investigation-report",
         "responsibility-boundaries"
+      ],
+      "relations": []
+    },
+    "261024-keep-video-configuration-outside-installation": {
+      "name": "keep-video-configuration-outside-installation",
+      "sourcePath": "keep-video-configuration-outside-installation.md",
+      "title": "将视频配置与安装程序分离",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-24T10:17:46Z",
+      "purpose": "让独立安装、更新与恢复保持使用者配置和证据数据。",
+      "background": "视频程序、媒体运行时和证据具有不同生命周期，包内配置易被正式同路径更新覆盖。",
+      "decision": "用户配置默认位于包外，项目仅显式选择覆盖JSON，按字段合并且CLI只读配置。",
+      "tags": [
+        "configuration-boundary",
+        "video-understanding"
+      ],
+      "relations": []
+    },
+    "261024-require-windows-video-acceptance-for-aggregate-release": {
+      "name": "require-windows-video-acceptance-for-aggregate-release",
+      "sourcePath": "require-windows-video-acceptance-for-aggregate-release.md",
+      "title": "以双平台产品门禁共同约束聚合发布",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-10-24T10:17:11Z",
+      "purpose": "保持Linux全仓质量，并在Windows真实制品验收后交付视频能力。",
+      "background": "视频包含Windows媒体调用与路径行为，仅Linux门禁不能证明目标平台分发可用。",
+      "decision": "Linux完整门禁与Windows视频源码及同次制品验收共同阻断PR合并和整批skills发布。",
+      "tags": [
+        "project-tooling",
+        "release-safety",
+        "video-understanding"
       ],
       "relations": []
     },

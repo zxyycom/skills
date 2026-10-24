@@ -65,15 +65,9 @@ function quoteWindowsCommandArgument(value) {
   return `"${value.replaceAll('"', '""')}"`;
 }
 
-export function runCommand(command, args, { inherit = false } = {}) {
+export function resolveCommandExecution(command, args) {
   const resolvedCommand = resolveCommand(command);
-  if (!resolvedCommand) {
-    return {
-      exitCode: null,
-      output: "",
-      resolutionError: `${command} was not found on PATH`
-    };
-  }
+  if (!resolvedCommand) return null;
 
   const isWindowsBatch =
     process.platform === "win32" && /\.(?:bat|cmd)$/iu.test(resolvedCommand);
@@ -91,14 +85,30 @@ export function runCommand(command, args, { inherit = false } = {}) {
         ].join(" ")}"`
       ]
     : args;
-  const result = spawnSync(executable, commandArgs, {
+  return {
+    executable,
+    arguments: commandArgs,
+    windowsVerbatimArguments: isWindowsBatch
+  };
+}
+
+export function runCommand(command, args, { inherit = false } = {}) {
+  const execution = resolveCommandExecution(command, args);
+  if (!execution) {
+    return {
+      exitCode: null,
+      output: "",
+      resolutionError: `${command} was not found on PATH`
+    };
+  }
+  const result = spawnSync(execution.executable, execution.arguments, {
     cwd: repoRoot,
     encoding: "utf8",
     env: plainTextEnvironment,
     maxBuffer,
     stdio: inherit ? "inherit" : "pipe",
     windowsHide: true,
-    windowsVerbatimArguments: isWindowsBatch
+    windowsVerbatimArguments: execution.windowsVerbatimArguments
   });
 
   const output = inherit

@@ -4,6 +4,21 @@ export const expectedSemanticChecks: readonly (readonly [
   commandPath: string
 ])[] = [
   [
+    "test:video-understanding:source-contracts",
+    "bun",
+    "./tools/video-understanding/tests/checks/source-contracts.ts"
+  ],
+  [
+    "test:video-understanding:source-cli",
+    "bun",
+    "./tools/video-understanding/tests/checks/source-cli.ts"
+  ],
+  [
+    "test:video-understanding:public-distribution",
+    "bun",
+    "./tools/video-understanding/tests/checks/public-distribution.ts"
+  ],
+  [
     "test:novel-cards:card-and-query-contract",
     "bun",
     "./tools/novel-cards/tests/checks/card-and-query-contract.ts"
@@ -167,6 +182,10 @@ export const expectedSemanticChecks: readonly (readonly [
 
 export const expectedSemanticPrerequisites = new Map<string, readonly string[]>(
   [
+    [
+      "test:video-understanding:public-distribution",
+      ["script:check:skill-updaters"]
+    ],
     ["test:mcpshell:public-distribution", ["script:check:skill-updaters"]],
     [
       "test:novel-cards:card-and-query-contract",

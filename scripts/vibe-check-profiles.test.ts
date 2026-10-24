@@ -154,7 +154,7 @@ test("quick CLI preserves exact reuse flags without publishing or clearing compl
       fallback: 0,
       firstRun: 0,
       reuse: 1,
-      disabled: 54
+      disabled: 57
     });
     assert.deepEqual(
       summary.decisions.map(({ checkId }: { checkId: string }) => checkId),
@@ -251,6 +251,19 @@ test("CLI enforces only quick budgets including input preparation and late repor
         )
       );
       assert.equal(summary.nativeResult.aggregate, "passed", mode);
+      const eligible =
+        mode === "quick" || mode === "late" ? 10 : mode === "release" ? 67 : 64;
+      assert.deepEqual(
+        summary.selection,
+        {
+          basis: "planned-activation-before-run",
+          eligible,
+          execute: eligible,
+          reuse: 0,
+          disabled: 67 - eligible
+        },
+        mode
+      );
       assert.equal(summary.performance.passed, exit === 0, mode);
       if (mode === "late")
         assert.equal(summary.timingBoundary.end, "after-performance-report");

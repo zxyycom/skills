@@ -16,6 +16,7 @@
 - [Index Runtime](../tools/index-runtime/README.md)
 - [版本管理中间层](../tools/shared/version-control.md)
 - [Skill Updater](../tools/skill-updater/README.md)
+- [Video Understanding 工具维护](../tools/video-understanding/README.md)
 
 ## 工具分工
 
@@ -85,13 +86,14 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `bun run validate` | 校验全部 skill 的结构、frontmatter、正文、资源目录、版本和主仓库配置；不校验链接 |
 | `bun run hash:skills` | 从 Git `pending` 快照临时计算 package hash，并校验内容变化的 skill 已相对 `--baseline-ref` 提升 `SKILL.md` 中的 `metadata.version` |
 | `bun run pack:skills` | 从版本管理 `pending` 快照生成每个 skill 的 zip 和 release manifest |
+| `bun run accept:video-windows -- --artifact <absolute-zip>` | Windows 视频验收组合入口：运行视频源码测试，再对显式 zip 进行仓库外独立安装和分发验收；不替代完整 Gate |
 | `bun run publish:skills -- <rolling\|snapshot>` | 供发布 workflow 校验 `dist/` 制品并执行滚动发布或不可变快照事务；需要 GitHub Actions 提供的 `GH_TOKEN`、`GITHUB_SHA` 和 `PACKAGE_HASH` |
 | `bun run setup-hooks` | 配置当前 worktree 的 `core.hooksPath`，并在 POSIX 文件系统恢复 hook 可执行权限 |
 | `bun run setup-repository` | 配置当前 worktree hook，并确认当前项目的主 worktree 可作为默认 task-graph root |
 | `bun run check [--diagnostic-log]` | 默认 quick：只承担下述十项必要 eligible 范围，强制快速性能预算；消费既有精确 receipt，不发布或清除 receipt。用于日常反馈，不代替完成验收。 |
 | `bun run check:changed`（或 `bun run all`） | changed：对完整 base 范围执行变更相关验收，沿用精确 receipt、共享工具 flag、成功前置和成功发布事务；完成维护工作前使用。 |
-| `bun run check --scope full` | 实际执行全部 61 项 base，不复用或发布 receipt；CI 的任意 base scope 均提升到 full。 |
-| `bun run check --tag release [--baseline-ref <ref>] [--cold] [--diagnostic-log]` | 运行完整 64 项 release Gate，不采集、读取或发布项目 receipt；环境前置通过后实际执行普通检查，再完成版本授权与打包。省略基线时使用 `HEAD`，CI 使用事件基线；`--cold` 明确表达全执行意图。 |
+| `bun run check --scope full` | 实际执行全部 64 项 base，不复用或发布 receipt；CI 的任意 base scope 均提升到 full。 |
+| `bun run check --tag release [--baseline-ref <ref>] [--cold] [--diagnostic-log]` | 运行完整 67 项 release Gate，不采集、读取或发布项目 receipt；环境前置通过后实际执行普通检查，再完成版本授权与打包。省略基线时使用 `HEAD`，CI 使用事件基线；`--cold` 明确表达全执行意图。 |
 
 `typecheck` 的根 `tsconfig.json` 启用编译器原生 incremental，build info 位于 `.log/vibe-check/cache/typecheck/tsconfig.tsbuildinfo`。命令仍为 `tsgo --noEmit`，每次调用都按当前完整 include 与质量选项结算诊断；编译事实可丢弃并重建，不作为项目成功 receipt 或缩小检查范围的依据。
 
@@ -110,7 +112,7 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 
 #### Catalog 与选择
 
-每次 invocation 构造相同的 64 项 Definition：环境 1 项、原生材料 8 项、维护脚本 20 项、语义测试 32 项、release 交付 3 项。base 范围为前四类共 61 项；普通产品验证属于 base，只有 snapshot prepare、version authorization 和 packaging 由 `release` tag 独占。
+每次 invocation 构造相同的 67 项 Definition：环境 1 项、原生材料 8 项、维护脚本 20 项、语义测试 35 项、release 交付 3 项。base 范围为前四类共 64 项；普通产品验证属于 base，只有 snapshot prepare、version authorization 和 packaging 由 `release` tag 独占。
 
 `gate-environment` 无 flag、每轮执行，复用 `node scripts/environment.js gate` 检查 Git、Node、精确 Bun、精确 pnpm 与精确 SCC；其余所有 Check 都显式依赖它。该窄 action 的工具版本 owner 和恢复路径见[环境自举](#环境自举)。环境失败作为真实 failed outcome 保留 transcript，其他 Check 因前置未通过而不启动。
 
@@ -119,9 +121,9 @@ CLI 使用以下执行范围；所有范围保持同一完整 Definition，实�
 | 范围 | 证明责任与执行选择 |
 | --- | --- |
 | quick（默认） | eligible 固定为 `gate-environment`、`secret-detection`、`json-validation`、`json-schema-validation`、`markdown-link-validation`、`markdown-lint`、`script:typecheck`、`script:lint`、`script:format:check`、`script:validate`。这是可执行范围，精确 receipt 仍可省略其中适用项；不覆盖领域测试、生成漂移或完整质量材料。 |
-| changed | 完整 base 的变更相关验收。环境与除 Markdown 内容外的七项原生材料每轮结算；52 项项目命令与 Markdown 内容共 53 项按完整输入证明、共享工具 flag 与成功前置选择。 |
-| full / CI base | 全部 61 项 base 实际执行，不使用 receipt；CI 将显式 quick/changed 也提升到 full。 |
-| release | 全部 64 项实际执行，不使用 receipt，再完成同快照版本授权与打包。 |
+| changed | 完整 base 的变更相关验收。环境与除 Markdown 内容外的七项原生材料每轮结算；55 项项目命令与 Markdown 内容共 56 项按完整输入证明、共享工具 flag 与成功前置选择。 |
+| full / CI base | 全部 64 项 base 实际执行，不使用 receipt；CI 将显式 quick/changed 也提升到 full。 |
+| release | 全部 67 项实际执行，不使用 receipt，再完成同快照版本授权与打包。 |
 
 工具能力 ID 与输入 patterns 由 `impact-tools.ts` 维护，内部 flag 派生为 `gate-tool:<toolId>`；语义 catalog 的 `toolIds`、包脚本的 `packageScriptToolSubscriptions` 与原生 lint 的 `markdownLintToolSubscription` 显式订阅。Vibe 通过原生条件、`enabledByFlags` 与 `propagateDependsOn` 选择适用订阅者及成功前置。共享 flag 带入的订阅者、consumer 带入的 provider 如实计入本次执行；复用项保持未激活，不冒充本次 passed。
 
@@ -150,7 +152,7 @@ Check 样本只取原生本轮实际 execution/settlement 时长：null、未执
 
 quick 和 changed 可以消费既有 receipt；只有 changed 可以发布，quick 保留已有文件不作写入，full/CI/release 不采集或复用。receipt 只证明某个纳入完整输入契约的 Check 在完整有效输入下曾通过，不按 branch、HEAD 或目录时间推断。项目承担的最小事务是“输入声明 → 内容与环境身份 → 精确 passed 记录 → 最终成功且无漂移发布”：
 
-1. `impact-tools.ts` 按可独立维护的源码职责声明能力 ID 与完整输入 patterns；`impact-catalog.ts` 将 52 项项目命令与 Markdown 内容 Check 共 53 项的稳定 ID、显式 `toolIds`、成功前置与逐项契约版本组成证明契约。路径匹配由 Vibe `createProjectFileRegionIndex` 完成，输入含义由全局 `gateImpactContractVersion` 与逐 Check `version` 承载。当前输入按以下消费边界组织，声明方法见 [Check 编写契约](gate-check-authoring.md#项目输入证明)：
+1. `impact-tools.ts` 按可独立维护的源码职责声明能力 ID 与完整输入 patterns；`impact-catalog.ts` 将 55 项项目命令与 Markdown 内容 Check 共 56 项的稳定 ID、显式 `toolIds`、成功前置与逐项契约版本组成证明契约。路径匹配由 Vibe `createProjectFileRegionIndex` 完成，输入含义由全局 `gateImpactContractVersion` 与逐 Check `version` 承载。当前输入按以下消费边界组织，声明方法见 [Check 编写契约](gate-check-authoring.md#项目输入证明)：
    - 公共输入：共同配置与 invocation/Definition 实际加载的 Gate、release 和共享运行时闭包。领域构建消费者保守保留脚本与共享运行时；公共工具的测试/fixture 只进入实际消费者。
    - `repository-validation`：SKILL.md 内容、技能/资源目录身份、必需文件和校验实现，不消费嵌套运行时字节。
    - `generated-file`：生成、声明、source-runtime 与临时 fixture 的实现闭包，不消费真实领域源码。
@@ -160,7 +162,7 @@ quick 和 changed 可以消费既有 receipt；只有 changed 可以发布，qui
 3. 总量限制为 20,000 项、普通文件 512 MiB。未知路径、symlink 或不支持的文件类型使输入域未闭合；两领域 `src/`、`tests/` 中未归入本领域能力的文件也触发保守执行。该归属检查只发现未归属文件，实际 import、动态读取与传递依赖仍由维护者审查。越界、非 UTF-8 Git 路径、读取失败、超预算或必要工具链探测失败时，在本次有效范围内保守执行，不发布部分证明；quick 不因此升级为完整 base。
 4. 工具链摘要覆盖当前 Node 进程、可执行路径、平台/架构，Node、Bun、pnpm、Python（须可 import `tomllib`）、Git 版本与配置，以及 SCC、ast-grep、Oxfmt、Oxlint、tsgo 的实际探测。Python 是 MCPShell initializer 离线测试的真实输入，探测失败扩大执行，不扩大基础环境 Check 的工具前置。进程环境除 `_`、`OLDPWD`、`SHLVL` 三项父 shell 记账变量外进入摘要；敏感原值不写入证明。为使嵌套 Bun 入口的真实子进程与证明使用一致环境，CLI 在参数通过后、采集与任意子进程前（计入总墙钟），按 Node `path.delimiter` 对实际 `process.env.PATH` 的条目字符串精确去重、保留首次顺序和空/相对项，缺失时不创建，不排序或解析真实路径，其余环境和指纹排除不变。
 5. 每个能力指纹绑定 ID、patterns、选中内容摘要、工具链摘要与全局契约版本；完整 Check 指纹另绑定 Check ID、订阅、成功前置与逐项版本。唯一 receipt 文件是 `.log/vibe-check/cache/project-tool-receipts-v5/receipts.json`：manifest 含 `contractVersion: "project-tool-receipts-v6"`、`formatVersion: 2` 与 `receipts`，每条记录含 `checkId`、`fingerprint`、`outcome: "passed"` 和 `toolFingerprints`。只有完整指纹及订阅能力指纹的集合与值均精确匹配，才形成复用候选。缺失、损坏或变化激活相关工具 flag；无法归因到能力的契约变化激活该 Check 的全部订阅。根依赖字节服从受信 `pnpm install --frozen-lockfile` 前提，不逐文件散列安装目录；包管理器外改写依赖后应先修复安装。
-6. 只有 changed 的最终 Run completed/passed 且本次全部 execute 项（含共享 flag 和成功前置带入项）都 passed，才重取同一输入域。完整 workspace/toolchain 指纹不变后，将精确复用项与本次通过项合并，原子替换当前 53 项 receipt。能力指纹随每 Check 保存，不另维护工具成功缓存。失败、取消、rejection、原生 output failure、未知输入、漂移、采集或 receipt 写入失败均不发布；起止漂移只阻止发布，不额外改变本次 Gate 结算。cache 不可用只扩大执行，不改变质量结果。full、release 与 CI 全执行路径不采集或发布 receipt。
+6. 只有 changed 的最终 Run completed/passed 且本次全部 execute 项（含共享 flag 和成功前置带入项）都 passed，才重取同一输入域。完整 workspace/toolchain 指纹不变后，将精确复用项与本次通过项合并，原子替换当前 56 项 receipt。能力指纹随每 Check 保存，不另维护工具成功缓存。失败、取消、rejection、原生 output failure、未知输入、漂移、采集或 receipt 写入失败均不发布；起止漂移只阻止发布，不额外改变本次 Gate 结算。cache 不可用只扩大执行，不改变质量结果。full、release 与 CI 全执行路径不采集或发布 receipt。
 
 执行与证明取舍见[原生执行与项目输入证明决策](decisions/separate-quick-gate-from-complete-validation.md)，能力与订阅归属见[工具变更 flag 决策](decisions/distinguish-tool-change-flags-from-check-subscriptions.md)。性能 history、原生计算事实 cache 与项目成功 receipt 分别维护：前者只影响任务选择偏好，计算事实仍须按本次材料和规则结算，只有完整输入精确命中的 receipt 允许省略项目命令或 Markdown 内容 Check。
 
@@ -186,7 +188,7 @@ Vibe 从 admission 到 settlement 原子持有全部 claims。版本管理测试
 | 产物 | 用途 |
 | --- | --- |
 | `machine/run.json`、`records.ndjson` | Vibe 本次 Run 与逐项事实。 |
-| `machine/gate-incremental.json` | 本次范围的 execute/reuse/fallback/first-run 计划计数、逐项 reason、`unclosedInputs`、fallback detail 与 receipt 发布结果。`tool-triggered` 表示共享 flag 带入，`prerequisite-triggered` 表示成功前置带入，均计 execute。quick 的 `counts` 覆盖必要 10 项（含不使用 receipt 的每轮检查），`decisions` 只投影其中可复用证明条目，`completeChangePlan` 保留完整原候选；full/CI 的 `counts`/`decisions` 覆盖 base 61 项，不含未激活的 release 3 项。计划不证明实际执行，结果以 Vibe snapshot 为准。 |
+| `machine/gate-incremental.json` | 本次范围的 execute/reuse/fallback/first-run 计划计数、逐项 reason、`unclosedInputs`、fallback detail 与 receipt 发布结果。`tool-triggered` 表示共享 flag 带入，`prerequisite-triggered` 表示成功前置带入，均计 execute。quick 的 `counts` 覆盖必要 10 项（含不使用 receipt 的每轮检查），`decisions` 只投影其中可复用证明条目，`completeChangePlan` 保留完整原候选；full/CI 的 `counts`/`decisions` 覆盖 base 64 项，不含未激活的 release 3 项。计划不证明实际执行，结果以 Vibe snapshot 为准。 |
 | `machine/gate-performance.json` | 请求/有效 scope、计划选择计数、原生结果、计时边界、本轮实际执行样本统计及预算结论；计划执行数不表示 Check 已实际执行，实际结果以原生事实为准。 |
 | `progress.log` | 原生终端 progress 副本。 |
 | `checks/**/process.log` | 各独立命令的完整 stdout/stderr transcript。 |
@@ -230,7 +232,7 @@ Vibe 只在 provider passed 后启动 consumer；前置未通过时不执行并�
 release DAG 固定为环境前置通过后：
 
 1. `release:skill-prepare` 解析基线 revision，一次捕获 pending snapshot、hash、版本和 version issues。捕获或解析失败为 unavailable；存在版本问题仍完成 prepare。
-2. `release:skill-version` 依赖 prepare 与全部 61 项普通 Check，只有它们可信 passed 才授权；版本问题使 authorization failed。
+2. `release:skill-version` 依赖 prepare 与全部 64 项普通 Check，只有它们可信 passed 才授权；版本问题使 authorization failed。
 3. `pack:skills` 依赖 authorization，从已授权的同一内存 snapshot 恰好打包一次，不重读 index。
 
 prepare 与 authorization 使用原生 typed handoff 传递同一个 `PreparedSkillPackageRelease` 对象；consumer 读取原 provider 对象的 handoff。私有 Map/bytes 限于本次 Run，不进入 machine data；公开 data 只保存 baseline、问题计数等摘要。`hash:skills` 仍为独立 CLI，pre-commit 仍独立按 `HEAD` 校验待提交版本。
@@ -291,6 +293,7 @@ task-graph 短命令另外承担项目 root 选择。省略 `--root` 时，它�
 | 责任 | 行为测试 | 显式写入 | 只读检查 |
 | --- | --- | --- | --- |
 | Novel Cards | `test:novel-cards-cli` | `sync:novel-cards-cli` | `check:novel-cards-cli` |
+| Video Understanding | `test:video-understanding-cli` | `sync:video-understanding-cli` | `check:video-understanding-cli` |
 | Lightweight Judgment | `test:lightweight-judgment-cli` | `sync:lightweight-judgment-cli` | `check:lightweight-judgment-cli` |
 | Change Plan | `test:change-plan-cli` | `sync:change-plan-cli` | `check:change-plan-cli` |
 | Decision Records | `test:decision-records-cli` | `sync:decision-records-cli` | `check:decision-records-cli`、`check:decisions` |
@@ -401,6 +404,7 @@ pnpm --dir "<skill-directory>" install \
 | 维护源码 | 分发目标 |
 | --- | --- |
 | `tools/novel-cards/` | `skills/novel-cards/scripts/novel-cards.ts` 与包内运行时；构建适配为 `scripts/build/novel-cards.ts` |
+| `tools/video-understanding/` | `skills/video-understanding/scripts/video.ts`、包内运行时及媒体辅助／安装资源；构建适配为 `scripts/build/video-understanding.ts` |
 | `tools/lightweight-judgment/` | `skills/lightweight-judgment/scripts/lightweight-judgment.ts` 与包内运行时；`migrations/log-v1-to-v2.sql` 同步到该 skill 的 `migrations/log-v1-to-v2/migrate.sql`，迁移记录手工维护；构建适配为 `scripts/build/lightweight-judgment.ts` |
 | `tools/change-plan/` | `skills/change-plan/scripts/change-plan.ts` 与包内运行时 |
 | `tools/decision-records/` | `skills/decision-records/scripts/decision-records.*` 和索引 Schema |
@@ -453,20 +457,44 @@ bun run setup-hooks
 
 ### 平台与 Git 环境
 
-Hook 源文件通过 `.gitattributes` 固定使用 LF，并在 Git index 中保存为 `100755`。POSIX Git 会检查工作区执行位，因此 setup 对当前 worktree 的 `pre-commit` 和 `post-commit` 重新执行 `chmod 0755`；原生 Git for Windows 的 `access(X_OK)` 兼容层忽略 `X_OK`，因此 Windows setup 不把 `chmod` 当作启用机制，而是依赖 LF 脚本存在且 `core.hooksPath=.githooks`。环境测试使用真实 `git commit` 验证两类 hook 被调用，并以启用 checkout 换行转换的 clone 验证 LF 契约；当前完整门禁仍只在 Linux 运行，不能表述为已经完成真实 Windows runner 验证。
+Hook 源文件通过 `.gitattributes` 固定使用 LF，并在 Git index 中保存为 `100755`。POSIX Git 会检查工作区执行位，因此 setup 对当前 worktree 的 `pre-commit` 和 `post-commit` 重新执行 `chmod 0755`；原生 Git for Windows 的 `access(X_OK)` 兼容层忽略 `X_OK`，因此 Windows setup 不把 `chmod` 当作启用机制，而是依赖 LF 脚本存在且 `core.hooksPath=.githooks`。环境测试使用真实 `git commit` 验证两类 hook 被调用，并以启用 checkout 换行转换的 clone 验证 LF 契约。完整 Gate 的持续验收位于 Linux；Windows 视频 job 不承担全仓环境或所有 hook 的平台资格证明，平台结果仍以实际执行范围为准。
 
 Git 调用 hook 时会注入当前 worktree 的 `GIT_DIR`、`GIT_INDEX_FILE` 等 repository-local 环境变量。两个 hook 在取得当前顶层路径后先清除 `git rev-parse --local-env-vars` 声明的变量，再从该顶层运行各自 helper；这样 nested Git 会重新识别当前 worktree、共享 common dir 及其正确 index，而不会继承 hook 调用点的局部覆盖。
 
 ## CI 与发布
 
-`.github/workflows/package-skills.yml` 复用本地稳定入口：
+`.github/workflows/package-skills.yml` 使用同一受测 revision，按两类产品门禁组织交付：
+
+| Job | 范围与责任 |
+| --- | --- |
+| `package`（Ubuntu） | 固定工具链下的完整 release Gate，覆盖全仓质量、结构、类型、Case/index、联合同步、事件基线版本/hash 与全部 skill 打包；上传 `skills` artifact。 |
+| `video-windows`（Windows） | 依赖 `package`，checkout 其输出的 `tested_revision`，下载同次 workflow 的 `skills` artifact，以 `accept:video-windows` 验收视频源码和其中的实际视频 zip。 |
+| `publish` | 同时依赖 `package` 与 `video-windows`，保留既有发布触发条件；任一门禁失败、取消或缺失成功结果均不能发布整批 skills。 |
+
+两个产品门禁覆盖每次现有 PR、main push 和手动打包 workflow，包括仅修改共享依赖或其他 skill 的情形。必需验收保持实际执行，不以路径过滤或成功跳过替代。Windows 视频失败也阻断未改动 skill 的聚合发布，以沿用一条发布链；取舍见[平台验收决策](decisions/require-windows-video-acceptance-for-aggregate-release.md)。
+
+Linux `package` 复用本地稳定入口：
 
 1. 安装固定 Bun、Node、pnpm 和 Go，执行 `pnpm install --frozen-lockfile`。
 2. 在同一 package job 安装 SCC 4.0.0，并在运行门禁前精确探测版本；函数指标无需额外分析器。
 3. Checkout 后先确认非空、非全零的事件基线在本次仓库历史中可解析；不可解析时明确失败，不能把 force-push 前的基线悄悄替换成 `HEAD`。随后运行 `bun run check --tag release --cold --baseline-ref <event-baseline>`，在唯一 Gate aggregate 内完成前置检查、相对事件基线的独立版本校验和全部 skill 打包；只有事件未提供有效基线时省略该参数，release Gate 才回退 `HEAD`。
 4. 运行 `bun run hash:skills --github-output --baseline-ref <event-baseline>`，重复廉价版本校验并输出本次聚合 hash；该步骤位于已经通过的 release 终结 Check 之后，不能绕过发布版本门禁。
-5. 上传全部 `dist/*` 作为保留 7 天的 workflow artifact，供当前 workflow 的发布 job 或短期 PR 核对使用。每次成功的 `main` 构建都进入发布 job；发布器对照远端资产的名称、大小和 SHA-256 digest，完全一致时不执行远端写入，从而在先前含 skill 改动的构建失败后由下一次成功构建补发。
+5. 上传全部 `dist/*` 作为保留 7 天的 `skills` workflow artifact，供当前 workflow 的 Windows 验收、发布或短期 PR 核对使用。两类门禁均成功的 `main` 构建才进入发布 job；发布器对照远端资产的名称、大小和 SHA-256 digest，完全一致时不执行远端写入，从而在先前含 skill 改动的构建失败后由下一次成功构建补发。
 6. package job 失败且存在 Gate invocation 时，额外上传保留 3 天的机器结果、progress 与命令 transcript，供定位失败 Check；不上传可复用 cache。若事件基线已不可解析，可在 `main` 手动触发 `workflow_dispatch` 重新验证并重新发布当前制品；它不会恢复已丢失的历史基线比较。
+
+Windows 组合入口、独立安装与测试维护见[视频工具维护](../tools/video-understanding/README.md#windows-开发与制品验收)。该入口须消费同次 Linux 打包的原 zip；重新打包或工作树副本属于不同的验收对象。
+
+fixture 的证明范围限于实际断言的入口、路径、资源、配置、依赖、更新与进程行为。实际媒体、网站、OCR 模型及客户端发现按具体任务授权另验，其他 skill 的平台范围保持不变。
+
+### PR 合并保护
+
+维护者在首次配置或 workflow job 身份变化后完成以下核对：
+
+1. 取得当前平台上 `package`、`video-windows` 的实际 check 身份与受测 revision。
+2. 将二者同时设为远端 ruleset／分支保护的必需检查，验证失败、取消或缺少成功结果时均阻止 PR 合并。
+3. 保存实际配置与阻断证据。权限或平台能力不足时保持合并阻断，取得所需授权或外部配置后再核对。
+
+YAML 的 job 依赖约束发布；远端合并保护以本节生效核对为准，本地测试和文档声明不代替该证据。
 
 ### 发布职责与输入
 

@@ -22,6 +22,7 @@
    - `minimal-implementation`: 在目标和责任明确后, 比较正确候选的整体维护面并选择更小方案。
    - `novel-cards`: 用详情与递归总结组织小说规划、分层修改、按卡写作和正文反推对照；以独立章节编号定位，用版本快照与统一变迁连接故事演进和作者修订。
    - `image-creation`: 以提示词工程结合实际参考与可选结构引导完成生图或编辑，逐次保存生成目的、实际原词和回看结果；支持仅提示词或诊断。
+   - `video-understanding`: 按交付物和范围读取视频文字与画面，用本地工具维护可回查证据，形成总结、答案或操作步骤。
    - `lightweight-judgment`: 仅在用户点名该 skill 时启用, 以 JEV 载体调用 JEV 或 OpenAI Decisions 进行低成本、低延迟的分类、候选选择、相关性筛选和评分; 配套自包含 CLI 支持单次请求、离线检查与响应校验。
    - `skill-design-discovery`: 在创建或重构 skill 前, 从现实材料恢复流程、判断、约束、权限和验证义务。
    - `investigation-report`: 以带稳定 ID、tags 与显式关系的单份报告保存可独立复核的调查背景、依据、结果与边界。
@@ -78,3 +79,4 @@
 1. 修改主仓库维护文档、`scripts/`、`tools/`、CI、配置或 `skills/` 目录结构后, 完成维护工作前运行 `bun run check:changed`（或 CI 全量门禁）；`bun run check` 只提供 quick 日常反馈, 成功不代替完整变更验收。范围与预算见[项目工具链](docs/tooling.md#权威-vibe-门禁)。
 2. 只改某个 skill 本体时, 根据该 skill 内容选择最小验证; 涉及打包输入、hash 或 updater 时同步运行主仓库相关检查。
 3. 提交或汇报前说明实际运行过的验证; 未运行验证时直接说明原因。
+4. 聚合交付须完成 Linux 全仓 release Gate 和 Windows 视频源码／同次制品验收；执行范围、支持边界与远端合并保护核对由[项目工具链](docs/tooling.md#ci-与发布)承接。

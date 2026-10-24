@@ -58,11 +58,16 @@ export async function createSkillRepositoryFixture(tempRoot: string) {
   const betaDirectory = path.join(repositoryRoot, "skills", "beta");
   const gammaDirectory = path.join(repositoryRoot, "skills", "gamma");
   const alphaStaged = skillMarkdown("alpha", 3, "alpha staged");
-  const betaCommitted = skillMarkdown("beta", 7, "beta committed");
 
   await fs.cp(await pendingRepositoryTemplateRoot(), repositoryRoot, {
     recursive: true
   });
+  // core.autocrlf=false stages the checked-out fixture bytes verbatim, which
+  // may be CRLF on Windows; expected bytes come from that fixture, not the reader.
+  const betaCommitted = await fs.readFile(
+    path.join(betaDirectory, "SKILL.md"),
+    "utf8"
+  );
   await fs.mkdir(path.join(alphaDirectory, "nested"), { recursive: true });
 
   const stagedBinary = Buffer.from([0x00, 0x01, 0xfe, 0xff]);

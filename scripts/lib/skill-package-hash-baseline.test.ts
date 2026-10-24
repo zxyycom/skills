@@ -118,6 +118,66 @@ test("accepts a new skill at initial version one", async () => {
   );
 });
 
+test("version checks bound independent skill reads while preserving per-skill early stops", async () => {
+  const names = Array.from({ length: 9 }, (_, index) => `skill-${index}`);
+  const skills = names.map((name) => ({
+    name,
+    directory: path.join(fixtureRepositoryRoot, "skills", name)
+  }));
+  const files = Object.fromEntries(
+    names.flatMap((name) => [
+      [`skills/${name}/a-changed.txt`, "baseline\n"],
+      [`skills/${name}/SKILL.md`, skillMarkdown(name, 3, "unchanged")],
+      [`skills/${name}/z-unreadable.txt`, "must stay unread\n"]
+    ])
+  );
+  const snapshot: SkillPackageSnapshot = {
+    skills,
+    filesBySkill: new Map(
+      names.map((name) => [
+        name,
+        [
+          skillFile("a-changed.txt", "changed\n"),
+          skillFile("z-unreadable.txt", "must stay unread\n"),
+          skillFile("SKILL.md", skillMarkdown(name, 3, "unchanged"))
+        ]
+      ])
+    )
+  };
+  const readPaths: string[] = [];
+  const source = createBaselineRepository(files, { readPaths });
+  let active = 0;
+  let maximumActive = 0;
+  const repository = {
+    ...source,
+    async readRevisionFile(revision: string, filePath: string) {
+      active += 1;
+      maximumActive = Math.max(maximumActive, active);
+      try {
+        await new Promise<void>((resolve) => setImmediate(resolve));
+        return await source.readRevisionFile(revision, filePath);
+      } finally {
+        active -= 1;
+      }
+    }
+  };
+  const result = await readSkillPackageSnapshotVersionBaselineFromRepository(
+    snapshot,
+    "baseline",
+    repository
+  );
+  assert.equal(maximumActive, 4);
+  assert.deepEqual(
+    result.skills,
+    Object.fromEntries(names.map((name) => [name, 3]))
+  );
+  assert.deepEqual(
+    readPaths.filter((file) => file.endsWith("z-unreadable.txt")),
+    []
+  );
+  assert.equal(readPaths.length, names.length * 2);
+});
+
 test(
   "reports corrupt baseline skill blobs as operation failures",
   gitTestOptions,

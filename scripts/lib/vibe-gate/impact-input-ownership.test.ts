@@ -5,8 +5,76 @@ import {
   prepareChangedFixtureActivation,
   prepareFixtureActivation,
   publishFixtureReceipts,
-  withImpactFixture
+  withImpactFixture,
+  writeImpactFixture
 } from "./impact-test-support.ts";
+
+test("incremental Gate closes video source resources and distribution inputs under one capability", async () => {
+  await withImpactFixture(async (fixture) => {
+    await writeImpactFixture(
+      fixture.directory,
+      ".gitignore",
+      ".log/\n*.fixture\n"
+    );
+    for (const input of [
+      "tools/video-understanding/src/video.ts",
+      "tools/video-understanding/resources/scripts/media.py",
+      "tools/video-understanding/resources/scripts/runtime.env",
+      "tools/video-understanding/resources/runtime/ocr-profiles.json",
+      "tools/video-understanding/resources/runtime/requirements.txt",
+      "tools/video-understanding/resources/runtime/local.fixture",
+      "tools/video-understanding/tests/fixtures/process.ts",
+      "tools/video-understanding/tests/checks/source-cli.ts",
+      "scripts/accept-video-windows.ts",
+      "scripts/video-artifact/run.test.ts",
+      "skills/video-understanding/scripts/video.ts",
+      "skills/video-understanding/scripts/runtime/tools/video-understanding/src/video.ts",
+      "skills/video-understanding/runtime/prepare-ocr.py",
+      "skills/video-understanding/package.json",
+      "skills/video-understanding/pnpm-lock.yaml"
+    ]) {
+      const plan = await prepareChangedFixtureActivation(fixture, input);
+      assert.equal(plan.kind, "incremental");
+      assert.deepEqual(plan.snapshot.unclassifiedPaths, [], input);
+      assert.ok(plan.activeToolIds.includes("video-understanding"), input);
+      for (const checkId of [
+        "test:video-understanding:source-contracts",
+        "test:video-understanding:source-cli",
+        "test:video-understanding:public-distribution",
+        "script:check:skill-updaters"
+      ]) {
+        assert.equal(
+          plan.decisions.find((decision) => decision.checkId === checkId)
+            ?.action,
+          "execute",
+          `${input}: ${checkId}`
+        );
+      }
+      for (const checkId of [
+        ...(input.startsWith("scripts/")
+          ? []
+          : ["test:novel-cards:card-and-query-contract"]),
+        "script:test:index-runtime"
+      ]) {
+        assert.equal(
+          plan.decisions.find((decision) => decision.checkId === checkId)
+            ?.action,
+          "reuse",
+          `${input}: ${checkId}`
+        );
+      }
+      assert.equal(
+        (await publishFixtureReceipts(fixture, plan)).published,
+        true
+      );
+      assert.equal(
+        (await prepareFixtureActivation(fixture)).activeCheckIds.length,
+        0,
+        input
+      );
+    }
+  });
+});
 
 test("incremental Gate closes lazy relation inputs through their existing capabilities", async () => {
   await withImpactFixture(async (fixture) => {

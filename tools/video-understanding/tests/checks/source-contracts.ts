@@ -1,0 +1,11 @@
+await import("../acquisition.test.ts");
+await import("../acquisition-language.test.ts");
+await import("../acquisition-materials.test.ts");
+await import("../evidence.test.ts");
+await import("../evidence-media.test.ts");
+await import("../evidence-boundaries.test.ts");
+await import("../ocr-runtime.test.ts");
+await import("../refinement.test.ts");
+await import("../refinement-corrections.test.ts");
+await import("../refinement-ocr.test.ts");
+await import("../refinement-persistence.test.ts");

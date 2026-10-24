@@ -254,6 +254,13 @@ export const gateToolInputs = {
     "tools/lightweight-judgment/**",
     "skills/lightweight-judgment/**"
   ],
+  "video-understanding": [
+    ...commonGateInputPatterns,
+    "scripts/accept-video-windows.ts",
+    "scripts/video-artifact/**",
+    "tools/video-understanding/**",
+    "skills/video-understanding/**"
+  ],
   mcpshell: [
     ...domainRuntimeInputs,
     "tools/mcpshell-workspace-bridge/**",
