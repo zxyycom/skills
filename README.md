@@ -30,7 +30,7 @@
 
 [Novel Cards](docs/skills/novel-cards.md) 用详情与递归总结组织原创或续写：先改卡并从最高受影响层下传，再依据细纲与导演视角写作，正文反推只产出对照报告。章节按编号或标题定位，稳定身份不随重排变化；旧卡快照与统一变迁连接故事演进和作者修订，本地 CLI 自动查询跨卡关联。实际 skill 位于 [`skills/novel-cards/`](skills/novel-cards/)。
 
-[Image Creation](docs/skills/image-creation.md) 将用户意图与实际参考落实为生图或编辑输入，通过看图、失败诊断与定向迭代交付图像。它维护视觉任务、参考分工、保留回归和当前候选，调用协议与参数交给当前图像工具；也支持仅提示词或诊断交付。实际 skill 位于 [`skills/image-creation/`](skills/image-creation/)。
+[Image Creation](docs/skills/image-creation.md) 以提示词工程结合实际参考、可选三视图／简易3D结构引导完成图像创作与编辑。独立指南承接提示构建与完整模板、接口使用、逐次目的／实际原词／回看记录和存储；通过定向改写与保留回归交付图像，也支持仅提示词或诊断。实际 skill 位于 [`skills/image-creation/`](skills/image-creation/)。
 
 [Lightweight Judgment](docs/skills/lightweight-judgment.md) 在用户点名该 skill 后，以 JEV 载体调用 JEV 或 OpenAI Decisions，低成本、低延迟地完成局部分类、候选选择、相关性筛选和评分，再回到原任务。它把模型实测特点、请求组织与结果处理交给 agent，配套随包 TS CLI 提供本地检查、离线预览与单次请求。实际 skill 位于 [`skills/lightweight-judgment/`](skills/lightweight-judgment/)。
 
