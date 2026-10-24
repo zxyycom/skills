@@ -1,0 +1,3657 @@
+{
+  "summary": {
+    "normalScenarioCount": 4,
+    "normalSampleCount": 24,
+    "probeSampleCount": 8,
+    "smokeSampleCount": 8,
+    "failures": [],
+    "groups": {
+      "decision/sync-selected": {
+        "normalSamples": 6,
+        "variants": {
+          "before": {
+            "wallSeconds": {
+              "min": 1.4100957379559986,
+              "median": 1.7021493919892237,
+              "max": 2.3131743160192855
+            },
+            "cpuSeconds": {
+              "min": 2.004953,
+              "median": 2.424194,
+              "max": 3.178972
+            },
+            "maxRssKiB": {
+              "min": 316164,
+              "median": 317904,
+              "max": 320284
+            }
+          },
+          "after": {
+            "wallSeconds": {
+              "min": 1.3108115550130606,
+              "median": 1.4401870850124396,
+              "max": 1.7200542030041106
+            },
+            "cpuSeconds": {
+              "min": 1.868636,
+              "median": 2.038338,
+              "max": 2.4470929999999997
+            },
+            "maxRssKiB": {
+              "min": 302944,
+              "median": 304672,
+              "max": 304840
+            }
+          }
+        },
+        "pairs": [
+          {
+            "pair": 0,
+            "wallAfterVsBefore": 0.6226020559880852,
+            "cpuAfterVsBefore": 0.6411940715426245,
+            "rssAfterVsBefore": 0.9458605487629729,
+            "outputAndEffectsEqual": true
+          },
+          {
+            "pair": 1,
+            "wallAfterVsBefore": 1.0105189421675629,
+            "cpuAfterVsBefore": 1.009446026184373,
+            "rssAfterVsBefore": 0.9641831454561557,
+            "outputAndEffectsEqual": true
+          },
+          {
+            "pair": 2,
+            "wallAfterVsBefore": 0.9295904666112563,
+            "cpuAfterVsBefore": 0.9320098775382765,
+            "rssAfterVsBefore": 0.958377371785193,
+            "outputAndEffectsEqual": true
+          }
+        ],
+        "medianRatios": {
+          "wallSeconds": 0.8460991096259531,
+          "cpuSeconds": 0.8408312206036316,
+          "maxRssKiB": 0.958377371785193
+        }
+      },
+      "investigation/sync-selected": {
+        "normalSamples": 6,
+        "variants": {
+          "before": {
+            "wallSeconds": {
+              "min": 1.3285806510248221,
+              "median": 1.4403919960022904,
+              "max": 1.6780826860340312
+            },
+            "cpuSeconds": {
+              "min": 1.867668,
+              "median": 2.03242,
+              "max": 2.29766
+            },
+            "maxRssKiB": {
+              "min": 294500,
+              "median": 295240,
+              "max": 316020
+            }
+          },
+          "after": {
+            "wallSeconds": {
+              "min": 1.397542062040884,
+              "median": 1.8798853160114959,
+              "max": 2.597694747033529
+            },
+            "cpuSeconds": {
+              "min": 1.997741,
+              "median": 2.5199510000000003,
+              "max": 3.3632679999999997
+            },
+            "maxRssKiB": {
+              "min": 295880,
+              "median": 312268,
+              "max": 316088
+            }
+          }
+        },
+        "pairs": [
+          {
+            "pair": 0,
+            "wallAfterVsBefore": 1.5480135565744393,
+            "cpuAfterVsBefore": 1.4637796714918654,
+            "rssAfterVsBefore": 1.0002151762546674,
+            "outputAndEffectsEqual": true
+          },
+          {
+            "pair": 1,
+            "wallAfterVsBefore": 1.0519060780863152,
+            "cpuAfterVsBefore": 1.069644604929784,
+            "rssAfterVsBefore": 1.004685908319185,
+            "outputAndEffectsEqual": true
+          },
+          {
+            "pair": 2,
+            "wallAfterVsBefore": 1.3051206346806905,
+            "cpuAfterVsBefore": 1.2398770923332776,
+            "rssAfterVsBefore": 1.0576751117734724,
+            "outputAndEffectsEqual": true
+          }
+        ],
+        "medianRatios": {
+          "wallSeconds": 1.3051206346806905,
+          "cpuSeconds": 1.2398770923332776,
+          "maxRssKiB": 1.0576751117734724
+        }
+      },
+      "decision/stage-index": {
+        "normalSamples": 6,
+        "variants": {
+          "before": {
+            "wallSeconds": {
+              "min": 2.4261107919737697,
+              "median": 3.2887634920189157,
+              "max": 6.289200619969051
+            },
+            "cpuSeconds": {
+              "min": 3.3463510000000003,
+              "median": 4.4807559999999995,
+              "max": 7.567385
+            },
+            "maxRssKiB": {
+              "min": 372032,
+              "median": 380288,
+              "max": 381636
+            }
+          },
+          "after": {
+            "wallSeconds": {
+              "min": 2.335931388020981,
+              "median": 2.947847297997214,
+              "max": 5.034169775026385
+            },
+            "cpuSeconds": {
+              "min": 3.2276759999999998,
+              "median": 4.041478,
+              "max": 6.612267
+            },
+            "maxRssKiB": {
+              "min": 367144,
+              "median": 369048,
+              "max": 373800
+            }
+          }
+        },
+        "pairs": [
+          {
+            "pair": 0,
+            "wallAfterVsBefore": 0.8004466830080478,
+            "cpuAfterVsBefore": 0.8737849336329525,
+            "rssAfterVsBefore": 0.9868613452606227,
+            "outputAndEffectsEqual": true
+          },
+          {
+            "pair": 1,
+            "wallAfterVsBefore": 0.9628296431263047,
+            "cpuAfterVsBefore": 0.9645359975686948,
+            "rssAfterVsBefore": 0.9704434533826994,
+            "outputAndEffectsEqual": true
+          },
+          {
+            "pair": 2,
+            "wallAfterVsBefore": 0.8963390967915363,
+            "cpuAfterVsBefore": 0.9019634186730989,
+            "rssAfterVsBefore": 0.979467345847876,
+            "outputAndEffectsEqual": true
+          }
+        ],
+        "medianRatios": {
+          "wallSeconds": 0.8963390967915363,
+          "cpuSeconds": 0.9019634186730989,
+          "maxRssKiB": 0.9704434533826994
+        }
+      },
+      "investigation/stage-index": {
+        "normalSamples": 6,
+        "variants": {
+          "before": {
+            "wallSeconds": {
+              "min": 2.3680677440133877,
+              "median": 3.472838201036211,
+              "max": 3.8090775219607167
+            },
+            "cpuSeconds": {
+              "min": 3.236161,
+              "median": 4.611521,
+              "max": 4.942344
+            },
+            "maxRssKiB": {
+              "min": 340124,
+              "median": 346264,
+              "max": 360496
+            }
+          },
+          "after": {
+            "wallSeconds": {
+              "min": 2.310442410001997,
+              "median": 3.3623982630087994,
+              "max": 3.5083551059942693
+            },
+            "cpuSeconds": {
+              "min": 3.139332,
+              "median": 4.499333,
+              "max": 4.621365
+            },
+            "maxRssKiB": {
+              "min": 354876,
+              "median": 365128,
+              "max": 389976
+            }
+          }
+        },
+        "pairs": [
+          {
+            "pair": 0,
+            "wallAfterVsBefore": 1.0102270543290675,
+            "cpuAfterVsBefore": 1.0021346536207902,
+            "rssAfterVsBefore": 1.1262389390753875,
+            "outputAndEffectsEqual": true
+          },
+          {
+            "pair": 1,
+            "wallAfterVsBefore": 0.9756656733503207,
+            "cpuAfterVsBefore": 0.9700790535452346,
+            "rssAfterVsBefore": 1.0433724171184626,
+            "outputAndEffectsEqual": true
+          },
+          {
+            "pair": 2,
+            "wallAfterVsBefore": 0.8827329566340804,
+            "cpuAfterVsBefore": 0.9103641915657833,
+            "rssAfterVsBefore": 1.0128489636500821,
+            "outputAndEffectsEqual": true
+          }
+        ],
+        "medianRatios": {
+          "wallSeconds": 0.9681989394166249,
+          "cpuSeconds": 0.975672234822307,
+          "maxRssKiB": 1.0544786636785806
+        }
+      }
+    }
+  },
+  "workloads": [
+    {
+      "domain": "decision",
+      "scenario": "sync-selected",
+      "variant": "probe-before",
+      "io": {
+        "other/read": {
+          "calls": 393,
+          "bytes": 2248178,
+          "uniquePaths": 393
+        },
+        "index/read": {
+          "calls": 4,
+          "bytes": 25213023,
+          "uniquePaths": 1
+        },
+        "other/write": {
+          "calls": 16,
+          "bytes": 16433,
+          "uniquePaths": 1
+        },
+        "formal/read": {
+          "calls": 4,
+          "bytes": 1626,
+          "uniquePaths": 2
+        },
+        "collection-other/write": {
+          "calls": 1,
+          "bytes": 6303252,
+          "uniquePaths": 1
+        },
+        "unknown/write": {
+          "calls": 4,
+          "bytes": 425,
+          "uniquePaths": 1
+        }
+      },
+      "physicalGitIndexApi": [],
+      "stages": {
+        "json.decode": {
+          "calls": 1,
+          "inclusiveWallMs": 20.61569700000001,
+          "inclusiveCpuMs": 26.537
+        },
+        "validation.ts:validateStateIndexValue": {
+          "calls": 2,
+          "inclusiveWallMs": 160.79180700000018,
+          "inclusiveCpuMs": 208.22500000000002
+        },
+        "envelope.seal": {
+          "calls": 1,
+          "inclusiveWallMs": 55.827598999999964,
+          "inclusiveCpuMs": 88.09
+        },
+        "snapshot-parser.ts:parseStateIndexEnvelope": {
+          "calls": 1,
+          "inclusiveWallMs": 183.89837199999994,
+          "inclusiveCpuMs": 264.833
+        },
+        "canonicalization.ts:canonicalizeStateIndex": {
+          "calls": 4,
+          "inclusiveWallMs": 171.5473840000002,
+          "inclusiveCpuMs": 289.428
+        },
+        "projection.ts:normalizeStateIndex": {
+          "calls": 1,
+          "inclusiveWallMs": 280.548498,
+          "inclusiveCpuMs": 471.93
+        },
+        "snapshot-parser.ts:parseStateIndex": {
+          "calls": 1,
+          "inclusiveWallMs": 543.577938,
+          "inclusiveCpuMs": 841.301
+        },
+        "relation-graph.ts:decisionRelationConsistencyIssues": {
+          "calls": 2,
+          "inclusiveWallMs": 67.87795100000017,
+          "inclusiveCpuMs": 128.342
+        },
+        "snapshot-builder.ts:buildStateIndexFromSnapshot": {
+          "calls": 1,
+          "inclusiveWallMs": 344.5632109999999,
+          "inclusiveCpuMs": 462.754
+        },
+        "snapshot-parser.ts:serializeStateIndex": {
+          "calls": 2,
+          "inclusiveWallMs": 183.16194999999993,
+          "inclusiveCpuMs": 208.894
+        }
+      },
+      "git": {
+        "batches": 0,
+        "payloadBytes": 0,
+        "blobs": []
+      },
+      "probeMetrics": {
+        "wallSeconds": 1.8746777470223606,
+        "cpuSeconds": 2.6297159999999997,
+        "userSeconds": 2.2829829999999998,
+        "systemSeconds": 0.34673299999999996,
+        "maxRssKiB": 327292,
+        "exitCode": 0
+      },
+      "normalOutputAndEffectsEqual": true,
+      "observerUnknown": []
+    },
+    {
+      "domain": "decision",
+      "scenario": "sync-selected",
+      "variant": "probe-after",
+      "io": {
+        "other/read": {
+          "calls": 393,
+          "bytes": 2248420,
+          "uniquePaths": 393
+        },
+        "index/read": {
+          "calls": 4,
+          "bytes": 25213023,
+          "uniquePaths": 1
+        },
+        "other/write": {
+          "calls": 16,
+          "bytes": 16380,
+          "uniquePaths": 1
+        },
+        "formal/read": {
+          "calls": 4,
+          "bytes": 1626,
+          "uniquePaths": 2
+        },
+        "collection-other/write": {
+          "calls": 1,
+          "bytes": 6303252,
+          "uniquePaths": 1
+        },
+        "unknown/write": {
+          "calls": 4,
+          "bytes": 425,
+          "uniquePaths": 1
+        }
+      },
+      "physicalGitIndexApi": [],
+      "stages": {
+        "json.decode": {
+          "calls": 1,
+          "inclusiveWallMs": 23.389269000000013,
+          "inclusiveCpuMs": 29.487
+        },
+        "validation.ts:validateStateIndexValue": {
+          "calls": 2,
+          "inclusiveWallMs": 176.30464400000005,
+          "inclusiveCpuMs": 230.567
+        },
+        "envelope.seal": {
+          "calls": 1,
+          "inclusiveWallMs": 19.586660999999935,
+          "inclusiveCpuMs": 22.834
+        },
+        "snapshot-parser.ts:parseStateIndexEnvelope": {
+          "calls": 1,
+          "inclusiveWallMs": 160.97607900000003,
+          "inclusiveCpuMs": 216.031
+        },
+        "canonicalization.ts:canonicalizeStateIndex": {
+          "calls": 4,
+          "inclusiveWallMs": 215.79333800000006,
+          "inclusiveCpuMs": 318.495
+        },
+        "projection.ts:normalizeStateIndex": {
+          "calls": 1,
+          "inclusiveWallMs": 331.30320000000006,
+          "inclusiveCpuMs": 528.163
+        },
+        "snapshot-parser.ts:parseStateIndex": {
+          "calls": 1,
+          "inclusiveWallMs": 586.727286,
+          "inclusiveCpuMs": 902.18
+        },
+        "relation-graph.ts:decisionRelationConsistencyIssues": {
+          "calls": 2,
+          "inclusiveWallMs": 94.94247000000018,
+          "inclusiveCpuMs": 163.45999999999998
+        },
+        "snapshot-builder.ts:buildStateIndexFromSnapshot": {
+          "calls": 1,
+          "inclusiveWallMs": 414.39237300000013,
+          "inclusiveCpuMs": 560.376
+        },
+        "snapshot-parser.ts:serializeStateIndex": {
+          "calls": 2,
+          "inclusiveWallMs": 213.6144780000002,
+          "inclusiveCpuMs": 233.24599999999998
+        }
+      },
+      "git": {
+        "batches": 0,
+        "payloadBytes": 0,
+        "blobs": []
+      },
+      "probeMetrics": {
+        "wallSeconds": 2.288862845976837,
+        "cpuSeconds": 3.143459,
+        "userSeconds": 2.71812,
+        "systemSeconds": 0.42533899999999997,
+        "maxRssKiB": 320392,
+        "exitCode": 0
+      },
+      "normalOutputAndEffectsEqual": true,
+      "observerUnknown": []
+    },
+    {
+      "domain": "investigation",
+      "scenario": "sync-selected",
+      "variant": "probe-before",
+      "io": {
+        "other/read": {
+          "calls": 411,
+          "bytes": 2413442,
+          "uniquePaths": 411
+        },
+        "index/read": {
+          "calls": 4,
+          "bytes": 20773243,
+          "uniquePaths": 1
+        },
+        "other/write": {
+          "calls": 16,
+          "bytes": 16794,
+          "uniquePaths": 1
+        },
+        "formal/read": {
+          "calls": 4,
+          "bytes": 1546,
+          "uniquePaths": 2
+        },
+        "collection-other/write": {
+          "calls": 1,
+          "bytes": 5193307,
+          "uniquePaths": 1
+        },
+        "unknown/write": {
+          "calls": 4,
+          "bytes": 435,
+          "uniquePaths": 1
+        }
+      },
+      "physicalGitIndexApi": [],
+      "stages": {
+        "json.decode": {
+          "calls": 1,
+          "inclusiveWallMs": 16.107799,
+          "inclusiveCpuMs": 23.338
+        },
+        "validation.ts:validateStateIndexValue": {
+          "calls": 2,
+          "inclusiveWallMs": 127.3380699999999,
+          "inclusiveCpuMs": 169.319
+        },
+        "envelope.seal": {
+          "calls": 1,
+          "inclusiveWallMs": 48.29089299999998,
+          "inclusiveCpuMs": 81.834
+        },
+        "snapshot-parser.ts:parseStateIndexEnvelope": {
+          "calls": 1,
+          "inclusiveWallMs": 146.248425,
+          "inclusiveCpuMs": 222.109
+        },
+        "canonicalization.ts:canonicalizeStateIndex": {
+          "calls": 4,
+          "inclusiveWallMs": 158.9812629999999,
+          "inclusiveCpuMs": 252.14100000000002
+        },
+        "projection.ts:normalizeStateIndex": {
+          "calls": 1,
+          "inclusiveWallMs": 261.17875999999995,
+          "inclusiveCpuMs": 410.111
+        },
+        "snapshot-parser.ts:parseStateIndex": {
+          "calls": 1,
+          "inclusiveWallMs": 472.96316100000007,
+          "inclusiveCpuMs": 719.425
+        },
+        "relation-validation.ts:validateInvestigationRelationGraph": {
+          "calls": 2,
+          "inclusiveWallMs": 77.85149899999999,
+          "inclusiveCpuMs": 125.243
+        },
+        "snapshot-builder.ts:buildStateIndexFromSnapshot": {
+          "calls": 1,
+          "inclusiveWallMs": 288.79855899999995,
+          "inclusiveCpuMs": 363.767
+        },
+        "snapshot-parser.ts:serializeStateIndex": {
+          "calls": 2,
+          "inclusiveWallMs": 114.12907199999995,
+          "inclusiveCpuMs": 141.155
+        }
+      },
+      "git": {
+        "batches": 0,
+        "payloadBytes": 0,
+        "blobs": []
+      },
+      "probeMetrics": {
+        "wallSeconds": 1.5301867430098355,
+        "cpuSeconds": 2.112933,
+        "userSeconds": 1.83176,
+        "systemSeconds": 0.281173,
+        "maxRssKiB": 313392,
+        "exitCode": 0
+      },
+      "normalOutputAndEffectsEqual": true,
+      "observerUnknown": []
+    },
+    {
+      "domain": "investigation",
+      "scenario": "sync-selected",
+      "variant": "probe-after",
+      "io": {
+        "other/read": {
+          "calls": 411,
+          "bytes": 2413684,
+          "uniquePaths": 411
+        },
+        "index/read": {
+          "calls": 4,
+          "bytes": 20773243,
+          "uniquePaths": 1
+        },
+        "other/write": {
+          "calls": 16,
+          "bytes": 16738,
+          "uniquePaths": 1
+        },
+        "formal/read": {
+          "calls": 4,
+          "bytes": 1546,
+          "uniquePaths": 2
+        },
+        "collection-other/write": {
+          "calls": 1,
+          "bytes": 5193307,
+          "uniquePaths": 1
+        },
+        "unknown/write": {
+          "calls": 4,
+          "bytes": 435,
+          "uniquePaths": 1
+        }
+      },
+      "physicalGitIndexApi": [],
+      "stages": {
+        "json.decode": {
+          "calls": 1,
+          "inclusiveWallMs": 19.20790199999999,
+          "inclusiveCpuMs": 27.949
+        },
+        "validation.ts:validateStateIndexValue": {
+          "calls": 2,
+          "inclusiveWallMs": 143.71035399999994,
+          "inclusiveCpuMs": 184.79
+        },
+        "envelope.seal": {
+          "calls": 1,
+          "inclusiveWallMs": 15.145752000000016,
+          "inclusiveCpuMs": 18.238
+        },
+        "snapshot-parser.ts:parseStateIndexEnvelope": {
+          "calls": 1,
+          "inclusiveWallMs": 130.74570600000004,
+          "inclusiveCpuMs": 180.343
+        },
+        "canonicalization.ts:canonicalizeStateIndex": {
+          "calls": 4,
+          "inclusiveWallMs": 137.73457899999994,
+          "inclusiveCpuMs": 208.21200000000002
+        },
+        "projection.ts:normalizeStateIndex": {
+          "calls": 1,
+          "inclusiveWallMs": 239.73524499999996,
+          "inclusiveCpuMs": 369.167
+        },
+        "snapshot-parser.ts:parseStateIndex": {
+          "calls": 1,
+          "inclusiveWallMs": 422.95089400000006,
+          "inclusiveCpuMs": 621.734
+        },
+        "relation-validation.ts:validateInvestigationRelationGraph": {
+          "calls": 2,
+          "inclusiveWallMs": 82.55526299999997,
+          "inclusiveCpuMs": 126.638
+        },
+        "snapshot-builder.ts:buildStateIndexFromSnapshot": {
+          "calls": 1,
+          "inclusiveWallMs": 325.67553799999996,
+          "inclusiveCpuMs": 410.066
+        },
+        "snapshot-parser.ts:serializeStateIndex": {
+          "calls": 2,
+          "inclusiveWallMs": 108.96784000000002,
+          "inclusiveCpuMs": 132.793
+        }
+      },
+      "git": {
+        "batches": 0,
+        "payloadBytes": 0,
+        "blobs": []
+      },
+      "probeMetrics": {
+        "wallSeconds": 1.4976732900249772,
+        "cpuSeconds": 2.094435,
+        "userSeconds": 1.8026529999999998,
+        "systemSeconds": 0.291782,
+        "maxRssKiB": 296080,
+        "exitCode": 0
+      },
+      "normalOutputAndEffectsEqual": true,
+      "observerUnknown": []
+    },
+    {
+      "domain": "decision",
+      "scenario": "stage-index",
+      "variant": "probe-before",
+      "io": {
+        "other/read": {
+          "calls": 394,
+          "bytes": 3360684,
+          "uniquePaths": 394
+        },
+        "other/write": {
+          "calls": 42,
+          "bytes": 1154404,
+          "uniquePaths": 2
+        },
+        "index/read": {
+          "calls": 2,
+          "bytes": 12606504,
+          "uniquePaths": 1
+        },
+        "unknown/write": {
+          "calls": 3,
+          "bytes": 462391,
+          "uniquePaths": 1
+        }
+      },
+      "physicalGitIndexApi": [
+        {
+          "path": "<experiment-root>/work/decision/.git/index",
+          "category": "other",
+          "direction": "read",
+          "method": "readFile",
+          "calls": 1,
+          "bytes": 1112506
+        },
+        {
+          "path": "<experiment-root>/work/decision/.git/index.lock",
+          "category": "other",
+          "direction": "write",
+          "method": "FileHandle.writeFile",
+          "calls": 1,
+          "bytes": 1112506
+        }
+      ],
+      "stages": {
+        "json.decode": {
+          "calls": 3,
+          "inclusiveWallMs": 53.28280899999993,
+          "inclusiveCpuMs": 60.115
+        },
+        "validation.ts:validateStateIndexValue": {
+          "calls": 5,
+          "inclusiveWallMs": 444.4338059999998,
+          "inclusiveCpuMs": 497.45899999999995
+        },
+        "envelope.seal": {
+          "calls": 3,
+          "inclusiveWallMs": 125.3648940000001,
+          "inclusiveCpuMs": 175.36199999999997
+        },
+        "snapshot-parser.ts:parseStateIndexEnvelope": {
+          "calls": 3,
+          "inclusiveWallMs": 389.2226420000003,
+          "inclusiveCpuMs": 531.0840000000001
+        },
+        "canonicalization.ts:canonicalizeStateIndex": {
+          "calls": 6,
+          "inclusiveWallMs": 359.0181649999997,
+          "inclusiveCpuMs": 404.89900000000006
+        },
+        "projection.ts:normalizeStateIndex": {
+          "calls": 4,
+          "inclusiveWallMs": 1072.6313410000002,
+          "inclusiveCpuMs": 1275.797
+        },
+        "snapshot-parser.ts:parseStateIndex": {
+          "calls": 3,
+          "inclusiveWallMs": 1121.984337,
+          "inclusiveCpuMs": 1516.877
+        },
+        "relation-graph.ts:decisionRelationConsistencyIssues": {
+          "calls": 4,
+          "inclusiveWallMs": 89.15037700000028,
+          "inclusiveCpuMs": 152.99099999999999
+        },
+        "git-pending-snapshot-content.ts:selectedPendingBlobs": {
+          "calls": 4,
+          "inclusiveWallMs": 285.9315710000003,
+          "inclusiveCpuMs": 225.34599999999998
+        },
+        "snapshot-builder.ts:buildStateIndexFromSnapshot": {
+          "calls": 1,
+          "inclusiveWallMs": 624.743453,
+          "inclusiveCpuMs": 603.101
+        },
+        "snapshot-parser.ts:serializeStateIndex": {
+          "calls": 1,
+          "inclusiveWallMs": 505.426876,
+          "inclusiveCpuMs": 413.636
+        },
+        "record-staging.ts:prepareRecordStage": {
+          "calls": 2,
+          "inclusiveWallMs": 3315.1459679999994,
+          "inclusiveCpuMs": 3268.262
+        },
+        "pending-snapshot.ts:preparePendingPatch": {
+          "calls": 1,
+          "inclusiveWallMs": 395.08778299999994,
+          "inclusiveCpuMs": 385.702
+        },
+        "pending-snapshot.ts:writePendingPatch": {
+          "calls": 1,
+          "inclusiveWallMs": 116.09320200000002,
+          "inclusiveCpuMs": 64.112
+        }
+      },
+      "git": {
+        "batches": 5,
+        "payloadBytes": 31516292,
+        "blobs": [
+          {
+            "oid": "5b74602e961caefbb38f7a519ae09f8945acdd18",
+            "bytes": 6303257,
+            "role": "fixed-HEAD-index"
+          },
+          {
+            "oid": "067aa8652a7996a390c0c49fbd8a7e2edcf1f10a",
+            "bytes": 6303260,
+            "role": "captured-pending-index"
+          },
+          {
+            "oid": "067aa8652a7996a390c0c49fbd8a7e2edcf1f10a",
+            "bytes": 6303260,
+            "role": "captured-pending-index"
+          },
+          {
+            "oid": "067aa8652a7996a390c0c49fbd8a7e2edcf1f10a",
+            "bytes": 6303260,
+            "role": "captured-pending-index"
+          },
+          {
+            "oid": "f31d8858c59e84ceb9d7c981b9b7698093aad7d8",
+            "bytes": 6303255,
+            "role": "published-pending-index"
+          }
+        ]
+      },
+      "probeMetrics": {
+        "wallSeconds": 5.008060113992542,
+        "cpuSeconds": 5.501789,
+        "userSeconds": 3.8049619999999997,
+        "systemSeconds": 1.6968269999999999,
+        "maxRssKiB": 480856,
+        "exitCode": 0
+      },
+      "normalOutputAndEffectsEqual": true,
+      "observerUnknown": []
+    },
+    {
+      "domain": "decision",
+      "scenario": "stage-index",
+      "variant": "probe-after",
+      "io": {
+        "other/read": {
+          "calls": 394,
+          "bytes": 3360926,
+          "uniquePaths": 394
+        },
+        "other/write": {
+          "calls": 42,
+          "bytes": 1153546,
+          "uniquePaths": 2
+        },
+        "index/read": {
+          "calls": 2,
+          "bytes": 12606504,
+          "uniquePaths": 1
+        },
+        "unknown/write": {
+          "calls": 3,
+          "bytes": 462391,
+          "uniquePaths": 1
+        }
+      },
+      "physicalGitIndexApi": [
+        {
+          "path": "<experiment-root>/work/decision/.git/index",
+          "category": "other",
+          "direction": "read",
+          "method": "readFile",
+          "calls": 1,
+          "bytes": 1112506
+        },
+        {
+          "path": "<experiment-root>/work/decision/.git/index.lock",
+          "category": "other",
+          "direction": "write",
+          "method": "FileHandle.writeFile",
+          "calls": 1,
+          "bytes": 1112506
+        }
+      ],
+      "stages": {
+        "json.decode": {
+          "calls": 3,
+          "inclusiveWallMs": 50.86572199999995,
+          "inclusiveCpuMs": 55.035000000000004
+        },
+        "validation.ts:validateStateIndexValue": {
+          "calls": 5,
+          "inclusiveWallMs": 275.8327710000002,
+          "inclusiveCpuMs": 352.156
+        },
+        "envelope.seal": {
+          "calls": 3,
+          "inclusiveWallMs": 31.193529000000012,
+          "inclusiveCpuMs": 35.076
+        },
+        "snapshot-parser.ts:parseStateIndexEnvelope": {
+          "calls": 3,
+          "inclusiveWallMs": 270.06240099999997,
+          "inclusiveCpuMs": 351.968
+        },
+        "canonicalization.ts:canonicalizeStateIndex": {
+          "calls": 6,
+          "inclusiveWallMs": 202.87004800000022,
+          "inclusiveCpuMs": 321.31199999999995
+        },
+        "projection.ts:normalizeStateIndex": {
+          "calls": 4,
+          "inclusiveWallMs": 741.1912239999999,
+          "inclusiveCpuMs": 1013.924
+        },
+        "snapshot-parser.ts:parseStateIndex": {
+          "calls": 3,
+          "inclusiveWallMs": 1012.6414730000001,
+          "inclusiveCpuMs": 1371.589
+        },
+        "relation-graph.ts:decisionRelationConsistencyIssues": {
+          "calls": 4,
+          "inclusiveWallMs": 67.14472999999964,
+          "inclusiveCpuMs": 129.641
+        },
+        "git-pending-snapshot-content.ts:selectedPendingBlobs": {
+          "calls": 4,
+          "inclusiveWallMs": 114.4107120000001,
+          "inclusiveCpuMs": 129.004
+        },
+        "snapshot-builder.ts:buildStateIndexFromSnapshot": {
+          "calls": 1,
+          "inclusiveWallMs": 267.2346319999999,
+          "inclusiveCpuMs": 313.189
+        },
+        "snapshot-parser.ts:serializeStateIndex": {
+          "calls": 1,
+          "inclusiveWallMs": 58.68244999999979,
+          "inclusiveCpuMs": 65.908
+        },
+        "record-staging.ts:prepareRecordStage": {
+          "calls": 2,
+          "inclusiveWallMs": 1527.809481,
+          "inclusiveCpuMs": 1938.606
+        },
+        "pending-snapshot.ts:preparePendingPatch": {
+          "calls": 1,
+          "inclusiveWallMs": 156.81538499999988,
+          "inclusiveCpuMs": 244.667
+        },
+        "pending-snapshot.ts:writePendingPatch": {
+          "calls": 1,
+          "inclusiveWallMs": 82.96240499999976,
+          "inclusiveCpuMs": 63.466
+        }
+      },
+      "git": {
+        "batches": 5,
+        "payloadBytes": 31516292,
+        "blobs": [
+          {
+            "oid": "5b74602e961caefbb38f7a519ae09f8945acdd18",
+            "bytes": 6303257,
+            "role": "fixed-HEAD-index"
+          },
+          {
+            "oid": "067aa8652a7996a390c0c49fbd8a7e2edcf1f10a",
+            "bytes": 6303260,
+            "role": "captured-pending-index"
+          },
+          {
+            "oid": "067aa8652a7996a390c0c49fbd8a7e2edcf1f10a",
+            "bytes": 6303260,
+            "role": "captured-pending-index"
+          },
+          {
+            "oid": "067aa8652a7996a390c0c49fbd8a7e2edcf1f10a",
+            "bytes": 6303260,
+            "role": "captured-pending-index"
+          },
+          {
+            "oid": "f31d8858c59e84ceb9d7c981b9b7698093aad7d8",
+            "bytes": 6303255,
+            "role": "published-pending-index"
+          }
+        ]
+      },
+      "probeMetrics": {
+        "wallSeconds": 2.7924912039889023,
+        "cpuSeconds": 3.7896219999999996,
+        "userSeconds": 3.178965,
+        "systemSeconds": 0.610657,
+        "maxRssKiB": 503260,
+        "exitCode": 0
+      },
+      "normalOutputAndEffectsEqual": true,
+      "observerUnknown": []
+    },
+    {
+      "domain": "investigation",
+      "scenario": "stage-index",
+      "variant": "probe-before",
+      "io": {
+        "other/read": {
+          "calls": 412,
+          "bytes": 3534149,
+          "uniquePaths": 412
+        },
+        "index/read": {
+          "calls": 2,
+          "bytes": 10386614,
+          "uniquePaths": 1
+        },
+        "other/write": {
+          "calls": 41,
+          "bytes": 1162199,
+          "uniquePaths": 2
+        },
+        "unknown/write": {
+          "calls": 6,
+          "bytes": 490,
+          "uniquePaths": 1
+        }
+      },
+      "physicalGitIndexApi": [
+        {
+          "path": "<experiment-root>/work/investigation/.git/index",
+          "category": "other",
+          "direction": "read",
+          "method": "readFile",
+          "calls": 1,
+          "bytes": 1120707
+        },
+        {
+          "path": "<experiment-root>/work/investigation/.git/index.lock",
+          "category": "other",
+          "direction": "write",
+          "method": "FileHandle.writeFile",
+          "calls": 1,
+          "bytes": 1120707
+        }
+      ],
+      "stages": {
+        "json.decode": {
+          "calls": 3,
+          "inclusiveWallMs": 60.163636,
+          "inclusiveCpuMs": 64.318
+        },
+        "validation.ts:validateStateIndexValue": {
+          "calls": 4,
+          "inclusiveWallMs": 452.4478349999996,
+          "inclusiveCpuMs": 568.407
+        },
+        "envelope.seal": {
+          "calls": 3,
+          "inclusiveWallMs": 253.9944929999998,
+          "inclusiveCpuMs": 325.48400000000004
+        },
+        "snapshot-parser.ts:parseStateIndexEnvelope": {
+          "calls": 3,
+          "inclusiveWallMs": 662.211127,
+          "inclusiveCpuMs": 851.37
+        },
+        "canonicalization.ts:canonicalizeStateIndex": {
+          "calls": 6,
+          "inclusiveWallMs": 375.2810140000005,
+          "inclusiveCpuMs": 469.901
+        },
+        "projection.ts:normalizeStateIndex": {
+          "calls": 3,
+          "inclusiveWallMs": 1003.8826260000001,
+          "inclusiveCpuMs": 1207.607
+        },
+        "snapshot-parser.ts:parseStateIndex": {
+          "calls": 3,
+          "inclusiveWallMs": 2227.237294,
+          "inclusiveCpuMs": 2742.6940000000004
+        },
+        "relation-validation.ts:validateInvestigationRelationGraph": {
+          "calls": 4,
+          "inclusiveWallMs": 309.9851710000005,
+          "inclusiveCpuMs": 433.93199999999996
+        },
+        "git-pending-snapshot-content.ts:selectedPendingBlobs": {
+          "calls": 4,
+          "inclusiveWallMs": 179.5944539999996,
+          "inclusiveCpuMs": 167.647
+        },
+        "snapshot-parser.ts:serializeStateIndex": {
+          "calls": 2,
+          "inclusiveWallMs": 230.84257600000046,
+          "inclusiveCpuMs": 266.67
+        },
+        "snapshot-builder.ts:buildStateIndexFromSnapshot": {
+          "calls": 1,
+          "inclusiveWallMs": 585.9944699999996,
+          "inclusiveCpuMs": 646.737
+        },
+        "record-staging.ts:prepareRecordStage": {
+          "calls": 2,
+          "inclusiveWallMs": 976.3357869999995,
+          "inclusiveCpuMs": 1184.754
+        },
+        "pending-snapshot.ts:preparePendingPatch": {
+          "calls": 1,
+          "inclusiveWallMs": 187.7298310000001,
+          "inclusiveCpuMs": 167.795
+        },
+        "pending-snapshot.ts:writePendingPatch": {
+          "calls": 1,
+          "inclusiveWallMs": 136.54563099999996,
+          "inclusiveCpuMs": 113.73
+        }
+      },
+      "git": {
+        "batches": 5,
+        "payloadBytes": 25966567,
+        "blobs": [
+          {
+            "oid": "d4ba4d883b50a2c526031b2f383bc481b593eb9e",
+            "bytes": 5193312,
+            "role": "fixed-HEAD-index"
+          },
+          {
+            "oid": "3c2ae72b832775bd55a4bceed4401ae1815ca8e3",
+            "bytes": 5193315,
+            "role": "captured-pending-index"
+          },
+          {
+            "oid": "3c2ae72b832775bd55a4bceed4401ae1815ca8e3",
+            "bytes": 5193315,
+            "role": "captured-pending-index"
+          },
+          {
+            "oid": "3c2ae72b832775bd55a4bceed4401ae1815ca8e3",
+            "bytes": 5193315,
+            "role": "captured-pending-index"
+          },
+          {
+            "oid": "8c0ad36caae60712c4f01d558711a20c17586cc7",
+            "bytes": 5193310,
+            "role": "published-pending-index"
+          }
+        ]
+      },
+      "probeMetrics": {
+        "wallSeconds": 4.583917793992441,
+        "cpuSeconds": 5.699683,
+        "userSeconds": 4.672496,
+        "systemSeconds": 1.027187,
+        "maxRssKiB": 439320,
+        "exitCode": 0
+      },
+      "normalOutputAndEffectsEqual": true,
+      "observerUnknown": []
+    },
+    {
+      "domain": "investigation",
+      "scenario": "stage-index",
+      "variant": "probe-after",
+      "io": {
+        "other/read": {
+          "calls": 412,
+          "bytes": 3534391,
+          "uniquePaths": 412
+        },
+        "index/read": {
+          "calls": 2,
+          "bytes": 10386614,
+          "uniquePaths": 1
+        },
+        "other/write": {
+          "calls": 41,
+          "bytes": 1162027,
+          "uniquePaths": 2
+        },
+        "unknown/write": {
+          "calls": 6,
+          "bytes": 490,
+          "uniquePaths": 1
+        }
+      },
+      "physicalGitIndexApi": [
+        {
+          "path": "<experiment-root>/work/investigation/.git/index",
+          "category": "other",
+          "direction": "read",
+          "method": "readFile",
+          "calls": 1,
+          "bytes": 1120707
+        },
+        {
+          "path": "<experiment-root>/work/investigation/.git/index.lock",
+          "category": "other",
+          "direction": "write",
+          "method": "FileHandle.writeFile",
+          "calls": 1,
+          "bytes": 1120707
+        }
+      ],
+      "stages": {
+        "json.decode": {
+          "calls": 3,
+          "inclusiveWallMs": 67.02818000000013,
+          "inclusiveCpuMs": 77.821
+        },
+        "validation.ts:validateStateIndexValue": {
+          "calls": 4,
+          "inclusiveWallMs": 353.1901950000005,
+          "inclusiveCpuMs": 441.972
+        },
+        "envelope.seal": {
+          "calls": 3,
+          "inclusiveWallMs": 62.85376599999984,
+          "inclusiveCpuMs": 68.536
+        },
+        "snapshot-parser.ts:parseStateIndexEnvelope": {
+          "calls": 3,
+          "inclusiveWallMs": 425.538822,
+          "inclusiveCpuMs": 525.468
+        },
+        "canonicalization.ts:canonicalizeStateIndex": {
+          "calls": 6,
+          "inclusiveWallMs": 350.63985300000036,
+          "inclusiveCpuMs": 480.074
+        },
+        "projection.ts:normalizeStateIndex": {
+          "calls": 3,
+          "inclusiveWallMs": 991.2582350000002,
+          "inclusiveCpuMs": 1292.449
+        },
+        "snapshot-parser.ts:parseStateIndex": {
+          "calls": 3,
+          "inclusiveWallMs": 1874.4622510000004,
+          "inclusiveCpuMs": 2384.093
+        },
+        "relation-validation.ts:validateInvestigationRelationGraph": {
+          "calls": 4,
+          "inclusiveWallMs": 275.6284069999997,
+          "inclusiveCpuMs": 404.59000000000003
+        },
+        "git-pending-snapshot-content.ts:selectedPendingBlobs": {
+          "calls": 4,
+          "inclusiveWallMs": 124.79483900000014,
+          "inclusiveCpuMs": 111.19500000000001
+        },
+        "snapshot-parser.ts:serializeStateIndex": {
+          "calls": 2,
+          "inclusiveWallMs": 231.12835099999984,
+          "inclusiveCpuMs": 257.102
+        },
+        "snapshot-builder.ts:buildStateIndexFromSnapshot": {
+          "calls": 1,
+          "inclusiveWallMs": 449.00964999999997,
+          "inclusiveCpuMs": 511.985
+        },
+        "record-staging.ts:prepareRecordStage": {
+          "calls": 2,
+          "inclusiveWallMs": 836.1943490000003,
+          "inclusiveCpuMs": 1030.7069999999999
+        },
+        "pending-snapshot.ts:preparePendingPatch": {
+          "calls": 1,
+          "inclusiveWallMs": 188.457316,
+          "inclusiveCpuMs": 169.296
+        },
+        "pending-snapshot.ts:writePendingPatch": {
+          "calls": 1,
+          "inclusiveWallMs": 98.46678600000041,
+          "inclusiveCpuMs": 79.133
+        }
+      },
+      "git": {
+        "batches": 5,
+        "payloadBytes": 25966567,
+        "blobs": [
+          {
+            "oid": "d4ba4d883b50a2c526031b2f383bc481b593eb9e",
+            "bytes": 5193312,
+            "role": "fixed-HEAD-index"
+          },
+          {
+            "oid": "3c2ae72b832775bd55a4bceed4401ae1815ca8e3",
+            "bytes": 5193315,
+            "role": "captured-pending-index"
+          },
+          {
+            "oid": "3c2ae72b832775bd55a4bceed4401ae1815ca8e3",
+            "bytes": 5193315,
+            "role": "captured-pending-index"
+          },
+          {
+            "oid": "3c2ae72b832775bd55a4bceed4401ae1815ca8e3",
+            "bytes": 5193315,
+            "role": "captured-pending-index"
+          },
+          {
+            "oid": "8c0ad36caae60712c4f01d558711a20c17586cc7",
+            "bytes": 5193310,
+            "role": "published-pending-index"
+          }
+        ]
+      },
+      "probeMetrics": {
+        "wallSeconds": 4.1384681049967185,
+        "cpuSeconds": 5.239533,
+        "userSeconds": 4.101469,
+        "systemSeconds": 1.138064,
+        "maxRssKiB": 455808,
+        "exitCode": 0
+      },
+      "normalOutputAndEffectsEqual": true,
+      "observerUnknown": []
+    }
+  ],
+  "stageDetails": [
+    {
+      "sample": "decision-stage-index-3-probe-after-probe",
+      "events": [
+        {
+          "name": "json.decode",
+          "wallMs": 27.53247300000004,
+          "cpuMs": 31.647,
+          "args": []
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 80.389275,
+          "cpuMs": 115.564,
+          "args": [
+            null,
+            null,
+            "docs/decisions/decision-index.json"
+          ]
+        },
+        {
+          "name": "envelope.seal",
+          "wallMs": 12.487700000000018,
+          "cpuMs": 14.637,
+          "args": []
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndexEnvelope",
+          "wallMs": 121.67491100000001,
+          "cpuMs": 163.185,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 57.474019,
+          "cpuMs": 118.376,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "projection.ts:normalizeStateIndex",
+          "wallMs": 234.59710299999995,
+          "cpuMs": 388.109,
+          "args": [
+            null,
+            null,
+            "docs/decisions/decision-index.json",
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndex",
+          "wallMs": 419.42111900000003,
+          "cpuMs": 632.453,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "relation-graph.ts:decisionRelationConsistencyIssues",
+          "wallMs": 18.528402999999912,
+          "cpuMs": 38.44,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "json.decode",
+          "wallMs": 11.358732000000032,
+          "cpuMs": 11.319,
+          "args": []
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 43.65898600000003,
+          "cpuMs": 52.611,
+          "args": [
+            null,
+            null,
+            "workspace docs/decisions/decision-index.json"
+          ]
+        },
+        {
+          "name": "envelope.seal",
+          "wallMs": 8.363655999999992,
+          "cpuMs": 10.146,
+          "args": []
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndexEnvelope",
+          "wallMs": 64.16046199999994,
+          "cpuMs": 75.134,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 33.47690299999999,
+          "cpuMs": 42.178,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "projection.ts:normalizeStateIndex",
+          "wallMs": 179.90253300000006,
+          "cpuMs": 234.207,
+          "args": [
+            null,
+            null,
+            "workspace docs/decisions/decision-index.json",
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndex",
+          "wallMs": 290.33975899999996,
+          "cpuMs": 360.223,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "relation-graph.ts:decisionRelationConsistencyIssues",
+          "wallMs": 19.825002999999924,
+          "cpuMs": 33.664,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "git-pending-snapshot-content.ts:selectedPendingBlobs",
+          "wallMs": 26.406893000000082,
+          "cpuMs": 28.337,
+          "args": [
+            null,
+            null,
+            null,
+            "content-paths"
+          ]
+        },
+        {
+          "name": "json.decode",
+          "wallMs": 11.974516999999878,
+          "cpuMs": 12.069,
+          "args": []
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 61.130460000000085,
+          "cpuMs": 90.388,
+          "args": [
+            null,
+            null,
+            "docs/decisions/decision-index.json"
+          ]
+        },
+        {
+          "name": "envelope.seal",
+          "wallMs": 10.342173000000003,
+          "cpuMs": 10.293,
+          "args": []
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndexEnvelope",
+          "wallMs": 84.22702800000002,
+          "cpuMs": 113.649,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 32.19192399999997,
+          "cpuMs": 54.558,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "projection.ts:normalizeStateIndex",
+          "wallMs": 168.06405799999993,
+          "cpuMs": 211.82,
+          "args": [
+            null,
+            null,
+            "docs/decisions/decision-index.json",
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndex",
+          "wallMs": 302.8805950000001,
+          "cpuMs": 378.913,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "relation-graph.ts:decisionRelationConsistencyIssues",
+          "wallMs": 8.95005399999991,
+          "cpuMs": 9.673,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 45.64467600000012,
+          "cpuMs": 48.393,
+          "args": [
+            null,
+            null,
+            "<generated>"
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 27.382235000000037,
+          "cpuMs": 37.663,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-builder.ts:buildStateIndexFromSnapshot",
+          "wallMs": 267.2346319999999,
+          "cpuMs": 313.189,
+          "args": [
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 45.00937399999998,
+          "cpuMs": 45.2,
+          "args": [
+            null,
+            null,
+            "<memory>"
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 24.985045000000127,
+          "cpuMs": 33.95,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "projection.ts:normalizeStateIndex",
+          "wallMs": 158.62752999999998,
+          "cpuMs": 179.788,
+          "args": [
+            null,
+            null,
+            "<memory>"
+          ]
+        },
+        {
+          "name": "relation-graph.ts:decisionRelationConsistencyIssues",
+          "wallMs": 19.841269999999895,
+          "cpuMs": 47.864,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 27.359922000000097,
+          "cpuMs": 34.587,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:serializeStateIndex",
+          "wallMs": 58.68244999999979,
+          "cpuMs": 65.908,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "record-staging.ts:prepareRecordStage",
+          "wallMs": 1451.4155469999998,
+          "cpuMs": 1848.134,
+          "args": [
+            null,
+            "prepare"
+          ]
+        },
+        {
+          "name": "git-pending-snapshot-content.ts:selectedPendingBlobs",
+          "wallMs": 26.00990499999989,
+          "cpuMs": 29.825,
+          "args": [
+            null,
+            null,
+            null,
+            "content-paths"
+          ]
+        },
+        {
+          "name": "record-staging.ts:prepareRecordStage",
+          "wallMs": 76.39393400000017,
+          "cpuMs": 90.472,
+          "args": [
+            null,
+            "verify",
+            null
+          ]
+        },
+        {
+          "name": "git-pending-snapshot-content.ts:selectedPendingBlobs",
+          "wallMs": 29.775098999999955,
+          "cpuMs": 40.796,
+          "args": [
+            null,
+            null,
+            null,
+            "content-paths"
+          ]
+        },
+        {
+          "name": "pending-snapshot.ts:preparePendingPatch",
+          "wallMs": 156.81538499999988,
+          "cpuMs": 244.667,
+          "args": [
+            null,
+            "<experiment-root>/work/decision/.git/index.lock",
+            null
+          ]
+        },
+        {
+          "name": "git-pending-snapshot-content.ts:selectedPendingBlobs",
+          "wallMs": 32.21881500000018,
+          "cpuMs": 30.046,
+          "args": [
+            null,
+            null,
+            null,
+            "content-paths"
+          ]
+        },
+        {
+          "name": "pending-snapshot.ts:writePendingPatch",
+          "wallMs": 82.96240499999976,
+          "cpuMs": 63.466,
+          "args": [
+            null,
+            "<experiment-root>/work/decision/.git/index.lock",
+            null,
+            null
+          ]
+        }
+      ]
+    },
+    {
+      "sample": "decision-stage-index-3-probe-before-probe",
+      "events": [
+        {
+          "name": "json.decode",
+          "wallMs": 21.069105000000036,
+          "cpuMs": 27.737,
+          "args": []
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 91.12311599999998,
+          "cpuMs": 129.154,
+          "args": [
+            null,
+            null,
+            "docs/decisions/decision-index.json"
+          ]
+        },
+        {
+          "name": "envelope.seal",
+          "wallMs": 48.928675000000055,
+          "cpuMs": 81.764,
+          "args": []
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndexEnvelope",
+          "wallMs": 162.42114300000003,
+          "cpuMs": 240.053,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 55.902286000000004,
+          "cpuMs": 108.311,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "projection.ts:normalizeStateIndex",
+          "wallMs": 233.031248,
+          "cpuMs": 360.928,
+          "args": [
+            null,
+            null,
+            "docs/decisions/decision-index.json",
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndex",
+          "wallMs": 451.961279,
+          "cpuMs": 676.509,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "relation-graph.ts:decisionRelationConsistencyIssues",
+          "wallMs": 18.781671000000074,
+          "cpuMs": 41.997,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "json.decode",
+          "wallMs": 11.250040000000013,
+          "cpuMs": 11.345,
+          "args": []
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 45.48038999999994,
+          "cpuMs": 56.41,
+          "args": [
+            null,
+            null,
+            "workspace docs/decisions/decision-index.json"
+          ]
+        },
+        {
+          "name": "envelope.seal",
+          "wallMs": 37.41827000000001,
+          "cpuMs": 48.941,
+          "args": []
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndexEnvelope",
+          "wallMs": 94.95490800000005,
+          "cpuMs": 117.642,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 26.92319999999995,
+          "cpuMs": 39.539,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "projection.ts:normalizeStateIndex",
+          "wallMs": 167.154672,
+          "cpuMs": 226.055,
+          "args": [
+            null,
+            null,
+            "workspace docs/decisions/decision-index.json",
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndex",
+          "wallMs": 306.068122,
+          "cpuMs": 390.693,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "relation-graph.ts:decisionRelationConsistencyIssues",
+          "wallMs": 14.36021299999993,
+          "cpuMs": 25.883,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "git-pending-snapshot-content.ts:selectedPendingBlobs",
+          "wallMs": 57.879909,
+          "cpuMs": 58.175,
+          "args": [
+            null,
+            null,
+            null,
+            "content-paths"
+          ]
+        },
+        {
+          "name": "json.decode",
+          "wallMs": 20.96366399999988,
+          "cpuMs": 21.033,
+          "args": []
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 70.93506000000002,
+          "cpuMs": 106.614,
+          "args": [
+            null,
+            null,
+            "docs/decisions/decision-index.json"
+          ]
+        },
+        {
+          "name": "envelope.seal",
+          "wallMs": 39.017949000000044,
+          "cpuMs": 44.657,
+          "args": []
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndexEnvelope",
+          "wallMs": 131.84659100000022,
+          "cpuMs": 173.389,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 26.98880599999984,
+          "cpuMs": 44.711,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "projection.ts:normalizeStateIndex",
+          "wallMs": 182.75547699999993,
+          "cpuMs": 223.802,
+          "args": [
+            null,
+            null,
+            "docs/decisions/decision-index.json",
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndex",
+          "wallMs": 363.9549360000001,
+          "cpuMs": 449.675,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "relation-graph.ts:decisionRelationConsistencyIssues",
+          "wallMs": 13.885572000000138,
+          "cpuMs": 14.19,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 108.94063099999994,
+          "cpuMs": 96.232,
+          "args": [
+            null,
+            null,
+            "<generated>"
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 91.68126799999982,
+          "cpuMs": 88.004,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-builder.ts:buildStateIndexFromSnapshot",
+          "wallMs": 624.743453,
+          "cpuMs": 603.101,
+          "args": [
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 127.95460899999989,
+          "cpuMs": 109.049,
+          "args": [
+            null,
+            null,
+            "<memory>"
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 94.38915100000031,
+          "cpuMs": 70.242,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "projection.ts:normalizeStateIndex",
+          "wallMs": 489.6899440000002,
+          "cpuMs": 465.012,
+          "args": [
+            null,
+            null,
+            "<memory>"
+          ]
+        },
+        {
+          "name": "relation-graph.ts:decisionRelationConsistencyIssues",
+          "wallMs": 42.12292100000013,
+          "cpuMs": 70.921,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 63.1334539999998,
+          "cpuMs": 54.092,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:serializeStateIndex",
+          "wallMs": 505.426876,
+          "cpuMs": 413.636,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "record-staging.ts:prepareRecordStage",
+          "wallMs": 3005.471127,
+          "cpuMs": 3019.13,
+          "args": [
+            null,
+            "prepare"
+          ]
+        },
+        {
+          "name": "git-pending-snapshot-content.ts:selectedPendingBlobs",
+          "wallMs": 152.95930399999952,
+          "cpuMs": 104.636,
+          "args": [
+            null,
+            null,
+            null,
+            "content-paths"
+          ]
+        },
+        {
+          "name": "record-staging.ts:prepareRecordStage",
+          "wallMs": 309.67484099999956,
+          "cpuMs": 249.132,
+          "args": [
+            null,
+            "verify",
+            null
+          ]
+        },
+        {
+          "name": "git-pending-snapshot-content.ts:selectedPendingBlobs",
+          "wallMs": 38.95033600000079,
+          "cpuMs": 36.934,
+          "args": [
+            null,
+            null,
+            null,
+            "content-paths"
+          ]
+        },
+        {
+          "name": "pending-snapshot.ts:preparePendingPatch",
+          "wallMs": 395.08778299999994,
+          "cpuMs": 385.702,
+          "args": [
+            null,
+            "<experiment-root>/work/decision/.git/index.lock",
+            null
+          ]
+        },
+        {
+          "name": "git-pending-snapshot-content.ts:selectedPendingBlobs",
+          "wallMs": 36.142022,
+          "cpuMs": 25.601,
+          "args": [
+            null,
+            null,
+            null,
+            "content-paths"
+          ]
+        },
+        {
+          "name": "pending-snapshot.ts:writePendingPatch",
+          "wallMs": 116.09320200000002,
+          "cpuMs": 64.112,
+          "args": [
+            null,
+            "<experiment-root>/work/decision/.git/index.lock",
+            null,
+            null
+          ]
+        }
+      ]
+    },
+    {
+      "sample": "decision-sync-selected-3-probe-after-probe",
+      "events": [
+        {
+          "name": "json.decode",
+          "wallMs": 23.389269000000013,
+          "cpuMs": 29.487,
+          "args": []
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 116.64855699999998,
+          "cpuMs": 162.249,
+          "args": [
+            null,
+            null,
+            "decision-index.json"
+          ]
+        },
+        {
+          "name": "envelope.seal",
+          "wallMs": 19.586660999999935,
+          "cpuMs": 22.834,
+          "args": []
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndexEnvelope",
+          "wallMs": 160.97607900000003,
+          "cpuMs": 216.031,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 61.550215000000094,
+          "cpuMs": 116.916,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "projection.ts:normalizeStateIndex",
+          "wallMs": 331.30320000000006,
+          "cpuMs": 528.163,
+          "args": [
+            null,
+            null,
+            "decision-index.json",
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndex",
+          "wallMs": 586.727286,
+          "cpuMs": 902.18,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "relation-graph.ts:decisionRelationConsistencyIssues",
+          "wallMs": 54.39441800000009,
+          "cpuMs": 100.041,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "relation-graph.ts:decisionRelationConsistencyIssues",
+          "wallMs": 40.5480520000001,
+          "cpuMs": 63.419,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 59.65608700000007,
+          "cpuMs": 68.318,
+          "args": [
+            null,
+            null,
+            "decision-index.json"
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 44.69996399999991,
+          "cpuMs": 72.33,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-builder.ts:buildStateIndexFromSnapshot",
+          "wallMs": 414.39237300000013,
+          "cpuMs": 560.376,
+          "args": [
+            null,
+            null,
+            "decision-index.json",
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 54.52380100000005,
+          "cpuMs": 64.014,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:serializeStateIndex",
+          "wallMs": 106.98339400000009,
+          "cpuMs": 116.443,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 55.01935800000001,
+          "cpuMs": 65.235,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:serializeStateIndex",
+          "wallMs": 106.6310840000001,
+          "cpuMs": 116.803,
+          "args": [
+            null,
+            null
+          ]
+        }
+      ]
+    },
+    {
+      "sample": "decision-sync-selected-3-probe-before-probe",
+      "events": [
+        {
+          "name": "json.decode",
+          "wallMs": 20.61569700000001,
+          "cpuMs": 26.537,
+          "args": []
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 106.072634,
+          "cpuMs": 148.698,
+          "args": [
+            null,
+            null,
+            "decision-index.json"
+          ]
+        },
+        {
+          "name": "envelope.seal",
+          "wallMs": 55.827598999999964,
+          "cpuMs": 88.09,
+          "args": []
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndexEnvelope",
+          "wallMs": 183.89837199999994,
+          "cpuMs": 264.833,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 56.223432,
+          "cpuMs": 139.384,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "projection.ts:normalizeStateIndex",
+          "wallMs": 280.548498,
+          "cpuMs": 471.93,
+          "args": [
+            null,
+            null,
+            "decision-index.json",
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndex",
+          "wallMs": 543.577938,
+          "cpuMs": 841.301,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "relation-graph.ts:decisionRelationConsistencyIssues",
+          "wallMs": 39.79187999999999,
+          "cpuMs": 82.787,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "relation-graph.ts:decisionRelationConsistencyIssues",
+          "wallMs": 28.086071000000175,
+          "cpuMs": 45.555,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 54.71917300000018,
+          "cpuMs": 59.527,
+          "args": [
+            null,
+            null,
+            "decision-index.json"
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 31.43708300000003,
+          "cpuMs": 39.823,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-builder.ts:buildStateIndexFromSnapshot",
+          "wallMs": 344.5632109999999,
+          "cpuMs": 462.754,
+          "args": [
+            null,
+            null,
+            "decision-index.json",
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 39.00656500000014,
+          "cpuMs": 52.513,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:serializeStateIndex",
+          "wallMs": 97.34885699999995,
+          "cpuMs": 110.817,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 44.880304000000024,
+          "cpuMs": 57.708,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:serializeStateIndex",
+          "wallMs": 85.81309299999998,
+          "cpuMs": 98.077,
+          "args": [
+            null,
+            null
+          ]
+        }
+      ]
+    },
+    {
+      "sample": "investigation-stage-index-3-probe-after-probe",
+      "events": [
+        {
+          "name": "json.decode",
+          "wallMs": 27.05418199999997,
+          "cpuMs": 37.988,
+          "args": []
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 130.893502,
+          "cpuMs": 172.932,
+          "args": [
+            null,
+            null,
+            "investigation-index.json"
+          ]
+        },
+        {
+          "name": "envelope.seal",
+          "wallMs": 21.12568399999998,
+          "cpuMs": 24.631,
+          "args": []
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndexEnvelope",
+          "wallMs": 180.48557299999993,
+          "cpuMs": 237.109,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 69.82426400000008,
+          "cpuMs": 116.031,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "projection.ts:normalizeStateIndex",
+          "wallMs": 392.70364599999994,
+          "cpuMs": 567.458,
+          "args": [
+            null,
+            null,
+            "investigation-index.json",
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndex",
+          "wallMs": 658.4244840000001,
+          "cpuMs": 929.299,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "relation-validation.ts:validateInvestigationRelationGraph",
+          "wallMs": 69.85452600000008,
+          "cpuMs": 145.104,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "json.decode",
+          "wallMs": 13.372466000000031,
+          "cpuMs": 13.287,
+          "args": []
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 80.03468300000009,
+          "cpuMs": 102.585,
+          "args": [
+            null,
+            null,
+            "docs/investigations/investigation-index.json"
+          ]
+        },
+        {
+          "name": "envelope.seal",
+          "wallMs": 23.81535800000006,
+          "cpuMs": 26.075,
+          "args": []
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndexEnvelope",
+          "wallMs": 118.71179200000006,
+          "cpuMs": 143.658,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 71.87331700000004,
+          "cpuMs": 98.963,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "projection.ts:normalizeStateIndex",
+          "wallMs": 324.6019940000001,
+          "cpuMs": 402.963,
+          "args": [
+            null,
+            null,
+            "docs/investigations/investigation-index.json",
+            null
+          ]
+        },
+        {
+          "name": "relation-validation.ts:validateInvestigationRelationGraph",
+          "wallMs": 88.23618699999997,
+          "cpuMs": 121.075,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndex",
+          "wallMs": 641.9345560000002,
+          "cpuMs": 793.249,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "git-pending-snapshot-content.ts:selectedPendingBlobs",
+          "wallMs": 39.451870999999755,
+          "cpuMs": 35.243,
+          "args": [
+            null,
+            null,
+            null,
+            "content-paths"
+          ]
+        },
+        {
+          "name": "json.decode",
+          "wallMs": 26.601532000000134,
+          "cpuMs": 26.546,
+          "args": []
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 80.4942530000003,
+          "cpuMs": 98.469,
+          "args": [
+            null,
+            null,
+            "docs/investigations/investigation-index.json"
+          ]
+        },
+        {
+          "name": "envelope.seal",
+          "wallMs": 17.9127239999998,
+          "cpuMs": 17.83,
+          "args": []
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndexEnvelope",
+          "wallMs": 126.34145699999999,
+          "cpuMs": 144.701,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 57.62246499999992,
+          "cpuMs": 78.669,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "projection.ts:normalizeStateIndex",
+          "wallMs": 273.9525950000002,
+          "cpuMs": 322.028,
+          "args": [
+            null,
+            null,
+            "docs/investigations/investigation-index.json",
+            null
+          ]
+        },
+        {
+          "name": "relation-validation.ts:validateInvestigationRelationGraph",
+          "wallMs": 73.45032599999968,
+          "cpuMs": 88.583,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndex",
+          "wallMs": 574.1032110000001,
+          "cpuMs": 661.545,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 77.3153870000001,
+          "cpuMs": 95.591,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:serializeStateIndex",
+          "wallMs": 149.52077599999984,
+          "cpuMs": 167.744,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 61.767757000000074,
+          "cpuMs": 67.986,
+          "args": [
+            null,
+            null,
+            "docs/investigations/investigation-index.json"
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 39.26339300000018,
+          "cpuMs": 48.327,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "relation-validation.ts:validateInvestigationRelationGraph",
+          "wallMs": 44.08736799999997,
+          "cpuMs": 49.828,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "snapshot-builder.ts:buildStateIndexFromSnapshot",
+          "wallMs": 449.00964999999997,
+          "cpuMs": 511.985,
+          "args": [
+            null,
+            null,
+            "docs/investigations/investigation-index.json"
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 34.74102700000003,
+          "cpuMs": 42.493,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:serializeStateIndex",
+          "wallMs": 81.607575,
+          "cpuMs": 89.358,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "record-staging.ts:prepareRecordStage",
+          "wallMs": 736.8384730000002,
+          "cpuMs": 843.126,
+          "args": [
+            null,
+            "prepare"
+          ]
+        },
+        {
+          "name": "git-pending-snapshot-content.ts:selectedPendingBlobs",
+          "wallMs": 24.623772000000372,
+          "cpuMs": 22.797,
+          "args": [
+            null,
+            null,
+            null,
+            "content-paths"
+          ]
+        },
+        {
+          "name": "record-staging.ts:prepareRecordStage",
+          "wallMs": 99.35587600000008,
+          "cpuMs": 187.581,
+          "args": [
+            null,
+            "verify",
+            null
+          ]
+        },
+        {
+          "name": "git-pending-snapshot-content.ts:selectedPendingBlobs",
+          "wallMs": 29.84855400000015,
+          "cpuMs": 25.167,
+          "args": [
+            null,
+            null,
+            null,
+            "content-paths"
+          ]
+        },
+        {
+          "name": "pending-snapshot.ts:preparePendingPatch",
+          "wallMs": 188.457316,
+          "cpuMs": 169.296,
+          "args": [
+            null,
+            "<experiment-root>/work/investigation/.git/index.lock",
+            null
+          ]
+        },
+        {
+          "name": "git-pending-snapshot-content.ts:selectedPendingBlobs",
+          "wallMs": 30.87064199999986,
+          "cpuMs": 27.988,
+          "args": [
+            null,
+            null,
+            null,
+            "content-paths"
+          ]
+        },
+        {
+          "name": "pending-snapshot.ts:writePendingPatch",
+          "wallMs": 98.46678600000041,
+          "cpuMs": 79.133,
+          "args": [
+            null,
+            "<experiment-root>/work/investigation/.git/index.lock",
+            null,
+            null
+          ]
+        }
+      ]
+    },
+    {
+      "sample": "investigation-stage-index-3-probe-before-probe",
+      "events": [
+        {
+          "name": "json.decode",
+          "wallMs": 18.363486999999964,
+          "cpuMs": 22.627,
+          "args": []
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 92.24651900000003,
+          "cpuMs": 159.249,
+          "args": [
+            null,
+            null,
+            "investigation-index.json"
+          ]
+        },
+        {
+          "name": "envelope.seal",
+          "wallMs": 46.56807100000003,
+          "cpuMs": 81.281,
+          "args": []
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndexEnvelope",
+          "wallMs": 158.28206,
+          "cpuMs": 264.43,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 34.44667500000003,
+          "cpuMs": 47.363,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "projection.ts:normalizeStateIndex",
+          "wallMs": 202.96781699999997,
+          "cpuMs": 303.573,
+          "args": [
+            null,
+            null,
+            "investigation-index.json",
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndex",
+          "wallMs": 409.432769,
+          "cpuMs": 637.992,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "relation-validation.ts:validateInvestigationRelationGraph",
+          "wallMs": 40.085338999999976,
+          "cpuMs": 69.98,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "json.decode",
+          "wallMs": 10.713102000000049,
+          "cpuMs": 10.669,
+          "args": []
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 54.41066699999999,
+          "cpuMs": 66.71,
+          "args": [
+            null,
+            null,
+            "docs/investigations/investigation-index.json"
+          ]
+        },
+        {
+          "name": "envelope.seal",
+          "wallMs": 46.138201999999865,
+          "cpuMs": 63.459,
+          "args": []
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndexEnvelope",
+          "wallMs": 112.177772,
+          "cpuMs": 142.515,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 89.98662400000012,
+          "cpuMs": 111.284,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "projection.ts:normalizeStateIndex",
+          "wallMs": 313.3722070000001,
+          "cpuMs": 366.315,
+          "args": [
+            null,
+            null,
+            "docs/investigations/investigation-index.json",
+            null
+          ]
+        },
+        {
+          "name": "relation-validation.ts:validateInvestigationRelationGraph",
+          "wallMs": 104.38129299999991,
+          "cpuMs": 136.112,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndex",
+          "wallMs": 683.040478,
+          "cpuMs": 807.149,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "git-pending-snapshot-content.ts:selectedPendingBlobs",
+          "wallMs": 65.84172399999989,
+          "cpuMs": 69.784,
+          "args": [
+            null,
+            null,
+            null,
+            "content-paths"
+          ]
+        },
+        {
+          "name": "json.decode",
+          "wallMs": 31.087046999999984,
+          "cpuMs": 31.022,
+          "args": []
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 197.97176799999988,
+          "cpuMs": 231.024,
+          "args": [
+            null,
+            null,
+            "docs/investigations/investigation-index.json"
+          ]
+        },
+        {
+          "name": "envelope.seal",
+          "wallMs": 161.2882199999999,
+          "cpuMs": 180.744,
+          "args": []
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndexEnvelope",
+          "wallMs": 391.751295,
+          "cpuMs": 444.425,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 78.0881589999999,
+          "cpuMs": 87.228,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "projection.ts:normalizeStateIndex",
+          "wallMs": 487.542602,
+          "cpuMs": 537.719,
+          "args": [
+            null,
+            null,
+            "docs/investigations/investigation-index.json",
+            null
+          ]
+        },
+        {
+          "name": "relation-validation.ts:validateInvestigationRelationGraph",
+          "wallMs": 115.45046900000034,
+          "cpuMs": 167.075,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndex",
+          "wallMs": 1134.7640470000001,
+          "cpuMs": 1297.553,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 81.64299100000017,
+          "cpuMs": 106.624,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:serializeStateIndex",
+          "wallMs": 148.08603900000026,
+          "cpuMs": 172.996,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 107.81888099999969,
+          "cpuMs": 111.424,
+          "args": [
+            null,
+            null,
+            "docs/investigations/investigation-index.json"
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 49.30909100000008,
+          "cpuMs": 64.777,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "relation-validation.ts:validateInvestigationRelationGraph",
+          "wallMs": 50.06807000000026,
+          "cpuMs": 60.765,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "snapshot-builder.ts:buildStateIndexFromSnapshot",
+          "wallMs": 585.9944699999996,
+          "cpuMs": 646.737,
+          "args": [
+            null,
+            null,
+            "docs/investigations/investigation-index.json"
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 41.807474000000184,
+          "cpuMs": 52.625,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:serializeStateIndex",
+          "wallMs": 82.75653700000021,
+          "cpuMs": 93.674,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "record-staging.ts:prepareRecordStage",
+          "wallMs": 872.9519229999996,
+          "cpuMs": 986.343,
+          "args": [
+            null,
+            "prepare"
+          ]
+        },
+        {
+          "name": "git-pending-snapshot-content.ts:selectedPendingBlobs",
+          "wallMs": 27.560468000000128,
+          "cpuMs": 24.209,
+          "args": [
+            null,
+            null,
+            null,
+            "content-paths"
+          ]
+        },
+        {
+          "name": "record-staging.ts:prepareRecordStage",
+          "wallMs": 103.3838639999999,
+          "cpuMs": 198.411,
+          "args": [
+            null,
+            "verify",
+            null
+          ]
+        },
+        {
+          "name": "git-pending-snapshot-content.ts:selectedPendingBlobs",
+          "wallMs": 35.88097099999959,
+          "cpuMs": 29.592,
+          "args": [
+            null,
+            null,
+            null,
+            "content-paths"
+          ]
+        },
+        {
+          "name": "pending-snapshot.ts:preparePendingPatch",
+          "wallMs": 187.7298310000001,
+          "cpuMs": 167.795,
+          "args": [
+            null,
+            "<experiment-root>/work/investigation/.git/index.lock",
+            null
+          ]
+        },
+        {
+          "name": "git-pending-snapshot-content.ts:selectedPendingBlobs",
+          "wallMs": 50.31129099999998,
+          "cpuMs": 44.062,
+          "args": [
+            null,
+            null,
+            null,
+            "content-paths"
+          ]
+        },
+        {
+          "name": "pending-snapshot.ts:writePendingPatch",
+          "wallMs": 136.54563099999996,
+          "cpuMs": 113.73,
+          "args": [
+            null,
+            "<experiment-root>/work/investigation/.git/index.lock",
+            null,
+            null
+          ]
+        }
+      ]
+    },
+    {
+      "sample": "investigation-sync-selected-3-probe-after-probe",
+      "events": [
+        {
+          "name": "json.decode",
+          "wallMs": 19.20790199999999,
+          "cpuMs": 27.949,
+          "args": []
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 95.01673900000003,
+          "cpuMs": 132.446,
+          "args": [
+            null,
+            null,
+            "investigation-index.json"
+          ]
+        },
+        {
+          "name": "envelope.seal",
+          "wallMs": 15.145752000000016,
+          "cpuMs": 18.238,
+          "args": []
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndexEnvelope",
+          "wallMs": 130.74570600000004,
+          "cpuMs": 180.343,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 41.909660999999915,
+          "cpuMs": 71.771,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "projection.ts:normalizeStateIndex",
+          "wallMs": 239.73524499999996,
+          "cpuMs": 369.167,
+          "args": [
+            null,
+            null,
+            "investigation-index.json",
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndex",
+          "wallMs": 422.95089400000006,
+          "cpuMs": 621.734,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "relation-validation.ts:validateInvestigationRelationGraph",
+          "wallMs": 39.37745199999995,
+          "cpuMs": 67.59,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "relation-validation.ts:validateInvestigationRelationGraph",
+          "wallMs": 43.17781100000002,
+          "cpuMs": 59.048,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 48.69361499999991,
+          "cpuMs": 52.344,
+          "args": [
+            null,
+            null,
+            "investigation-index.json"
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 36.04621300000008,
+          "cpuMs": 52.754,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-builder.ts:buildStateIndexFromSnapshot",
+          "wallMs": 325.67553799999996,
+          "cpuMs": 410.066,
+          "args": [
+            null,
+            null,
+            "investigation-index.json",
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 30.723395999999866,
+          "cpuMs": 43.741,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:serializeStateIndex",
+          "wallMs": 58.26691000000005,
+          "cpuMs": 71.239,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 29.05530900000008,
+          "cpuMs": 39.946,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:serializeStateIndex",
+          "wallMs": 50.70092999999997,
+          "cpuMs": 61.554,
+          "args": [
+            null,
+            null
+          ]
+        }
+      ]
+    },
+    {
+      "sample": "investigation-sync-selected-3-probe-before-probe",
+      "events": [
+        {
+          "name": "json.decode",
+          "wallMs": 16.107799,
+          "cpuMs": 23.338,
+          "args": []
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 80.697632,
+          "cpuMs": 115.547,
+          "args": [
+            null,
+            null,
+            "investigation-index.json"
+          ]
+        },
+        {
+          "name": "envelope.seal",
+          "wallMs": 48.29089299999998,
+          "cpuMs": 81.834,
+          "args": []
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndexEnvelope",
+          "wallMs": 146.248425,
+          "cpuMs": 222.109,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 64.3122719999999,
+          "cpuMs": 116.758,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "projection.ts:normalizeStateIndex",
+          "wallMs": 261.17875999999995,
+          "cpuMs": 410.111,
+          "args": [
+            null,
+            null,
+            "investigation-index.json",
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:parseStateIndex",
+          "wallMs": 472.96316100000007,
+          "cpuMs": 719.425,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "relation-validation.ts:validateInvestigationRelationGraph",
+          "wallMs": 41.80964200000005,
+          "cpuMs": 72.663,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "relation-validation.ts:validateInvestigationRelationGraph",
+          "wallMs": 36.041856999999936,
+          "cpuMs": 52.58,
+          "args": [
+            null
+          ]
+        },
+        {
+          "name": "validation.ts:validateStateIndexValue",
+          "wallMs": 46.640437999999904,
+          "cpuMs": 53.772,
+          "args": [
+            null,
+            null,
+            "investigation-index.json"
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 32.27707899999996,
+          "cpuMs": 47.022,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-builder.ts:buildStateIndexFromSnapshot",
+          "wallMs": 288.79855899999995,
+          "cpuMs": 363.767,
+          "args": [
+            null,
+            null,
+            "investigation-index.json",
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 29.86248599999999,
+          "cpuMs": 41.818,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:serializeStateIndex",
+          "wallMs": 60.250115999999935,
+          "cpuMs": 72.172,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "canonicalization.ts:canonicalizeStateIndex",
+          "wallMs": 32.52942600000006,
+          "cpuMs": 46.543,
+          "args": [
+            null,
+            null
+          ]
+        },
+        {
+          "name": "snapshot-parser.ts:serializeStateIndex",
+          "wallMs": 53.87895600000002,
+          "cpuMs": 68.983,
+          "args": [
+            null,
+            null
+          ]
+        }
+      ]
+    }
+  ],
+  "smallControls": {
+    "equal": true,
+    "checks": [
+      "nested frozen callback inputs",
+      "metadata/context/index recursively frozen",
+      "prototype-like own record keys",
+      "array/object preservation",
+      "external parser return ownership isolation",
+      "schema/version/member/value/JSON errors",
+      "numeric overflow rejection"
+    ],
+    "results": [
+      {
+        "variant": "before",
+        "calls": [
+          "metadata",
+          "state:__proto__",
+          "state:constructor",
+          "state:ok",
+          "validate",
+          "metadata",
+          "state:__proto__",
+          "state:constructor",
+          "state:ok",
+          "validate"
+        ],
+        "serialized": "{\n  \"definitionVersion\": 1,\n  \"entries\": {\n    \"__proto__\": {\n      \"nested\": [\n        {\n          \"__proto__\": \"own-special\",\n          \"constructor\": \"own\",\n          \"x\": \"original\"\n        }\n      ],\n      \"title\": \"__proto__\"\n    },\n    \"constructor\": {\n      \"nested\": [\n        {\n          \"__proto__\": \"own-special\",\n          \"constructor\": \"own\",\n          \"x\": \"original\"\n        }\n      ],\n      \"title\": \"constructor\"\n    },\n    \"ok\": {\n      \"nested\": [\n        {\n          \"__proto__\": \"own-special\",\n          \"constructor\": \"own\",\n          \"x\": \"original\"\n        }\n      ],\n      \"title\": \"ok\"\n    }\n  },\n  \"metadata\": {\n    \"nested\": [\n      {\n        \"a\": 1\n      }\n    ]\n  },\n  \"namespace\": \"probe\",\n  \"schemaVersion\": 4,\n  \"sourceRevision\": {\n    \"entries\": {\n      \"__proto__\": \"r\",\n      \"constructor\": \"r\",\n      \"ok\": \"r\"\n    },\n    \"metadata\": \"r\"\n  }\n}\n",
+        "bad": [
+          [
+            {
+              "code": "state-index.schema-version-unsupported",
+              "message": "schema version 3 is unsupported; expected 4",
+              "path": "probe.json",
+              "stateId": null
+            }
+          ],
+          [
+            {
+              "code": "state-index.query-field-source-invalid",
+              "message": "query field title source state-path(title): query field sources must produce a boolean, finite number, non-empty string, or an array of them",
+              "path": "probe.json",
+              "stateId": "ok"
+            }
+          ],
+          [
+            {
+              "code": "state-index.source-revision-members-mismatch",
+              "message": "sourceRevision.entries must contain exactly the same state ids as entries",
+              "path": "probe.json",
+              "stateId": null
+            }
+          ],
+          [
+            {
+              "code": "state-index.schema-invalid",
+              "message": "entries.ok must be a JSON object containing only finite JSON values",
+              "path": "probe.json",
+              "stateId": null
+            }
+          ],
+          [
+            {
+              "code": "state-index.schema-invalid",
+              "message": "metadata must be a JSON object containing only finite JSON values",
+              "path": "probe.json",
+              "stateId": null
+            }
+          ],
+          [
+            {
+              "code": "state-index.id-invalid",
+              "message": "state id must be non-empty text without surrounding whitespace or control characters",
+              "path": "probe.json",
+              "stateId": " bad "
+            }
+          ],
+          [
+            {
+              "code": "state-index.json-invalid",
+              "message": "Expected property name or '}' in JSON at position 1 (line 1 column 2)",
+              "path": "probe.json",
+              "stateId": null
+            }
+          ],
+          [
+            {
+              "code": "state-index.schema-invalid",
+              "message": "entries.__proto__ must be a JSON object containing only finite JSON values",
+              "path": "probe.json",
+              "stateId": null
+            }
+          ]
+        ]
+      },
+      {
+        "variant": "after",
+        "calls": [
+          "metadata",
+          "state:__proto__",
+          "state:constructor",
+          "state:ok",
+          "validate",
+          "metadata",
+          "state:__proto__",
+          "state:constructor",
+          "state:ok",
+          "validate"
+        ],
+        "serialized": "{\n  \"definitionVersion\": 1,\n  \"entries\": {\n    \"__proto__\": {\n      \"nested\": [\n        {\n          \"__proto__\": \"own-special\",\n          \"constructor\": \"own\",\n          \"x\": \"original\"\n        }\n      ],\n      \"title\": \"__proto__\"\n    },\n    \"constructor\": {\n      \"nested\": [\n        {\n          \"__proto__\": \"own-special\",\n          \"constructor\": \"own\",\n          \"x\": \"original\"\n        }\n      ],\n      \"title\": \"constructor\"\n    },\n    \"ok\": {\n      \"nested\": [\n        {\n          \"__proto__\": \"own-special\",\n          \"constructor\": \"own\",\n          \"x\": \"original\"\n        }\n      ],\n      \"title\": \"ok\"\n    }\n  },\n  \"metadata\": {\n    \"nested\": [\n      {\n        \"a\": 1\n      }\n    ]\n  },\n  \"namespace\": \"probe\",\n  \"schemaVersion\": 4,\n  \"sourceRevision\": {\n    \"entries\": {\n      \"__proto__\": \"r\",\n      \"constructor\": \"r\",\n      \"ok\": \"r\"\n    },\n    \"metadata\": \"r\"\n  }\n}\n",
+        "bad": [
+          [
+            {
+              "code": "state-index.schema-version-unsupported",
+              "message": "schema version 3 is unsupported; expected 4",
+              "path": "probe.json",
+              "stateId": null
+            }
+          ],
+          [
+            {
+              "code": "state-index.query-field-source-invalid",
+              "message": "query field title source state-path(title): query field sources must produce a boolean, finite number, non-empty string, or an array of them",
+              "path": "probe.json",
+              "stateId": "ok"
+            }
+          ],
+          [
+            {
+              "code": "state-index.source-revision-members-mismatch",
+              "message": "sourceRevision.entries must contain exactly the same state ids as entries",
+              "path": "probe.json",
+              "stateId": null
+            }
+          ],
+          [
+            {
+              "code": "state-index.schema-invalid",
+              "message": "entries.ok must be a JSON object containing only finite JSON values",
+              "path": "probe.json",
+              "stateId": null
+            }
+          ],
+          [
+            {
+              "code": "state-index.schema-invalid",
+              "message": "metadata must be a JSON object containing only finite JSON values",
+              "path": "probe.json",
+              "stateId": null
+            }
+          ],
+          [
+            {
+              "code": "state-index.id-invalid",
+              "message": "state id must be non-empty text without surrounding whitespace or control characters",
+              "path": "probe.json",
+              "stateId": " bad "
+            }
+          ],
+          [
+            {
+              "code": "state-index.json-invalid",
+              "message": "Expected property name or '}' in JSON at position 1 (line 1 column 2)",
+              "path": "probe.json",
+              "stateId": null
+            }
+          ],
+          [
+            {
+              "code": "state-index.schema-invalid",
+              "message": "entries.__proto__ must be a JSON object containing only finite JSON values",
+              "path": "probe.json",
+              "stateId": null
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "collectorControls": [
+    {
+      "name": "zero",
+      "expectedExitCode": 0,
+      "metrics": {
+        "wallSeconds": 0.011115474975667894,
+        "cpuSeconds": 0.010262,
+        "userSeconds": 0.010262,
+        "systemSeconds": 0.0,
+        "maxRssKiB": 20068,
+        "exitCode": 0
+      },
+      "stdoutBytes": 3,
+      "passed": true
+    },
+    {
+      "name": "nonzero",
+      "expectedExitCode": 7,
+      "metrics": {
+        "wallSeconds": 0.010353015968576074,
+        "cpuSeconds": 0.00698,
+        "userSeconds": 0.00698,
+        "systemSeconds": 0.0,
+        "maxRssKiB": 20068,
+        "exitCode": 7
+      },
+      "stdoutBytes": 100001,
+      "passed": true
+    },
+    {
+      "name": "signal",
+      "expectedExitCode": -15,
+      "metrics": {
+        "wallSeconds": 0.01073026203084737,
+        "cpuSeconds": 0.008327999999999999,
+        "userSeconds": 0.005552,
+        "systemSeconds": 0.002776,
+        "maxRssKiB": 20068,
+        "exitCode": -15
+      },
+      "stdoutBytes": 0,
+      "passed": true
+    }
+  ],
+  "payloadProof": [
+    {
+      "domain": "decision",
+      "oid": "5b74602e961caefbb38f7a519ae09f8945acdd18",
+      "role": "fixed-HEAD-index",
+      "bytes": 6303257,
+      "sha256": "d0c189f15b6df83f6fd500bcb46bad9f778aab2ef070db694b8553b4cb0dcb90",
+      "namespace": "decisions",
+      "entryCount": 10000
+    },
+    {
+      "domain": "decision",
+      "oid": "067aa8652a7996a390c0c49fbd8a7e2edcf1f10a",
+      "role": "captured-pending-index",
+      "bytes": 6303260,
+      "sha256": "3f7733dba96c3df2a9e0f1a1e50c22ce8513602dcf013ea3d4165c9a6aac1d32",
+      "namespace": "decisions",
+      "entryCount": 10000
+    },
+    {
+      "domain": "decision",
+      "oid": "f31d8858c59e84ceb9d7c981b9b7698093aad7d8",
+      "role": "published-pending-index",
+      "bytes": 6303255,
+      "sha256": "1da41e5182ae6bccf0c35c8a5b579cc50deeec8806d59e2511539cc9ad47ebdc",
+      "namespace": "decisions",
+      "entryCount": 10000
+    },
+    {
+      "domain": "investigation",
+      "oid": "d4ba4d883b50a2c526031b2f383bc481b593eb9e",
+      "role": "fixed-HEAD-index",
+      "bytes": 5193312,
+      "sha256": "1f81a167c9f42ccc1626f5e469217f8ec5ab7e9acf0ddb3a334b34a6a8255082",
+      "namespace": "investigations",
+      "entryCount": 10000
+    },
+    {
+      "domain": "investigation",
+      "oid": "3c2ae72b832775bd55a4bceed4401ae1815ca8e3",
+      "role": "captured-pending-index",
+      "bytes": 5193315,
+      "sha256": "ec26f5bac0662d015e302b2d529bf3e6ad993040ff894b2c708d8123f4cd9588",
+      "namespace": "investigations",
+      "entryCount": 10000
+    },
+    {
+      "domain": "investigation",
+      "oid": "8c0ad36caae60712c4f01d558711a20c17586cc7",
+      "role": "published-pending-index",
+      "bytes": 5193310,
+      "sha256": "e986c652a17c992d91748ce6a1ffcd342318d7c2cb44ec8fe1e82189a76d9584",
+      "namespace": "investigations",
+      "entryCount": 10000
+    }
+  ]
+}

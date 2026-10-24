@@ -28,3 +28,4 @@ await import("./prepared.test.ts");
 await import("./prepared-sync.test.ts");
 await import("./prepared-baseline-source.test.ts");
 await import("./full-sync-index-source.test.ts");
+await import("./owned-envelope-seal.test.ts");

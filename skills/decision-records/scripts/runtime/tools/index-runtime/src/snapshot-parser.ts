@@ -11,7 +11,6 @@ import type { MaterializedStateIndexEntry } from "./query-fields.ts";
 import { expectationOf, validateStateIndexDefinition } from "./definition.ts";
 import { canonicalizeStateIndex } from "./canonicalization.ts";
 import { diagnostic, errorText } from "./diagnostics.ts";
-import { cloneAndFreezeTypedJsonObject } from "./frozen-json.ts";
 import {
   normalizeStateIndex,
   validateCompleteStateIndex
@@ -120,8 +119,19 @@ export function parseStateIndexEnvelope(options: {
   return {
     diagnostics: [],
     status: "ok",
-    value: cloneAndFreezeTypedJsonObject(validated.index, false)
+    value: freezeOwnedEnvelope(validated.index)
   };
+}
+
+// Only this text-decoded graph reaches the seal: the fixed envelope schema
+// validates JSON descendants and creates records without external references.
+// Freeze before domain callbacks; their returned values still require copies.
+function freezeOwnedEnvelope<Value>(value: Value): Value {
+  if (value !== null && typeof value === "object") {
+    for (const child of Object.values(value)) freezeOwnedEnvelope(child);
+    Object.freeze(value);
+  }
+  return value;
 }
 
 export function serializeStateIndex<

@@ -912,6 +912,36 @@
       ],
       "title": "记录工具全量检查与同步的吞吐及内存调查"
     },
+    "261024-record-index-computation-and-transfer": {
+      "formedAt": "2026-10-24T15:59:56Z",
+      "name": "record-index-computation-and-transfer",
+      "question": "在保留当前索引格式与阶段保护的条件下，整索引解析、构建、序列化及Git传输还有哪些值得消除的重复成本？",
+      "relations": [
+        {
+          "summary": "分离整索引重复计算与暂存传输成本",
+          "target": "261024-record-tools-entry-matrix-10k",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261024-record-index-computation-and-transfer/implementation-validation.json",
+        "261024-record-index-computation-and-transfer/implementation.md",
+        "261024-record-index-computation-and-transfer/measurements.jsonl",
+        "261024-record-index-computation-and-transfer/methods.md",
+        "261024-record-index-computation-and-transfer/protocol.md",
+        "261024-record-index-computation-and-transfer/provenance.json",
+        "261024-record-index-computation-and-transfer/results.json"
+      ],
+      "sourcePath": "261024-record-index-computation-and-transfer.md",
+      "tags": [
+        "decision-records",
+        "index-runtime",
+        "investigation-report",
+        "performance",
+        "version-control"
+      ],
+      "title": "记录工具整索引计算与暂存传输成本调查"
+    },
     "261024-record-tools-entry-matrix-10k": {
       "formedAt": "2026-10-24T10:59:25Z",
       "name": "record-tools-entry-matrix-10k",
@@ -1640,6 +1670,7 @@
       "261022-record-tools-local-contracts-1w": "sha256:b4662c7c1cf3248491db6a5e9b9a44d2d353329d2242112ccda3f67954e050d2",
       "261024-align-record-rename-verification": "sha256:9dd528772b765ccfd04508a25db5368100cdcc672f80f2e6788033ae5de56b4e",
       "261024-record-global-throughput-and-memory": "sha256:c4e55609eb82029d33158c27bccd738e799c89bd36792103ae1e9b826d1a72b4",
+      "261024-record-index-computation-and-transfer": "sha256:b0f996c50535d3875d9e2cf57ffea7074f80b63dd531e8e44649550ffa0ced0d",
       "261024-record-tools-entry-matrix-10k": "sha256:bdb7464449dcae7a158bd1e6d18ed8adae29de35855b26dc3d814ac6ba092149",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",

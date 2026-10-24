@@ -500,6 +500,10 @@
       "INDEX-RUNTIME-DEFINITION-002": "sha256:3fe42ebadd4fef6bdd50dfc7a6163a5b42c225012bf22ac67f7e5efba39976e8",
       "INDEX-RUNTIME-DEFINITION-003": "sha256:fe37b6bdd9ff0e025f5b0390d4bb5df612bbfa891465b8797d2cd27d1d0362f0",
       "INDEX-RUNTIME-EMPTY-RECORD-001": "sha256:82de907c3ef38132df4f0047988a3280034b349a3d22499c93d7c89c2ab965b3",
+      "INDEX-RUNTIME-ENVELOPE-CALLBACKS-001": "sha256:df9e8c530c66c727f4fe75c7d997ebeb187c55949a718747d14bf9cc5c4368f9",
+      "INDEX-RUNTIME-ENVELOPE-ERRORS-001": "sha256:c32b86096ca215819b48a7988d1409aca8fd6732af8c13843b3d9fe8a538e9cd",
+      "INDEX-RUNTIME-ENVELOPE-INDEPENDENCE-001": "sha256:cb759df2a21a24194efce43743046fafe6b09b62c4712de5b6f0a4857bfb44ef",
+      "INDEX-RUNTIME-ENVELOPE-JSON-001": "sha256:9ee1521b5e148a3567b34903df7a831c94c096baf683dd7d0d6674df601e9e62",
       "INDEX-RUNTIME-FILESYSTEM-DIAGNOSTIC-001": "sha256:5b9d0bc5df21deb33d5e05af78b97e94c7a409abf68e166a41cd824e0d398b2f",
       "INDEX-RUNTIME-FILESYSTEM-DIAGNOSTIC-002": "sha256:e8374c94053143a69dc493457bac829972f10559742311d0205b8ec456e28629",
       "INDEX-RUNTIME-FRESHNESS-001": "sha256:995531ca9a7740b95f97099bc8ee6cf2e0e6b84afb3ffcc91a1c51c824cc50ee",
@@ -511,6 +515,7 @@
       "INDEX-RUNTIME-METADATA-001": "sha256:c8a69fe52483c3bfdac8fad7d8fa0b25d0940d8c7def613c9df62e86ad0405d3",
       "INDEX-RUNTIME-METADATA-002": "sha256:f802754ac81ace8f1d7f2b657cd46b3161d587b01f9b78bec7d81e9e5135788a",
       "INDEX-RUNTIME-NAMESPACE-001": "sha256:58684fa99829c58b0136f3242897a2f6d1d292d184d7ee2fd8f73b7969004159",
+      "INDEX-RUNTIME-PARSER-RETURN-ISOLATION-001": "sha256:d46584bbdd4f9efcf746e4bd84380d71bd1e4b6fda1b5a8e5bb882946fd667ed",
       "INDEX-RUNTIME-PATH-001": "sha256:6e65fc35887636f823b0a0469a5ea1118fcb365738af944ba379e30c01b50a11",
       "INDEX-RUNTIME-PATH-SYMLINK-INTERNAL-001": "sha256:5362d9b60e7b03468df4c9a32d8d42bcadeae64af97f6e0c602636f366236233",
       "INDEX-RUNTIME-PATH-SYMLINK-READ-001": "sha256:81722c59e7da380f5d60da7f5b75c025b114297f9afbe92ff9c9a161f235ee70",
@@ -6498,6 +6503,46 @@
         "test:5457ca94334a2af73d67383d8ded4f2aeef1a8be10ed5b68a9b4f963c8b841ab"
       ]
     },
+    "INDEX-RUNTIME-ENVELOPE-CALLBACKS-001": {
+      "title": "领域 parser 只接收递归冻结的 envelope 输入",
+      "sourcePath": "cases/index-runtime-owned-envelope-callbacks.md",
+      "tags": [
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:eaccb31619b49ae922282b6751f1634866885989bc30af5f0623c77b7720962d"
+      ]
+    },
+    "INDEX-RUNTIME-ENVELOPE-ERRORS-001": {
+      "title": "严格 envelope 在领域 callback 前保持错误边界",
+      "sourcePath": "cases/index-runtime-owned-envelope-errors.md",
+      "tags": [
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:ecd14225441ccfa46b0f00793b1445a4025f41a5e9a9081bf08dee6214b14caa"
+      ]
+    },
+    "INDEX-RUNTIME-ENVELOPE-INDEPENDENCE-001": {
+      "title": "独立解析不共享 envelope 或复用旧输入",
+      "sourcePath": "cases/index-runtime-owned-envelope-independence.md",
+      "tags": [
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:5784dd533af75b02e69242239c241215b682841fb6ca40ccfd51e5c4e0d0411f"
+      ]
+    },
+    "INDEX-RUNTIME-ENVELOPE-JSON-001": {
+      "title": "冻结 envelope 保留完整 JSON 与 own 特殊键",
+      "sourcePath": "cases/index-runtime-owned-envelope-json.md",
+      "tags": [
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:2c97e521f5ffb442c65eaa305eacd3078bd9ba3e4f66234c27c223cc980defa2"
+      ]
+    },
     "INDEX-RUNTIME-FILESYSTEM-DIAGNOSTIC-001": {
       "title": "安全报告 source 与 storage 文件系统失败",
       "sourcePath": "cases/index-runtime-filesystem-diagnostic-001.md",
@@ -6606,6 +6651,16 @@
       ],
       "testIds": [
         "test:c385fe20515b378cea7f4cdc6ac884d5404375c0d4953dac050c605293164911"
+      ]
+    },
+    "INDEX-RUNTIME-PARSER-RETURN-ISOLATION-001": {
+      "title": "隔离领域 parser 返回的外部可变对象",
+      "sourcePath": "cases/index-runtime-parser-return-isolation.md",
+      "tags": [
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:c5ec78f8761c5b1b743e1930494260a81e672fc17e6420ad63d9ee18dd081c3c"
       ]
     },
     "INDEX-RUNTIME-PATH-001": {

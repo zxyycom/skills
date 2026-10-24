@@ -1,0 +1,85 @@
+{
+  "kind": "targeted-correctness-mutations-not-performance",
+  "sourceHead": "a661d059fd782a476d094410c40fe706ff394d3a",
+  "runtime": {
+    "bun": "1.4.2",
+    "node": "v26.8.2"
+  },
+  "sourceSha256": {
+    "tools/index-runtime/src/snapshot-parser.ts": "4e6da5d335721a99774233f5ee7ddc8da464bc63bb8154446d06190e40d3a625",
+    "tools/index-runtime/tests/owned-envelope-seal.test.ts": "a9ed6852ac3aae87bb3fbb971b9ff0d3f069d7763d950153e94d47d2bc9e4850"
+  },
+  "isolation": "各变体分别复制 index-runtime 源码与目标测试/support；依赖和未修改的 shared owner 经只读使用的符号链接解析。不变异工作区源码；临时目录已在本次运行后删除。",
+  "results": [
+    {
+      "variant": "unchanged",
+      "command": "bun test ./tools/index-runtime/tests/owned-envelope-seal.test.ts",
+      "exitCode": 0,
+      "passed": [
+        "seals decoded envelopes without changing JSON values or prototype-like own keys",
+        "freezes nested envelope inputs before metadata and state callbacks",
+        "isolates mutable parser returns from recursively frozen snapshots",
+        "rejects invalid raw envelopes before domain callbacks with stable diagnostic categories",
+        "independent parses retain separate owned graphs and observe changed input"
+      ],
+      "failed": []
+    },
+    {
+      "variant": "no-envelope-seal",
+      "command": "bun test ./tools/index-runtime/tests/owned-envelope-seal.test.ts",
+      "exitCode": 1,
+      "passed": [
+        "isolates mutable parser returns from recursively frozen snapshots",
+        "rejects invalid raw envelopes before domain callbacks with stable diagnostic categories"
+      ],
+      "failed": [
+        "seals decoded envelopes without changing JSON values or prototype-like own keys",
+        "freezes nested envelope inputs before metadata and state callbacks",
+        "independent parses retain separate owned graphs and observe changed input"
+      ]
+    },
+    {
+      "variant": "shallow-envelope-seal",
+      "command": "bun test ./tools/index-runtime/tests/owned-envelope-seal.test.ts",
+      "exitCode": 1,
+      "passed": [
+        "isolates mutable parser returns from recursively frozen snapshots",
+        "rejects invalid raw envelopes before domain callbacks with stable diagnostic categories"
+      ],
+      "failed": [
+        "seals decoded envelopes without changing JSON values or prototype-like own keys",
+        "freezes nested envelope inputs before metadata and state callbacks",
+        "independent parses retain separate owned graphs and observe changed input"
+      ]
+    },
+    {
+      "variant": "accept-overflowing-json-numbers",
+      "command": "bun test ./tools/index-runtime/tests/owned-envelope-seal.test.ts",
+      "exitCode": 1,
+      "passed": [
+        "seals decoded envelopes without changing JSON values or prototype-like own keys",
+        "freezes nested envelope inputs before metadata and state callbacks",
+        "isolates mutable parser returns from recursively frozen snapshots",
+        "independent parses retain separate owned graphs and observe changed input"
+      ],
+      "failed": [
+        "rejects invalid raw envelopes before domain callbacks with stable diagnostic categories"
+      ]
+    },
+    {
+      "variant": "freeze-external-parser-returns",
+      "command": "bun test ./tools/index-runtime/tests/owned-envelope-seal.test.ts",
+      "exitCode": 1,
+      "passed": [
+        "seals decoded envelopes without changing JSON values or prototype-like own keys",
+        "freezes nested envelope inputs before metadata and state callbacks",
+        "rejects invalid raw envelopes before domain callbacks with stable diagnostic categories",
+        "independent parses retain separate owned graphs and observe changed input"
+      ],
+      "failed": [
+        "isolates mutable parser returns from recursively frozen snapshots"
+      ]
+    }
+  ],
+  "recordedAt": "2026-10-24T16:48:32Z"
+}

@@ -1,0 +1,152 @@
+{
+  "environment": {
+    "head": "ac40e50c165aa13a8c3cdc11f817141960f0b584",
+    "sourceFingerprint": "c0db813e4843b9fc9af3ed0ff086367ec5ecb8a7e7c893178823ee30015991b4",
+    "dependencyFingerprint": "388f58a33211aac98673760c4a0b63b01aaf84e404b5f9fa3fca55c433773fe1",
+    "sourceFileCount": 1306,
+    "dependencyFileCount": 11004,
+    "node": "v26.8.2",
+    "git": "git version 2.53.0",
+    "bun": "1.4.2",
+    "optionalPackage": "supports-color 9.4.0 copied from actual host optional package, source/frozen manifests equal at freeze",
+    "skillVersions": {
+      "decision-records": "95",
+      "investigation-report": "85"
+    },
+    "cgroup": {
+      "cpu.max": "400000 100000",
+      "memory.max": "6442450944"
+    },
+    "nodeSha256": "8a22a371fd85aecf5411636574309f6380fbc42694aaf0651a089a8ef9c44e52"
+  },
+  "initialRequestedBaseline": "f381715c0bfddd015503544c0fe38e8889809600",
+  "relevantProductPathsIdenticalAcrossBaselineAndFreeze": true,
+  "relevantProductPaths": [
+    "tools/decision-records",
+    "tools/investigation-report",
+    "tools/record-operations",
+    "tools/index-runtime",
+    "tools/shared",
+    "skills/decision-records",
+    "skills/investigation-report"
+  ],
+  "fixture": [
+    {
+      "domain": "decision",
+      "initial": {
+        "files": 10003,
+        "worktreeSha256": "8d7fecf10a8acf26f394323a7e64a9022fb91767e70e2ad8d34a77eed8214cce",
+        "pendingPaths": 10003,
+        "pendingSha256": "8b42be31afdfa6e89d054f46cf52a5c9a486c1928b94aca42bcd789631be3c7e",
+        "head": "1a182ce31dd4ec2b87fd40107c289bc3521bd786",
+        "indexSha256": "13a991985b77d5002ae3245b95192b380e6295e5d54d525096205155aa7b531a"
+      },
+      "verification": {
+        "formal": 10000,
+        "relations": 9000,
+        "indexAndCompleteSourceRevision": "passed",
+        "resourceReferences": "not-applicable"
+      },
+      "indexBytes": 6303257
+    },
+    {
+      "domain": "investigation",
+      "initial": {
+        "files": 10004,
+        "worktreeSha256": "4862be854e087d1fd7fc62b56e3a831bbe699b4d1d7fe2360613b983c1521058",
+        "pendingPaths": 10004,
+        "pendingSha256": "16fa696af3631b771224bd92b6b5327c3809ae4250e9c2762e89c729b8399468",
+        "head": "8c3b09a5c96e4107de7d638747e01b58d635313e",
+        "indexSha256": "fcd1a1f25824c8ca5d52eac3532336df39d1f7896936839938a2ec0d8e04201f"
+      },
+      "verification": {
+        "formal": 10000,
+        "relations": 9000,
+        "indexAndCompleteSourceRevision": "passed",
+        "resourceReferences": "passed"
+      },
+      "indexBytes": 5193312
+    }
+  ],
+  "finalProof": {
+    "sourceAndGeneratedUnchanged": true,
+    "frozenDependenciesUnchanged": true,
+    "originalOptionalPackageUnchanged": true,
+    "loaderClosedBeforeAndAfter": true,
+    "actualLoadedFileUrls": 1110,
+    "sourceFingerprint": "c0db813e4843b9fc9af3ed0ff086367ec5ecb8a7e7c893178823ee30015991b4",
+    "dependencyFingerprint": "388f58a33211aac98673760c4a0b63b01aaf84e404b5f9fa3fca55c433773fe1",
+    "closureFingerprint": "538b50fa796e27b20543f651d0892573e819320b2c0e919da3e72a52a62ebdc6"
+  },
+  "optionalStartManifest": {
+    "supports-color/browser.d.ts": {
+      "bytes": 36,
+      "mode": 436,
+      "sha256": "09d791bf6471207eb7553c17a6cb03d6e6bd1d789f19bbec67da2b08ec9bb570"
+    },
+    "supports-color/browser.js": {
+      "bytes": 524,
+      "mode": 436,
+      "sha256": "c1db646522c8bcabe1429e5bb677730aebbc2a76c466ed4abb15f9c87ee8b52d"
+    },
+    "supports-color/index.d.ts": {
+      "bytes": 1014,
+      "mode": 436,
+      "sha256": "c82bc2f370d224a1088b8db71300a71e80ec6e5b55785ba1a1b7be89ff9808e8"
+    },
+    "supports-color/index.js": {
+      "bytes": 3855,
+      "mode": 436,
+      "sha256": "13b5fc8a0b139d257260d1e625726744609c24a3b58535afbb602389997e60d6"
+    },
+    "supports-color/license": {
+      "bytes": 1117,
+      "mode": 436,
+      "sha256": "5c932d88256b4ab958f64a856fa48e8bd1f55bc1d96b8149c65689e0c61789d3"
+    },
+    "supports-color/package.json": {
+      "bytes": 1016,
+      "mode": 436,
+      "sha256": "9d6e7a1db42ee13fd1287d94e8630a2f6bfbb7dec5e5a03dc3c8dfd6ef00178a"
+    },
+    "supports-color/readme.md": {
+      "bytes": 3202,
+      "mode": 436,
+      "sha256": "a7bf7389659a3c3c20bbaec35b6e66d9b2c277d9ac61a8a590b3892a810860cf"
+    }
+  },
+  "transformations": {
+    "measurementPaths": "Only experiment-root absolute prefix replaced by <experiment-root>; numeric metrics and output/state SHA unchanged",
+    "stageEvents": "Display projection omits repetitive runtime stack strings, retains every event name, args, wall and CPU; raw full events retained temporarily",
+    "outputRetention": "Full raw stdout/stderr, source/dependency/loaded-file manifests and large W/P lists retained in temporary experiment until root audit; not bundled",
+    "methods": "Actual source code shown with SHA256; oracle.py excerpt omits unused historical verify_effect and following functions"
+  },
+  "methodChangesAndFailures": [
+    {
+      "kind": "baseline-observation",
+      "detail": "Actual freeze HEAD ac40e50c differs from requested f3817 due unrelated integration commits; all seven relevant product directories have empty diff. Root package/lock add video scripts and development types; actual installed dependency snapshot is explicitly frozen instead of assuming lock identity."
+    },
+    {
+      "kind": "pre-measurement-hardening",
+      "detail": "Before formal samples, copied actual existing optional supports-color package into frozen node_modules; loader smoke proved all actual file URLs closed inside frozen copies. No package install or global environment modification."
+    },
+    {
+      "kind": "read-only-history-recovery",
+      "detail": "Previous acceptance /tmp directory no longer existed; compact recipe/method archive recovered read-only from Git 563119ef. Historical timings not reused."
+    },
+    {
+      "kind": "instrumentation-boundary",
+      "detail": "Normal samples have no workload/stage/loader instrumentation. Workload probes use separate copies; closure smokes use separate invocation labels."
+    },
+    {
+      "kind": "failures",
+      "detail": "40 product CLI invocations all expected exit 0 and passed independent posterior; no omitted/replaced performance samples. Collector selfchecks expected 7/-15 are separate controls, not product failures."
+    }
+  ],
+  "notValidated": [
+    "Actual concurrent source/pending drift and failure recovery under the prototype",
+    "Product-wide tests/types/Gate and platform support",
+    "Cold-cache/dense graph/100k/retained JS heap/production p95",
+    "Intrinsic cause of observed IR selected end-to-end regression"
+  ]
+}
