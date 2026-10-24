@@ -1,0 +1,12 @@
+bun test v1.4.2 (744846f84)
+
+tools/investigation-report/tests/discard-recovery.test.ts:
+(pass) discard restores tombstoned resources when a rename-window member appears [155.98ms]
+
+tools/investigation-report/tests/cli-stage.test.ts:
+(pass) generated Investigation Report CLI starts under Node with argv and stdout protocol [899.13ms]
+
+ 2 pass
+ 12 filtered out
+ 0 fail
+Ran 2 tests across 2 files. [1144.00ms]

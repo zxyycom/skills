@@ -1,0 +1,49 @@
+✔ Decision shared transaction verifies bytes mode and commit before success (269.830908ms)
+✔ Decision shared transaction preflight avoids locks and unchanged verifies fresh facts (34.618191ms)
+✔ Decision shared transaction restores only actual precommit writes (98.457146ms)
+✔ Decision shared transaction protects later bytes inode mode and unwritten members (489.843319ms)
+✔ Decision shared transaction retains committed verification and cleanup failures separately (114.130684ms)
+✔ Decision shared transaction recognizes a rejected writer that published the index (81.540972ms)
+✔ Decision shared candidate commit preserves creation and distinguishes cleanup only (199.59493ms)
+✔ Decision shared transaction never overwrites a recreated old path (231.640189ms)
+✔ Decision actual domain adapter satisfies the shared committed writer rejection contract (501.774066ms)
+✔ Decision shared recovery never claims a replacement inode between writer close and readback (262.256284ms)
+✔ Decision shared native creation binds permission verification and recovery to its actual handle (216.913057ms)
+✔ Decision shared verification acquires overlapping unchanged protection once in each independent phase (58.082116ms)
+✔ Decision shared verification never reuses different namespace or expected snapshot facts (201.253303ms)
+✔ Decision shared postwrite verification rejects later bytes mode and inode despite overlapping fresh protection (271.844963ms)
+✔ shared plan normalizes only unchanged proposals while retaining order index and conflicting protection (84.682529ms)
+✔ shared fresh text acquisition binds roots isolates mutable proofs and rejects unsafe invalid or missing sources (149.96144ms)
+✔ Decision strict preparation transfers one root-bound acquisition and reuses unchanged documents (631.906628ms)
+✔ Decision strict proof transfer rejects wrong roots missing facts and malformed acquired text (138.725501ms)
+✔ Decision strict transferred proof retains independent fresh guards and final complete graph validation (194.168109ms)
+✖ Decision rename batches a real threshold sized changed source set in fresh and postwrite phases (30001.199296ms)
+✔ strict formal rename hands captured sources and validated documents to its transaction (269.132362ms)
+✔ strict candidate rename reuses complete layout source facts without rescanning candidates (127.481109ms)
+✔ strict formal discard reuses preparation sources while retaining independent freshness phases (659.80707ms)
+✔ strict rename postwrite reuses one fresh layout and document per source while retaining index freshness reads (470.655548ms)
+✔ strict rename postwrite rejects source edits rather than reusing preparation documents (392.059567ms)
+✔ Investigation rename shares hook fresh source and index observations without crossing postwrite phases (494.18807ms)
+✔ Investigation rename fresh aggregation preserves source target and index errors after the hook (284.659666ms)
+✔ Investigation discard fresh collection shares safe source facts with guards but retains independent post collection (383.456761ms)
+✔ Investigation discard shared fresh rejects source and membership drift without removing the source (671.000455ms)
+✔ Investigation discard keeps resource byte freshness independent from shared source acquisition (568.689222ms)
+✔ Investigation fresh resource phase rejects wrong roots even without files and preserves binary file and directory facts (178.234688ms)
+✔ Investigation same identity and path rename preserves noncanonical recorded bytes mode and index without unrelated health (456.992883ms)
+✔ Investigation relation writer rejection after index publication preserves committed state without success review (145.105444ms)
+✔ Investigation rename fresh proof rejects resource mode and inode drift without undoing the external winner (1260.278503ms)
+✔ Investigation candidate rename and discard preserve formal index bytes identity and mode (1709.074067ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 1
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 33898.498156
+
+✖ failing tests:
+
+test at tools/decision-records/tests/transaction-strict-preparation.test.ts:201:1
+✖ Decision rename batches a real threshold sized changed source set in fresh and postwrite phases (30001.199296ms)
+  'test timed out after 30000ms'

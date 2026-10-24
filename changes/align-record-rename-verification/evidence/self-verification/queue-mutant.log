@@ -1,0 +1,38 @@
+bun test v1.4.2 (744846f84)
+
+tools/decision-records/tests/transaction-strict-preparation.test.ts:
+296 |           assert.equal(written.ino, located.ino);
+297 |         }
+298 |         return { change, written };
+299 |       });
+300 |       await verifyWritten(plan, actual);
+301 |       assert.deepEqual(batches, [
+                   ^
+AssertionError: Expected values to be strictly deep-equal:
++ actual - expected
+
+  [
++   0,
+    1003,
+-   1003
+  ]
+
+ generatedMessage: true,
+     actual: [ 0, 1003 ],
+   expected: [ 1003, 1003 ],
+   operator: "deepStrictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at /workspace/skills/.tmp/record-rename-queue-mutation-CkFw5d/tools/decision-records/tests/transaction-strict-preparation.test.ts:301:14
+      at withTemporaryWorkspace (/workspace/skills/.tmp/record-rename-queue-mutation-CkFw5d/tools/decision-records/tests/support.ts:145:18)
+      at /workspace/skills/.tmp/record-rename-queue-mutation-CkFw5d/tools/decision-records/tests/transaction-strict-preparation.test.ts:211:11
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+      at processTicksAndRejections (native:7:39)
+(fail) Decision rename batches a real threshold sized changed source set in fresh and postwrite phases [4341.57ms]
+
+ 0 pass
+ 3 filtered out
+ 1 fail
+Ran 1 test across 1 file. [4.41s]

@@ -1,0 +1,44 @@
+✔ Decision shared transaction verifies bytes mode and commit before success (42.199029ms)
+✔ Decision shared transaction preflight avoids locks and unchanged verifies fresh facts (11.459037ms)
+✔ Decision shared transaction restores only actual precommit writes (23.536123ms)
+✔ Decision shared transaction protects later bytes inode mode and unwritten members (86.526012ms)
+✔ Decision shared transaction retains committed verification and cleanup failures separately (21.901825ms)
+✔ Decision shared transaction recognizes a rejected writer that published the index (17.82764ms)
+✔ Decision shared candidate commit preserves creation and distinguishes cleanup only (23.458337ms)
+✔ Decision shared transaction never overwrites a recreated old path (21.038101ms)
+✔ Decision actual domain adapter satisfies the shared committed writer rejection contract (85.138863ms)
+✔ Decision shared recovery never claims a replacement inode between writer close and readback (28.506632ms)
+✔ Decision shared native creation binds permission verification and recovery to its actual handle (27.400545ms)
+✔ Decision shared verification acquires overlapping unchanged protection once in each independent phase (9.204555ms)
+✔ Decision shared verification never reuses different namespace or expected snapshot facts (19.774547ms)
+✔ Decision shared postwrite verification rejects later bytes mode and inode despite overlapping fresh protection (44.371047ms)
+✔ shared plan normalizes only unchanged proposals while retaining order index and conflicting protection (9.531976ms)
+✔ shared fresh text acquisition binds roots isolates mutable proofs and rejects unsafe invalid or missing sources (14.670385ms)
+✔ Decision strict preparation transfers one root-bound acquisition and reuses unchanged documents (78.763048ms)
+✔ Decision strict proof transfer rejects wrong roots missing facts and malformed acquired text (24.555908ms)
+✔ Decision strict transferred proof retains independent fresh guards and final complete graph validation (29.317347ms)
+✔ Decision rename batches a real threshold sized changed source set in fresh and postwrite phases (2565.832994ms)
+✔ Investigation discard fresh collection shares safe source facts with guards but retains independent post collection (88.614545ms)
+✔ Investigation discard shared fresh rejects source and membership drift without removing the source (92.812334ms)
+✔ Investigation discard keeps resource byte freshness independent from shared source acquisition (82.448815ms)
+✔ Investigation rename shares hook fresh source and index observations without crossing postwrite phases (92.023281ms)
+✔ Investigation rename fresh aggregation preserves source target and index errors after the hook (51.802136ms)
+✔ Investigation fresh resource phase rejects wrong roots even without files and preserves binary file and directory facts (17.667041ms)
+✔ Investigation resource preparation preserves ordered binary snapshots and first missing or mode failure (11.357668ms)
+✔ strict formal rename hands captured sources and validated documents to its transaction (57.164575ms)
+✔ strict candidate rename reuses complete layout source facts without rescanning candidates (40.235838ms)
+✔ strict formal discard reuses preparation sources while retaining independent freshness phases (91.195149ms)
+✔ strict rename postwrite reuses one fresh layout and document per source while retaining index freshness reads (60.113304ms)
+✔ strict rename postwrite rejects source edits rather than reusing preparation documents (55.412586ms)
+✔ Investigation same identity and path rename preserves noncanonical recorded bytes mode and index without unrelated health (107.226952ms)
+✔ Investigation relation writer rejection after index publication preserves committed state without success review (48.121719ms)
+✔ Investigation rename fresh proof rejects resource mode and inode drift without undoing the external winner (121.320789ms)
+✔ Investigation candidate rename and discard preserve formal index bytes identity and mode (142.227543ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5814.348666

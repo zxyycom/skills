@@ -1,0 +1,12 @@
+✔ discard reports a committed result when safe tombstone cleanup cannot finish (908.735644ms)
+✔ discard restores report resources and index when index publication fails (1425.202562ms)
+✔ Investigation rename preserves a changed target owner when index publication then fails (883.405755ms)
+✔ Investigation rename preserves an old owner member that appears after its final validation (807.20724ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4193.370963
