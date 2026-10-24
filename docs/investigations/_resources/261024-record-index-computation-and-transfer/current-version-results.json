@@ -1,0 +1,860 @@
+{
+  "scope": "index",
+  "mainTableWindow": "corrected-isolated-collector",
+  "initial": {
+    "metricsQualification": "All samples retained. RSS can include large oracle parent pre-exec resident memory; not a valid product-memory comparison. Do not pool windows.",
+    "groups": [
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "stage-index",
+        "variant": "current",
+        "count": 3,
+        "wallSeconds": {
+          "min": 2.3141801750171,
+          "median": 2.3403676690068096,
+          "max": 2.4118233040207997
+        },
+        "cpuSeconds": {
+          "min": 3.173455,
+          "median": 3.190489,
+          "max": 3.257534
+        },
+        "rssMiB": {
+          "min": 372.33203125,
+          "median": 543.7578125,
+          "max": 582.30078125
+        },
+        "labels": [
+          "index-decision-stage-index-0-current",
+          "index-decision-stage-index-1-current",
+          "index-decision-stage-index-2-current"
+        ]
+      },
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "stage-index",
+        "variant": "without-envelope",
+        "count": 3,
+        "wallSeconds": {
+          "min": 2.3700963020091876,
+          "median": 2.431324367003981,
+          "max": 3.1685760200489312
+        },
+        "cpuSeconds": {
+          "min": 3.23263,
+          "median": 3.3371190000000004,
+          "max": 4.236219
+        },
+        "rssMiB": {
+          "min": 411.55859375,
+          "median": 581.86328125,
+          "max": 582.30078125
+        },
+        "labels": [
+          "index-decision-stage-index-0-without-envelope",
+          "index-decision-stage-index-1-without-envelope",
+          "index-decision-stage-index-2-without-envelope"
+        ]
+      },
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "sync-selected",
+        "variant": "current",
+        "count": 3,
+        "wallSeconds": {
+          "min": 1.29058744199574,
+          "median": 1.334991482028272,
+          "max": 1.5031870640232228
+        },
+        "cpuSeconds": {
+          "min": 1.8408129999999998,
+          "median": 1.89746,
+          "max": 2.14935
+        },
+        "rssMiB": {
+          "min": 313.453125,
+          "median": 494.484375,
+          "max": 582.30078125
+        },
+        "labels": [
+          "index-decision-sync-selected-0-current",
+          "index-decision-sync-selected-1-current",
+          "index-decision-sync-selected-2-current"
+        ]
+      },
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "sync-selected",
+        "variant": "without-envelope",
+        "count": 3,
+        "wallSeconds": {
+          "min": 1.3286549560143612,
+          "median": 1.4881237669615075,
+          "max": 1.572284326015506
+        },
+        "cpuSeconds": {
+          "min": 1.867985,
+          "median": 2.065147,
+          "max": 2.197215
+        },
+        "rssMiB": {
+          "min": 314.19921875,
+          "median": 543.65625,
+          "max": 582.30078125
+        },
+        "labels": [
+          "index-decision-sync-selected-0-without-envelope",
+          "index-decision-sync-selected-1-without-envelope",
+          "index-decision-sync-selected-2-without-envelope"
+        ]
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "stage-index",
+        "variant": "current",
+        "count": 3,
+        "wallSeconds": {
+          "min": 2.193470583006274,
+          "median": 2.2140423640375957,
+          "max": 2.7341166110127233
+        },
+        "cpuSeconds": {
+          "min": 2.987562,
+          "median": 3.0247640000000002,
+          "max": 3.801086
+        },
+        "rssMiB": {
+          "min": 381.58984375,
+          "median": 582.30078125,
+          "max": 582.41015625
+        },
+        "labels": [
+          "index-investigation-stage-index-0-current",
+          "index-investigation-stage-index-1-current",
+          "index-investigation-stage-index-2-current"
+        ]
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "stage-index",
+        "variant": "without-envelope",
+        "count": 3,
+        "wallSeconds": {
+          "min": 2.1876814200077206,
+          "median": 2.1927885549957864,
+          "max": 2.269278568972368
+        },
+        "cpuSeconds": {
+          "min": 2.996162,
+          "median": 3.015,
+          "max": 3.2852930000000002
+        },
+        "rssMiB": {
+          "min": 338.87890625,
+          "median": 582.30078125,
+          "max": 582.41015625
+        },
+        "labels": [
+          "index-investigation-stage-index-0-without-envelope",
+          "index-investigation-stage-index-1-without-envelope",
+          "index-investigation-stage-index-2-without-envelope"
+        ]
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "sync-selected",
+        "variant": "current",
+        "count": 3,
+        "wallSeconds": {
+          "min": 1.2683609450468794,
+          "median": 1.3166649279883131,
+          "max": 1.3666184089961462
+        },
+        "cpuSeconds": {
+          "min": 1.810397,
+          "median": 1.941576,
+          "max": 1.9474339999999999
+        },
+        "rssMiB": {
+          "min": 294.203125,
+          "median": 582.30078125,
+          "max": 582.41015625
+        },
+        "labels": [
+          "index-investigation-sync-selected-0-current",
+          "index-investigation-sync-selected-1-current",
+          "index-investigation-sync-selected-2-current"
+        ]
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "sync-selected",
+        "variant": "without-envelope",
+        "count": 3,
+        "wallSeconds": {
+          "min": 1.2611166210263036,
+          "median": 1.3664276819908991,
+          "max": 1.4827535229851492
+        },
+        "cpuSeconds": {
+          "min": 1.770378,
+          "median": 1.919696,
+          "max": 2.075033
+        },
+        "rssMiB": {
+          "min": 309.40625,
+          "median": 582.30078125,
+          "max": 582.41015625
+        },
+        "labels": [
+          "index-investigation-sync-selected-0-without-envelope",
+          "index-investigation-sync-selected-1-without-envelope",
+          "index-investigation-sync-selected-2-without-envelope"
+        ]
+      }
+    ],
+    "pairs": [
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "sync-selected",
+        "pair": 0,
+        "counterfactual": "index-decision-sync-selected-0-without-envelope",
+        "current": "index-decision-sync-selected-0-current",
+        "wallPercent": -2.86511662386858,
+        "cpuPercent": -1.454615534921333,
+        "rssPercent": -0.23745881767887056,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "stage-index",
+        "pair": 0,
+        "counterfactual": "index-decision-stage-index-0-without-envelope",
+        "current": "index-decision-stage-index-0-current",
+        "wallPercent": -1.2543217327150913,
+        "cpuPercent": -1.30361346643445,
+        "rssPercent": -9.53122182253059,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "sync-selected",
+        "pair": 0,
+        "counterfactual": "index-investigation-sync-selected-0-without-envelope",
+        "current": "index-investigation-sync-selected-0-current",
+        "wallPercent": 4.4046923207469835,
+        "cpuPercent": 10.00102802904237,
+        "rssPercent": -4.9136450863549115,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "stage-index",
+        "pair": 0,
+        "counterfactual": "index-investigation-stage-index-0-without-envelope",
+        "current": "index-investigation-stage-index-0-current",
+        "wallPercent": -2.434086572270655,
+        "cpuPercent": -7.930160262722385,
+        "rssPercent": 12.603598722810737,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "sync-selected",
+        "pair": 1,
+        "counterfactual": "index-decision-sync-selected-1-without-envelope",
+        "current": "index-decision-sync-selected-1-current",
+        "wallPercent": -10.290292268223444,
+        "cpuPercent": -8.119857811574683,
+        "rssPercent": -9.044662872909125,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "stage-index",
+        "pair": 1,
+        "counterfactual": "index-decision-stage-index-1-without-envelope",
+        "current": "index-decision-stage-index-1-current",
+        "wallPercent": -4.818122730832208,
+        "cpuPercent": -4.904350129557866,
+        "rssPercent": -6.548869808065416,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "sync-selected",
+        "pair": 1,
+        "counterfactual": "index-investigation-sync-selected-1-without-envelope",
+        "current": "index-investigation-sync-selected-1-current",
+        "wallPercent": 0.013958075334730147,
+        "cpuPercent": 1.1397637959343454,
+        "rssPercent": 0.0,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "stage-index",
+        "pair": 1,
+        "counterfactual": "index-investigation-stage-index-1-without-envelope",
+        "current": "index-investigation-stage-index-1-current",
+        "wallPercent": 0.03110322739205973,
+        "cpuPercent": -0.2870338786754467,
+        "rssPercent": 0.0,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "sync-selected",
+        "pair": 2,
+        "counterfactual": "index-decision-sync-selected-2-without-envelope",
+        "current": "index-decision-sync-selected-2-current",
+        "wallPercent": -4.394705260936482,
+        "cpuPercent": -2.178439524579967,
+        "rssPercent": 0.0,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "stage-index",
+        "pair": 2,
+        "counterfactual": "index-decision-stage-index-2-without-envelope",
+        "current": "index-decision-stage-index-2-current",
+        "wallPercent": -23.883053814705235,
+        "cpuPercent": -23.102795204874916,
+        "rssPercent": 0.0,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "sync-selected",
+        "pair": 2,
+        "counterfactual": "index-investigation-sync-selected-2-without-envelope",
+        "current": "index-investigation-sync-selected-2-current",
+        "wallPercent": -14.459084036208836,
+        "cpuPercent": -12.753339344482706,
+        "rssPercent": 0.0,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "stage-index",
+        "pair": 2,
+        "counterfactual": "index-investigation-stage-index-2-without-envelope",
+        "current": "index-investigation-stage-index-2-current",
+        "wallPercent": 24.977822913679738,
+        "cpuPercent": 26.072504145936982,
+        "rssPercent": 0.0,
+        "outputsAndEffectsEqual": true
+      }
+    ],
+    "comparisons": [
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "stage-index",
+        "counterfactualVariant": "without-envelope",
+        "medianChangePercent": {
+          "wallSeconds": -3.741035101344936,
+          "cpuSeconds": -4.393909836598587,
+          "rssMiB": -6.548869808065416
+        },
+        "slowerWallPairs": 0,
+        "higherCpuPairs": 0,
+        "higherRssPairs": 0
+      },
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "sync-selected",
+        "counterfactualVariant": "without-envelope",
+        "medianChangePercent": {
+          "wallSeconds": -10.290292268223444,
+          "cpuSeconds": -8.119857811574683,
+          "rssMiB": -9.044662872909125
+        },
+        "slowerWallPairs": 0,
+        "higherCpuPairs": 0,
+        "higherRssPairs": 0
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "stage-index",
+        "counterfactualVariant": "without-envelope",
+        "medianChangePercent": {
+          "wallSeconds": 0.9692593931771132,
+          "cpuSeconds": 0.3238474295190752,
+          "rssMiB": 0.0
+        },
+        "slowerWallPairs": 2,
+        "higherCpuPairs": 1,
+        "higherRssPairs": 1
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "sync-selected",
+        "counterfactualVariant": "without-envelope",
+        "medianChangePercent": {
+          "wallSeconds": -3.6418139546237183,
+          "cpuSeconds": 1.1397637959343454,
+          "rssMiB": 0.0
+        },
+        "slowerWallPairs": 2,
+        "higherCpuPairs": 2,
+        "higherRssPairs": 0
+      }
+    ],
+    "normalCount": 24,
+    "smokeCount": 8,
+    "failedSamples": []
+  },
+  "corrected": {
+    "metricsQualification": "Fresh low-resident collector launches the full CLI; source, fixtures, ordering, and outcome checks unchanged.",
+    "groups": [
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "stage-index",
+        "variant": "current",
+        "count": 3,
+        "wallSeconds": {
+          "min": 2.3189895839896053,
+          "median": 2.397075437998865,
+          "max": 4.088498699013144
+        },
+        "cpuSeconds": {
+          "min": 3.2139979999999997,
+          "median": 3.249841,
+          "max": 5.374975
+        },
+        "rssMiB": {
+          "min": 362.31640625,
+          "median": 371.01171875,
+          "max": 371.9140625
+        },
+        "labels": [
+          "index-decision-stage-index-0-current",
+          "index-decision-stage-index-1-current",
+          "index-decision-stage-index-2-current"
+        ]
+      },
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "stage-index",
+        "variant": "without-envelope",
+        "count": 3,
+        "wallSeconds": {
+          "min": 2.383485838014167,
+          "median": 2.3952005459577776,
+          "max": 3.1984990339842625
+        },
+        "cpuSeconds": {
+          "min": 3.245837,
+          "median": 3.288226,
+          "max": 4.337841
+        },
+        "rssMiB": {
+          "min": 408.5,
+          "median": 412.4375,
+          "max": 412.5078125
+        },
+        "labels": [
+          "index-decision-stage-index-0-without-envelope",
+          "index-decision-stage-index-1-without-envelope",
+          "index-decision-stage-index-2-without-envelope"
+        ]
+      },
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "sync-selected",
+        "variant": "current",
+        "count": 3,
+        "wallSeconds": {
+          "min": 1.2977590750087984,
+          "median": 1.3338156229583547,
+          "max": 1.9419923039968126
+        },
+        "cpuSeconds": {
+          "min": 1.850222,
+          "median": 1.901126,
+          "max": 2.694344
+        },
+        "rssMiB": {
+          "min": 310.31640625,
+          "median": 313.22265625,
+          "max": 313.3203125
+        },
+        "labels": [
+          "index-decision-sync-selected-0-current",
+          "index-decision-sync-selected-1-current",
+          "index-decision-sync-selected-2-current"
+        ]
+      },
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "sync-selected",
+        "variant": "without-envelope",
+        "count": 3,
+        "wallSeconds": {
+          "min": 1.3015723199932836,
+          "median": 1.3364847979974002,
+          "max": 2.043689234997146
+        },
+        "cpuSeconds": {
+          "min": 1.826254,
+          "median": 1.880896,
+          "max": 2.8144810000000002
+        },
+        "rssMiB": {
+          "min": 314.2734375,
+          "median": 314.54296875,
+          "max": 314.60546875
+        },
+        "labels": [
+          "index-decision-sync-selected-0-without-envelope",
+          "index-decision-sync-selected-1-without-envelope",
+          "index-decision-sync-selected-2-without-envelope"
+        ]
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "stage-index",
+        "variant": "current",
+        "count": 3,
+        "wallSeconds": {
+          "min": 2.1924344999715686,
+          "median": 2.1935562979779206,
+          "max": 2.6094229969894513
+        },
+        "cpuSeconds": {
+          "min": 2.988133,
+          "median": 2.994481,
+          "max": 3.573281
+        },
+        "rssMiB": {
+          "min": 352.4765625,
+          "median": 382.04296875,
+          "max": 384.0390625
+        },
+        "labels": [
+          "index-investigation-stage-index-0-current",
+          "index-investigation-stage-index-1-current",
+          "index-investigation-stage-index-2-current"
+        ]
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "stage-index",
+        "variant": "without-envelope",
+        "count": 3,
+        "wallSeconds": {
+          "min": 2.2378311910433695,
+          "median": 2.2525299820117652,
+          "max": 3.0889490650151856
+        },
+        "cpuSeconds": {
+          "min": 3.0348829999999998,
+          "median": 3.101169,
+          "max": 4.191661
+        },
+        "rssMiB": {
+          "min": 345.92578125,
+          "median": 357.23828125,
+          "max": 361.25390625
+        },
+        "labels": [
+          "index-investigation-stage-index-0-without-envelope",
+          "index-investigation-stage-index-1-without-envelope",
+          "index-investigation-stage-index-2-without-envelope"
+        ]
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "sync-selected",
+        "variant": "current",
+        "count": 3,
+        "wallSeconds": {
+          "min": 1.2766483619925566,
+          "median": 1.298121304018423,
+          "max": 2.033759308978915
+        },
+        "cpuSeconds": {
+          "min": 1.785543,
+          "median": 1.825237,
+          "max": 2.847944
+        },
+        "rssMiB": {
+          "min": 288.4140625,
+          "median": 302.53515625,
+          "max": 303.484375
+        },
+        "labels": [
+          "index-investigation-sync-selected-0-current",
+          "index-investigation-sync-selected-1-current",
+          "index-investigation-sync-selected-2-current"
+        ]
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "sync-selected",
+        "variant": "without-envelope",
+        "count": 3,
+        "wallSeconds": {
+          "min": 1.2525621349923313,
+          "median": 1.2733590980060399,
+          "max": 1.98328634200152
+        },
+        "cpuSeconds": {
+          "min": 1.8161779999999998,
+          "median": 1.825264,
+          "max": 2.759813
+        },
+        "rssMiB": {
+          "min": 293.77734375,
+          "median": 299.375,
+          "max": 300.16796875
+        },
+        "labels": [
+          "index-investigation-sync-selected-0-without-envelope",
+          "index-investigation-sync-selected-1-without-envelope",
+          "index-investigation-sync-selected-2-without-envelope"
+        ]
+      }
+    ],
+    "pairs": [
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "sync-selected",
+        "pair": 0,
+        "counterfactual": "index-decision-sync-selected-0-without-envelope",
+        "current": "index-decision-sync-selected-0-current",
+        "wallPercent": -4.976144575154806,
+        "cpuPercent": -4.268531214103066,
+        "rssPercent": -0.3032788922862739,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "stage-index",
+        "pair": 0,
+        "counterfactual": "index-decision-stage-index-0-without-envelope",
+        "current": "index-decision-stage-index-0-current",
+        "wallPercent": 27.82554115454081,
+        "cpuPercent": 23.908990670704622,
+        "rssPercent": -8.956165850673193,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "sync-selected",
+        "pair": 0,
+        "counterfactual": "index-investigation-sync-selected-0-without-envelope",
+        "current": "index-investigation-sync-selected-0-current",
+        "wallPercent": 2.544915774817369,
+        "cpuPercent": 3.1933685362015574,
+        "rssPercent": 1.104850149005121,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "stage-index",
+        "pair": 0,
+        "counterfactual": "index-investigation-stage-index-0-without-envelope",
+        "current": "index-investigation-stage-index-0-current",
+        "wallPercent": -15.523922794867351,
+        "cpuPercent": -14.752624317663088,
+        "rssPercent": 6.943457295003985,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "sync-selected",
+        "pair": 1,
+        "counterfactual": "index-decision-sync-selected-1-without-envelope",
+        "current": "index-decision-sync-selected-1-current",
+        "wallPercent": -0.1997160793033359,
+        "cpuPercent": 1.0755512266494405,
+        "rssPercent": -1.363314667428206,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "stage-index",
+        "pair": 1,
+        "counterfactual": "index-decision-stage-index-1-without-envelope",
+        "current": "index-decision-stage-index-1-current",
+        "wallPercent": -3.181819664194241,
+        "cpuPercent": -2.2573874180181086,
+        "rssPercent": -12.167383193500125,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "sync-selected",
+        "pair": 1,
+        "counterfactual": "index-investigation-sync-selected-1-without-envelope",
+        "current": "index-investigation-sync-selected-1-current",
+        "wallPercent": 0.2583139345112784,
+        "cpuPercent": -2.1761783500907184,
+        "rssPercent": 1.0555845511482254,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "stage-index",
+        "pair": 1,
+        "counterfactual": "index-investigation-stage-index-1-without-envelope",
+        "current": "index-investigation-stage-index-1-current",
+        "wallPercent": -1.9784733201795301,
+        "cpuPercent": -1.5404218218626475,
+        "rssPercent": 6.307241487440662,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "sync-selected",
+        "pair": 2,
+        "counterfactual": "index-decision-sync-selected-2-without-envelope",
+        "current": "index-decision-sync-selected-2-current",
+        "wallPercent": -0.292972194161667,
+        "cpuPercent": 1.3124132787662557,
+        "rssPercent": -0.419755846155756,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "stage-index",
+        "pair": 2,
+        "counterfactual": "index-decision-stage-index-2-without-envelope",
+        "current": "index-decision-stage-index-2-current",
+        "wallPercent": 0.5701565231879258,
+        "cpuPercent": 0.12335801212446373,
+        "rssPercent": -10.04413547507198,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "sync-selected",
+        "pair": 2,
+        "counterfactual": "index-investigation-sync-selected-2-without-envelope",
+        "current": "index-investigation-sync-selected-2-current",
+        "wallPercent": 3.637278163958757,
+        "cpuPercent": 0.4987947216627431,
+        "rssPercent": -1.8256279335700176,
+        "outputsAndEffectsEqual": true
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "stage-index",
+        "pair": 2,
+        "counterfactual": "index-investigation-stage-index-2-without-envelope",
+        "current": "index-investigation-stage-index-2-current",
+        "wallPercent": -2.667910417180086,
+        "cpuPercent": -3.44025107951228,
+        "rssPercent": 1.8936955858938287,
+        "outputsAndEffectsEqual": true
+      }
+    ],
+    "comparisons": [
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "stage-index",
+        "counterfactualVariant": "without-envelope",
+        "medianChangePercent": {
+          "wallSeconds": 0.07827703798128915,
+          "cpuSeconds": -1.1673467699604534,
+          "rssMiB": -10.04413547507198
+        },
+        "slowerWallPairs": 2,
+        "higherCpuPairs": 2,
+        "higherRssPairs": 0
+      },
+      {
+        "suite": "index",
+        "domain": "decision",
+        "scenario": "sync-selected",
+        "counterfactualVariant": "without-envelope",
+        "medianChangePercent": {
+          "wallSeconds": -0.1997160793033359,
+          "cpuSeconds": 1.0755512266494405,
+          "rssMiB": -0.419755846155756
+        },
+        "slowerWallPairs": 0,
+        "higherCpuPairs": 2,
+        "higherRssPairs": 0
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "stage-index",
+        "counterfactualVariant": "without-envelope",
+        "medianChangePercent": {
+          "wallSeconds": -2.618108726844759,
+          "cpuSeconds": -3.44025107951228,
+          "rssMiB": 6.943457295003985
+        },
+        "slowerWallPairs": 0,
+        "higherCpuPairs": 0,
+        "higherRssPairs": 3
+      },
+      {
+        "suite": "index",
+        "domain": "investigation",
+        "scenario": "sync-selected",
+        "counterfactualVariant": "without-envelope",
+        "medianChangePercent": {
+          "wallSeconds": 1.9446365170012525,
+          "cpuSeconds": -0.001479238071866451,
+          "rssMiB": 1.0555845511482254
+        },
+        "slowerWallPairs": 3,
+        "higherCpuPairs": 2,
+        "higherRssPairs": 2
+      }
+    ],
+    "normalCount": 24,
+    "smokeCount": 8,
+    "failedSamples": []
+  }
+}

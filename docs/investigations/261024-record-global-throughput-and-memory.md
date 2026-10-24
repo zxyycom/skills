@@ -16,111 +16,123 @@ relations:
 
 ## 形成时背景
 
-局部操作收敛后，两域全量检查与同步仍需读取全集。本轮以 `f381715c0bfddd015503544c0fe38e8889809600`（DR 95、IR 85）为冻结来源，调查重复解析、全集读取和正文保留的剩余成本。既有契约要求 check 使用首次安全采集，同步及预检独立取得 fresh 来源；性能优化须保留这些验证责任。
+局部操作收敛后，Decision Records（DR）与 Investigation Report（IR）的全量检查和同步仍需读取全集。本轮从 `f381715c`（DR 95、IR 85）调查重复解析、全集读取和正文保留，随后实施 DR 同阶段 frontmatter 复用，并补测落地版。
 
-调查先在隔离副本比较原型，再于同轮实施 DR 同阶段 frontmatter 复用。采用标准是正确性与低维护面，容许合理常数取舍。隔离原型的性能样本与后续实现的正确性证据分别解释。
+采用标准是：在保持正确性和阶段责任的前提下，以较小维护面消除重复工作，并明确性能取舍。check 使用首次安全采集；sync／preflight 独立取得 fresh 来源。三类证据——原型、实施验证、落地版复测——按各自版本和窗口解释。
 
 ## 调查目的
 
-判断全量 check、full sync unchanged／changed／preflight 的主要工作量；比较 DR YAML 复用与 IR 身份提取优化的价值；确定一万条长正文的内存观察能支持哪些后续判断。
+定位全量 check、full sync unchanged／changed／preflight 的主要成本，判断 DR YAML 复用与 IR 身份提取优化是否值得采用，并明确万条长正文的内存观察及后续复查条件。
 
 ## 调查范围与依据
 
-| 证据阶段 | 实际范围与来源 |
+### 输入与证据阶段
+
+两域各 10,000 份无关系、无资源、无候选的非 Git 来源。DR 正文／索引为 3,358,890／5,359,147 B；IR 为 3,408,890／4,319,152 B。changed／preflight 只向一份正文追加 35 B，改变 revision、保持 metadata 投影。IR 长文 check 另使用 83,088,890 B 正文，单份 8,306–8,309 B、53 行。
+
+| 阶段 | 冻结来源、实际时点与覆盖 |
 | --- | --- |
-| 原始矩阵与原型 | Node v26.8.2 生成 CLI，新进程串行运行、页缓存已暖；Bun 1.4.2 仅核对版本。6 个可见 CPU，cgroup 配额 4 CPU／6 GiB。两域各 10,000 份无关系、无资源、无候选的非 Git 来源。 |
-| 输入 | DR 正文 3,358,890 B、索引 5,359,147 B；IR 正文 3,408,890 B、索引 4,319,152 B。changed／preflight 只向一份正文追加 35 B，改变 revision 而保持 metadata 投影。 |
-| 样本 | 8 场景各 3 次正常运行及 1 次诊断，另做 DR 四场景配对、独立 check 配对和 IR 短／长正文配对。合计 66 次正常、12 次诊断、8 次 smoke，全部保留，无非预期失败、超时或 OOM。 |
-| 实施补证 | 2026-10-24 取得；以 `a661d059` 的七份 DR 域源码为对照，其余依赖共用当时工作区闭包。两记录夹具比较 baseline／source／generated 的四场景，另运行领域聚合及定向变异。未重跑万条性能矩阵。 |
+| 原型 | 2026-10-24，`f381715c`，DR 95／IR 85；8 场景矩阵、DR 四场景配对、独立 check 配对及 IR 短／长文配对，共 66 次正常、12 次诊断、8 次 smoke。 |
+| 实施验证 | 同日，以 `a661d059` 的七份 DR 域源码为对照，其余依赖共用当时工作区闭包；两记录夹具比较 baseline／source／generated 四场景，另做领域聚合和定向变异。 |
+| 落地版复测 | 同日 19:32:05–19:37:17 UTC 修正窗口，`ef809161`，DR 98／IR 87；DR 四场景各 3 对，IR 四场景及长文 check 各 3 次，共 39 次正常、6 次闭包 smoke。 |
 
-正常指标为 monotonic 墙钟、wait4 user+system CPU 和最大进程 RSS。RSS 含 Node worker 线程，但不是同时全进程树内存；插桩耗时为 inclusive，存在嵌套。最终差异比较覆盖普通文件完整 SHA-256、size、mode，不覆盖瞬态写入或同字节重写。
+本文“落地版”固定指 `ef809161`。DR 对照仅撤回同阶段复用的七份源码及对应生成文件；envelope 冻结和其余闭包相同。IR 只报告该版本的时延与内存。原型明细、实施记录及复测原始数据分别由随附资源承接。
 
-原矩阵存在外部性能进程竞争，且 optional `supports-color` 9.4.0 在 loader 调查中途才被发现，缺少首样本前哈希。AB 前已将同字节包纳入隔离依赖并核对起止指纹；矩阵与 AB 因此属于不同依赖闭包。初始 DR check 配对可能与自有测试短暂重叠，另于 16:12:19–16:12:43 UTC 做独立三对；这里“独立”只表示已识别的 benchmark 和自有测试退出，不能保证宿主静默。
+### 计量与窗口选择
 
-版本、依赖 SHA、输入 recipe、完整样本与方法修正保存在随附资源。源码与生成 runtime 经去生成头／恢复 shebang 注释后，两域 247／262 个模块逐字一致，另有 source／generated Node smoke。
+Node v26.8.2 生成 CLI 在新进程中串行运行，文件缓存已暖；Bun 1.4.2 用于版本核对。环境可见 6 CPU，cgroup 配额 4 CPU／6 GiB。wall 为 monotonic 墙钟，CPU 为 wait4 user+system，RSS 为进程高水位、含 Node worker 线程；它不同于同时进程树总内存或 JS live heap。每组 3 次，配对顺序 A/B、B/A、A/B；百分比为两组中位之比减一。
+
+**复测表只使用修正窗口。**首轮长文后验使大 oracle 父进程的 fork 前 RSS 高水位进入子进程计量；控制实验确认后，改由 resident 15,096–15,328 KiB 的独立进程计量，并完整重跑两报告矩阵。两轮各 63 次正常＋14 次 smoke 及 3 个计量控制全部保留，不跨窗口合并。控制数值、采样代码和窗口字段见[共享复测方法](./_resources/261024-record-global-throughput-and-memory/current-version-methods.md)。
+
+原型矩阵受外部性能进程竞争影响；optional `supports-color` 9.4.0 在 loader 调查中途才被发现，缺少首样本前哈希，矩阵与后续 AB 属于不同依赖闭包。初始 DR check 配对可能与自有测试重叠，因此另于 16:12:19–16:12:43 UTC 做独立三对。落地版复测在采样前冻结实际依赖，起止指纹一致；端点仍可见常驻 Node／CodeGraph，进程快照不足以排除窗口内或宿主干扰。
+
+原型阶段另核对源码与生成 runtime：去除生成头并恢复 shebang 注释后，两域 247／262 个模块逐字一致，另有 source／generated Node smoke。
 
 ## 调查结果与边界
 
-### 结论
+### 采用判断
 
-**采用 DR 同阶段 frontmatter 复用；IR 三行身份微优化暂不推进。**DR 复用消除了已确认的重复 YAML 工作，后续小夹具验证了源码与生成 CLI 的工作量及行为等价。IR 原型减少了身份计算，但没有一致端到端收益。两域同步的第二轮来源读取继续承担独立 fresh。
+**采用 DR 同阶段 frontmatter 复用；IR 三行身份微优化暂不推进。**DR 消除了重复 YAML 工作，实施验证支持源码与生成 CLI 的工作量及行为等价；落地版四场景 wall 中位均下降，同时保留 changed 的单对变慢和三个场景的 RSS 中位上升。IR 原型减少了身份计算，却未带来一致的端到端收益。
 
-本轮没有证明落地版本的稳定加速比例或内存上界。额外解析对象的阶段内留存是 DR 方案的取舍，是否采用由正确性与维护面共同决定。
+这支持局部、低维护面的 DR 复用，不承诺稳定加速比例。同步的第二轮来源读取继续承担独立 fresh；全集保留的内存责任需要单独调查。
 
-### 原始全量矩阵
+### 落地版复测：实际时延与内存
 
-时间为三次正常运行中位（最小–最大），调用计数来自独立诊断。
+每格为 3 次中位，括号为最小–最大；CPU 为 user+system。
 
-| 域／场景 | wall 秒 | CPU 中位秒 | RSS 中位 MiB | 正文读取／YAML 解析 |
-| --- | ---: | ---: | ---: | --- |
-| DR check | 4.018（3.667–10.838） | 5.078 | 297.3 | 10,000／20,000 |
-| DR full sync unchanged | 7.728（7.543–9.210） | 8.887 | 318.2 | 20,000／30,000 |
-| DR full sync changed | 7.124（7.010–7.681） | 8.306 | 340.7 | 20,000／30,000 |
-| DR full sync preflight | 6.863（6.634–7.177） | 8.000 | 317.4 | 20,000／30,000 |
-| IR check | 2.136（1.872–3.480） | 2.855 | 248.8 | 10,000／不适用 |
-| IR full sync unchanged | 3.571（3.392–4.291） | 4.507 | 275.5 | 20,000／不适用 |
-| IR full sync changed | 10.867（10.445–11.674） | 12.105 | 292.8 | 20,000／不适用 |
-| IR full sync preflight | 10.736（9.856–11.675） | 12.376 | 270.8 | 20,000／不适用 |
+| 落地版场景 | wall 秒 | CPU 中位秒 | 峰值 RSS MiB |
+| --- | ---: | ---: | ---: |
+| DR check | 2.579（2.560–2.737） | 3.375 | 299.2（298.1–300.0） |
+| DR full sync unchanged | 6.655（5.302–7.441） | 7.960 | 320.4（319.2–340.4） |
+| DR full sync changed | 6.134（5.791–6.348） | 7.381 | 352.0（339.5–360.6） |
+| DR full sync preflight | 5.342（5.245–6.003） | 6.339 | 330.3（317.5–341.3） |
+| IR check | 1.651（1.642–1.674） | 2.185 | 256.7（254.4–268.6） |
+| IR full sync unchanged | 2.652（2.504–4.148） | 3.374 | 276.9（270.1–290.4） |
+| IR full sync changed | 2.703（2.632–2.825） | 3.437 | 292.7（284.8–292.7） |
+| IR full sync preflight | 2.627（2.471–4.192） | 3.337 | 284.9（260.5–290.7） |
+| IR 长文 check | 2.005（1.922–2.399） | 2.688 | 426.2（420.5–426.3） |
 
-check 每份正文恰读一次，sync／preflight 各读两次。IR 正式解析均为 10,000 次，身份提取分别为 10,000／20,000 次。矩阵顺序与宿主波动限制了时长解释：changed／unchanged 的差异不足以归因为命令本身，也不足以比较两域性能排名。
+以下仅比较同一复测闭包的 DR 撤回版→落地版，逐对数据见复测资源。
 
-### DR：重复解析、性能取舍与实现证据
+| DR 场景 | wall 变化 | CPU 变化 | RSS 变化 | wall 变慢对数 |
+| --- | ---: | ---: | ---: | ---: |
+| check | -16.9% | -15.0% | +0.3% | 0/3 |
+| unchanged | -20.9% | -16.5% | -2.1% | 0/3 |
+| changed | -3.0% | -2.5% | +3.1% | 1/3 |
+| preflight | -10.2% | -9.5% | +4.0% | 0/3 |
 
-基线在成员发现和正式解析中分别解同一份 YAML。check 诊断累计 20,000 次、inclusive 2.269 秒，确认了重复工作。原型保留本阶段 frontmatter，实测 check YAML **20,000→10,000**、sync unchanged **30,000→20,000**；正文读取仍为 10,000／20,000 次。changed／preflight 的计数只按同流程推断，未单独插桩。
+具体取舍：changed 第 1 对 wall **6.064→6.134 秒**、CPU 7.104→7.381 秒，三对 RSS 均上升；unchanged 的 RSS 中位虽下降，仍有一对上升。IR 长文 RSS 中位 426.2 MiB、最大 426.3 MiB，未 OOM；该结果是此输入的观察值，不是容量上界。
 
-独立 check 三对按 A/B、B/A、A/B 执行，表中统一展示 baseline→prototype：
+两轮每对完整输出与最终文件效果一致；修正窗口以独立 oracle 核对完整来源和索引。preflight 保持刻意陈旧的索引，只证明无最终改写。起止源码、生成文件和依赖指纹相同，source／generated Node smoke 的实际文件 URL 均在隔离副本内。
 
-| 对 | wall 秒 | CPU 秒 | RSS MiB |
-| --- | --- | --- | --- |
-| 1 | 4.030→3.230 | 5.163→4.280 | 308.6→294.6 |
-| 2 | 5.279→3.006 | 6.435→4.010 | 299.1→300.4 |
-| 3 | 3.150→2.571 | 4.043→3.398 | 293.5→296.0 |
+### DR：重复工作如何消除
 
-check 三对 wall 均下降；unchanged／preflight 也各三对下降，changed 有一对反向，原型 wall 中位 13.233 秒高于 baseline 10.913 秒。changed／preflight 原型 RSS 中位分别高约 19.8／20.1 MiB。样本支持减少重复工作，但同时保留了延迟与内存取舍，尚无精确对象保留或 GC 因果归因。
+原型诊断确认：成员发现和正式解析分别解同一份 YAML。check 累计 20,000 次、inclusive 2.269 秒；复用后 check YAML **20,000→10,000**，sync unchanged **30,000→20,000**，正文读取仍为 10,000／20,000 次。changed／preflight 的相同计数按流程推断，未单独插桩。
 
-12 项原型 CLI 对照覆盖合法输入、BOM／CRLF、YAML 及字段错误、重复身份、正文、关系目标和采用字段；完整退出、stdout／stderr、索引 SHA 与最终文件差异一致。原型用未绑定的解析参数交接，落地则在 [解析 owner](../../tools/decision-records/src/decision-metadata.ts) 内用 `DecisionMarkdownSource` 绑定原始文本与私有解析结果。成员发现和正式扫描消费同一来源；公开 raw 入口自行解析，fresh 独立重读。相比跨调用缓存或提前存储完整验证结果，该局部对象保持了错误身份发现和阶段责任，无额外无效化状态。
+原型独立 check 三对 wall 均下降，unchanged／preflight 也各三对下降；changed 有一对反向，wall 中位 **10.913→13.233 秒**。changed／preflight 原型 RSS 中位分别增加约 19.8／20.1 MiB。完整原型矩阵和逐对数值保存在资源；它们说明采用时已有延迟和内存取舍，不能与落地版混算。
 
-后续实施证据与上述性能样本分开：
+12 项原型 CLI 对照覆盖合法输入、BOM／CRLF、YAML 及字段错误、重复身份、正文、关系目标和采用字段；完整退出、stdout／stderr、索引 SHA 与最终文件差异一致。落地实现由[解析 owner](../../tools/decision-records/src/decision-metadata.ts)的 `DecisionMarkdownSource` 绑定原文与私有解析结果，成员发现和正式扫描消费同一来源；公开 raw 入口自行解析，fresh 独立重读。复用限于单阶段对象，无跨调用缓存或失效管理。
 
-- 两记录夹具的 source／generated check 各为 **2 次 YAML／2 次来源打开**，对照为 4／2；三类 sync 各为 **4／4**，对照为 6／4。12 次运行按场景比较完整退出、stdout／stderr、最终 SHA-256 和 mode，结果相同。
-- 六个原生节点覆盖 raw 入口、字节绑定、诊断顺序、无效字段参与重复身份判定、独立 fresh 及 sync 失败时的索引保护；三个定向变异均被对应节点识别。
-- DR 聚合最终 **395 通过／0 失败**，全仓类型检查通过。首次失败与修正过程保存在实施资源，包含诊断预期、内部观察位置及生成声明清单的调整。
-- 同轮联合生成、版本和账本同步完成后，2026-10-24 18:13 UTC 的 `bun run check:changed` 为 **66 通过／0 失败／3 不适用**；最终版本调整后的增量复验通过。这是本地验收，不是发布或远端 CI 证明。
+实施验证进一步确认：
 
-### IR：身份优化不是主要成本，长文仍有全集保留
+- 两记录夹具的 source／generated check 均为 **2 次 YAML／2 次来源打开**，对照为 4／2；三类 sync 均为 **4／4**，对照为 6／4。12 次运行按场景比较退出、完整输出、最终 SHA-256 和 mode，结果相同。
+- 六个原生测试节点覆盖 raw 入口、字节绑定、诊断顺序、无效字段参与重复身份判定、独立 fresh 及 sync 失败时的索引保护；三个定向变异均被识别。
+- DR 聚合 **395 通过／0 失败**，全仓类型检查通过；联合生成、版本和账本同步后，18:13 UTC 的 `bun run check:changed` 为 **66 通过／0 失败／3 不适用**，最终版本调整后的增量复验通过。首次失败及修正细节由实施资源保留。
 
-身份 helper 只消费前三行，原实现却 normalize／split 全篇。隔离原型改为限三行的 CRLF／CR／LF split，保持完整读取、正式解析、fresh 及“不去 BOM”的语义；1,026 项等价样例通过。
+### IR：身份计算与全集保留
 
-短文诊断中身份提取约 19 ms、正式解析约 102 ms；layout 1.752 秒内含 reader 1.689 秒。长文每份 8,306–8,309 B、53 行，共 83,088,890 B（约 79.2 MiB）。长文身份诊断 **55.18→7.42 ms**，两版仍读取全部 10,000 份正文、正式解析 10,000 次。
+身份 helper 只消费前三行，原实现却 normalize／split 全篇。原型改用限三行的 CRLF／CR／LF split，保持完整读取、正式解析、fresh 及不去 BOM 的语义；1,026 项等价样例通过。
 
-| check 形态 | baseline wall 三次秒 | prototype wall 三次秒 | RSS 中位 baseline→prototype MiB |
-| --- | --- | --- | --- |
-| 短正文 | 1.663／2.004／1.724 | 1.699／1.651／1.706 | 268.4→267.7 |
-| 长正文 | 2.207／1.988／2.076 | 1.996／2.135／2.173 | 418.5→420.7 |
+短文诊断中身份提取约 19 ms、正式解析约 102 ms；layout 1.752 秒包含 reader 1.689 秒。长文身份计算 **55.18→7.42 ms**，两版仍读取和正式解析全部 10,000 份正文；正常配对一对快、两对慢，RSS 中位 **418.5→420.7 MiB**。这些结果支持把优化重点放在更大成本上。
 
-长文一对快、两对慢，正常最大 RSS 422.1 MiB、未 OOM。长文诊断在布局收齐时 RSS 约 365.6 MiB、heapUsed 178.5 MiB，最终索引检查阶段末 RSS 422.9 MiB；这些是未强制 GC 的阶段末值。主线程仍保留全集文本，块交接只提供背压。更大的生命周期或流水线改造，需要先取得对象保留责任的区分性证据。
+长文原型诊断在布局收齐时 RSS 约 365.6 MiB、heapUsed 178.5 MiB，最终索引检查阶段末 RSS 422.9 MiB，均为未强制 GC 的阶段末值。主线程仍保留全集文本，块交接提供背压而不释放全部来源。生命周期或流水线改造需要先取得对象保留责任的区分性证据。
 
-### 适用边界与复查条件
+### 证明边界与复查条件
 
-- 当前实现补证证明所测流程的工作量与行为，未新增大规模性能或容量结论。原型对照也没有独立全索引 oracle。
-- 性能样本未覆盖冷盘、十万条、资源密集、复杂关系图、Git 历史、并发修改／中断回滚、权限或恶意路径。领域回归只证明其实际断言，不能替代这些形态的性能或全面并发证明。
-- IR 资源校验与未引用 warning 的串行结构仅作静态确认；零资源输入不足以证明优化它们的收益。
-- 当真实集合的正文、资源或关系显著增加，或解析／reader／来源快照生命周期改变时，按对应形态重测。RSS 不能外推为生产容量，工作量减少也不等于所有平台稳定加速。
+- 落地版复测覆盖上述暖缓存、万条合成输入及独立全索引后验；早期原型没有该独立 oracle。最终文件比较覆盖普通文件完整 SHA-256、size、mode，不覆盖瞬态写入或同字节改写。
+- 阶段诊断是 inclusive 计时，存在嵌套；落地版未重做阶段插桩或 heap／GC 实验。重复工作减少已有证据，全部 CLI 差额的因果归属仍未知。
+- 冷盘、十万条、资源密集、复杂关系图、Git 历史、并发修改／中断回滚、权限或恶意路径未进入本性能矩阵。IR 资源校验和未引用 warning 的串行结构仅作静态确认，零资源输入不足以估计其优化收益。
+- 正文、资源、关系规模显著增长，或解析、reader、来源快照生命周期改变时，按对应形态重测。三次样本不足以给出生产尾延迟、稳定比例或容量保证；本地测试与 Gate 仅证明实际验收范围。
 
-随附资源保留完整样本、反向结果和形成时方法；原型补丁与测量代码用于审查当时做法，当前实现与验证入口由源码和测试 owner 维护。
+资源中的原型补丁和测量代码供复核形成时做法；当前实现与验证入口由源码和测试 owner 维护。
 
 ## 随附资源
 
-- [审计：全部样本、配对与证明边界](./_resources/261024-record-global-throughput-and-memory/audit.json)
-- [正确性：DR CLI 与 IR 身份等价](./_resources/261024-record-global-throughput-and-memory/correctness.json)
+- [原型审计：样本、配对与证明边界](./_resources/261024-record-global-throughput-and-memory/audit.json)
+- [原型正确性：DR CLI 与 IR 身份等价](./_resources/261024-record-global-throughput-and-memory/correctness.json)
+- [落地版复测：计量修正、完整方法与输入模板](./_resources/261024-record-global-throughput-and-memory/current-version-methods.md)
+- [落地版复测：冻结、闭包、输入、控制与保真审计](./_resources/261024-record-global-throughput-and-memory/current-version-provenance.json)
+- [落地版复测：两窗口分组与全部逐对变化](./_resources/261024-record-global-throughput-and-memory/current-version-results.json)
+- [落地版复测：首轮及修正轮全部原始指标](./_resources/261024-record-global-throughput-and-memory/current-version-samples.jsonl)
+- [落地版复测：按原始 SHA 去重的完整输出](./_resources/261024-record-global-throughput-and-memory/current-version-streams.json)
 - [环境与输入：冻结、实际依赖与正文形态](./_resources/261024-record-global-throughput-and-memory/environment-and-inputs.json)
-- [当前落地：方法、验证命令与失败处理](./_resources/261024-record-global-throughput-and-memory/implementation-methods.md)
-- [当前落地：计数、等价输出、源码 SHA 与变异结果](./_resources/261024-record-global-throughput-and-memory/implementation-verification.json)
-- [全部样本：指标、输出与最终文件差异](./_resources/261024-record-global-throughput-and-memory/measurements.json)
-- [形成时方法：准备、测量、插桩与对照代码](./_resources/261024-record-global-throughput-and-memory/methods.md)
-- [阶段：调用次数、inclusive 耗时与阶段末内存](./_resources/261024-record-global-throughput-and-memory/profiles.json)
+- [实施验证：方法、命令与失败处理](./_resources/261024-record-global-throughput-and-memory/implementation-methods.md)
+- [实施验证：计数、等价输出、源码 SHA 与变异结果](./_resources/261024-record-global-throughput-and-memory/implementation-verification.json)
+- [原型样本：指标、输出与最终文件差异](./_resources/261024-record-global-throughput-and-memory/measurements.json)
+- [原型方法：准备、测量、插桩与对照代码](./_resources/261024-record-global-throughput-and-memory/methods.md)
+- [原型诊断：调用次数、inclusive 耗时与阶段末内存](./_resources/261024-record-global-throughput-and-memory/profiles.json)
 - [协议：窗口、计量、边界与留存](./_resources/261024-record-global-throughput-and-memory/protocol.md)
 - [DR 隔离原型补丁](./_resources/261024-record-global-throughput-and-memory/prototype-dr.patch)
 - [IR 隔离原型补丁](./_resources/261024-record-global-throughput-and-memory/prototype-ir.patch)
 - [来源：路径展示、代码哈希与方法纠正](./_resources/261024-record-global-throughput-and-memory/provenance.json)
-- [统计：各窗口各分组 min／median／max](./_resources/261024-record-global-throughput-and-memory/summary.csv)
+- [原型统计：各窗口各分组 min／median／max](./_resources/261024-record-global-throughput-and-memory/summary.csv)
