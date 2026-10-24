@@ -200,6 +200,7 @@ export function createVibeNativeChecks(
       files: {
         patterns: [...markdownSourcePatterns, ...maintainedDocumentExclusions]
       },
+      limits: { maxTargetReads: 2_048 },
       findingPolicy: "blocking"
     }),
     markdownLint({

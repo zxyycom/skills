@@ -1,0 +1,5 @@
+allowBuilds:
+  ffmpeg-static: true
+  sharp: true
+  tesseract.js: false
+  tldjs: false

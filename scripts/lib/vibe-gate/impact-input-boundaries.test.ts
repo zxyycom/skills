@@ -87,7 +87,7 @@ test("release full execution does not acquire or publish project input proofs", 
     });
     assert.equal(plan.kind, "release");
     assert.equal(plan.snapshot, null);
-    assert.equal(plan.activeCheckIds.length, 64);
+    assert.equal(plan.activeCheckIds.length, 67);
     assert.deepEqual(await publishFixtureReceipts(fixture, plan), {
       published: false,
       reason: "not-incremental"

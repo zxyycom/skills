@@ -76,7 +76,7 @@ function activationCounts(
     fallback,
     firstRun,
     reuse,
-    ...(scope === "quick" ? { disabled: 64 - quickGateCheckIds.length } : {})
+    ...(scope === "quick" ? { disabled: 67 - quickGateCheckIds.length } : {})
   };
 }
 

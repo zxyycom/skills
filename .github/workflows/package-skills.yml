@@ -25,12 +25,17 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       skill_hash: ${{ steps.skill_hash.outputs.current_hash }}
+      tested_revision: ${{ steps.revision.outputs.sha }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+
+      - name: Record tested revision
+        id: revision
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Verify event baseline
         env:
@@ -129,9 +134,56 @@ jobs:
           if-no-files-found: ignore
           retention-days: 3
 
-  publish:
+  video-windows:
     needs: package
-    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout tested revision
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.package.outputs.tested_revision }}
+
+      - name: Verify tested revision
+        shell: pwsh
+        env:
+          TESTED_REVISION: ${{ needs.package.outputs.tested_revision }}
+        run: |
+          if (-not $env:TESTED_REVISION -or (git rev-parse HEAD) -ne $env:TESTED_REVISION) {
+            throw 'Windows checkout does not match the Linux-tested revision'
+          }
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.18.0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11.7.0
+
+      - name: Install source test dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download same-run Linux skill assets
+        uses: actions/download-artifact@v4
+        with:
+          name: skills
+          path: dist
+
+      - name: Accept video source and actual Linux zip
+        shell: pwsh
+        run: bun run accept:video-windows -- --artifact (Join-Path $PWD 'dist/video-understanding.zip')
+
+  publish:
+    needs: [package, video-windows]
+    if: ${{ needs.package.result == 'success' && needs.video-windows.result == 'success' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
     concurrency:
       group: publish-skills

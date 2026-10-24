@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { resolveCommandExecution } from "../../environment-command.js";
 import { compareText, sha256 } from "./impact-values.ts";
 
 const shellBookkeepingEnvironmentNames = new Set(["_", "OLDPWD", "SHLVL"]);
@@ -19,12 +20,15 @@ export async function captureCommand(
   arguments_: readonly string[],
   cwd: string
 ): Promise<Buffer> {
+  const execution = resolveCommandExecution(command, arguments_);
+  if (execution === null) throw new Error(`${command} was not found on PATH`);
   return await new Promise((resolve, reject) => {
-    const child = spawn(command, arguments_, {
+    const child = spawn(execution.executable, execution.arguments, {
       cwd,
       stdio: ["ignore", "pipe", "pipe"],
       timeout: 30_000,
-      windowsHide: true
+      windowsHide: true,
+      windowsVerbatimArguments: execution.windowsVerbatimArguments
     });
     const stdout: Buffer[] = [];
     const stderr: Buffer[] = [];

@@ -58,8 +58,8 @@ export async function reportGatePerformance(
     scope === "quick"
       ? quickGateCheckIds.length
       : scope === "release"
-        ? 64
-        : 61;
+        ? 67
+        : 64;
   const reused = forceFullExecution
     ? 0
     : selectedDecisions.filter(({ action }) => action === "reuse").length;
@@ -80,7 +80,7 @@ export async function reportGatePerformance(
           eligible,
           execute: eligible - reused,
           reuse: reused,
-          disabled: 64 - eligible
+          disabled: 67 - eligible
         },
         nativeResult: {
           kind: result.kind,

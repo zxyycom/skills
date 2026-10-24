@@ -17,6 +17,7 @@
 | 调整仓库定位、skill 选择与启用边界或通用分发边界 | [仓库模型](repository-model.md) | 涉及具体打包、发布或 updater 机制时读 [项目工具链](tooling.md)；只影响特定 skill 时读其行为 owner |
 | 修改项目级 agent 协作约定 | [AGENTS](../AGENTS.md) | 改变任务路由或内容 owner 时读本文；需要让文档更适合 AI 阅读和使用时读 [AI-Ready Docs](../skills/ai-ready-docs/SKILL.md) |
 | 修改工具源码、项目脚本、校验、打包、CI 或 updater | [项目工具链](tooling.md)、[编码规范](coding-style.md) | 修改 `tools/<tool-name>/` 时补读该目录的局部契约；工具服务特定 skill 时再读其行为 owner；改变通用分发边界时读 [仓库模型](repository-model.md) |
+| 维护视频源码、Windows 开发或验收视频 zip | [视频工具维护](../tools/video-understanding/README.md) | [CI 与发布](tooling.md#ci-与发布)；实际媒体、网站与 OCR 支持范围由 [Video Understanding](../skills/video-understanding/SKILL.md) 的参考材料承接 |
 | 修改调查或决策工具的 CLI、SDK 或测试实现 | [调查工具维护](../tools/investigation-report/README.md)、[决策工具维护](../tools/decision-records/README.md)中对应入口 | 所改行为的领域规则与 CLI 操作契约；普通报告或决策维护从各自 skill 进入 |
 | 新增、修改或移除 Gate Check | [Gate Check 编写与接入](gate-check-authoring.md) | [项目工具链的权威 Vibe 门禁](tooling.md#权威-vibe-门禁)、[编码规范](coding-style.md)；涉及测试实现或 Case 时读 [Test Evidence Review](../skills/test-evidence-review/SKILL.md) |
 | 成批审阅或持续纠正记录 | [记录维护入口](record-maintenance-workflow.md) | 按对象选择[决策流程](record-maintenance/decisions.md)或[调查流程](record-maintenance/investigations.md)及其领域 skill；明确使用 JEV 时读取 [Lightweight Judgment](../skills/lightweight-judgment/SKILL.md) |

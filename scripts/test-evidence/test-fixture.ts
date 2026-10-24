@@ -59,6 +59,25 @@ export async function withSnapshotFixture<T>(
       ],
       { cwd: root }
     );
+    if (process.platform === "win32") {
+      const nativeDirectory = path.join(
+        root,
+        "node_modules",
+        "@ast-grep",
+        "cli"
+      );
+      await fs.mkdir(nativeDirectory, { recursive: true });
+      await fs.copyFile(
+        path.join(
+          process.cwd(),
+          "node_modules",
+          "@ast-grep",
+          "cli",
+          "ast-grep.exe"
+        ),
+        path.join(nativeDirectory, "ast-grep.exe")
+      );
+    }
     return await operation(root);
   } finally {
     await fs.rm(parent, { force: true, recursive: true });

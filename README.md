@@ -62,6 +62,8 @@
 
 [Decision Records](docs/skills/decision-records.md) 提供一套跨项目复用的长期决策记忆方案和配套 CLI。它用自包含 Markdown 保存长期决策的完整语义、生命周期、对齐状态和演进关系，并生成可重建的全生命周期 JSON 查询索引；配套 CLI 负责查询、检查、索引同步和受约束的维护事务。实际 skill 位于 [`skills/decision-records/`](skills/decision-records/)。
 
+[Video Understanding](docs/skills/video-understanding.md) 按任务范围读取视频字幕与画面，核对关键依据，交付总结、答案或操作步骤。随包 TS CLI 与独立媒体运行时协作，配置和证据保留在程序包外。实际 skill 位于 [`skills/video-understanding/`](skills/video-understanding/)。
+
 ## 发展方向
 
 这个项目会继续围绕“提升人类和 agent 的协作质量”扩展，而不是追求 skill 数量。新的 skill 应解决反复出现的协作问题，能够稳定改善 agent 行为，并具备可以独立演进的清晰边界。

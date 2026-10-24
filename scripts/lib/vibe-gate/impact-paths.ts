@@ -81,6 +81,7 @@ export function isKnownGateInput(relativePath: string): boolean {
       "test-evidence",
       "novel-cards",
       "lightweight-judgment",
+      "video-understanding",
       "mcpshell-workspace-bridge",
       "skill-validator"
     ].some(
