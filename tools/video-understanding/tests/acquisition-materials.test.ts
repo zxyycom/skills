@@ -155,8 +155,13 @@ test("public hard-ocr and frame OCR register original pixels/PTS without conflat
     await writeFile(input, "fixture source");
     await mkdir(appRoot);
     const tools = fixtureRuntime();
+    const hardRequests: Parameters<typeof ocrRuntime.hardOcr>[0][] = [];
+    const frameRequests: Parameters<typeof ocrRuntime.frameOcr>[0][] = [];
+    let emptyFrames = false;
     const hard = spyOn(ocrRuntime, "hardOcr").mockImplementation(
-      async ({ output: operation }) => {
+      async (request) => {
+        hardRequests.push(request);
+        const operation = request.output;
         const file = path.join(operation, "output.srt");
         await writeFile(file, "hard subtitle");
         return {
@@ -165,16 +170,34 @@ test("public hard-ocr and frame OCR register original pixels/PTS without conflat
         };
       }
     );
-    const ocr = spyOn(ocrRuntime, "frameOcr").mockResolvedValue({
-      width: 100,
-      height: 40,
-      region: { x: 0, y: 0, width: 100, height: 40 },
-      transform: { offsetX: 0, offsetY: 0, scaleX: 1, scaleY: 1 },
-      boxes: [],
-      texts: [],
-      scores: [],
-      provenance
-    });
+    const ocr = spyOn(ocrRuntime, "frameOcr").mockImplementation(
+      async (request): Promise<ocrRuntime.FrameOcrResult> => {
+        frameRequests.push(request);
+        const first = path.basename(request.source) === "frame-red.png";
+        const x = first ? 10 : 30;
+        return {
+          width: 100,
+          height: 40,
+          region: { x: 0, y: 0, width: 100, height: 40 },
+          transform: { offsetX: 0, offsetY: 0, scaleX: 1, scaleY: 1 },
+          boxes: emptyFrames
+            ? []
+            : [
+                [
+                  [x, 1],
+                  [x + 5, 1],
+                  [x + 5, 6],
+                  [x, 6]
+                ]
+              ],
+          texts: emptyFrames
+            ? []
+            : [first ? "red frame text" : "blue frame text"],
+          scores: emptyFrames ? [] : [first ? 0.91 : 0.82],
+          provenance
+        };
+      }
+    );
     try {
       const options = prepared(input, output, appRoot, [
         "--source",
@@ -186,7 +209,10 @@ test("public hard-ocr and frame OCR register original pixels/PTS without conflat
         JSON.parse(await prepare(options, resources)),
         { material: "M0001", origin: "hard-ocr" }
       );
-      assert.equal(hard.mock.calls.length, 1);
+      assert.deepEqual(
+        hardRequests.map(({ source, region }) => ({ source, region })),
+        [{ source: input, region: { x: 0, y: 20, width: 100, height: 20 } }]
+      );
       assert.partialDeepStrictEqual(
         JSON.parse(await prepare(options, resources)),
         { reused: true }
@@ -200,20 +226,38 @@ test("public hard-ocr and frame OCR register original pixels/PTS without conflat
       );
       assert.equal(hard.mock.calls.length, 1);
       const index = await loadEvidence(output);
-      await writeFile(
-        path.join(output, "artifacts", "frame.png"),
-        "PNG fixture"
-      );
-      index.frames.entries.push({
-        id: "F0001",
-        requested: 1.03,
-        actual: 1.1,
-        pts: 11,
-        timeBase: "1/10",
-        streamIndex: 0,
-        width: 100,
-        image: await readFileDigest(output, "artifacts/frame.png")
-      });
+      const frames = [
+        {
+          id: "F0001",
+          name: "frame-red.png",
+          requested: 1.03,
+          actual: 1.1,
+          pts: 11
+        },
+        {
+          id: "F0002",
+          name: "frame-blue.png",
+          requested: 2.02,
+          actual: 2.1,
+          pts: 21
+        }
+      ];
+      for (const frame of frames) {
+        await writeFile(
+          path.join(output, "artifacts", frame.name),
+          await readFile(new URL(`./fixtures/${frame.name}`, import.meta.url))
+        );
+        index.frames.entries.push({
+          id: frame.id,
+          requested: frame.requested,
+          actual: frame.actual,
+          pts: frame.pts,
+          timeBase: "1/10",
+          streamIndex: 0,
+          width: 100,
+          image: await readFileDigest(output, `artifacts/${frame.name}`)
+        });
+      }
       await publishEvidence(output, index);
       const frameOptions = parseOptions([
         "ocr",
@@ -222,30 +266,115 @@ test("public hard-ocr and frame OCR register original pixels/PTS without conflat
         "--app-root",
         appRoot,
         "--frames",
-        "F0001",
+        "F0001,F0002",
         "--format",
         "json"
       ]);
       if (frameOptions?.command !== "ocr") throw new Error("expected ocr");
       assert.partialDeepStrictEqual(
         JSON.parse(await execute(frameOptions, resources)),
-        { material: "M0003", status: "empty", observationCount: 1 }
+        { material: "M0003", status: "complete", observationCount: 2 }
+      );
+      assert.deepEqual(
+        frameRequests.map(({ source, region }) => ({ source, region })),
+        [
+          {
+            source: path.join(output, "artifacts", "frame-red.png"),
+            region: undefined
+          },
+          {
+            source: path.join(output, "artifacts", "frame-blue.png"),
+            region: undefined
+          }
+        ]
       );
       const snapshot = await loadSnapshot(output);
-      assert.partialDeepStrictEqual(snapshot.observations[0], {
-        id: "O0001",
-        text: "",
-        frame: "F0001"
-      });
+      assert.deepEqual(snapshot.observations, [
+        {
+          id: "O0001",
+          frame: "F0001",
+          text: "red frame text",
+          imageHash: index.frames.entries[0]!.image.sha256,
+          width: 100,
+          height: 40,
+          region: { x: 0, y: 0, w: 100, h: 40 },
+          transform: { offsetX: 0, offsetY: 0, scaleX: 1, scaleY: 1 },
+          boxes: [
+            [
+              [10, 1],
+              [15, 1],
+              [15, 6],
+              [10, 6]
+            ]
+          ],
+          scores: [0.91]
+        },
+        {
+          id: "O0002",
+          frame: "F0002",
+          text: "blue frame text",
+          imageHash: index.frames.entries[1]!.image.sha256,
+          width: 100,
+          height: 40,
+          region: { x: 0, y: 0, w: 100, h: 40 },
+          transform: { offsetX: 0, offsetY: 0, scaleX: 1, scaleY: 1 },
+          boxes: [
+            [
+              [30, 1],
+              [35, 1],
+              [35, 6],
+              [30, 6]
+            ]
+          ],
+          scores: [0.82]
+        }
+      ]);
+      assert.deepEqual(
+        snapshot.index.frames.entries.map(({ id, actual, pts, timeBase }) => ({
+          id,
+          actual,
+          pts,
+          timeBase
+        })),
+        [
+          { id: "F0001", actual: 1.1, pts: 11, timeBase: "1/10" },
+          { id: "F0002", actual: 2.1, pts: 21, timeBase: "1/10" }
+        ]
+      );
       assert.deepEqual(snapshot.index.materials.at(-1)?.processedCoverage, [
-        { start: 1.1, end: 1.1 }
+        { start: 1.1, end: 1.1 },
+        { start: 2.1, end: 2.1 }
       ]);
       assert.deepEqual(snapshot.index.refinements, []);
       assert.partialDeepStrictEqual(
         JSON.parse(await execute(frameOptions, resources)),
         { reused: true }
       );
-      assert.equal(ocr.mock.calls.length, 1);
+      assert.equal(frameRequests.length, 2);
+      emptyFrames = true;
+      assert.partialDeepStrictEqual(
+        JSON.parse(await execute({ ...frameOptions, fresh: true }, resources)),
+        {
+          material: "M0004",
+          status: "empty",
+          observationCount: 2
+        }
+      );
+      assert.deepEqual(
+        (await loadSnapshot(output)).observations
+          .slice(-2)
+          .map(({ id, frame, text, boxes, scores }) => ({
+            id,
+            frame,
+            text,
+            boxes,
+            scores
+          })),
+        [
+          { id: "O0003", frame: "F0001", text: "", boxes: [], scores: [] },
+          { id: "O0004", frame: "F0002", text: "", boxes: [], scores: [] }
+        ]
+      );
     } finally {
       tools.runtime.mockRestore();
       hard.mockRestore();
