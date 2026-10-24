@@ -136,7 +136,7 @@ export async function validateSourceMembership(
   sourceErrors: string[]
 ): Promise<ReadonlySet<DecisionId>> {
   await acquireCollectionText(sourceFiles, sourceErrors);
-  const sourceFilesById = new Map<string, SourceFileMembers>();
+  const sourceFilesById = new Map<DecisionId, SourceFileMembers>();
   for (const sourceFile of sourceFiles) {
     let decisionId: DecisionId | null = null;
     const text = await readSourceText(sourceFile, sourceErrors);
@@ -156,7 +156,7 @@ export async function validateSourceMembership(
   const availableDecisionIds = new Set<DecisionId>();
   for (const [decisionId, members] of sourceFilesById) {
     if (members.length === 1) {
-      availableDecisionIds.add(decisionId as DecisionId);
+      availableDecisionIds.add(decisionId);
     }
     if (members.length > 1) {
       addCollectionError(

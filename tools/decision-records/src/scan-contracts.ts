@@ -5,7 +5,7 @@ export type DecisionStoredIndexEntry = DecisionIndex["entries"][DecisionId];
 
 export type SourceFile = {
   decisionPath: string;
-  /** Discovery and formal validation share only this acquisition. */
+  /** 成员发现与正式验证复用本次采集，后续 fresh 另建来源。 */
   markdownSource?: DecisionMarkdownSource;
   sourcePath: string;
   sourceText?: string;

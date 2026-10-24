@@ -17,6 +17,7 @@ import {
 } from "./projection.ts";
 import type {
   JsonObject,
+  JsonValue,
   StateIndex,
   StateIndexDefinition,
   StateIndexExpectation,
@@ -123,10 +124,9 @@ export function parseStateIndexEnvelope(options: {
   };
 }
 
-// Only this text-decoded graph reaches the seal: the fixed envelope schema
-// validates JSON descendants and creates records without external references.
-// Freeze before domain callbacks; their returned values still require copies.
-function freezeOwnedEnvelope<Value>(value: Value): Value {
+// 固定 schema 已验证本次文本解码产生的 JSON，并且未引入外部引用。
+// 此处在领域 callback 前原地冻结；callback 的返回对象仍由归一化层复制隔离。
+function freezeOwnedEnvelope<Value extends JsonValue>(value: Value): Value {
   if (value !== null && typeof value === "object") {
     for (const child of Object.values(value)) freezeOwnedEnvelope(child);
     Object.freeze(value);

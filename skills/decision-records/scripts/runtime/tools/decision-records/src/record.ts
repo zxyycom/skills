@@ -67,17 +67,17 @@ async function validateDecisionRelations(options: {
   }
 }
 
-type DecisionBodyValidationOptions = {
-  /** @deprecated Compatibility input; retained while callers migrate. */
+type DecisionBodyValidationOptions = Readonly<{
+  /** @deprecated 使用 expectedDecisionId；同时提供时以 expectedDecisionId 为准。 */
   decisionId?: string;
   expectedDecisionId?: string;
   errors: string[];
   sourcePath: string;
   targetExists: DecisionRelationTargetExists;
-};
+}>;
 
 export async function validateDecisionBody(
-  options: DecisionBodyValidationOptions & { body: string }
+  options: DecisionBodyValidationOptions & Readonly<{ body: string }>
 ): Promise<ValidatedDecisionBody | null> {
   return await validateDecisionMarkdownSource(
     new DecisionMarkdownSource(options.body),
@@ -85,7 +85,7 @@ export async function validateDecisionBody(
   );
 }
 
-/** Internal scan handoff: source identity, text and frontmatter stay together. */
+/** 内部扫描交接同一来源的身份、原始文本与 frontmatter 解析。 */
 export async function validateDecisionMarkdownSource(
   source: DecisionMarkdownSource,
   options: DecisionBodyValidationOptions

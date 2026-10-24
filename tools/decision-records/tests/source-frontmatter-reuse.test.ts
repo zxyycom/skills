@@ -77,9 +77,14 @@ test("Decision raw validators reject malformed Markdown despite caller-supplied 
 test("Decision same-acquisition scan preserves normalized body and exact raw source bytes", async () => {
   const plain = candidateDecisionBody({ id: "declared-identity" });
   const raw = "\uFEFF" + plain.replace(/\n/g, "\r\n");
-  const result = await scanAcquiredSources([
-    inMemorySource("different-name.md", raw)
-  ]);
+  const source = inMemorySource("different-name.md", raw);
+  const result = await scanAcquiredSources([source]);
+  assert.ok(source.markdownSource);
+  assert.equal(
+    Reflect.set(source.markdownSource, "text", "replacement Markdown"),
+    false
+  );
+  assert.equal(source.markdownSource.text, raw);
   assert.deepEqual(result.collectionErrors, []);
   assert.deepEqual(result.sourceErrors, []);
   assert.deepEqual([...result.availableDecisionIds], ["declared-identity"]);

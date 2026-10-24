@@ -9,19 +9,19 @@
 import { type DecisionId, type DecisionMetadata, type DecisionProjection, type DecisionRelation, type DecisionTag } from "./types.mjs";
 import type { DecisionSourceMetadata, ParsedDecisionMarkdown } from "./decision-metadata-types.mjs";
 export type { DecisionSourceMetadata, ParsedDecisionMarkdown } from "./decision-metadata-types.mjs";
-/** Owns discovery and validation of one acquisition's immutable Markdown bytes. */
+/** 将同次采集的原始文本、身份与字段解析保存在同一只读来源中。 */
 export declare class DecisionMarkdownSource {
     #private;
-    readonly text: string;
     constructor(markdown: string);
+    get text(): string;
     identity(): Readonly<{
         decisionId: DecisionId | null;
         isCandidate: boolean;
     }>;
-    parse(options: {
+    parse(options: Readonly<{
         errors: string[];
         relativePath: string;
-    }): ParsedDecisionMarkdown | null;
+    }>): ParsedDecisionMarkdown | null;
 }
 export declare function parseDecisionMarkdown(options: {
     errors: string[];

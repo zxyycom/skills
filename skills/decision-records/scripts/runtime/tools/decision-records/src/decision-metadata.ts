@@ -8,7 +8,10 @@
  * Rebuild: bun run sync:decision-records-cli
  */
 import { stringify as stringifyYaml } from "yaml";
-import { parseYamlFrontmatter } from "../../shared/src/markdown/frontmatter.ts";
+import {
+  parseYamlFrontmatter,
+  type Frontmatter
+} from "../../shared/src/markdown/frontmatter.ts";
 import { isDecisionId, isDecisionTag } from "./decision-path.ts";
 import { projectionTextIssue } from "./projection.ts";
 import {
@@ -45,16 +48,20 @@ const frontmatterKeys = [
 ] as const;
 const frontmatterKeySet: ReadonlySet<string> = new Set(frontmatterKeys);
 
-/** Owns discovery and validation of one acquisition's immutable Markdown bytes. */
+/** 将同次采集的原始文本、身份与字段解析保存在同一只读来源中。 */
 export class DecisionMarkdownSource {
-  readonly text: string;
+  readonly #text: string;
   readonly #markdown: string;
-  readonly #frontmatter: ReturnType<typeof parseYamlFrontmatter>;
+  readonly #frontmatter: Readonly<Frontmatter> | null;
 
   constructor(markdown: string) {
-    this.text = markdown;
+    this.#text = markdown;
     this.#markdown = markdown.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
     this.#frontmatter = parseYamlFrontmatter(this.#markdown);
+  }
+
+  get text(): string {
+    return this.#text;
   }
 
   identity(): Readonly<{
@@ -73,10 +80,12 @@ export class DecisionMarkdownSource {
     };
   }
 
-  parse(options: {
-    errors: string[];
-    relativePath: string;
-  }): ParsedDecisionMarkdown | null {
+  parse(
+    options: Readonly<{
+      errors: string[];
+      relativePath: string;
+    }>
+  ): ParsedDecisionMarkdown | null {
     const { errors, relativePath } = options;
     const markdown = this.#markdown;
     const frontmatterMatch = markdown.match(frontmatterPattern);
