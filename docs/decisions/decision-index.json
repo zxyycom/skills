@@ -145,6 +145,7 @@
       "261022-separate-quick-gate-from-complete-validation": "sha256:38418e687ffc5adb5244d3f32cde7c41e304786bad7118b6e3f55fae8e8c2c78",
       "261022-separate-record-local-operations-from-collection-audits": "sha256:1a13d4fcf611a5a19df7772603c398c869fbafdffda601b85c0e52d6939fcd8e",
       "261024-bound-selected-record-sync-currentness": "sha256:7ca10a631d9c961d1622774e10f6b582ffa9258b0cd587fdca1cc500003c1856",
+      "261024-separate-image-creation-from-execution": "sha256:f3efdff7dd45b07d3c4370eae5d1b06f4df9872e45fa283fc9f51a5f359692cf",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -3317,6 +3318,22 @@
         "decision-records",
         "investigation-report",
         "responsibility-boundaries"
+      ],
+      "relations": []
+    },
+    "261024-separate-image-creation-from-execution": {
+      "name": "separate-image-creation-from-execution",
+      "sourcePath": "separate-image-creation-from-execution.md",
+      "title": "图像创作以成图闭环组织并与生成执行分工",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-24T06:07:41Z",
+      "purpose": "让图像创作持续对齐用户用途并保留可核对的输入与验收边界",
+      "background": "视觉要求、参考输入和非目标回归不能仅由生成工具调用成功证明",
+      "decision": "由image-creation维护视觉任务与看图迭代，调用和参数归当前执行能力",
+      "tags": [
+        "image-creation",
+        "skill-design"
       ],
       "relations": []
     },
