@@ -12,7 +12,8 @@ import path from "node:path";
 import type { PrepareOptions } from "./arguments.ts";
 import { siblingSubtitles, type Segment } from "./evidence.ts";
 import { failure } from "./failure.ts";
-import { localInput, type MediaInfo, type runtime } from "./media-runtime.ts";
+import type { MediaInfo, MediaRuntime } from "./media-runtime.ts";
+import { localInput } from "./location.ts";
 export async function subtitleInputs(
   options: PrepareOptions,
   input: string
@@ -27,19 +28,19 @@ export async function subtitleInputs(
       return siblingSubtitles(input);
   }
 }
-type Runtime = Awaited<ReturnType<typeof runtime>>;
 type SubtitleChoice =
   | { origin: "external"; input: string }
   | { origin: "embedded"; stream: number };
-type TextSource =
+export type TextSource =
   | SubtitleChoice
   | { origin: "asr"; stream: number; language: string }
   | { origin: "hard-ocr" };
-export type TextResult = TextSource & { segments: Segment[]; files: string[] };
-type SubtitleResult = Extract<TextResult, { origin: "external" | "embedded" }>;
-type TextOptions = Omit<PrepareOptions, "source"> & {
-  source: Exclude<PrepareOptions["source"], "hard-ocr">;
+export type TextResult = TextSource & {
+  readonly segments: readonly Segment[];
+  readonly files: readonly string[];
 };
+type SubtitleResult = Extract<TextResult, { origin: "external" | "embedded" }>;
+type TextOptions = Exclude<PrepareOptions, { source: "hard-ocr" }>;
 interface SubtitleContext {
   media: MediaInfo;
   selected: number | undefined;
@@ -92,7 +93,7 @@ function subtitleChoices(
   return { choices, warnings };
 }
 async function decodeSubtitle(
-  tools: Runtime,
+  tools: MediaRuntime,
   directory: string,
   input: string,
   choice: SubtitleChoice,
@@ -138,7 +139,7 @@ type SubtitleSearch =
   | { status: "not-found"; warnings: string[] };
 async function subtitleEvidence(
   request: {
-    tools: Runtime;
+    tools: MediaRuntime;
     input: string;
     directory: string;
     candidates: string[];
@@ -211,7 +212,7 @@ async function asrEvidence({
   media,
   options
 }: {
-  tools: Runtime;
+  tools: MediaRuntime;
   input: string;
   directory: string;
   media: MediaInfo;
@@ -254,7 +255,7 @@ async function asrEvidence({
 }
 export async function prepareText(
   request: {
-    tools: Runtime;
+    tools: MediaRuntime;
     source: { input: string; candidates: string[] };
     directory: string;
     media: MediaInfo;
@@ -278,8 +279,7 @@ export async function prepareText(
         ? { input: candidates[0]!, origin: "external" }
         : {
             origin: "embedded",
-            stream:
-              options.subtitle.mode === "embedded" ? options.subtitle.index : -1
+            stream: options.subtitle.index
           };
     if (choice.origin === "embedded")
       subtitleChoices([], { media, selected: choice.stream });
@@ -289,14 +289,12 @@ export async function prepareText(
       warnings: []
     };
   }
-  const selected =
-    options.subtitle.mode === "embedded" ? options.subtitle.index : undefined;
   const subtitle = await subtitleEvidence({
     tools,
     input,
     directory,
     candidates,
-    context: { media, selected },
+    context: { media, selected: undefined },
     onAttempt,
     onEmpty
   });

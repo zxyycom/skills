@@ -11,4 +11,4 @@ Contract:
 - 显式 CLI、显式项目配置、用户配置和适配缺省按字段优先；省略/null 继承低层，路径不插值，媒体 resolver 仅在新媒体操作需要时调用。
 
 Proves:
-- 字段独立合并且配置字节不改；fixture 按实际来源路径计算证据集合身份，Node 公开入口按预期选择证据根和媒体根，纯复用不调用 resolver，新媒体保留其 runtime target 与失败身份。
+- 字段独立合并且配置字节不改；Node 公开入口按预期选择证据根和媒体根，纯复用不调用 resolver，新媒体保留其 runtime target 与失败身份。

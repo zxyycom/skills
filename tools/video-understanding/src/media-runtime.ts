@@ -9,7 +9,9 @@ import {
   parseSegments,
   ProvenanceSchema,
   SegmentsSchema,
-  validFrameTiming
+  validFrameTiming,
+  type Provenance,
+  type Segment
 } from "./evidence.ts";
 import {
   boundaryFailure,
@@ -22,6 +24,7 @@ import {
 import { processOutput } from "./media-process.ts";
 export { processOutput } from "./media-process.ts";
 import { assertOutsideSkill, type VideoResources } from "./resources.ts";
+import { resolveLocalPath } from "./location.ts";
 
 const StreamSchema = v.object({
   index: IndexSchema,
@@ -37,8 +40,12 @@ const MediaSchema = v.object({
   start: v.nullable(v.pipe(v.number(), v.finite())),
   streams: v.array(StreamSchema)
 });
-export type MediaStream = v.InferOutput<typeof StreamSchema>;
-export type MediaInfo = { duration: number; start: 0; streams: MediaStream[] };
+export type MediaStream = Readonly<v.InferOutput<typeof StreamSchema>>;
+export type MediaInfo = Readonly<{
+  duration: number;
+  start: 0;
+  streams: readonly MediaStream[];
+}>;
 const FrameSchema = v.pipe(
   v.object({
     file: v.pipe(v.string(), v.regex(/^frame-\d+\.png$/)),
@@ -49,16 +56,37 @@ const FrameSchema = v.pipe(
     "actual must equal PTS times timeBase and be at or after requested"
   )
 );
-export type Frame = v.InferOutput<typeof FrameSchema>;
+export type Frame = Readonly<v.InferOutput<typeof FrameSchema>>;
 const AsrSchema = v.object({
   segments: SegmentsSchema,
   language: v.pipe(v.string(), v.minLength(1))
 });
 export interface AsrRequest {
-  audio: string;
-  model: string;
-  language?: string;
-  initialPrompt?: string;
+  readonly audio: string;
+  readonly model: string;
+  readonly language?: string;
+  readonly initialPrompt?: string;
+}
+interface FrameRequest {
+  readonly source: string;
+  readonly times: readonly number[];
+  readonly width: number;
+}
+interface AsrResult {
+  readonly segments: readonly Segment[];
+  readonly language: string;
+}
+/** Validated media operations; process protocols and failure mapping stay in the provider. */
+export interface MediaRuntime {
+  inspect(source: string): Promise<MediaInfo>;
+  provenance(model?: string): Promise<Provenance>;
+  subtitles(source: string): Promise<readonly Segment[]>;
+  frames(request: FrameRequest): Promise<readonly Frame[]>;
+  asr(request: AsrRequest): Promise<AsrResult>;
+  ffmpeg(
+    args: readonly string[],
+    stage: "subtitle-conversion" | "audio-extraction"
+  ): Promise<string>;
 }
 const OfflinePolicySchema = v.object({
   HF_HUB_OFFLINE: v.literal("1"),
@@ -107,18 +135,6 @@ export function mediaEnvironment({
   };
   return { ...env, ...offlinePolicy };
 }
-export async function localInput(file: string): Promise<string> {
-  return resolveLocalPath(file, "input");
-}
-/** Windows drive-relative rooted paths are not stable across working drives. */
-export function isAbsoluteLocalPath(file: string): boolean {
-  return (
-    path.isAbsolute(file) &&
-    !file.startsWith("\\\\") &&
-    !file.startsWith("//") &&
-    (path.sep !== "\\" || /^[a-z]:[\\/]/i.test(file))
-  );
-}
 export type ApplicationRootResolver = () => Promise<string>;
 export async function applicationRoot(
   resources: VideoResources,
@@ -142,33 +158,6 @@ export async function applicationRoot(
   });
   return resolved;
 }
-async function resolveLocalPath(
-  file: string,
-  stage: "input" | "runtime"
-): Promise<string> {
-  if (!isAbsoluteLocalPath(file)) {
-    throw failure({
-      kind: "input",
-      stage,
-      target: "local path",
-      reason: "requires an absolute local path (no URL or UNC)"
-    });
-  }
-  try {
-    const resolved = await realpath(file);
-    if (resolved.startsWith("\\\\") || resolved.startsWith("//"))
-      throw failure({
-        kind: "input",
-        stage,
-        target: file,
-        reason: "resolved path must remain local"
-      });
-    return resolved;
-  } catch (error) {
-    throw boundaryFailure(error, { stage, target: file });
-  }
-}
-
 export async function runtime({
   appRoot,
   output,
@@ -179,7 +168,7 @@ export async function runtime({
   output: string;
   timeout: number;
   resources: VideoResources;
-}) {
+}): Promise<MediaRuntime> {
   try {
     const defaults = parseEnv(
       await readFile(resources.runtimeEnvironment, "utf8")
@@ -209,7 +198,7 @@ export async function runtime({
     let sequence = 0;
     const run = (
       program: string,
-      args: string[],
+      args: readonly string[],
       stage: Stage,
       capture = true
     ) =>
@@ -245,15 +234,7 @@ export async function runtime({
         ),
       subtitles: async (source: string) =>
         parseSegments(await json(["subtitles", source], "subtitle-decoding")),
-      frames: async ({
-        source,
-        times,
-        width
-      }: {
-        source: string;
-        times: number[];
-        width: number;
-      }) =>
+      frames: async ({ source, times, width }: FrameRequest) =>
         parseFrames(
           await json(
             [
@@ -307,7 +288,7 @@ export async function runtime({
         }
       },
       ffmpeg: (
-        args: string[],
+        args: readonly string[],
         stage: "subtitle-conversion" | "audio-extraction"
       ) => run(ffmpeg, ["-nostdin", "-v", "error", "-n", ...args], stage, false)
     };

@@ -30,7 +30,7 @@ import {
   parseJson,
   safeDiagnostic
 } from "./failure.ts";
-import { localInput, type ApplicationRootResolver } from "./media-runtime.ts";
+import type { ApplicationRootResolver } from "./media-runtime.ts";
 import { formatQuery, queryEvidence } from "./query.ts";
 import { parseDraft, refineRecord, targetRefs } from "./refinement.ts";
 import {
@@ -42,7 +42,11 @@ import {
   withWriter
 } from "./store.ts";
 import { latestSavedRun, queryRuns, recordedOperation } from "./runs.ts";
-import { createEvidenceParent, locateEvidence } from "./location.ts";
+import {
+  createEvidenceParent,
+  localInput,
+  locateEvidence
+} from "./location.ts";
 import { subtitleInputs } from "./text.ts";
 import { generateText, prepareResult } from "./acquisition.ts";
 import { reusablePreparation } from "./material.ts";

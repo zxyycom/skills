@@ -5,6 +5,7 @@ import {
   mkdir,
   mkdtemp,
   readFile,
+  readlink,
   readdir,
   realpath,
   rm
@@ -63,7 +64,9 @@ export async function copiedSkill(
 
 export async function fileSnapshot(
   directory: string
-): Promise<readonly { name: string; hash: string | null }[]> {
+): Promise<
+  readonly { name: string; hash: string | null; link: string | null }[]
+> {
   const files = await readdir(directory, {
     recursive: true,
     withFileTypes: true
@@ -82,7 +85,8 @@ export async function fileSnapshot(
           ? createHash("sha256")
               .update(await readFile(absolute))
               .digest("hex")
-          : null
+          : null,
+        link: file.isSymbolicLink() ? await readlink(absolute) : null
       };
     })
   );

@@ -50,7 +50,7 @@ type WriteParameters =
 export function parameters(options: WriteOptions): WriteParameters {
   if (options.command === "refine") return { file: options.file };
   if (options.command === "ocr")
-    return { frames: options.frames, timeout: options.timeout };
+    return { frames: [...options.frames], timeout: options.timeout };
   const common = {
     input: options.input,
     timeout: options.timeout,
@@ -59,7 +59,7 @@ export function parameters(options: WriteOptions): WriteParameters {
   if (options.command === "frames")
     return {
       ...common,
-      times: options.times,
+      times: [...options.times],
       width: options.width
     } satisfies FrameParameters;
   const subtitle =

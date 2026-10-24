@@ -8,6 +8,8 @@ import type {
   MediaOptions,
   OcrOptions,
   PrepareOptions,
+  PreparationParameters,
+  PrepareSelection,
   RawOptions,
   ReadOptions,
   SubtitleSelection
@@ -144,7 +146,12 @@ function subtitleSelection(values: RawOptions): SubtitleSelection {
 function subtitleSource(
   values: RawOptions,
   subtitle: SubtitleSelection
-): PrepareOptions["source"] {
+):
+  | Exclude<PrepareSelection, { source: "hard-ocr" }>
+  | {
+      readonly source: "hard-ocr";
+      readonly subtitle: Extract<SubtitleSelection, { mode: "sibling" }>;
+    } {
   const defaults = {
     explicit: "external",
     embedded: "embedded",
@@ -154,18 +161,23 @@ function subtitleSource(
   if (!v.is(SubtitleSourceSchema, source)) {
     return invalid("invalid --source");
   }
-  const missingSelection =
-    (source === "external" && subtitle.mode !== "explicit") ||
-    (source === "embedded" && subtitle.mode !== "embedded");
-  if (missingSelection) {
-    return invalid(
-      "external/embedded source requires explicit subtitle/stream"
-    );
+  if (source === "external") {
+    if (subtitle.mode !== "explicit")
+      return invalid(
+        "external/embedded source requires explicit subtitle/stream"
+      );
+    return { source, subtitle };
   }
-  if (subtitle.mode !== "sibling" && source !== defaults[subtitle.mode]) {
+  if (source === "embedded") {
+    if (subtitle.mode !== "embedded")
+      return invalid(
+        "external/embedded source requires explicit subtitle/stream"
+      );
+    return { source, subtitle };
+  }
+  if (subtitle.mode !== "sibling")
     return invalid("source conflicts with subtitle selection");
-  }
-  return source;
+  return { source, subtitle };
 }
 function asrOptions(
   values: RawOptions,
@@ -202,19 +214,25 @@ function asrOptions(
 }
 export function prepareOptions(
   values: RawOptions
-): Omit<PrepareOptions, keyof MediaOptions | "command"> {
+): PrepareSelection & PreparationParameters {
   const subtitle = subtitleSelection(values);
-  const source = subtitleSource(values, subtitle);
-  const asr = asrOptions(values, source);
+  const selection = subtitleSource(values, subtitle);
+  const asr = asrOptions(values, selection.source);
   const region = regionOption(values.region);
-  if ((source === "hard-ocr" && !region) || (source !== "hard-ocr" && region)) {
+  if (selection.source === "hard-ocr") {
+    if (!region)
+      return invalid(
+        "hard-ocr requires --region; other subtitle sources do not accept it"
+      );
+    return { ...selection, region, fresh: values.fresh ?? false, ...asr };
+  }
+  if (region) {
     return invalid(
       "hard-ocr requires --region; other subtitle sources do not accept it"
     );
   }
   return {
-    subtitle,
-    source,
+    ...selection,
     fresh: values.fresh ?? false,
     region,
     ...asr

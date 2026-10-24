@@ -471,7 +471,7 @@ Git 调用 hook 时会注入当前 worktree 的 `GIT_DIR`、`GIT_INDEX_FILE` 等
 | `video-windows`（Windows） | 依赖 `package`，checkout 其输出的 `tested_revision`，下载同次 workflow 的 `skills` artifact，以 `accept:video-windows` 验收视频源码和其中的实际视频 zip。 |
 | `publish` | 同时依赖 `package` 与 `video-windows`，保留既有发布触发条件；任一门禁失败、取消或缺失成功结果均不能发布整批 skills。 |
 
-两个产品门禁在现有 PR、main push 和手动打包 workflow 中均运行，包括只修改共享依赖或其他 skill 的情形。必需验收不以路径过滤或成功跳过替代；Windows 视频失败也阻断未改动 skill 的聚合发布。该耦合沿用一条发布链，取舍见[平台验收决策](decisions/require-windows-video-acceptance-for-aggregate-release.md)。
+两个产品门禁覆盖每次现有 PR、main push 和手动打包 workflow，包括仅修改共享依赖或其他 skill 的情形。必需验收保持实际执行，不以路径过滤或成功跳过替代。Windows 视频失败也阻断未改动 skill 的聚合发布，以沿用一条发布链；取舍见[平台验收决策](decisions/require-windows-video-acceptance-for-aggregate-release.md)。
 
 Linux `package` 复用本地稳定入口：
 
@@ -482,11 +482,19 @@ Linux `package` 复用本地稳定入口：
 5. 上传全部 `dist/*` 作为保留 7 天的 `skills` workflow artifact，供当前 workflow 的 Windows 验收、发布或短期 PR 核对使用。两类门禁均成功的 `main` 构建才进入发布 job；发布器对照远端资产的名称、大小和 SHA-256 digest，完全一致时不执行远端写入，从而在先前含 skill 改动的构建失败后由下一次成功构建补发。
 6. package job 失败且存在 Gate invocation 时，额外上传保留 3 天的机器结果、progress 与命令 transcript，供定位失败 Check；不上传可复用 cache。若事件基线已不可解析，可在 `main` 手动触发 `workflow_dispatch` 重新验证并重新发布当前制品；它不会恢复已丢失的历史基线比较。
 
-Windows 组合入口的参数、独立安装及测试维护见[视频工具维护](../tools/video-understanding/README.md#windows-开发与制品验收)。Windows 必须消费该次 Linux 打包的 zip，不在 Windows 重打包或用工作树副本替代。fixture 只证明被断言的入口、路径、资源、配置、依赖、更新和进程行为；实际媒体、网站、OCR 模型及客户端发现另按具体任务授权取证，不从 CI 推导新的支持资格，其他 skill 的平台范围不变。
+Windows 组合入口、独立安装与测试维护见[视频工具维护](../tools/video-understanding/README.md#windows-开发与制品验收)。该入口须消费同次 Linux 打包的原 zip；重新打包或工作树副本属于不同的验收对象。
+
+fixture 的证明范围限于实际断言的入口、路径、资源、配置、依赖、更新与进程行为。实际媒体、网站、OCR 模型及客户端发现按具体任务授权另验，其他 skill 的平台范围保持不变。
 
 ### PR 合并保护
 
-PR 的远端 ruleset／分支保护必须将 `package` 和 `video-windows` 的实际 check 身份同时设为必需，阻止失败、取消或尚无成功结果的 PR 合并。首次配置及 workflow job 身份变化后，维护者核对当前平台上的检查名称、受测 revision 和实际阻断效果；YAML 的 job 依赖只约束发布，不自动证明远端合并保护生效。设置权限或平台能力不足时保持合并阻断，取得相应授权或外部配置后再核对；本地测试和文档声明不能代替此证据。
+维护者在首次配置或 workflow job 身份变化后完成以下核对：
+
+1. 取得当前平台上 `package`、`video-windows` 的实际 check 身份与受测 revision。
+2. 将二者同时设为远端 ruleset／分支保护的必需检查，验证失败、取消或缺少成功结果时均阻止 PR 合并。
+3. 保存实际配置与阻断证据。权限或平台能力不足时保持合并阻断，取得所需授权或外部配置后再核对。
+
+YAML 的 job 依赖约束发布；远端合并保护以本节生效核对为准，本地测试和文档声明不代替该证据。
 
 ### 发布职责与输入
 

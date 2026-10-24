@@ -27,8 +27,10 @@ relations: []
 
 ## 决策
 
-- 采用: 本仓库是视频源码、通用测试、产品文档和平台验收的唯一维护 owner；宿主项目维护自己的稳定包接入、消费验证和报告约定。通用 TS 分发遵循[既有判断](distribute-editable-typescript-runtimes.md)。
-- 采用: Linux `package` 持续执行完整 release Gate；Windows `video-windows` 在每次既有 PR、main 和手动 workflow 中执行视频源码测试，以及同次 Linux job 的实际 zip 验收。两者使用同一受测 revision，不用路径过滤或成功跳过缩小必需验收。
-- 采用: Windows 制品在无祖先依赖的仓库外目录显式 frozen 安装，分别验证 Node/Bun、路径和资源、配置、失败与进程清理、依赖及离线 updater 保留；fixture 仅证明实际断言的可观察边界。
-- 采用: `publish` 同时依赖两个产品门禁；任一失败、取消或缺失成功结果都阻断整批 skills 发布。PR 远端必需检查同时要求二者，维护者必须核对实际 check 身份和 ruleset／分支保护；没有配置权限或平台能力时保持合并阻断。
-- 采用: 工作流、合并保护和本地验收分别取得证据；文档和 YAML 不证明远端已经执行或生效。真实媒体、网站、模型、客户端发现与 OCR 资格按授权单独实测，不因此扩大其他 skill 或平台的支持声明。
+- 采用: 本仓库单一维护视频源码、通用测试、产品文档和平台验收；宿主项目维护稳定包接入、消费验证和报告约定。通用 TS 分发遵循[既有判断](distribute-editable-typescript-runtimes.md)。
+- 采用: Linux `package` 保持完整 release Gate；Windows `video-windows` 验证同 revision 源码与同次 Linux job 的实际 zip。两者覆盖每次既有 PR、main 和手动 workflow，必需验收不以路径过滤或成功跳过替代。
+- 采用: Windows 对实际 zip 进行仓库外、无祖先依赖的显式 frozen 安装，验证 Node/Bun、路径／资源、配置、失败与进程清理、依赖及离线 updater 保留。真实分发与源码分别取证，避免工作树依赖掩盖制品缺陷。
+- 采用: 两个门禁共同约束单条聚合发布链和 PR 合并；任一失败、取消或缺少成功结果都阻断交付。`publish` 同时依赖二者，远端规则将二者的实际 check 身份设为必需；权限或平台能力不足时保持合并阻断。接受 Windows 视频失败阻断其他 skill 发布的耦合，以复用既有发布事务。
+- 采用: 工作流、远端合并保护和本地验收分别取得生效证据。fixture 仅证明实际断言，真实媒体、网站、模型、客户端发现与 OCR 资格按授权另验，其他 skill 与平台的支持范围保持不变。
+
+执行入口与远端保护核对由[项目工具链](../tooling.md#ci-与发布)承接，制品验收步骤由[视频工具维护](../../tools/video-understanding/README.md#windows-开发与制品验收)承接。

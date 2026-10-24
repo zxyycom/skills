@@ -1,12 +1,12 @@
 /// <reference types="bun" />
 import { resources } from "./fixtures/public-cli.ts";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { test } from "node:test";
 import { spyOn } from "bun:test";
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import * as ocrRuntime from "../src/ocr-runtime.ts";
-import { digest } from "../src/evidence.ts";
 import { prepare } from "../src/video.ts";
 import { loadEvidence } from "../src/store.ts";
 import { workspace } from "./fixtures/public-cli.ts";
@@ -80,7 +80,10 @@ test("ASR tail normalization preserves raw and provenance, publishes auditable w
         await readFile(path.join(output, raw.file), "utf8"),
         rawBytes
       );
-      assert.equal(raw.sha256, digest(rawBytes));
+      assert.equal(
+        raw.sha256,
+        createHash("sha256").update(rawBytes).digest("hex")
+      );
       assert.equal(
         path.dirname(path.dirname(raw.file)),
         path.dirname(material.payload.file)

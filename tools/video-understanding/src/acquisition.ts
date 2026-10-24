@@ -8,7 +8,8 @@ import {
   interrupted,
   runtime,
   type ApplicationRootResolver,
-  type MediaInfo
+  type MediaInfo,
+  type MediaRuntime
 } from "./media-runtime.ts";
 import { hardOcr, validateRegion } from "./ocr-runtime.ts";
 import {
@@ -143,7 +144,7 @@ function initialTextState(
 }
 async function inspectSource(
   context: Pick<SubtitleRegistration, "index" | "operation" | "state">,
-  tools: Awaited<ReturnType<typeof runtime>>
+  tools: MediaRuntime
 ): Promise<MediaInfo> {
   const { index, operation, state } = context;
   state.stage = "inspection";
@@ -169,7 +170,7 @@ async function obtainText(
   context: SubtitleRegistration,
   environment: {
     appRoot: string;
-    tools: Awaited<ReturnType<typeof runtime>>;
+    tools: MediaRuntime;
     media: MediaInfo;
     candidates: string[];
     resources: VideoResources;
@@ -196,18 +197,14 @@ async function obtainText(
     source: { input: index.source.file, candidates },
     directory: operation.directory,
     media,
-    options: { ...options, source: options.source },
+    options,
     onAttempt: (choice) => {
       state.stage = choice.origin === "asr" ? "asr" : "subtitle-decoding";
       state.fields = materialFields(index, {
         kind: "subtitle",
         origin: choice.origin,
         duration: media.duration,
-        parameters: subtitleParameters(
-          choice.origin,
-          options,
-          choice.origin === "embedded" ? choice.stream : undefined
-        ),
+        parameters: subtitleParameters(choice, options),
         inputs:
           choice.origin === "external"
             ? originalInputs.filter((input) => input.file === choice.input)
@@ -227,9 +224,9 @@ async function hardOcrText(context: {
   appRoot: string;
   directory: string;
   source: string;
-  options: PrepareOptions;
+  options: Extract<PrepareOptions, { source: "hard-ocr" }>;
   media: MediaInfo;
-  tools: Awaited<ReturnType<typeof runtime>>;
+  tools: MediaRuntime;
   resources: VideoResources;
 }) {
   const { appRoot, directory, source, options, media, tools, resources } =
@@ -244,7 +241,7 @@ async function hardOcrText(context: {
         "hard-ocr requires known encoded dimensions, zero rotation and zero timeline start"
     });
   }
-  const roi = options.region!;
+  const roi = options.region;
   const region = validateRegion(
     { x: roi.x, y: roi.y, width: roi.w, height: roi.h },
     { width: video.width, height: video.height }

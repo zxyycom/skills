@@ -11,13 +11,16 @@ import {
 } from "./failure.ts";
 
 interface ProcessRequest {
-  command: { program: string; args: string[] };
-  env: NodeJS.ProcessEnv;
-  stage: Stage;
-  diagnostic: string;
-  timeout: number;
-  capture?: boolean;
-  cwd?: string;
+  readonly command: {
+    readonly program: string;
+    readonly args: readonly string[];
+  };
+  readonly env: NodeJS.ProcessEnv;
+  readonly stage: Stage;
+  readonly diagnostic: string;
+  readonly timeout: number;
+  readonly capture?: boolean;
+  readonly cwd?: string;
 }
 interface ProcessResult {
   stdout: string;

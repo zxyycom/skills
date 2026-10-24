@@ -1,7 +1,7 @@
 import path from "node:path";
 import { seconds } from "./evidence.ts";
 import { failure } from "./failure.ts";
-import { isAbsoluteLocalPath } from "./media-runtime.ts";
+import { isAbsoluteLocalPath } from "./location.ts";
 
 export function invalid(reason: string): never {
   throw failure({

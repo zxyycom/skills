@@ -17,64 +17,86 @@ import {
 
 type Format = "text" | "json";
 export interface CommonOptions {
-  output?: string;
-  evidenceRoot?: string;
-  format: Format;
-  input?: string;
+  readonly output?: string;
+  readonly evidenceRoot?: string;
+  readonly format: Format;
+  readonly input?: string;
 }
 export interface MediaOptions extends CommonOptions {
-  input: string;
-  appRoot?: string;
-  timeout: number;
+  readonly input: string;
+  readonly appRoot?: string;
+  readonly timeout: number;
 }
 export type SubtitleSelection =
-  | { mode: "explicit"; file: string }
-  | { mode: "embedded"; index: number }
-  | { mode: "sibling" };
-export interface PrepareOptions extends MediaOptions {
-  command: "prepare";
-  subtitle: SubtitleSelection;
-  audioStream?: number;
-  language?: string;
-  model: string;
-  initialPrompt?: string;
-  source: "auto" | "external" | "embedded" | "asr" | "hard-ocr";
-  fresh: boolean;
-  region?: Region;
+  | { readonly mode: "explicit"; readonly file: string }
+  | { readonly mode: "embedded"; readonly index: number }
+  | { readonly mode: "sibling" };
+export type PrepareSelection =
+  | {
+      readonly source: "external";
+      readonly subtitle: Extract<SubtitleSelection, { mode: "explicit" }>;
+      readonly region?: never;
+    }
+  | {
+      readonly source: "embedded";
+      readonly subtitle: Extract<SubtitleSelection, { mode: "embedded" }>;
+      readonly region?: never;
+    }
+  | {
+      readonly source: "auto" | "asr";
+      readonly subtitle: Extract<SubtitleSelection, { mode: "sibling" }>;
+      readonly region?: never;
+    }
+  | {
+      readonly source: "hard-ocr";
+      readonly subtitle: Extract<SubtitleSelection, { mode: "sibling" }>;
+      readonly region: Readonly<Region>;
+    };
+export interface PreparationParameters {
+  readonly audioStream?: number;
+  readonly language?: string;
+  readonly model: string;
+  readonly initialPrompt?: string;
+  readonly fresh: boolean;
 }
+export type PrepareOptions = MediaOptions &
+  PreparationParameters &
+  PrepareSelection & {
+    readonly command: "prepare";
+  };
 export interface OcrOptions extends CommonOptions {
-  command: "ocr";
-  appRoot?: string;
-  timeout: number;
-  frames: string[];
-  region?: Region;
-  fresh: boolean;
+  readonly command: "ocr";
+  readonly appRoot?: string;
+  readonly timeout: number;
+  readonly frames: readonly string[];
+  readonly region?: Readonly<Region>;
+  readonly fresh: boolean;
 }
 export interface FrameOptions extends MediaOptions {
-  command: "frames";
-  times: number[];
-  width: number;
+  readonly command: "frames";
+  readonly times: readonly number[];
+  readonly width: number;
 }
 export interface ReadOptions extends CommonOptions {
-  command: "read";
-  start: number;
-  end?: number;
-  limit: number;
-  offset: number;
-  view: "effective" | "raw" | "calibrations" | "materials";
-  id?: string;
-  material?: string;
-  revision?: number;
+  readonly command: "read";
+  readonly start: number;
+  readonly end?: number;
+  readonly limit: number;
+  readonly offset: number;
+  readonly view: "effective" | "raw" | "calibrations" | "materials";
+  readonly id?: string;
+  readonly material?: string;
+  readonly revision?: number;
 }
 export interface LogOptions extends CommonOptions {
-  command: "logs";
-  id?: string;
-  limit: number;
-  offset: number;
+  readonly command: "logs";
+  readonly id?: string;
+  readonly limit: number;
+  readonly offset: number;
 }
 export interface RefineOptions extends CommonOptions {
-  command: "refine";
-  file: string;
+  readonly command: "refine";
+  readonly file: string;
 }
 export type Options =
   | PrepareOptions
@@ -84,8 +106,8 @@ export type Options =
   | RefineOptions
   | LogOptions;
 export type LocatedOptions<T extends Options> = T & {
-  output: string;
-  derivedOutput: boolean;
+  readonly output: string;
+  readonly derivedOutput: boolean;
 };
 export type RawOptions = Partial<
   Record<
@@ -251,8 +273,8 @@ function commonOptions(
   };
 }
 export interface LocationDefaults {
-  evidenceRoot?: string;
-  appRoot?: string;
+  readonly evidenceRoot?: string;
+  readonly appRoot?: string;
 }
 export function parseOptions(
   argv: string[],

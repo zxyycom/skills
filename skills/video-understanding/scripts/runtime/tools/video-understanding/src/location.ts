@@ -12,8 +12,46 @@ import path from "node:path";
 import type { LocatedOptions, Options } from "./arguments.ts";
 import { digest } from "./evidence.ts";
 import { boundaryFailure, errorCode, failure } from "./failure.ts";
-import { isAbsoluteLocalPath, localInput } from "./media-runtime.ts";
 import { assertOutsideSkill, type VideoResources } from "./resources.ts";
+
+export async function localInput(file: string): Promise<string> {
+  return resolveLocalPath(file, "input");
+}
+/** Windows drive-relative rooted paths are not stable across working drives. */
+export function isAbsoluteLocalPath(file: string): boolean {
+  return (
+    path.isAbsolute(file) &&
+    !file.startsWith("\\\\") &&
+    !file.startsWith("//") &&
+    (path.sep !== "\\" || /^[a-z]:[\\/]/i.test(file))
+  );
+}
+export async function resolveLocalPath(
+  file: string,
+  stage: "input" | "runtime"
+): Promise<string> {
+  if (!isAbsoluteLocalPath(file)) {
+    throw failure({
+      kind: "input",
+      stage,
+      target: "local path",
+      reason: "requires an absolute local path (no URL or UNC)"
+    });
+  }
+  try {
+    const resolved = await realpath(file);
+    if (resolved.startsWith("\\\\") || resolved.startsWith("//"))
+      throw failure({
+        kind: "input",
+        stage,
+        target: file,
+        reason: "resolved path must remain local"
+      });
+    return resolved;
+  } catch (error) {
+    throw boundaryFailure(error, { stage, target: file });
+  }
+}
 
 /** Source path identity is separate from format version and source-currentness checks. */
 export async function locateEvidence<T extends Options>(

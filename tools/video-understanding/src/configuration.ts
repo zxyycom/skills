@@ -8,7 +8,7 @@ import {
   parseJson,
   validate
 } from "./failure.ts";
-import { isAbsoluteLocalPath } from "./media-runtime.ts";
+import { isAbsoluteLocalPath } from "./location.ts";
 import { assertOutsideSkill, type VideoResources } from "./resources.ts";
 
 const RootSchema = v.optional(

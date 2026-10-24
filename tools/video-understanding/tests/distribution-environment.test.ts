@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import {
   access,
   cp,
@@ -10,7 +11,6 @@ import {
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { test } from "node:test";
-import { digest } from "../src/evidence.ts";
 import { complete } from "./fixtures/evidence-state.ts";
 import { copiedSkill, copyVideoDependency } from "./fixtures/distribution.ts";
 import { runProcess } from "./fixtures/process.ts";
@@ -24,19 +24,14 @@ test(
       const fixture = path.join(directory, "fixture");
       await mkdir(fixture);
       const index = await complete(fixture);
+      const sourceIdentity = createHash("sha256")
+        .update(index.source.file)
+        .digest("hex");
       const dataRoot = path.join(directory, "user data");
-      const userOutput = path.join(
-        dataRoot,
-        "evidence",
-        digest(index.source.file)
-      );
+      const userOutput = path.join(dataRoot, "evidence", sourceIdentity);
       await cp(fixture, userOutput, { recursive: true });
       const projectData = path.join(directory, "project data");
-      const projectOutput = path.join(
-        projectData,
-        "evidence",
-        digest(index.source.file)
-      );
+      const projectOutput = path.join(projectData, "evidence", sourceIdentity);
       await cp(fixture, projectOutput, { recursive: true });
       const userConfig = path.join(
         home,
@@ -154,7 +149,7 @@ test(
       const fallback = await invoke(["read", "--input", index.source.file]);
       assert.ok(
         fallback.stderr.includes(
-          path.join(directory, "fallback", digest(index.source.file))
+          path.join(directory, "fallback", sourceIdentity)
         )
       );
       await assert.rejects(access(path.join(directory, "fallback")), {

@@ -17,7 +17,15 @@ fs.promises.readFile = async (file, ...args) => {
 childProcess.spawn = (program, args, options) => {
   fs.writeFileSync(
     process.env.VIDEO_TEST_RECEIPT,
-    JSON.stringify({ reads, program, args, environment: options.env })
+    JSON.stringify({
+      reads,
+      program,
+      args,
+      environment: {
+        HF_HUB_OFFLINE: options.env.HF_HUB_OFFLINE,
+        HF_HUB_DISABLE_IMPLICIT_TOKEN: options.env.HF_HUB_DISABLE_IMPLICIT_TOKEN
+      }
+    })
   );
   const error = new Error("fixture blocks all native programs");
   error.code = "ENOENT";

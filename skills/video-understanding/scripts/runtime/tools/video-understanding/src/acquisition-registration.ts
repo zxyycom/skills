@@ -200,11 +200,7 @@ export async function registerSubtitle(
   state.fields = materialFields(index, {
     kind: "subtitle",
     origin: result.origin,
-    parameters: subtitleParameters(
-      result.origin,
-      options,
-      "stream" in result ? result.stream : undefined
-    ),
+    parameters: subtitleParameters(result, options),
     inputs,
     duration,
     language: result.origin === "asr" ? result.language : undefined

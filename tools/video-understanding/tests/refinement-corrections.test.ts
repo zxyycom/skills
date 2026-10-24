@@ -4,7 +4,6 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { complete, readyText } from "./fixtures/evidence-state.ts";
-import { digest } from "../src/evidence.ts";
 import { loadEvidence } from "../src/store.ts";
 import { workspace } from "./fixtures/public-cli.ts";
 import {
@@ -22,7 +21,7 @@ test("N to M retiming, suppression and revoke leave raw bytes unchanged and retu
   workspace(async (directory) => {
     const index = await complete(directory);
     const rawPath = path.join(directory, readyText(index).payload.file);
-    const before = digest(await readFile(rawPath));
+    const before = await readFile(rawPath);
     await submit(directory, correction(index.scopeId));
     assert.equal((await query(directory)).adoption, "unadopted-single-source");
     assert.equal((await query(directory)).items[0]?.kind, "transcript");
@@ -77,7 +76,7 @@ test("N to M retiming, suppression and revoke leave raw bytes unchanged and retu
         ?.segments?.length,
       3
     );
-    assert.equal(digest(await readFile(rawPath)), before);
+    assert.deepEqual(await readFile(rawPath), before);
   }));
 
 test("scope, raw references, material-local consecutive groups, time and active overlap are validated before publication", async () =>

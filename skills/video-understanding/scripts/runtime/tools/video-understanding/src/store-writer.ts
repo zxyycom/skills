@@ -24,7 +24,7 @@ import {
   safeDiagnostic,
   VideoFailure
 } from "./failure.ts";
-import { isAbsoluteLocalPath } from "./media-runtime.ts";
+import { isAbsoluteLocalPath } from "./location.ts";
 
 export async function localOutput(output: string): Promise<void> {
   const check = (file: string) => {

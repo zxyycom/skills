@@ -166,6 +166,64 @@ test("CLI validates applicable options, budgets, explicit track zero and narrow 
   assert.equal(options?.command, "prepare");
   if (options?.command !== "prepare") throw new Error("expected prepare");
   assert.deepEqual(options.subtitle, { mode: "embedded", index: 0 });
+  for (const [args, expected] of [
+    [["--source", "auto"], { source: "auto", subtitle: { mode: "sibling" } }],
+    [["--source", "asr"], { source: "asr", subtitle: { mode: "sibling" } }],
+    [
+      ["--source", "external", "--subtitle", input],
+      { source: "external", subtitle: { mode: "explicit", file: input } }
+    ],
+    [
+      ["--source", "embedded", "--subtitle-stream", "0"],
+      { source: "embedded", subtitle: { mode: "embedded", index: 0 } }
+    ],
+    [
+      ["--source", "hard-ocr", "--region", "0,20,100,20"],
+      {
+        source: "hard-ocr",
+        subtitle: { mode: "sibling" },
+        region: { x: 0, y: 20, w: 100, h: 20 }
+      }
+    ]
+  ] as const) {
+    assert.partialDeepStrictEqual(
+      parseOptions(["prepare", "--input", input, "--output", output, ...args]),
+      expected
+    );
+  }
+  for (const [args, diagnostic] of [
+    [["--source", "external"], /requires explicit subtitle\/stream/],
+    [["--source", "embedded"], /requires explicit subtitle\/stream/],
+    [
+      ["--source", "external", "--subtitle-stream", "0"],
+      /requires explicit subtitle\/stream/
+    ],
+    [
+      ["--source", "embedded", "--subtitle", input],
+      /requires explicit subtitle\/stream/
+    ],
+    [["--source", "auto", "--subtitle", input], /source conflicts/],
+    [["--source", "asr", "--subtitle-stream", "0"], /source conflicts/],
+    [["--source", "hard-ocr"], /hard-ocr requires --region/],
+    [
+      ["--source", "asr", "--region", "0,20,100,20"],
+      /other subtitle sources do not accept it/
+    ]
+  ] as const) {
+    assert.throws(
+      () =>
+        parseOptions([
+          "prepare",
+          "--input",
+          input,
+          "--output",
+          output,
+          ...args
+        ]),
+      diagnostic,
+      args.join(" ")
+    );
+  }
   const frames = parseOptions([
     "frames",
     "--input",

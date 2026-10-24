@@ -7,6 +7,7 @@ import {
 } from "./evidence.ts";
 import type { PrepareOptions } from "./arguments.ts";
 import type { Snapshot } from "./refinement.ts";
+import type { TextSource } from "./text.ts";
 
 export type MaterialFields = Pick<
   Material,
@@ -33,12 +34,11 @@ export function requestKey(
 export function preparationParameters(
   options: PrepareOptions
 ): Material["parameters"] {
-  if (options.source === "hard-ocr") return { region: options.region! };
+  if (options.source === "hard-ocr") return { region: options.region };
   if (options.source === "external") return {};
   if (options.source === "embedded")
     return {
-      subtitleStream:
-        options.subtitle.mode === "embedded" ? options.subtitle.index : -1
+      subtitleStream: options.subtitle.index
     };
   return {
     model: options.model,
@@ -52,12 +52,11 @@ export function preparationParameters(
   };
 }
 export function subtitleParameters(
-  origin: Material["origin"],
-  options: PrepareOptions,
-  stream?: number
+  source: TextSource | { readonly origin: "asr" },
+  options: PrepareOptions
 ): Material["parameters"] {
-  if (origin === "external") return {};
-  if (origin === "embedded") return { subtitleStream: stream ?? -1 };
+  if (source.origin === "external") return {};
+  if (source.origin === "embedded") return { subtitleStream: source.stream };
   return preparationParameters(options);
 }
 export function nextId(index: Evidence, prefix: "M" | "T" | "O"): string {

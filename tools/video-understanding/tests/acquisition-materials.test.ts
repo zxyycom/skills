@@ -7,7 +7,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import * as ocrRuntime from "../src/ocr-runtime.ts";
 import { parseOptions } from "../src/arguments.ts";
-import { digest, readFileDigest } from "../src/evidence.ts";
+import { readFileDigest } from "../src/evidence.ts";
 import { execute, prepare } from "../src/video.ts";
 import { loadEvidence, loadSnapshot, publishEvidence } from "../src/store.ts";
 import { workspace } from "./fixtures/public-cli.ts";
@@ -46,16 +46,10 @@ test("external then explicit ASR append independent immutable materials; fresh f
       });
       assert.equal(tools.asrCalls(), 0);
       const first = await loadEvidence(output);
-      const original = digest(
-        await readFile(
-          path.join(
-            output,
-            first.materials[0]!.status === "complete"
-              ? first.materials[0]!.payload.file
-              : ""
-          )
-        )
-      );
+      const originalMaterial = first.materials[0];
+      assert.ok(originalMaterial?.status === "complete");
+      const originalPath = path.join(output, originalMaterial.payload.file);
+      const original = await readFile(originalPath);
       const asr = prepared(input, output, appRoot, ["--source", "asr"]);
       assert.partialDeepStrictEqual(JSON.parse(await prepare(asr, resources)), {
         material: "M0002",
@@ -96,19 +90,7 @@ test("external then explicit ASR append independent immutable materials; fresh f
         material: "M0003",
         reused: true
       });
-      assert.equal(
-        digest(
-          await readFile(
-            path.join(
-              output,
-              first.materials[0]!.status === "complete"
-                ? first.materials[0]!.payload.file
-                : ""
-            )
-          )
-        ),
-        original
-      );
+      assert.deepEqual(await readFile(originalPath), original);
     } finally {
       tools.runtime.mockRestore();
     }

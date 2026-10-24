@@ -127,7 +127,7 @@ async function captureFrames(
   times: number[],
   directory: string,
   environment: FrameRuntimeContext
-): Promise<{ frames: Frame[]; duration: number }> {
+): Promise<{ frames: readonly Frame[]; duration: number }> {
   const tools = await runtime({
     appRoot: await applicationRoot(
       environment.resources,
