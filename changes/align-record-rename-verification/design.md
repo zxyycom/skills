@@ -20,7 +20,8 @@
 2. shared verifyPlan 先检查整个 write/index 的结构与权限，再将 writes/index/guards 一次有序交给 verifyMany；verifyWritten 使用实际 written snapshot（不是 plan.next）及未写 guards，独立新 phase。跨表示规模达到既有阈值即可 batch。
 3. shared fresh 回调显式收到写前 phase；IR rename 使用该 phase 的安全 snapshot 比较来源与索引，按原顺序聚合每份来源失败，再追加 target、index、resource target 错误。phase 只保留实际观察，不保留 caller expected 引用。same root/path/bytes/dev/ino/mode/完整父链相同才免重读。
 4. beforePublish 先于所有共享 fresh 来源观察。无用户 hook/写入的后续资源证明和 membership 读取属于同一写前边界；no-op 的重新身份准备保留独立读取，不采用提前共享来折叠它。
-5. discard 也使用统一计划和验收。IR discard 的 hook 后 full collection 对照、transaction fresh 的完整领域资源/图验证、post collection 与精确 tombstone 清理暂保留原时点；这些不是可以仅凭 source bytes 直接代替的共同文件义务。通过矩阵说明例外，不假装与 DR 完全相同。
+5. resource sourceFiles 的同 root/path/before fresh 保护也交给同一 phase 的 verifyMany；目录身份保留原顺序。prepareResourceSourceProof 的已选文件纯采集使用共同 snapshot 队列，独立于 fresh，不传递旧阶段缓存。copy/move/delete/recovery 的副作用前实时证明不并入 phase。
+6. discard 也使用统一计划和验收。IR discard 的 hook 后 full collection 对照、transaction fresh 的完整领域资源/图验证、post collection 与精确 tombstone 清理暂保留原时点；这些不是可以仅凭 source bytes 直接代替的共同文件义务。通过矩阵说明例外，不假装与 DR 完全相同。
 
 ### Resulting Impacts
 
@@ -46,4 +47,14 @@
 
 ## Open Questions
 
-独立测量在实现冻结后取得，性能结论不预填。IR discard 的 full collection 必须继续拆分“来源安全采集、图/资源计算、时点”，审查可证明同 root/path/完整facts的单阶段来源交接；不能仅以包含领域语义为由把全部重复读取视为必需成本。长期 Decision 是否需要新建：暂判现有共同 owner 契约的补齐不另建变更日志；若确立新的长期 proof 交接规则且既有判断不覆盖，再按门槛复核。
+无待决设计问题。独立测量和复核已完成；剩余工作仅最终文档输入的完整 Gate、完成态保存与结项。现有共同 owner 契约的补齐已由 README 与因果调查承接，没有新的独立领域契约或分发方式；按 Decision 门槛不新增变更日志式记录。
+
+## Implementation Observations
+
+- 共同计划与队列、IR source/index 聚合交接、discard 当前 fresh 来源交接、资源 prepare/fresh 队列已实现，领域后续验证保持独立。严格事务两个已有只读阶段函数仅加内部 export，用于直接证明真实域计划到共同队列的接线，不扩 CLI/SDK。
+- 大量真实变更的完整 journal rename 曾在 Bun 实测通过（7.76s、12.29s、13.00s），但默认 5s 与一次局部 30s 超时，3 重回归下 Node 亦 30s 取消，不能把负载推测当确定原因。保留长期节点改为真实域 plan + fixture 实际新字节 + 独立安全读取的 actual written facts + 两个真正共享阶段；小集成继续证明 journal 提交/恢复。新节点定向 2.39s 通过，不以耗时作断言。
+- 首次并行全回归：DR 385/385；IR 371/373（一个生成 Node CLI 节点 5s 超时，紧邻失败 stack 仍指向该超时节点异步体）；对应两个 IR 节点隔离均通过。最终单独 IR 全域回归 374/374 通过（49.32s），不隐去初次失败。
+- IR 新增测试按 rename/discard/resource 阶段责任拆分，原有五个 strict-preparation 节点及身份保留。wrapper、能力输入和 Case 路径引用同步，不通过放宽文件/函数指标或 timeout 门禁解决规模问题。
+
+- 最终独立性能审计：40 accepted（24 formal + 16 probe）全部成功，normal/instrumented files/stdout/stderr 等价、阶段闭合、source/deps/Node immutable；152 个归档文件已可在无原临时根下复核，inventory SHA-256 `8d5056e5d4bb860c292043638facf356e7a0c0c2380b5dac277ac84b7c9133d4`。IR rename normal 63.132/53.126s → 10.010/9.961s；IR discard 16.936/17.747s → 9.862/10.497s。联合 fresh+pre 的机制归因、未改 post/external 的不可归因变化和未覆盖边界见正式调查 `261024-align-record-rename-verification`，完整原始证据在本 Change evidence/performance。
+- 正式调查已通过公开 publish、单项 check 和全集 check；长期仅保留正文与精简 24 样本 JSON，不保存临时路径。最终全量输入 Gate 与本 Plan 2.4 由主代理收口。

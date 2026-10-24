@@ -1,0 +1,3056 @@
+--- a/skills/decision-records/SKILL.md
++++ b/skills/decision-records/SKILL.md
+@@ -5,7 +5,7 @@
+   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
+   既有决定冲突，或明确构造决策待提交快照时使用。
+ metadata:
+-  version: "91"
++  version: "92"
+ ---
+ 
+ # Decision Records
+--- a/skills/decision-records/scripts/runtime/tools/decision-records/src/decision-transaction-plan.ts
++++ b/skills/decision-records/scripts/runtime/tools/decision-records/src/decision-transaction-plan.ts
+@@ -7,6 +7,7 @@
+  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
+  * Rebuild: bun run sync:decision-records-cli
+  */
++import { normalizeRecordTransactionPlan } from "../../record-operations/src/transaction-plan.ts";
+ import type { DecisionSourceCapture } from "./decision-strict-preparation.ts";
+ import path from "node:path";
+ import { decisionTransactionMembers } from "./decision-source-membership.ts";
+@@ -76,7 +77,7 @@
+   const guards = [...acquired.originals]
+     .filter(([filePath]) => !writePaths.has(filePath))
+     .map(([filePath, before]) => ({ path: filePath, before }));
+-  return {
++  return normalizeRecordTransactionPlan({
+     value: {
+       context,
+       beforeMembers: acquired.beforeMembers,
+@@ -86,7 +87,7 @@
+     writes: writeSet.writes,
+     index,
+     guards
+-  };
++  });
+ }
+ 
+ async function prepareDecisionWrites(
+--- a/skills/decision-records/scripts/runtime/tools/record-operations/src/transaction-journal.ts
++++ b/skills/decision-records/scripts/runtime/tools/record-operations/src/transaction-journal.ts
+@@ -7,6 +7,7 @@
+  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
+  * Rebuild: bun run sync:decision-records-cli
+  */
++import { unchangedRecordWrite } from "./transaction-plan.ts";
+ import {
+   RecordAtomicCleanupError,
+   validateRecordWritePermissions,
+@@ -14,7 +15,6 @@
+   createRecordWriteParents,
+   readRecordFileSnapshot,
+   recordWriteMatches,
+-  sameRecordBytes,
+   sameRecordFile,
+   writeRecordFile,
+   type RecordCreatedDirectory,
+@@ -49,7 +49,7 @@
+ 
+   async apply(change: RecordFileWrite, commitPoint: boolean): Promise<void> {
+     validateRecordWritePermissions(change);
+-    if (unchangedWrite(change)) return;
++    if (unchangedRecordWrite(change)) return;
+     await this.prepareParents(change);
+     let identity: RecordWriteIdentity | null | undefined;
+     try {
+@@ -120,12 +120,3 @@
+     if (this.uncertainWrite) this.writtenPaths.push(change.path);
+   }
+ }
+-
+-function unchangedWrite(change: RecordFileWrite): boolean {
+-  return (
+-    change.before !== null &&
+-    change.next !== null &&
+-    sameRecordBytes(change.before.bytes, change.next) &&
+-    (change.mode === undefined || change.mode === change.before.mode)
+-  );
+-}
+--- /dev/null
++++ b/skills/decision-records/scripts/runtime/tools/record-operations/src/transaction-plan.ts
+@@ -0,0 +1,59 @@
++/*
++ * Synced TypeScript runtime; repository maintenance edits tools/record-operations/src/transaction-plan.ts.
++ * Installed skill copies may be edited directly; updates overwrite matching files.
++ * Repository: https://github.com/zxyycom/skills
++ * Source path: tools/record-operations/src/transaction-plan.ts
++ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/record-operations/src/transaction-plan.ts
++ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
++ * Rebuild: bun run sync:decision-records-cli
++ */
++import path from "node:path";
++import {
++  sameRecordBytes,
++  validateRecordWritePermissions,
++  type RecordFileWrite
++} from "./transaction-files.ts";
++import type { RecordTransactionPlan } from "./transaction.ts";
++
++/** Validate every proposal before skipping unchanged work; index keeps its commit role. */
++export function normalizeRecordTransactionPlan<Value>(
++  plan: RecordTransactionPlan<Value>
++): RecordTransactionPlan<Value> {
++  validateRecordTransactionWrites(plan);
++  const writes: RecordFileWrite[] = [];
++  const guards = [...(plan.guards ?? [])];
++  for (const change of plan.writes) {
++    if (unchangedRecordWrite(change))
++      guards.push({ path: change.path, before: change.before });
++    else writes.push(change);
++  }
++  return { ...plan, writes, guards };
++}
++
++export function validateRecordTransactionWrites<Value>(
++  plan: RecordTransactionPlan<Value>
++): void {
++  const paths = new Set<string>();
++  for (const change of [
++    ...plan.writes,
++    ...(plan.index === null ? [] : [plan.index])
++  ]) {
++    const resolved = path.resolve(change.path);
++    if (paths.has(resolved))
++      throw new Error(
++        "Transaction contains duplicate write path: " + change.path
++      );
++    validateRecordWritePermissions(change);
++    paths.add(resolved);
++  }
++}
++
++/** The plan and actual-write journal use the same representation-preserving no-op. */
++export function unchangedRecordWrite(change: RecordFileWrite): boolean {
++  return (
++    change.before !== null &&
++    change.next !== null &&
++    sameRecordBytes(change.before.bytes, change.next) &&
++    (change.mode === undefined || change.mode === change.before.mode)
++  );
++}
+--- a/skills/decision-records/scripts/runtime/tools/record-operations/src/transaction-verification.ts
++++ b/skills/decision-records/scripts/runtime/tools/record-operations/src/transaction-verification.ts
+@@ -10,18 +10,28 @@
+ import path from "node:path";
+ import {
+   forEachRecordFileSnapshot,
+-  recordReaderWorkerThreshold
++  recordReaderWorkerThreshold,
++  type RecordReadResult
+ } from "./reader-batch.ts";
+ import {
+   readRecordFileSnapshot,
+   sameRecordFile,
+-  type RecordFileSnapshot
++  type RecordFileSnapshot,
++  type RecordTextSnapshot
+ } from "./transaction-snapshot.ts";
+ 
+-type RecordGuard = Readonly<{
++export type RecordGuard = Readonly<{
+   path: string;
+   before: RecordFileSnapshot | null;
+ }>;
++export type RecordVerificationFailure = Readonly<{
++  kind: "changed" | "unreadable";
++  error: unknown;
++}>;
++type ReportFailure = (
++  failure: RecordVerificationFailure,
++  index: number
++) => void;
+ type GuardRequest = Readonly<{ entryIndex: number; path: string }>;
+ 
+ /** One namespace and one verification phase; observations never cross fresh/postwrite. */
+@@ -37,25 +47,43 @@
+     target: string,
+     expected: RecordFileSnapshot | null
+   ): Promise<void> {
+-    const resolved = path.resolve(target);
+-    if (
+-      this.observed.has(resolved) &&
+-      sameRecordFile(this.observed.get(resolved)!, expected)
+-    ) {
+-      return;
+-    }
+-    const actual = await readRecordFileSnapshot(this.root, resolved);
+-    if (!sameRecordFile(actual, expected)) {
+-      throw new Error("Transaction member changed: " + target);
+-    }
+-    // Retain the actual acquired bytes, not the caller's mutable expected bytes.
+-    this.observed.set(resolved, actual);
++    await this.verifyEntry({ path: target, before: expected }, 0);
++  }
++
++  assertRoot(root: string): void {
++    if (path.resolve(root) !== this.root)
++      throw new Error(
++        "Verification source root does not match its phase: " + root
++      );
++  }
++
++  /** Acquire this phase's domain text facts; never accept an earlier phase's proof. */
++  async captureTextSnapshots(
++    root: string,
++    targets: readonly string[],
++    consume: (
++      result: RecordReadResult<RecordTextSnapshot>,
++      index: number
++    ) => void
++  ): Promise<void> {
++    this.assertRoot(root);
++    await forEachRecordFileSnapshot(this.root, targets, (result, index) => {
++      if (!result.ok) return consume(result, index);
++      const target = path.resolve(targets[index]!);
++      const captured = textObservation(this.root, target, result.value);
++      if (captured.ok) this.observed.set(target, result.value);
++      consume(captured, index);
++    });
+   }
+ 
+   /** One phase's ordered guards; an equivalent overlap still uses its actual observation. */
+-  async verifyMany(entries: readonly RecordGuard[]): Promise<void> {
++  async verifyMany(
++    entries: readonly RecordGuard[],
++    report?: ReportFailure
++  ): Promise<void> {
+     if (entries.length < recordReaderWorkerThreshold) {
+-      for (const entry of entries) await this.verify(entry.path, entry.before);
++      for (const [index, entry] of entries.entries())
++        await this.verifyEntry(entry, index, report);
+       return;
+     }
+     const requests = this.scheduleGuards(entries);
+@@ -67,21 +95,78 @@
+         const request = requests[index]!;
+         // Recheck aliases against actual acquired bytes, never against expected references.
+         while (cursor < request.entryIndex) {
+-          const entry = entries[cursor++]!;
+-          await this.verify(entry.path, entry.before);
++          await this.verifyEntry(entries[cursor]!, cursor++, report);
+         }
+-        const entry = entries[cursor++]!;
+-        if (!result.ok) throw result.error;
+-        if (!sameRecordFile(result.value, entry.before))
+-          throw new Error("Transaction member changed: " + entry.path);
+-        this.observed.set(request.path, result.value);
++        const entryIndex = cursor++;
++        const entry = entries[entryIndex]!;
++        if (!result.ok)
++          return this.fail(
++            { kind: "unreadable", error: result.error },
++            entryIndex,
++            report
++          );
++        if (!this.accept(entry, result.value))
++          this.fail(
++            {
++              kind: "changed",
++              error: new Error("Transaction member changed: " + entry.path)
++            },
++            entryIndex,
++            report
++          );
+       }
+     );
+     while (cursor < entries.length) {
+-      const entry = entries[cursor++]!;
+-      await this.verify(entry.path, entry.before);
+-    }
+-  }
++      await this.verifyEntry(entries[cursor]!, cursor++, report);
++    }
++  }
++  private accept(
++    entry: RecordGuard,
++    actual: RecordFileSnapshot | null
++  ): boolean {
++    if (!sameRecordFile(actual, entry.before)) return false;
++    // Actual bytes stay private; callers only provide expectations or receive copies.
++    this.observed.set(path.resolve(entry.path), actual);
++    return true;
++  }
++
++  private async verifyEntry(
++    entry: RecordGuard,
++    index: number,
++    report?: ReportFailure
++  ): Promise<void> {
++    const resolved = path.resolve(entry.path);
++    if (
++      this.observed.has(resolved) &&
++      sameRecordFile(this.observed.get(resolved)!, entry.before)
++    )
++      return;
++    let actual: RecordFileSnapshot | null;
++    try {
++      actual = await readRecordFileSnapshot(this.root, resolved);
++    } catch (error) {
++      return this.fail({ kind: "unreadable", error }, index, report);
++    }
++    if (!this.accept(entry, actual))
++      this.fail(
++        {
++          kind: "changed",
++          error: new Error("Transaction member changed: " + entry.path)
++        },
++        index,
++        report
++      );
++  }
++
++  private fail(
++    failure: RecordVerificationFailure,
++    index: number,
++    report?: ReportFailure
++  ): void {
++    if (report === undefined) throw failure.error;
++    report(failure, index);
++  }
++
+   /** Schedule only changed expectations; aliases are still rechecked against actual bytes. */
+   private scheduleGuards(
+     entries: readonly RecordGuard[]
+@@ -100,3 +185,40 @@
+     return requests;
+   }
+ }
++
++/** Domain consumers receive copies; mutable bytes cannot rewrite the phase's actual proof. */
++function textObservation(
++  root: string,
++  target: string,
++  actual: RecordFileSnapshot | null
++): RecordReadResult<RecordTextSnapshot> {
++  if (actual === null)
++    return {
++      ok: false,
++      error: Object.assign(new Error("Record source is missing: " + target), {
++        code: "ENOENT"
++      })
++    };
++  try {
++    const text = new TextDecoder("utf-8", {
++      fatal: true,
++      ignoreBOM: true
++    }).decode(actual.bytes);
++    return {
++      ok: true,
++      value: {
++        root,
++        path: target,
++        text,
++        snapshot: {
++          ...actual,
++          bytes: Buffer.from(actual.bytes),
++          parents: actual.parents.map((parent) => ({ ...parent }))
++        }
++      }
++    };
++  } catch (error) {
++    if (!(error instanceof Error)) throw error;
++    return { ok: false, error };
++  }
++}
+--- a/skills/decision-records/scripts/runtime/tools/record-operations/src/transaction.ts
++++ b/skills/decision-records/scripts/runtime/tools/record-operations/src/transaction.ts
+@@ -7,11 +7,11 @@
+  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
+  * Rebuild: bun run sync:decision-records-cli
+  */
++import { validateRecordTransactionWrites } from "./transaction-plan.ts";
+ import { RecordVerificationPhase } from "./transaction-verification.ts";
+ import { RecordWriteJournal } from "./transaction-journal.ts";
+ import {
+   readRecordFileSnapshot,
+-  validateRecordWritePermissions,
+   restoreRecordDirectories,
+   restoreRecordWrites,
+   sameRecordFile,
+@@ -58,7 +58,7 @@
+     withLock?: (
+       operation: () => Promise<RecordTransactionResult<Value>>
+     ) => Promise<RecordTransactionResult<Value>>;
+-    fresh: (value: Value) => Promise<void>;
++    fresh: (value: Value, phase: RecordVerificationPhase) => Promise<void>;
+     verify: (value: Value) => Promise<void>;
+     verifyRecovered: (value: Value) => Promise<void>;
+     cleanup?: (
+@@ -85,8 +85,9 @@
+     let plan: RecordTransactionPlan<Value>;
+     try {
+       plan = await options.prepare();
+-      await options.fresh(plan.value);
+-      await verifyPlan(plan);
++      const phase = new RecordVerificationPhase(plan.root);
++      await options.fresh(plan.value, phase);
++      await verifyPlan(plan, phase);
+     } catch (error) {
+       return { ...emptyResult<Value>(null), errors: [error] };
+     }
+@@ -240,27 +241,19 @@
+       await verifyRecordFile(plan.root, guard.path, guard.before);
+ }
+ 
+-async function verifyPlan<Value>(
+-  plan: RecordTransactionPlan<Value>
++export async function verifyPlan<Value>(
++  plan: RecordTransactionPlan<Value>,
++  phase: RecordVerificationPhase
+ ): Promise<void> {
+-  const paths = new Set<string>();
+-  const phase = new RecordVerificationPhase(plan.root);
+-  for (const change of [
++  validateRecordTransactionWrites(plan);
++  await phase.verifyMany([
+     ...plan.writes,
+-    ...(plan.index === null ? [] : [plan.index])
+-  ]) {
+-    if (paths.has(change.path))
+-      throw new Error(
+-        "Transaction contains duplicate write path: " + change.path
+-      );
+-    validateRecordWritePermissions(change);
+-    paths.add(change.path);
+-    await phase.verify(change.path, change.before);
+-  }
+-  await phase.verifyMany(plan.guards ?? []);
+-}
+-
+-async function verifyWritten<Value>(
++    ...(plan.index === null ? [] : [plan.index]),
++    ...(plan.guards ?? [])
++  ]);
++}
++
++export async function verifyWritten<Value>(
+   plan: RecordTransactionPlan<Value>,
+   writes: readonly RecordWrittenFile[]
+ ): Promise<void> {
+@@ -268,17 +261,17 @@
+   const written = new Map(
+     writes.map((item) => [item.change.path, item.written])
+   );
+-  for (const change of [
+-    ...plan.writes,
+-    ...(plan.index === null ? [] : [plan.index])
+-  ])
+-    await phase.verify(
+-      change.path,
+-      written.has(change.path) ? written.get(change.path)! : change.before
+-    );
+-  await phase.verifyMany(
+-    (plan.guards ?? []).filter((guard) => !written.has(guard.path))
+-  );
++  await phase.verifyMany([
++    ...[...plan.writes, ...(plan.index === null ? [] : [plan.index])].map(
++      (change) => ({
++        path: change.path,
++        before: written.has(change.path)
++          ? written.get(change.path)!
++          : change.before
++      })
++    ),
++    ...(plan.guards ?? []).filter((guard) => !written.has(guard.path))
++  ]);
+ }
+ 
+ function emptyResult<Value>(
+--- a/skills/investigation-report/SKILL.md
++++ b/skills/investigation-report/SKILL.md
+@@ -5,7 +5,7 @@
+   以一份可独立复核的报告保存一轮形成时的背景、依据、结果和边界，
+   并用稳定 Investigation ID、tags 和直接前序关系维护分类与认识演进。
+ metadata:
+-  version: "80"
++  version: "81"
+ ---
+ 
+ # Investigation Report
+--- a/skills/investigation-report/scripts/runtime/tools/investigation-report/src/discard-publication.ts
++++ b/skills/investigation-report/scripts/runtime/tools/investigation-report/src/discard-publication.ts
+@@ -7,7 +7,8 @@
+  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
+  * Rebuild: bun run sync:investigation-report-check
+  */
+-import type { InvestigationPreparation } from "./strict-preparation.ts";
++import type { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
++import { InvestigationPreparation } from "./strict-preparation.ts";
+ import fs from "node:fs/promises";
+ import path from "node:path";
+ import { runRecordTransaction } from "../../record-operations/src/transaction.ts";
+@@ -76,13 +77,14 @@
+   const { progress, members } = context;
+   const transaction = await runRecordTransaction({
+     prepare: () => prepareDiscardTransaction(context),
+-    fresh: async () => {
++    fresh: async (_value, phase) => {
+       await verifyResourceSourceProof(
+         context.transactionRoot,
+         options.resourceOwnerPath,
+-        progress
++        progress,
++        phase
+       );
+-      await validateDiscardFormalCollection(context);
++      await validateDiscardFormalCollection(context, phase);
+       await verifyInvestigationMembers(options.root, members);
+     },
+     resources: {
+@@ -105,12 +107,23 @@
+   return discardPublicationResult(context, transaction);
+ }
+ async function validateDiscardFormalCollection(
+-  context: DiscardPublicationContext
++  context: DiscardPublicationContext,
++  phase?: RecordVerificationPhase
+ ): Promise<void> {
+   if (context.options.indexText === null) return;
+   const collection = await collectValidatedInvestigationCollection(
+     context.options.root,
+-    { allowEmptyCollection: true }
++    {
++      allowEmptyCollection: true,
++      preparation:
++        phase === undefined
++          ? undefined
++          : new InvestigationPreparation(
++              context.transactionRoot,
++              context.options.root,
++              phase
++            )
++    }
+   );
+   if (collection.errors.length > 0)
+     throw new Error(collection.errors.join("; "));
+--- a/skills/investigation-report/scripts/runtime/tools/investigation-report/src/discard-transaction-plan.ts
++++ b/skills/investigation-report/scripts/runtime/tools/investigation-report/src/discard-transaction-plan.ts
+@@ -7,6 +7,7 @@
+  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
+  * Rebuild: bun run sync:investigation-report-check
+  */
++import { normalizeRecordTransactionPlan } from "../../record-operations/src/transaction-plan.ts";
+ import type { RecordTransactionPlan } from "../../record-operations/src/transaction.ts";
+ import { randomUUID } from "node:crypto";
+ import path from "node:path";
+@@ -74,7 +75,7 @@
+       path: options.indexPath,
+       before: await readRecordFileSnapshot(transactionRoot, options.indexPath)
+     });
+-  return {
++  return normalizeRecordTransactionPlan({
+     value: options,
+     root: transactionRoot,
+     guards,
+@@ -107,7 +108,7 @@
+                     )
+             }
+           )
+-  };
++  });
+ }
+ async function discardReportSnapshot(context: DiscardPublicationContext) {
+   const { options, transactionRoot } = context;
+--- a/skills/investigation-report/scripts/runtime/tools/investigation-report/src/rename-publication.ts
++++ b/skills/investigation-report/scripts/runtime/tools/investigation-report/src/rename-publication.ts
+@@ -7,6 +7,7 @@
+  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
+  * Rebuild: bun run sync:investigation-report-check
+  */
++import type { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
+ import {
+   prepareRenameTransaction,
+   type RenameTransactionContext
+@@ -16,7 +17,6 @@
+   runRecordTransaction,
+   type RecordTransactionResult
+ } from "../../record-operations/src/transaction.ts";
+-import { verifyRecordFile } from "../../record-operations/src/transaction-files.ts";
+ import {
+   investigationMembers,
+   verifyInvestigationMembers,
+@@ -61,7 +61,7 @@
+   const context = { root, prepared, hooks, progress, changedPaths };
+   const transaction = await runRecordTransaction({
+     prepare: () => prepareRenameTransaction(context),
+-    fresh: () => verifyFreshRename(context, members),
++    fresh: (_value, phase) => verifyFreshRename(context, members, phase),
+     verify: async () => {
+       await verifyInvestigationMembers(root, members, changedPaths);
+       if (!prepared.noChange) {
+@@ -140,20 +140,23 @@
+ 
+ async function verifyFreshRename(
+   context: RenameTransactionContext,
+-  members: readonly InvestigationMember[]
++  members: readonly InvestigationMember[],
++  phase: RecordVerificationPhase
+ ): Promise<void> {
+   const { root, prepared, progress, hooks } = context;
+ 
+   if (!prepared.noChange) await hooks.beforePublish?.();
+-  const errors = await verifyPreparedRename(root, prepared);
++  const errors = await verifyPreparedRename(root, prepared, phase);
+   if (errors.length > 0) throw new Error(errors.join("; "));
+-  if (prepared.resourceMove !== null)
+-    for (const [relative, before] of progress.sourceFiles ?? [])
+-      await verifyRecordFile(
+-        root,
+-        path.join(prepared.resourceMove.from, relative),
++  if (prepared.resourceMove !== null) {
++    phase.assertRoot(root);
++    await phase.verifyMany(
++      [...(progress.sourceFiles ?? [])].map(([relative, before]) => ({
++        path: path.join(prepared.resourceMove!.from, relative),
+         before
+-      );
++      }))
++    );
++  }
+   if (prepared.noChange) {
+     const fresh = await prepareRename(root, prepared.indexPath, {
+       workspaceRoot: root,
+--- a/skills/investigation-report/scripts/runtime/tools/investigation-report/src/rename-resource-proof.ts
++++ b/skills/investigation-report/scripts/runtime/tools/investigation-report/src/rename-resource-proof.ts
+@@ -7,12 +7,11 @@
+  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
+  * Rebuild: bun run sync:investigation-report-check
+  */
++import type { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
+ import fs from "node:fs/promises";
+ import path from "node:path";
+-import {
+-  readRecordFileSnapshot,
+-  verifyRecordFile
+-} from "../../record-operations/src/transaction-files.ts";
++import { verifyRecordFile } from "../../record-operations/src/transaction-files.ts";
++import { forEachRecordFileSnapshot } from "../../record-operations/src/reader-batch.ts";
+ import type { RecordFileSnapshot } from "../../record-operations/src/transaction-files.ts";
+ import type {
+   ResourceMoveProgress,
+@@ -40,20 +39,23 @@
+ ): Promise<ResourceMoveProgress> {
+   const sourceFiles = new Map<string, RecordFileSnapshot>();
+   const sourceDirectories = new Map<string, DirectoryIdentity>();
+-  for (const file of options.files) {
+-    const snapshot = await readRecordFileSnapshot(
+-      options.root,
+-      path.join(options.owner, file.path)
+-    );
+-    if (
+-      snapshot === null ||
+-      (file.mode !== undefined && snapshot.mode !== file.mode)
+-    )
+-      throw new Error(
+-        "Prepared resource file disappeared or changed mode: " + file.path
+-      );
+-    sourceFiles.set(file.path, snapshot);
+-  }
++  await forEachRecordFileSnapshot(
++    options.root,
++    options.files.map((file) => path.join(options.owner, file.path)),
++    (result, index) => {
++      if (!result.ok) throw result.error;
++      const file = options.files[index]!;
++      const snapshot = result.value;
++      if (
++        snapshot === null ||
++        (file.mode !== undefined && snapshot.mode !== file.mode)
++      )
++        throw new Error(
++          "Prepared resource file disappeared or changed mode: " + file.path
++        );
++      sourceFiles.set(file.path, snapshot);
++    }
++  );
+   for (const relative of options.directories)
+     sourceDirectories.set(
+       relative,
+@@ -84,10 +86,21 @@
+ export async function verifyResourceSourceProof(
+   root: string,
+   owner: string,
+-  progress: ResourceMoveProgress
++  progress: ResourceMoveProgress,
++  phase?: RecordVerificationPhase
+ ): Promise<void> {
+-  for (const [relative, snapshot] of progress.sourceFiles ?? [])
+-    await verifyRecordFile(root, path.join(owner, relative), snapshot);
++  if (phase === undefined) {
++    for (const [relative, snapshot] of progress.sourceFiles ?? [])
++      await verifyRecordFile(root, path.join(owner, relative), snapshot);
++  } else {
++    phase.assertRoot(root);
++    await phase.verifyMany(
++      [...(progress.sourceFiles ?? [])].map(([relative, before]) => ({
++        path: path.join(owner, relative),
++        before
++      }))
++    );
++  }
+   for (const [relative, identity] of progress.sourceDirectories ?? [])
+     await verifyDirectory(path.join(owner, relative), identity);
+ }
+--- a/skills/investigation-report/scripts/runtime/tools/investigation-report/src/rename-transaction-plan.ts
++++ b/skills/investigation-report/scripts/runtime/tools/investigation-report/src/rename-transaction-plan.ts
+@@ -7,6 +7,7 @@
+  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
+  * Rebuild: bun run sync:investigation-report-check
+  */
++import { normalizeRecordTransactionPlan } from "../../record-operations/src/transaction-plan.ts";
+ import type { RecordTransactionPlan } from "../../record-operations/src/transaction.ts";
+ import { prepareResourceSourceProof } from "./rename-resource-proof.ts";
+ import path from "node:path";
+@@ -51,7 +52,6 @@
+ 
+   const guards = await renameOriginalGuards(root, prepared);
+   const writes = await renamedSourceWrites(context);
+-  changedPaths.push(...writes.map((write) => write.path));
+   const index =
+     prepared.nextIndexText === null
+       ? null
+@@ -72,7 +72,15 @@
+                   )
+           }
+         );
+-  return { value: prepared, root, writes, guards, index };
++  const plan = normalizeRecordTransactionPlan({
++    value: prepared,
++    root,
++    writes,
++    guards,
++    index
++  });
++  changedPaths.push(...plan.writes.map((write) => write.path));
++  return plan;
+ }
+ async function renameOriginalGuards(root: string, prepared: PreparedRename) {
+   const guards = [];
+--- a/skills/investigation-report/scripts/runtime/tools/investigation-report/src/rename-verification.ts
++++ b/skills/investigation-report/scripts/runtime/tools/investigation-report/src/rename-verification.ts
+@@ -7,6 +7,8 @@
+  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
+  * Rebuild: bun run sync:investigation-report-check
+  */
++import type { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
++import { requireRecordTextSnapshot } from "../../record-operations/src/transaction-snapshot.ts";
+ import path from "node:path";
+ import { InvestigationPreparation } from "./strict-preparation.ts";
+ import { inspectInvestigationCollectionLayout } from "./investigation-layout.ts";
+@@ -19,26 +21,56 @@
+ 
+ export async function verifyPreparedRename(
+   root: string,
+-  prepared: PreparedRename
++  prepared: PreparedRename,
++  phase: RecordVerificationPhase
+ ): Promise<string[]> {
+-  const errors = await verifyPreparedSources(prepared);
++  const errors = await verifyPreparedSources(root, prepared, phase);
+   await verifyPreparedTarget(root, prepared, errors);
+-  await verifyPreparedIndex(prepared, errors);
++  await verifyPreparedIndex(root, prepared, phase, errors);
+   await verifyPreparedResourceTarget(prepared, errors);
+   return errors;
+ }
+ 
+ async function verifyPreparedSources(
++  root: string,
++  prepared: PreparedRename,
++  phase: RecordVerificationPhase
++): Promise<string[]> {
++  const errors: string[] = [];
++  if (prepared.preparation === undefined)
++    return await verifyLocalNoOpSources(prepared);
++  const preparation = prepared.preparation;
++  const guards = prepared.originalSources.map((source) => ({
++    path: source.filePath,
++    before: requireRecordTextSnapshot(
++      preparation.captured(source.filePath, source.text),
++      root,
++      source.filePath,
++      source.text
++    )
++  }));
++  await phase.verifyMany(guards, (failure, index) => {
++    const source = prepared.originalSources[index]!;
++    errors.push(
++      failure.kind === "changed"
++        ? `${source.id} changed after rename validation; no files were written`
++        : `${source.id} could not be re-read before rename: ${errorText(failure.error)}`
++    );
++  });
++  return errors;
++}
++
++async function verifyLocalNoOpSources(
+   prepared: PreparedRename
+ ): Promise<string[]> {
+   const errors: string[] = [];
++  // Local no-op identity preparation keeps its separate fresh text boundary.
+   for (const source of prepared.originalSources) {
+     try {
+-      if ((await readRegularText(source.filePath)) !== source.text) {
++      if ((await readRegularText(source.filePath)) !== source.text)
+         errors.push(
+           `${source.id} changed after rename validation; no files were written`
+         );
+-      }
+     } catch (error) {
+       errors.push(
+         `${source.id} could not be re-read before rename: ${errorText(error)}`
+@@ -65,16 +97,44 @@
+ }
+ 
+ async function verifyPreparedIndex(
+-  prepared: PreparedRename,
++  root: string,
++  prepared: PreparedRename,
++  phase: RecordVerificationPhase,
+   errors: string[]
+ ): Promise<void> {
+   if (prepared.oldIndexText === null) return;
++  if (prepared.preparation !== undefined) {
++    const before = requireRecordTextSnapshot(
++      prepared.preparation.captured(prepared.indexPath, prepared.oldIndexText),
++      root,
++      prepared.indexPath,
++      prepared.oldIndexText
++    );
++    await phase.verifyMany(
++      [{ path: prepared.indexPath, before }],
++      (failure) => {
++        errors.push(
++          failure.kind === "changed"
++            ? "investigation index changed after rename validation; no files were written"
++            : "investigation index could not be re-read before rename: " +
++                errorText(failure.error)
++        );
++      }
++    );
++    return;
++  }
++  await verifyLocalNoOpIndex(prepared, errors);
++}
++
++async function verifyLocalNoOpIndex(
++  prepared: PreparedRename,
++  errors: string[]
++): Promise<void> {
+   try {
+-    if ((await readRegularText(prepared.indexPath)) !== prepared.oldIndexText) {
++    if ((await readRegularText(prepared.indexPath)) !== prepared.oldIndexText)
+       errors.push(
+         "investigation index changed after rename validation; no files were written"
+       );
+-    }
+   } catch (error) {
+     errors.push(
+       "investigation index could not be re-read before rename: " +
+--- a/skills/investigation-report/scripts/runtime/tools/investigation-report/src/strict-preparation.ts
++++ b/skills/investigation-report/scripts/runtime/tools/investigation-report/src/strict-preparation.ts
+@@ -7,6 +7,7 @@
+  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
+  * Rebuild: bun run sync:investigation-report-check
+  */
++import type { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
+ import {
+   forEachRecordTextSnapshot,
+   type RecordReadResult
+@@ -27,15 +28,21 @@
+ export class InvestigationPreparation {
+   readonly root: string;
+   readonly directory: string;
++  private readonly verification: RecordVerificationPhase | undefined;
+   private readonly snapshots = new Map<string, RecordTextSnapshot>();
+   private readonly documents = new Map<
+     string,
+     Readonly<{ id: string; parsed: ParsedInvestigationReport }>
+   >();
+ 
+-  constructor(root: string, directory = root) {
++  constructor(
++    root: string,
++    directory = root,
++    verification?: RecordVerificationPhase
++  ) {
+     this.root = path.resolve(root);
+     this.directory = path.resolve(directory);
++    this.verification = verification;
+   }
+ 
+   async read(target: string): Promise<string> {
+@@ -43,6 +50,21 @@
+       throw new Error(
+         "Strict Investigation source was already captured: " + target
+       );
++    if (this.verification !== undefined) {
++      let captured: RecordTextSnapshot | undefined;
++      await this.verification.captureTextSnapshots(
++        this.root,
++        [target],
++        (result) => {
++          if (!result.ok) throw result.error;
++          captured = result.value;
++        }
++      );
++      if (captured === undefined)
++        throw new Error("Verification source was not acquired: " + target);
++      this.snapshots.set(captured.path, captured);
++      return captured.text;
++    }
+     const captured = await readRecordTextSnapshot(this.root, target);
+     this.snapshots.set(captured.path, captured);
+     return captured.text;
+@@ -57,12 +79,22 @@
+         throw new Error(
+           "Strict Investigation source was already captured: " + target
+         );
+-    await forEachRecordTextSnapshot(this.root, targets, (result, index) => {
++    const consumeSnapshot = (
++      result: RecordReadResult<RecordTextSnapshot>,
++      index: number
++    ) => {
+       if (result.ok) {
+         this.snapshots.set(result.value.path, result.value);
+         consume({ ok: true, value: result.value.text }, index);
+       } else consume(result, index);
+-    });
++    };
++    if (this.verification !== undefined)
++      await this.verification.captureTextSnapshots(
++        this.root,
++        targets,
++        consumeSnapshot
++      );
++    else await forEachRecordTextSnapshot(this.root, targets, consumeSnapshot);
+   }
+ 
+   captured(target: string, text: string): RecordTextSnapshot {
+--- a/skills/investigation-report/scripts/runtime/tools/record-operations/src/transaction-journal.ts
++++ b/skills/investigation-report/scripts/runtime/tools/record-operations/src/transaction-journal.ts
+@@ -7,6 +7,7 @@
+  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
+  * Rebuild: bun run sync:investigation-report-check
+  */
++import { unchangedRecordWrite } from "./transaction-plan.ts";
+ import {
+   RecordAtomicCleanupError,
+   validateRecordWritePermissions,
+@@ -14,7 +15,6 @@
+   createRecordWriteParents,
+   readRecordFileSnapshot,
+   recordWriteMatches,
+-  sameRecordBytes,
+   sameRecordFile,
+   writeRecordFile,
+   type RecordCreatedDirectory,
+@@ -49,7 +49,7 @@
+ 
+   async apply(change: RecordFileWrite, commitPoint: boolean): Promise<void> {
+     validateRecordWritePermissions(change);
+-    if (unchangedWrite(change)) return;
++    if (unchangedRecordWrite(change)) return;
+     await this.prepareParents(change);
+     let identity: RecordWriteIdentity | null | undefined;
+     try {
+@@ -120,12 +120,3 @@
+     if (this.uncertainWrite) this.writtenPaths.push(change.path);
+   }
+ }
+-
+-function unchangedWrite(change: RecordFileWrite): boolean {
+-  return (
+-    change.before !== null &&
+-    change.next !== null &&
+-    sameRecordBytes(change.before.bytes, change.next) &&
+-    (change.mode === undefined || change.mode === change.before.mode)
+-  );
+-}
+--- /dev/null
++++ b/skills/investigation-report/scripts/runtime/tools/record-operations/src/transaction-plan.ts
+@@ -0,0 +1,59 @@
++/*
++ * Synced TypeScript runtime; repository maintenance edits tools/record-operations/src/transaction-plan.ts.
++ * Installed skill copies may be edited directly; updates overwrite matching files.
++ * Repository: https://github.com/zxyycom/skills
++ * Source path: tools/record-operations/src/transaction-plan.ts
++ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/record-operations/src/transaction-plan.ts
++ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
++ * Rebuild: bun run sync:investigation-report-check
++ */
++import path from "node:path";
++import {
++  sameRecordBytes,
++  validateRecordWritePermissions,
++  type RecordFileWrite
++} from "./transaction-files.ts";
++import type { RecordTransactionPlan } from "./transaction.ts";
++
++/** Validate every proposal before skipping unchanged work; index keeps its commit role. */
++export function normalizeRecordTransactionPlan<Value>(
++  plan: RecordTransactionPlan<Value>
++): RecordTransactionPlan<Value> {
++  validateRecordTransactionWrites(plan);
++  const writes: RecordFileWrite[] = [];
++  const guards = [...(plan.guards ?? [])];
++  for (const change of plan.writes) {
++    if (unchangedRecordWrite(change))
++      guards.push({ path: change.path, before: change.before });
++    else writes.push(change);
++  }
++  return { ...plan, writes, guards };
++}
++
++export function validateRecordTransactionWrites<Value>(
++  plan: RecordTransactionPlan<Value>
++): void {
++  const paths = new Set<string>();
++  for (const change of [
++    ...plan.writes,
++    ...(plan.index === null ? [] : [plan.index])
++  ]) {
++    const resolved = path.resolve(change.path);
++    if (paths.has(resolved))
++      throw new Error(
++        "Transaction contains duplicate write path: " + change.path
++      );
++    validateRecordWritePermissions(change);
++    paths.add(resolved);
++  }
++}
++
++/** The plan and actual-write journal use the same representation-preserving no-op. */
++export function unchangedRecordWrite(change: RecordFileWrite): boolean {
++  return (
++    change.before !== null &&
++    change.next !== null &&
++    sameRecordBytes(change.before.bytes, change.next) &&
++    (change.mode === undefined || change.mode === change.before.mode)
++  );
++}
+--- a/skills/investigation-report/scripts/runtime/tools/record-operations/src/transaction-verification.ts
++++ b/skills/investigation-report/scripts/runtime/tools/record-operations/src/transaction-verification.ts
+@@ -10,18 +10,28 @@
+ import path from "node:path";
+ import {
+   forEachRecordFileSnapshot,
+-  recordReaderWorkerThreshold
++  recordReaderWorkerThreshold,
++  type RecordReadResult
+ } from "./reader-batch.ts";
+ import {
+   readRecordFileSnapshot,
+   sameRecordFile,
+-  type RecordFileSnapshot
++  type RecordFileSnapshot,
++  type RecordTextSnapshot
+ } from "./transaction-snapshot.ts";
+ 
+-type RecordGuard = Readonly<{
++export type RecordGuard = Readonly<{
+   path: string;
+   before: RecordFileSnapshot | null;
+ }>;
++export type RecordVerificationFailure = Readonly<{
++  kind: "changed" | "unreadable";
++  error: unknown;
++}>;
++type ReportFailure = (
++  failure: RecordVerificationFailure,
++  index: number
++) => void;
+ type GuardRequest = Readonly<{ entryIndex: number; path: string }>;
+ 
+ /** One namespace and one verification phase; observations never cross fresh/postwrite. */
+@@ -37,25 +47,43 @@
+     target: string,
+     expected: RecordFileSnapshot | null
+   ): Promise<void> {
+-    const resolved = path.resolve(target);
+-    if (
+-      this.observed.has(resolved) &&
+-      sameRecordFile(this.observed.get(resolved)!, expected)
+-    ) {
+-      return;
+-    }
+-    const actual = await readRecordFileSnapshot(this.root, resolved);
+-    if (!sameRecordFile(actual, expected)) {
+-      throw new Error("Transaction member changed: " + target);
+-    }
+-    // Retain the actual acquired bytes, not the caller's mutable expected bytes.
+-    this.observed.set(resolved, actual);
++    await this.verifyEntry({ path: target, before: expected }, 0);
++  }
++
++  assertRoot(root: string): void {
++    if (path.resolve(root) !== this.root)
++      throw new Error(
++        "Verification source root does not match its phase: " + root
++      );
++  }
++
++  /** Acquire this phase's domain text facts; never accept an earlier phase's proof. */
++  async captureTextSnapshots(
++    root: string,
++    targets: readonly string[],
++    consume: (
++      result: RecordReadResult<RecordTextSnapshot>,
++      index: number
++    ) => void
++  ): Promise<void> {
++    this.assertRoot(root);
++    await forEachRecordFileSnapshot(this.root, targets, (result, index) => {
++      if (!result.ok) return consume(result, index);
++      const target = path.resolve(targets[index]!);
++      const captured = textObservation(this.root, target, result.value);
++      if (captured.ok) this.observed.set(target, result.value);
++      consume(captured, index);
++    });
+   }
+ 
+   /** One phase's ordered guards; an equivalent overlap still uses its actual observation. */
+-  async verifyMany(entries: readonly RecordGuard[]): Promise<void> {
++  async verifyMany(
++    entries: readonly RecordGuard[],
++    report?: ReportFailure
++  ): Promise<void> {
+     if (entries.length < recordReaderWorkerThreshold) {
+-      for (const entry of entries) await this.verify(entry.path, entry.before);
++      for (const [index, entry] of entries.entries())
++        await this.verifyEntry(entry, index, report);
+       return;
+     }
+     const requests = this.scheduleGuards(entries);
+@@ -67,21 +95,78 @@
+         const request = requests[index]!;
+         // Recheck aliases against actual acquired bytes, never against expected references.
+         while (cursor < request.entryIndex) {
+-          const entry = entries[cursor++]!;
+-          await this.verify(entry.path, entry.before);
++          await this.verifyEntry(entries[cursor]!, cursor++, report);
+         }
+-        const entry = entries[cursor++]!;
+-        if (!result.ok) throw result.error;
+-        if (!sameRecordFile(result.value, entry.before))
+-          throw new Error("Transaction member changed: " + entry.path);
+-        this.observed.set(request.path, result.value);
++        const entryIndex = cursor++;
++        const entry = entries[entryIndex]!;
++        if (!result.ok)
++          return this.fail(
++            { kind: "unreadable", error: result.error },
++            entryIndex,
++            report
++          );
++        if (!this.accept(entry, result.value))
++          this.fail(
++            {
++              kind: "changed",
++              error: new Error("Transaction member changed: " + entry.path)
++            },
++            entryIndex,
++            report
++          );
+       }
+     );
+     while (cursor < entries.length) {
+-      const entry = entries[cursor++]!;
+-      await this.verify(entry.path, entry.before);
+-    }
+-  }
++      await this.verifyEntry(entries[cursor]!, cursor++, report);
++    }
++  }
++  private accept(
++    entry: RecordGuard,
++    actual: RecordFileSnapshot | null
++  ): boolean {
++    if (!sameRecordFile(actual, entry.before)) return false;
++    // Actual bytes stay private; callers only provide expectations or receive copies.
++    this.observed.set(path.resolve(entry.path), actual);
++    return true;
++  }
++
++  private async verifyEntry(
++    entry: RecordGuard,
++    index: number,
++    report?: ReportFailure
++  ): Promise<void> {
++    const resolved = path.resolve(entry.path);
++    if (
++      this.observed.has(resolved) &&
++      sameRecordFile(this.observed.get(resolved)!, entry.before)
++    )
++      return;
++    let actual: RecordFileSnapshot | null;
++    try {
++      actual = await readRecordFileSnapshot(this.root, resolved);
++    } catch (error) {
++      return this.fail({ kind: "unreadable", error }, index, report);
++    }
++    if (!this.accept(entry, actual))
++      this.fail(
++        {
++          kind: "changed",
++          error: new Error("Transaction member changed: " + entry.path)
++        },
++        index,
++        report
++      );
++  }
++
++  private fail(
++    failure: RecordVerificationFailure,
++    index: number,
++    report?: ReportFailure
++  ): void {
++    if (report === undefined) throw failure.error;
++    report(failure, index);
++  }
++
+   /** Schedule only changed expectations; aliases are still rechecked against actual bytes. */
+   private scheduleGuards(
+     entries: readonly RecordGuard[]
+@@ -100,3 +185,40 @@
+     return requests;
+   }
+ }
++
++/** Domain consumers receive copies; mutable bytes cannot rewrite the phase's actual proof. */
++function textObservation(
++  root: string,
++  target: string,
++  actual: RecordFileSnapshot | null
++): RecordReadResult<RecordTextSnapshot> {
++  if (actual === null)
++    return {
++      ok: false,
++      error: Object.assign(new Error("Record source is missing: " + target), {
++        code: "ENOENT"
++      })
++    };
++  try {
++    const text = new TextDecoder("utf-8", {
++      fatal: true,
++      ignoreBOM: true
++    }).decode(actual.bytes);
++    return {
++      ok: true,
++      value: {
++        root,
++        path: target,
++        text,
++        snapshot: {
++          ...actual,
++          bytes: Buffer.from(actual.bytes),
++          parents: actual.parents.map((parent) => ({ ...parent }))
++        }
++      }
++    };
++  } catch (error) {
++    if (!(error instanceof Error)) throw error;
++    return { ok: false, error };
++  }
++}
+--- a/skills/investigation-report/scripts/runtime/tools/record-operations/src/transaction.ts
++++ b/skills/investigation-report/scripts/runtime/tools/record-operations/src/transaction.ts
+@@ -7,11 +7,11 @@
+  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
+  * Rebuild: bun run sync:investigation-report-check
+  */
++import { validateRecordTransactionWrites } from "./transaction-plan.ts";
+ import { RecordVerificationPhase } from "./transaction-verification.ts";
+ import { RecordWriteJournal } from "./transaction-journal.ts";
+ import {
+   readRecordFileSnapshot,
+-  validateRecordWritePermissions,
+   restoreRecordDirectories,
+   restoreRecordWrites,
+   sameRecordFile,
+@@ -58,7 +58,7 @@
+     withLock?: (
+       operation: () => Promise<RecordTransactionResult<Value>>
+     ) => Promise<RecordTransactionResult<Value>>;
+-    fresh: (value: Value) => Promise<void>;
++    fresh: (value: Value, phase: RecordVerificationPhase) => Promise<void>;
+     verify: (value: Value) => Promise<void>;
+     verifyRecovered: (value: Value) => Promise<void>;
+     cleanup?: (
+@@ -85,8 +85,9 @@
+     let plan: RecordTransactionPlan<Value>;
+     try {
+       plan = await options.prepare();
+-      await options.fresh(plan.value);
+-      await verifyPlan(plan);
++      const phase = new RecordVerificationPhase(plan.root);
++      await options.fresh(plan.value, phase);
++      await verifyPlan(plan, phase);
+     } catch (error) {
+       return { ...emptyResult<Value>(null), errors: [error] };
+     }
+@@ -240,27 +241,19 @@
+       await verifyRecordFile(plan.root, guard.path, guard.before);
+ }
+ 
+-async function verifyPlan<Value>(
+-  plan: RecordTransactionPlan<Value>
++export async function verifyPlan<Value>(
++  plan: RecordTransactionPlan<Value>,
++  phase: RecordVerificationPhase
+ ): Promise<void> {
+-  const paths = new Set<string>();
+-  const phase = new RecordVerificationPhase(plan.root);
+-  for (const change of [
++  validateRecordTransactionWrites(plan);
++  await phase.verifyMany([
+     ...plan.writes,
+-    ...(plan.index === null ? [] : [plan.index])
+-  ]) {
+-    if (paths.has(change.path))
+-      throw new Error(
+-        "Transaction contains duplicate write path: " + change.path
+-      );
+-    validateRecordWritePermissions(change);
+-    paths.add(change.path);
+-    await phase.verify(change.path, change.before);
+-  }
+-  await phase.verifyMany(plan.guards ?? []);
+-}
+-
+-async function verifyWritten<Value>(
++    ...(plan.index === null ? [] : [plan.index]),
++    ...(plan.guards ?? [])
++  ]);
++}
++
++export async function verifyWritten<Value>(
+   plan: RecordTransactionPlan<Value>,
+   writes: readonly RecordWrittenFile[]
+ ): Promise<void> {
+@@ -268,17 +261,17 @@
+   const written = new Map(
+     writes.map((item) => [item.change.path, item.written])
+   );
+-  for (const change of [
+-    ...plan.writes,
+-    ...(plan.index === null ? [] : [plan.index])
+-  ])
+-    await phase.verify(
+-      change.path,
+-      written.has(change.path) ? written.get(change.path)! : change.before
+-    );
+-  await phase.verifyMany(
+-    (plan.guards ?? []).filter((guard) => !written.has(guard.path))
+-  );
++  await phase.verifyMany([
++    ...[...plan.writes, ...(plan.index === null ? [] : [plan.index])].map(
++      (change) => ({
++        path: change.path,
++        before: written.has(change.path)
++          ? written.get(change.path)!
++          : change.before
++      })
++    ),
++    ...(plan.guards ?? []).filter((guard) => !written.has(guard.path))
++  ]);
+ }
+ 
+ function emptyResult<Value>(
+--- a/tools/decision-records/README.md
++++ b/tools/decision-records/README.md
+@@ -99,7 +99,7 @@
+ 
+ ## 非 stage 事务与恢复
+ 
+-`decision-transaction.ts` 将局部发布基线和严格全集两种领域准备适配给 `tools/record-operations/src/transaction.ts`；`decision-transaction-plan.ts` 提供实际写集、适用来源与成员保护，`decision-transaction-projection.ts` 负责领域索引投影。普通维护不扩大全集正文 scope；首次 publish、严格 rename/discard 和带删除 evolve 也不能绕开共同编排。stage 继续使用原协调器。
++`decision-transaction.ts` 将局部发布基线和严格全集两种领域准备适配给 `tools/record-operations/src/transaction.ts`；`decision-transaction-plan.ts` 提供领域提案、适用来源与成员保护，再经共同计划归一化保留实际写集，`decision-transaction-projection.ts` 负责领域索引投影。普通维护不扩大全集正文 scope；首次 publish、严格 rename/discard 和带删除 evolve 也不能绕开共同编排。stage 继续使用原协调器。
+ 
+ 共同 owner 持有[事务顺序与实际写集恢复](../record-operations/README.md#事务事实与恢复)；领域适配提供每阶段所需的来源、成员、投影与写集，不另拼写入或索引恢复流程。调用者的提交结果与对账动作分别见[操作结果](../../skills/decision-records/references/cli-operations.md#结果与恢复)和[恢复规则](../../skills/decision-records/references/maintenance-recovery.md#中断写入)。
+ 
+--- a/tools/decision-records/src/decision-transaction-plan.ts
++++ b/tools/decision-records/src/decision-transaction-plan.ts
+@@ -1,3 +1,4 @@
++import { normalizeRecordTransactionPlan } from "../../record-operations/src/transaction-plan.ts";
+ import type { DecisionSourceCapture } from "./decision-strict-preparation.ts";
+ import path from "node:path";
+ import { decisionTransactionMembers } from "./decision-source-membership.ts";
+@@ -67,7 +68,7 @@
+   const guards = [...acquired.originals]
+     .filter(([filePath]) => !writePaths.has(filePath))
+     .map(([filePath, before]) => ({ path: filePath, before }));
+-  return {
++  return normalizeRecordTransactionPlan({
+     value: {
+       context,
+       beforeMembers: acquired.beforeMembers,
+@@ -77,7 +78,7 @@
+     writes: writeSet.writes,
+     index,
+     guards
+-  };
++  });
+ }
+ 
+ async function prepareDecisionWrites(
+--- a/tools/decision-records/tests/record-shared-transactions.test.ts
++++ b/tools/decision-records/tests/record-shared-transactions.test.ts
+@@ -111,3 +111,123 @@
+   "Decision shared postwrite verification rejects later bytes mode and inode despite overlapping fresh protection",
+   assertRecordPostPhaseDriftProtection
+ );
++
++import assert from "node:assert/strict";
++import { normalizeRecordTransactionPlan } from "../../record-operations/src/transaction-plan.ts";
++import { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
++import {
++  fixture as transactionFixture,
++  stages
++} from "../../record-operations/tests/transaction-fixture.ts";
++import { runRecordTransaction } from "../../record-operations/src/transaction.ts";
++
++test("shared plan normalizes only unchanged proposals while retaining order index and conflicting protection", async () => {
++  await transactionFixture(async ({ root, a, b, plan }) => {
++    const before = plan.writes[0]!.before!;
++    const index = plan.index!;
++    const normalized = normalizeRecordTransactionPlan({
++      ...plan,
++      writes: [{ path: a, before, next: before.bytes }, plan.writes[1]!],
++      guards: [{ path: a, before: { ...before, ino: before.ino + 1 } }]
++    });
++    assert.deepEqual(
++      normalized.writes.map((change) => change.path),
++      [b]
++    );
++    assert.strictEqual(normalized.index, index);
++    assert.equal(normalized.guards!.length, 2);
++    const rejected = await runRecordTransaction({
++      ...stages,
++      prepare: async () => normalized
++    });
++    assert.equal(rejected.status, "error");
++    assert.equal(rejected.changed, false);
++    assert.equal(await fs.readFile(b, "utf8"), "old-b");
++    assert.throws(
++      () =>
++        normalizeRecordTransactionPlan({
++          value: null,
++          root,
++          index: null,
++          writes: [
++            { path: a, before, next: before.bytes },
++            { path: path.join(root, ".", "a.md"), before, next: before.bytes }
++          ]
++        }),
++      /duplicate write path/
++    );
++    const invalid = {
++      path: a,
++      before,
++      next: before.bytes,
++      creationMode: 0o666
++    };
++    assert.throws(
++      () =>
++        normalizeRecordTransactionPlan({
++          value: null,
++          root,
++          index: null,
++          writes: [invalid]
++        }),
++      /Native creation mode/
++    );
++  });
++});
++
++test("shared fresh text acquisition binds roots isolates mutable proofs and rejects unsafe invalid or missing sources", async (t) => {
++  await transactionFixture(async ({ root, a, plan }) => {
++    const before = plan.writes[0]!.before!;
++    const phase = new RecordVerificationPhase(root);
++    const open = fs.open;
++    let reads = 0;
++    t.mock.method(fs, "open", async (...args: Parameters<typeof open>) => {
++      if (String(args[0]) === a) reads += 1;
++      return await open(...args);
++    });
++    await assert.rejects(
++      phase.captureTextSnapshots(path.dirname(root), [a], () => {}),
++      /root does not match/
++    );
++    let copied:
++      | import("../../record-operations/src/transaction-snapshot.ts").RecordTextSnapshot
++      | undefined;
++    await phase.captureTextSnapshots(root, [a], (result) => {
++      assert.ok(result.ok);
++      copied = result.value;
++    });
++    assert.ok(copied);
++    copied.snapshot.bytes[0] = copied.snapshot.bytes[0]! ^ 1;
++    Object.assign(copied.snapshot.parents[0]!, { ino: -1 });
++    await phase.verify(a, before);
++    assert.equal(
++      reads,
++      1,
++      "domain mutation must not poison cached actual bytes or parents"
++    );
++    await assert.rejects(phase.verify(a, copied.snapshot), /member changed/);
++    const invalid = path.join(root, "invalid.md");
++    const link = path.join(root, "linked.md");
++    await fs.writeFile(invalid, Buffer.from([0xff]));
++    await fs.symlink(a, link);
++    const failures: Error[] = [];
++    await phase.captureTextSnapshots(
++      root,
++      [invalid, link, path.join(root, "missing.md")],
++      (result) => {
++        assert.equal(result.ok, false);
++        if (!result.ok) failures.push(result.error);
++      }
++    );
++    assert.match(failures[0]!.message, /encoded data/);
++    assert.match(failures[1]!.message, /regular non-symbolic-link/);
++    assert.equal(
++      Object.getOwnPropertyDescriptor(failures[2]!, "code")?.value,
++      "ENOENT"
++    );
++    await assert.rejects(phase.verify(invalid, before), /member changed/);
++    const later = new RecordVerificationPhase(root);
++    await fs.writeFile(a, "later");
++    await assert.rejects(later.verify(a, before), /member changed/);
++  });
++});
+--- a/tools/decision-records/tests/transaction-strict-preparation.test.ts
++++ b/tools/decision-records/tests/transaction-strict-preparation.test.ts
+@@ -186,3 +186,131 @@
+     );
+   });
+ });
++
++import { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
++import { recordReaderWorkerThreshold } from "../../record-operations/src/reader-batch.ts";
++import { prepareDecisionRename } from "../src/decision-rename-planning.ts";
++import {
++  verifyPlan,
++  verifyWritten
++} from "../../record-operations/src/transaction.ts";
++import fsSync from "node:fs";
++import { readRecordFileSnapshotSync } from "../../record-operations/src/reader-sync.ts";
++import {
++  candidateDecisionBody,
++  withTemporaryWorkspace,
++  writeDecision
++} from "./support.ts";
++import { syncDecisionIndex } from "../src/decision-state-index.ts";
++
++// A real threshold-sized write set exceeds the runner default on ordinary filesystems; no latency budget is asserted.
++test(
++  "Decision rename batches a real threshold sized changed source set in fresh and postwrite phases",
++  { timeout: 30000 },
++  async (t) => {
++    await withTemporaryWorkspace("rename-many-changed", async (root) => {
++      const source = "260901-original";
++      await writeDecision(
++        root,
++        "archive/" + source,
++        candidateDecisionBody({ id: source, title: "原始判断" })
++          .replace("status: candidate", "status: archived")
++          .replace("alignment: null", "alignment: aligned")
++          .replace("createdAt: null", "createdAt: 2026-09-01T00:00:00Z")
++      );
++      const ids = Array.from(
++        { length: recordReaderWorkerThreshold },
++        (_, index) => `260901-linked-${index}`
++      );
++      for (const id of ids)
++        await writeDecision(
++          root,
++          id,
++          candidateDecisionBody({
++            id,
++            title: "引用场景",
++            relations: [{ type: "修订", target: source }]
++          })
++        );
++      const sync = await syncDecisionIndex({
++        decisionsDirectory: path.join(root, "docs/decisions"),
++        mode: "write"
++      });
++      assert.equal(sync.status, "ok", JSON.stringify(sync));
++      const original: unknown = Object.getOwnPropertyDescriptor(
++        RecordVerificationPhase.prototype,
++        "verifyMany"
++      )?.value;
++      assert.ok(typeof original === "function");
++      const observed = t.mock.method(
++        RecordVerificationPhase.prototype,
++        "verifyMany"
++      );
++      const batches: number[] = [];
++      observed.mock.mockImplementation(async function (
++        this: RecordVerificationPhase,
++        ...args: Parameters<typeof observed>
++      ) {
++        batches.push(args[0].length);
++        await Reflect.apply(original, this, args);
++      });
++      const { context, capture } = await strictContext(root);
++      const prepared = prepareDecisionRename(context, {
++        source,
++        target: "renamed",
++        workspaceRoot: root
++      });
++      assert.equal(prepared.status, "ready", JSON.stringify(prepared));
++      if (prepared.status !== "ready")
++        assert.fail("Expected a ready real rename plan");
++      const plan = await prepareDecisionTransactionPlan(
++        context,
++        prepared.value.changes,
++        capture
++      );
++      assert.equal(plan.writes.length, recordReaderWorkerThreshold + 2);
++      await verifyPlan(plan, new RecordVerificationPhase(plan.root));
++      // Commit mechanics are covered by the small shared transaction contracts. Here
++      // the fixture establishes real changed bytes without 1,000 journal lifecycles.
++      const changes = [
++        ...plan.writes,
++        ...(plan.index === null ? [] : [plan.index])
++      ];
++      for (const change of changes) {
++        if (change.next === null) fsSync.unlinkSync(change.path);
++        else
++          fsSync.writeFileSync(change.path, change.next, { mode: change.mode });
++      }
++      const actual = changes.map((change) => {
++        const written = readRecordFileSnapshotSync(plan.root, change.path);
++        if (change.next === null) assert.equal(written, null);
++        else {
++          assert.ok(written);
++          assert.deepEqual(
++            Buffer.from(written.bytes),
++            Buffer.from(change.next)
++          );
++          assert.equal(written.mode, change.before?.mode ?? change.mode);
++          const located = fsSync.statSync(change.path);
++          assert.equal(written.dev, located.dev);
++          assert.equal(written.ino, located.ino);
++        }
++        return { change, written };
++      });
++      await verifyWritten(plan, actual);
++      assert.deepEqual(batches, [
++        recordReaderWorkerThreshold + 3,
++        recordReaderWorkerThreshold + 3
++      ]);
++      for (const id of ids)
++        assert.match(
++          await fs.readFile(decisionFilePath(root, id), "utf8"),
++          /target: "?260901-renamed/
++        );
++      await assert.rejects(
++        fs.access(decisionFilePath(root, "archive/" + source)),
++        { code: "ENOENT" }
++      );
++    });
++  }
++);
+--- a/tools/investigation-report/README.md
++++ b/tools/investigation-report/README.md
+@@ -89,6 +89,8 @@
+ 
+ 统一 discard 在单一集合锁内采集 layout 并分类候选/正式目标，将同阶段 layout 与 strict preparation 交给领域内部执行；公开候选/正式 SDK 入口仍各自取得锁。rename 只有显式 preflight 在锁外完整准备，正式执行仅轻量入口核对后锁内准备；后续 fresh、写后与恢复不复用旧阶段。
+ 
++rename/discard 的文件提案经共同计划归一化，unchanged 来源只作为保护，不计入 changedPaths；真实 changed writes 与 guards 使用相同安全批量验收。rename 的 beforePublish 后来源/index 聚合通过当前 phase 的完整 snapshot 完成；no-op 身份重备、target/owner absence、membership、资源移动及完整 postverify 保持各自职责。正式 discard 的 transaction fresh 新建 `InvestigationPreparation`，以 tombstone 所需父目录为真实 transaction root，来源采集交给当前 phase；图/资源计算仍执行，随后共同 guards 比较该实际观察。较早 hook 后集合/index 对照和 post collection 保留独立来源读取，不把它们统称为不可合并的领域成本。
++
+ ### 安全正文读取
+ 
+ show 的完整正文读取交给共同操作的 `source.ts`；本域提供所选 ID 和定位，并据发布指纹判断来源 warning。共同安全边界见[操作入口与责任](../record-operations/README.md#操作入口与责任)。
+--- a/tools/investigation-report/src/discard-publication.ts
++++ b/tools/investigation-report/src/discard-publication.ts
+@@ -1,4 +1,5 @@
+-import type { InvestigationPreparation } from "./strict-preparation.ts";
++import type { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
++import { InvestigationPreparation } from "./strict-preparation.ts";
+ import fs from "node:fs/promises";
+ import path from "node:path";
+ import { runRecordTransaction } from "../../record-operations/src/transaction.ts";
+@@ -67,13 +68,14 @@
+   const { progress, members } = context;
+   const transaction = await runRecordTransaction({
+     prepare: () => prepareDiscardTransaction(context),
+-    fresh: async () => {
++    fresh: async (_value, phase) => {
+       await verifyResourceSourceProof(
+         context.transactionRoot,
+         options.resourceOwnerPath,
+-        progress
++        progress,
++        phase
+       );
+-      await validateDiscardFormalCollection(context);
++      await validateDiscardFormalCollection(context, phase);
+       await verifyInvestigationMembers(options.root, members);
+     },
+     resources: {
+@@ -96,12 +98,23 @@
+   return discardPublicationResult(context, transaction);
+ }
+ async function validateDiscardFormalCollection(
+-  context: DiscardPublicationContext
++  context: DiscardPublicationContext,
++  phase?: RecordVerificationPhase
+ ): Promise<void> {
+   if (context.options.indexText === null) return;
+   const collection = await collectValidatedInvestigationCollection(
+     context.options.root,
+-    { allowEmptyCollection: true }
++    {
++      allowEmptyCollection: true,
++      preparation:
++        phase === undefined
++          ? undefined
++          : new InvestigationPreparation(
++              context.transactionRoot,
++              context.options.root,
++              phase
++            )
++    }
+   );
+   if (collection.errors.length > 0)
+     throw new Error(collection.errors.join("; "));
+--- a/tools/investigation-report/src/discard-transaction-plan.ts
++++ b/tools/investigation-report/src/discard-transaction-plan.ts
+@@ -1,3 +1,4 @@
++import { normalizeRecordTransactionPlan } from "../../record-operations/src/transaction-plan.ts";
+ import type { RecordTransactionPlan } from "../../record-operations/src/transaction.ts";
+ import { randomUUID } from "node:crypto";
+ import path from "node:path";
+@@ -65,7 +66,7 @@
+       path: options.indexPath,
+       before: await readRecordFileSnapshot(transactionRoot, options.indexPath)
+     });
+-  return {
++  return normalizeRecordTransactionPlan({
+     value: options,
+     root: transactionRoot,
+     guards,
+@@ -98,7 +99,7 @@
+                     )
+             }
+           )
+-  };
++  });
+ }
+ async function discardReportSnapshot(context: DiscardPublicationContext) {
+   const { options, transactionRoot } = context;
+--- a/tools/investigation-report/src/rename-publication.ts
++++ b/tools/investigation-report/src/rename-publication.ts
+@@ -1,3 +1,4 @@
++import type { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
+ import {
+   prepareRenameTransaction,
+   type RenameTransactionContext
+@@ -7,7 +8,6 @@
+   runRecordTransaction,
+   type RecordTransactionResult
+ } from "../../record-operations/src/transaction.ts";
+-import { verifyRecordFile } from "../../record-operations/src/transaction-files.ts";
+ import {
+   investigationMembers,
+   verifyInvestigationMembers,
+@@ -52,7 +52,7 @@
+   const context = { root, prepared, hooks, progress, changedPaths };
+   const transaction = await runRecordTransaction({
+     prepare: () => prepareRenameTransaction(context),
+-    fresh: () => verifyFreshRename(context, members),
++    fresh: (_value, phase) => verifyFreshRename(context, members, phase),
+     verify: async () => {
+       await verifyInvestigationMembers(root, members, changedPaths);
+       if (!prepared.noChange) {
+@@ -131,20 +131,23 @@
+ 
+ async function verifyFreshRename(
+   context: RenameTransactionContext,
+-  members: readonly InvestigationMember[]
++  members: readonly InvestigationMember[],
++  phase: RecordVerificationPhase
+ ): Promise<void> {
+   const { root, prepared, progress, hooks } = context;
+ 
+   if (!prepared.noChange) await hooks.beforePublish?.();
+-  const errors = await verifyPreparedRename(root, prepared);
++  const errors = await verifyPreparedRename(root, prepared, phase);
+   if (errors.length > 0) throw new Error(errors.join("; "));
+-  if (prepared.resourceMove !== null)
+-    for (const [relative, before] of progress.sourceFiles ?? [])
+-      await verifyRecordFile(
+-        root,
+-        path.join(prepared.resourceMove.from, relative),
++  if (prepared.resourceMove !== null) {
++    phase.assertRoot(root);
++    await phase.verifyMany(
++      [...(progress.sourceFiles ?? [])].map(([relative, before]) => ({
++        path: path.join(prepared.resourceMove!.from, relative),
+         before
+-      );
++      }))
++    );
++  }
+   if (prepared.noChange) {
+     const fresh = await prepareRename(root, prepared.indexPath, {
+       workspaceRoot: root,
+--- a/tools/investigation-report/src/rename-resource-proof.ts
++++ b/tools/investigation-report/src/rename-resource-proof.ts
+@@ -1,9 +1,8 @@
++import type { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
+ import fs from "node:fs/promises";
+ import path from "node:path";
+-import {
+-  readRecordFileSnapshot,
+-  verifyRecordFile
+-} from "../../record-operations/src/transaction-files.ts";
++import { verifyRecordFile } from "../../record-operations/src/transaction-files.ts";
++import { forEachRecordFileSnapshot } from "../../record-operations/src/reader-batch.ts";
+ import type { RecordFileSnapshot } from "../../record-operations/src/transaction-files.ts";
+ import type {
+   ResourceMoveProgress,
+@@ -31,20 +30,23 @@
+ ): Promise<ResourceMoveProgress> {
+   const sourceFiles = new Map<string, RecordFileSnapshot>();
+   const sourceDirectories = new Map<string, DirectoryIdentity>();
+-  for (const file of options.files) {
+-    const snapshot = await readRecordFileSnapshot(
+-      options.root,
+-      path.join(options.owner, file.path)
+-    );
+-    if (
+-      snapshot === null ||
+-      (file.mode !== undefined && snapshot.mode !== file.mode)
+-    )
+-      throw new Error(
+-        "Prepared resource file disappeared or changed mode: " + file.path
+-      );
+-    sourceFiles.set(file.path, snapshot);
+-  }
++  await forEachRecordFileSnapshot(
++    options.root,
++    options.files.map((file) => path.join(options.owner, file.path)),
++    (result, index) => {
++      if (!result.ok) throw result.error;
++      const file = options.files[index]!;
++      const snapshot = result.value;
++      if (
++        snapshot === null ||
++        (file.mode !== undefined && snapshot.mode !== file.mode)
++      )
++        throw new Error(
++          "Prepared resource file disappeared or changed mode: " + file.path
++        );
++      sourceFiles.set(file.path, snapshot);
++    }
++  );
+   for (const relative of options.directories)
+     sourceDirectories.set(
+       relative,
+@@ -75,10 +77,21 @@
+ export async function verifyResourceSourceProof(
+   root: string,
+   owner: string,
+-  progress: ResourceMoveProgress
++  progress: ResourceMoveProgress,
++  phase?: RecordVerificationPhase
+ ): Promise<void> {
+-  for (const [relative, snapshot] of progress.sourceFiles ?? [])
+-    await verifyRecordFile(root, path.join(owner, relative), snapshot);
++  if (phase === undefined) {
++    for (const [relative, snapshot] of progress.sourceFiles ?? [])
++      await verifyRecordFile(root, path.join(owner, relative), snapshot);
++  } else {
++    phase.assertRoot(root);
++    await phase.verifyMany(
++      [...(progress.sourceFiles ?? [])].map(([relative, before]) => ({
++        path: path.join(owner, relative),
++        before
++      }))
++    );
++  }
+   for (const [relative, identity] of progress.sourceDirectories ?? [])
+     await verifyDirectory(path.join(owner, relative), identity);
+ }
+--- a/tools/investigation-report/src/rename-transaction-plan.ts
++++ b/tools/investigation-report/src/rename-transaction-plan.ts
+@@ -1,3 +1,4 @@
++import { normalizeRecordTransactionPlan } from "../../record-operations/src/transaction-plan.ts";
+ import type { RecordTransactionPlan } from "../../record-operations/src/transaction.ts";
+ import { prepareResourceSourceProof } from "./rename-resource-proof.ts";
+ import path from "node:path";
+@@ -42,7 +43,6 @@
+ 
+   const guards = await renameOriginalGuards(root, prepared);
+   const writes = await renamedSourceWrites(context);
+-  changedPaths.push(...writes.map((write) => write.path));
+   const index =
+     prepared.nextIndexText === null
+       ? null
+@@ -63,7 +63,15 @@
+                   )
+           }
+         );
+-  return { value: prepared, root, writes, guards, index };
++  const plan = normalizeRecordTransactionPlan({
++    value: prepared,
++    root,
++    writes,
++    guards,
++    index
++  });
++  changedPaths.push(...plan.writes.map((write) => write.path));
++  return plan;
+ }
+ async function renameOriginalGuards(root: string, prepared: PreparedRename) {
+   const guards = [];
+--- a/tools/investigation-report/src/rename-verification.ts
++++ b/tools/investigation-report/src/rename-verification.ts
+@@ -1,3 +1,5 @@
++import type { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
++import { requireRecordTextSnapshot } from "../../record-operations/src/transaction-snapshot.ts";
+ import path from "node:path";
+ import { InvestigationPreparation } from "./strict-preparation.ts";
+ import { inspectInvestigationCollectionLayout } from "./investigation-layout.ts";
+@@ -10,26 +12,56 @@
+ 
+ export async function verifyPreparedRename(
+   root: string,
+-  prepared: PreparedRename
++  prepared: PreparedRename,
++  phase: RecordVerificationPhase
+ ): Promise<string[]> {
+-  const errors = await verifyPreparedSources(prepared);
++  const errors = await verifyPreparedSources(root, prepared, phase);
+   await verifyPreparedTarget(root, prepared, errors);
+-  await verifyPreparedIndex(prepared, errors);
++  await verifyPreparedIndex(root, prepared, phase, errors);
+   await verifyPreparedResourceTarget(prepared, errors);
+   return errors;
+ }
+ 
+ async function verifyPreparedSources(
++  root: string,
++  prepared: PreparedRename,
++  phase: RecordVerificationPhase
++): Promise<string[]> {
++  const errors: string[] = [];
++  if (prepared.preparation === undefined)
++    return await verifyLocalNoOpSources(prepared);
++  const preparation = prepared.preparation;
++  const guards = prepared.originalSources.map((source) => ({
++    path: source.filePath,
++    before: requireRecordTextSnapshot(
++      preparation.captured(source.filePath, source.text),
++      root,
++      source.filePath,
++      source.text
++    )
++  }));
++  await phase.verifyMany(guards, (failure, index) => {
++    const source = prepared.originalSources[index]!;
++    errors.push(
++      failure.kind === "changed"
++        ? `${source.id} changed after rename validation; no files were written`
++        : `${source.id} could not be re-read before rename: ${errorText(failure.error)}`
++    );
++  });
++  return errors;
++}
++
++async function verifyLocalNoOpSources(
+   prepared: PreparedRename
+ ): Promise<string[]> {
+   const errors: string[] = [];
++  // Local no-op identity preparation keeps its separate fresh text boundary.
+   for (const source of prepared.originalSources) {
+     try {
+-      if ((await readRegularText(source.filePath)) !== source.text) {
++      if ((await readRegularText(source.filePath)) !== source.text)
+         errors.push(
+           `${source.id} changed after rename validation; no files were written`
+         );
+-      }
+     } catch (error) {
+       errors.push(
+         `${source.id} could not be re-read before rename: ${errorText(error)}`
+@@ -56,16 +88,44 @@
+ }
+ 
+ async function verifyPreparedIndex(
+-  prepared: PreparedRename,
++  root: string,
++  prepared: PreparedRename,
++  phase: RecordVerificationPhase,
+   errors: string[]
+ ): Promise<void> {
+   if (prepared.oldIndexText === null) return;
++  if (prepared.preparation !== undefined) {
++    const before = requireRecordTextSnapshot(
++      prepared.preparation.captured(prepared.indexPath, prepared.oldIndexText),
++      root,
++      prepared.indexPath,
++      prepared.oldIndexText
++    );
++    await phase.verifyMany(
++      [{ path: prepared.indexPath, before }],
++      (failure) => {
++        errors.push(
++          failure.kind === "changed"
++            ? "investigation index changed after rename validation; no files were written"
++            : "investigation index could not be re-read before rename: " +
++                errorText(failure.error)
++        );
++      }
++    );
++    return;
++  }
++  await verifyLocalNoOpIndex(prepared, errors);
++}
++
++async function verifyLocalNoOpIndex(
++  prepared: PreparedRename,
++  errors: string[]
++): Promise<void> {
+   try {
+-    if ((await readRegularText(prepared.indexPath)) !== prepared.oldIndexText) {
++    if ((await readRegularText(prepared.indexPath)) !== prepared.oldIndexText)
+       errors.push(
+         "investigation index changed after rename validation; no files were written"
+       );
+-    }
+   } catch (error) {
+     errors.push(
+       "investigation index could not be re-read before rename: " +
+--- a/tools/investigation-report/src/strict-preparation.ts
++++ b/tools/investigation-report/src/strict-preparation.ts
+@@ -1,3 +1,4 @@
++import type { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
+ import {
+   forEachRecordTextSnapshot,
+   type RecordReadResult
+@@ -18,15 +19,21 @@
+ export class InvestigationPreparation {
+   readonly root: string;
+   readonly directory: string;
++  private readonly verification: RecordVerificationPhase | undefined;
+   private readonly snapshots = new Map<string, RecordTextSnapshot>();
+   private readonly documents = new Map<
+     string,
+     Readonly<{ id: string; parsed: ParsedInvestigationReport }>
+   >();
+ 
+-  constructor(root: string, directory = root) {
++  constructor(
++    root: string,
++    directory = root,
++    verification?: RecordVerificationPhase
++  ) {
+     this.root = path.resolve(root);
+     this.directory = path.resolve(directory);
++    this.verification = verification;
+   }
+ 
+   async read(target: string): Promise<string> {
+@@ -34,6 +41,21 @@
+       throw new Error(
+         "Strict Investigation source was already captured: " + target
+       );
++    if (this.verification !== undefined) {
++      let captured: RecordTextSnapshot | undefined;
++      await this.verification.captureTextSnapshots(
++        this.root,
++        [target],
++        (result) => {
++          if (!result.ok) throw result.error;
++          captured = result.value;
++        }
++      );
++      if (captured === undefined)
++        throw new Error("Verification source was not acquired: " + target);
++      this.snapshots.set(captured.path, captured);
++      return captured.text;
++    }
+     const captured = await readRecordTextSnapshot(this.root, target);
+     this.snapshots.set(captured.path, captured);
+     return captured.text;
+@@ -48,12 +70,22 @@
+         throw new Error(
+           "Strict Investigation source was already captured: " + target
+         );
+-    await forEachRecordTextSnapshot(this.root, targets, (result, index) => {
++    const consumeSnapshot = (
++      result: RecordReadResult<RecordTextSnapshot>,
++      index: number
++    ) => {
+       if (result.ok) {
+         this.snapshots.set(result.value.path, result.value);
+         consume({ ok: true, value: result.value.text }, index);
+       } else consume(result, index);
+-    });
++    };
++    if (this.verification !== undefined)
++      await this.verification.captureTextSnapshots(
++        this.root,
++        targets,
++        consumeSnapshot
++      );
++    else await forEachRecordTextSnapshot(this.root, targets, consumeSnapshot);
+   }
+ 
+   captured(target: string, text: string): RecordTextSnapshot {
+--- a/tools/investigation-report/tests/checks/transactional-maintenance.ts
++++ b/tools/investigation-report/tests/checks/transactional-maintenance.ts
+@@ -23,3 +23,7 @@
+ await import("../strict-preparation.test.ts");
+ 
+ await import("../execution-entry-contract.test.ts");
++
++await import("../rename-phase-verification.test.ts");
++await import("../discard-phase-verification.test.ts");
++await import("../resource-phase-verification.test.ts");
+--- /dev/null
++++ b/tools/investigation-report/tests/discard-phase-verification.test.ts
+@@ -0,0 +1,170 @@
++import assert from "node:assert/strict";
++import fs from "node:fs/promises";
++import path from "node:path";
++import test from "node:test";
++import { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
++import {
++  withTempRoot,
++  investigationRoot,
++  reportMarkdown
++} from "./fixture-support.ts";
++import { writeCollection } from "./collection-support.ts";
++import { observeSourceReads } from "./phase-verification-support.ts";
++import { InvestigationPreparation } from "../src/strict-preparation.ts";
++import { publishDiscard } from "../src/discard-publication.ts";
++import { collectValidatedInvestigationCollection } from "../src/validation-collection.ts";
++import { discardInvestigationReportWithWriter } from "../src/discard.ts";
++import { writeInvestigationTextAtomically } from "../src/transaction-files.ts";
++async function discardPublicationFixture(workspaceRoot: string) {
++  await writeCollection(workspaceRoot, [{ id: "legacy" }, { id: "untouched" }]);
++  const root = investigationRoot(workspaceRoot);
++  const preparation = new InvestigationPreparation(path.dirname(root), root);
++  const collection = await collectValidatedInvestigationCollection(root, {
++    preparation
++  });
++  assert.deepEqual(collection.errors, []);
++  const indexPath = path.join(root, "investigation-index.json");
++  const originalIndexText = await preparation.read(indexPath);
++  // This direct publication fixture keeps the index bytes; it isolates fresh source
++  // acquisition and does not claim to exercise the public deletion projection.
++  return {
++    root,
++    preparation,
++    collection,
++    indexPath,
++    originalIndexText,
++    options: {
++      root,
++      preparation,
++      indexPath,
++      originalIndexText,
++      indexText: originalIndexText,
++      originalSources: collection.sources,
++      reportPath: path.join(root, "legacy.md"),
++      resourceOwnerPath: path.join(root, "_resources/legacy"),
++      resourceSnapshot: { resourceIds: [], directories: [], errors: [] },
++      afterResourceTombstone: async () => {},
++      write: writeInvestigationTextAtomically
++    }
++  };
++}
++
++test("Investigation discard fresh collection shares safe source facts with guards but retains independent post collection", async (t) => {
++  await withTempRoot("discard-shared-fresh", async (workspaceRoot) => {
++    const { root, options } = await discardPublicationFixture(workspaceRoot);
++    const unchanged = path.join(root, "untouched.md");
++    await observeSourceReads([unchanged], async (counts) => {
++      const original: unknown = Object.getOwnPropertyDescriptor(
++        RecordVerificationPhase.prototype,
++        "verifyMany"
++      )?.value;
++      assert.ok(typeof original === "function");
++      const observed = t.mock.method(
++        RecordVerificationPhase.prototype,
++        "verifyMany"
++      );
++      const phaseReads: number[] = [];
++      observed.mock.mockImplementation(async function (
++        this: RecordVerificationPhase,
++        ...args: Parameters<typeof observed>
++      ) {
++        const before = counts.get(unchanged)!;
++        await Reflect.apply(original, this, args);
++        if (args[0].some((entry) => entry.path === unchanged)) {
++          assert.ok(before >= 1, "domain fresh already acquired the source");
++          phaseReads.push(counts.get(unchanged)! - before);
++        }
++      });
++      const result = await publishDiscard(options);
++      assert.deepEqual(result.errors, []);
++      assert.equal(result.changed, true);
++      assert.deepEqual(
++        phaseReads,
++        [0, 1],
++        "fresh guards reuse domain observations; shared postwrite reads anew"
++      );
++    });
++  });
++});
++
++test("Investigation discard shared fresh rejects source and membership drift without removing the source", async (t) => {
++  const original: unknown = Object.getOwnPropertyDescriptor(
++    RecordVerificationPhase.prototype,
++    "captureTextSnapshots"
++  )?.value;
++  assert.ok(typeof original === "function");
++  const observed = t.mock.method(
++    RecordVerificationPhase.prototype,
++    "captureTextSnapshots"
++  );
++  let inject: (() => Promise<void>) | undefined;
++  observed.mock.mockImplementation(async function (
++    this: RecordVerificationPhase,
++    ...args: Parameters<typeof observed>
++  ) {
++    const action = inject;
++    inject = undefined;
++    await action?.();
++    await Reflect.apply(original, this, args);
++  });
++  for (const drift of ["source", "membership"] as const)
++    await withTempRoot("discard-shared-" + drift, async (workspaceRoot) => {
++      const { root, options } = await discardPublicationFixture(workspaceRoot);
++      inject = async () => {
++        if (drift === "source")
++          await fs.appendFile(
++            path.join(root, "untouched.md"),
++            "\nexternal edit\n"
++          );
++        else
++          await fs.writeFile(
++            path.join(root, "external.md"),
++            reportMarkdown({ id: "external" })
++          );
++      };
++      const result = await publishDiscard(options);
++      assert.equal(result.changed, false);
++      assert.ok(result.errors.length > 0);
++      assert.match(
++        await fs.readFile(path.join(root, "legacy.md"), "utf8"),
++        /id: "legacy"/
++      );
++      if (drift === "source")
++        assert.match(
++          await fs.readFile(path.join(root, "untouched.md"), "utf8"),
++          /external edit/
++        );
++      else await fs.access(path.join(root, "external.md"));
++    });
++});
++
++import { synchronizeInvestigationIndex } from "../src/validation.ts";
++
++test("Investigation discard keeps resource byte freshness independent from shared source acquisition", async () => {
++  await withTempRoot("discard-shared-resource-drift", async (workspaceRoot) => {
++    const root = investigationRoot(workspaceRoot);
++    const resource = path.join(root, "_resources/legacy/evidence.txt");
++    await writeCollection(
++      workspaceRoot,
++      [{ id: "legacy", resources: ["legacy/evidence.txt"] }],
++      false
++    );
++    await fs.mkdir(path.dirname(resource), { recursive: true });
++    await fs.writeFile(resource, "before");
++    assert.deepEqual(
++      (await synchronizeInvestigationIndex({ workspaceRoot })).errors,
++      []
++    );
++    const result = await discardInvestigationReportWithWriter(
++      { workspaceRoot, id: "legacy", deleteOwnedResources: true },
++      writeInvestigationTextAtomically,
++      async () => {
++        await fs.writeFile(resource, "external resource");
++      }
++    );
++    assert.equal(result.changed, false);
++    assert.match(result.errors.join("; "), /Transaction member changed/);
++    await fs.access(path.join(root, "legacy.md"));
++    assert.equal(await fs.readFile(resource, "utf8"), "external resource");
++  });
++});
+--- /dev/null
++++ b/tools/investigation-report/tests/phase-verification-support.ts
+@@ -0,0 +1,19 @@
++import fs from "node:fs/promises";
++
++export async function observeSourceReads<T>(
++  targets: readonly string[],
++  action: (counts: ReadonlyMap<string, number>) => Promise<T>
++): Promise<T> {
++  const original = fs.open;
++  const counts = new Map(targets.map((target) => [target, 0]));
++  fs.open = (async (...args: Parameters<typeof fs.open>) => {
++    const target = String(args[0]);
++    if (counts.has(target)) counts.set(target, counts.get(target)! + 1);
++    return await original(...args);
++  }) as typeof fs.open;
++  try {
++    return await action(counts);
++  } finally {
++    fs.open = original;
++  }
++}
+--- /dev/null
++++ b/tools/investigation-report/tests/rename-phase-verification.test.ts
+@@ -0,0 +1,117 @@
++import assert from "node:assert/strict";
++import fs from "node:fs/promises";
++import path from "node:path";
++import test from "node:test";
++import { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
++import { withTempRoot, investigationRoot } from "./fixture-support.ts";
++import { writeCollection } from "./collection-support.ts";
++import { observeSourceReads } from "./phase-verification-support.ts";
++import { renameInvestigationRecordWithHooks } from "../src/rename.ts";
++test("Investigation rename shares hook fresh source and index observations without crossing postwrite phases", async (t) => {
++  await withTempRoot("rename-shared-fresh", async (workspaceRoot) => {
++    await writeCollection(workspaceRoot, [
++      { id: "legacy" },
++      { id: "untouched" }
++    ]);
++    const root = investigationRoot(workspaceRoot);
++    const unchanged = path.join(root, "untouched.md");
++    let freshStarted = false;
++    await observeSourceReads([unchanged], async (counts) => {
++      const original: unknown = Object.getOwnPropertyDescriptor(
++        RecordVerificationPhase.prototype,
++        "verifyMany"
++      )?.value;
++      assert.ok(typeof original === "function");
++      const observed = t.mock.method(
++        RecordVerificationPhase.prototype,
++        "verifyMany"
++      );
++      const phaseReads: number[] = [];
++      observed.mock.mockImplementation(async function (
++        this: RecordVerificationPhase,
++        ...args: Parameters<typeof observed>
++      ) {
++        const before = counts.get(unchanged)!;
++        await Reflect.apply(original, this, args);
++        if (args[0].some((entry) => entry.path === unchanged)) {
++          assert.equal(
++            freshStarted,
++            true,
++            "the hook precedes fresh observations"
++          );
++          phaseReads.push(counts.get(unchanged)! - before);
++        }
++      });
++      const result = await renameInvestigationRecordWithHooks(
++        { workspaceRoot, source: "legacy", target: "renamed" },
++        {
++          beforePublish: async () => {
++            freshStarted = true;
++          }
++        }
++      );
++      assert.equal(result.status, "ok", result.errors.join("; "));
++      assert.ok(
++        phaseReads.length >= 2,
++        "fresh and postwrite are both observed"
++      );
++      assert.equal(
++        phaseReads.slice(0, -1).reduce((sum, count) => sum + count, 0),
++        1,
++        "all overlapping fresh protection shares one actual source read"
++      );
++      assert.equal(
++        phaseReads.at(-1),
++        1,
++        "postwrite independently observes the source"
++      );
++    });
++  });
++});
++
++test("Investigation rename fresh aggregation preserves source target and index errors after the hook", async () => {
++  await withTempRoot("rename-shared-errors", async (workspaceRoot) => {
++    await writeCollection(workspaceRoot, [
++      { id: "legacy" },
++      { id: "untouched" }
++    ]);
++    const root = investigationRoot(workspaceRoot);
++    const target = path.join(root, "renamed.md");
++    const index = path.join(root, "investigation-index.json");
++    const result = await renameInvestigationRecordWithHooks(
++      { workspaceRoot, source: "legacy", target: "renamed" },
++      {
++        beforePublish: async () => {
++          await fs.appendFile(
++            path.join(root, "legacy.md"),
++            "\nexternal source edit\n"
++          );
++          await fs.unlink(path.join(root, "untouched.md"));
++          await fs.symlink(
++            path.join(root, "legacy.md"),
++            path.join(root, "untouched.md")
++          );
++          await fs.writeFile(target, "external target");
++          await fs.appendFile(index, "\nexternal index edit\n");
++        }
++      }
++    );
++    assert.equal(result.status, "error");
++    assert.equal(result.changed, false);
++    const errors = result.errors.join("; ");
++    const messages = [
++      "legacy changed after rename validation",
++      "untouched could not be re-read before rename",
++      "Investigation rename target path already exists",
++      "investigation index changed after rename validation"
++    ];
++    let cursor = -1;
++    for (const message of messages) {
++      const index = errors.indexOf(message);
++      assert.ok(index > cursor, errors);
++      cursor = index;
++    }
++    assert.equal(await fs.readFile(target, "utf8"), "external target");
++    assert.match(await fs.readFile(index, "utf8"), /external index edit/);
++  });
++});
+--- /dev/null
++++ b/tools/investigation-report/tests/resource-phase-verification.test.ts
+@@ -0,0 +1,111 @@
++import assert from "node:assert/strict";
++import fs from "node:fs/promises";
++import path from "node:path";
++import test from "node:test";
++import { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
++import { withTempRoot } from "./fixture-support.ts";
++import {
++  prepareResourceSourceProof,
++  verifyResourceSourceProof
++} from "../src/rename-resource-proof.ts";
++test("Investigation fresh resource phase rejects wrong roots even without files and preserves binary file and directory facts", async () => {
++  await withTempRoot("resource-shared-fresh", async (root) => {
++    const owner = path.join(root, "owner");
++    await fs.mkdir(path.join(owner, "empty"), { recursive: true });
++    const resource = path.join(owner, "evidence.bin");
++    await fs.writeFile(resource, Buffer.from([0xff, 0x00]));
++    const progress = await prepareResourceSourceProof({
++      root,
++      owner,
++      files: [{ path: "evidence.bin" }],
++      directories: ["", "empty"]
++    });
++    const wrong = new RecordVerificationPhase(path.dirname(root));
++    for (const protectedRange of [
++      progress,
++      { ...progress, sourceFiles: new Map() },
++      {
++        sourceRemovalStarted: false,
++        sourceRemoved: false,
++        targetClaimed: false
++      }
++    ])
++      await assert.rejects(
++        verifyResourceSourceProof(root, owner, protectedRange, wrong),
++        /root does not match/
++      );
++    const phase = new RecordVerificationPhase(root);
++    await verifyResourceSourceProof(root, owner, progress, phase);
++    const before = progress.sourceFiles!.get("evidence.bin")!;
++    await fs.chmod(resource, before.mode ^ 0o100);
++    await assert.rejects(
++      verifyResourceSourceProof(
++        root,
++        owner,
++        progress,
++        new RecordVerificationPhase(root)
++      ),
++      /Transaction member changed/
++    );
++    await fs.chmod(resource, before.mode);
++    await fs.chmod(
++      path.join(owner, "empty"),
++      progress.sourceDirectories!.get("empty")!.mode ^ 0o100
++    );
++    await assert.rejects(
++      verifyResourceSourceProof(
++        root,
++        owner,
++        progress,
++        new RecordVerificationPhase(root)
++      ),
++      /Resource directory identity\/mode changed/
++    );
++    // No phase means an independent lifecycle check, even if the earlier phase passed.
++    await fs.writeFile(resource, "external bytes");
++    await assert.rejects(
++      verifyResourceSourceProof(root, owner, progress),
++      /Transaction member changed/
++    );
++    assert.equal(await fs.readFile(resource, "utf8"), "external bytes");
++  });
++});
++
++test("Investigation resource preparation preserves ordered binary snapshots and first missing or mode failure", async () => {
++  await withTempRoot("resource-prepare-batch", async (root) => {
++    const owner = path.join(root, "owner");
++    await fs.mkdir(owner);
++    await fs.writeFile(path.join(owner, "a.bin"), Buffer.from([0xff]));
++    await fs.writeFile(path.join(owner, "b.bin"), Buffer.from([0x00]));
++    const mode = (await fs.stat(path.join(owner, "a.bin"))).mode & 0o7777;
++    const prepared = await prepareResourceSourceProof({
++      root,
++      owner,
++      files: [{ path: "b.bin" }, { path: "a.bin", mode }],
++      directories: [""]
++    });
++    assert.deepEqual([...prepared.sourceFiles!.keys()], ["b.bin", "a.bin"]);
++    assert.deepEqual(
++      Buffer.from(prepared.sourceFiles!.get("a.bin")!.bytes),
++      Buffer.from([0xff])
++    );
++    assert.equal(prepared.sourceFiles!.get("a.bin")!.mode, mode);
++    assert.ok(prepared.sourceDirectories!.has(""));
++    for (const files of [
++      [{ path: "missing.bin" }, { path: "a.bin", mode: mode ^ 0o100 }],
++      [{ path: "a.bin", mode: mode ^ 0o100 }, { path: "missing.bin" }]
++    ])
++      await assert.rejects(
++        prepareResourceSourceProof({
++          root,
++          owner,
++          files,
++          directories: ["not-reached"]
++        }),
++        new RegExp(
++          "Prepared resource file disappeared or changed mode: " +
++            files[0]!.path.replace(".", "\\.")
++        )
++      );
++  });
++});
+--- a/tools/investigation-report/tests/run.ts
++++ b/tools/investigation-report/tests/run.ts
+@@ -93,3 +93,7 @@
+ await import("./selected-local-contract.test.ts");
+ 
+ await import("./execution-entry-contract.test.ts");
++
++await import("./rename-phase-verification.test.ts");
++await import("./discard-phase-verification.test.ts");
++await import("./resource-phase-verification.test.ts");
+--- a/tools/investigation-report/tests/strict-preparation.test.ts
++++ b/tools/investigation-report/tests/strict-preparation.test.ts
+@@ -2,6 +2,7 @@
+ import fs from "node:fs/promises";
+ import path from "node:path";
+ import test from "node:test";
++import { observeSourceReads } from "./phase-verification-support.ts";
+ import { prepareRename } from "../src/rename-preparation.ts";
+ import { prepareRenameTransaction } from "../src/rename-transaction-plan.ts";
+ import { verifyCommittedRename } from "../src/rename-verification.ts";
+@@ -15,24 +16,6 @@
+   withTempRoot
+ } from "./fixture-support.ts";
+ import { writeCollection } from "./collection-support.ts";
+-
+-async function observeSourceReads<T>(
+-  targets: readonly string[],
+-  action: (counts: ReadonlyMap<string, number>) => Promise<T>
+-): Promise<T> {
+-  const original = fs.open;
+-  const counts = new Map(targets.map((target) => [target, 0]));
+-  fs.open = (async (...args: Parameters<typeof fs.open>) => {
+-    const target = String(args[0]);
+-    if (counts.has(target)) counts.set(target, counts.get(target)! + 1);
+-    return await original(...args);
+-  }) as typeof fs.open;
+-  try {
+-    return await action(counts);
+-  } finally {
+-    fs.open = original;
+-  }
+-}
+ 
+ async function verifyRenamePreparation(candidate: boolean): Promise<void> {
+   await withTempRoot("strict-rename-preparation", async (workspaceRoot) => {
+@@ -97,7 +80,14 @@
+         const write = transaction.writes.find(
+           (value) => value.path === source.filePath
+         );
+-        assert.strictEqual(write!.before, captured.snapshot);
++        if (source === prepared.value.sourceBefore)
++          assert.strictEqual(write!.before, captured.snapshot);
++        else
++          assert.equal(
++            write,
++            undefined,
++            "unchanged sources are guards, not writes"
++          );
+       }
+     });
+   });
+--- a/tools/record-operations/README.md
++++ b/tools/record-operations/README.md
+@@ -11,6 +11,7 @@
+ | `query.ts` | 严格加载正式索引，按实际依赖惰性证明完整领域图，精确计数并只收集返回窗口。无关系条件不审计全域图；关系条件与 trace 对同一投影只证明一次，raw 索引入口仍独立严格验收。 |
+ | `candidate.ts` | 安全发现、身份与冲突检查、动作选择、所选 readiness，以及创建的路径分配与写入。列表对单份坏候选 warning/skip，显式目标错误失败；安全、可见身份冲突和必要依赖错误仍拒绝。 |
+ | `check.ts` | 以首次安全采集的来源身份、字节与资源事实构建并比较完整预期索引。不在结束时重读全集，不保证结束新鲜度或跨文件原子快照。 |
++| `transaction-plan.ts` | 验证提案路径与权限，按 journal 同一 unchanged 判据将未变来源表达为 guards，保留真实写入顺序和 index 提交职责；不合并冲突或 alias 的预期事实。 |
+ | `transaction.ts` | 统一非 stage 写入的准备、fresh、实际写集、提交、写后验收与收尾/恢复顺序；普通维护、严格 rename/discard 和候选创建均由此编排。 |
+ | `transaction-snapshot.ts`、`transaction-journal.ts` | snapshot 安全采集 canonical 路径、父链与 FileHandle 证明；journal 拥有单事务实际写集、未知写入及 commit/cleanup 状态。`transaction-files.ts` 保留文件操作入口与重导出，主事务顺序仍在 `transaction.ts`。 |
+ | `transaction-verification.ts` | 拥有单次文件验收阶段的安全观察；同 root、目标与完整预期事实可在重叠保护间复用，写前与写后阶段分别实际采集。 |
+@@ -34,7 +35,13 @@
+ 
+ `RecordVerificationPhase` 固定一个真实事务 root 和一次验收阶段。首次访问绝对目标时安全读取实际 snapshot；同阶段后续保护仅在完整预期事实与该实际 snapshot 等价时复用，等价覆盖 bytes、dev/ino、mode 与完整父链，不要求预期对象引用相同。不同 namespace、路径或预期事实必须重新读取并验收；内部保留实际读取的 bytes，而非调用者可变的 expected 引用。
+ 
+-`verifyPlan` 与 `verifyWritten` 各自创建新 phase，让重叠的 unchanged 写集与 guards 在本阶段共用一次实际观察；写前通过不替代写后读取。实际写入的 handle/readback、恢复 CAS 和领域 fresh/postverify 继续承担各自证明，本接点不把它们合并为一次验收，也不跨调用保存事实。
++写前 phase 在 `fresh` 回调开始时建立，随后由 `verifyPlan` 消费；写后 `verifyWritten` 独立建立另一 phase。两者均将 writes、index 与适用 guards 作为一个有序验收队列，批量选择不依赖计划表示。每个计划提案（包括 unchanged）在跳过前验证重复路径和权限；结构与权限错误先于文件验收拒绝。写后预期来自实际 written snapshot，不从 plan.next 猜测身份或最终 mode。
++
++领域 fresh 可以通过 phase 的安全 text-snapshot 入口取得本阶段来源，再完成自己的解析、图与资源证明；该入口实际读取、严格解码 UTF-8，绑定同一真实 root/path，并向领域交接 bytes、parents 数组及父身份对象的独立副本。成功观察可供随后完整 expected facts 比较；缺失、读取或解码失败不形成成功证明。另一入口允许领域按原路径顺序汇集单文件 mismatch/read failure，基础 worker 失败仍如实中止。
++
++IR rename 在 beforePublish 后以该 phase 验来源和索引，保留有序聚合、target/owner absence、membership 与 no-op 身份重备。IR discard 仅将 transaction fresh 的来源采集交给该 phase，图/资源计算仍执行；更早的 hook 后集合/index 对照与 post collection 独立取证不折叠。它们尚未合并的来源读取属于明确保留的时点与成本，不由主题相近推定为不可去除或已去除。
++
++写前通过不替代写后读取。实际写入的 handle/readback、恢复 CAS 与领域 postverify 保持各自独立证明。只有显式 fresh 的资源文件保护共用当次 root-bound phase 的有序队列，目录证明保持领域顺序；资源 copy/delete 仍承担各自独立时点的证明，不跨阶段或调用保存事实。
+ 
+ ## 阶段内读取队列
+ 
+--- a/tools/record-operations/src/transaction-journal.ts
++++ b/tools/record-operations/src/transaction-journal.ts
+@@ -1,3 +1,4 @@
++import { unchangedRecordWrite } from "./transaction-plan.ts";
+ import {
+   RecordAtomicCleanupError,
+   validateRecordWritePermissions,
+@@ -5,7 +6,6 @@
+   createRecordWriteParents,
+   readRecordFileSnapshot,
+   recordWriteMatches,
+-  sameRecordBytes,
+   sameRecordFile,
+   writeRecordFile,
+   type RecordCreatedDirectory,
+@@ -40,7 +40,7 @@
+ 
+   async apply(change: RecordFileWrite, commitPoint: boolean): Promise<void> {
+     validateRecordWritePermissions(change);
+-    if (unchangedWrite(change)) return;
++    if (unchangedRecordWrite(change)) return;
+     await this.prepareParents(change);
+     let identity: RecordWriteIdentity | null | undefined;
+     try {
+@@ -111,12 +111,3 @@
+     if (this.uncertainWrite) this.writtenPaths.push(change.path);
+   }
+ }
+-
+-function unchangedWrite(change: RecordFileWrite): boolean {
+-  return (
+-    change.before !== null &&
+-    change.next !== null &&
+-    sameRecordBytes(change.before.bytes, change.next) &&
+-    (change.mode === undefined || change.mode === change.before.mode)
+-  );
+-}
+--- /dev/null
++++ b/tools/record-operations/src/transaction-plan.ts
+@@ -0,0 +1,50 @@
++import path from "node:path";
++import {
++  sameRecordBytes,
++  validateRecordWritePermissions,
++  type RecordFileWrite
++} from "./transaction-files.ts";
++import type { RecordTransactionPlan } from "./transaction.ts";
++
++/** Validate every proposal before skipping unchanged work; index keeps its commit role. */
++export function normalizeRecordTransactionPlan<Value>(
++  plan: RecordTransactionPlan<Value>
++): RecordTransactionPlan<Value> {
++  validateRecordTransactionWrites(plan);
++  const writes: RecordFileWrite[] = [];
++  const guards = [...(plan.guards ?? [])];
++  for (const change of plan.writes) {
++    if (unchangedRecordWrite(change))
++      guards.push({ path: change.path, before: change.before });
++    else writes.push(change);
++  }
++  return { ...plan, writes, guards };
++}
++
++export function validateRecordTransactionWrites<Value>(
++  plan: RecordTransactionPlan<Value>
++): void {
++  const paths = new Set<string>();
++  for (const change of [
++    ...plan.writes,
++    ...(plan.index === null ? [] : [plan.index])
++  ]) {
++    const resolved = path.resolve(change.path);
++    if (paths.has(resolved))
++      throw new Error(
++        "Transaction contains duplicate write path: " + change.path
++      );
++    validateRecordWritePermissions(change);
++    paths.add(resolved);
++  }
++}
++
++/** The plan and actual-write journal use the same representation-preserving no-op. */
++export function unchangedRecordWrite(change: RecordFileWrite): boolean {
++  return (
++    change.before !== null &&
++    change.next !== null &&
++    sameRecordBytes(change.before.bytes, change.next) &&
++    (change.mode === undefined || change.mode === change.before.mode)
++  );
++}
+--- a/tools/record-operations/src/transaction-verification.ts
++++ b/tools/record-operations/src/transaction-verification.ts
+@@ -1,18 +1,28 @@
+ import path from "node:path";
+ import {
+   forEachRecordFileSnapshot,
+-  recordReaderWorkerThreshold
++  recordReaderWorkerThreshold,
++  type RecordReadResult
+ } from "./reader-batch.ts";
+ import {
+   readRecordFileSnapshot,
+   sameRecordFile,
+-  type RecordFileSnapshot
++  type RecordFileSnapshot,
++  type RecordTextSnapshot
+ } from "./transaction-snapshot.ts";
+ 
+-type RecordGuard = Readonly<{
++export type RecordGuard = Readonly<{
+   path: string;
+   before: RecordFileSnapshot | null;
+ }>;
++export type RecordVerificationFailure = Readonly<{
++  kind: "changed" | "unreadable";
++  error: unknown;
++}>;
++type ReportFailure = (
++  failure: RecordVerificationFailure,
++  index: number
++) => void;
+ type GuardRequest = Readonly<{ entryIndex: number; path: string }>;
+ 
+ /** One namespace and one verification phase; observations never cross fresh/postwrite. */
+@@ -28,25 +38,43 @@
+     target: string,
+     expected: RecordFileSnapshot | null
+   ): Promise<void> {
+-    const resolved = path.resolve(target);
+-    if (
+-      this.observed.has(resolved) &&
+-      sameRecordFile(this.observed.get(resolved)!, expected)
+-    ) {
+-      return;
+-    }
+-    const actual = await readRecordFileSnapshot(this.root, resolved);
+-    if (!sameRecordFile(actual, expected)) {
+-      throw new Error("Transaction member changed: " + target);
+-    }
+-    // Retain the actual acquired bytes, not the caller's mutable expected bytes.
+-    this.observed.set(resolved, actual);
++    await this.verifyEntry({ path: target, before: expected }, 0);
++  }
++
++  assertRoot(root: string): void {
++    if (path.resolve(root) !== this.root)
++      throw new Error(
++        "Verification source root does not match its phase: " + root
++      );
++  }
++
++  /** Acquire this phase's domain text facts; never accept an earlier phase's proof. */
++  async captureTextSnapshots(
++    root: string,
++    targets: readonly string[],
++    consume: (
++      result: RecordReadResult<RecordTextSnapshot>,
++      index: number
++    ) => void
++  ): Promise<void> {
++    this.assertRoot(root);
++    await forEachRecordFileSnapshot(this.root, targets, (result, index) => {
++      if (!result.ok) return consume(result, index);
++      const target = path.resolve(targets[index]!);
++      const captured = textObservation(this.root, target, result.value);
++      if (captured.ok) this.observed.set(target, result.value);
++      consume(captured, index);
++    });
+   }
+ 
+   /** One phase's ordered guards; an equivalent overlap still uses its actual observation. */
+-  async verifyMany(entries: readonly RecordGuard[]): Promise<void> {
++  async verifyMany(
++    entries: readonly RecordGuard[],
++    report?: ReportFailure
++  ): Promise<void> {
+     if (entries.length < recordReaderWorkerThreshold) {
+-      for (const entry of entries) await this.verify(entry.path, entry.before);
++      for (const [index, entry] of entries.entries())
++        await this.verifyEntry(entry, index, report);
+       return;
+     }
+     const requests = this.scheduleGuards(entries);
+@@ -58,21 +86,78 @@
+         const request = requests[index]!;
+         // Recheck aliases against actual acquired bytes, never against expected references.
+         while (cursor < request.entryIndex) {
+-          const entry = entries[cursor++]!;
+-          await this.verify(entry.path, entry.before);
++          await this.verifyEntry(entries[cursor]!, cursor++, report);
+         }
+-        const entry = entries[cursor++]!;
+-        if (!result.ok) throw result.error;
+-        if (!sameRecordFile(result.value, entry.before))
+-          throw new Error("Transaction member changed: " + entry.path);
+-        this.observed.set(request.path, result.value);
++        const entryIndex = cursor++;
++        const entry = entries[entryIndex]!;
++        if (!result.ok)
++          return this.fail(
++            { kind: "unreadable", error: result.error },
++            entryIndex,
++            report
++          );
++        if (!this.accept(entry, result.value))
++          this.fail(
++            {
++              kind: "changed",
++              error: new Error("Transaction member changed: " + entry.path)
++            },
++            entryIndex,
++            report
++          );
+       }
+     );
+     while (cursor < entries.length) {
+-      const entry = entries[cursor++]!;
+-      await this.verify(entry.path, entry.before);
+-    }
+-  }
++      await this.verifyEntry(entries[cursor]!, cursor++, report);
++    }
++  }
++  private accept(
++    entry: RecordGuard,
++    actual: RecordFileSnapshot | null
++  ): boolean {
++    if (!sameRecordFile(actual, entry.before)) return false;
++    // Actual bytes stay private; callers only provide expectations or receive copies.
++    this.observed.set(path.resolve(entry.path), actual);
++    return true;
++  }
++
++  private async verifyEntry(
++    entry: RecordGuard,
++    index: number,
++    report?: ReportFailure
++  ): Promise<void> {
++    const resolved = path.resolve(entry.path);
++    if (
++      this.observed.has(resolved) &&
++      sameRecordFile(this.observed.get(resolved)!, entry.before)
++    )
++      return;
++    let actual: RecordFileSnapshot | null;
++    try {
++      actual = await readRecordFileSnapshot(this.root, resolved);
++    } catch (error) {
++      return this.fail({ kind: "unreadable", error }, index, report);
++    }
++    if (!this.accept(entry, actual))
++      this.fail(
++        {
++          kind: "changed",
++          error: new Error("Transaction member changed: " + entry.path)
++        },
++        index,
++        report
++      );
++  }
++
++  private fail(
++    failure: RecordVerificationFailure,
++    index: number,
++    report?: ReportFailure
++  ): void {
++    if (report === undefined) throw failure.error;
++    report(failure, index);
++  }
++
+   /** Schedule only changed expectations; aliases are still rechecked against actual bytes. */
+   private scheduleGuards(
+     entries: readonly RecordGuard[]
+@@ -91,3 +176,40 @@
+     return requests;
+   }
+ }
++
++/** Domain consumers receive copies; mutable bytes cannot rewrite the phase's actual proof. */
++function textObservation(
++  root: string,
++  target: string,
++  actual: RecordFileSnapshot | null
++): RecordReadResult<RecordTextSnapshot> {
++  if (actual === null)
++    return {
++      ok: false,
++      error: Object.assign(new Error("Record source is missing: " + target), {
++        code: "ENOENT"
++      })
++    };
++  try {
++    const text = new TextDecoder("utf-8", {
++      fatal: true,
++      ignoreBOM: true
++    }).decode(actual.bytes);
++    return {
++      ok: true,
++      value: {
++        root,
++        path: target,
++        text,
++        snapshot: {
++          ...actual,
++          bytes: Buffer.from(actual.bytes),
++          parents: actual.parents.map((parent) => ({ ...parent }))
++        }
++      }
++    };
++  } catch (error) {
++    if (!(error instanceof Error)) throw error;
++    return { ok: false, error };
++  }
++}
+--- a/tools/record-operations/src/transaction.ts
++++ b/tools/record-operations/src/transaction.ts
+@@ -1,8 +1,8 @@
++import { validateRecordTransactionWrites } from "./transaction-plan.ts";
+ import { RecordVerificationPhase } from "./transaction-verification.ts";
+ import { RecordWriteJournal } from "./transaction-journal.ts";
+ import {
+   readRecordFileSnapshot,
+-  validateRecordWritePermissions,
+   restoreRecordDirectories,
+   restoreRecordWrites,
+   sameRecordFile,
+@@ -49,7 +49,7 @@
+     withLock?: (
+       operation: () => Promise<RecordTransactionResult<Value>>
+     ) => Promise<RecordTransactionResult<Value>>;
+-    fresh: (value: Value) => Promise<void>;
++    fresh: (value: Value, phase: RecordVerificationPhase) => Promise<void>;
+     verify: (value: Value) => Promise<void>;
+     verifyRecovered: (value: Value) => Promise<void>;
+     cleanup?: (
+@@ -76,8 +76,9 @@
+     let plan: RecordTransactionPlan<Value>;
+     try {
+       plan = await options.prepare();
+-      await options.fresh(plan.value);
+-      await verifyPlan(plan);
++      const phase = new RecordVerificationPhase(plan.root);
++      await options.fresh(plan.value, phase);
++      await verifyPlan(plan, phase);
+     } catch (error) {
+       return { ...emptyResult<Value>(null), errors: [error] };
+     }
+@@ -231,27 +232,19 @@
+       await verifyRecordFile(plan.root, guard.path, guard.before);
+ }
+ 
+-async function verifyPlan<Value>(
+-  plan: RecordTransactionPlan<Value>
++export async function verifyPlan<Value>(
++  plan: RecordTransactionPlan<Value>,
++  phase: RecordVerificationPhase
+ ): Promise<void> {
+-  const paths = new Set<string>();
+-  const phase = new RecordVerificationPhase(plan.root);
+-  for (const change of [
++  validateRecordTransactionWrites(plan);
++  await phase.verifyMany([
+     ...plan.writes,
+-    ...(plan.index === null ? [] : [plan.index])
+-  ]) {
+-    if (paths.has(change.path))
+-      throw new Error(
+-        "Transaction contains duplicate write path: " + change.path
+-      );
+-    validateRecordWritePermissions(change);
+-    paths.add(change.path);
+-    await phase.verify(change.path, change.before);
+-  }
+-  await phase.verifyMany(plan.guards ?? []);
+-}
+-
+-async function verifyWritten<Value>(
++    ...(plan.index === null ? [] : [plan.index]),
++    ...(plan.guards ?? [])
++  ]);
++}
++
++export async function verifyWritten<Value>(
+   plan: RecordTransactionPlan<Value>,
+   writes: readonly RecordWrittenFile[]
+ ): Promise<void> {
+@@ -259,17 +252,17 @@
+   const written = new Map(
+     writes.map((item) => [item.change.path, item.written])
+   );
+-  for (const change of [
+-    ...plan.writes,
+-    ...(plan.index === null ? [] : [plan.index])
+-  ])
+-    await phase.verify(
+-      change.path,
+-      written.has(change.path) ? written.get(change.path)! : change.before
+-    );
+-  await phase.verifyMany(
+-    (plan.guards ?? []).filter((guard) => !written.has(guard.path))
+-  );
++  await phase.verifyMany([
++    ...[...plan.writes, ...(plan.index === null ? [] : [plan.index])].map(
++      (change) => ({
++        path: change.path,
++        before: written.has(change.path)
++          ? written.get(change.path)!
++          : change.before
++      })
++    ),
++    ...(plan.guards ?? []).filter((guard) => !written.has(guard.path))
++  ]);
+ }
+ 
+ function emptyResult<Value>(

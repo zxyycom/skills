@@ -7,7 +7,8 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-import type { InvestigationPreparation } from "./strict-preparation.ts";
+import type { RecordVerificationPhase } from "../../record-operations/src/transaction-verification.ts";
+import { InvestigationPreparation } from "./strict-preparation.ts";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { runRecordTransaction } from "../../record-operations/src/transaction.ts";
@@ -76,13 +77,14 @@ export async function publishDiscard(
   const { progress, members } = context;
   const transaction = await runRecordTransaction({
     prepare: () => prepareDiscardTransaction(context),
-    fresh: async () => {
+    fresh: async (_value, phase) => {
       await verifyResourceSourceProof(
         context.transactionRoot,
         options.resourceOwnerPath,
-        progress
+        progress,
+        phase
       );
-      await validateDiscardFormalCollection(context);
+      await validateDiscardFormalCollection(context, phase);
       await verifyInvestigationMembers(options.root, members);
     },
     resources: {
@@ -105,12 +107,23 @@ export async function publishDiscard(
   return discardPublicationResult(context, transaction);
 }
 async function validateDiscardFormalCollection(
-  context: DiscardPublicationContext
+  context: DiscardPublicationContext,
+  phase?: RecordVerificationPhase
 ): Promise<void> {
   if (context.options.indexText === null) return;
   const collection = await collectValidatedInvestigationCollection(
     context.options.root,
-    { allowEmptyCollection: true }
+    {
+      allowEmptyCollection: true,
+      preparation:
+        phase === undefined
+          ? undefined
+          : new InvestigationPreparation(
+              context.transactionRoot,
+              context.options.root,
+              phase
+            )
+    }
   );
   if (collection.errors.length > 0)
     throw new Error(collection.errors.join("; "));

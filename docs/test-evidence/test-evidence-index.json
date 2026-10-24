@@ -246,6 +246,7 @@
       "DECISION-RELATION-SUMMARY-002": "sha256:7cbeccae0b8b2b5a7fa78720aa092224a35f37918a5eb222a7f5f21671a38d4f",
       "DECISION-RELATION-SUMMARY-003": "sha256:3aa5be63ec74a56260206e00e49cc3d97799233c4eeda881de3cb8c797b102bb",
       "DECISION-RELATION-SUMMARY-004": "sha256:18871c19f6b598b0a9fdb36b480d94229ec568540737a3a76640c927b489303b",
+      "DECISION-RENAME-CHANGED-BATCH-001": "sha256:619641a754c189a4266fb35b3f5c3a1c99cc305d43c3cfae8542687b1f42983c",
       "DECISION-RENAME-ESTABLISHED-001": "sha256:fff0b9aa721b6fa48cb9cd730f483aa2f36122cbf9ec8d852ae70f0083ee40f9",
       "DECISION-RENAME-HISTORY-001": "sha256:7d9cb0d684ebe08b5fc198a2c72b30451c97b3b91a9ac5a4cc40f2809132885f",
       "DECISION-RENAME-LOCK-CLEANUP-001": "sha256:9e360df3d43699c020c5c8531c55de72b600f35fffaba1d01b600dac160eb363",
@@ -594,6 +595,7 @@
       "INVESTIGATION-DISCARD-CANDIDATE-004": "sha256:6a864055e050cdb1ae9bb265e09ab1ce8b3987dfc4f53c711d80637344f43604",
       "INVESTIGATION-DISCARD-CLEANUP-FAILURE-001": "sha256:56c954c739e41d8a8611b1a92ccee1d612b68ed21cabd0e15f5203a9e5259440",
       "INVESTIGATION-DISCARD-FINAL-001": "sha256:a14ca19f9f2d06d15a8553fea804e5b0727f618066054754013bbefd467cde75",
+      "INVESTIGATION-DISCARD-FRESH-DRIFT-001": "sha256:63ede7d0f03bc9a438b0bb141fe050c6d9e8f2aa003d48c21db872553afc2928",
       "INVESTIGATION-DISCARD-GIT-001": "sha256:8ef58fbbfceea8ef60ff9d738a70f1934f1d37284ccc9dbbc43a27078359858e",
       "INVESTIGATION-DISCARD-GIT-FAILURE-001": "sha256:03d45ad98e36ab910d350c9075125a25e5ef6dac6f4324e7812fde08ca4d78d4",
       "INVESTIGATION-DISCARD-IDENTIFICATION-001": "sha256:13fa486dd67aee771b22f3bf228d099e46c0112f182327d16b33050531d212e5",
@@ -601,15 +603,18 @@
       "INVESTIGATION-DISCARD-PENDING-001": "sha256:99ebb91871f278144bc5a0f9b00c98c930a49b3c3a59cfd945a0b20e21e4b846",
       "INVESTIGATION-DISCARD-REFERENCES-001": "sha256:57c007cc10ff4d366ba1627ac2221529af4197fc9d91a52427b7d8a7a08f16b1",
       "INVESTIGATION-DISCARD-RESOURCE-DRIFT-001": "sha256:72b34b70661518170250a7ec428f63a93352c1d53b75b6fa6d29e5f83dd10fbc",
+      "INVESTIGATION-DISCARD-RESOURCE-FRESHNESS-001": "sha256:a6082807ec571b042ea1151c3215601c8ce31d3e1a90c071ab2dfc5fb1c10277",
       "INVESTIGATION-DISCARD-RESOURCE-ID-001": "sha256:e48b50eaa4909e846037c02d1d27276864484e16339cbfe2ed1afa86da1a4dda",
       "INVESTIGATION-DISCARD-RESOURCE-SAFETY-001": "sha256:e7e0fd82433a6a1ce10586458e06be7bac84aa3b5c1f29642a28c5abfa8a666a",
       "INVESTIGATION-DISCARD-RESTORE-001": "sha256:a9c90846283367b617c4bad5829e373a01001ac817901d75a595f391852991d3",
+      "INVESTIGATION-DISCARD-SHARED-FRESH-001": "sha256:b7b5564700f999c872952b49204f7caddffeb682fa0b1e4d1000da0a8ca1cbbc",
       "INVESTIGATION-DISCARD-SPLIT-001": "sha256:78f786f3b447f0588fe7dd5678e795f336f38ee81844bc58e2ef0f2112c47e58",
       "INVESTIGATION-DISCARD-TOMBSTONE-WINDOW-001": "sha256:f3c93fa7c00c6b08e155a6f3fe820a29cb82e7376f97d025881cd332546d1471",
       "INVESTIGATION-DISTRIBUTION-SMOKE-001": "sha256:006bf0378843cbe9fd9e8bb2fbcb52e6e61cc4793839aaaf36bca82c7346979b",
       "INVESTIGATION-EMPTY-COLLECTION-001": "sha256:bdfd865156bf9e003ceb784afed6d176c39753466d4c31ea936ea3c611c067e1",
       "INVESTIGATION-EMPTY-INDEX-SYNC-001": "sha256:77dfdbc15a1e5bb0b4f27766294049cb9b0343cce1f5d2a37b5bc0385dffdc4d",
       "INVESTIGATION-EXECUTION-PREPARATION-LOCK-001": "sha256:37299b497c865e943fe97cc6a1996447f568aa5eb7eb2b32db21461702801690",
+      "INVESTIGATION-FRESH-RESOURCE-PHASE-001": "sha256:cba8c3cdb8cb00d9f88b746eabd105b500351034c906dee507e025b151c40e4e",
       "INVESTIGATION-GENERATED-METADATA-002": "sha256:db2e0998912922aa904c1b076fef7638b7d63925fceb473799cfad8f96180790",
       "INVESTIGATION-HISTORY-PATH-QUERY-BATCHING-001": "sha256:b2c77bd1088d9ae85ca8acdc63a106c66bee031285c7a794f5ebda9f66ff258a",
       "INVESTIGATION-HISTORY-PAYLOAD-INTEGRITY-001": "sha256:c46dab456129d4760a5541216d4cbf245b49df90d3b8f1455af2db4263bc840f",
@@ -664,6 +669,7 @@
       "INVESTIGATION-RELATION-TRANSACTION-REVIEW-001": "sha256:bc1dc455b33ff29d38c13caa89bcdd8790a7c3ced2178cdbd170a5b680cb09b2",
       "INVESTIGATION-RENAME-CANDIDATE-001": "sha256:af2f9a8e13e397925a9c4ba24de972c7102df1eb94b9200891d05efb3a61dad5",
       "INVESTIGATION-RENAME-FORMAL-001": "sha256:4b8c490c5633ec77391d0bddcebdcbf9375c627eea3c48bb80662f747fb8c1bf",
+      "INVESTIGATION-RENAME-FRESH-AGGREGATION-001": "sha256:c0adbdfea46fe1a577b85e01422bfce869afad3a382f18e3fce82fff39a3fdf9",
       "INVESTIGATION-RENAME-HISTORY-001": "sha256:c4f4bb73e438305122e66b01c778612e8741aa819af648f49c8a2604adf5a268",
       "INVESTIGATION-RENAME-LEGACY-PATH-001": "sha256:da2ebcec4506798c1c0df78ccc7c1c2a0e493bd2622ae3525a215fb78b2b4a62",
       "INVESTIGATION-RENAME-NO-CHANGE-001": "sha256:6a403bcc5b073c133f72ab7f813fe80648bcce4be1e6cb7d165e056fbb5e16f9",
@@ -676,6 +682,7 @@
       "INVESTIGATION-RENAME-REPORT-TARGET-DRIFT-001": "sha256:e7f1d65473d3c75cf6a535a50dd89b26b452afd69a667d7c797a3f0e40122610",
       "INVESTIGATION-RENAME-RESOURCE-001": "sha256:31f8fb8bc2df006213bef95b781429eca93ca0a59056646ed17b7d4c621604bc",
       "INVESTIGATION-RENAME-SELECTOR-001": "sha256:def633b9b943e5352dac1fc33828304f74365b8e48bb7bed7289ec4c332ed9cb",
+      "INVESTIGATION-RENAME-SHARED-FRESH-001": "sha256:f6156eb5a82f836c6d2e2fd702ce13670b53e22902dab9ac43856fc3ed666275",
       "INVESTIGATION-RENAME-TARGET-001": "sha256:b7730c6a815af7b853690f44de943119f1022b5bf459a6232673b5646b1e34b5",
       "INVESTIGATION-RENAME-TRUE-NOOP-001": "sha256:6396ecac9d21a29f579ede3c4e5eaf2394da0fda04baa583b5f9abe6633fced7",
       "INVESTIGATION-REPORT-FRONTMATTER-001": "sha256:a58e4c04ab7bcf5423f51f783af53c109ea4b75df8c9deb52595de8c2d88020e",
@@ -694,6 +701,7 @@
       "INVESTIGATION-RESOURCE-OWNER-001": "sha256:155e0a36ba8929ddd931a8e9a8988bc56dad442dc274d93e0cb8041969b8958d",
       "INVESTIGATION-RESOURCE-OWNER-PREFIX-001": "sha256:d253d106551890ed0c47c9d85c9c6987f29b6c1ab6296b5cd004401a8b72f1f9",
       "INVESTIGATION-RESOURCE-PATH-001": "sha256:7a551a718a7b9a6e72c10009065121dbdfa3616fd9458d2804ac04e336ee31b9",
+      "INVESTIGATION-RESOURCE-PREPARATION-QUEUE-001": "sha256:e8f571e2dea3edd804d5bc62bd6cd9c345708de6992ae35704b772fa28b4f7c3",
       "INVESTIGATION-RESOURCE-PROJECTION-001": "sha256:5538bf3b7f812127a97fb675f8126cfbefc2f0f0b69edadd1e18fe4fb3ea54dc",
       "INVESTIGATION-RESOURCE-REFERENCE-001": "sha256:9bc8bdc62ac2314c9f9737ae2761c60a21d76715483262e28c2a77f62d473ab3",
       "INVESTIGATION-RESOURCE-REVISION-001": "sha256:1e51fe69b4f6ee0937c4e56d0ff6048f21d946edf36e022a9af76ccc1267caaf",
@@ -763,7 +771,7 @@
       "INVESTIGATION-STAGE-UNRELATED-RESOURCE-SYMLINK-001": "sha256:777526d225aee522facce7be918ddb780eecef908801f559a39e3fe98d86e785",
       "INVESTIGATION-STAGE-UNSELECTED-REPRESENTATIONS-001": "sha256:cde7ed517b528e2b218574cabe3d532cad47c06dff298077e2569e99f1690ec8",
       "INVESTIGATION-STAGE-VERSION-CONTROL-001": "sha256:2e0b16cf0ea22f944077eba59c59124bc1912e64cd8b36ae9e36c69a85bbf234",
-      "INVESTIGATION-STRICT-PREPARATION-FACTS-001": "sha256:40f57839ab97c189c9ba30bb8b522fbfd0cbfc6be075be85b9583e386a0c9ab6",
+      "INVESTIGATION-STRICT-PREPARATION-FACTS-001": "sha256:6eee4ab13edb40d10ba099b45986fc224a652a4c1be09fc0741b96d9653f3b39",
       "INVESTIGATION-SYNC-DIAGNOSTIC-001": "sha256:d86b6e9cf00adf93558a63db137fea385c91a2e58ad12398196be982275e2e03",
       "INVESTIGATION-SYNC-DISCARD-LOCK-001": "sha256:34e650b190f8e16eedb4eeac46a6815f66ac0079eb73ead07edc42e9e8cd9230",
       "INVESTIGATION-SYNC-SOURCE-DRIFT-001": "sha256:fdb43c75f89373f3dfd83c050948003282a356d13ffdaaacef5033cf3b4c64cf",
@@ -938,6 +946,7 @@
       "RECORD-DOMAIN-ADAPTER-COMMIT-001": "sha256:1bcbd7a56e281a20384de19dda1a2c44e9548241bc6c92c802af0c3a7e9d6fcd",
       "RECORD-NATIVE-CREATION-HANDLE-PROOF-001": "sha256:07e9ace50e28932f64e2a5785c0db8b80b61393475cd2cb69f8b437cf0ff27ae",
       "RECORD-NATIVE-CREATION-MODES-001": "sha256:8fddeda1c4ea052a31b6f86ba58cda11941e5c2c0c16cb34d8079578b396ddb6",
+      "RECORD-PHASE-TEXT-SAFETY-001": "sha256:b604e471f562aac30ea2bb2e8a210dcf00a5005ed281f0af3dbfc30403902a6e",
       "RECORD-QUERY-DEPENDENCIES-001": "sha256:1b356b58222e8bcb54a59e6db30d81e50a64e1aec1a7e9bcd840947400fafbda",
       "RECORD-READER-BACKPRESSURE-001": "sha256:dfe9a239a06f118ea003dab43a4ddb983bacadabb69ad08189e1d7f4823059f6",
       "RECORD-READER-DISTRIBUTION-001": "sha256:173957c483fc8280cc2cc256feb9e0e91642c83a5f87b4b593a8db7b68637ec2",
@@ -986,6 +995,7 @@
       "RECORD-TRANSACTION-HANDLE-OWNERSHIP-001": "sha256:964d2db0ade4ce60b8c4d5448b8eb424548285e190fe0885d3e449458634ab25",
       "RECORD-TRANSACTION-OLD-PATH-WINNER-001": "sha256:8dc7f04920deed5155527da1cef293d6cb11bc8f419cd86522edf1fd07abcbea",
       "RECORD-TRANSACTION-PHASE-VERIFICATION-001": "sha256:5a6b2297af6cc9d71e02788352b904c15df4c6547aa30c3610599fad94fc951e",
+      "RECORD-TRANSACTION-PLAN-NORMALIZATION-001": "sha256:4e362e477b8e28042e65595717b686d08d72b9e3d929bb1235ebbd8e8eb5b7d9",
       "RECORD-TRANSACTION-PREFLIGHT-FRESH-001": "sha256:76c3aa78ac5116291673d4cde556c3a71fbea505e89c8800236748f038b05013",
       "RECORD-TRANSACTION-READBACK-001": "sha256:773687979749ae917a6aa9372d0811be4899ab76990581bba71fe050433bfe80",
       "RECORD-TRANSACTION-REJECTED-WRITER-001": "sha256:e223a594bcb9564440c307284f3388e2d99487baa4c59091e73a71976ed13263",
@@ -3737,6 +3747,17 @@
       ],
       "testIds": [
         "test:a1136073231a39a6259306ef6fce051f812761629140b1757510e21675ffe38e"
+      ]
+    },
+    "DECISION-RENAME-CHANGED-BATCH-001": {
+      "title": "大量真实更名写集与保护采用同一批量验收",
+      "sourcePath": "cases/decision-rename-large-changed-verification.md",
+      "tags": [
+        "decision-records",
+        "record-operations"
+      ],
+      "testIds": [
+        "test:64f5cc876b9c2a65dc35ed79c068821dc24bd53a770735797663cbb03fe8afbf"
       ]
     },
     "DECISION-RENAME-ESTABLISHED-001": {
@@ -7319,6 +7340,17 @@
         "test:91612836abcf0db85d60318b2dc9a64d453b899e07ae469c83e0e2b45b5f4dce"
       ]
     },
+    "INVESTIGATION-DISCARD-FRESH-DRIFT-001": {
+      "title": "删除共享新鲜来源仍拒绝正文与成员漂移",
+      "sourcePath": "cases/investigation-discard-fresh-drift-protection.md",
+      "tags": [
+        "investigation-report",
+        "record-operations"
+      ],
+      "testIds": [
+        "test:99c30ff8bda7b9758f88049bcf87a25739f50d9281296fa501ee8ad7482d45b5"
+      ]
+    },
     "INVESTIGATION-DISCARD-GIT-001": {
       "title": "discard pauses deletion of Git-recorded reports",
       "sourcePath": "cases/investigation-discard-git-001.md",
@@ -7389,6 +7421,17 @@
         "test:0e5b71c36a9689f7b5ba93cbb9b69659c88fd4eeea3147308ea5a0200a5c2545"
       ]
     },
+    "INVESTIGATION-DISCARD-RESOURCE-FRESHNESS-001": {
+      "title": "删除资源字节保护不被共同正文事实替代",
+      "sourcePath": "cases/investigation-discard-resource-freshness-isolation.md",
+      "tags": [
+        "investigation-report",
+        "record-operations"
+      ],
+      "testIds": [
+        "test:773269b48798c164fb95fe1be607db42da715ed7f5c3abc99ced61cdc7d748d2"
+      ]
+    },
     "INVESTIGATION-DISCARD-RESOURCE-ID-001": {
       "title": "discard rejects illegal owner resource IDs without deleting the report",
       "sourcePath": "cases/investigation-discard-resource-id-001.md",
@@ -7417,6 +7460,17 @@
       ],
       "testIds": [
         "test:cbeb3bff8192be8222e78927d6c94b299b87b205b104f917ce8eca6d77e0be3d"
+      ]
+    },
+    "INVESTIGATION-DISCARD-SHARED-FRESH-001": {
+      "title": "删除的领域新鲜来源与共同保护共享安全观察",
+      "sourcePath": "cases/investigation-discard-shared-fresh-verification.md",
+      "tags": [
+        "investigation-report",
+        "record-operations"
+      ],
+      "testIds": [
+        "test:9e2289a84b80066019d1858a3e649b04a1ec9e85418f8bfe8c83fb1d1e650b1b"
       ]
     },
     "INVESTIGATION-DISCARD-SPLIT-001": {
@@ -7477,6 +7531,17 @@
       ],
       "testIds": [
         "test:72172cf8c31c57d36b1e3c986ad78513a251174e43b2e7af91f59be9e02dc8db"
+      ]
+    },
+    "INVESTIGATION-FRESH-RESOURCE-PHASE-001": {
+      "title": "共同新鲜资源验收绑定根并保持独立生命周期检查",
+      "sourcePath": "cases/investigation-fresh-resource-phase-safety.md",
+      "tags": [
+        "investigation-report",
+        "record-operations"
+      ],
+      "testIds": [
+        "test:4f595580471abb67df14e3abed8b824aa2ed2c48b0023380e05a38916fc5e3ed"
       ]
     },
     "INVESTIGATION-GENERATED-METADATA-002": {
@@ -8037,6 +8102,17 @@
         "test:6656cee40310a33f503da260d22cfd38617a5cd0f941816fd0ae78aea76eb9c0"
       ]
     },
+    "INVESTIGATION-RENAME-FRESH-AGGREGATION-001": {
+      "title": "共同安全验收保留更名有序错误聚合",
+      "sourcePath": "cases/investigation-rename-fresh-error-aggregation.md",
+      "tags": [
+        "investigation-report",
+        "record-operations"
+      ],
+      "testIds": [
+        "test:c0af09f80a17555e4b60f6c62bace9eaae1f51a4102f1ff44a455eedad302081"
+      ]
+    },
     "INVESTIGATION-RENAME-HISTORY-001": {
       "title": "recorded report 与 candidate 使用各自确认 flag",
       "sourcePath": "cases/investigation-rename-history-001.md",
@@ -8155,6 +8231,17 @@
       ],
       "testIds": [
         "test:9112103f613b93bc3ec2c0f397ff619fa6ad07379e7d3ad9a9d7521693aefcda"
+      ]
+    },
+    "INVESTIGATION-RENAME-SHARED-FRESH-001": {
+      "title": "更名写前重叠保护共用一次观察且写后独立",
+      "sourcePath": "cases/investigation-rename-shared-fresh-verification.md",
+      "tags": [
+        "investigation-report",
+        "record-operations"
+      ],
+      "testIds": [
+        "test:4dd057ac0b65dfc070e93b59d39f0e5dd107534ad340afd269501479373359a9"
       ]
     },
     "INVESTIGATION-RENAME-TARGET-001": {
@@ -8344,6 +8431,17 @@
       ],
       "testIds": [
         "test:31d9bb6858273c735a2565a2706d08840de4d25d9575a06b367a96dd36404a66"
+      ]
+    },
+    "INVESTIGATION-RESOURCE-PREPARATION-QUEUE-001": {
+      "title": "资源准备阶段使用共同安全读取队列",
+      "sourcePath": "cases/investigation-resource-preparation-queue.md",
+      "tags": [
+        "investigation-report",
+        "record-operations"
+      ],
+      "testIds": [
+        "test:af30380f003864257d388ec8b5115eaa080a4bb38da7406879910958ce5ab989"
       ]
     },
     "INVESTIGATION-RESOURCE-PROJECTION-001": {
@@ -10826,6 +10924,16 @@
         "test:daa7f0acfc04346620bd4fdab58c9d053970e0d683c1b6fa226921d79b1180b6"
       ]
     },
+    "RECORD-PHASE-TEXT-SAFETY-001": {
+      "title": "当前验收阶段采集文本保持根与可变事实隔离",
+      "sourcePath": "cases/record-phase-text-acquisition-safety.md",
+      "tags": [
+        "record-operations"
+      ],
+      "testIds": [
+        "test:c928bff834f2713ee416f7a9c56ebcaaad5438d823d9e0705ee124589fba5bef"
+      ]
+    },
     "RECORD-QUERY-DEPENDENCIES-001": {
       "title": "两域发现按实际依赖验图",
       "sourcePath": "cases/record-query-dependencies-001.md",
@@ -11356,6 +11464,16 @@
         "test:36eb5b8087e549ea1523d38bdbbd122a797e44563bbe67071eb2d28d86265836",
         "test:511a05071c83044e739d33672defe3e031db3fb73ef7b3216c47653191b2e3dd",
         "test:ddb6a5715d4714ee5eebd251f9388eb758225aa57fa60fca99af5ca520dcf410"
+      ]
+    },
+    "RECORD-TRANSACTION-PLAN-NORMALIZATION-001": {
+      "title": "共同计划归一化不弱化有效性与保护",
+      "sourcePath": "cases/record-transaction-plan-normalization.md",
+      "tags": [
+        "record-operations"
+      ],
+      "testIds": [
+        "test:2ecb1710f2fe7cde4d2531ee4e1447af2f02692d719707e86ff5f789b1285f6e"
       ]
     },
     "RECORD-TRANSACTION-PREFLIGHT-FRESH-001": {

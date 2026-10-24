@@ -11,6 +11,7 @@
 | `query.ts` | 严格加载正式索引，按实际依赖惰性证明完整领域图，精确计数并只收集返回窗口。无关系条件不审计全域图；关系条件与 trace 对同一投影只证明一次，raw 索引入口仍独立严格验收。 |
 | `candidate.ts` | 安全发现、身份与冲突检查、动作选择、所选 readiness，以及创建的路径分配与写入。列表对单份坏候选 warning/skip，显式目标错误失败；安全、可见身份冲突和必要依赖错误仍拒绝。 |
 | `check.ts` | 以首次安全采集的来源身份、字节与资源事实构建并比较完整预期索引。不在结束时重读全集，不保证结束新鲜度或跨文件原子快照。 |
+| `transaction-plan.ts` | 验证提案路径与权限，按 journal 同一 unchanged 判据将未变来源表达为 guards，保留真实写入顺序和 index 提交职责；不合并冲突或 alias 的预期事实。 |
 | `transaction.ts` | 统一非 stage 写入的准备、fresh、实际写集、提交、写后验收与收尾/恢复顺序；普通维护、严格 rename/discard 和候选创建均由此编排。 |
 | `transaction-snapshot.ts`、`transaction-journal.ts` | snapshot 安全采集 canonical 路径、父链与 FileHandle 证明；journal 拥有单事务实际写集、未知写入及 commit/cleanup 状态。`transaction-files.ts` 保留文件操作入口与重导出，主事务顺序仍在 `transaction.ts`。 |
 | `transaction-verification.ts` | 拥有单次文件验收阶段的安全观察；同 root、目标与完整预期事实可在重叠保护间复用，写前与写后阶段分别实际采集。 |
@@ -34,7 +35,13 @@
 
 `RecordVerificationPhase` 固定一个真实事务 root 和一次验收阶段。首次访问绝对目标时安全读取实际 snapshot；同阶段后续保护仅在完整预期事实与该实际 snapshot 等价时复用，等价覆盖 bytes、dev/ino、mode 与完整父链，不要求预期对象引用相同。不同 namespace、路径或预期事实必须重新读取并验收；内部保留实际读取的 bytes，而非调用者可变的 expected 引用。
 
-`verifyPlan` 与 `verifyWritten` 各自创建新 phase，让重叠的 unchanged 写集与 guards 在本阶段共用一次实际观察；写前通过不替代写后读取。实际写入的 handle/readback、恢复 CAS 和领域 fresh/postverify 继续承担各自证明，本接点不把它们合并为一次验收，也不跨调用保存事实。
+写前 phase 在 `fresh` 回调开始时建立，随后由 `verifyPlan` 消费；写后 `verifyWritten` 独立建立另一 phase。两者均将 writes、index 与适用 guards 作为一个有序验收队列，批量选择不依赖计划表示。每个计划提案（包括 unchanged）在跳过前验证重复路径和权限；结构与权限错误先于文件验收拒绝。写后预期来自实际 written snapshot，不从 plan.next 猜测身份或最终 mode。
+
+领域 fresh 可以通过 phase 的安全 text-snapshot 入口取得本阶段来源，再完成自己的解析、图与资源证明；该入口实际读取、严格解码 UTF-8，绑定同一真实 root/path，并向领域交接 bytes、parents 数组及父身份对象的独立副本。成功观察可供随后完整 expected facts 比较；缺失、读取或解码失败不形成成功证明。另一入口允许领域按原路径顺序汇集单文件 mismatch/read failure，基础 worker 失败仍如实中止。
+
+IR rename 在 beforePublish 后以该 phase 验来源和索引，保留有序聚合、target/owner absence、membership 与 no-op 身份重备。IR discard 仅将 transaction fresh 的来源采集交给该 phase，图/资源计算仍执行；更早的 hook 后集合/index 对照与 post collection 独立取证不折叠。它们尚未合并的来源读取属于明确保留的时点与成本，不由主题相近推定为不可去除或已去除。
+
+写前通过不替代写后读取。实际写入的 handle/readback、恢复 CAS 与领域 postverify 保持各自独立证明。只有显式 fresh 的资源文件保护共用当次 root-bound phase 的有序队列，目录证明保持领域顺序；资源 copy/delete 仍承担各自独立时点的证明，不跨阶段或调用保存事实。
 
 ## 阶段内读取队列
 

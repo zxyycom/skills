@@ -1,0 +1,8 @@
+{
+  "verifiedUTC": "2026-10-24T06:12:50.062299+00:00",
+  "fullManifestEqual": true,
+  "fileCount": 20007,
+  "gitHead": "9fdb438df1f4e33722cf6eb131983ba071930d75",
+  "gitTree": "e442746692f7f32a6582bf15d77b520348847e0e",
+  "source": "fixture-recipe.json.gz; reproduced by reproduce-fixture.py; original fixture untouched"
+}

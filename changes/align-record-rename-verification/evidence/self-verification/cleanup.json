@@ -1,0 +1,16 @@
+{
+  "ownedTimedOutFixtures": [
+    {
+      "fixture": "decision-records-rename-many-changed-Knimym",
+      "verifiedFiles": 1003,
+      "removed": true
+    },
+    {
+      "fixture": "decision-records-rename-many-changed-UZTPRw",
+      "verifiedFiles": 1003,
+      "removed": true
+    }
+  ],
+  "temporarySelfVerificationDirectoryMovedTo": "changes/align-record-rename-verification/evidence/self-verification",
+  "isolatedMutationCopyRemovedByFinally": true
+}

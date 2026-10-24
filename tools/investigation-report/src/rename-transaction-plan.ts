@@ -1,3 +1,4 @@
+import { normalizeRecordTransactionPlan } from "../../record-operations/src/transaction-plan.ts";
 import type { RecordTransactionPlan } from "../../record-operations/src/transaction.ts";
 import { prepareResourceSourceProof } from "./rename-resource-proof.ts";
 import path from "node:path";
@@ -42,7 +43,6 @@ export async function prepareRenameTransaction(
 
   const guards = await renameOriginalGuards(root, prepared);
   const writes = await renamedSourceWrites(context);
-  changedPaths.push(...writes.map((write) => write.path));
   const index =
     prepared.nextIndexText === null
       ? null
@@ -63,7 +63,15 @@ export async function prepareRenameTransaction(
                   )
           }
         );
-  return { value: prepared, root, writes, guards, index };
+  const plan = normalizeRecordTransactionPlan({
+    value: prepared,
+    root,
+    writes,
+    guards,
+    index
+  });
+  changedPaths.push(...plan.writes.map((write) => write.path));
+  return plan;
 }
 async function renameOriginalGuards(root: string, prepared: PreparedRename) {
   const guards = [];

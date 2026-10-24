@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import { normalizeRecordTransactionPlan } from "../../record-operations/src/transaction-plan.ts";
 import type { RecordTransactionPlan } from "../../record-operations/src/transaction.ts";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
@@ -74,7 +75,7 @@ export async function prepareDiscardTransaction(
       path: options.indexPath,
       before: await readRecordFileSnapshot(transactionRoot, options.indexPath)
     });
-  return {
+  return normalizeRecordTransactionPlan({
     value: options,
     root: transactionRoot,
     guards,
@@ -107,7 +108,7 @@ export async function prepareDiscardTransaction(
                     )
             }
           )
-  };
+  });
 }
 async function discardReportSnapshot(context: DiscardPublicationContext) {
   const { options, transactionRoot } = context;

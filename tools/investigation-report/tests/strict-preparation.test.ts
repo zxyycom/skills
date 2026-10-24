@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import { observeSourceReads } from "./phase-verification-support.ts";
 import { prepareRename } from "../src/rename-preparation.ts";
 import { prepareRenameTransaction } from "../src/rename-transaction-plan.ts";
 import { verifyCommittedRename } from "../src/rename-verification.ts";
@@ -15,24 +16,6 @@ import {
   withTempRoot
 } from "./fixture-support.ts";
 import { writeCollection } from "./collection-support.ts";
-
-async function observeSourceReads<T>(
-  targets: readonly string[],
-  action: (counts: ReadonlyMap<string, number>) => Promise<T>
-): Promise<T> {
-  const original = fs.open;
-  const counts = new Map(targets.map((target) => [target, 0]));
-  fs.open = (async (...args: Parameters<typeof fs.open>) => {
-    const target = String(args[0]);
-    if (counts.has(target)) counts.set(target, counts.get(target)! + 1);
-    return await original(...args);
-  }) as typeof fs.open;
-  try {
-    return await action(counts);
-  } finally {
-    fs.open = original;
-  }
-}
 
 async function verifyRenamePreparation(candidate: boolean): Promise<void> {
   await withTempRoot("strict-rename-preparation", async (workspaceRoot) => {
@@ -97,7 +80,14 @@ async function verifyRenamePreparation(candidate: boolean): Promise<void> {
         const write = transaction.writes.find(
           (value) => value.path === source.filePath
         );
-        assert.strictEqual(write!.before, captured.snapshot);
+        if (source === prepared.value.sourceBefore)
+          assert.strictEqual(write!.before, captured.snapshot);
+        else
+          assert.equal(
+            write,
+            undefined,
+            "unchanged sources are guards, not writes"
+          );
       }
     });
   });

@@ -1,0 +1,70 @@
+{
+  "node": {
+    "execPath": "/home/dev/.local/share/mise/installs/node/26.8.2/bin/node",
+    "versions": {
+      "node": "26.8.2",
+      "acorn": "8.18.0",
+      "ada": "4.0.0",
+      "amaro": "1.1.11",
+      "ares": "1.34.8",
+      "brotli": "1.2.0",
+      "cldr": "48.0",
+      "icu": "78.3",
+      "libffi": "3.8.0",
+      "lief": "0.17.0",
+      "llhttp": "9.4.3",
+      "merve": "1.2.2",
+      "modules": "147",
+      "napi": "10",
+      "nbytes": "0.1.4",
+      "ncrypto": "0.0.1",
+      "nghttp2": "1.70.0",
+      "nghttp3": "",
+      "ngtcp2": "",
+      "openssl": "3.5.8",
+      "simdjson": "4.6.9",
+      "simdutf": "7.7.0",
+      "sqlite": "3.53.4",
+      "tz": "2026c",
+      "undici": "8.10.2",
+      "unicode": "17.0",
+      "uv": "1.52.1",
+      "uvwasi": "0.0.23",
+      "v8": "14.6.202.34-node.28",
+      "zlib": "1.3.2.1-motley-5eb4d7e",
+      "zstd": "1.5.7"
+    },
+    "arch": "x64",
+    "platform": "linux"
+  },
+  "nodeExecutableSHA256": "8a22a371fd85aecf5411636574309f6380fbc42694aaf0651a089a8ef9c44e52",
+  "os": {
+    "system": "Linux",
+    "node": "dev-container",
+    "release": "6.18.33.2-microsoft-standard-WSL2",
+    "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun 18 21:54:43 UTC 2026",
+    "machine": "x86_64",
+    "processor": ""
+  },
+  "cpuAffinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "cpuModel": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+  "gitVersion": "git version 2.53.0",
+  "filesystem": "Filesystem     Type  1K-blocks      Used Available Use% Mounted on\n/dev/sdd       ext4 1055762868 106167548 895891848  11% /tmp\n",
+  "sampling": "same Node/dependency bytes; no cache drop; each operation starts a fresh Node process including launch/import and worker startup; reset/hash/audit excluded from wall; local project agents quiet but unrelated workspace load not controllable",
+  "environmentOverrides": {
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_TERMINAL_PROMPT": "0",
+    "TZ": "UTC",
+    "NODE_OPTIONS": "removed",
+    "NODE_PATH": "removed"
+  },
+  "cpuMetrics": "os.wait4 direct Node child rusage, including process worker threads; not per-stage CPU; no syscall counts"
+}

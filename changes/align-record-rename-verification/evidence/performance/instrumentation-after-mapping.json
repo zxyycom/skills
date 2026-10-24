@@ -1,0 +1,122 @@
+[
+  {
+    "file": "skills/decision-records/scripts/runtime/tools/record-operations/src/transaction.ts",
+    "function": "verifyWritten",
+    "label": "shared.postverify",
+    "originalStartLine": 256,
+    "originalBodyStartLine": 259,
+    "originalEndLine": 275
+  },
+  {
+    "file": "skills/decision-records/scripts/runtime/tools/record-operations/src/transaction.ts",
+    "function": "verifyPlan",
+    "label": "shared.preverify",
+    "originalStartLine": 244,
+    "originalBodyStartLine": 247,
+    "originalEndLine": 254
+  },
+  {
+    "file": "skills/decision-records/scripts/runtime/tools/record-operations/src/transaction.ts",
+    "function": "runRecordTransaction",
+    "label": "shared.transaction",
+    "originalStartLine": 54,
+    "originalBodyStartLine": 75,
+    "originalEndLine": 99
+  },
+  {
+    "file": "skills/decision-records/scripts/runtime/tools/decision-records/src/decision-rename.ts",
+    "function": "prepareDecisionRenameAtCurrentState",
+    "label": "domain.rename.prepare",
+    "originalStartLine": 282,
+    "originalBodyStartLine": 285,
+    "originalEndLine": 343
+  },
+  {
+    "file": "skills/decision-records/scripts/runtime/tools/decision-records/src/scan-snapshot.ts",
+    "function": "loadDecisionTransactionValidationContext",
+    "label": "domain.initial_validation",
+    "originalStartLine": 104,
+    "originalBodyStartLine": 109,
+    "originalEndLine": 117
+  },
+  {
+    "file": "skills/decision-records/scripts/runtime/tools/decision-records/src/cli-lifecycle-commands.ts",
+    "function": "loadLifecycleScan",
+    "label": "domain.discard.initial_validation",
+    "originalStartLine": 230,
+    "originalBodyStartLine": 234,
+    "originalEndLine": 244
+  },
+  {
+    "file": "skills/investigation-report/scripts/runtime/tools/record-operations/src/transaction.ts",
+    "function": "verifyWritten",
+    "label": "shared.postverify",
+    "originalStartLine": 256,
+    "originalBodyStartLine": 259,
+    "originalEndLine": 275
+  },
+  {
+    "file": "skills/investigation-report/scripts/runtime/tools/record-operations/src/transaction.ts",
+    "function": "verifyPlan",
+    "label": "shared.preverify",
+    "originalStartLine": 244,
+    "originalBodyStartLine": 247,
+    "originalEndLine": 254
+  },
+  {
+    "file": "skills/investigation-report/scripts/runtime/tools/record-operations/src/transaction.ts",
+    "function": "runRecordTransaction",
+    "label": "shared.transaction",
+    "originalStartLine": 54,
+    "originalBodyStartLine": 75,
+    "originalEndLine": 99
+  },
+  {
+    "file": "skills/investigation-report/scripts/runtime/tools/investigation-report/src/rename-preparation.ts",
+    "function": "prepareRename",
+    "label": "domain.rename.prepare",
+    "originalStartLine": 62,
+    "originalBodyStartLine": 66,
+    "originalEndLine": 90
+  },
+  {
+    "file": "skills/investigation-report/scripts/runtime/tools/investigation-report/src/rename-verification.ts",
+    "function": "verifyCommittedRename",
+    "label": "domain.rename.postverify",
+    "originalStartLine": 160,
+    "originalBodyStartLine": 163,
+    "originalEndLine": 192
+  },
+  {
+    "file": "skills/investigation-report/scripts/runtime/tools/investigation-report/src/rename-verification.ts",
+    "function": "verifyPreparedRename",
+    "label": "domain.rename.fresh_sources",
+    "originalStartLine": 22,
+    "originalBodyStartLine": 26,
+    "originalEndLine": 32
+  },
+  {
+    "file": "skills/investigation-report/scripts/runtime/tools/investigation-report/src/discard-loading.ts",
+    "function": "discardFreshnessFailure",
+    "label": "domain.discard.early_fresh",
+    "originalStartLine": 208,
+    "originalBodyStartLine": 211,
+    "originalEndLine": 228
+  },
+  {
+    "file": "skills/investigation-report/scripts/runtime/tools/investigation-report/src/discard-loading.ts",
+    "function": "commitLoadedDiscard",
+    "label": "domain.discard.commit_container.inclusive",
+    "originalStartLine": 154,
+    "originalBodyStartLine": 162,
+    "originalEndLine": 171
+  },
+  {
+    "file": "skills/investigation-report/scripts/runtime/tools/investigation-report/src/discard-loading.ts",
+    "function": "discardFromCollection",
+    "label": "domain.discard.pipeline.inclusive",
+    "originalStartLine": 76,
+    "originalBodyStartLine": 82,
+    "originalEndLine": 115
+  }
+]

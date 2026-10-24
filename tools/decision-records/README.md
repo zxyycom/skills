@@ -99,7 +99,7 @@ relationReview 按规范 source ID 排序，覆盖全部所选成员，before �
 
 ## 非 stage 事务与恢复
 
-`decision-transaction.ts` 将局部发布基线和严格全集两种领域准备适配给 `tools/record-operations/src/transaction.ts`；`decision-transaction-plan.ts` 提供实际写集、适用来源与成员保护，`decision-transaction-projection.ts` 负责领域索引投影。普通维护不扩大全集正文 scope；首次 publish、严格 rename/discard 和带删除 evolve 也不能绕开共同编排。stage 继续使用原协调器。
+`decision-transaction.ts` 将局部发布基线和严格全集两种领域准备适配给 `tools/record-operations/src/transaction.ts`；`decision-transaction-plan.ts` 提供领域提案、适用来源与成员保护，再经共同计划归一化保留实际写集，`decision-transaction-projection.ts` 负责领域索引投影。普通维护不扩大全集正文 scope；首次 publish、严格 rename/discard 和带删除 evolve 也不能绕开共同编排。stage 继续使用原协调器。
 
 共同 owner 持有[事务顺序与实际写集恢复](../record-operations/README.md#事务事实与恢复)；领域适配提供每阶段所需的来源、成员、投影与写集，不另拼写入或索引恢复流程。调用者的提交结果与对账动作分别见[操作结果](../../skills/decision-records/references/cli-operations.md#结果与恢复)和[恢复规则](../../skills/decision-records/references/maintenance-recovery.md#中断写入)。
 

@@ -1,0 +1,50 @@
+[
+  {
+    "argv": [
+      "node",
+      "/tmp/record-rename-phases-66cf1909-20261024/source-before/skills/decision-records/scripts/decision-records.ts",
+      "sync-index",
+      "--root",
+      "/tmp/record-rename-phases-66cf1909-20261024/probe"
+    ],
+    "exit": 0,
+    "stdout": "Rebuilt docs/decisions/decision-index.json from decision Markdown files.\n",
+    "stderr": "Decision records command completed with warnings:\n- code: decision-records.candidate-remains\n  object: 261001-candidate-1.md\n  reason: Decision candidate scaffold remains: 261001-candidate-1.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n- code: decision-records.candidate-remains\n  object: 261001-candidate-2.md\n  reason: Decision candidate scaffold remains: 261001-candidate-2.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n"
+  },
+  {
+    "argv": [
+      "node",
+      "/tmp/record-rename-phases-66cf1909-20261024/source-before/skills/decision-records/scripts/decision-records.ts",
+      "check",
+      "--root",
+      "/tmp/record-rename-phases-66cf1909-20261024/probe"
+    ],
+    "exit": 0,
+    "stdout": "Decision records check passed (9100 decisions, 100 active, 50 aligned, 50 unaligned, 9000 archived, 2 candidate scaffolds, 2 body-ready candidates).\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "/tmp/record-rename-phases-66cf1909-20261024/source-before/skills/investigation-report/scripts/check-investigations.ts",
+      "sync-index",
+      "--root",
+      "/tmp/record-rename-phases-66cf1909-20261024/probe"
+    ],
+    "exit": 0,
+    "stdout": "Investigation index synchronized (1000 reports).\n",
+    "stderr": "Investigation report warnings:\n- [investigation-report.warning] investigation report collection\n  reason: _resources/261001-record-00001/evidence.txt does not exist\n  next: resolve the warning before relying on the affected collection state\n- [investigation-report.warning] investigation report collection\n  reason: _resources/261001-record-00001/evidence.txt owner report 261001-record-00001 does not exist\n  next: resolve the warning before relying on the affected collection state\n"
+  },
+  {
+    "argv": [
+      "node",
+      "/tmp/record-rename-phases-66cf1909-20261024/source-before/skills/investigation-report/scripts/check-investigations.ts",
+      "check",
+      "--root",
+      "/tmp/record-rename-phases-66cf1909-20261024/probe"
+    ],
+    "exit": 0,
+    "stdout": "Investigation report check passed (1000 reports checked; full index current).\n",
+    "stderr": "Investigation report warnings:\n- [investigation-report.warning] investigation report collection\n  reason: _resources/261001-record-00001/evidence.txt does not exist\n  next: resolve the warning before relying on the affected collection state\n- [investigation-report.warning] investigation report collection\n  reason: _resources/261001-record-00001/evidence.txt owner report 261001-record-00001 does not exist\n  next: resolve the warning before relying on the affected collection state\n"
+  }
+]

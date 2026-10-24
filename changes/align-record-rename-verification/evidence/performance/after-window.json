@@ -1,0 +1,15 @@
+{
+  "approval": "root after check:changed 61passed/0failed/3release NA; main agents quiet",
+  "freezeStartedUTC": "2026-10-24T06:35:30.189341+00:00",
+  "scope": "setup.SCOPE; same-scope before manifest already derived",
+  "probeCLI": 8,
+  "formalCLI": 12,
+  "normalFormalRepetitions": 2,
+  "instrumentedFormalRepetitions": 1,
+  "probeCompletedUTC": "2026-10-24T06:36:03.191445+00:00",
+  "probeAllPassed": true,
+  "formalStartedUTC": "2026-10-24T06:36:03.191456+00:00",
+  "formalEndedUTC": "2026-10-24T06:39:29.626335+00:00",
+  "completedFormalCLI": 12,
+  "formalAllPosteriorPassed": true
+}
