@@ -27,7 +27,7 @@ relations:
 
 - [前序判断](archive/scope-record-index-payload-validation.md)已让两域 `index` scope 仅验收索引 payload，却仍让 `all`／`domain` 验收完整 pending 内容。所选范围不同，不应让无关对象的 payload 可读性成为额外门槛。
 - 未选条目的路径、mode 与 OID 保持，和所选 payload 已实际读取，是不同证据。前者承担未选状态保护，后者承担本次消费内容的验收，不能互相替代。
-- [按对象刷新](refresh-selected-records-in-pending.md)继续定义 P-base 和选择语义；本判断只收敛内容读取责任，不改为 HEAD 基底或完整工作区替换。
+- [按对象刷新](261026-stage-and-refresh-explicit-record-selections.md)继续定义 P-base 和选择语义；本判断只收敛内容读取责任，不改为 HEAD 基底或完整工作区替换。
 
 ## 决策
 

@@ -20,7 +20,7 @@ relations: []
 
 ## 背景
 
-- 适用范围为 `skills/decision-records/` 与 `skills/investigation-report/` 的 `search`；权威文件匹配与索引身份映射沿用[权威文件搜索决策](search-authoritative-files-with-index-identity.md)。
+- 适用范围为 `skills/decision-records/` 与 `skills/investigation-report/` 的 `search`；权威文件匹配与索引身份映射沿用[权威文件搜索决策](261026-search-published-scope-with-current-text.md)。
 - 元数据匹配可以完整计算命中后再限量返回；正文发现同时受扫描资源与返回记录预算约束。预览是已返回记录的阅读辅助，省略片段不应使已确认的记录身份消失。
 - 新鲜度核对失败与已证明陈旧不同；完整扫描一个发布快照也不能证明当前未同步来源不存在命中。
 - 共享文件搜索另有消费者，其契约与分发责任不能仅因共享位置被扩大。两个记录域需要独立的收集控制，但不需要复制安全读取或文本匹配算法。

@@ -15,6 +15,9 @@ relations:
   - type: 修订
     target: 260909-incremental-vibe-gate
     summary: 保留成功输入事务，收窄为项目命令证明并以原生能力承接执行和材料结算
+  - type: 修订
+    target: 260912-isolate-release-version-control-resource-boundary
+    summary: 退役前序保留的批次执行与证明，隔离另由资源后继承接
 ---
 
 ## 目的
@@ -26,6 +29,9 @@ relations:
 
 - 前序以标签依赖图和成功 receipt 选择所有 base 工作，另有 release 批次及成功证明；这曾同时承担昂贵项目命令与原生材料的跨运行省略。
 - 原生 command Check 已拥有进程生命周期、受限捕获、transcript 与独立终态，当前项目测试文件没有需要批次去重的重叠。批次结果投影和额外证明增加维护面，而既有测量不足以证明其收益值得继续保留。
+- 批次退役直接改变[版本管理资源边界前序](isolate-release-version-control-resource-boundary.md)仍保留的机制；执行方式与资源隔离分别承接：
+  - 唯一文件去重、worker、JUnit 投影与批次成功证明在独立命令体系中退出，不回挂到更早的间接批次祖先。
+  - 版本管理独立诊断、CPU 独占和重评条件由同次[资源隔离后继](../retain-release-version-control-isolation.md)保留；本判断不把执行容器简化解释为解除隔离。
 - 原生材料能够按完整磁盘选择和当前规则结算，并自行复用计算事实；项目命令仍可能读取 Git ignore 下的 fixtures、生成物、MTS、配置和外部环境。只比较 Git revision、路径邻近或缓存解析事实，不能证明这些项目命令已在当前完整输入下通过。
 - Vibe 的 flags、依赖、learned strategy 和资源准入足以拥有运行选择与调度；项目需要补足的只是实际输入闭包与成功发布条件。
 

@@ -1,7 +1,7 @@
 ---
 title: 按显式决策 ID 与所选范围暂存
 id: 261004-stage-decisions-by-explicit-id-and-selected-scope
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-10-04T15:22:49Z
 purpose: 让并行决策变化按稳定身份与显式 scope 进入待提交快照，不混入未选择内容。

@@ -6,7 +6,7 @@ alignment: aligned
 createdAt: 2026-07-19T19:50:10+08:00
 purpose: 在保持证明点简短可审计的同时，避免多分支测试因机械拆分而重复 fixture、增加执行成本或造成共享数据底座漂移。
 background: 一条测试链路可以复用初始状态、基础数据和执行上下文，并在条件节点后形成多个可观察分支；按叶子结果逐项拆分会增加准备、同步和审计成本。
-decision: automated case 可按共享基座或连续链路聚合分支；`Proves:` 使用原子结果列表，复杂分支用 Mermaid，只有独立边界才拆分。
+decision: automated case 可按共享基座或连续链路聚合；Proves 写原子结果，多分支 case 使用 Mermaid，只有独立边界才拆分。
 tags:
   - semantic-test-cases
   - test-evidence-review

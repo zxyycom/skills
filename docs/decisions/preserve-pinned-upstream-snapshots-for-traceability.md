@@ -11,7 +11,6 @@ tags:
   - artifact-integrity
   - minimal-implementation
   - source-artifact-separation
-  - test-traceability
 relations:
   - type: 拆分
     target: choose-smallest-correct-maintenance-surface

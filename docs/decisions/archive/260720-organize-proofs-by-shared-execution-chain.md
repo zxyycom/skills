@@ -6,7 +6,7 @@ alignment: aligned
 createdAt: 2026-07-20T13:48:52+08:00
 purpose: 让 automated case 同时表达分支结果和线性 happy path 或失败链路上的多个可观察检查点，避免按证明点数量机械拆分 case。
 background: 既有规则把 `Proves:` 主要描述为分支叶子，但一条没有分支的连续执行链路也可能依次固定多个状态迁移、输出、副作用或清理不变量。
-decision: automated case 按共同契约、共享基座或连续链路组织；`Proves:` 可写分支或线性检查点，Mermaid 按需表达，仅独立契约才拆分。
+decision: automated case 按共同契约、共享基座或连续链路组织；Proves 可写分支或线性检查点，多分支用 Mermaid，线性关系影响理解时也用。
 tags:
   - semantic-test-cases
   - test-evidence-review

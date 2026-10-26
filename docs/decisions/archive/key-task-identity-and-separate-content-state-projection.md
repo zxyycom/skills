@@ -9,6 +9,7 @@ background: 任务采用嵌套字典后，如果 entry 内继续重复保存 ID 
 decision: 嵌套字典键承接身份与作用域；task entry 只保存 content 和显式 state，派生信息仅在查询时投影。
 tags:
   - product-architecture-judgment
+  - record-identity
   - task-graph
 relations:
   - type: 修订

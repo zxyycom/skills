@@ -10,6 +10,7 @@ decision: Decision 与 Investigation 新建或调整真实关系时填写有正�
 tags:
   - decision-records
   - investigation-report
+  - record-relations
 relations:
   - type: 修订
     target: 260905-add-optional-relation-summaries

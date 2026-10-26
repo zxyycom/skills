@@ -9,6 +9,7 @@ background: 索引文件已经确定工作区边界，scope 额外引入身份�
 decision: 根级 tasks 字典键承接 task 唯一身份；entry 继续分离 content 与 state，任务层级仅由 parentId 表达，工具只维护当前 Schema。
 tags:
   - product-architecture-judgment
+  - record-identity
   - task-graph
 relations:
   - type: 修订

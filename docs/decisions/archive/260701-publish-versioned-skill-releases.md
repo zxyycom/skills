@@ -18,6 +18,9 @@ relations:
     target: 260630-publish-skill-package-as-latest-release
   - type: 修订
     target: 260701-gate-latest-release-by-skill-hash
+  - type: 修订
+    target: 260701-add-submodule-release-workflows
+    summary: 保留独立子仓交付并改为版本化发布及latest兼容
 ---
 
 ## 目的

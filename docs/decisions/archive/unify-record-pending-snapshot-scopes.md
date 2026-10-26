@@ -1,7 +1,7 @@
 ---
 title: 为记录领域统一待提交快照范围
 id: 260922-unify-record-pending-snapshot-scopes
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-22T16:58:11Z
 purpose: 让两个记录领域用同一 stage 命令和显式 scope 构造可预测的选择性 Git pending 快照。
@@ -29,8 +29,8 @@ relations:
 
 - 两个领域都能选择正式记录并更新待提交索引，但 Decision 的 `stage` 写入完整决策快照，Investigation 的 `stage-index` 只写索引条目；同名交付动作覆盖的领域文件不同。
 - 删除与重命名要求同时覆盖当前集合与 `HEAD` 基线，Investigation 的报告还拥有完整受管资源目录子树，索引条目暂存无法表达这些领域路径。
-- [按报告 ID 独立暂存调查索引条目](archive/stage-investigation-index-entries-by-report-id.md)确立了按 Investigation ID 选择派生索引条目的语义，但把报告 Markdown 与资源的暂存留给调用方手工选择，命令入口也只在 Investigation 存在。
-- [为领域 CLI 统一工作区定位与帮助契约](unify-cli-workspace-location-and-help.md)已提供共同定位契约，索引陈旧门禁已提供同步集合与 mutation freshness gate；快照范围在此基础上收口。
+- [按报告 ID 独立暂存调查索引条目](stage-investigation-index-entries-by-report-id.md)确立了按 Investigation ID 选择派生索引条目的语义，但把报告 Markdown 与资源的暂存留给调用方手工选择，命令入口也只在 Investigation 存在。
+- [为领域 CLI 统一工作区定位与帮助契约](../unify-cli-workspace-location-and-help.md)已提供共同定位契约，索引陈旧门禁已提供同步集合与 mutation freshness gate；快照范围在此基础上收口。
 
 ## 决策
 

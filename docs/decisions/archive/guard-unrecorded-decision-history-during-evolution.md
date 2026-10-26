@@ -1,7 +1,7 @@
 ---
 title: 在决策演进中保护未进入版本基线的历史
 id: guard-unrecorded-decision-history-during-evolution
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-29T15:42:44Z
 purpose: 防止尚未进入 Git HEAD 的已建立决策在归档或关系演进中被无意作为短暂过程遗失。

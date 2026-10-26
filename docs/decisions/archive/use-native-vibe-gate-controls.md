@@ -20,6 +20,9 @@ relations:
   - type: 归并
     target: activate-release-gate-checks-by-tag
     summary: 以原生 flag 条件取代项目自定义 activation preflight
+  - type: 修订
+    target: declare-generated-artifact-prerequisites-for-vibe-consumers
+    summary: 以原生成功依赖替代consumer终态守卫
 ---
 
 ## 目的

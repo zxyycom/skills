@@ -9,6 +9,7 @@ background: 领域同时存在于 frontmatter、历史目录和查询参数时�
 decision: 由目录表定义领域，路径第一段表达唯一归属，索引 metadata 提供完整定义并从路径派生领域键。
 tags:
   - decision-records
+  - record-classification
 relations:
   - type: 归并
     target: query-projected-decision-metadata
@@ -26,6 +27,19 @@ relations:
 - 保留与领域无关的一级路径分组，会让路径身份、物理组织和逻辑分类分别演进，迁移和关系维护成本持续增加。
 - 可重复领域参数提供并集查询，却掩盖了单条决策应有唯一主要 owner；读取结果只显示 ID 时也缺少责任边界说明。
 - 领域目录表已经能够集中定义 ID 与描述，schema v2 索引 metadata 能够为全部读取路径提供类型化集合级上下文。
+
+### 形成时的职责承接
+
+本次归并改变一级分类来源，保留当时的 Frontmatter 投影、格式与查询责任：
+
+- **自包含投影**：Frontmatter 按 `title`、`status`、`alignment`、`createdAt`、`purpose`、`background`、`decision`、`relations` 集中保存文档自有事实。
+  - 三项摘要须忠实于正文；派生 path、查询 keys 和 sourceRevision 不在 Frontmatter 重复维护。
+  - alignment 的状态组合与不可变建立时间由当时固定契约验证。
+- **格式与排序**：JSON 外壳、key 定义、state 和 relation 对象采用固定语义字段序，entries 按 id 字典序、关系数组保持作者顺序；图只参与验证与追溯，不决定默认排序。
+  - 领域目录表和 metadata 的引入不把集中索引变成第二事实源，也不恢复递归字典序。
+  - 精确格式及该时点的格式限定由当时 `skills/decision-records/references/decision-record-rules.md` 承接。
+- **查询出口**：`list` 筛选投影，`show` 展开所选原文，`trace` 回放关系；默认 active、alignment 与时间展示、stdout 结果及 stderr warning 的结论边界保留。
+  - 原 topic 筛选改为单个 domain，由目录表及索引 metadata 提供领域定义，不另建并行分类。
 
 ## 决策
 - 采用: `decision-domains.json` 是领域 ID 和描述的唯一事实源；领域定义按 ID 稳定排序，并参与结构校验、索引投影和 source revision。

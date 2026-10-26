@@ -8,6 +8,7 @@ purpose: 让编辑器和恢复工具直接取得机器可读的当前索引结�
 background: 当前格式版本会演进，长期决策若固定具体版本会把实现事实误写成稳定方向。
 decision: 从 CLI 共享常量生成当前索引 JSON Schema，随 decision-records 分发并用生成检查防止漂移。
 tags:
+  - artifact-integrity
   - decision-records
 relations:
   - type: 修订
@@ -27,6 +28,6 @@ relations:
 ## 决策
 - 采用: 在 decision-records 源码中维护 JSON Schema 生成对象，并复用当前 CLI 的路径、时间、状态、关系类型和投影长度常量。
 - 采用: 构建入口将当前 Schema 确定性写入 `skills/decision-records/references/decision-index.schema.json`，生成检查和测试验证分发文件与源码一致。
-- 采用: skill 入口和恢复手册将该文件作为编辑器、临时 CLI 和手工索引恢复的机器可读资源。
+- 采用: skill 入口和恢复手册将该文件作为编辑器、临时 CLI 和手工索引恢复的机器可读资源。该资源表达机器结构，不授予自行构造、修补或复刻索引的权限；当前恢复写入按[只通过当前工具维护派生索引](rebuild-index-only-with-current-tools.md)及恢复手册执行。
 - 采用: JSON Schema 承接字段、类型、枚举、路径和基础格式；集合级语义继续由固定契约和 CLI `check` 承接。
 - 采用: 长期决策不固定具体 schema 版本；当前版本只由固定契约、Schema 文件和 CLI 实现表达。

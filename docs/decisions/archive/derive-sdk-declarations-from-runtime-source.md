@@ -1,7 +1,7 @@
 ---
 title: 从 task-graph 运行时源码派生 SDK 声明
 id: derive-sdk-declarations-from-runtime-source
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-07T04:59:10Z
 purpose: 让 CLI 与程序化调用共享一个实现和公开导出事实源，避免人工声明漂移。

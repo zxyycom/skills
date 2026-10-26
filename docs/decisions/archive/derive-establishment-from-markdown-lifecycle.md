@@ -38,6 +38,21 @@ relations:
 - 从旧索引 entries 选择重建源会漏掉索引外新增的合法已建立 Markdown，使查询可能在成员不完整时返回陈旧结果。
 - 领域目录迁移等协调结构变化需要移动 Markdown、更新关系并完整重建索引，不能继续由提交历史承担隐藏门禁。
 
+### 形成时的职责承接
+
+本次归并围绕建立状态收口，保留当时的定位、任务出口与字段化 CLI 责任：
+
+- **根目录定位**：决策根默认 `<root>/docs/decisions`；显式绝对 `--decisions-dir` 直接选目标且可位于 root 外，非绝对路径只相对 root 解析。全部查询与维护使用同一解析后根目录；根目录不再要求位于 Git 仓库，Git 不拥有建立状态。
+- **任务交付**：恢复或审阅、候选和维护分别按实际目标交付，具体流程由当时 `skills/decision-records/SKILL.md` 承接。
+  - warning 限定可得结论，不能因未显示而断言不存在。
+  - 完整合法的未激活候选允许准备为 Markdown，但不生效、不入索引。
+  - 维护结束以严格 `check` 为门禁，不把过程 warning 当作最终集合合格。
+- **字段化 CLI**：精确行为由当时固定契约承接。
+  - `list` 默认含活动的两种 alignment；`list`、`trace` 展示生命周期与对齐，`show` 展开投影与原文。
+  - `activate` 显式指定 alignment；`mark-aligned` 只允许已核对的活动未来方向转为 aligned，正文不按对齐分叉。
+  - 归档、关系与对齐分别维护，事实偏离不把 aligned 回退。
+  - 旧 HEAD pending 展示和 HEAD 关系门槛随建立状态改变退出，不再作为字段 CLI 的隐含条件。
+
 ## 决策
 
 - 采用: 合法候选是合法的新身份路径、当前完整格式、`status: active`、非空 `alignment` 且 `createdAt: null` 的 Markdown；候选不生效、不进入索引，存在时严格 `check` 继续失败。

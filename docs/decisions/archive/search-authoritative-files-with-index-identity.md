@@ -1,7 +1,7 @@
 ---
 title: 以权威文件搜索协同索引身份
 id: 260905-search-authoritative-files-with-index-identity
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-05T03:24:00Z
 purpose: 让未知领域身份时的全文发现直接读取受管权威文件，同时保持结构筛选与稳定身份由领域索引承接。

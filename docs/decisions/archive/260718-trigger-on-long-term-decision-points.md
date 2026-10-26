@@ -1,7 +1,7 @@
 ---
 title: 让长期决策形成和冲突成为核心触发
 id: 260718-trigger-on-long-term-decision-points
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-18T14:11:24+08:00
 purpose: 在真正形成长期判断或发生冲突时恢复决策上下文，避免普通执行误触发。

@@ -9,6 +9,7 @@ background: 领域目录路径同时承担身份、唯一归属、查询和定�
 decision: 以 Markdown basename 作为稳定 Decision ID，以非空记录级 tags 分类，以索引 sourcePath 定位，并以受检位置投影物理归档边界。
 tags:
   - decision-records
+  - record-identity
 relations:
   - type: 归并
     target: classify-decisions-by-controlled-domain-path

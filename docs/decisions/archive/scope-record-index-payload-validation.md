@@ -29,7 +29,7 @@ relations:
 
 [前序判断](scope-investigation-index-payload-validation.md)已为 Investigation 的 `index` scope 采用按索引路径验收，并保留其他范围的完整验证。Decision 的同类操作承担相同结果，不应继续为未消费的全部非索引对象验收内容。两域分别维护相同 scope 策略和准备、复核、发布顺序，也容易让保护边界再次分叉。
 
-本判断把既已采用的索引验收边界扩展到两个领域，不改变[独立暂存刷新](../refresh-selected-records-in-pending.md)的 P-base 选择语义、领域来源与资源约束，也不扩展到普通查询、维护事务或其他 Index Runtime 消费者。
+本判断把既已采用的索引验收边界扩展到两个领域，不改变[独立暂存刷新](refresh-selected-records-in-pending.md)的 P-base 选择语义、领域来源与资源约束，也不扩展到普通查询、维护事务或其他 Index Runtime 消费者。
 
 ## 决策
 

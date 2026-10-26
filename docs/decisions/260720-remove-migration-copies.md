@@ -9,6 +9,7 @@ background: "`workflows.md` 和 `rewrite-rules.md` 已长期不参与主动读�
 decision: 保持 `SKILL.md` 作为压缩后的默认流程 owner, 保留 `principles.md` 解释长期理由, 删除两份迁移副本并停止随包分发。
 tags:
   - ai-ready-docs
+  - file-lifecycle-hygiene
 relations:
   - type: 修订
     target: 260701-compact-entry-and-archive-migration-copies

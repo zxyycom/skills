@@ -13,6 +13,7 @@ tags:
   - product-architecture-judgment
   - responsibility-boundaries
   - shared-protocols
+  - source-artifact-separation
 relations: []
 ---
 

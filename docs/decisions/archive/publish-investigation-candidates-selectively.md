@@ -1,7 +1,7 @@
 ---
 title: 选择性发布调查 candidates，并保留全量正式同步
 id: publish-investigation-candidates-selectively
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-02T07:21:12Z
 purpose: 让通过审核的调查 candidate 以显式选择和可重复预检正常建立，并保持正式 Markdown 为唯一事实源。

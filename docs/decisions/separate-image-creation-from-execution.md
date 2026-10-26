@@ -9,6 +9,7 @@ background: 视觉要求、参考输入和非目标回归不能仅由生成工�
 decision: 由image-creation维护视觉任务与看图迭代，调用和参数归当前执行能力
 tags:
   - image-creation
+  - responsibility-boundaries
   - skill-design
 relations: []
 ---

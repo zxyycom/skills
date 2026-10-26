@@ -1,7 +1,7 @@
 ---
 title: 让独立决策暂存能够被发现
 id: make-independent-decision-staging-discoverable
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-06T11:26:45Z
 purpose: 让需要单独暂存决策集合的任务能够发现 decision-records 的专用能力。
@@ -9,6 +9,7 @@ background: 当前发现入口没有表达后来新增的独立 stage 能力，�
 decision: 后续必须让发现入口覆盖独立决策暂存；具体文案、触发边界、能力交接和降级方式在实施时确定。
 tags:
   - decision-records
+  - skill-invocation
 relations: []
 ---
 

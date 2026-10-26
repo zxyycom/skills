@@ -10,6 +10,7 @@ decision: 两域 CLI 以 set-relations 按 source 分组完整替换正式关系
 tags:
   - common-denominator-design
   - decision-records
+  - investigation-report
   - product-architecture-judgment
   - project-tooling
   - record-relations
@@ -18,6 +19,9 @@ relations:
   - type: 修订
     target: replace-decision-relations-as-complete-sets
     summary: 将完整集合替换统一为两域共同基础动作
+  - type: 修订
+    target: use-strategy-driven-closed-decision-relation-evolution
+    summary: 将纯关系修正从唯一evolve入口独立出来
 ---
 
 ## 目的

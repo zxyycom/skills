@@ -10,6 +10,7 @@ decision: 使用 Markdown 显式纯 ID 与索引 sourcePath 分离身份和位�
 tags:
   - artifact-identity
   - decision-records
+  - investigation-report
   - metadata-design
   - product-architecture-judgment
   - record-identity

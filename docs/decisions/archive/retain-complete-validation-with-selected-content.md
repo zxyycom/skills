@@ -9,6 +9,7 @@ background: 阶段快照需要完整身份保护，但领域通常只消费所�
 decision: 以共享专用原语分离完整实际payload验证、opaque快照身份和所需内容保留。
 tags:
   - investigation-report
+  - performance
   - responsibility-boundaries
   - version-control
 relations: []

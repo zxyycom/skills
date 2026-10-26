@@ -9,6 +9,7 @@ background: 固定契约足以解释格式，但临时工具仍需要重新提�
 decision: 从 CLI 共享常量生成索引 JSON Schema，并作为 decision-records 资源随包分发。
 tags:
   - decision-records
+  - metadata-design
 relations: []
 ---
 

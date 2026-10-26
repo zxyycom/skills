@@ -18,7 +18,7 @@
       "260701-compact-entry-and-archive-migration-copies": "sha256:628bc029e4fcc570a843125e7bb0ed2c26231c5b8c3791557e1e213089321d09",
       "260701-embed-self-update-script-in-skill-packages": "sha256:29d539d13e5cedadb1d6bbb871307ba0af7f8e3228d65018eae5676f37ab5326",
       "260701-gate-latest-release-by-skill-hash": "sha256:05df43a61d682f62284dad11f3532477c7e665365bd7459b4e29207a391ba9b9",
-      "260701-publish-versioned-skill-releases": "sha256:f8531eafd92cdb53dceaaf6e46402cc385afa995756a533668f2bb9b76d87e44",
+      "260701-publish-versioned-skill-releases": "sha256:46ebff580a16e33485f90f1cec5750c713895c80cb8c3c78515625b2b0de1d11",
       "260701-update-package-hash-with-git-hooks": "sha256:01919104fdd0fada628e3a73fe0be4b6c616b643603f9f1f34fa34eaf0c4cdf8",
       "260701-use-libraries-for-common-script-behavior": "sha256:5f8586e6f01d7246e1cea06c7ed583ac059988aeef8a5db6c6108478ed151641",
       "260701-use-tsgo-for-typecheck": "sha256:edb46804d6ed2c3cfe619d0def01363f003320b05f25870c53329bf775f10cc0",
@@ -44,11 +44,11 @@
       "260718-notify-before-decision-writes": "sha256:257b8d55d54aac10a8451013b8e734167c53b30f8316571a49d35071033cd2e3",
       "260718-separate-behavior-entry-from-storage-contract": "sha256:568b3ff6e5c0b0fddd7919a8f610593e3f93cb569923349c43364214239a70a4",
       "260718-separate-logical-archive-from-relations": "sha256:fa2756453453cd670b17efcbc965acb27788ccb04feb9b91684ebddd899c3ca2",
-      "260718-trigger-on-long-term-decision-points": "sha256:0c94cd12f8249f9cc6bcab45bfb5f18824d4d5d6286d0e4af83341f0ed9d1a1f",
+      "260718-trigger-on-long-term-decision-points": "sha256:99120997b5bb3b1ce7394d056bc1bd0634f932ff185454ba5b6069cad5e6398c",
       "260718-use-project-coding-style-owner": "sha256:0be100b8e88849dacc0ac80fcde07f1ae612dbef1b9b81706dc24e4678569bb9",
       "260718-use-purpose-background-decision-structure": "sha256:4507d6bbae8d937031a785c3fb34cd0a36cf23b5eb50cd6f4ee70da88e6b1d09",
       "260719-model-verification-obligations-and-source-roles": "sha256:19a8b50a3a423da8211c71f274efbb415083809ab930d78b3e4b98a052f22251",
-      "260719-organize-multi-branch-proofs-by-shared-base": "sha256:1074d9e4fbbc0d0e3e14f6b89e8d242edeff0b1e04532a75d90c8b3c4d843fd2",
+      "260719-organize-multi-branch-proofs-by-shared-base": "sha256:d8628da9b5c7972f4751ff6f01c42e7087b577af068052253cf9425eddc5ebb7",
       "260719-own-project-aware-skill-lifecycle": "sha256:b5159d5ffcdf41a5b942b9329794b4d5a83ff1a3a843420fc639b5ee9fe816f8",
       "260719-separate-test-value-from-ledger-validation": "sha256:5782dfbdcea5dc1157b30c1e130bd15ba10eccc24a27be43c8df8a6870640acf",
       "260720-auto-initialize-index-on-first-activation": "sha256:76eaa3de9deffd58073372cd556bfe2acb0cf8dd90e39ff45a572ced5b6767fc",
@@ -60,8 +60,8 @@
       "260720-keep-problem-reframing-self-contained": "sha256:4f84085e30fb8ccf78c08b7062200277db3aa3cec29ca2b7415ef5bdcf5b2718",
       "260720-map-test-entries-and-trigger-scoped-reviews": "sha256:9b31839e7b43eeb4d5ddaf0315fe2d30d06d413360aa966531f8e9867a8bb092",
       "260720-orchestrate-checks-with-conservative-concurrency": "sha256:bdb38a9b7a13b7a5c1e9cd9212c090ef77413b266669bb11997c89d867193ac7",
-      "260720-organize-proofs-by-shared-execution-chain": "sha256:8049536b246866a51101a467f58d73f6ce578dc4599a3e7cbc043e75eb896844",
-      "260720-remove-migration-copies": "sha256:21e3a73a7fa49df75e54a500dc4553a27020296656b3e6c40d0ec75620802784",
+      "260720-organize-proofs-by-shared-execution-chain": "sha256:7836a3a68fe21cccbd8f6d8036e81d2af810bb119c73096312ebdd66b274460b",
+      "260720-remove-migration-copies": "sha256:501f93165f37d99af943d72894d8275c4abae1fd25af45205b8f8d08638009f8",
       "260720-return-query-results-with-warnings": "sha256:838a292d33ac8f9e2fb5c232b36f9bfcae143cdece916548c203b9a71e28e078",
       "260720-separate-editorial-edits-from-evolution": "sha256:9f93aa3f361984501e0923962cdcc8c7aa25801cd8fa8fced199f365d840be8e",
       "260720-separate-framing-from-engineering-landing": "sha256:a07a013aa00c8682719333c1dceb82854aa4e1ea8bd8c52e8a3a82da2ee80c67",
@@ -80,10 +80,10 @@
       "260904-adopt-date-prefixed-record-identities": "sha256:045c5c619144f16160aabd9920cb25cebe2b0aa9ffe63eb8a3b6b48ee965038b",
       "260904-complete-change-plans-by-deletion": "sha256:6333edce1e7cc7093e2c5ebad5b0248331f547d3cc4c1a5dff6b6154ad25dca6",
       "260904-current-change-plan-completion": "sha256:a6d7af7af3ae99600672182c67f8bf5b634ce95e269f6d36250d27eebd167c25",
-      "260905-add-optional-relation-summaries": "sha256:a371437fae26e53c3b883efe81696ae36c0dc373038feb4a4a510689fd67f841",
-      "260905-search-authoritative-files-with-index-identity": "sha256:34240d591900ff1d798fe204e9bb5490dabbc432399336b3c7a5ffa8534d2b6a",
+      "260905-add-optional-relation-summaries": "sha256:26fa71afa66780adc935bd685b50394ba6962a9f59469715f99f39afe4483c1f",
+      "260905-search-authoritative-files-with-index-identity": "sha256:cdf12d954af9e9c9463b52cf68a09e0eb191d9b586530824faf54cd74b5f9898",
       "260905-separate-persistent-state-from-query-projection": "sha256:c067463e2abeffddb791d21938cc9f2dc59ae338296173c4e5c7554e893a50a8",
-      "260907-case-only-test-evidence-workspace": "sha256:8d2b430120ff5904b0e12ff7c10c77f3aef1e0e8094e691fcecc37a0e25d01a5",
+      "260907-case-only-test-evidence-workspace": "sha256:5d9cc31c621f67c348d6d18bc3a6fd101e740178a0ef932cdb78a94c280a5488",
       "260907-case-snapshot-reference-boundary": "sha256:ff3893b4a7c8256de7c63fc62d867867250d3ea399f1bb8b89ca0706d466b329",
       "260907-stage-case-index-definition-migration": "sha256:bedef9fa7f9be6902421eab3e72a07c3fb1c8b9c81beaedf6505b5ebc29f7bc9",
       "260908-authorize-throttled-main-auto-push-hook": "sha256:37cc5aefa8cb026fd1d8dee2d2a422bac6bda46611577df0764f455ccffa7a8b",
@@ -94,8 +94,8 @@
       "260909-adopt-vibe-check-0-0-2-gate-runtime": "sha256:af245cdf1ce1ee1e2cd3594fac65b0c3d27927a1db62c972112e256eba183a5c",
       "260909-batch-release-test-execution": "sha256:40c65db65eee894ce7379d05a973ea2564ad79f08b731d841c60646f983e9d91",
       "260909-incremental-vibe-gate": "sha256:1f4be987daaa4ccf85701a295be7e485af25678fdc8d1276d045a6feef79db59",
-      "260909-use-native-vibe-gate-controls": "sha256:a763ab0a06d44cf6d55adb54725b9a0bcf6bd4c3bdec6a76a5ea41f4c9ce149d",
-      "260909-write-explanatory-relation-summaries": "sha256:ece110950bc41206998c14673cd9f3e88592c176feeeaa0e317352bad9d180ff",
+      "260909-use-native-vibe-gate-controls": "sha256:abdb47ce9d0e8a6e76789f88a04a4f362d54e7ae31768dac42469911d05b63ca",
+      "260909-write-explanatory-relation-summaries": "sha256:bf79665286a3441fe79d2a859a5cfae3f45ac25399cb97d2b058a773f83cc433",
       "260911-block-code-quality-metric-findings": "sha256:ab1bfd6fe1e0ec0e434341f490352afbd3f2b9cca6d6bd14cf30e99510d2e208",
       "260912-isolate-release-version-control-resource-boundary": "sha256:d0b1c3ab246caf6c5e955a1be034596feb1111ff3772a2a95c4f4d223b883c6d",
       "260912-separate-relation-summary-consumption-by-reading-task": "sha256:2093bfefc99214415a4837aa63e194facca4dd82562ca523181abd6d8f7b33d6",
@@ -104,12 +104,12 @@
       "260920-finalize-change-plans-by-deletion": "sha256:10cf6690d9ae70af12a38dc54996b809086e14a58c7311812c93d0715c87ba7e",
       "260922-front-load-record-context-recovery": "sha256:457ea886d899da2a9d80e4118b33afc814f5ce3951b0f64f168a96d2ec244785",
       "260922-unify-cli-workspace-location-and-help": "sha256:5a823ce3607c76af0f0bb9b735fba8e04d2a517e245c9e8e69dcf67f4a498a01",
-      "260922-unify-formal-relation-maintenance-actions": "sha256:404749283553846c1b7ef56d267c4b2982efe08b29b55ce343fd62c503993ee1",
+      "260922-unify-formal-relation-maintenance-actions": "sha256:3e8ff44f1f1029cc3bb9bc7ffe5357b4e16ce7cfa7f76d420f7191719d11b395",
       "260922-unify-record-candidate-lifecycle-actions": "sha256:70033f215c7b8e1633d7c4ed8d3a71f898c477cc3e936de29ad21661498611af",
-      "260922-unify-record-pending-snapshot-scopes": "sha256:864547962cb88df7b5ac8c38976bc4abdb07eeb38f8a1c0d94718adc0d0b71b8",
+      "260922-unify-record-pending-snapshot-scopes": "sha256:c9e5d72611641cea0a255fd4041f4bc6379624a154ecb1af2fe05d7249d8d87e",
       "261003-lightweight-judgment-durable-calls": "sha256:be254f6a1a0680dd997fa20469d3247e2e76d54187db0bfecdd68f185980f99a",
       "261003-lightweight-judgment-explicit-invocation": "sha256:42fe1dc47c8c6a6a5ae0809304ad5964767fa088b4a127fa89d50ad59f756b2b",
-      "261003-separate-record-search-coverage-from-preview-budgets": "sha256:7753c0523a1d8627b3323d41c4a0cc44545b7d77be8454e47a09a6d429cd8b44",
+      "261003-separate-record-search-coverage-from-preview-budgets": "sha256:f7048ca3558873cd53d239ec810e7a0a2221e00f928422ca29a2c2d215540b6d",
       "261004-anchor-investigation-resources-to-explicit-report-ids": "sha256:a9d439a77fc5cf5919195e580faddf9b27d4a4801852514138e48dfd34e2042a",
       "261004-evolve-decision-lifecycle-through-closed-strategies": "sha256:35945dd42c3847e733728bbf480d343c300e92c2a82e9b58b486b2ca8252260e",
       "261004-exclude-historical-investigation-bytes-from-link-gate": "sha256:dbad1c240d0c22cbe31785024c5fd43d9e937f085090175e2a110c33b9ed7e71",
@@ -119,7 +119,7 @@
       "261004-recover-record-context-before-new-work": "sha256:435e069278dd7ef9d8027ef6948979663bd22f72207d6fb777337b470f2ef861",
       "261004-require-one-canonical-change-metadata-model": "sha256:8b323acb814148b44a43577839937b78f1eb22a9a5cc4aa62f2fa4b4335df2ab",
       "261004-route-current-results-to-the-minimal-durable-carrier": "sha256:a7a86d70d38638b16bf25e205e5666747e06f797e35635f6fe5af2a3321c7888",
-      "261004-stage-decisions-by-explicit-id-and-selected-scope": "sha256:1c96322c1e3a6b7ccb6e42a1378c3dc55af615b06cd2740978afafae7cb7f08b",
+      "261004-stage-decisions-by-explicit-id-and-selected-scope": "sha256:e5730b22f7596e323c2070345207aaf2c7ab9daab878a2b3e8e0c78ac9e0a51e",
       "261005-lightweight-judgment-current-schema-statistics": "sha256:f41233044718d3f1be6a32d34a87508d6520edb76fcdb250b375ccb118da5847",
       "261005-preserve-pending-file-representation": "sha256:4d2c3fb6a1659edc28fc47928b5762942c2272e950f221c6899bf45196d5df20",
       "261006-keep-novel-card-meaning-separate-from-index": "sha256:387ae9b3fae7b9a7ab20c0890e35f11aee28e9a0d88c5833e9bd98c3226d2e1f",
@@ -127,31 +127,37 @@
       "261008-maintain-record-quality-through-project-workflow": "sha256:804ad74dfa950e266e09648a62c29eed04fe1850971ced043c6a4ae632090f82",
       "261009-require-one-project-repository-for-change-roots": "sha256:ebcd33cdec3e750108043b1fa433ed0bddd7d0b9cfea1117374496f5ec9a8bfc",
       "261010-investigation-local-validation-and-phase-facts": "sha256:575e7a38ac477ca6e3af84085c76bd101d3da1964efe38e595c15b62dd7fa840",
-      "261010-retain-complete-validation-with-selected-content": "sha256:277160a97f3f3f37b38dd891a842e36f56883686291617de3af7c2ca4cd79fea",
+      "261010-retain-complete-validation-with-selected-content": "sha256:627e3dd831b6a89f6098f27d86a1e6986fdb1c6ede970cbdfbdf4754b28ddf75",
       "261010-separate-investigation-query-and-validation-acquisition": "sha256:5669fdde0cbe2d1f86188ef5ed606f836f32660c960a2554b4c48083afc4a70a",
       "261011-publish-decision-index-query-snapshots": "sha256:8a85d80b6bfd2bc955f925af7a6d78a48408ebc5b1ee6012b1e92d0dadd7ffa1",
       "261017-complete-change-plans-through-task-declarations": "sha256:de38af27e41917cae426abb4903d4b20492b7c84f0b5b6643753b714b309f2bb",
       "261017-lightweight-judgment-faithful-protocol-adapters": "sha256:bb4a453ec6fb6159f865a3b5b3307e5ff5b0585a3aa9481a78919fd79ebc40b3",
       "261017-route-record-documentation-by-consumer-task": "sha256:45930827a933def1ad4df38f87547f0418e595912280f7ae9e03f3e3d7d0884a",
       "261020-distinguish-tool-change-flags-from-check-subscriptions": "sha256:363f90cc826c7fc64862aab4ee9c82febde91863eb6bd75a11d789db02ee10b8",
-      "261020-distribute-editable-typescript-runtimes": "sha256:1f3f89abb9f4de19cf2818812bb003d16a7a02d6a457b65cae31190bb401fb52",
-      "261020-native-gate-execution-and-project-receipts": "sha256:6b59ad5e84f83af741c18b98d44259d537d3d1c6fd4bc32d105f76419682a5fe",
+      "261020-distribute-editable-typescript-runtimes": "sha256:75ad71558cc22324b6d1a395a5da53cd1c32a791e5e0284c3b61d0051f09342a",
+      "261020-native-gate-execution-and-project-receipts": "sha256:772251971e6bffa6678b1dedc8068cb2faed11f3e9c52d73676e4d7f7e17436d",
       "261020-retain-release-version-control-isolation": "sha256:3187831faf378e199547da7d80794b5918a132652d5ee6fdcc65d71c96003e83",
       "261020-unify-gate-generated-artifact-prerequisite": "sha256:dadfc27ecd56b60a6042e853c9992988079247cb4be5e81481439b8520d6a682",
       "261021-allow-markdown-lint-receipts": "sha256:cdfc74f1d08ac5007a57ff3df2d32daeb3e8fc89022b9d57c34c3dedd973dca5",
-      "261022-refresh-selected-records-in-pending": "sha256:043e366c0cfce0670e545ad759bbe4819d6548789066537d5e2d5ad6509b9e4f",
+      "261022-refresh-selected-records-in-pending": "sha256:27d396dd4c2eabb60077f1c3d8a77a372d45c5ed251da13897ecbd9b0645571b",
       "261022-scope-investigation-index-payload-validation": "sha256:7ae97d432be75b020bfa96b6cb8dfba88fda65acdd0ac820118458ddf75bdd8c",
-      "261022-scope-record-index-payload-validation": "sha256:76a4a5ab11e04ed2e897dadd9253633c9d3e9ce38eff85488214a721367839a7",
+      "261022-scope-record-index-payload-validation": "sha256:15a8b3bfb68b1506decaf895dea6b8a9c9604b63f55e31fe7c3d1fe83b4de664",
       "261022-separate-quick-gate-from-complete-validation": "sha256:38418e687ffc5adb5244d3f32cde7c41e304786bad7118b6e3f55fae8e8c2c78",
-      "261022-separate-record-local-operations-from-collection-audits": "sha256:c1930d0fca9164f605a8bdf9cedd0e77d59a7296889f7dce44f4af5cfff94695",
+      "261022-separate-record-local-operations-from-collection-audits": "sha256:5b78b1072903759b5e1160e3c4fc7f59b12984704568b47a18fdde794e6ff952",
       "261024-bound-record-operations-to-published-facts": "sha256:0b2816d33c81b7e861d69e2b2c0507037b22e0655012bac50c3d186fc220b9f4",
-      "261024-bound-selected-record-sync-currentness": "sha256:7ca10a631d9c961d1622774e10f6b582ffa9258b0cd587fdca1cc500003c1856",
+      "261024-bound-selected-record-sync-currentness": "sha256:a596c6c1a8820189c71cddf0fb539c49a8d319997bfd33366e0df5712c1fa13f",
       "261024-keep-video-configuration-outside-installation": "sha256:3630e8154c3dff9de110ccbd27d2d3a8697b51bd83e78f8edeead6c7180cdf87",
       "261024-require-windows-video-acceptance-for-aggregate-release": "sha256:9832687f36388a19f952df866a5bf22cabc8e8bc3991354c6a7723787661b852",
       "261024-retain-dated-identities-without-name-migration": "sha256:e28289e29a806a895a85c11a68a4f84d10471abe90d8ac671b45790253670f4f",
-      "261024-separate-image-creation-from-execution": "sha256:0330e2e90ee580c8f5703b1ea0f66d89af9f5acf3bdb2f23481fc4cdfb362d7d",
+      "261024-separate-image-creation-from-execution": "sha256:3171f3e63205a8a2370445bf264d1fee0a3ac99ad8b033db13564b9e737048cf",
       "261024-separate-test-design-from-evidence-catalog": "sha256:6cf6b51806fc6647e65a14245c39afe632e1a9d4a5d9c270f4bd946344b98b77",
-      "261024-validate-record-stage-selected-payloads": "sha256:0fc3635c4346ad2c4ef1899ba7cd8f4d8f82b54175bce0a29a5520e80b86086f",
+      "261024-validate-record-stage-selected-payloads": "sha256:f10b4886701ddbd0fe3fd9b08e6cecce4d54afdb865e02e5fb467af2254f3460",
+      "261026-discard-investigations-from-published-facts": "sha256:ec442676124e71fbde45e87fdc4aaf6ab684dc415e41afecafc117de92f61822",
+      "261026-discover-decision-work-at-complete-entry-points": "sha256:c6b967f54ad8760f756e0a1b3acc3788aa4dd68f746092d8ec6772967743973e",
+      "261026-protect-decision-history-by-head-identity": "sha256:4d68bf8602a3b5f813ea557323b8d8c014230efab939d54746b73f35b89cc694",
+      "261026-publish-selected-investigations-from-published-facts": "sha256:2402abe5784c2a77c83f104c310b9e92ef72bf912e6520fbbb155a4e52276959",
+      "261026-search-published-scope-with-current-text": "sha256:42a4e201f62000ff45552224697ee195407576335e42d1c873fbdeb8b21af954",
+      "261026-stage-and-refresh-explicit-record-selections": "sha256:5233a04b8e68840c465edf731625ba71a8a0f408c54ef979c31bd2b7ecf49345",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -182,7 +188,7 @@
       "choose-smallest-correct-maintenance-surface": "sha256:bba37245be823c7509b1567e9f0b0cbc1bc42b63fd9a45851dd7a6cb641fbeac",
       "classify-ai-configuration-commits": "sha256:1e5cdcf72ee1250623bef324cf4efb7637e24f2516975c00f8ba287f0270941a",
       "classify-decisions-by-controlled-domain-path": "sha256:935a56a21e00dd659ce0312bbd806b59e250f7e58458e396db60474caf08e71e",
-      "classify-decisions-with-record-level-tags": "sha256:a68fd1964e74e0b171b0adc01d5d2662c50b101883ecaf7a9253cf24c29fef8c",
+      "classify-decisions-with-record-level-tags": "sha256:7ff5b62a13d379138e17f969a8cc291940aa9c650a2a4018643ebe5c3c08ce70",
       "classify-task-index-transaction-outcomes-conservatively": "sha256:0b7722e0f867dd522bba914f444142072893d2e277a5be9a0788303752d7610f",
       "compare-correct-options-by-total-maintenance-surface": "sha256:4bd2d15e83f44fef1e8d606ef8f5944d3a45f6bfdebbbc0f7fe09f229437c9a6",
       "complete-current-decision-work-by-task-outcome": "sha256:afcb35dc2315d1bad66f5a4d49131b474c45fe890d38664de91464fbf65b5568",
@@ -195,23 +201,23 @@
       "default-to-current-task-changes": "sha256:0e216c611c56a648e33b1db7c448a33c54b8cd7f34dc0d5be8204528ec02e33f",
       "defer-openspec-maintenance-during-removal-review": "sha256:1ede5e595a5a5ebe546c28d1ac29d6a20e399d58039e593e9b87c5b3f0371b12",
       "defer-standard-test-result-blocking": "sha256:7a4a6d1cd686117d378d95d0920295b62ea3b92337d14c6ae0255d3d06a34280",
-      "defer-terminal-correction-until-confirmed-recovery-need": "sha256:741f83865b3fbe25c81e5c61d1cad01a403d128a5e07e188d173f430a42cb76e",
+      "defer-terminal-correction-until-confirmed-recovery-need": "sha256:dd70bbab4059fdadd3e2d8f8ca0e5d33512c43da057368ac13dec6f0452563e2",
       "define-decision-alignment-semantics": "sha256:0f80dfe50628ed41a91cc2ecfb687d4af623fefaf6d4e737ac56cb400c8b95c9",
-      "define-version-control-visible-investigation-resources": "sha256:fca0999fba98268cc8e3cc950b6c8875b68cff888b4a9e469a298053725ef32a",
+      "define-version-control-visible-investigation-resources": "sha256:6ce61b918596e9a0da44153d2cfc99fd2bc014c1fecabeea9ac44c09ded6a692",
       "delegate-native-runtime-installation-to-caller": "sha256:d8f3e546f21b706d12fdcd7a3e146e5f69d361dff942a250155029631522a41d",
       "derive-check-exit-status-from-step-results": "sha256:924e1b6318b7cb216c8e0d7d681ece09972531185cf672b3686f3a31783ffbb6",
-      "derive-decision-records-declarations-from-runtime-source": "sha256:c13c5482f99b56548cfcabfcba650d5096a9ad0bad59811124d26798e112a7e0",
-      "derive-establishment-from-markdown-lifecycle": "sha256:f437c648e1f7dd586593f9413d04f26ed64880d913584fb9345a37a0a38fb704",
+      "derive-decision-records-declarations-from-runtime-source": "sha256:f50569ca8e4c9f94affb956d875e0e69f5c0eac53ce9bb5dbad533b4ca332f7a",
+      "derive-establishment-from-markdown-lifecycle": "sha256:722666f5401928636ca854eddf0b336034c77e09afecb132c1821e21c8ebd13e",
       "derive-pending-from-head-path": "sha256:aaa9ce1bb79fbf2f2c7c1b9367e925d9df5c9ad5e4c82be800e4b8edb53e0f88",
-      "derive-sdk-declarations-from-runtime-source": "sha256:97684ece42d661d2ba340ad06232691aa6c2846cea57e55d57bc43afba38dbcf",
+      "derive-sdk-declarations-from-runtime-source": "sha256:f6430b9a568c4341fad7f8067cb1f78ad1fcca4f0d37107967ca86d5c8e4f62b",
       "design-by-scenario-denominators": "sha256:268ed2ab07e020addf420a496eb8ee21d7ae569d88ee591b261ce5a4f0a4f4d5",
       "detect-shelved-plans-by-git-distance": "sha256:683daf2c36ce5241364c23155002f2ccc73e6f2a96bc01351831bef68d5a5cc1",
       "discard-complete-unreferenced-decisions": "sha256:8180f76c21d54bdddc15a719a67f2594189a4e8c3fa8f8acee4ba97173aac1aa",
-      "discard-complete-unreferenced-investigation-reports": "sha256:9b242c311af158c2790c2c907c6dc8cf76835f3e082de25ab75be41e894e1958",
+      "discard-complete-unreferenced-investigation-reports": "sha256:6a3e7443aeed329230e883b6e3c093b78f570c2b30b4d22f2673406e8dc5b795",
       "discover-skill-behavior-before-lifecycle-implementation": "sha256:0b99aeee36843ae7efef9fe5aefadb5f822bcda590e56a219ed953ac3eba0e4f",
       "distinguish-skill-and-distribution-unit-boundaries": "sha256:75307e3fe0ba006b1c7086acd21217b0e09bb1bfcdc37ae2da8e84b6a7f38db5",
       "distribute-openspec-as-an-aggregate-unit": "sha256:4487088ffa447245d27dd3e80c07acda715dacd95e28d794fae71520034355a4",
-      "distribute-openspec-skills-independently": "sha256:ed117f0cebfd0b4997de932c4ea5f8d8c50979192d847bb264e9062d90d74214",
+      "distribute-openspec-skills-independently": "sha256:ea79501a8a6a5a6ae5cd5b75d6770c18e61c27b2e83f2776b44d9439a0f62615",
       "enforce-one-oxlint-quality-baseline": "sha256:51a547891e781e31e4d9ffa2de7613d0ce02a420aee0e99bb008fadaf884565b",
       "establish-decisions-with-atomic-evolution": "sha256:ffa369890a36f9060c604f6b1ea68bbe78f211349e6d71f65066f0bb8f3e03bd",
       "establish-document-main-promise-for-ai-ready-docs": "sha256:3895ad4b4ed27974fdaf0d17cba804662aea98971a02289afb16f9a5eab1135d",
@@ -232,7 +238,7 @@
       "generate-query-index-from-topic-files": "sha256:57c225acbb5c9b7363d19f484ca53ecc6a3f4b8289e69ecd4044f7959f55a404",
       "generate-self-contained-tool-distributions": "sha256:a6a322f47057ae576b5ae5b198e55e30e3120ec2a91173a0e575902391ce070d",
       "guard-unrecorded-decision-evolution": "sha256:266bcc8c1921bafe3779a55a783bca86122514c8e2d1d8d2524df863e7215d66",
-      "guard-unrecorded-decision-history-during-evolution": "sha256:f1b65cb953193d919dd3ffe44dea1b0de459b7af982761900cea2482ede17b9f",
+      "guard-unrecorded-decision-history-during-evolution": "sha256:03ab484456acb2e7ec474843f031b02cfccade9f01188c63567bb4b19c249eb8",
       "handoff-minimum-results-and-evidence": "sha256:51ce19e15d93596add16e6c7a6cb5f394897f177db75428c2a9bbc8b04751cec",
       "index-independent-proof-cases-from-current-catalog": "sha256:cba0860dafd9c38a612f7346d0c5bcb68b99abb2907de003e7503c8e327fdaaf",
       "index-ledger-by-stable-case-state": "sha256:62022646f66f676a97f8656e81d6045674b61adc505d633673e1f26fdbebaf3b",
@@ -242,7 +248,7 @@
       "keep-task-execution-mechanism-neutral": "sha256:65a7184ecd43adfa96de3d09158da2fd819afcead318528a4545a9664fb22c60",
       "keep-task-graph-locks-outside-workspace": "sha256:00d9d57475883c173707c9c8d4ce8ffc41fbbeb528dd731704ae7898c9579a7f",
       "keep-task-results-semantic": "sha256:e9aa7eb7637fa8dd747f001744af1361f95f7ecf1b5ff1eb724871a1218ced1e",
-      "key-task-identity-and-separate-content-state-projection": "sha256:e18bb50830ce0417e7444e2767f884b9bdc3cbf7f519a72330aea64d7039b3b4",
+      "key-task-identity-and-separate-content-state-projection": "sha256:f08436dfc5b016a64878be9fa9a2dd550f49c5095b80c983545c4643b383e81d",
       "limit-investigation-resources-to-version-control-visible-members": "sha256:7058e51d467007b13c045a73b51daad87763e6607f23e7506cb2176146915bd4",
       "locate-decisions-through-id-keyed-index": "sha256:69052479078337c82c2c7619ccbc4cdc5ed41bba63748180005013f3ed257be7",
       "locate-locks-by-task-index-identity": "sha256:79884f28e5779fa82a69c0ee02cd5d4ab132a1e1349d0735c8df16f69e0f0d4d",
@@ -252,7 +258,7 @@
       "maintain-rebuildable-read-side-index-boundary": "sha256:fdb4acb0624c2084c07e2a3888d2d8dfed439812c4f114095a0d1b78f2fac4fb",
       "maintain-report-level-investigation-index": "sha256:85ddcfbb95ad89d852b26ca481993b42c1657a5af8f12458175aa32540362bf0",
       "maintain-topic-level-investigation-index": "sha256:f2460b4a5e384c0602a47ce3bd38053210e40c3e7af768787c72c8dce02cecfe",
-      "make-independent-decision-staging-discoverable": "sha256:4648846317ec3f10c30d97b3c7a1ec51e4b7ef5d7ddaa0a60a0664180c137555",
+      "make-independent-decision-staging-discoverable": "sha256:388b3943625d0bafe571c300c40ed3fd5256f2c14748200f956310d013887b95",
       "make-skill-zip-bytes-deterministic": "sha256:a5cbeca0db4a6e05a424917a76644cc2c443a5c2f1474b56ddc24103a5a83f1d",
       "manage-basic-change-lifecycle": "sha256:679045fb78a48872987204cbe3632a32c4c3d3d4d515583e0a9147495dd65166",
       "manage-change-lifecycle-stages": "sha256:11c872d8927aed5a19078b0f360e0add661efa062d6e462c45f808875119b774",
@@ -260,7 +266,7 @@
       "mask-non-code-test-syntax": "sha256:120ac764ab7306dca509faf048cf102ae35fb11f4777afb021c344a1429240e0",
       "model-investigation-evolution-and-explicit-removal": "sha256:7bc19d6911d042c98356939e7736515f1975de39dca3540ddd3d724bdd6894ee",
       "model-investigation-evolution-as-direct-relations": "sha256:f8a57cddf44fe445d9f8eead6dbef8fb14aa4917be3a06588d2e306e5285f749",
-      "model-investigation-evolution-as-report-relations": "sha256:0b119e7d536d8e2f686cfa251002ec700f687afe691bad108c57b80eb774e433",
+      "model-investigation-evolution-as-report-relations": "sha256:942a5b8458b27f84644c271ddfd0d6cde76b947e850788b1eab83fd7db89b800",
       "model-task-relations-with-distinct-invariants": "sha256:81977f67b8a5a17971b1fca5723ab0b67ffdd8e425effd4a203f78c5eae412c2",
       "model-task-topology-and-inheritance-explicitly": "sha256:97926a79ac669b26554530389e4f485b0e0ecd6c3c93c4c9f389ab9d3028364d",
       "notify-before-current-decision-writes": "sha256:36af83458fea67289699109346b1dc9c01e7dd237087f4d334fbdef61f30033a",
@@ -271,19 +277,19 @@
       "organize-vibe-checks-by-semantic-identity": "sha256:0f7e1c20ec7d59f621f5df4ce3569c485360b9b030ced774d67b49c92af0be87",
       "own-recoverable-task-coordination": "sha256:354aa55e64591a8eb23b7186ba1ecee3f53df9e7f7f3c5a1ed8098fb90b7628c",
       "own-short-lived-task-orchestration": "sha256:eafb2f2b89583e57dbf777ca13d8f0dde1ca1e0092849802aa1403bd17c937d8",
-      "package-current-index-json-schema": "sha256:d55948beb2277fbe3f28e3e96c36f37f20e23ec4dbf37c81f598874e472fb074",
-      "package-index-json-schema": "sha256:3739d35107dd8f9ab01a7152b653635e94d84ebd4b28f79948155b42cdffd3f9",
+      "package-current-index-json-schema": "sha256:7ae833dbca84e0bb72593c0a17583a96ac3a3a1e4a53105594cbecfd662c26e8",
+      "package-index-json-schema": "sha256:e8701973e3c7c4103fbf50707737f63c4e245778f4d2c33eea83b96086915e1c",
       "package-skills-from-versioned-pending-snapshot": "sha256:83ca86df943447c22b1846113e0c25e9ad1167af3c6a34c227630d49762b3d6f",
       "pass-commit-messages-with-arguments-or-files": "sha256:62d661ec199b4250233003f8c45eb133595d1a2dfeb5bac499627d9be636f327",
       "pass-id-and-metadata-to-projection-strategies": "sha256:43fc58fc276312083a9ca4a5ddab5c094efcfd65b5935c219c8aacb06193a271",
       "prefer-cli-for-change-state-and-artifact-routing": "sha256:9d268b2f14d39eb969512eb9d31f4fbee69877ea28790eea203dd347281fdc90",
       "prefer-mature-libraries-for-common-automation": "sha256:a71468bdd140448f5e96dcf963d878d945bc1447849a36c718fa6c88e6fca1df",
       "preserve-comparable-investigation-inputs": "sha256:c84eb19b1bb0814818db0e2918860e6fed45b62b3574e99fb15300550c8695df",
-      "preserve-pinned-upstream-snapshots-for-traceability": "sha256:b7b97a93939134957ac5849390b5c8b5fa69ec3dbb80ef4907c3beb26823f691",
+      "preserve-pinned-upstream-snapshots-for-traceability": "sha256:7afe3015780894eddd784cf52368af063218ae1a0c8c87153bffa77a957646d8",
       "project-decision-lifecycle-into-physical-archive-boundary": "sha256:e4ba6281a4e7d85d883eeaa7494b9c6119be3ffaf24f7f97089c1b3f5d6f893f",
       "project-domains-into-decision-queries": "sha256:e089315946038b0f0272f178ad7ede896967bf3ad6ec0d919b7172ad35e00833",
       "propagate-validated-collection-metadata": "sha256:18d8010ae24982b2458371a9b819f2964f6897d1cbb9c26c25f79ade170e07c5",
-      "publish-investigation-candidates-selectively": "sha256:dead3bd08ec9610c3d62b21e5772046dc7d110c308618f8c0c822c66feb3042d",
+      "publish-investigation-candidates-selectively": "sha256:020e89060191153ae97e41eff6281a4622481e7456afbf69ab0380c86393f236",
       "publish-only-layered-test-evidence-interfaces": "sha256:b08bd8178fc7ea52f35a09d8e5602c3c55f50064e10b106fb3c59d2c31e18265",
       "publish-rolling-latest-with-explicit-snapshots": "sha256:78be2cde3f282d41f950148223118e374eccb65587b873934c8a82660f53ed4b",
       "qualify-formal-results-by-evidence-integrity": "sha256:d903ef8f96814ade823cb39fdb44da5e01426c6bb401a914682e958e7e7a5997",
@@ -317,18 +323,18 @@
       "select-prerequisite-checks-by-profile": "sha256:a8ecc1c37054f30f0ed1382fcfd5a463d78ff79100a0c48792daa341f049eb8d",
       "select-task-graph-project-roots": "sha256:b2a206064f9b1e3ca381b2a1cc60fac2809a372d8f83558552c7ceed991147ca",
       "separate-activation-effect-from-head-pending": "sha256:916f5740245191ede7fa7bde07e0aee71f1b2b6339725d1f936e4e0122b004f4",
-      "separate-agent-contract-from-tool-protocol": "sha256:f437dacd4cff52fa9b6cc96b8eaf9ceca215360f8ba7b46c02ce2ce150120b47",
+      "separate-agent-contract-from-tool-protocol": "sha256:9e32a861bd18b4df10e509750296021829e28e5042071b3ce83657ea1549b8b3",
       "separate-candidate-scaffold-from-body-readiness": "sha256:e82efcd4524a017f9868ecb7e558c77bf3637bdd51921da27534d872c8fd8476",
       "separate-candidates-from-established-decisions": "sha256:4962cbc252cba5db58b73bce5c5c74eaa91a00b4d13cab6be4c1ffe8cfcb4082",
       "separate-delivery-and-auxiliary-write-ownership": "sha256:bb5a50cf408dc0ff1c32c948c7392bc577a3f229b5f25a75eb3baa80ccc08ecd",
       "separate-design-discovery-from-lifecycle-maintenance": "sha256:b5aabcdb60ebd06fd8180dca2c4bd0120c803f16fcc01ad96ae6a23b1be612e8",
       "separate-distributable-tool-source-from-repository-automation": "sha256:5d84613099c4f61216a1707acb295898773ebee5c766df8c1670e553df4513d6",
-      "separate-domain-ids-from-storage-details": "sha256:e38bc06eba893e52b5867633bf182257784e0303d3d8350457053f80178581c8",
+      "separate-domain-ids-from-storage-details": "sha256:386960151bf4cd4a165798a13f1f327d7cb89807776edc0ad8cee8cc6961b113",
       "separate-investigation-authoring-candidates-from-established-reports": "sha256:b7eadcb629d5eaaa9b26bd0f3cccc20cc4f2e24b094f734d5c2b271851804f7c",
       "separate-maintenance-diagnostics-from-mutation-outcomes": "sha256:fd54b852efbbd5d9f6c7c92b7add78ef670c2aa51641ceea04134ddf54e56cc0",
       "separate-package-byte-identity-from-version-carrying-changes": "sha256:f97fb19debdbe9672ab00524c88284777231f22adb386fe091d2c109360e2fb9",
       "separate-raw-results-from-output-functions": "sha256:e5230be4f63e55d6eb71fc2a60007925bf7e839db0c0dfdacaabd9d2f06aaf73",
-      "separate-reviewable-candidates-from-established-decisions": "sha256:83614868d261fc74fef111f6eadeff0c6b9490700f586e16041efa1300601754",
+      "separate-reviewable-candidates-from-established-decisions": "sha256:87cc63cf398641946ff8261f31670dae99cfd5884fb3ebf754d66683e0246ca7",
       "separate-task-content-state-and-effective-projection": "sha256:078657ed0db4cc34d4912b104011fe0cde213eeccf90d72d359516ac27e3193a",
       "separate-task-coordination-from-execution-mechanism": "sha256:38b44ffbd54e503149fc8e735255d1dcc2078f49d80e650e30218957fbc06012",
       "separate-tool-source-and-repository-automation": "sha256:912c977e4b7830c1b6fb2a6ad6d4864ff9448263c732f66d475990d7088b4df1",
@@ -363,7 +369,7 @@
       "use-conservative-atomic-write-outcomes": "sha256:302f3d35cbc1aabb86eb6f6f0d5e340a9aa318217242fa103c92038054ae6a88",
       "use-conservative-task-index-write-outcomes": "sha256:4cd0c2227432b32dcc463de497860fd55f78c19e09b49fa785f7e0965445e08f",
       "use-document-navigation-owner": "sha256:eb9b274b9edcb8875f6b674287ecd182c180fb238a0aedeb8d6f366f3fa65ee5",
-      "use-domain-paths-as-primary-classification": "sha256:945998e4f42ba67c8b1afd6d979ff96838a8c4c76afa4cb59aec860274184c31",
+      "use-domain-paths-as-primary-classification": "sha256:9af8748e2aecf1fce344ee5e089eccfb00b5ab6f12d0dfcdaa2333b068048a18",
       "use-error-recovery-reference": "sha256:1c6148680942b7528d0f83ddbfc2af422aca64eb767c4ce9112576cd8220acc8",
       "use-explicit-environment-supported-diagrams": "sha256:0ab70ae5c6bc9e130ef69a79cc533dd694ffbef4503b3e20bb1d7f57900c7162",
       "use-explicit-reviewable-candidates": "sha256:67d1be16ec4ed826dc862df2e2e251835c2b026b69c6e21b7e1777e9e44f8b14",
@@ -373,7 +379,7 @@
       "use-frontmatter-projection-and-semantic-field-order": "sha256:21f474715274eb7e46e97549cbc99e023b5edb00777298714e3f1d18f229e310",
       "use-id-keyed-state-index": "sha256:c8a838057d63cdb5c6c1707bf1cdecb24cc68f61bfb23dd9c779501c32c62291",
       "use-independent-change-plans": "sha256:713e5592804e38c45d6b1258f93da34443877e11fcf5ce747f60ece847cb520e",
-      "use-independent-read-side-index-runtime": "sha256:9b02facef9fffc4d08d46737c210c0fffe59edf920e4ba69bd5fa632f1f85718",
+      "use-independent-read-side-index-runtime": "sha256:2a70568cbbddf07386c4dcb66d2cffca1d19828e40390833f955c9ad5e74ba66",
       "use-json-task-index-as-single-fact-source": "sha256:f21fd1f81db7c3178e2ceafa760206c3feaa8eebf056fe8c9a12fbdef3b51d6a",
       "use-local-reasoned-oxlint-exceptions": "sha256:6258874123ed4faff165f92ea5b7037a97936b6cbeee7d0d2d360f84370933fd",
       "use-monorepo-versioned-skill-packages": "sha256:816008d8a778fb5839c9572ac52612990db213e42c71d72c6c8df00f5849f9be",
@@ -381,20 +387,20 @@
       "use-native-locks-for-json-transactions": "sha256:e6c2f1e39ee8e6d63ee23ee4ff4b77d263db426ac5d2e33f064f79a235a1eae3",
       "use-one-change-artifact-structure": "sha256:6620c51d4c127f2a872376708c2a38e527850cac4159a4d319610f8c870bc3e8",
       "use-persisted-index-for-routine-queries": "sha256:2df71732f8a8620409db460ed13f3cbfeec6e30b3d749ff238b980512f2f1884",
-      "use-physical-archive-boundary-for-decision-search": "sha256:32b236d1f16a0b5b3e4def51cd5247626cd029d1ebbf8cf8117e3a0bfd04393f",
+      "use-physical-archive-boundary-for-decision-search": "sha256:369427ab464ca2b3b9e2f14f994e4a0c0483a7405b4154d157d5ff4d9c578586",
       "use-plan-base-only-for-git-distance": "sha256:43b2824f043f6b17b4691b990b2880f4e7ff435f1719ff26e6bb76a4c7f95185",
       "use-profiled-concise-checks": "sha256:cab0c4f17df3d3cab2c59c4cc3b1e006880415eae26d536a9902ec0a0c971c66",
       "use-project-short-commands-for-maintenance-clis": "sha256:9a139f37261468adf29568e43c88ce397485a86969353e17b45e8dfca4f5cc88",
       "use-recoverable-decision-lifecycle-transactions": "sha256:9901fa4979af3a6a2873507b8425f181814b9e16508191b72dbc6080b9dbf7cf",
       "use-recoverable-evolution-transactions": "sha256:ec4b0946216fcc8de493e497a5b70fff1e411eb85db81fcee60f9017d328aaf2",
       "use-report-oriented-investigation-rounds": "sha256:d258e0adfdc910361ff6cd15a8d9490c841b5f7ebe0833cf79a986743ac25aeb",
-      "use-root-task-dictionary": "sha256:7a32091c14d275de1b87f54ab5d7ddb3e0cc48e84ae84cc50fa8be4760af5a61",
+      "use-root-task-dictionary": "sha256:c57e0a70185bce59e8249aeb84cea650cb70cd120ea00448ce948d82f5096e0d",
       "use-root-task-dictionary-for-collection-identity": "sha256:4818dc71fba4c2e056c925c1ed84c1ea31d22343313d9e82dd84fc5e316e0505",
       "use-second-precision-lifecycle-index": "sha256:49b6acfea7875ac9f865a56a5e33bb8a04cca41a63f525efc865fdd6ef5779a8",
-      "use-single-investigation-report-core": "sha256:4e2c35cfeb5bedd5ab3e59fa38740e067a5dd5e455b2e355d17150400d279f8d",
+      "use-single-investigation-report-core": "sha256:ddf8612248bf7b5d5442e80d3297d796709ec611664300df2f79e562a58a186b",
       "use-source-resilient-reviewable-candidates": "sha256:65e21849a8c79f7a5ae767e43f58900c636ea233b77749a524b33e1cf7c0205d",
       "use-stable-decision-id-for-relations-and-lifecycle": "sha256:f8202c078c4b72ba1e80d62ecc186352256501330e01c86f971b1c689b4f4dc0",
-      "use-stable-decision-ids-tags-and-location-index": "sha256:1526afb243bb35ce06ce3b2a0a1c7b39ba02d87225219c521cd5df34f9a4127a",
+      "use-stable-decision-ids-tags-and-location-index": "sha256:f0b0bbf685e5971a93de6f97d4eb8c052a71c6349c0c490f59ac9f84c3c9b8c8",
       "use-stable-id-keyed-index-identity": "sha256:ed393f17e73cbd0124662c25492af187cfd12db3f844153a4b5b2e3a76bf1f5a",
       "use-strategy-driven-closed-decision-relation-evolution": "sha256:1c062fb6e684bb4150ab3f9171f216fd2784367319f87623a6d2e12382ffbffa",
       "use-topic-filtered-decision-queries": "sha256:8d9e8e60389b36ea496955ac64a9d7bff08152904bda6fadeaba1961e918b12e",
@@ -689,6 +695,11 @@
         {
           "type": "修订",
           "target": "260701-gate-latest-release-by-skill-hash"
+        },
+        {
+          "type": "修订",
+          "target": "260701-add-submodule-release-workflows",
+          "summary": "保留独立子仓交付并改为版本化发布及latest兼容"
         }
       ]
     },
@@ -1220,9 +1231,9 @@
     },
     "260718-trigger-on-long-term-decision-points": {
       "name": "trigger-on-long-term-decision-points",
-      "sourcePath": "260718-trigger-on-long-term-decision-points.md",
+      "sourcePath": "archive/260718-trigger-on-long-term-decision-points.md",
       "title": "让长期决策形成和冲突成为核心触发",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-07-18T14:11:24+08:00",
       "purpose": "在真正形成长期判断或发生冲突时恢复决策上下文，避免普通执行误触发。",
@@ -1305,7 +1316,7 @@
       "createdAt": "2026-07-19T19:50:10+08:00",
       "purpose": "在保持证明点简短可审计的同时，避免多分支测试因机械拆分而重复 fixture、增加执行成本或造成共享数据底座漂移。",
       "background": "一条测试链路可以复用初始状态、基础数据和执行上下文，并在条件节点后形成多个可观察分支；按叶子结果逐项拆分会增加准备、同步和审计成本。",
-      "decision": "automated case 可按共享基座或连续链路聚合分支；`Proves:` 使用原子结果列表，复杂分支用 Mermaid，只有独立边界才拆分。",
+      "decision": "automated case 可按共享基座或连续链路聚合；Proves 写原子结果，多分支 case 使用 Mermaid，只有独立边界才拆分。",
       "tags": [
         "semantic-test-cases",
         "test-evidence-review",
@@ -1536,7 +1547,7 @@
       "createdAt": "2026-07-20T13:48:52+08:00",
       "purpose": "让 automated case 同时表达分支结果和线性 happy path 或失败链路上的多个可观察检查点，避免按证明点数量机械拆分 case。",
       "background": "既有规则把 `Proves:` 主要描述为分支叶子，但一条没有分支的连续执行链路也可能依次固定多个状态迁移、输出、副作用或清理不变量。",
-      "decision": "automated case 按共同契约、共享基座或连续链路组织；`Proves:` 可写分支或线性检查点，Mermaid 按需表达，仅独立契约才拆分。",
+      "decision": "automated case 按共同契约、共享基座或连续链路组织；Proves 可写分支或线性检查点，多分支用 Mermaid，线性关系影响理解时也用。",
       "tags": [
         "semantic-test-cases",
         "test-evidence-review",
@@ -1560,7 +1571,8 @@
       "background": "`workflows.md` 和 `rewrite-rules.md` 已长期不参与主动读取, 核心流程已由 `SKILL.md` 稳定承接, 决策记录和 Git 历史足以回放旧结构。",
       "decision": "保持 `SKILL.md` 作为压缩后的默认流程 owner, 保留 `principles.md` 解释长期理由, 删除两份迁移副本并停止随包分发。",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "file-lifecycle-hygiene"
       ],
       "relations": [
         {
@@ -1940,15 +1952,16 @@
       "decision": "Decision 与 Investigation 的关系边可选保存最多 40 个 Unicode 码点的单行摘要，并投影到索引和查询结果。",
       "tags": [
         "decision-records",
-        "investigation-report"
+        "investigation-report",
+        "record-relations"
       ],
       "relations": []
     },
     "260905-search-authoritative-files-with-index-identity": {
       "name": "search-authoritative-files-with-index-identity",
-      "sourcePath": "search-authoritative-files-with-index-identity.md",
+      "sourcePath": "archive/search-authoritative-files-with-index-identity.md",
       "title": "以权威文件搜索协同索引身份",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-05T03:24:00Z",
       "purpose": "让未知领域身份时的全文发现直接读取受管权威文件，同时保持结构筛选与稳定身份由领域索引承接。",
@@ -2240,6 +2253,11 @@
           "type": "归并",
           "target": "activate-release-gate-checks-by-tag",
           "summary": "以原生 flag 条件取代项目自定义 activation preflight"
+        },
+        {
+          "type": "修订",
+          "target": "declare-generated-artifact-prerequisites-for-vibe-consumers",
+          "summary": "以原生成功依赖替代consumer终态守卫"
         }
       ]
     },
@@ -2255,7 +2273,8 @@
       "decision": "Decision 与 Investigation 新建或调整真实关系时填写有正文依据的简短摘要，格式、投影与图规则各自承接精确约束。",
       "tags": [
         "decision-records",
-        "investigation-report"
+        "investigation-report",
+        "record-relations"
       ],
       "relations": [
         {
@@ -2441,6 +2460,7 @@
       "tags": [
         "common-denominator-design",
         "decision-records",
+        "investigation-report",
         "product-architecture-judgment",
         "project-tooling",
         "record-relations",
@@ -2451,6 +2471,11 @@
           "type": "修订",
           "target": "replace-decision-relations-as-complete-sets",
           "summary": "将完整集合替换统一为两域共同基础动作"
+        },
+        {
+          "type": "修订",
+          "target": "use-strategy-driven-closed-decision-relation-evolution",
+          "summary": "将纯关系修正从唯一evolve入口独立出来"
         }
       ]
     },
@@ -2475,9 +2500,9 @@
     },
     "260922-unify-record-pending-snapshot-scopes": {
       "name": "unify-record-pending-snapshot-scopes",
-      "sourcePath": "unify-record-pending-snapshot-scopes.md",
+      "sourcePath": "archive/unify-record-pending-snapshot-scopes.md",
       "title": "为记录领域统一待提交快照范围",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-22T16:58:11Z",
       "purpose": "让两个记录领域用同一 stage 命令和显式 scope 构造可预测的选择性 Git pending 快照。",
@@ -2765,9 +2790,9 @@
     },
     "261004-stage-decisions-by-explicit-id-and-selected-scope": {
       "name": "stage-decisions-by-explicit-id-and-selected-scope",
-      "sourcePath": "stage-decisions-by-explicit-id-and-selected-scope.md",
+      "sourcePath": "archive/stage-decisions-by-explicit-id-and-selected-scope.md",
       "title": "按显式决策 ID 与所选范围暂存",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-10-04T15:22:49Z",
       "purpose": "让并行决策变化按稳定身份与显式 scope 进入待提交快照，不混入未选择内容。",
@@ -2941,6 +2966,7 @@
       "decision": "以共享专用原语分离完整实际payload验证、opaque快照身份和所需内容保留。",
       "tags": [
         "investigation-report",
+        "performance",
         "responsibility-boundaries",
         "version-control"
       ],
@@ -3093,6 +3119,16 @@
           "type": "修订",
           "target": "generate-and-check-import-safe-tool-artifacts",
           "summary": "保留单源与安全导入，改为TS模块及独立依赖安装。"
+        },
+        {
+          "type": "修订",
+          "target": "derive-sdk-declarations-from-runtime-source",
+          "summary": "保留task-graph单源声明，配套公开TS运行时"
+        },
+        {
+          "type": "修订",
+          "target": "derive-decision-records-declarations-from-runtime-source",
+          "summary": "保留决策CLI值与类型单源，改为TS声明配套"
         }
       ]
     },
@@ -3116,6 +3152,11 @@
           "type": "修订",
           "target": "260909-incremental-vibe-gate",
           "summary": "保留成功输入事务，收窄为项目命令证明并以原生能力承接执行和材料结算"
+        },
+        {
+          "type": "修订",
+          "target": "260912-isolate-release-version-control-resource-boundary",
+          "summary": "退役前序保留的批次执行与证明，隔离另由资源后继承接"
         }
       ]
     },
@@ -3191,9 +3232,9 @@
     },
     "261022-refresh-selected-records-in-pending": {
       "name": "refresh-selected-records-in-pending",
-      "sourcePath": "refresh-selected-records-in-pending.md",
+      "sourcePath": "archive/refresh-selected-records-in-pending.md",
       "title": "按显式选择刷新记录的独立暂存版本",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-10-22T04:28:32Z",
       "purpose": "让连续暂存不同记录和重复刷新单条记录都保留未选工作。",
@@ -3347,7 +3388,8 @@
       "tags": [
         "decision-records",
         "investigation-report",
-        "responsibility-boundaries"
+        "responsibility-boundaries",
+        "validation-boundaries"
       ],
       "relations": []
     },
@@ -3421,6 +3463,7 @@
       "decision": "由image-creation维护视觉任务与看图迭代，调用和参数归当前执行能力",
       "tags": [
         "image-creation",
+        "responsibility-boundaries",
         "skill-design"
       ],
       "relations": []
@@ -3464,6 +3507,162 @@
           "type": "修订",
           "target": "261022-scope-record-index-payload-validation",
           "summary": "把按消费范围验收扩展到全部记录暂存scope"
+        }
+      ]
+    },
+    "261026-discard-investigations-from-published-facts": {
+      "name": "discard-investigations-from-published-facts",
+      "sourcePath": "261026-discard-investigations-from-published-facts.md",
+      "title": "按发布事实安全删除调查并区分提交边界",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-26T08:38:31Z",
+      "purpose": "让获准删除的完整报告或候选安全退出，准确区分提交、验收和残留清理。",
+      "background": "裸删会破坏关系和owner；正式与候选删除各有提交边界，高风险局部维护仍需完整写集与资源保护。",
+      "decision": "discard按发布事实和实际删除范围局部验收；正式删除在索引发布时提交，候选删除在对象退出时提交，验收与清理分别对账。",
+      "tags": [
+        "investigation-report",
+        "product-architecture-judgment",
+        "transactional-updates",
+        "version-control"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "discard-complete-unreferenced-investigation-reports",
+          "summary": "保留安全显式删除和正式索引提交，按发布事实局部验收"
+        }
+      ]
+    },
+    "261026-discover-decision-work-at-complete-entry-points": {
+      "name": "discover-decision-work-at-complete-entry-points",
+      "sourcePath": "261026-discover-decision-work-at-complete-entry-points.md",
+      "title": "在完整决策入口恢复上下文与专用快照能力",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-26T08:29:46Z",
+      "purpose": "让真正的长期判断、上下文恢复及专用快照任务发现决策能力，同时避免普通执行误触发。",
+      "background": "发现入口先于正文加载；长期取舍和stage曾分次采用，恢复与写入授权需要分别表达。",
+      "decision": "长期取舍、恢复审阅、冲突及显式待提交快照进入决策管理；先恢复上下文，写入和提交另按授权。",
+      "tags": [
+        "decision-records",
+        "skill-invocation"
+      ],
+      "relations": [
+        {
+          "type": "归并",
+          "target": "260718-trigger-on-long-term-decision-points",
+          "summary": "保留长期取舍与冲突恢复，补足完整入口边界"
+        },
+        {
+          "type": "归并",
+          "target": "make-independent-decision-staging-discoverable",
+          "summary": "保留独立stage发现并收束为完整触发判断"
+        }
+      ]
+    },
+    "261026-protect-decision-history-by-head-identity": {
+      "name": "protect-decision-history-by-head-identity",
+      "sourcePath": "261026-protect-decision-history-by-head-identity.md",
+      "title": "按固定 HEAD 身份保护决策演进历史",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-26T08:33:43Z",
+      "purpose": "防止未入版本基线的已建立判断被无意遗失，并保持关系语义由调用者决定。",
+      "background": "Markdown拥有生命周期；同路径存在不能证明稳定身份已进入HEAD，全集blob兜底又扩大读取和掩盖坏索引。",
+      "decision": "历史门禁用固定HEAD合法索引定位必要身份；未记录前序零写暂停，显式确认保留后才继续，完整关系不自动合成。",
+      "tags": [
+        "decision-records",
+        "git-integration",
+        "version-control"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "guard-unrecorded-decision-history-during-evolution",
+          "summary": "保留未记录历史保护，改用HEAD身份及当前前序范围"
+        }
+      ]
+    },
+    "261026-publish-selected-investigations-from-published-facts": {
+      "name": "publish-selected-investigations-from-published-facts",
+      "sourcePath": "261026-publish-selected-investigations-from-published-facts.md",
+      "title": "从发布事实选择性建立调查候选",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-26T08:33:54Z",
+      "purpose": "让审核完成的显式候选正常建立，隔离无关来源并保持Markdown事实源和全量恢复职责。",
+      "background": "全部正式Markdown新鲜曾是旧门槛；局部发布已采用，但不能让候选建立、资源与全量接纳义务随之丢失。",
+      "decision": "publish读取合法发布基线和所选候选及直接资源，锁内重做后无覆盖建立并发布索引；全量sync独立接纳与恢复。",
+      "tags": [
+        "investigation-report",
+        "product-architecture-judgment",
+        "responsibility-boundaries",
+        "source-artifact-separation"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "publish-investigation-candidates-selectively",
+          "summary": "保留显式候选发布，改用发布基线和局部来源验收"
+        }
+      ]
+    },
+    "261026-search-published-scope-with-current-text": {
+      "name": "search-published-scope-with-current-text",
+      "sourcePath": "261026-search-published-scope-with-current-text.md",
+      "title": "在发布范围读取当前文本完成全文发现",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-26T08:34:01Z",
+      "purpose": "让未知ID的正文发现取得可靠完整身份，同时不复制全文或伪造全集来源新鲜结论。",
+      "background": "结构索引不能发现全部正文主题；自动全源映射fallback扩大责任且掩盖索引恢复，当前已采用发布范围与显式恢复。",
+      "decision": "共享搜索只返回受管路径与有界原文预览；领域据同一发布投影筛选和反查ID，读取时核对身份，坏索引显式恢复。",
+      "tags": [
+        "decision-records",
+        "index-runtime",
+        "investigation-report"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260905-search-authoritative-files-with-index-identity",
+          "summary": "保留全文与索引身份分工，自动降级改显式恢复"
+        }
+      ]
+    },
+    "261026-stage-and-refresh-explicit-record-selections": {
+      "name": "stage-and-refresh-explicit-record-selections",
+      "sourcePath": "261026-stage-and-refresh-explicit-record-selections.md",
+      "title": "按显式对象和范围刷新独立记录暂存版本",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-26T08:26:52Z",
+      "purpose": "让两域暂存和重复刷新可预测，保留未选工作、资源安全及独立阶段保护。",
+      "background": "并行记录共享索引；HEAD基底会丢失未选暂存，整个工作区基底会夹带变化，身份与位置又须分别解析。",
+      "decision": "两域stage以pending为基底按显式ID和scope刷新完整所选版本；可信定位、局部内容验收与完整并发保护分别成立。",
+      "tags": [
+        "decision-records",
+        "investigation-report",
+        "responsibility-boundaries",
+        "validation-boundaries",
+        "version-control"
+      ],
+      "relations": [
+        {
+          "type": "归并",
+          "target": "260922-unify-record-pending-snapshot-scopes",
+          "summary": "保留统一scope与结果协议并修订选择和验收范围"
+        },
+        {
+          "type": "归并",
+          "target": "261004-stage-decisions-by-explicit-id-and-selected-scope",
+          "summary": "保留稳定身份及显式选择并扩充可信pending定位"
+        },
+        {
+          "type": "归并",
+          "target": "261022-refresh-selected-records-in-pending",
+          "summary": "保留P-base与阶段保护，未选依赖改据发布索引"
         }
       ]
     },
@@ -4095,7 +4294,8 @@
       "background": "一条长期判断可能需要多个彼此独立的分类维度；唯一领域路径会迫使维护者在身份迁移与分类信息丢失之间取舍。",
       "decision": "每条权威 Markdown 保存非空、有序且唯一的 tags；tags 只承接分类，重复 tag 查询使用 AND 交集语义。",
       "tags": [
-        "decision-records"
+        "decision-records",
+        "record-classification"
       ],
       "relations": [
         {
@@ -4397,7 +4597,8 @@
       "tags": [
         "investigation-report",
         "naming",
-        "validation-boundaries"
+        "validation-boundaries",
+        "version-control"
       ],
       "relations": []
     },
@@ -4446,9 +4647,9 @@
     },
     "derive-decision-records-declarations-from-runtime-source": {
       "name": "derive-decision-records-declarations-from-runtime-source",
-      "sourcePath": "derive-decision-records-declarations-from-runtime-source.md",
+      "sourcePath": "archive/derive-decision-records-declarations-from-runtime-source.md",
       "title": "从 Decision Records 源码派生声明",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-15T06:11:01Z",
       "purpose": "让 CLI 与程序化调用共享一个实现和公共导出事实源，避免独立手写声明漂移。",
@@ -4526,9 +4727,9 @@
     },
     "derive-sdk-declarations-from-runtime-source": {
       "name": "derive-sdk-declarations-from-runtime-source",
-      "sourcePath": "derive-sdk-declarations-from-runtime-source.md",
+      "sourcePath": "archive/derive-sdk-declarations-from-runtime-source.md",
       "title": "从 task-graph 运行时源码派生 SDK 声明",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-07T04:59:10Z",
       "purpose": "让 CLI 与程序化调用共享一个实现和公开导出事实源，避免人工声明漂移。",
@@ -4596,9 +4797,9 @@
     },
     "discard-complete-unreferenced-investigation-reports": {
       "name": "discard-complete-unreferenced-investigation-reports",
-      "sourcePath": "discard-complete-unreferenced-investigation-reports.md",
+      "sourcePath": "archive/discard-complete-unreferenced-investigation-reports.md",
       "title": "显式剔除完整且无引用的调查报告",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-29T15:42:49Z",
       "purpose": "让确需删除的调查报告通过独立、可预演且可恢复的机械动作退出集合。",
@@ -4693,6 +4894,7 @@
       "background": "四个 skill 围绕同一 OpenSpec 生命周期协作，但各自拥有入口、版本、制品和 updater，且没有组合安装契约。",
       "decision": "OpenSpec explore、propose、apply 和 archive 分别构成独立分发单元，阶段关系不产生隐含跨 skill 依赖。",
       "tags": [
+        "openspec",
         "product-architecture-judgment",
         "responsibility-boundaries",
         "skill-maintainer"
@@ -5137,9 +5339,9 @@
     },
     "guard-unrecorded-decision-history-during-evolution": {
       "name": "guard-unrecorded-decision-history-during-evolution",
-      "sourcePath": "guard-unrecorded-decision-history-during-evolution.md",
+      "sourcePath": "archive/guard-unrecorded-decision-history-during-evolution.md",
       "title": "在决策演进中保护未进入版本基线的历史",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-29T15:42:44Z",
       "purpose": "防止尚未进入 Git HEAD 的已建立决策在归档或关系演进中被无意作为短暂过程遗失。",
@@ -5361,6 +5563,7 @@
       "decision": "嵌套字典键承接身份与作用域；task entry 只保存 content 和显式 state，派生信息仅在查询时投影。",
       "tags": [
         "product-architecture-judgment",
+        "record-identity",
         "task-graph"
       ],
       "relations": [
@@ -5573,16 +5776,17 @@
     },
     "make-independent-decision-staging-discoverable": {
       "name": "make-independent-decision-staging-discoverable",
-      "sourcePath": "make-independent-decision-staging-discoverable.md",
+      "sourcePath": "archive/make-independent-decision-staging-discoverable.md",
       "title": "让独立决策暂存能够被发现",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-06T11:26:45Z",
       "purpose": "让需要单独暂存决策集合的任务能够发现 decision-records 的专用能力。",
       "background": "当前发现入口没有表达后来新增的独立 stage 能力，提交任务可能在加载 skill 前错过它。",
       "decision": "后续必须让发现入口覆盖独立决策暂存；具体文案、触发边界、能力交接和降级方式在实施时确定。",
       "tags": [
-        "decision-records"
+        "decision-records",
+        "skill-invocation"
       ],
       "relations": []
     },
@@ -5981,6 +6185,7 @@
       "background": "当前格式版本会演进，长期决策若固定具体版本会把实现事实误写成稳定方向。",
       "decision": "从 CLI 共享常量生成当前索引 JSON Schema，随 decision-records 分发并用生成检查防止漂移。",
       "tags": [
+        "artifact-integrity",
         "decision-records"
       ],
       "relations": [
@@ -6001,7 +6206,8 @@
       "background": "固定契约足以解释格式，但临时工具仍需要重新提取字段、枚举和基础约束。",
       "decision": "从 CLI 共享常量生成索引 JSON Schema，并作为 decision-records 资源随包分发。",
       "tags": [
-        "decision-records"
+        "decision-records",
+        "metadata-design"
       ],
       "relations": []
     },
@@ -6145,8 +6351,7 @@
       "tags": [
         "artifact-integrity",
         "minimal-implementation",
-        "source-artifact-separation",
-        "test-traceability"
+        "source-artifact-separation"
       ],
       "relations": [
         {
@@ -6224,9 +6429,9 @@
     },
     "publish-investigation-candidates-selectively": {
       "name": "publish-investigation-candidates-selectively",
-      "sourcePath": "publish-investigation-candidates-selectively.md",
+      "sourcePath": "archive/publish-investigation-candidates-selectively.md",
       "title": "选择性发布调查 candidates，并保留全量正式同步",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-02T07:21:12Z",
       "purpose": "让通过审核的调查 candidate 以显式选择和可重复预检正常建立，并保持正式 Markdown 为唯一事实源。",
@@ -6965,6 +7170,7 @@
       "background": "固定契约同时解释决策模型、索引运行时和 CLI 精确行为，造成重心偏移并重复 Schema 与实现。",
       "decision": "`SKILL.md` 承接 agent 流程，领域契约承接语义与维护不变量，Schema 和 CLI 自身承接机器细节。",
       "tags": [
+        "context-management",
         "decision-records",
         "responsibility-boundaries"
       ],
@@ -7098,6 +7304,7 @@
       "tags": [
         "artifact-identity",
         "decision-records",
+        "investigation-report",
         "metadata-design",
         "product-architecture-judgment",
         "record-identity",
@@ -7925,7 +8132,8 @@
       "background": "领域同时存在于 frontmatter、历史目录和查询参数时，同一记录会有多个一级分类来源，读取方也无法直接取得领域边界。",
       "decision": "由目录表定义领域，路径第一段表达唯一归属，索引 metadata 提供完整定义并从路径派生领域键。",
       "tags": [
-        "decision-records"
+        "decision-records",
+        "record-classification"
       ],
       "relations": [
         {
@@ -8139,7 +8347,8 @@
         "index-runtime",
         "product-architecture-judgment",
         "responsibility-boundaries",
-        "shared-protocols"
+        "shared-protocols",
+        "source-artifact-separation"
       ],
       "relations": []
     },
@@ -8286,7 +8495,8 @@
       "background": "归档与活动决策混放在领域目录时，rg 等路径搜索会持续命中大量历史记录，结果路径又不能直接表达生命周期，使用者必须打开文件或回到 CLI 判断状态。",
       "decision": "归档决策进入统一物理路径边界，使通用文件搜索能够按路径排除和识别历史；具体布局与 CLI 协议由后续设计确定。",
       "tags": [
-        "decision-records"
+        "decision-records",
+        "record-lifecycle"
       ],
       "relations": []
     },
@@ -8422,6 +8632,7 @@
       "decision": "根级 tasks 字典键承接 task 唯一身份；entry 继续分离 content 与 state，任务层级仅由 parentId 表达，工具只维护当前 Schema。",
       "tags": [
         "product-architecture-judgment",
+        "record-identity",
         "task-graph"
       ],
       "relations": [
@@ -8556,7 +8767,8 @@
       "background": "领域目录路径同时承担身份、唯一归属、查询和定位时，分类调整与归档会扩大为关系、索引和引用迁移，且无法用多维分类表达实际内容。",
       "decision": "以 Markdown basename 作为稳定 Decision ID，以非空记录级 tags 分类，以索引 sourcePath 定位，并以受检位置投影物理归档边界。",
       "tags": [
-        "decision-records"
+        "decision-records",
+        "record-identity"
       ],
       "relations": [
         {

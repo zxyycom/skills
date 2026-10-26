@@ -8,6 +8,7 @@ purpose: 让 agent 只加载完成判断与维护所需的决策语义，并把�
 background: 固定契约同时解释决策模型、索引运行时和 CLI 精确行为，造成重心偏移并重复 Schema 与实现。
 decision: "`SKILL.md` 承接 agent 流程，领域契约承接语义与维护不变量，Schema 和 CLI 自身承接机器细节。"
 tags:
+  - context-management
   - decision-records
   - responsibility-boundaries
 relations:

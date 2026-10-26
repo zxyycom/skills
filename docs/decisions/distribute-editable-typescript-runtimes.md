@@ -17,6 +17,12 @@ relations:
   - type: 修订
     target: generate-and-check-import-safe-tool-artifacts
     summary: 保留单源与安全导入，改为TS模块及独立依赖安装。
+  - type: 修订
+    target: derive-sdk-declarations-from-runtime-source
+    summary: 保留task-graph单源声明，配套公开TS运行时
+  - type: 修订
+    target: derive-decision-records-declarations-from-runtime-source
+    summary: 保留决策CLI值与类型单源，改为TS声明配套
 ---
 
 ## 目的
@@ -40,5 +46,21 @@ relations:
 - 采用: 依赖由标准 Node 模块规则解析，兼容宿主依赖允许正常复用，不另设来源、目录、本地依赖目录或精确锁版本限制。启动、help、import 与检查不隐式安装；依赖失败明确引导显式安装或重装，updater 自身不可加载时先显式修复依赖，运行时或安装输入损坏后再重新获取正式 skill 恢复。
 - 采用: 公开模块仅在主入口运行时执行 CLI；普通导入不执行命令、不修改退出状态、不产生文件或网络副作用。语法限制纳入类型检查，模块位置、Node API、资源、native/optional 能力与消费者类型解析仍以真实 Node 入口证明。
 - 采用: 已建立的程序化接口继续保留必要声明闭包，机器契约继续从领域结构真源派生 Schema；公开面不自动扩展到复制后的内部源码目录。
+
+### 两域公开接口与声明单源
+
+- 采用: 对 `skills/task-graph/` 与 `skills/decision-records/`，各自 `tools/<tool-name>/src/cli.ts` 的公开导出是命令行与程序化导入的共同接口事实源。
+  - Decision Records 的明确 `export type` 同样由该源决定。
+  - 不另设 SDK 实现、手工类型清单、独立声明源或第二套接口版本管理。
+- 采用: 两域声明由 TypeScript 从实现机械发出，只分发从 CLI 声明入口可达的必要声明闭包，并剔除 internal 成员。
+  - 根声明只承接公开值及明确公开类型的签名，不把存储、锁、runtime 探测或测试注入变成公开接口。
+  - 声明消费不要求安装实现内部依赖。
+- 采用: `scripts/task-graph.d.mts` 与 `scripts/decision-records.d.mts` 分别配套本 skill 的公开 TS 入口，包内声明树承接其可达拆分模块。
+  - 它们都是维护源码的生成产物，与运行时一起通过各域 `sync:*` 写入、`check:*` 重建核对。
+  - 复制后的内部 TS 源码可读可改，不因此自动成为兼容性承诺。
+- 不采用: 脱离实际公开导出而仅在声明中提供便捷工厂，或建立 SDK registry。
+
+### 完整交付核对
+
 - 采用: `sync:*` 与只读 `check:*` 使用相同受管集合和生成路径，CRLF 与 LF 视为相同文本，其余缺失、过期或内容变化均报告漂移。hash 与 zip 共享 pending 文件快照并排除依赖目录、store、缓存及安装残留；版本、release manifest 和单 snapshot 授权主线保持不变。
 - 不采用: 单文件业务 bundle、运行时反向导入维护仓库或其他 skill、自动安装/自动修复宿主依赖，以及通用依赖来源或精确版本门禁。

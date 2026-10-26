@@ -9,6 +9,7 @@ background: 一条长期判断可能需要多个彼此独立的分类维度；�
 decision: 每条权威 Markdown 保存非空、有序且唯一的 tags；tags 只承接分类，重复 tag 查询使用 AND 交集语义。
 tags:
   - decision-records
+  - record-classification
 relations:
   - type: 拆分
     target: use-stable-decision-ids-tags-and-location-index

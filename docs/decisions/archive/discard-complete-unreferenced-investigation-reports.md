@@ -1,7 +1,7 @@
 ---
 title: 显式剔除完整且无引用的调查报告
 id: discard-complete-unreferenced-investigation-reports
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-29T15:42:49Z
 purpose: 让确需删除的调查报告通过独立、可预演且可恢复的机械动作退出集合。

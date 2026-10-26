@@ -27,7 +27,7 @@ relations:
 
 ## 决策
 - 采用: 测试证据根固定为 `docs/test-evidence/`，只允许 `cases/` 中的直属 Case Markdown 与 `test-evidence-index.json`；CLI/API 仍只由 `--root` 或 `workspaceRoot` 选择工作区。
-- 采用: 每个 Case 的身份来自首行 Case ID，文件使用 `cases/<小写-case-id>.md`；可选 tags 只用于筛选，不建立 topic 表、路径层级、别名或注册表。
+- 采用: 每个 Case 的身份来自首行 Case ID，普通文件使用 `cases/<semantic-slug>.md`；可选 tags 只用于筛选，不建立 topic 表、路径层级、别名或注册表。显式旧目录迁移器以 `cases/<小写-case-id>.md` 生成目标文件名，该确定命名不限制普通 Case 文件名。
 - 采用: 核心引用检查只接收调用方显式提供的 schema v2 实体快照及独立 `expectedSource`；缺失、来源不符或 partial 快照阻断，不从固定路径、配置或项目回调发现输入。
 - 采用: 旧 topic 目录只由显式迁移入口预演并受控写入转换；正常运行时拒绝旧布局，不保留自动双读或兼容回退。
 - 不采用: 可配置账本根、固定实体输入、topic 布局或为旧格式保留运行时兼容路径。

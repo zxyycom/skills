@@ -9,6 +9,7 @@ background: 归档与活动决策混放在领域目录时，rg 等路径搜索�
 decision: 归档决策进入统一物理路径边界，使通用文件搜索能够按路径排除和识别历史；具体布局与 CLI 协议由后续设计确定。
 tags:
   - decision-records
+  - record-lifecycle
 relations: []
 ---
 

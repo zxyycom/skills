@@ -1,7 +1,7 @@
 ---
 title: 从 Decision Records 源码派生声明
 id: derive-decision-records-declarations-from-runtime-source
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-15T06:11:01Z
 purpose: 让 CLI 与程序化调用共享一个实现和公共导出事实源，避免独立手写声明漂移。

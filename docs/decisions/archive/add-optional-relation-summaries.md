@@ -10,6 +10,7 @@ decision: Decision 与 Investigation 的关系边可选保存最多 40 个 Unico
 tags:
   - decision-records
   - investigation-report
+  - record-relations
 relations: []
 ---
 

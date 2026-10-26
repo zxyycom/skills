@@ -11,6 +11,7 @@ tags:
   - decision-records
   - investigation-report
   - responsibility-boundaries
+  - validation-boundaries
 relations: []
 ---
 
