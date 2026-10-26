@@ -8,6 +8,7 @@ tags:
   - "lightweight-judgment"
   - "model-api"
   - "protocol-adaptation"
+  - "semantic-fidelity"
 relations: []
 ---
 

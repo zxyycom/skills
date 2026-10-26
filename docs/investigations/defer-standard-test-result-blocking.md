@@ -22,7 +22,12 @@ relations: []
 
 ## 调查范围与依据
 
-本轮完整审阅了原 Change 的 proposal、design、tasks，相关 active+unaligned 决策，`task-000026` 的已完成结果，以及 `task-000035` 的迁移目标。原始三个 artifact 以随附资源保留，供未来复核其形成时字段、方案比较、失败分类和迁移设想。
+本轮完整审阅了原 Change 的 proposal、design、tasks，相关 active+unaligned 决策，`task-000026` 的已完成结果，以及 `task-000035` 的迁移目标。三个 artifact 以迁出 Change 后的阅读性转换件随附保留，供未来复核形成时的候选设计。
+
+**2026-10-26 维护补充：来源与转换。** 本次维护对照了迁出前 Git `9551667d05e4672780adacc8a0ec77c12c34de83` 的 `changes/qualify-behavior-test-blocking-by-case-id/{proposal,design,tasks}.md`：
+
+- 随附件调整了时态、权威 owner 说明、重启语义和资源链接，核心候选协议与表格仍作历史输入。
+- 此说明不表示报告形成时已经核验这些转换。
 
 调查依据限于当前仓库事实与已保存历史材料；没有运行真实 runner 事件实验，没有验证历史候选 JSON Schema，也没有证明任何 producer/consumer 接口已经实现。历史材料中的测试数量、提交、字段名和执行顺序均是形成时输入，不是当前契约。
 

@@ -7,6 +7,7 @@ tags:
   - "build-portability"
   - "build-reproducibility"
   - "bun"
+  - "dependency-resolution"
   - "environment-isolation"
   - "project-tooling"
   - "root-cause-analysis"

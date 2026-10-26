@@ -1,6 +1,6 @@
 # Proposal
 
-> **阅读边界：形成时快照。** 本文件是从已停止维护的 draft Change 迁入调查主题的历史附件，不是当前 Change、plan 或实施授权。当前长期方向分别由[Runner 生产边界结果协议](../../../../../docs/decisions/test-evidence-review/standardize-runner-results-at-producer-boundaries.md)与[正式结果证据资格](../../../../../docs/decisions/test-evidence-review/qualify-formal-results-by-evidence-integrity.md)拥有；旧的[统一测试结果延期决策](../../../../../docs/decisions/test-evidence-review/defer-standard-test-result-blocking.md)已经归档，只是两条当前演进链的共同历史前序。本文中的协议字段、状态、runner 映射、迁移顺序和验证细节均保持形成时的候选含义。
+> **阅读边界：形成时快照。** 本文件是从已停止维护的 draft Change 迁入调查主题的历史附件，不是当前 Change、plan 或实施授权。当前长期方向分别由[Runner 生产边界结果协议](../../../decisions/standardize-runner-results-at-producer-boundaries.md)与[正式结果证据资格](../../../decisions/qualify-formal-results-by-evidence-integrity.md)拥有；旧的[统一测试结果延期决策](../../../decisions/archive/defer-standard-test-result-blocking.md)已经归档，只是两条当前演进链的共同历史前序。本文中的协议字段、状态、runner 映射、迁移顺序和验证细节均保持形成时的候选含义。
 
 本资源保存“为什么正式测试需要阻断资格”以及一套形成时可供比较的统一 JSON 方案。未来 agent 只能把它作为调查输入：先读取当前两个决策 owner 并核对届时事实，再重新形成 plan，不能直接执行本文或 `tasks.md` 中的历史内容。
 
@@ -12,7 +12,7 @@
 
 ## Outcome
 
-以下内容是形成时提炼出的方向摘要，不是当前契约；发生差异时，协议边界以[Runner 生产边界结果协议](../../../../../docs/decisions/test-evidence-review/standardize-runner-results-at-producer-boundaries.md)为准，资格与行为阻断边界以[正式结果证据资格](../../../../../docs/decisions/test-evidence-review/qualify-formal-results-by-evidence-integrity.md)为准：
+以下内容是形成时提炼出的方向摘要，不是当前契约；发生差异时，协议边界以[Runner 生产边界结果协议](../../../decisions/standardize-runner-results-at-producer-boundaries.md)为准，资格与行为阻断边界以[正式结果证据资格](../../../decisions/qualify-formal-results-by-evidence-integrity.md)为准：
 
 1. 若未来建立正式测试资格门禁，各 runner 在生产边缘输出统一、版本化的 JSON 结果，test-evidence consumer 不解析 runner 原生格式。
 2. JSON 以 Test ID 标识测试实体，不保存 Case ID。Consumer 先汇报有问题的测试实体，再从权威账本关系派生关联 Case ID。

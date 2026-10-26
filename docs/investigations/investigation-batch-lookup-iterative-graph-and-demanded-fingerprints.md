@@ -6,6 +6,7 @@ question: "如何消除批量重复扫描与未消费指纹，并在深链中保
 tags:
   - "investigation-report"
   - "performance"
+  - "relation-graph"
   - "version-control"
 relations:
   - type: "复查"

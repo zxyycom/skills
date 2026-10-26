@@ -4,8 +4,8 @@
 
 ## 当前 Owner 与历史状态
 
-- 当前长期方向分别由[Runner 生产边界结果协议](../../../../../docs/decisions/test-evidence-review/standardize-runner-results-at-producer-boundaries.md)和[正式结果证据资格](../../../../../docs/decisions/test-evidence-review/qualify-formal-results-by-evidence-integrity.md)拥有；两者均为 `active + unaligned`，不表示当前行为、排期或实施授权。
-- 旧的[统一测试结果延期决策](../../../../../docs/decisions/test-evidence-review/defer-standard-test-result-blocking.md)已经归档，只是两条当前演进链的共同历史前序。
+- 当前长期方向分别由[Runner 生产边界结果协议](../../../decisions/standardize-runner-results-at-producer-boundaries.md)和[正式结果证据资格](../../../decisions/qualify-formal-results-by-evidence-integrity.md)拥有；两者均为 `active + unaligned`，不表示当前行为、排期或实施授权。
+- 旧的[统一测试结果延期决策](../../../decisions/archive/defer-standard-test-result-blocking.md)已经归档，只是两条当前演进链的共同历史前序。
 - 原 Change 在本材料形成时是长期延期的 `draft`，后来停止作为 Change 维护；因此这里不存在可恢复或继续执行的当前 Change stage。
 - 当前实现事实必须从测试、test-evidence、check 和 CI 的各自 owner 重新核对，不能从本历史清单推断。
 

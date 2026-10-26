@@ -8,6 +8,7 @@ tags:
   - "index-runtime"
   - "investigation-report"
   - "performance"
+  - "scale-testing"
   - "version-control"
 relations:
   - type: "补充"

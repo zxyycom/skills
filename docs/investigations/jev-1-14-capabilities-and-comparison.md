@@ -8,6 +8,7 @@ tags:
   - "lightweight-judgment"
   - "model-api"
   - "model-evaluation"
+  - "multimodal"
 relations:
   - type: "复查"
     target: "261009-openai-decisions-jev-comparison"

@@ -4,9 +4,11 @@ id: "261010-investigation-acquisition-performance-recheck"
 formedAt: "2026-10-10T07:11:53Z"
 question: "发布快照、局部验证、候选与 domain 暂存按职责取源后，重复正文读取与 Git 进程是否减少且关键写入保护仍成立？"
 tags:
+  - "investigation-report"
   - "performance"
   - "root-cause-analysis"
   - "skill-tooling"
+  - "version-control"
 relations:
   - type: "复查"
     target: "261009-skill-cli-repeated-process-and-source-access"

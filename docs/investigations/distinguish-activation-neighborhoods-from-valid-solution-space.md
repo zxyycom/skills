@@ -5,6 +5,7 @@ formedAt: "2026-08-13T09:59:09+00:00"
 question: "Transformer 中被上下文激活的关联邻域为何不能等同于任务有效解集合？"
 tags:
   - "ai-ready-docs"
+  - "description-polarity"
   - "epistemic-limits"
 relations:
   - type: "修正"

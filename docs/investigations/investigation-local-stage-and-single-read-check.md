@@ -4,9 +4,11 @@ id: "261010-investigation-local-stage-and-single-read-check"
 formedAt: "2026-10-10T10:00:44Z"
 question: "全量只读检查采用首次对象、局部暂存预选必要依赖后，固定选择增大全集时访问是否仍局部且写入保护保留？"
 tags:
+  - "investigation-report"
   - "performance"
   - "root-cause-analysis"
   - "skill-tooling"
+  - "version-control"
 relations:
   - type: "复查"
     target: "261010-investigation-acquisition-performance-recheck"

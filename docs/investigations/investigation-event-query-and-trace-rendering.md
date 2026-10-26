@@ -7,6 +7,7 @@ tags:
   - "index-runtime"
   - "investigation-report"
   - "performance"
+  - "root-cause-analysis"
   - "semantic-fidelity"
 relations: []
 ---

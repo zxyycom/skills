@@ -6,6 +6,7 @@ question: "Git 版本基线能否安全识别同一 Change 内尚未提交的中
 tags:
   - "decision-records"
   - "epistemic-limits"
+  - "git-integration"
   - "preliminary-research"
 relations: []
 ---

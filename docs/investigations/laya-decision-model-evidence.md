@@ -31,6 +31,8 @@ Jev 以共享 state 与 Choice、Score、Noul 问题提供托管类型化判断�
 
 本报告保存 **2026-09-20** 的公开资料认识，“当前”均指该时点。Laya 公开不足两天，取证锚点为当时的 GitHub `main`/`research`、PyPI 0.3.3 和 Hugging Face 三个 checkpoint；采用前需重新核对版本、接口与限额。
 
+**2026-10-26 维护补充：清单边界。** 本次核对了随附清单：`main`/`research` 与未固定 revision 的模型卡仅为读取入口，清单未冻结这些来源的形成时内容；本次维护未取得对应原页或源码快照。
+
 依据分为四层：
 
 - **Laya 一手材料**：GitHub README、`BENCHMARKS.md`、`laya/agent.py`、`laya/common.py`、research 分支结果与脚本、PyPI 发行记录，以及三个 Hugging Face 模型卡。源码审阅用于区分“一次 forward 调用”和“共享 state 只编码一次”。

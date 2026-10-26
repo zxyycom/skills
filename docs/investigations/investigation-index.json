@@ -70,6 +70,7 @@
         "build-portability",
         "build-reproducibility",
         "bun",
+        "dependency-resolution",
         "environment-isolation",
         "project-tooling",
         "root-cause-analysis",
@@ -271,10 +272,13 @@
       ],
       "sourcePath": "skill-cli-repeated-process-and-source-access.md",
       "tags": [
+        "decision-records",
         "git-integration",
+        "investigation-report",
         "performance",
         "root-cause-analysis",
-        "skill-tooling"
+        "skill-tooling",
+        "version-control"
       ],
       "title": "其他 Skill CLI 的重复进程与集合读取"
     },
@@ -297,9 +301,11 @@
       ],
       "sourcePath": "investigation-acquisition-performance-recheck.md",
       "tags": [
+        "investigation-report",
         "performance",
         "root-cause-analysis",
-        "skill-tooling"
+        "skill-tooling",
+        "version-control"
       ],
       "title": "调查读取职责收敛后的性能复查"
     },
@@ -323,9 +329,11 @@
       ],
       "sourcePath": "investigation-local-stage-and-single-read-check.md",
       "tags": [
+        "investigation-report",
         "performance",
         "root-cause-analysis",
-        "skill-tooling"
+        "skill-tooling",
+        "version-control"
       ],
       "title": "调查单次采集检查与局部暂存职责复查"
     },
@@ -417,6 +425,7 @@
       "tags": [
         "investigation-report",
         "performance",
+        "relation-graph",
         "version-control"
       ],
       "title": "批量匹配、深链校验与按需payload指纹"
@@ -439,6 +448,7 @@
         "index-runtime",
         "investigation-report",
         "performance",
+        "root-cause-analysis",
         "semantic-fidelity"
       ],
       "title": "完整事件、关系筛选与终端图的重复扫描收敛"
@@ -460,7 +470,8 @@
         "decision-models",
         "lightweight-judgment",
         "model-api",
-        "model-evaluation"
+        "model-evaluation",
+        "multimodal"
       ],
       "title": "Jev 1.14：新版能力、实验限制与 Decisions 对比"
     },
@@ -497,7 +508,8 @@
         "decision-models",
         "lightweight-judgment",
         "model-api",
-        "protocol-adaptation"
+        "protocol-adaptation",
+        "semantic-fidelity"
       ],
       "title": "JEV 载体到 OpenAI Decisions：语义保真映射与结果边界"
     },
@@ -721,7 +733,8 @@
       "tags": [
         "decision-records",
         "investigation-report",
-        "performance"
+        "performance",
+        "scale-testing"
       ],
       "title": "记录工具第一轮常数优化的十万条验证"
     },
@@ -825,7 +838,8 @@
         "decision-records",
         "investigation-report",
         "performance",
-        "scale-testing"
+        "scale-testing",
+        "version-control"
       ],
       "title": "记录暂存共同协调机制一万条独立验收"
     },
@@ -857,7 +871,8 @@
         "decision-records",
         "investigation-report",
         "performance",
-        "scale-testing"
+        "scale-testing",
+        "version-control"
       ],
       "title": "记录工具局部操作契约一万条前后成本验证"
     },
@@ -871,9 +886,12 @@
       ],
       "sourcePath": "align-record-rename-verification.md",
       "tags": [
+        "decision-records",
         "investigation-report",
         "performance",
-        "record-operations"
+        "record-operations",
+        "root-cause-analysis",
+        "scale-testing"
       ],
       "title": "记录身份更正的共同计划与阶段验收差异"
     },
@@ -948,6 +966,7 @@
         "index-runtime",
         "investigation-report",
         "performance",
+        "scale-testing",
         "version-control"
       ],
       "title": "记录工具整索引计算与暂存传输成本调查"
@@ -1064,6 +1083,7 @@
       "sourcePath": "bind-mentioned-objects-to-negative-roles.md",
       "tags": [
         "ai-ready-docs",
+        "description-polarity",
         "responsibility-boundaries"
       ],
       "title": "负向描述需要额外完成对象角色绑定"
@@ -1123,6 +1143,7 @@
       "sourcePath": "compare-human-and-ai-abstraction-defaults.md",
       "tags": [
         "ai-ready-docs",
+        "description-polarity",
         "epistemic-limits"
       ],
       "title": "人与 AI 具有不同的抽象默认偏差"
@@ -1141,6 +1162,7 @@
       "sourcePath": "compress-negative-revision-history-into-positive-goals.md",
       "tags": [
         "ai-ready-docs",
+        "description-polarity",
         "goal-modeling"
       ],
       "title": "正向目标是对负向修正历史的认知压缩"
@@ -1189,6 +1211,7 @@
       "tags": [
         "decision-records",
         "epistemic-limits",
+        "git-integration",
         "preliminary-research"
       ],
       "title": "版本基线可发现同一变更内的决策演进候选"
@@ -1207,6 +1230,7 @@
       "sourcePath": "distinguish-activation-neighborhoods-from-valid-solution-space.md",
       "tags": [
         "ai-ready-docs",
+        "description-polarity",
         "epistemic-limits"
       ],
       "title": "关联激活邻域不等于任务有效解集合"
@@ -1217,14 +1241,18 @@
       "question": "正负描述在形式表达能力等价时，为什么仍可能具有不对称的自然语言构造成本？",
       "relations": [
         {
-          "target": "ground-positive-negative-asymmetry-in-reference-structure",
+          "summary": "区分表达能力等价与补集构造成本",
+          "target": "bind-mentioned-objects-to-negative-roles",
           "type": "修正"
         }
       ],
-      "resourceIds": [],
+      "resourceIds": [
+        "preserve-redacted-conversations-in-two-derived-forms/conversation-final-dialogue.initial.md"
+      ],
       "sourcePath": "distinguish-expressive-equivalence-from-construction-cost.md",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "description-polarity"
       ],
       "title": "正负描述表达能力等价但构造成本不对称"
     },
@@ -1260,7 +1288,8 @@
       "resourceIds": [],
       "sourcePath": "ground-positive-negative-asymmetry-in-reference-structure.md",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "description-polarity"
       ],
       "title": "正负描述的不对称来自参照结构而非句式"
     },
@@ -1379,10 +1408,13 @@
       "name": "recover-candidate-model-from-negative-description-dispute",
       "question": "负向描述争议暴露了怎样的候选概念层次与后续调查边界？",
       "relations": [],
-      "resourceIds": [],
+      "resourceIds": [
+        "preserve-redacted-conversations-in-two-derived-forms/conversation-final-dialogue.initial.md"
+      ],
       "sourcePath": "recover-candidate-model-from-negative-description-dispute.md",
       "tags": [
         "ai-ready-docs",
+        "description-polarity",
         "knowledge-evolution",
         "preliminary-research"
       ],
@@ -1437,7 +1469,8 @@
       "resourceIds": [],
       "sourcePath": "return-from-framework-strategy-to-description-polarity.md",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "description-polarity"
       ],
       "title": "收回框架重构旁支并恢复正负描述主线"
     },
@@ -1496,7 +1529,8 @@
       "resourceIds": [],
       "sourcePath": "separate-framework-reconstruction-from-local-repair.md",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "description-polarity"
       ],
       "title": "区分框架重构与框架内修补两种策略"
     },
@@ -1572,6 +1606,7 @@
       "sourcePath": "separate-solution-space-positioning-from-contextual-anchoring.md",
       "tags": [
         "ai-ready-docs",
+        "description-polarity",
         "knowledge-evolution"
       ],
       "title": "分离解空间定位与上下文搜索锚定"
@@ -1590,6 +1625,7 @@
       "sourcePath": "specify-safety-goals-with-negative-rules.md",
       "tags": [
         "ai-ready-docs",
+        "description-polarity",
         "validation-boundaries"
       ],
       "title": "安全主线可以由负向规则具体化"
@@ -1608,6 +1644,7 @@
       "sourcePath": "treat-description-polarity-as-reference-relative.md",
       "tags": [
         "ai-ready-docs",
+        "description-polarity",
         "preliminary-research"
       ],
       "title": "正负极性依赖描述层级与参照对象"
@@ -1640,14 +1677,14 @@
   "schemaVersion": 4,
   "sourceRevision": {
     "entries": {
-      "260903-explore-name-collisions-in-retained-artifacts": "sha256:4aa2ab77d625a548920dd74b5ace539cfcf90b15b90130def4963da25078ca6f",
+      "260903-explore-name-collisions-in-retained-artifacts": "sha256:b5279794cc21d3ddc7b1f6485caa9d79561d03167d82a624d9b969dcff6d4f7b",
       "260907-investigate-vibe-check-test-evidence": "sha256:ceb08a215fca02e71e3197ff8bac3f1b3cb2ecff83e88cece860bba39f4867bb",
       "260908-recall-historical-decision-alignment": "sha256:5b5baaff297122336c96e05a2cfb2c1ab97099a062cb373ef8ea3aa489cf1b4e",
-      "260911-bound-bun-optional-peer-resolution": "sha256:cd9604eedaeca962481e9d3decb0a8e98a99e1332ce1b2078a68449ebcb424f9",
+      "260911-bound-bun-optional-peer-resolution": "sha256:25bb80ae52bcbca6b21c4ec640c3dcee96ec88038e59c9b61ca9a556d581c526",
       "260911-explain-ci-cold-proof-test-failure": "sha256:2bb1a591998082c1ad39c3ae51daa73842a0195022a690601061b80827845a42",
       "260912-isolate-ci-version-control-test-load": "sha256:676088ae4f676fbdb7d86544680808b9544199fb698037e875c760316e497c25",
       "260919-gate-toolchain-drift": "sha256:6ae61d9a98622da92e811e803fd84805bd8161223ae8d6edd40ff2323c07a169",
-      "260920-laya-decision-model-evidence": "sha256:656c245f5186d72a311ee311ed02c5794256b5c65a9bd6c1b4e95ecbad1ecf5a",
+      "260920-laya-decision-model-evidence": "sha256:8a7692fd9cbe9e4737d0df25337e3a690d4d5768e94bd4abb5825e08079bf0cb",
       "260923-stale-skill-release-after-failed-ci": "sha256:30f5274c8658ca3684d44997f7f3e2ee09d3552a1d1a4dc6a975be58878e4299",
       "260926-intern-decision-clm-evidence": "sha256:3eaad52e82e9a7dd283cf19f7088defef281d20f8d0fd5f094a8f0b3ce4317b6",
       "261004-jev-record-maintenance-boundaries": "sha256:168f6931ca8b9f1392643ec7606dd8dfad06f87eacd4d26c4c23c8c676024046",
@@ -1655,17 +1692,17 @@
       "261005-pending-file-representation-conflict": "sha256:2fb0c701b837460cb5324b091afd36bf4035307b1cc40eee180cf7358a2558d1",
       "261009-openai-decisions-api-contract": "sha256:2c69c76427b9905bdbe6c5a71818802a546fbc4f469b02f8b38c457a154c1f37",
       "261009-openai-decisions-jev-comparison": "sha256:770e68e8124f5dda7c6eeeb1f66ce714a046fb62fca3a209c515cb41d5106830",
-      "261009-skill-cli-repeated-process-and-source-access": "sha256:c36ef47b219d7f4c7c8ce1496b70aeee91958106a01835275793a8fe0eca64be",
-      "261010-investigation-acquisition-performance-recheck": "sha256:363386f7d53281c571fabb6682fb3f8e69c28be86b0437033e7f37751efba60a",
-      "261010-investigation-local-stage-and-single-read-check": "sha256:a1ed5d551d2dea05dbcfd4e3bf928adcb60cb82d25a604524a2170f278fc81aa",
+      "261009-skill-cli-repeated-process-and-source-access": "sha256:8b47098be710fd4a03d1a185eefee52bed07c12dce87304d8761d530b5027bfe",
+      "261010-investigation-acquisition-performance-recheck": "sha256:8159c96a4151c77f9312c810aafbfaca3ff887bec0d9ff841407f2cf0c5c3d6c",
+      "261010-investigation-local-stage-and-single-read-check": "sha256:76066ba670f3f135ac353a3c5d24359d915d884478600fcf3d2747e6abdb1321",
       "261010-investigation-phase-facts-and-streamed-content": "sha256:45ba304c2b187ad2916e7746c3ba4aca3805381904dd01595c4d7ca7191fbb11",
       "261011-decision-batch-lookup-and-stable-event-members": "sha256:a93fa43bf87a2afc1fc79b29cf5e315fc5baae1fbfee4afcf7ef60329155ce7d",
       "261011-decision-snapshot-stage-and-event-costs": "sha256:c8b5d3aaa42896e3be0d0aeb96387cbd22256535f2ea57d987812880758d9aff",
-      "261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints": "sha256:ce79cceb5f8d0fff03dc278874c5b834743c27bf7c9e87ab569af2df608c3e8c",
-      "261011-investigation-event-query-and-trace-rendering": "sha256:4936145c3049f56c27e26ed025729c7a31172bd8fbb9425f95fa82a0c2739915",
-      "261015-jev-1-14-capabilities-and-comparison": "sha256:58569c00abae2b334d0f29cd876a3ad20e599a5273caab530eb03f52e994d16b",
+      "261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints": "sha256:22e37022017d828a261c5cc8bb778cc929858ed9142229b09f914a109113a863",
+      "261011-investigation-event-query-and-trace-rendering": "sha256:021ec7b8b90c6659ed8c4ea5d9abce7657762c6d4b21fe0d3345638680a2934d",
+      "261015-jev-1-14-capabilities-and-comparison": "sha256:7ed67df61ade4a42d555d0f3591656e1fdcc7a59acd24b98f44bb8e3f926447e",
       "261017-decision-model-multimodal-long-context-integration": "sha256:d0ef103bfbbc3739a23153c50be7be642e57a2dca48165dd1d061edcee989275",
-      "261017-jev-carrier-openai-decisions-mapping": "sha256:a4532d576333c29a51136d99fbb3cfd0fdee973ddce6265632b2cb6cd88dfddd",
+      "261017-jev-carrier-openai-decisions-mapping": "sha256:fee6fd09b23fb1f0b742793eb53592c746cd39423c43dce413e4d4e198fd2520",
       "261017-lightweight-judgment-multi-protocol-runtime-boundaries": "sha256:832411cf080a2703c050dcd8490c4d34d8d3f1a42d2af5c952375580052ff242",
       "261017-openrouter-decision-live-protocols": "sha256:6c5b0fd11c69d628626288d378f221673c88cd7ec72f37b3ed2274361bb0e91b",
       "261021-decision-investigation-constant-factor-audit": "sha256:aebf200dd653b679ceade0895bcd6114d42cc116824ad8b3857030fe1be1a25c",
@@ -1673,50 +1710,50 @@
       "261021-git-path-query-argument-batching": "sha256:b0a83a2e09905a66d96de4fc384397d34af0d504a0b06d4d97c82f7a8aa08085",
       "261021-record-tools-100k-performance": "sha256:90f583af3ff0bd21d2cd30332c33af6f480e2ffed737cf6d7f5d956ed891837b",
       "261021-record-tools-all-operations-100k": "sha256:d55d495455ae2bd3217331bb0ec6c936995278a9a04a8e6945ec8673e97dfefc",
-      "261021-record-tools-first-optimization-validation": "sha256:f8c79de193183cf5d861bfec77b4ddc8a49f9a44696dbf1c7047df7b131973b4",
+      "261021-record-tools-first-optimization-validation": "sha256:193a274ac8ba04b526b07e0798f6943370e7b6cc1f695b6b4f0de0d2e2e388f1",
       "261022-ir-index-payload-optimization": "sha256:c96894e0db5b2c3bda5d7aed77545ab927253e0fe863c8a045de326dd9518766",
       "261022-ir-index-stage-regression-cause": "sha256:f4429711183d4192846574cae7ddafccec30140f35d7a0b54ff0c95d1dabc0ae",
-      "261022-record-stage-convergence-10k": "sha256:c8d51362bb46c8dda5b711e3fbdd3ac6f1ce92325005870f0501494cdb15067d",
-      "261022-record-tools-local-contracts-1w": "sha256:b4662c7c1cf3248491db6a5e9b9a44d2d353329d2242112ccda3f67954e050d2",
-      "261024-align-record-rename-verification": "sha256:9dd528772b765ccfd04508a25db5368100cdcc672f80f2e6788033ae5de56b4e",
+      "261022-record-stage-convergence-10k": "sha256:b72f5d9b85d11a94779f6be1edcb3d1b087eefddd5cd26616bf33e54f9eaa2f0",
+      "261022-record-tools-local-contracts-1w": "sha256:29d8a596a1c254bf4de90d22b9e043dba65f446374792a617b040694442ca5a2",
+      "261024-align-record-rename-verification": "sha256:fd52dbadac7dd085a4232752533b5c0bab2c4fb08bfbfe2dd78fc9479cd10c2e",
       "261024-record-global-throughput-and-memory": "sha256:41cfce6ecb5d66a54f1ad0280baf1500ffdf82639dbe66adfe7dc4292b70a696",
-      "261024-record-index-computation-and-transfer": "sha256:eb6a62eb50cbe61f64e55b4e0142d1498615fc4e7747126aac8f591f7d6d987e",
+      "261024-record-index-computation-and-transfer": "sha256:21b73c138e7d7085a43f2e592e3b3c64d71b21d4752a8e4fa1df2e3177e5dd79",
       "261024-record-tools-entry-matrix-10k": "sha256:bdb7464449dcae7a158bd1e6d18ed8adae29de35855b26dc3d814ac6ba092149",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",
-      "bind-mentioned-objects-to-negative-roles": "sha256:5956a7173868fcf52f833c9b7d72631c9b19364cf81a5927dccb9e3bb5b11af5",
+      "bind-mentioned-objects-to-negative-roles": "sha256:d559cd3e8f1304a36894aa4f6bc0fe3febaf938f90ee0bb90c7d2a60f5e9a7f0",
       "bound-identifiability-of-deep-goals": "sha256:7c51d52e8816c007ee76ca08e78f32d92a297d22ca2290b5e61825a518e08e27",
       "ci-clean-runner-environment-regressions": "sha256:06863d08f3b62c30486a5ed0b953b84f58ab12dd68156cc78e2b0df9ab680a88",
-      "compare-human-and-ai-abstraction-defaults": "sha256:308c50cd97e3caa8eb237fbb9c5fcb2541316dbb20f65e3c98b087b8a497e52c",
-      "compress-negative-revision-history-into-positive-goals": "sha256:3ddc36bd0d2c0d776ce1353501b492820b2405a3aaf8608fe880465c1f836a9e",
-      "defer-standard-test-result-blocking": "sha256:fc2bf08d49412d882bb9a97c55994be90f5263f8738849ab59935d8e63a608f2",
+      "compare-human-and-ai-abstraction-defaults": "sha256:5a2d0cd8034f768502ab886ec08649ed74fa3722cd5d3fd2e83e00811631a5d4",
+      "compress-negative-revision-history-into-positive-goals": "sha256:02ee1c6cbff503f7ca0fef29b5c8ff3a58f20908c851972ef445547dc9114dd5",
+      "defer-standard-test-result-blocking": "sha256:cf8f87e766bb4da0f3502655a25cff8fe8f65ddb0b8aff3d55d7faf92fb0283a",
       "define-git-library-selection-evidence": "sha256:c89802bd2cf1aa87c73a0a5fd56a80d59f0305f7ecc93c6d859ab60226e90825",
-      "detect-uncommitted-decision-evolution-from-git-baselines": "sha256:5f28ab56b9f8c23fb9c775b39369d4eceb7df0c54de51fb80cb3b93c14672338",
-      "distinguish-activation-neighborhoods-from-valid-solution-space": "sha256:098c7a2a1bfcd15c3f64251b68c54e12752c3bf88310272b2bb46ac380dacb3d",
-      "distinguish-expressive-equivalence-from-construction-cost": "sha256:a7ea90047ec8f89d1cb83e62ff35b8a21d27f7ad526b12db08622b112a21e1e5",
+      "detect-uncommitted-decision-evolution-from-git-baselines": "sha256:52c2a01fda4c44eeaad789666b8a4046f10ec5cef0a1efdfa9560e22411cf4ce",
+      "distinguish-activation-neighborhoods-from-valid-solution-space": "sha256:507a13802372dc342b5f1d3a7c9a9f29db6a5cdb7179295179fcdf4bb5e40b96",
+      "distinguish-expressive-equivalence-from-construction-cost": "sha256:014e213694744e4983deca62de139a302f53e410f90f74d20b601821fb7f42a3",
       "evaluate-mcpshell-as-user-scoped-workspace-bridge": "sha256:1117a288375c051f938c6115783f0e084fd01e819fb332197fd9cec606a5794a",
-      "ground-positive-negative-asymmetry-in-reference-structure": "sha256:989e701325766ded31e2c4b0c90d191804b2e21aacf5fa716c0fbde54dc6fff7",
+      "ground-positive-negative-asymmetry-in-reference-structure": "sha256:23bdef79371bc4a9c883e32abba5255f1409bad4dba630d28c4da57d59be194d",
       "identify-operation-time-skill-rerouting-gap": "sha256:21f570c4ef34d834621fb23c34f78d30818898bf0fa722700ede500fb7f96829",
       "identify-routing-and-coordination-gaps-in-context-management": "sha256:6b953106a0ffadb738b662b90244c5f68d811b736203dd6b7872ebd63264d36b",
       "identify-vibe-001-jscpd-path-and-lizard-version-gaps": "sha256:5ab2c102f8afec6e68ff5499f8718fbd575480bce9f36b41242bf3051297d086",
       "model-goals-as-layered-partially-expressible-intentions": "sha256:c64d32dfe7fd1ed38314254be75af7712aa276bb337e5dad2a5eeef60f538c03",
       "preserve-redacted-conversations-in-two-derived-forms": "sha256:2f496ad741ff081a5919760c0f918b815e1bcde4df520289072c81b15ae0610c",
       "recognize-document-projections-as-part-of-goal-formation": "sha256:e636c7e927beb109ea9fc35b9aea518cce7c4a1890ae4650983b4a4189ff4537",
-      "recover-candidate-model-from-negative-description-dispute": "sha256:2dd8c9fc60a280f4dfe0733bc6ce9e73ecc9130a1ec2ccf0bd665ec1c99d2003",
+      "recover-candidate-model-from-negative-description-dispute": "sha256:2bb9bf4c86614bc2ed6e4b1fd622b7f3406824327f6bee889e4509cca28e891c",
       "reject-lock-and-atomic-write-library-dependencies": "sha256:41c6346019b5c6b59a6dc73bfadbffc5a0a4f8c8266a3bb54c18d854044c741a",
       "remove-supervision-around-lock-and-atomic-write-libraries": "sha256:99db31816850cd211dee65c5e0112fd38ce11beb5040a0980624801846773c6a",
-      "return-from-framework-strategy-to-description-polarity": "sha256:4b26444c14ecb49eb510f34b34f4fbec9f6180a2129042bcecd053a78b0836f5",
+      "return-from-framework-strategy-to-description-polarity": "sha256:f714f3cdb411b7e2aea10cec3278314ef05a5171bdfbefab2a03a11fffcfe261",
       "select-functional-utilities-and-data-structures": "sha256:b13e9f7f177d89d6856b5ce5692dff61c284d11dd1b327212f48536fbcbd3ac1",
       "select-neverthrow-and-project-option": "sha256:35dbf81e2e9231fd562ccd92dd40135b7d20def5e1701a2bc617e43bd9c5f7a8",
       "select-pattern-matching-and-state-modeling-libraries": "sha256:fce1929acfaa07458e0dfff9fb2b3c7df13d0bf5d6aa5abc55febcb5351cf00a",
-      "separate-framework-reconstruction-from-local-repair": "sha256:0fb2921f95b7d017f26dc931044d992ccb0d6481697ba18113f0337571b22ea2",
+      "separate-framework-reconstruction-from-local-repair": "sha256:0ab7df70cf6818af80181e61acf92344661a3e0fac4f2df09c8ee0a8e1474273",
       "separate-logical-pruning-search-bias-and-path-dependence": "sha256:8318cef1ea93ce8dfbc99cb638358999c7ea996579350bf46ab618abc07a7a70",
       "separate-semantic-fidelity-goal-fit-and-goal-explication": "sha256:ff2c7dc19ab64e0684f003b3c3c911177fd95af2d469b20f4aa55966673e5b4a",
       "separate-semantic-responsibility-from-solution-space-analysis": "sha256:a40bf7f269d26baaedf019d7337ad18685bf564908ab0cfc20c1f373fb6c66ba",
-      "separate-solution-space-positioning-from-contextual-anchoring": "sha256:aca9ae52d1ae924c447b726833a6c253591141f186c68f61fa491324bb97fd74",
-      "specify-safety-goals-with-negative-rules": "sha256:2bac1a594e0fa0672ca0a7b6740943d83008b630a7ec253dc0856232a84d00ac",
-      "treat-description-polarity-as-reference-relative": "sha256:c383489182a22e486414068fcc69e69fdd03e40a2fcd8ba6a4bb129f4e7cd07a",
+      "separate-solution-space-positioning-from-contextual-anchoring": "sha256:5ff7421e90b2514763ae3e02ccc971e2042bb432855b69894ec0902485a792d0",
+      "specify-safety-goals-with-negative-rules": "sha256:af992883f5af70b25b3c1dd98ff74bd4e257ace3707272e5771fd626958846a2",
+      "treat-description-polarity-as-reference-relative": "sha256:3222def35b142e011f29cae050fb11f8f377d829266ad791147bed375af3095d",
       "treat-goals-as-complete-in-abstraction-and-incremental-in-practice": "sha256:d6b3b8126a796aad8e4f13b2a66bc13278da44d3fd0d7d433ca20c7e3fc94399"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"

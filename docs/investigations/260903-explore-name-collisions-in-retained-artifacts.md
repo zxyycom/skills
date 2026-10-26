@@ -54,7 +54,14 @@ relations: []
 
 ## 调查范围与依据
 
-本轮以 2026-09-03T07:30:22+00:00 的工作区状态为形成时点，实际检查以下行为 owner：
+本轮以 2026-09-03T07:30:22+00:00 的工作区状态为形成时点。
+
+**2026-10-26 维护补充：历史定位。** 报告首次提交为 `b769131cba26fa73f2ec658a6378c7157f206df4`；在此之前已提交的行为 owner 快照可从 Git `eba9511e09d9bb120d010b14d7b3635d4d3eb007` 的同路径恢复。
+
+- 参照快照提交时间为 2026-09-03T07:38:03Z，晚于本报告标注的形成时点；它只作为可恢复的契约参照，不代表形成时未提交工作树的逐字快照。
+- 下列链接用于当前导航；历史身份与 archive 认识仍按该轮条件解释。
+
+形成时实际检查的行为 owner：
 
 1. [`change-plan` 固定契约](../../skills/change-plan/references/change-plan-contract.md)规定 Change 根目录直属成员为 active、`archive/` 直属成员为 archived；归档把目录移动到同名目标，目标已存在时拒绝。Archived Change 没有 stage，不再由 checker 解释，只能由 `list` 和 `show` 发现或读取原始 artifacts。
 2. [`Decision Records` 固定规则](../../skills/decision-records/references/decision-record-rules.md)规定含 `.md` 的 basename 是全集合稳定 Decision ID，active 与 archived 共用统一索引和 ID 空间；关系从新记录指向直接前序，完整图必须无环。重新激活保留原 `createdAt` 和既有关系，不借重新激活修改关系；改 basename 本来就是身份变化，选择性暂存也要求以旧、新 ID 显式表达改名。

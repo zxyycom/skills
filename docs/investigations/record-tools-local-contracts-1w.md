@@ -8,6 +8,7 @@ tags:
   - "investigation-report"
   - "performance"
   - "scale-testing"
+  - "version-control"
 relations:
   - type: "复查"
     target: "261021-record-tools-all-operations-100k"

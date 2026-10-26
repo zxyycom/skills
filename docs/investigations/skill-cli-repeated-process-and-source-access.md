@@ -4,10 +4,13 @@ id: "261009-skill-cli-repeated-process-and-source-access"
 formedAt: "2026-10-09T03:33:16Z"
 question: "Change 之外的 Skill CLI 是否重复访问同一 Git 上下文或集合来源，哪些路径已形成可复现的扩展问题？"
 tags:
+  - "decision-records"
   - "git-integration"
+  - "investigation-report"
   - "performance"
   - "root-cause-analysis"
   - "skill-tooling"
+  - "version-control"
 relations: []
 ---
 

@@ -4,9 +4,12 @@ id: "261024-align-record-rename-verification"
 formedAt: "2026-10-24T05:55:23Z"
 question: "为什么同等来源规模的 IR rename 承受额外串行验收，如何在不减弱事务安全的条件下对齐共同操作？"
 tags:
+  - "decision-records"
   - "investigation-report"
   - "performance"
   - "record-operations"
+  - "root-cause-analysis"
+  - "scale-testing"
 relations: []
 ---
 
@@ -69,7 +72,14 @@ IR rename after 的 domain postverify 约 2.926s；IR discard 仍有较早 fresh
 
 本性能输入不是大 fan-in / 大 changed-set，也未测所选资源移动性能；正确性测试不补成其性能结论。CPU/RSS 逐样本保留，但没有逐阶段 CPU/syscall 数据，未声称内存峰值改善或阈值最优。若在不同运行时、文件系统、资源树、权限约束或大量入边/changed 集合下出现新差异，应按实际义务重新测量与审查，不能外推本轮数值。
 
-精简 JSON 汇总由本轮独立测量审计后的逐样本结果提炼，保留 24 个正式样本的 wall/CPU/RSS、instrumented 阶段、计划与最终 delta、环境和来源 hash；需要复核表中数值与取样边界时读取。完整 raw、fixture 模板、插桩 patch 与归档审计由同次修复的 Git 历史保存，不复制为长期大附件。
+精简 JSON 汇总由本轮独立测量审计后的逐样本结果提炼，保留 24 个正式样本的 wall/CPU/RSS、instrumented 阶段、计划与最终 delta、环境和来源 hash；需要复核表中数值与取样边界时读取。
+
+历史材料可从 Git `d21f6a7f1356266fca3f89c6ff1ab17b7158f175` 恢复：
+
+- 完整 raw、fixture 模板、插桩 patch 与归档审计：`changes/align-record-rename-verification/evidence/performance/`。
+- 安全复核材料：同提交的 `changes/align-record-rename-verification/evidence/review/` 与 `changes/align-record-rename-verification/evidence/self-verification/`。
+
+这些历史材料供阅读复核，不是本次维护的重跑入口，不复制为长期大附件。
 
 ## 随附资源
 

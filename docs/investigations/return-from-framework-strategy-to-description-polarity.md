@@ -5,6 +5,7 @@ formedAt: "2026-08-13T11:20:49+00:00"
 question: "哪些框架策略认识仍服务正负描述主线，哪些已经构成应退出本主题的旁支？"
 tags:
   - "ai-ready-docs"
+  - "description-polarity"
 relations:
   - type: "修正"
     target: "separate-framework-reconstruction-from-local-repair"

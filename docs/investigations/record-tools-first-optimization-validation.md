@@ -7,6 +7,7 @@ tags:
   - "decision-records"
   - "investigation-report"
   - "performance"
+  - "scale-testing"
 relations:
   - type: "复查"
     target: "261021-record-tools-100k-performance"

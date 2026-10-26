@@ -6,7 +6,7 @@
 
 | 内容 | 后续使用方式 |
 | --- | --- |
-| 当前长期方向 | 分别以[Runner 生产边界结果协议](../../../../../docs/decisions/test-evidence-review/standardize-runner-results-at-producer-boundaries.md)和[正式结果证据资格](../../../../../docs/decisions/test-evidence-review/qualify-formal-results-by-evidence-integrity.md)为 owner；旧的[统一测试结果延期决策](../../../../../docs/decisions/test-evidence-review/defer-standard-test-result-blocking.md)已归档，只是两条当前演进链的共同历史前序 |
+| 当前长期方向 | 分别以[Runner 生产边界结果协议](../../../decisions/standardize-runner-results-at-producer-boundaries.md)和[正式结果证据资格](../../../decisions/qualify-formal-results-by-evidence-integrity.md)为 owner；旧的[统一测试结果延期决策](../../../decisions/archive/defer-standard-test-result-blocking.md)已归档，只是两条当前演进链的共同历史前序 |
 | “已核实的仓库边界” | 只表示本材料形成时的调查快照；重新规划前必须用届时仓库事实复核 |
 | 候选 Schema、状态、runner 映射、执行顺序和加固方式 | 只作为比较输入，不是冻结契约或验收标准 |
 | 实施与授权 | 本资源不提供当前 plan 或实施授权；是否重新选择推进应以当前决策 owner、现实需求和届时授权为准，[`tasks.md`](tasks.md) 只保留形成时的重启清单 |

@@ -8,6 +8,7 @@ tags:
   - "investigation-report"
   - "performance"
   - "scale-testing"
+  - "version-control"
 relations:
   - type: "复查"
     target: "261022-record-tools-local-contracts-1w"
