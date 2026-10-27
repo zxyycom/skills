@@ -27,15 +27,14 @@ relations:
 - 当前 task-graph 已允许修改未终态 task；running task 由 lease owner 先收敛，failed task 通过 `retry` 返回 idle，`succeeded` 和 `cancelled` 则保持封闭。
 - 已观察到的完成后新增需求可以创建独立后继 task，用稳定 reference 表达来源，并只在真实完成顺序成立时增加普通 dependency。该路径不需要重开原任务，也不需要新增 successor、supersedes 或 evolution relation。
 - 已观察到的 result 提交 SHA 漂移由语义 result 与 task index Git 版本锚点解决，不需要原位修改 succeeded result，也不构成错误成功事实。
-- `changes/establish-task-correction-and-successor-evolution/` 已探索显式 `correct`、纠正证据和上下游门禁，但当前没有可复核的错误 `succeeded` 或 `cancelled` 实例证明这组额外协议、Schema、CLI、SDK、文档和测试维护面必要。
-- 形成本判断时，该探索 Change 以当时的 `shelved` 阶段保留为调查输入；后续 Change metadata 规范化已将其显式迁为 `plan`，该载体映射变化不表示恢复实施或改变本记录的重新评估条件。
+- 既有探索已评估显式 `correct`、纠正证据和上下游门禁，但当前没有可复核的错误 `succeeded` 或 `cancelled` 实例证明这组额外协议、Schema、CLI、SDK、文档和测试维护面必要。
 
 ## 决策
 
 ### 权威边界
 
 - 采用：本记录只承接“当前是否探索终态纠正”以及“何时允许重新评估”的长期判断，不拥有 Change 阶段或 task-graph 实际行为。
-- 采用：Change 阶段从其 `.change-plan.json` 读取，当前载体选择按 `docs/navigation.md` 和 Change Plan 契约解释；task-graph 实际行为从 `skills/task-graph/SKILL.md`、`docs/skills/task-graph.md` 和 `tools/task-graph/src/` 读取。既有探索只提供历史调查输入，不能覆盖这些 owner。
+- 采用：task-graph 实际行为从 `skills/task-graph/SKILL.md`、`docs/skills/task-graph.md` 和 `tools/task-graph/src/` 读取；载体选择按 `docs/navigation.md` 和 Change Plan 契约解释。既有探索由 Git 历史保留，只提供历史调查输入，不能覆盖这些 owner。
 
 ### 当前边界
 
@@ -55,4 +54,4 @@ relations:
 ### 不采用
 
 - 不采用：为了 mutation 对称性、理论完整性或尚未发生的误操作预先实施终态纠正。
-- 不采用：删除探索历史或静默改写已成功 task 来制造“从未计划过”的表象。
+- 不采用：抹除 Git 中的探索历史或静默改写已成功 task 来制造“从未计划过”的表象。

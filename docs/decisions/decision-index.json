@@ -201,7 +201,7 @@
       "default-to-current-task-changes": "sha256:0e216c611c56a648e33b1db7c448a33c54b8cd7f34dc0d5be8204528ec02e33f",
       "defer-openspec-maintenance-during-removal-review": "sha256:1ede5e595a5a5ebe546c28d1ac29d6a20e399d58039e593e9b87c5b3f0371b12",
       "defer-standard-test-result-blocking": "sha256:7a4a6d1cd686117d378d95d0920295b62ea3b92337d14c6ae0255d3d06a34280",
-      "defer-terminal-correction-until-confirmed-recovery-need": "sha256:dd70bbab4059fdadd3e2d8f8ca0e5d33512c43da057368ac13dec6f0452563e2",
+      "defer-terminal-correction-until-confirmed-recovery-need": "sha256:29d2b4991e92cabc4ba236f49fcf34c2695caf0f1b014635da08f304aaf52a2c",
       "define-decision-alignment-semantics": "sha256:0f80dfe50628ed41a91cc2ecfb687d4af623fefaf6d4e737ac56cb400c8b95c9",
       "define-version-control-visible-investigation-resources": "sha256:6ce61b918596e9a0da44153d2cfc99fd2bc014c1fecabeea9ac44c09ded6a692",
       "delegate-native-runtime-installation-to-caller": "sha256:d8f3e546f21b706d12fdcd7a3e146e5f69d361dff942a250155029631522a41d",
