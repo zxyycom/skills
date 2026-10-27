@@ -21,7 +21,7 @@
 ## 工具分工
 
 1. pnpm 负责安装依赖；固定版本来自 `package.json#packageManager`，锁文件是 `pnpm-lock.yaml`，CI 使用 `pnpm install --frozen-lockfile`。
-2. Bun 负责 package scripts 调度、源码同步适配和仓库中其余 TypeScript 脚本运行；同步工具与测试运行时语义会随 Bun 版本变化，因此本地、hook 和 CI 必须使用 `package.json#engines.bun` 固定的精确版本，并优先通过 `bun run <script>` 使用稳定入口。环境入口从同一边界诊断 Bun，不在本文复制版本数值。
+2. Bun 负责 package scripts 调度、源码同步适配和仓库中其余 TypeScript 脚本运行；本地与 hook 复用 `PATH` 上可运行的 Bun，不设置版本号前置门槛。CI 使用 workflow 选定的版本；生成一致性与实际测试承担兼容性验收，工具链指纹继续记录实际版本。优先通过 `bun run <script>` 使用稳定入口。
 3. Node.js 负责运行分发 TS 入口、`@zxyycom/vibe-check` 的 Gate 入口及其原生测试；最低兼容版本由 `package.json#engines.node` 定义，`bun run check`、`bun run check:changed` 与 `bun run test:check` 是稳定的人工作业入口。
 4. tsgo 负责类型检查；`typecheck` 使用固定版本的 `@typescript/native-preview`，对应 release-age 例外记录在 `pnpm-workspace.yaml`。
 5. 常见格式、协议、解析和压缩能力优先使用成熟依赖；项目领域规则才由本仓库直接实现。
@@ -50,10 +50,10 @@ node scripts/environment.js setup
 
 环境入口遵守以下边界：
 
-1. Git、满足 `package.json#engines.node` 的 Node.js、全局 CodeGraph 和 SCC 4.0.0 是前置条件；入口只诊断和复用它们，不安装或升级它们。Bun 与 pnpm 分别服从 manifest 中的精确版本。函数指标使用 Vibe 随包分析器。
+1. Git、满足 `package.json#engines.node` 的 Node.js、全局 CodeGraph 和 SCC 4.0.0 是前置条件；入口只诊断和复用它们，不安装或升级它们。Bun 检查可运行性，pnpm 服从 manifest 中的精确版本。函数指标使用 Vibe 随包分析器。
 2. `check` 检查 Git、Node.js、Bun、pnpm、CodeGraph、SCC、索引状态、直接依赖、Git hook 和中央 task-graph root，不下载或修改环境。
-3. `gate` 只检查 Git、Node.js、精确 Bun、精确 pnpm 与精确 SCC，不要求 CodeGraph 索引、项目依赖、hook 或 task-graph root；Gate 中每次执行的 `gate-environment` Check 调用同一入口，失败时保留工具探测结果，并通过依赖阻止其他 Check 执行，避免把基础环境漂移扩散成生成物、测试或指标的伪失败。
-4. `setup` 只会安装或切换 manifest 固定的精确 Bun 与 pnpm，运行 `pnpm install --frozen-lockfile`，调用已就绪的全局 CodeGraph 执行 `init` 和 `sync`，并配置当前 worktree；Git、Node.js、CodeGraph 或 SCC 缺失、版本不匹配或探测失败时会在任何安装前失败并给出恢复动作。
+3. `gate` 只检查 Git、Node.js、可运行的 Bun、精确 pnpm 与精确 SCC，不要求 CodeGraph 索引、项目依赖、hook 或 task-graph root；Gate 中每次执行的 `gate-environment` Check 调用同一入口，失败时保留工具探测结果，并通过依赖阻止其他 Check 执行，避免把基础环境漂移扩散成生成物、测试或指标的伪失败。
+4. `setup` 复用已有可运行的 Bun，只在不可用时通过 npm 安装 Bun；pnpm 按 manifest 固定版本安装或切换。随后运行 `pnpm install --frozen-lockfile`，调用已就绪的全局 CodeGraph 执行 `init` 和 `sync`，并配置当前 worktree；Git、Node.js、CodeGraph 或 SCC 缺失、版本不匹配或探测失败时会在任何安装前失败并给出恢复动作。
 5. 恢复外部指标工具时，必须让精确 SCC 版本进入 `PATH`。mise 用户可运行 `mise use go:github.com/boyter/scc/v4@4.0.0` 选择已安装版本；其他环境可运行 `go install github.com/boyter/scc/v4@v4.0.0` 安装。仅存在 mise shim 而未选择版本时，`scc --version` 会以非零状态退出，环境入口会保留该诊断而不是误报为指标 finding。环境入口不替代类型检查、测试、生成漂移检查或完整仓库检查。
 
 仓库本地配置由 `scripts/setup-repository.js` 承接：
@@ -116,7 +116,7 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 
 每次 invocation 构造相同的 69 项 Definition：环境 1 项、原生材料 8 项、维护脚本 20 项、语义测试 37 项、release 交付 3 项。base 范围为前四类共 66 项；普通产品验证属于 base，只有 snapshot prepare、version authorization 和 packaging 由 `release` tag 独占。
 
-`gate-environment` 无 flag、每轮执行，复用 `node scripts/environment.js gate` 检查 Git、Node、精确 Bun、精确 pnpm 与精确 SCC；其余所有 Check 都显式依赖它。该窄 action 的工具版本 owner 和恢复路径见[环境自举](#环境自举)。环境失败作为真实 failed outcome 保留 transcript，其他 Check 因前置未通过而不启动。
+`gate-environment` 无 flag、每轮执行，复用 `node scripts/environment.js gate` 检查 Git、Node、可运行的 Bun、精确 pnpm 与精确 SCC；其余所有 Check 都显式依赖它。该窄 action 的工具版本 owner 和恢复路径见[环境自举](#环境自举)。环境失败作为真实 failed outcome 保留 transcript，其他 Check 因前置未通过而不启动。
 
 CLI 使用以下执行范围；所有范围保持同一完整 Definition，实际执行由原生条件、flags 与成功前置决定：
 
@@ -347,7 +347,7 @@ Vibe 的原生 `markdown-link-validation` Check 是当前维护 Markdown 链接�
 
 ### 测试证据账本
 
-本仓库使用固定的 `docs/test-evidence/` 根目录、其中的 `cases/` 单 Case 文件和固定派生索引维护测试账本。账本覆盖 `test:*` 稳定入口保留的全部最小原生测试入口；每个 Case 按同一测试意图承接一个或多个可独立选择、单独报告的最小原生测试节点。框架不限，本仓库当前沿用 `node:test` API 定义节点；普通测试通过固定版本的 `bun test` 执行，task-graph 原生 lock 集成测试通过其声明支持的 Node.js `--test` 执行。测试文件、package script 和完整检查仍只是聚合容器。
+本仓库使用固定的 `docs/test-evidence/` 根目录、其中的 `cases/` 单 Case 文件和固定派生索引维护测试账本。账本覆盖 `test:*` 稳定入口保留的全部最小原生测试入口；每个 Case 按同一测试意图承接一个或多个可独立选择、单独报告的最小原生测试节点。框架不限，本仓库当前沿用 `node:test` API 定义节点；普通测试通过 `bun test` 执行，task-graph 原生 lock 集成测试通过其声明支持的 Node.js `--test` 执行。测试文件、package script 和完整检查仍只是聚合容器。
 
 Case 使用 Tests、可选 tags、Contract 与 Proves，由测试改动显式维护；工具不扫描源码、自动登记 Case 或执行测试。核心 `check`、查询和 `sync-index` 只读取 Case 与索引；项目 `snapshot:test-evidence` 产生 schema v2 实体快照，引用检查必须同时接收独立的 expected source。`check:test-evidence-catalog` 先检查 Case/index，再计算当前项目测试来源 revision；若 `.log/vibe-check/cache/test-evidence-snapshots-v1/<revision>.json` 是通过 schema、expected source 与引用校验的完整 snapshot fact，则直接复用实体集合，否则重新生成并以同一 revision 发布可丢弃 cache。无论是否命中，Case 引用、实体覆盖和结束来源漂移都在本次重新判断。快照引用有效不等同于测试执行通过，未引用实体在通用核心中合法。正文变化后运行 `sync:test-evidence-catalog`；完整检查中的 `check:test-evidence-catalog` 不写回版本管理文件。
 

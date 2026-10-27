@@ -214,7 +214,7 @@ function toolRequirements(config) {
   return [
     { name: "git" },
     { minimumVersion: config.nodeMinimum, name: "node" },
-    { exactVersion: config.bunVersion, name: "bun" },
+    { name: "bun" },
     { exactVersion: config.pnpmVersion, name: "pnpm" },
     { name: "codegraph" },
     {

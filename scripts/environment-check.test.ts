@@ -144,7 +144,7 @@ test("environment requires exact SCC without installing it", async () => {
   }
 });
 
-test("Gate environment check stops on tool drift without requiring repository setup", async () => {
+test("Gate environment check accepts Bun version drift and rejects required tool failures without repository setup", async () => {
   const tempRoot = await fs.mkdtemp(
     path.join(os.tmpdir(), "skills Gate environment ")
   );
@@ -158,7 +158,7 @@ test("Gate environment check stops on tool drift without requiring repository se
       commandLogPath
     });
     const ready = runEnvironment(root, "gate", readyTools);
-    requireSuccess(ready, "Gate environment with exact tools");
+    requireSuccess(ready, "Gate environment with available tools");
     assert.match(ready.stdout, /Gate environment is ready/u);
     assert.doesNotMatch(
       await fs.readFile(commandLogPath, "utf8"),
@@ -166,63 +166,60 @@ test("Gate environment check stops on tool drift without requiring repository se
     );
     assert.doesNotMatch(ready.stdout, /repository setup|codegraph index/u);
 
+    const newerTools = await createFakeToolPath(path.join(tempRoot, "newer"), {
+      bunVersion: "1.4.4",
+      commandLogPath
+    });
+    const newer = runEnvironment(root, "gate", newerTools);
+    requireSuccess(newer, "Gate environment with a newer Bun");
+    assert.match(newer.stdout, /\[ok\]\s+bun 1\.4\.4/u);
+
     const driftedTools = await createFakeToolPath(
-      path.join(tempRoot, "drifted"),
-      { bunVersion: "1.4.3" }
+      path.join(tempRoot, "drifted metric tool"),
+      { scc: "mismatch", commandLogPath }
     );
     const drifted = runEnvironment(root, "gate", driftedTools);
     assert.equal(drifted.status, 1);
     assert.match(
       drifted.stdout,
-      /Gate environment[\s\S]*\[mismatch\]\s+bun 1\.4\.3 - expected 1\.4\.2/u
+      /Gate environment[\s\S]*\[mismatch\]\s+scc 4\.0\.1 - expected 4\.0\.0/u
     );
     assert.doesNotMatch(drifted.stdout, /repository setup|codegraph index/u);
+    assert.doesNotMatch(
+      await fs.readFile(commandLogPath, "utf8"),
+      /^(?:pnpm:install|npm:|corepack:|go:)/mu
+    );
   } finally {
     await fs.rm(tempRoot, { recursive: true, force: true });
   }
 });
 
-test("environment requires the exact project Bun runtime", async () => {
+test("environment reuses available Bun versions without pinning or installing them", async () => {
   const tempRoot = await fs.mkdtemp(
     path.join(os.tmpdir(), "skills environment Bun runtime ")
   );
   try {
     const root = await createRepository(tempRoot, "Bun runtime repository");
-    const supportedTools = await createFakeToolPath(
-      path.join(tempRoot, "supported"),
-      { bunVersion: "1.4.2" }
-    );
-    const setup = runEnvironment(root, "setup", supportedTools);
-    requireSuccess(setup, "environment setup with supported Bun");
-    assert.match(setup.stdout, /\[ok\]\s+bun 1\.4\.2/u);
-    requireSuccess(
-      runEnvironment(root, "check", supportedTools),
-      "environment check with supported Bun"
-    );
-
-    const outdatedTools = await createFakeToolPath(
-      path.join(tempRoot, "outdated"),
-      { bunVersion: "1.4.1" }
-    );
-    const outdated = runEnvironment(root, "check", outdatedTools);
-    assert.equal(outdated.status, 1);
-    assert.match(
-      outdated.stdout,
-      /\[mismatch\]\s+bun 1\.4\.1 - expected 1\.4\.2/u
-    );
-    assert.match(
-      outdated.stdout,
-      /Environment is not ready\. Run: node scripts\/environment\.js setup/u
-    );
-
-    const newerTools = await createFakeToolPath(path.join(tempRoot, "newer"), {
-      bunVersion: "1.4.3"
-    });
-    const newer = runEnvironment(root, "check", newerTools);
-    assert.equal(newer.status, 1);
-    assert.match(
-      newer.stdout,
-      /\[mismatch\]\s+bun 1\.4\.3 - expected 1\.4\.2/u
+    const commandLogPath = path.join(tempRoot, "bun-tool-calls.log");
+    for (const bunVersion of ["1.4.1", "1.4.2", "1.4.4"]) {
+      const tools = await createFakeToolPath(path.join(tempRoot, bunVersion), {
+        bunVersion,
+        commandLogPath
+      });
+      const setup = runEnvironment(root, "setup", tools);
+      requireSuccess(setup, `environment setup with Bun ${bunVersion}`);
+      const readyPattern = new RegExp(
+        `\\[ok\\]\\s+bun ${bunVersion.replaceAll(".", "\\.")}`,
+        "u"
+      );
+      assert.match(setup.stdout, readyPattern);
+      const check = runEnvironment(root, "check", tools);
+      requireSuccess(check, `environment check with Bun ${bunVersion}`);
+      assert.match(check.stdout, readyPattern);
+    }
+    assert.doesNotMatch(
+      await fs.readFile(commandLogPath, "utf8"),
+      /^(?:npm:|corepack:)/mu
     );
   } finally {
     await fs.rm(tempRoot, { recursive: true, force: true });

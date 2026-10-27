@@ -38,14 +38,6 @@ export function readEnvironmentConfig() {
       "package.json packageManager must pin pnpm as pnpm@<major>.<minor>.<patch>"
     );
   }
-  const bunVersionText =
-    typeof manifest.engines?.bun === "string" ? manifest.engines.bun : "";
-  const bunVersionMatch = /^(\d+\.\d+\.\d+)$/u.exec(bunVersionText);
-  if (!bunVersionMatch) {
-    throw new Error(
-      "package.json engines.bun must pin an exact major.minor.patch version"
-    );
-  }
   const nodeRange =
     typeof manifest.engines?.node === "string" ? manifest.engines.node : "";
   const nodeMinimumMatch = /^>=(\d+\.\d+(?:\.\d+)?)$/u.exec(nodeRange);
@@ -53,7 +45,6 @@ export function readEnvironmentConfig() {
     throw new Error("package.json engines.node must use a simple >= version");
   }
   return {
-    bunVersion: parseVersion(bunVersionMatch[1]),
     dependencyNames: dependencyNamesFrom(manifest),
     manifest,
     nodeMinimum: parseVersion(nodeMinimumMatch[1]),

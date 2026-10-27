@@ -393,7 +393,7 @@
       "DR-INDEX-PAYLOAD-WORKSPACE-RECHECK-001": "sha256:881901c92f65867589fabdd52c6c94e8e63123f29c4123e14cded6432309c81d",
       "DR-LOCAL-HISTORY-BASELINE-001": "sha256:4ba65bb225232c089fc031c26d6ddd0b79266be9ce1c18c750043b17f4e7f1fa",
       "DR-LOCAL-PUBLISHED-BOUNDARIES-001": "sha256:89eb9bdff9e50f10f2cfed832a512c4b93e590311de371a71e06a42894974ac4",
-      "ENV-BUN-RUNTIME-001": "sha256:1bbd6969b262acf4dc70007490e0e2bd70cb2e6f9aa232f98e7ed77cef2599b5",
+      "ENV-BUN-RUNTIME-001": "sha256:d690195482a26240a8a0ad2baec2d94e5e687e39c1b96e2e20cec8ce779d4827",
       "ENV-CHECK-READONLY-001": "sha256:ec845105d4b5a7bea351ad21c85a26effd6936f818a98c726d20b48da62f4c49",
       "ENV-CLONE-HOOK-001": "sha256:93c5a03eda793745609d9d979fc4322629c8010750d1ca72ca67d4ad6ab80d52",
       "ENV-HOOK-PATH-001": "sha256:d826cb6f726f7681430ff6cab76957f18568a227918bd68dea3e8377a921f61b",
@@ -423,7 +423,7 @@
       "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:840553137473ceae45cb978aadc8f5631a73b768df520bcd332e0a61f513739d",
       "GATE-DOMAIN-AGGREGATE-OWNER-001": "sha256:a65eadd4bdd2ece954da4fc85478701f70e580010ad1cc7697aba3ee1d082c24",
       "GATE-DOMAIN-TEST-INPUT-OWNER-001": "sha256:9f90cbb32d9a1caf3aef8609a59437146e71bdcf6bd88cb1b7a481b6fc17b343",
-      "GATE-ENVIRONMENT-CHECK-001": "sha256:d96f1ccd8f2d1f0ed1d5c9f238f12440713073c62fe129af2e7a2f39bc616ffd",
+      "GATE-ENVIRONMENT-CHECK-001": "sha256:b5aceb7fad1f9abe3665810c4efe0fc7a576d242b302542429b9de640fae5ebf",
       "GATE-ENVIRONMENT-VALIDATOR-OWNER-001": "sha256:01b6cc8abd9853057a467a82271492f9ad8892fc34a5a6b04b37ada63df911e1",
       "GATE-FILE-SELECTION-001": "sha256:51cf9d2d007ddd27b9d8ecf7727614f6c5751d7f87e7a7a07cc172176458f4fd",
       "GATE-FUNCTION-LIMIT-POLICY-001": "sha256:9c19e9c3a23dea46d9d7ce728ca5fc2c6700b9d74da34438301f8788c489c5bd",
@@ -5381,13 +5381,13 @@
       ]
     },
     "ENV-BUN-RUNTIME-001": {
-      "title": "环境要求项目固定的精确 Bun 运行时",
+      "title": "环境复用可运行的 Bun 而不限制版本",
       "sourcePath": "cases/env-bun-runtime-001.md",
       "tags": [
         "repository-tooling"
       ],
       "testIds": [
-        "test:87151e2d8f3dc142d39af6efb7736cb2021d3a2bc439fd8e12348e1f362ceda2"
+        "test:c8d706cc2bf35caa909556317bbd2220a849971f2b150f516d4e10b63f3d57f8"
       ]
     },
     "ENV-CHECK-READONLY-001": {
@@ -5705,8 +5705,8 @@
         "repository-tooling"
       ],
       "testIds": [
-        "test:42afd55bfddd9b4ecaf64fc99f245fad0c409b63aaf7faf73e9d8e9233c235a1",
-        "test:7476b63093067d6ee7e8d7b365d0ea0aabee53489ac19c3784cf925d8bec0032"
+        "test:3804b050acba9d365fb880865affdd2abb321f045171f5680bf86a9f6a0c8683",
+        "test:42afd55bfddd9b4ecaf64fc99f245fad0c409b63aaf7faf73e9d8e9233c235a1"
       ]
     },
     "GATE-ENVIRONMENT-VALIDATOR-OWNER-001": {

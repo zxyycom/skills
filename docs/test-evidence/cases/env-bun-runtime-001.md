@@ -1,14 +1,14 @@
-### Case ENV-BUN-RUNTIME-001: 环境要求项目固定的精确 Bun 运行时
+### Case ENV-BUN-RUNTIME-001: 环境复用可运行的 Bun 而不限制版本
 
 Tests:
-- `test:87151e2d8f3dc142d39af6efb7736cb2021d3a2bc439fd8e12348e1f362ceda2`
+- `test:c8d706cc2bf35caa909556317bbd2220a849971f2b150f516d4e10b63f3d57f8`
 
 Tags:
 - `repository-tooling`
 
 Contract:
-- 根 `engines.bun` 声明生成和运行 package scripts 的精确 Bun 运行时；环境入口从该边界诊断 Bun，不能将较旧或较新的漂移版本报告为 ready。
+- 环境入口不要求 manifest 声明 Bun 版本；可运行的 Bun 可以直接复用，不因版本号不同被拒绝或触发替换安装。
 
 Proves:
-- Bun 1.4.2 在其他前置条件准备好时允许 setup 和后续 check。
-- Bun 1.4.1 与 1.4.3 都被标记为 mismatch，输出精确期望版本和 setup 恢复入口。
+- 不含 `engines.bun` 的 fixture 在其他前置条件准备好时，分别以 Bun 1.4.1、1.4.2 和 1.4.4 通过 setup 与后续 check，输出实际版本为 ready。
+- 三组 setup/check 的工具日志均没有 npm 或 Corepack 调用，不会为版本号不同安装或切换 Bun。

@@ -100,7 +100,7 @@
       "260912-isolate-release-version-control-resource-boundary": "sha256:d0b1c3ab246caf6c5e955a1be034596feb1111ff3772a2a95c4f4d223b883c6d",
       "260912-separate-relation-summary-consumption-by-reading-task": "sha256:2093bfefc99214415a4837aa63e194facca4dd82562ca523181abd6d8f7b33d6",
       "260912-support-per-successor-complete-relation-replacements": "sha256:9f9070118c7255359e629a86ce2b305ff13f19d120207182a50b18147ea59811",
-      "260919-require-gate-environment-check-prerequisite": "sha256:8811e7ee727269c7d250c17421eb2e7842c65fed7422f8769c36450f196694c1",
+      "260919-require-gate-environment-check-prerequisite": "sha256:caafe023f09c9c09798962b13c24bdf9c99f0e8fa809e74e5be45c70e22a50b4",
       "260920-finalize-change-plans-by-deletion": "sha256:10cf6690d9ae70af12a38dc54996b809086e14a58c7311812c93d0715c87ba7e",
       "260922-front-load-record-context-recovery": "sha256:457ea886d899da2a9d80e4118b33afc814f5ce3951b0f64f168a96d2ec244785",
       "260922-unify-cli-workspace-location-and-help": "sha256:5a823ce3607c76af0f0bb9b735fba8e04d2a517e245c9e8e69dcf67f4a498a01",
@@ -158,6 +158,7 @@
       "261026-publish-selected-investigations-from-published-facts": "sha256:2402abe5784c2a77c83f104c310b9e92ef72bf912e6520fbbb155a4e52276959",
       "261026-search-published-scope-with-current-text": "sha256:42a4e201f62000ff45552224697ee195407576335e42d1c873fbdeb8b21af954",
       "261026-stage-and-refresh-explicit-record-selections": "sha256:5233a04b8e68840c465edf731625ba71a8a0f408c54ef979c31bd2b7ecf49345",
+      "261027-accept-available-bun-without-version-gate": "sha256:eb4da115c8c497cf423d354aa10de09e76e19c61029d4232d8fa05037e9065fd",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -2372,9 +2373,9 @@
     },
     "260919-require-gate-environment-check-prerequisite": {
       "name": "require-gate-environment-check-prerequisite",
-      "sourcePath": "require-gate-environment-check-prerequisite.md",
+      "sourcePath": "archive/require-gate-environment-check-prerequisite.md",
       "title": "以基础环境 Check 阻断 Gate 工具链漂移",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-19T11:32:52Z",
       "purpose": "让基础工具版本错误直接定位到环境边界，避免扩散成跨 owner 的级联失败。",
@@ -3663,6 +3664,29 @@
           "type": "归并",
           "target": "261022-refresh-selected-records-in-pending",
           "summary": "保留P-base与阶段保护，未选依赖改据发布索引"
+        }
+      ]
+    },
+    "261027-accept-available-bun-without-version-gate": {
+      "name": "accept-available-bun-without-version-gate",
+      "sourcePath": "261027-accept-available-bun-without-version-gate.md",
+      "title": "以实际验收替代 Bun 版本前置限制",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-27T02:17:15Z",
+      "purpose": "允许可运行的 Bun 直接参与仓库验收，不因版本号不同阻断全部检查。",
+      "background": "精确 Bun 门槛把本机可用的新版本判为环境失败，尚未运行生成校验与测试就阻断了交付。",
+      "decision": "Bun 只检查可运行性，复用现有安装；保留其他基础环境前置，以真实生成和测试结果验证兼容性。",
+      "tags": [
+        "project-tooling",
+        "toolchain-versioning",
+        "validation-boundaries"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260919-require-gate-environment-check-prerequisite",
+          "summary": "取消 Bun 版本门槛，保留基础环境 Check 与其他工具前置"
         }
       ]
     },
