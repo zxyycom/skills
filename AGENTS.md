@@ -29,7 +29,7 @@
 
 ## 验证与交付
 
-- 修改主仓库维护文档、`scripts/`、`tools/`、CI、配置或 `skills/` 目录结构后，完成维护前运行 `bun run check:changed` 或 CI 全量门禁；`bun run check` 仅提供 quick 反馈，不替代完整变更验收。范围与预算见 [权威 Vibe 门禁](docs/tooling.md#权威-vibe-门禁)。
+- 日常维护默认运行 `bun run check`，按本任务实际影响通过可重复的 `--scope <能力组>` 追加相关检查及必要前置；其他来源的工作区改动本身不扩大所选范围。影响无法明确、需要全工作区变更验收时使用 `bun run check:changed`（或 `bun run all`）兜底；CI 与发布仍满足对应完整门禁。按实际覆盖交付，不把局部通过表述为全仓通过。范围与预算见 [权威 Vibe 门禁](docs/tooling.md#权威-vibe-门禁)。
 - 仅修改单个 skill 本体时，按其内容选择最小验证；涉及打包输入、hash 或 updater 时补齐主仓库相关检查。聚合发布另须完成发布验收，日常检查不替代发布证明。
 - 提交前确认改动归属、验证证据和提交范围，只提交属于当前任务的内容；提交与远端写入服从当前授权。
 - 当前 worktree 启用 `.githooks` 后，使用者已授权 [Git hook](docs/tooling.md#git-hook) 定义的 `post-commit` 自动推送。取得当前 commit 授权后，无需再次请求该自动推送授权，也不绕过 hook；当前任务明确限制自动推送时服从该限制。此许可不覆盖手工调用 helper、手工或强制 push、其他 remote/ref。

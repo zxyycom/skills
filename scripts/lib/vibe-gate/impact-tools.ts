@@ -12,7 +12,7 @@ const domainRuntimeInputs = [
 ];
 const generatedFileInputs = [
   ...commonGateInputPatterns,
-  "scripts/lib/{generated-file,generated-file-header,generated-typescript-declarations,source-map,source-runtime,source-runtime-sync,unsupported-optional-package}.ts",
+  "scripts/lib/{generated-file,generated-file-header,generated-typescript-declarations,source-map,source-runtime,source-runtime-facts,source-runtime-sync,unsupported-optional-package}.ts",
   "scripts/lib/generated-file.test.ts"
 ];
 const repositoryValidationInputs = [

@@ -10,6 +10,7 @@ import {
   hasGateTag,
   normalizeGateTags,
   releaseGateResourceCapacities,
+  type GateCheckConfiguration,
   type GateTagSet
 } from "./contracts.ts";
 import {
@@ -37,11 +38,13 @@ import {
   type ReleasePreparer
 } from "./checks/release.ts";
 import type { GateScope } from "./profiles.ts";
-import { gateToolInputs } from "./impact-tools.ts";
+import { gateToolInputs, type GateToolId } from "./impact-tools.ts";
+import { resolveSelectedRuntimeSkills } from "./runtime-prerequisites.ts";
 import { validateBaseGateImpactContracts } from "./impact.ts";
 
 export type GateDefinitionDependencies = Readonly<{
   activeToolIds?: readonly string[];
+  selectionScopes?: readonly GateToolId[];
   scope?: GateScope;
   baselineRef?: string;
   nativeChecks?: readonly Check[];
@@ -83,17 +86,40 @@ function validateIncrementalSelection(
   return true;
 }
 
+function resolveGateCheckConfiguration(
+  activeTags: GateTagSet,
+  dependencies: GateDefinitionDependencies
+): GateCheckConfiguration {
+  const release = hasGateTag(normalizeGateTags(activeTags), "release");
+  let generationSkillNames: readonly string[] | undefined;
+  if (dependencies.scope === "selected") {
+    const scopes = dependencies.selectionScopes;
+    if (
+      release ||
+      scopes === undefined ||
+      scopes.length === 0 ||
+      scopes.some((id) => !Object.hasOwn(gateToolInputs, id))
+    )
+      throw new Error(
+        "selected Gate scope requires known capability groups without release"
+      );
+    generationSkillNames = resolveSelectedRuntimeSkills(scopes);
+  }
+  return {
+    environmentPrerequisite: true,
+    ...(dependencies.scope === undefined ? {} : { scope: dependencies.scope }),
+    incremental: validateIncrementalSelection(dependencies.activeToolIds),
+    ...(generationSkillNames === undefined ? {} : { generationSkillNames }),
+    release
+  };
+}
+
 export function createGateDefinition(
   activeTags: GateTagSet = [],
   dependencies: GateDefinitionDependencies = {}
 ): ProjectDefinition {
-  const release = hasGateTag(normalizeGateTags(activeTags), "release");
-  const configuration = {
-    environmentPrerequisite: true,
-    ...(dependencies.scope === undefined ? {} : { scope: dependencies.scope }),
-    incremental: validateIncrementalSelection(dependencies.activeToolIds),
-    release
-  };
+  const configuration = resolveGateCheckConfiguration(activeTags, dependencies);
+  const release = configuration.release === true;
   const prepare = createReleasePrepareCheck(
     dependencies.baselineRef ?? "HEAD",
     dependencies.prepareRelease,

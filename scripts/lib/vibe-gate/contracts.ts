@@ -45,6 +45,7 @@ export type GateCheckConfiguration = Readonly<{
   environmentPrerequisite?: boolean;
   incremental?: boolean;
   scope?: GateScope;
+  generationSkillNames?: readonly string[];
   release?: boolean;
 }>;
 
@@ -64,11 +65,14 @@ export function gateCheckDeclaration(
         ]
       : dependsOn;
   const scopeCondition =
-    configuration.scope === "quick" && !isQuickGateCheck(checkId)
-      ? condition === undefined
-        ? outsideQuickScopeFlag
-        : all(outsideQuickScopeFlag, condition)
-      : condition;
+    (configuration.scope === "quick" || configuration.scope === "selected") &&
+    isQuickGateCheck(checkId)
+      ? undefined
+      : configuration.scope === "quick"
+        ? condition === undefined
+          ? outsideQuickScopeFlag
+          : all(outsideQuickScopeFlag, condition)
+        : condition;
   const enabledByFlags: CheckFlagEnablement | undefined =
     scopeCondition === undefined
       ? undefined
@@ -89,7 +93,7 @@ export function projectActivationCondition(
   toolIds: GateToolSubscription,
   configuration: GateCheckConfiguration
 ): CheckFlagCondition | undefined {
-  return configuration.incremental
+  return configuration.incremental || configuration.scope === "selected"
     ? any(
         activationFlagForTool(toolIds[0]),
         ...toolIds.slice(1).map(activationFlagForTool)

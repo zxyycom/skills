@@ -16,7 +16,7 @@ Tags:
 - `repository-tooling`
 
 Contract:
-- CLI 默认 quick，显式 scope 接受 quick、changed 与 full；release tag 与 --full 兼容别名保持独立，release 缺省基线 HEAD。一次 baseline-ref、仅 release 的 cold 与 diagnostic-log 按参数契约解析。调用使用唯一 artifact 根和原生输出配置；changed 只有最终 Run 成功才允许发布项目成功 receipt，失败诊断不得泄露子命令或私有异常文本。
+- CLI 默认 quick，legacy 显式 scope 接受 quick、changed 与 full，能力组选择由 selected 契约承接；release tag 与 --full 兼容别名保持独立，release 缺省基线 HEAD。一次 baseline-ref、仅 release 的 cold 与 diagnostic-log 按参数契约解析。调用使用唯一 artifact 根和原生输出配置；changed 只有最终 Run 成功才允许发布项目成功 receipt，失败重跑命令来自当次 Definition 的实际命令声明，失败诊断不得泄露子命令输出或私有异常文本。
 
 Proves:
 - UTC timestamp 与 UUID 形成调用目录；scope、tag、别名、基线、cold 与诊断参数按期望解析，重复、冲突、错位、未知或无效参数在创建 Definition 前被拒绝；check:changed 的命令委派为 bun run check --scope changed，all 委派为 bun run check:changed。

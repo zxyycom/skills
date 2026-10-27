@@ -3,20 +3,18 @@ import path from "node:path";
 import type { RunResult } from "@zxyycom/vibe-check";
 import type { GateActivationPlan } from "./impact-activation.ts";
 import { gateCheckIds, releaseRequiredCheckIds } from "./definition.ts";
-import {
-  isQuickGateCheck,
-  quickGateCheckIds,
-  type GateScope
-} from "./profiles.ts";
+import { quickGateCheckIds, type GateScope } from "./profiles.ts";
 import {
   evaluateGatePerformance,
   type GatePerformanceReport
 } from "./performance.ts";
+import type { GateSelectedOutcome } from "./selection.ts";
 
 type GatePerformanceOutputOptions = Readonly<{
   invocationDirectory: string;
   scope: GateScope;
   requestedScope: GateScope;
+  selectedOutcome?: GateSelectedOutcome | null;
   activationPlan: GateActivationPlan | null;
   forceFullExecution: boolean;
   result: RunResult;
@@ -51,19 +49,18 @@ export async function reportGatePerformance(
     ...performanceInput,
     totalWallClockMs: nowMilliseconds() - startedAt
   });
-  const selectedDecisions =
-    activationPlan?.decisions.filter(
-      ({ checkId }) => scope !== "quick" || isQuickGateCheck(checkId)
-    ) ?? [];
   const eligible =
     scope === "quick"
       ? quickGateCheckIds.length
-      : scope === "release"
-        ? gateCheckIds().length
-        : releaseRequiredCheckIds.length;
+      : scope === "selected"
+        ? (options.selectedOutcome?.eligibleCheckIds.length ?? null)
+        : scope === "release"
+          ? gateCheckIds().length
+          : releaseRequiredCheckIds.length;
   const reused = forceFullExecution
     ? 0
-    : selectedDecisions.filter(({ action }) => action === "reuse").length;
+    : (activationPlan?.decisions.filter(({ action }) => action === "reuse")
+        .length ?? 0);
   const summaryPath = path.join(
     invocationDirectory,
     "machine",
@@ -76,13 +73,26 @@ export async function reportGatePerformance(
       {
         requestedScope,
         effectiveScope: scope,
-        selection: {
-          basis: "planned-activation-before-run",
-          eligible,
-          execute: eligible - reused,
-          reuse: reused,
-          disabled: gateCheckIds().length - eligible
-        },
+        selection:
+          scope === "selected"
+            ? {
+                basis: "native-terminal-facts",
+                eligible,
+                execute:
+                  options.selectedOutcome?.executedCheckIds.length ?? null,
+                reuse: 0,
+                disabled:
+                  eligible === null ? null : gateCheckIds().length - eligible,
+                ...options.selectedOutcome
+              }
+            : {
+                basis: "planned-activation-before-run",
+                eligible,
+                execute: eligible === null ? null : eligible - reused,
+                reuse: reused,
+                disabled:
+                  eligible === null ? null : gateCheckIds().length - eligible
+              },
         nativeResult: {
           kind: result.kind,
           aggregate: "aggregate" in result ? result.aggregate : null

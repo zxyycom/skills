@@ -1,5 +1,5 @@
 import { isMainModule } from "../../tools/shared/src/node/main-module.ts";
-import { parseGeneratedFileMode } from "../lib/generated-file.ts";
+import { parseSkillUpdaterArguments } from "../lib/skill-runtime-selection.ts";
 import { githubRepository } from "../lib/project.ts";
 import type { SourceRuntimeOptions } from "../lib/source-runtime.ts";
 import { skillReleaseManifestFileName } from "../../tools/skill-package/src/release-manifest.ts";
@@ -67,9 +67,11 @@ if (process.argv[1] !== undefined && pathToFileURL(path.resolve(process.argv[1])
 }
 
 if (isMainModule(import.meta.url)) {
-  const mode = parseGeneratedFileMode(process.argv.slice(2));
+  const { mode, skillNames } = parseSkillUpdaterArguments(
+    process.argv.slice(2)
+  );
   // The registry owns each skill's complete entry set, including its updater.
   const { syncAllSkillRuntimes } = await import("../lib/skill-runtime.ts");
-  const changed = await syncAllSkillRuntimes(mode);
+  const changed = await syncAllSkillRuntimes(mode, skillNames);
   if (mode === "check" && changed) process.exitCode = 1;
 }

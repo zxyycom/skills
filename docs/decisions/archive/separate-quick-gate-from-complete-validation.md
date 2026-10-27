@@ -1,7 +1,7 @@
 ---
 title: 分离快速 Gate 与完整验收并约束性能预算
 id: 261022-separate-quick-gate-from-complete-validation
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-10-22T09:57:42Z
 purpose: 让日常反馈快速可控，同时保留完整变更验收、可信证明与发布授权。
@@ -34,7 +34,7 @@ relations:
 
 ### 反馈与验收责任
 
-- 采用: 默认 quick 只选择固定必要 eligible 集，changed 承担完整 base 的变更相关验收，full/CI 实际执行全部 base，release 实际执行完整 catalog；稳定 `check:changed` 是完成验收入口，`all` 是其别名。quick 成功不能代替 changed 或 CI 全量。具体成员与命令参数由[项目工具链](../tooling.md)承接。
+- 采用: 默认 quick 只选择固定必要 eligible 集，changed 承担完整 base 的变更相关验收，full/CI 实际执行全部 base，release 实际执行完整 catalog；稳定 `check:changed` 是完成验收入口，`all` 是其别名。quick 成功不能代替 changed 或 CI 全量。具体成员与命令参数由[项目工具链](../../tooling.md)承接。
 - 采用: quick 的总墙钟严格低于 30s、本轮实际执行 Check 的 nearest-rank P90 严格低于 10s、均值严格低于 5s，任一达到或超过即失败。null 和复用项不补零，真实零保留，缺失/非法测量使 quick 失败；其他范围只报告、不设硬预算。单调时钟从 `runVibeCheck` 入口、输入采集前覆盖至业务收尾（含 changed receipt 发布），在性能报告前采样；quick 初判通过时在报告后末次采样，超限只补写一次失败报告。末次采样后的打印、最终落盘和 return，以及函数前模块加载、父 Bun 启动均不计入，不承诺强制超时终止。
 - 采用: 原生 output failure 在所有范围阻断；项目附加性能 summary 写入不可用时仅 quick 失败，其余范围 warning，不改变质量结论或 changed 的 receipt 成功事务。性能政策与原生质量结论合取控制退出，不重写原生 settlement。
 - 采用: quick 可以消费既有完整精确证明，但不发布或清除 receipt；changed 保留成功发布事务。只有最终 Run completed/passed、需执行项全部通过且起止完整输入身份一致，才原子发布 changed 证明；失败、取消、rejection、原生 output failure 或漂移不发布。漂移只拒绝发布，不额外改变原生结算；cache 不可用只扩大本次有效范围内的执行。

@@ -1,53 +1,16 @@
-import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { promisify } from "node:util";
-import * as v from "valibot";
 import type { GeneratedArtifact } from "./generated-file.ts";
 export { syncSourceRuntimeArtifacts } from "./source-runtime-sync.ts";
 import { githubRepository, rootDir } from "./project.ts";
+import {
+  assertRuntimeSourceFile,
+  captureSourceRuntimeFacts,
+  type ModuleReference,
+  type SourceRuntimeFacts
+} from "./source-runtime-facts.ts";
+export { captureSourceRuntimeFacts, type SourceRuntimeFacts };
 
-const execFileAsync = promisify(execFile);
-const importMatchSchema = v.array(
-  v.object({
-    file: v.string(),
-    text: v.string(),
-    range: v.object({
-      byteOffset: v.object({ start: v.number(), end: v.number() })
-    })
-  })
-);
-const manifestSchema = v.object({
-  packageManager: v.string(),
-  devDependencies: v.record(v.string(), v.string())
-});
-const importRule = `id: module-source
-language: TypeScript
-rule:
-  kind: string
-  any:
-    - inside:
-        kind: import_statement
-    - inside:
-        kind: export_statement
-    - inside:
-        kind: arguments
-        inside:
-          pattern: import($$$)
-`;
-
-type ModuleReference = Readonly<{
-  specifier: string;
-  start: number;
-  end: number;
-}>;
-/** 只在一次生成调用内共享的已读取事实；每次顶层调用重新采集。 */
-export type SourceRuntimeFacts = Readonly<{
-  workspaceRoot: string;
-  references: ReadonlyMap<string, readonly ModuleReference[]>;
-  packageManager: string;
-  dependencies: Readonly<Record<string, string>>;
-}>;
 export type SourceRuntimeOptions = Readonly<{
   workspaceRoot?: string;
   skillName: string;
@@ -77,66 +40,6 @@ function runtimeHeader(
  */\n`;
 }
 
-async function sourceReferences(
-  workspaceRoot: string
-): Promise<ReadonlyMap<string, readonly ModuleReference[]>> {
-  const { stdout } = await execFileAsync(
-    path.join(
-      rootDir,
-      "node_modules/@ast-grep/cli",
-      process.platform === "win32" ? "ast-grep.exe" : "ast-grep"
-    ),
-    [
-      "scan",
-      "--inline-rules",
-      importRule,
-      "--json=compact",
-      "--globs",
-      "**/src/**/*.ts",
-      "tools"
-    ],
-    { cwd: workspaceRoot, maxBuffer: 32 * 1024 * 1024 }
-  );
-  const raw: unknown = JSON.parse(stdout);
-  const matches = v.parse(importMatchSchema, raw);
-  const byFile = new Map<string, ModuleReference[]>();
-  for (const match of matches) {
-    // Import specifiers with escapes are deliberately rejected rather than guessed.
-    if (!/^["'][^"'\\\r\n]+["']$/u.test(match.text)) {
-      throw new Error(
-        `Unsupported escaped module specifier in ${match.file}: ${match.text}`
-      );
-    }
-    const file = path.resolve(workspaceRoot, match.file);
-    const references = byFile.get(file) ?? [];
-    references.push({
-      specifier: match.text.slice(1, -1),
-      ...match.range.byteOffset
-    });
-    byFile.set(file, references);
-  }
-  return byFile;
-}
-
-export async function captureSourceRuntimeFacts(
-  workspaceRoot: string = rootDir
-): Promise<SourceRuntimeFacts> {
-  const root = path.resolve(workspaceRoot);
-  const references = await sourceReferences(root);
-  const manifest = v.parse(
-    manifestSchema,
-    JSON.parse(
-      await fs.readFile(path.join(root, "package.json"), "utf8")
-    ) as unknown
-  );
-  return Object.freeze({
-    workspaceRoot: root,
-    references,
-    packageManager: manifest.packageManager,
-    dependencies: Object.freeze(manifest.devDependencies)
-  });
-}
-
 function packageName(specifier: string): string {
   const parts = specifier.split("/");
   return specifier.startsWith("@")
@@ -157,15 +60,7 @@ async function copyRuntimeModule(
   dependencies: Record<string, string>,
   workspaceRoot: string
 ): Promise<CopiedRuntimeModule> {
-  const sourcePath = path.relative(workspaceRoot, file).replaceAll("\\", "/");
-  if (!sourcePath.startsWith("tools/") || !sourcePath.endsWith(".ts")) {
-    throw new Error(
-      `Runtime source must be TypeScript owned by tools/: ${sourcePath}`
-    );
-  }
-  const status = await fs.lstat(file);
-  if (!status.isFile())
-    throw new Error(`Runtime source must be a regular file: ${sourcePath}`);
+  const sourcePath = await assertRuntimeSourceFile(file, workspaceRoot);
   const imports: string[] = [];
   let bytes = await fs.readFile(file);
   for (const reference of [...references].sort((a, b) => b.start - a.start)) {
@@ -255,7 +150,12 @@ export async function buildSourceRuntimeArtifacts(
   const workspaceRoot = path.resolve(
     options.workspaceRoot ?? facts?.workspaceRoot ?? rootDir
   );
-  const inputs = facts ?? (await captureSourceRuntimeFacts(workspaceRoot));
+  const inputs =
+    facts ??
+    (await captureSourceRuntimeFacts(
+      workspaceRoot,
+      options.entries.map((entry) => entry.sourcePath)
+    ));
   if (inputs.workspaceRoot !== workspaceRoot)
     throw new Error("Source runtime facts belong to another workspace");
   const skillRoot = path.join(workspaceRoot, "skills", options.skillName);
@@ -270,6 +170,10 @@ export async function buildSourceRuntimeArtifacts(
   while (pending.length > 0) {
     const file = pending.pop();
     if (file === undefined || seen.has(file)) continue;
+    if (inputs.entrySourcePaths !== undefined && !inputs.references.has(file))
+      throw new Error(
+        `Source runtime facts do not cover ${path.relative(workspaceRoot, file)}`
+      );
     seen.add(file);
     const result = await copyRuntimeModule(
       file,

@@ -36,7 +36,7 @@
 
 项目测试默认选语义命令 Check；包脚本保留稳定人工维护/聚合身份，不重复承载已有语义 leaf。普通外部命令直接使用 `commandCheck`；只有真实结构协议需要解析完整命令结果时才增加 `afterCommand`。
 
-当前 release-only 只有 prepare、version authorization 与 packaging。新增 release-only Check 改变[交付边界决策](decisions/separate-quick-gate-from-complete-validation.md)，须先按 Decision Records 流程判断演进，再复核 release DAG、同快照授权与失败恢复。
+当前 release-only 只有 prepare、version authorization 与 packaging。新增 release-only Check 改变[验证边界决策](decisions/261027-prefer-explicit-local-gate-scopes.md)，须先按 Decision Records 流程判断演进，再复核 release DAG、同快照授权与失败恢复。
 
 ## 按需读取随包 API
 
@@ -63,7 +63,7 @@
 ### 身份、构造与结果
 
 1. `checkId` 是稳定 machine 身份，显示名、顺序、耗时和资源变化不改语义身份。语义 Check 用 `test:<owner>:<contract>`，包脚本由适配器派生 `script:<package-script>`；`displayName` 用简短英文描述对象。
-2. 每次 invocation 保留相同完整 ID 集合。scope、项目输入证明和成功前置通过原生条件与 flags 选择，不动态删除成员；新增 quick eligible 项改变反馈责任和性能预算的实际负载，应显式复核并测试，新增公开 tag 需要独立产品契约设计。
+2. 每次 invocation 保留相同完整 ID 集合。显式能力 scope、自动 changed 输入证明和成功前置通过原生条件与 flags 选择，不动态删除成员。能力分组复用 `impact-tools.ts` 及 Check 的实际订阅；新 Check 须声明其真实能力与前置，不能把显式组自动扩散为所有受变更影响的组。新增 quick eligible 项改变基线责任和性能预算，应显式复核并测试；新增公开 tag 需要独立产品契约设计。
 3. 普通命令通过现有语义或包脚本适配器构造独立 `commandCheck`，复用共享命令政策、环境前置及资源声明。argv 保持参数数组；cwd、继承环境、transcript、限额与失败重跑按[运行时 owner](gate-policy.md#调度与命令执行)维护。
 4. 自定义 Check 使用 `execute` 运行并决定终态；需要验证或准备本项 options 时增加 `prepare`。第一业务参数是 options，需要框架字段时通过 `defineContextCallback` 声明第二参数的 context；不依赖未声明字段。
 5. `passed` 表示契约成立，`failed` 表示违反规则，带稳定 reason code 的 `unavailable` 表示无法形成可信结论，`not-applicable` 表示本次不适用。passed/failed 的 data 为 object；Records 只作补充事实。可等待 I/O 与子进程协作响应取消，不遗留未等待工作。
@@ -75,11 +75,11 @@
 2. 消费公开业务 data 时使用 provider 的 `parseData` 与 dependency reader。消费同 Run 私有对象时用 typed handoff，并以原 provider 对象读取；原生构造器直接接收声明，避免复制 Check 破坏对象身份。
 3. `mutex` 表达逻辑互斥，`resourceClaims` 表达可计数压力。命令通常占一个 `external-process`，全仓扫描通常占一个 `repository-scan`，实际同时消耗才组合。
 4. 通过现有声明 helper 保留 root、进程、扫描和 release CPU 容量，以及版本管理测试的 CPU 独占。性能 history 不能放宽硬约束；改变任务或命令方式时核对调度 identity 的时长可比性。
-5. 需要可信当前分发产物来证明语义行为的 Check，依赖统一生成 provider `script:check:skill-updaters`；领域 `check:*` / `sync:*` 保留人工定位与同步。typecheck/type-aware lint 只检查当前程序质量，按完整 TS/MTS/manifest 输入执行，不以此证明生成一致性或增加 quick 的生成前置。
+5. 需要可信当前分发产物来证明语义行为的 Check，依赖统一生成 provider `script:check:skill-updaters`，并在消费者声明中维护其实际生成 skill。显式模式按选中消费者收窄 provider，仍校验完整可达源码、manifest/lock 和受管产物；changed/full/release 保留联合检查。领域 `check:*` / `sync:*` 仍供人工定位与同步。typecheck/type-aware lint 不证明生成一致性，也不增加 quick 的生成前置。
 
 ### 项目输入证明
 
-语义命令、包脚本和 Markdown 内容 Check 由 `impact-catalog.ts` 完整覆盖；只有已评审完整输入闭包才允许复用 receipt。各 scope 的适用范围与发布权限按[运行时 owner](gate-policy.md#项目输入与成功证明)维护。
+自动 changed 模式的语义命令、包脚本和 Markdown 内容 Check 由 `impact-catalog.ts` 完整覆盖；只有已评审完整输入闭包才允许复用 receipt。quick/显式 scope 不进行这项全域采集或证明复用。各模式的适用范围与发布权限按[运行时 owner](gate-policy.md#项目输入与成功证明)维护。
 
 1. 在 `impact-tools.ts` 按独立源码职责维护能力 ID 与实际读取的 patterns，并纳入共同输入；共享运行时、build adapters、fixtures、内部 ignored 文件、生成物、TS/MTS、manifest/lock 和配置均按真实消费纳入。flag 由 ID 派生，无须另列。声明时区分：
    - 同一能力可有多个消费者；源码与其分发副本属于同一能力时共同声明。
@@ -115,7 +115,7 @@
 1. 运行新 Check 的精确 Bun/Node 命令；调用外部工具的测试先确认其真实前置。
 2. 修改 catalog、构造器配置、输入证明、CLI 或调度接线时运行 `bun run test:check`。
 3. 修改测试/Case 时按 [Test Evidence Review](../skills/test-evidence-review/SKILL.md)审查最小入口，再运行 `bun run sync:test-evidence-catalog` 与 `bun run check:test-evidence-catalog`。前者写派生索引，后者采集项目实体并检查引用和覆盖；需交接快照时用 `bun run snapshot:test-evidence -- --output <new-file>`。
-4. 先以 `bun run check` 核对 quick 反馈和性能预算，完成工作前运行 `bun run check:changed` 取得完整变更验收；quick 成功不代替该证据。
+4. 先以 `bun run check` 核对 quick 基线及预算；Gate 实现与测试改动追加 `--scope gate-tests`，其他影响按实际能力追加。所选检查通过后按覆盖交付；范围无法确认或明确需要全工作区变更验收时，再使用 `bun run check:changed`，不把它当作每次维护的固定步骤。
 5. 改变 release DAG、全执行路径、版本授权或打包时，运行 `bun run check --tag release --cold`；先明确 pending snapshot 和版本基线，并保留无关 index 内容。
 
 项目测试验证实际传参、输入声明、依赖、领域结果、诊断及 CLI/release 消费。上游原生机制按精确包契约使用，发现具体 Bug 时做针对性复现。

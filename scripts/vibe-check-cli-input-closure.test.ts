@@ -269,7 +269,7 @@ test("CLI normalizes duplicate executable search entries before input capture an
         else process.env.PATH = suppliedPath;
         const observations: (string | undefined)[] = [];
         assert.equal(
-          await runVibeCheck([], {
+          await runVibeCheck(["--scope", "changed"], {
             continuousIntegration: false,
             nowMilliseconds: () => 0,
             createInvocationDirectory: () => directory,

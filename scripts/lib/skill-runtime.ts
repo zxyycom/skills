@@ -4,6 +4,7 @@ import {
   updaterRetiredPaths
 } from "../build/skill-updaters.ts";
 import { discoverSkillPackages } from "./project.ts";
+import { discoverSelectedSkillPackages } from "./skill-runtime-selection.ts";
 import {
   buildSourceRuntimeArtifacts,
   captureSourceRuntimeFacts,
@@ -60,7 +61,7 @@ const domainAdapters: Readonly<Record<string, string>> = {
 type DomainAdapter = Readonly<{
   syncRuntime(
     mode: GeneratedFileMode,
-    facts: SourceRuntimeFacts
+    facts?: SourceRuntimeFacts
   ): Promise<boolean>;
 }>;
 function isDomainAdapter(value: unknown): value is DomainAdapter {
@@ -72,13 +73,20 @@ function isDomainAdapter(value: unknown): value is DomainAdapter {
   );
 }
 
-/** Existing updater commands rebuild every skill's complete, single-owner runtime. */
+/** Check selections still rebuild each selected skill's complete runtime. */
 export async function syncAllSkillRuntimes(
-  mode: GeneratedFileMode
+  mode: GeneratedFileMode,
+  skillNames?: readonly string[]
 ): Promise<boolean> {
-  const discovery = await discoverSkillPackages();
+  if (skillNames !== undefined && mode !== "check")
+    throw new Error("Selected skill runtimes are only supported in check mode");
+  const discovery =
+    skillNames === undefined
+      ? await discoverSkillPackages()
+      : { skills: await discoverSelectedSkillPackages(skillNames), errors: [] };
   if (discovery.errors.length > 0) throw new Error(discovery.errors.join("\n"));
-  const facts = await captureSourceRuntimeFacts();
+  const facts =
+    skillNames === undefined ? await captureSourceRuntimeFacts() : undefined;
   let changed = false;
   for (const skill of discovery.skills) {
     const adapterName = domainAdapters[skill.name];

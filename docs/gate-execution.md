@@ -4,9 +4,20 @@
 
 ## 权威 Vibe 门禁
 
-`check`、`check:changed`、`all` 与 release 命令共用同一权威 Gate 实现；范围决定证明责任，quick 不替代完整变更验收。根开发依赖与锁文件固定 `@zxyycom/vibe-check@0.0.4`；`pnpm-workspace.yaml` 对该精确版本声明 release-age 例外。项目直接调用 Vibe `run`，运行责任如下：
+`check`、显式能力 scope、`check:changed`、`all` 与 release 共用同一权威 Gate。日常使用 quick 基线，按任务实际责任追加能力组；changed/all 供影响不明或全工作区验收时兜底。根开发依赖与锁文件固定 `@zxyycom/vibe-check@0.0.4`，`pnpm-workspace.yaml` 保留其精确 release-age 例外。
 
 验证职责、证明与复用条件见[验证模型](validation-model.md)；新增、修改或移除 Check 时读 [Gate Check 编写与接入](gate-check-authoring.md)。以下记录公开选择、质量政策与运行边界。
+
+日常从快速基线开始，按当前任务追加能力组：
+
+```bash
+bun run check
+bun run check -- --list-scopes
+bun run check -- --scope gate-tests
+bun run check -- --scope mcpshell --scope generated-file
+```
+
+`scope` 决定执行范围；能力组是 `--list-scopes` 返回的订阅名，可重复传入并合并去重。选择只决定运行哪些检查；检查仍读取自身契约要求的真实输入，包括共享代码和全仓材料。
 
 ### Catalog 与选择
 
@@ -18,19 +29,22 @@ CLI 使用以下执行范围；所有范围保持同一完整 Definition，实�
 
 | 范围 | 证明责任与执行选择 |
 | --- | --- |
-| quick（默认） | eligible 固定为 `gate-environment`、`secret-detection`、`json-validation`、`json-schema-validation`、`markdown-link-validation`、`markdown-lint`、`script:typecheck`、`script:lint`、`script:format:check`、`script:validate`。这是可执行范围，精确 receipt 仍可省略其中适用项；不覆盖领域测试、生成漂移或完整质量材料。 |
+| quick（默认） | 执行固定基线：`gate-environment`、`secret-detection`、`json-validation`、`json-schema-validation`、`markdown-link-validation`、`markdown-lint`、`script:typecheck`、`script:lint`、`script:format:check`、`script:validate`。不预采集全工作区指纹或使用项目 receipt。 |
+| selected（显式能力组） | quick 基线，加上与所选能力相交的 Check 及其传递成功前置；合并去重。直接执行，不采集全域指纹或读取/发布项目 receipt；其他工作区变更不自动增加组。 |
 | changed | 完整 base 的变更相关验收。环境与除 Markdown 内容外的七项原生材料每轮结算；57 项项目命令与 Markdown 内容共 58 项按完整输入证明、共享工具 flag 与成功前置选择。 |
-| full / CI base | 全部 66 项 base 实际执行，不使用 receipt；CI 将显式 quick/changed 也提升到 full。 |
-| release | 全部 69 项实际执行，不使用 receipt，再完成同快照版本授权与打包。 |
+| full / CI base | 全部 66 项 base 实际执行，不使用 receipt；CI 将 quick/selected/changed 提升到 full，显式组不缩小 CI。 |
+| release | 全部 66 项 base 与 3 项发布事务实际执行，不使用 receipt；版本授权与打包消费同一快照。 |
 
-各 Check 以可独立验收的责任组织；精确命令由失败重跑提示和实际 catalog 提供。共享输入变化可能带入其他订阅者，成功前置也可能带入 provider；它们实际执行并结算，复用项不冒充本轮 passed。
+各 Check 独立验收；精确命令由失败重跑提示和 catalog 提供。显式选择以任务责任为依据，自动 changed 则根据共享输入变化带入其他订阅者；成功前置均须实际通过。局部成功只证明所选范围，未运行或复用与本轮实际通过分别报告。
 
-CLI 只有 Run `completed`、严格有效 aggregate `passed`，且[适用性能政策](#性能报告与快速预算)通过才退出 0。有效集合中的 failed、unavailable 或意外 not-applicable 均阻断；rejection、取消、配置、planning、execution 或原生 output 失败在所有范围均退出 1。quick 不发布成功证明；changed 的发布前提见[项目输入与成功证明](#项目输入与成功证明)。
+CLI 只有 Run `completed`、严格有效 aggregate `passed`，且[适用性能政策](#性能报告与快速预算)通过才退出 0。有效集合中的 failed、unavailable 或意外 not-applicable 均阻断；rejection、取消、配置、planning、execution 或原生 output 失败在所有范围均退出 1。quick/selected 不发布成功证明；changed 的发布前提见[项目输入与成功证明](#项目输入与成功证明)。
 
-CLI 参数形状如下；未知、缺值或重复参数在启动 Check 前以 usage 拒绝：
+Check 复用同一能力订阅声明。CLI 在执行及输入采集前校验以下参数：
 
-- `--scope quick|changed|full`：默认 quick；与 release tag 或 `--full` 互斥。CI base 的有效 scope 为 full。
-- `--tag release`：唯一公开 tag，每次最多一次。
+- `--scope <能力组>`：可重复；取并集、去重并追加 quick 基线。未知或缺值失败，不降级为自动/全量。
+- `--list-scopes`：只列出能力组，不构造或执行 Gate。
+- `--scope quick|changed|full`：选择一个整体模式，与能力组、release 互斥。`selected` 是显式选组的内部模式名，通过能力名调用；CI base 的有效模式为 full。
+- `--tag release`：唯一公开 tag，每次最多一次，与 `--scope` 互斥。
 - `--full`：`--tag release` 的兼容别名，不能与该 tag 同用；全 base 使用 `--scope full`。
 - `--baseline-ref <ref>`：仅 release 可用。值须已 trim、非空，不以 `-` 开头且不含 NUL、CR、LF；默认 `HEAD`。CLI 校验形状，Git revision 由 release prepare 解析。
 - `--cold`：仅 release 可用，每次最多一次；release 本身已全执行，用于显式声明冷运行。
@@ -42,7 +56,7 @@ quick 须满足总墙钟 < 30s、P90 < 10s、mean < 5s；其他范围只报告�
 
 ### 项目输入与成功证明
 
-quick 和 changed 可复用完整输入精确匹配的通过证明；只有 changed 在最终成功且输入无漂移时发布。未闭合时保守执行，不发布部分证明；完整事务见[输入证明政策](gate-policy.md#项目输入与成功证明)。
+只有自动 changed 使用完整输入精确匹配的项目证明，并在最终成功且输入无漂移时发布。quick/selected 不进入全域证明流程，不删除既有 receipt；完整事务见[输入证明政策](gate-policy.md#项目输入与成功证明)。
 
 ### 调度与命令执行
 
@@ -58,7 +72,9 @@ quick 和 changed 可复用完整输入精确匹配的通过证明；只有 chan
 
 ### 生成前置与发布快照
 
-`script:check:skill-updaters` 是 Gate 中统一的生成一致性 provider；需要可信当前分发产物的语义 Check 依赖它通过。领域 `check:*` / `sync:*` 仍供人工定位和同步。typecheck/lint 检查当前程序质量而不证明生成一致性，也不增加 quick 的生成前置。provider 失败会阻止依赖的 consumer，按 artifact 路径或领域命令定位；源码专用测试按实际输入声明，不因工具名称推导前置。详见[统一生成前置决策](decisions/unify-gate-generated-artifact-prerequisite.md)。
+`script:check:skill-updaters` 是统一生成 provider。selected 合并所选消费者声明的 skill，用同源适配器检查完整可达源码、updater、manifest/lock 和受管产物；未选 skill 的无关漂移不加入前置。直接选择全域生成能力及 changed/full/release 仍做联合检查。分发消费者以原生 `dependsOn` 等待真实通过，不能用 receipt 冒充前置。
+
+独立生成校验及 `--skill` 参数见[同步与只读检查](tooling-distribution.md#同步与只读检查)；领域 `check:*` / `sync:*` 继续供定位与同步。typecheck/lint 检查当前程序质量，生成一致性由生成前置另证；quick 保持自身基线。取舍见[显式本地验证范围](decisions/261027-prefer-explicit-local-gate-scopes.md)。
 
 普通检查的工作树输入与 release 制品输入分别核对：普通命令从项目根运行并依自身契约读取材料，原生材料检查在适用范围内从磁盘选择；release prepare 捕获一次 Git `pending` 快照，默认 Git 实现将其映射到 index。因此 release 通过不证明未暂存 skill 改动已进入制品。
 

@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import * as v from "valibot";
 import { run } from "@zxyycom/vibe-check";
 import { createGateDefinition, gateCheckIds } from "./lib/vibe-gate.ts";
 import {
@@ -10,7 +9,6 @@ import {
   quickGateCheckIds
 } from "./lib/vibe-gate/profiles.ts";
 import { resolveGateInvocation, runVibeCheck } from "./vibe-check.ts";
-import { fixtureGateWorkspaceSnapshot } from "./lib/vibe-gate/test-support.ts";
 import { passedDefinition } from "./vibe-check-cli-test-support.ts";
 import { authoritativeGatePackageScripts } from "./validators/project-config.ts";
 import { noOutput, withTemporaryDirectory } from "./vibe-check-test-support.ts";
@@ -34,7 +32,7 @@ test("project scopes parse independently from release compatibility arguments", 
     assert.equal(resolveGateInvocation(args), null);
 });
 
-test("quick Definition retains all catalog IDs and intersects native activation conditions", () => {
+test("quick Definition retains the catalog while always enabling its necessary checks", () => {
   const quick = createGateDefinition([], {
     scope: "quick",
     activeToolIds: ["repository-code"]
@@ -70,7 +68,7 @@ test("quick Definition retains all catalog IDs and intersects native activation 
     assert.deepEqual(
       check.enabledByFlags,
       expectedQuickIds.includes(check.checkId)
-        ? complete.enabledByFlags
+        ? undefined
         : {
             when:
               complete.enabledByFlags === undefined
@@ -89,90 +87,59 @@ test("quick Definition retains all catalog IDs and intersects native activation 
   }
 });
 
-test("quick CLI preserves exact reuse flags without publishing or clearing complete receipts", async () => {
+test("quick CLI skips workspace activation and preserves complete receipts", async () => {
   await withTemporaryDirectory("gate-quick-receipt-", async (directory) => {
     const cacheDirectory = path.join(directory, "cache");
     await fs.mkdir(cacheDirectory);
     const receiptPath = path.join(cacheDirectory, "receipts.json");
     await fs.writeFile(receiptPath, "existing proof\n");
-    let prepared = false;
+    let preparationCalls = 0;
+    let publicationCalls = 0;
     let selectedScope = "";
+    const information: string[] = [];
     const exit = await runVibeCheck([], {
       continuousIntegration: false,
-      createDefinition(invocation, _plan, dependencies) {
+      createDefinition(invocation, plan, dependencies) {
         selectedScope = invocation.scope;
+        assert.equal(plan, null);
         assert.equal(dependencies.scope, "quick");
-        assert.deepEqual(dependencies.activeToolIds, []);
+        assert.equal(dependencies.activeToolIds, undefined);
+        assert.equal(dependencies.selectionScopes, undefined);
         return passedDefinition();
       },
       createInvocationDirectory: () => directory,
       nowMilliseconds: () => 100,
       prepareActivation: async () => {
-        prepared = true;
-        return {
-          kind: "incremental",
-          snapshot: fixtureGateWorkspaceSnapshot(),
-          cacheDirectory,
-          activeCheckIds: [],
-          activeToolIds: [],
-          decisions: [
-            {
-              action: "reuse",
-              checkId: "markdown-lint",
-              fingerprint: "proof",
-              reason: "unchanged-success"
-            },
-            {
-              action: "execute",
-              checkId: "script:test:check",
-              fingerprint: "heavy",
-              reason: "inputs-changed"
-            }
-          ]
-        };
+        preparationCalls += 1;
+        throw new Error("unrelated workspace is unreadable");
       },
       publishReceipts: async () => {
-        throw new Error("quick must not invoke receipt publisher");
+        publicationCalls += 1;
+        return { published: false, reason: "not-incremental" };
       },
-      reportInfo: () => undefined,
+      reportInfo: (message) => information.push(message),
       async runProject(definition, controls) {
         assert.deepEqual(controls.flags, []);
         return run(definition, { ...controls, outputs: noOutput });
       }
     });
     assert.equal(exit, 0);
-    assert.equal(prepared, true);
+    assert.equal(preparationCalls, 0);
+    assert.equal(publicationCalls, 0);
     assert.equal(selectedScope, "quick");
+    const scopeMessage = information.find((message) =>
+      message.startsWith("Vibe Check scope:")
+    );
+    assert.ok(scopeMessage);
+    assert.ok(scopeMessage.includes("fixed necessary baseline only"));
+    assert.ok(
+      scopeMessage.includes("add --scope <capability> for the current task")
+    );
+    assert.equal(scopeMessage.includes("check:changed"), false);
     assert.equal(await fs.readFile(receiptPath, "utf8"), "existing proof\n");
-    const summary = v.parse(
-      v.looseObject({
-        counts: v.record(v.string(), v.unknown()),
-        decisions: v.array(v.looseObject({ checkId: v.string() })),
-        completeChangePlan: v.array(v.unknown()),
-        publication: v.record(v.string(), v.unknown())
-      }),
-      JSON.parse(
-        await fs.readFile(
-          path.join(directory, "machine/gate-incremental.json"),
-          "utf8"
-        )
-      ) as unknown
+    await assert.rejects(
+      fs.access(path.join(directory, "machine/gate-incremental.json")),
+      { code: "ENOENT" }
     );
-    assert.deepEqual(summary.counts, {
-      execute: 9,
-      fallback: 0,
-      firstRun: 0,
-      reuse: 1,
-      disabled: 59
-    });
-    assert.deepEqual(
-      summary.decisions.map(({ checkId }) => checkId),
-      ["markdown-lint"]
-    );
-    assert.equal(summary.completeChangePlan.length, 2);
-    assert.deepEqual(summary.publication, {
-      published: false,
-      reason: "quick-scope"
-    });
   });
 });

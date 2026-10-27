@@ -33,6 +33,6 @@ relations: []
 - 采用: `scripts/environment.js gate` 作为只读基础工具检查 action，只验证 Git、Node、精确 Bun、精确 pnpm 与精确 SCC；完整 `check` 与 `setup` 继续拥有 CodeGraph、依赖、仓库配置和索引责任。
 - 采用: `gate-environment` 是完整 Definition 中无 flag、不可 receipt 复用且每次执行的基础环境 Check；除自身外的所有 Check 都显式依赖它。该 Check 直接调用 `node scripts/environment.js gate`，不在 CLI 或 Check 内复制版本判断。
 - 采用: 基础环境失败由 Vibe 结算为真实 failed Check，完整探测输出进入 Check transcript，其他 Check 因前置未通过而不执行；activation plan 可以先完成保守选择，但环境失败时不发布成功 receipt。
-- 采用: 基础环境 Check 通过后，增量 impact layer 继续指纹化完整工具链；必要工具链或其他快照探测失败仍按[当前输入证明契约](../separate-quick-gate-from-complete-validation.md)全量执行，Vibe 继续独占 Check selection、调度、settlement 与 aggregate。
+- 采用: 基础环境 Check 通过后，增量 impact layer 继续指纹化完整工具链；必要工具链或其他快照探测失败仍按[当前输入证明契约](separate-quick-gate-from-complete-validation.md)全量执行，Vibe 继续独占 Check selection、调度、settlement 与 aggregate。
 - 采用: 完整自举 `check` / `setup` 继续覆盖基础工具、CodeGraph、项目依赖、索引和仓库配置；Gate Check 只复用其中的窄 `gate` action，避免把开发便利条件或 Gate 自身依赖变成循环前置。尚未安装项目依赖、无法启动 Vibe 的新工作区仍先运行自举入口。
 - 采用: SCC 的恢复诊断表达“让精确版本在当前 PATH 活动”，并分别给出 mise 选择和普通安装路径；不能把可执行 shim 的非零退出误写为尚未安装。

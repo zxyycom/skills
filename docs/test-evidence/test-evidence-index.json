@@ -415,11 +415,11 @@
       "FILE-TEXT-SEARCH-UNICODE-RANGE-001": "sha256:d7b1d476a2fe864ca543f15c6cf2e444d7f003bc96c9a05cfb3da3144a8911b6",
       "GATE-CATALOG-LEAF-OWNER-001": "sha256:3d1155bb5619f9b9ff93e8f5f7c7a378307cbb052263e5189c39c08f52ccd6bd",
       "GATE-CLI-PATH-NORMALIZATION-001": "sha256:5ea1d7d270f8514f9109784d2b2e9262b3ee4a3d18a9be02604244d4c5689f46",
-      "GATE-CLI-PERFORMANCE-BOUNDARY-001": "sha256:cc49c1ce3e00eab55689fe90462c31881ed3a0134e5115aa898722bfe7876e63",
+      "GATE-CLI-PERFORMANCE-BOUNDARY-001": "sha256:49ac7d35609608aac89fadffc560a98663bbd7f9ac8cdf98015e6064ea0d3826",
       "GATE-CLI-PERFORMANCE-WRITE-FAILURE-001": "sha256:092e04ffb3923598cbf2aaaa3a1b5f709ba561717794c4ed6913ab06b55e9596",
-      "GATE-CLI-RESULT-001": "sha256:8dedaebd87b19b37d8e6e141b889b8fc3500bde734786bfe621e891a97143c93",
+      "GATE-CLI-RESULT-001": "sha256:105c42c9b2fec5cd45d839805a30078af35db78eaef48432e45296293ef10cc6",
       "GATE-DECISION-ACQUISITION-CLI-CLOSURE-001": "sha256:cc4fe6cfd64fc3159fd26b90280761452bad187555fa03fb0617af985a2c0654",
-      "GATE-DEFINITION-CATALOG-001": "sha256:5c1d3ee28114101bae53ffde17abf901949353f2c5607b8f937b66e996a20ffe",
+      "GATE-DEFINITION-CATALOG-001": "sha256:5773cd8801546e3ffd303f85823f50dff6c170d52aa428cbea703b2e12740311",
       "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:840553137473ceae45cb978aadc8f5631a73b768df520bcd332e0a61f513739d",
       "GATE-DOMAIN-AGGREGATE-OWNER-001": "sha256:a65eadd4bdd2ece954da4fc85478701f70e580010ad1cc7697aba3ee1d082c24",
       "GATE-DOMAIN-TEST-INPUT-OWNER-001": "sha256:9f90cbb32d9a1caf3aef8609a59437146e71bdcf6bd88cb1b7a481b6fc17b343",
@@ -464,15 +464,24 @@
       "GATE-PERFORMANCE-UNAVAILABLE-001": "sha256:a5beca486a1bce844bf1f3145ac261e9d5a2c5c8cc28345ed79b2998efc7760f",
       "GATE-PUBLIC-TEST-INPUTS-001": "sha256:503b615ced983c514825e620607bf462ec5b8fa0148eda5db61350eacaa219b6",
       "GATE-QUERY-ADAPTER-HELPER-OWNER-001": "sha256:d8b7cf18032e71140efadbef610e08a73bab768932d75626f9b873a3f42aa04e",
-      "GATE-QUICK-RECEIPT-ISOLATION-001": "sha256:ed2e68f1f8ea2e971ab3769d69d8dbc7db186a3639a1ecf81a36e94ee3149d18",
+      "GATE-QUICK-RECEIPT-ISOLATION-001": "sha256:0a506aeb61dea3cd64a772f56ce44143232ef19cf61dbab8495640a25a1c5603",
       "GATE-RECORD-OPERATIONS-INPUTS-001": "sha256:b7cc0fe0b86dcce84dde79a0877c433ecf336a5a98b2dee5a6959dd076350213",
       "GATE-RELEASE-FULL-EXECUTION-001": "sha256:5b90c85e0ca403a444730151e7148a63395f73e03d33d7584487d1d55a0961e7",
       "GATE-RELEASE-PRIVATE-HANDOFF-001": "sha256:5ebfb193d0d330677b9aa1d2cd7c6d099aece718f10866de542ae0c0cd5bae98",
       "GATE-RELEASE-SNAPSHOT-TOCTOU-001": "sha256:ce8a7e7de4da0348eb484ea8527faabd1587456fadd73472d266702f91cb350c",
       "GATE-RELEASE-VERSION-FAILURE-001": "sha256:aefc8919acdfdfeb79cea41d51459052ab6f770ea70b18bce1ebce2243b0c6e3",
       "GATE-SCHEMA-BINDING-POLICY-001": "sha256:5b2116d35a5b3c8b8b465318be67ec63d4e1deb5ffc63f668922bb6288119899",
+      "GATE-SCOPE-DISCOVERY-001": "sha256:3056dc90e55fef3ddf157baad5f70bcef9bda3dc1e6dbf53c346f7e611207a69",
       "GATE-SCRIPT-ADAPTER-001": "sha256:33ea16ddf3cd3dcf6484bf87e9abe1274a70fa80414078969f61797f7cbe7673",
       "GATE-SECRET-CAPACITY-001": "sha256:5c4916bed31ff55675eb31dbb8857396ca9072f1146f94ef89a21bfee2ff5d2d",
+      "GATE-SELECTED-ACTIVATION-001": "sha256:3479b862819e6432433604cb44a0c97b231d755e90cf6db772a231cf8c9a35a9",
+      "GATE-SELECTED-ARGUMENTS-001": "sha256:d866378ce6ff6abcb3479854bf8052b0f4db3068661e62c25b26fbebb464024b",
+      "GATE-SELECTED-CI-FULL-001": "sha256:73e1d09a90ab6b707a44b492bdf36d9fecf4afe487b3c96004c0c8b3f0049c40",
+      "GATE-SELECTED-GENERATION-SKILLS-001": "sha256:33dcbe7a7c1df135e82664536e06019502a3f3a33fbfdf1c54440b6f613fe8c6",
+      "GATE-SELECTED-INVALID-ARGUMENTS-001": "sha256:982a580232a3035bfb880da29fc04c08e74e56eef4a1a1eb887a21a5c0ead224",
+      "GATE-SELECTED-PROVIDER-ARGV-001": "sha256:964fdee571c27dbe3371683c4bbebc844a780be2962505e4bc964f0582579cd0",
+      "GATE-SELECTED-PROVIDER-RERUN-001": "sha256:25660ef38a3580c2a5db91225df17621ff1f39730684936021ba25290f99a036",
+      "GATE-SELECTED-RECEIPT-ISOLATION-001": "sha256:713b458a89f454e95c13896138b1ffce49d6d93c939ca07fe340234b5d14d4dd",
       "GATE-SEMANTIC-IMPORT-SYNTAX-001": "sha256:a08845fb625494a78b933233f361abe7bb7207a3af797f846479882096660abf",
       "GATE-SHARED-CONTRACT-OWNER-001": "sha256:2ffc0d120b98ce2a31ef024ff0a4df3d63dea35e6844e9cfb6c7f009e60ccece",
       "GATE-SNAPSHOT-FALLBACK-DIAGNOSTIC-SAFETY-001": "sha256:be494c2e1e9b950189cdaf0300b5ad72d184a54080f8dfeab6df8bda52a33530",
@@ -1081,6 +1090,8 @@
       "REPO-VALIDATION-SKILL-STRUCTURE-001": "sha256:b3b91ac161ebd202eae150248aedb1339b2815f2cff8bdb09d300fc9f5efe423",
       "RESOLVED-FIRST-PARENT-ENDPOINTS-REUSE-001": "sha256:0f09aae11c06d4956ad6e8dc6ddd7b8527744ab4f3f863dba9d724b9958448a2",
       "RESOLVED-FIRST-PARENT-ENDPOINTS-VALIDATION-001": "sha256:6ecdbf5169794af69e0c13e6b3c57f72006769caa8223ce85a419c0627dc80c3",
+      "RUNTIME-PARENT-SYMLINK-ESCAPE-001": "sha256:3d024a525fc87b982ed7bb52c39e6bae680641d0adb8db12c07fa29de455c282",
+      "RUNTIME-SELECTED-SOURCE-CLOSURE-001": "sha256:0c6887e86325c2b4e9bac30fc1cc1dab6b79d9c689bd8e5b3fa449795ef902f8",
       "SKILL-PACKAGE-BASELINE-CONCURRENCY-001": "sha256:a041142ed41ba52c990a27c895021ade1b3cb7f4b129dab3f122a31fa00cd58f",
       "SKILL-PACKAGE-HASH-001": "sha256:1628c382435fa675b4374e959a6dc28103a3e64555c83c6834981d2c15af914a",
       "SKILL-PACKAGE-HASH-002": "sha256:2487e02f1fc80948709a1a6b3308cb265b5c77fd6ae8c8d75aeb3714a206f736",
@@ -1322,6 +1333,10 @@
       "TEST-EVIDENCE-STAGE-UNCHANGED-001": "sha256:e589f094c35e5949e2a4edcc8e3ce2b2276550672ea35c6b6f315476a70f3908",
       "TEST-EVIDENCE-SYNC-SELECTOR-RAW-001": "sha256:eab0d997a8b12dda1f4e800cf3bff6c6e389f97e97498d04d8cc13633ff72b32",
       "TEST-EVIDENCE-UNREADABLE-INDEX-001": "sha256:944aef3f8c8a64062ba1fdd99b77c1f42dd012fad750dec22a080787e6a9765b",
+      "UPDATER-SELECTED-ARGUMENTS-001": "sha256:2aafeb8c218b28374fd67a4685c4bc911d69f2989b7f3e4ab9dbdba9af9511bc",
+      "UPDATER-SELECTED-CLI-ISOLATION-001": "sha256:f5af6072c4aca45ef74c4c4c4c9a26c7bc5d407861884d7a567709690a6dc3e0",
+      "UPDATER-SELECTED-CLI-REJECTION-001": "sha256:0bd91ed5c83f8eb80ca3b86143d15acefa1e72c44e9ce74c8306bdcd19a0931f",
+      "UPDATER-SELECTED-DISCOVERY-001": "sha256:1bd7230e3cc4dd0d02bf3b0c602294d32a9bf7978fb8f5efcf8769c96e72dc8f",
       "VERSION-CONTROL-CHANGES-001": "sha256:5b1fe598d4464b20379d21833cecad0af5ab38559b5cb30f845a0d898c048578",
       "VERSION-CONTROL-CONFLICT-001": "sha256:ad6aa700635cd403c4cc8bf9d21911eb893dfc0abe52721475f12b62280d23d2",
       "VERSION-CONTROL-CONTENT-PAYLOAD-BOUNDARY-001": "sha256:130fa3ed5a0a2ce6643f57cf507a71ef67c60dea442f1620e59a16271b37ce13",
@@ -5603,14 +5618,14 @@
       ]
     },
     "GATE-CLI-PERFORMANCE-BOUNDARY-001": {
-      "title": "CLI 只对 quick 应用含准备与报告开销的预算",
+      "title": "CLI 只对 quick 应用入口至报告收尾的预算",
       "sourcePath": "cases/gate-cli-performance-boundary.md",
       "tags": [
         "performance",
         "repository-tooling"
       ],
       "testIds": [
-        "test:fd1628a59589c20578535e83b15afd33d19fef29c38db890de4a9a8f8342055a"
+        "test:876d8e5e162b6461bc8aeeb1cb8ed8d26035ccd69a7404985c45b27a79900741"
       ]
     },
     "GATE-CLI-PERFORMANCE-WRITE-FAILURE-001": {
@@ -5661,11 +5676,11 @@
       ],
       "testIds": [
         "test:51cfc4d8aaf9ad46d5417452009dff05f6487b002323afb11b17b33dbb4a449d",
-        "test:7808f7b7f8d641d1dfd8209916b748fc2f00bd2f03da42a136d2a7b992eb251d",
         "test:8e920fe8f88eb19722fc115d8a63991e4ec60085181bc6e2ddefe6f91c953385",
         "test:ac78e6545b501f8c286147702d2a23ffe0c03ca1015e15f3e0db2d36bece3526",
         "test:c5a44c669639a6f2b7c665b191f1559d2bad8b529dbc3906c607183ed70c4eb8",
-        "test:c8ae74a0d55cbd30418647a7e3f56bb6bd8b3094665ab73c0e833d3f812f837e"
+        "test:c8ae74a0d55cbd30418647a7e3f56bb6bd8b3094665ab73c0e833d3f812f837e",
+        "test:f1c493d4b9a141525746d2ccb41a7233b5bf10053194687bfcc732941bf09c94"
       ]
     },
     "GATE-DISTRIBUTION-DEPENDENCY-001": {
@@ -6138,13 +6153,13 @@
       ]
     },
     "GATE-QUICK-RECEIPT-ISOLATION-001": {
-      "title": "quick 沿用精确复用但不发布或清理完整证明",
+      "title": "quick 不准备工作区或发布完整证明",
       "sourcePath": "cases/gate-quick-receipt-isolation.md",
       "tags": [
         "repository-tooling"
       ],
       "testIds": [
-        "test:2a1030bfa128cae46fba05fbf5dfc87bf52f31acf9fcea0661d44ea6eae34d49"
+        "test:acdc5c9dcaafe0de269eedb91a3d6ada3af455fb8ffe24c4942d299edeac03ce"
       ]
     },
     "GATE-RECORD-OPERATIONS-INPUTS-001": {
@@ -6209,6 +6224,16 @@
         "test:d9554c818b9357b912953a8a76b637da86d2e6b533d4c554e4aa7522b9694e71"
       ]
     },
+    "GATE-SCOPE-DISCOVERY-001": {
+      "title": "能力发现不启动 Gate",
+      "sourcePath": "cases/gate-scope-discovery.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:6dad05d98036f0823267457890ec83e290470789fa0b81bec65a77538649f8a7"
+      ]
+    },
     "GATE-SCRIPT-ADAPTER-001": {
       "title": "项目命令配置与直接重跑 argv 保持明确边界",
       "sourcePath": "cases/gate-script-adapter-001.md",
@@ -6228,6 +6253,86 @@
       ],
       "testIds": [
         "test:91bb565b8c277e409f2c37b0ef1e58194324618e68a70e9ef43a40f5e019b4b9"
+      ]
+    },
+    "GATE-SELECTED-ACTIVATION-001": {
+      "title": "原生调度只执行必要集及所选能力依赖闭包",
+      "sourcePath": "cases/gate-selected-activation.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:a7a38da8ba3bdbf0b40ec72fc813d730962178b1729dfb0b6f8e63b750465e6f"
+      ]
+    },
+    "GATE-SELECTED-ARGUMENTS-001": {
+      "title": "显式能力组按首次顺序追加去重",
+      "sourcePath": "cases/gate-selected-arguments.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:b58980379a243e5da2ff5382e5b97c74ce3861893f9ea926836623485da30af9"
+      ]
+    },
+    "GATE-SELECTED-CI-FULL-001": {
+      "title": "CI 不被显式选组缩窄",
+      "sourcePath": "cases/gate-selected-ci-full.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:63799e6458099e20143f17fbf1c490bdb5ff12aa53f6b9ad37f727360064c4ee"
+      ]
+    },
+    "GATE-SELECTED-GENERATION-SKILLS-001": {
+      "title": "生成前置范围来自实际选中 consumer",
+      "sourcePath": "cases/gate-selected-generation-skills.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:624f6d184594da90260d7aa4912f7465859fc9b0b03abfa9f93fa22b5f5914e1"
+      ]
+    },
+    "GATE-SELECTED-INVALID-ARGUMENTS-001": {
+      "title": "非法选组在 Gate 副作用之前拒绝",
+      "sourcePath": "cases/gate-selected-invalid-arguments.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:c30bca7c211f3a76a1c009fda79c24149a8c4513043a340bc4c1e7a3b466ca9c"
+      ]
+    },
+    "GATE-SELECTED-PROVIDER-ARGV-001": {
+      "title": "Definition 把必要 skill 传给生成命令",
+      "sourcePath": "cases/gate-selected-provider-argv.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:e450547ff8c8a13f5f5cbba51922a94e3960d12289f5f326e8d33a21b1b7024d"
+      ]
+    },
+    "GATE-SELECTED-PROVIDER-RERUN-001": {
+      "title": "窄生成失败提示保留实际重跑参数",
+      "sourcePath": "cases/gate-selected-provider-rerun.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:08939cff61addddff82e810263c6fda4000ab2fd7a84b0a6a619518032e8af0a"
+      ]
+    },
+    "GATE-SELECTED-RECEIPT-ISOLATION-001": {
+      "title": "selected 成败不冒发完整证明且不套用 quick 预算",
+      "sourcePath": "cases/gate-selected-receipt-isolation.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:f02ed52fa21ecca5ae307b641b42cb26bf214f8a3049d2639bbe849db5efe4a5"
       ]
     },
     "GATE-SEMANTIC-IMPORT-SYNTAX-001": {
@@ -12499,6 +12604,26 @@
         "test:7526a3564691ccc3213440f3da5b3a8bf7ff62f146db745d49732fb3917444eb"
       ]
     },
+    "RUNTIME-PARENT-SYMLINK-ESCAPE-001": {
+      "title": "源码父目录链接逃逸在扫描或读取外部字节前拒绝",
+      "sourcePath": "cases/runtime-parent-symlink-escape.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:38e4ef40e7e34e245321bb9f2e67d35e7c029d5ea2fa55ffd892d69299873b26"
+      ]
+    },
+    "RUNTIME-SELECTED-SOURCE-CLOSURE-001": {
+      "title": "源码事实只读真实传递闭包并拒绝越域复用",
+      "sourcePath": "cases/runtime-selected-source-closure.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:fd446e0ad6a51d74b288893d196f17579c6f2746b03af0fdd2320e7e4d025dee"
+      ]
+    },
     "SKILL-PACKAGE-BASELINE-CONCURRENCY-001": {
       "title": "版本基线独立比较有界并发且保留早停",
       "sourcePath": "cases/skill-package-baseline-concurrency.md",
@@ -14919,6 +15044,46 @@
       ],
       "testIds": [
         "test:bf5d21340ee758a4dbe798f2c6b2377a9591c4983601f7df087674fd43d783a5"
+      ]
+    },
+    "UPDATER-SELECTED-ARGUMENTS-001": {
+      "title": "updater 选组仅支持只读检查",
+      "sourcePath": "cases/updater-selected-arguments.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:28aba50bdb5ccc5bba0188651e3aa105f4d4baede89735e69f5dd52e1b776e83"
+      ]
+    },
+    "UPDATER-SELECTED-CLI-ISOLATION-001": {
+      "title": "真实生成 CLI 隔离无关损坏但阻断所选漂移",
+      "sourcePath": "cases/updater-selected-cli-isolation.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:1a1f243474e04020631f8cb4c41c5ada3fe8bc7bad6bce06f4e65a29751bc152"
+      ]
+    },
+    "UPDATER-SELECTED-CLI-REJECTION-001": {
+      "title": "真实 CLI 非法选集零写拒绝",
+      "sourcePath": "cases/updater-selected-cli-rejection.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:bee65c05aeb7db05531768c3bb36e06a085ce592d92c4bbf2cab9e986b3b103c"
+      ]
+    },
+    "UPDATER-SELECTED-DISCOVERY-001": {
+      "title": "选中 skill 身份校验不枚举无关包",
+      "sourcePath": "cases/updater-selected-discovery.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:33ad53eb4c3da9b36a3191ae234af16bd0b882f935ebc5f96a1e53c7c9c3f65f"
       ]
     },
     "VERSION-CONTROL-CHANGES-001": {

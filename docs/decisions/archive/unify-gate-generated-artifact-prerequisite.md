@@ -1,7 +1,7 @@
 ---
 title: 以统一生成结果作为 Gate 分发消费前置
 id: 261020-unify-gate-generated-artifact-prerequisite
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-10-20T07:38:35Z
 purpose: 让所有分发消费者只在唯一完整生成检查通过后运行，并保留领域定位能力。

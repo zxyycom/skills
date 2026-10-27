@@ -10,12 +10,12 @@ import type {
 import { isMainModule } from "../tools/shared/src/node/main-module.ts";
 import { rootDir } from "./lib/project.ts";
 import { gateInputClosureDiagnostic } from "./lib/vibe-gate/diagnostics.ts";
+import { activationFlagForTool } from "./lib/vibe-gate/impact-tools.ts";
+import { gateSelectionScopes } from "./lib/vibe-gate/profiles.ts";
+import { summarizeSelectedGateOutcome } from "./lib/vibe-gate/selection.ts";
 import {
   createGateDefinition,
   commandText,
-  semanticGateChecks,
-  gateEnvironmentCheckId,
-  releaseRequiredPackageScripts,
   gateActivationFlags,
   prepareGateActivation,
   publishGateReceipts,
@@ -42,6 +42,7 @@ export type { GateInvocation } from "./vibe-check-invocation.ts";
 import { reportGatePerformance } from "./lib/vibe-gate/performance-output.ts";
 import {
   describeActivationPlan,
+  describeSelectedGateOutcome,
   reportGateActivationOutcome
 } from "./lib/vibe-gate/activation-output.ts";
 
@@ -108,6 +109,32 @@ function isContinuousIntegrationEnvironment(
   return value !== undefined && value !== "" && value !== "false";
 }
 
+function declaredGateCommand(
+  definition: ProjectDefinition,
+  checkId: string
+): GateCommand | undefined {
+  const options = definition.checks.find(
+    (check) => check.checkId === checkId
+  )?.options;
+  if (
+    options === undefined ||
+    !("executable" in options) ||
+    !("arguments" in options)
+  )
+    return undefined;
+  const executable = options.executable;
+  const arguments_ = options.arguments;
+  if (
+    (executable !== "bun" && executable !== "node") ||
+    !Array.isArray(arguments_) ||
+    !arguments_.every(
+      (argument: unknown): argument is string => typeof argument === "string"
+    )
+  )
+    return undefined;
+  return { command: executable, args: arguments_ };
+}
+
 export async function runVibeCheck(
   argv: readonly string[] = process.argv.slice(2),
   dependencies: VibeCheckDependencies = {}
@@ -118,24 +145,30 @@ export async function runVibeCheck(
   const reportError = dependencies.reportError ?? console.error;
   const reportInfo = dependencies.reportInfo ?? console.log;
   const requestedInvocation = resolveGateInvocation(argv);
-  const invocation =
-    requestedInvocation === null
-      ? null
-      : {
-          ...requestedInvocation,
-          scope:
-            (dependencies.continuousIntegration ??
-              isContinuousIntegrationEnvironment(process.env.CI)) &&
-            requestedInvocation.scope !== "release"
-              ? ("full" as const)
-              : requestedInvocation.scope
-        };
-  if (invocation === null) {
+  if (requestedInvocation === null) {
     reportError(
-      "Usage: bun run check [--scope quick|changed|full] [--tag release] [--baseline-ref <ref>] [--cold] [--diagnostic-log] (compatibility: --full is --tag release)"
+      "Usage: bun run check [--scope quick|changed|full | --scope <capability> ...] [--diagnostic-log]; bun run check --list-scopes; bun run check --tag release [--baseline-ref <ref>] [--cold] [--diagnostic-log] (compatibility: --full is --tag release; legacy modes, capabilities and release cannot be mixed)"
     );
     return 1;
   }
+  if (requestedInvocation.listScopes) {
+    reportInfo(
+      `Gate capability scopes (repeat --scope <capability> to combine):\n${gateSelectionScopes.join("\n")}\nLegacy modes: quick (default), changed, full. Release: --tag release.`
+    );
+    return 0;
+  }
+  const continuousIntegration =
+    dependencies.continuousIntegration ??
+    isContinuousIntegrationEnvironment(process.env.CI);
+  const invocation: GateInvocation =
+    continuousIntegration && requestedInvocation.scope !== "release"
+      ? {
+          scope: "full",
+          cold: requestedInvocation.cold,
+          diagnosticLog: requestedInvocation.diagnosticLog,
+          tags: requestedInvocation.tags
+        }
+      : requestedInvocation;
 
   // 嵌套包脚本会重复追加 PATH；实际子进程与输入证明共同使用同一搜索顺序。
   if (process.env.PATH !== undefined) {
@@ -148,10 +181,13 @@ export async function runVibeCheck(
     invocation.scope === "full" ||
     invocation.tags.includes("release") ||
     invocation.cold ||
-    (dependencies.continuousIntegration ??
-      isContinuousIntegrationEnvironment(process.env.CI));
+    continuousIntegration;
+  const activationScope =
+    invocation.scope === "quick" || invocation.scope === "selected"
+      ? null
+      : invocation.scope;
   const activationPlan =
-    dependencies.prepareActivation === false
+    activationScope === null || dependencies.prepareActivation === false
       ? null
       : await (dependencies.prepareActivation?.(invocation) ??
           prepareGateActivation({
@@ -161,15 +197,22 @@ export async function runVibeCheck(
     activationPlan?.kind === "incremental"
       ? gateInputClosureDiagnostic(activationPlan.snapshot)
       : null;
-  if (activationPlan !== null)
+  if (activationPlan !== null && activationScope !== null)
     reportInfo(
-      describeActivationPlan(activationPlan, unclosedInputs, invocation.scope)
+      describeActivationPlan(activationPlan, unclosedInputs, activationScope)
     );
   reportInfo(
-    `Vibe Check scope: ${invocation.scope}${invocation.scope === "quick" ? "; quick success does not replace bun run check:changed acceptance" : ""}.`
+    `Vibe Check scope: ${invocation.scope}${invocation.scope === "quick" ? "; fixed necessary baseline only; add --scope <capability> for the current task" : ""}.`
   );
+  if (invocation.scope === "selected")
+    reportInfo(
+      `Vibe Check requested capability scopes: ${invocation.selectionScopes.join(", ")}; fixed quick baseline plus matching checks and transitive success prerequisites; no workspace impact discovery or receipts.`
+    );
   const definitionDependencies: GateDefinitionDependencies = {
     scope: invocation.scope,
+    ...(invocation.scope === "selected"
+      ? { selectionScopes: invocation.selectionScopes }
+      : {}),
     ...(!forceFullExecution && activationPlan?.kind === "incremental"
       ? { activeToolIds: activationPlan.activeToolIds }
       : {}),
@@ -191,6 +234,9 @@ export async function runVibeCheck(
     result = await (dependencies.runProject ?? run)(definition, {
       flags: [
         ...invocation.tags,
+        ...(invocation.scope === "selected"
+          ? invocation.selectionScopes.map(activationFlagForTool)
+          : []),
         ...(!forceFullExecution && activationPlan?.kind === "incremental"
           ? gateActivationFlags(activationPlan)
           : [])
@@ -226,53 +272,43 @@ export async function runVibeCheck(
         check.outcome.status === "not-applicable"
       )
         continue;
-      let command: GateCommand | undefined;
-      if (check.checkId === gateEnvironmentCheckId) {
-        command = { command: "node", args: ["scripts/environment.js", "gate"] };
-      } else {
-        command = semanticGateChecks.find(
-          (candidate) => candidate.checkId === check.checkId
-        )?.command;
-        if (command === undefined) {
-          const script = releaseRequiredPackageScripts.find(
-            (candidate) => `script:${candidate}` === check.checkId
-          );
-          if (script !== undefined)
-            command = { command: "bun", args: ["run", script] };
-        }
-      }
+      const command = declaredGateCommand(definition, check.checkId);
       if (command !== undefined)
         reportError(
           `${check.checkId}: rerun ${commandText(command)} from ${rootDir}. Full command transcripts: ${path.join(invocationDirectory, "checks")}/**/process.log.`
         );
     }
   }
-  if (activationPlan !== null) {
+  if (activationPlan !== null && activationScope !== null) {
     const publicationResult = {
       runSucceeded:
         result.kind === "completed" && result.aggregate === "passed",
       passedCheckIds: passedCheckIds(result)
     };
-    const publication =
-      invocation.scope === "quick"
-        ? { published: false as const, reason: "quick-scope" as const }
-        : await (dependencies.publishReceipts?.(
-            activationPlan,
-            publicationResult
-          ) ?? publishGateReceipts(activationPlan, publicationResult));
+    const publication = await (dependencies.publishReceipts?.(
+      activationPlan,
+      publicationResult
+    ) ?? publishGateReceipts(activationPlan, publicationResult));
     await reportGateActivationOutcome({
       plan: activationPlan,
-      scope: invocation.scope,
+      scope: activationScope,
       invocationDirectory,
       unclosedInputs,
       publication,
       reportInfo
     });
   }
+  const selectedOutcome =
+    invocation.scope === "selected"
+      ? summarizeSelectedGateOutcome(result, invocation.selectionScopes)
+      : null;
+  if (invocation.scope === "selected")
+    reportInfo(describeSelectedGateOutcome(selectedOutcome));
   const performanceReport = await reportGatePerformance({
     invocationDirectory,
     scope: invocation.scope,
-    requestedScope: requestedInvocation?.scope ?? invocation.scope,
+    requestedScope: requestedInvocation.scope,
+    ...(invocation.scope === "selected" ? { selectedOutcome } : {}),
     activationPlan,
     forceFullExecution,
     result,

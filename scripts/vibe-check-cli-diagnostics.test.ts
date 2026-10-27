@@ -3,6 +3,8 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { run } from "@zxyycom/vibe-check";
+import * as v from "valibot";
+import { createGateDefinition } from "./lib/vibe-gate.ts";
 import type { ProjectDefinition, RunControls } from "@zxyycom/vibe-check";
 import { gateInvocationOutputControls, runVibeCheck } from "./vibe-check.ts";
 import {
@@ -11,11 +13,13 @@ import {
   failedDefinition,
   invalidDefinition,
   passedDefinition,
+  observeGateActivation,
   runInProject,
   unknownDependencyDefinition
 } from "./vibe-check-cli-test-support.ts";
 import {
   repositoryRoot,
+  noOutput,
   withTemporaryDirectory
 } from "./vibe-check-test-support.ts";
 
@@ -152,10 +156,15 @@ test("CLI maps usage, definition, runner, and gate failures to exit code one", a
       }),
       1
     );
-    assert.match(
-      capture.diagnostics.at(-1) ?? "",
-      /Usage: bun run check \[--scope quick\|changed\|full\] \[--tag release\]/u
-    );
+    const usage = capture.diagnostics.at(-1) ?? "";
+    assert.match(usage, /Usage: bun run check/u);
+    for (const supportedInvocation of [
+      "--scope quick|changed|full",
+      "--scope <capability>",
+      "--list-scopes",
+      "--tag release"
+    ])
+      assert.ok(usage.includes(supportedInvocation), supportedInvocation);
   }
   assert.equal(definitionCalls, 0);
 
@@ -240,6 +249,81 @@ test("CLI command failures provide direct rerun and transcript location without 
       assert.match(text, /rerun bun run typecheck/u);
       assert.match(text, /process\.log/u);
       assert.equal(text.includes("private-child-marker"), false);
+    }
+  );
+});
+
+test("selected provider failure reruns the exact declared scoped generation command", async () => {
+  await withTemporaryDirectory(
+    "gate-selected-provider-diagnostic-",
+    async (directory) => {
+      const diagnostics: string[] = [];
+      const executed: string[] = [];
+      const exit = await runVibeCheck(["--scope", "mcpshell"], {
+        continuousIntegration: false,
+        nowMilliseconds: () => 0,
+        createInvocationDirectory: () => directory,
+        createDefinition(invocation, _plan, dependencies) {
+          const definition = createGateDefinition(
+            invocation.tags,
+            dependencies
+          );
+          const provider = definition.checks.find(
+            ({ checkId }) => checkId === "script:check:skill-updaters"
+          );
+          assert.ok(provider);
+          const command = v.parse(
+            v.looseObject({
+              executable: v.string(),
+              arguments: v.array(v.string())
+            }),
+            provider.options
+          );
+          assert.equal(command.executable, "bun");
+          assert.deepEqual(command.arguments, [
+            "run",
+            "check:skill-updaters",
+            "--skill",
+            "mcpshell-workspace-tools"
+          ]);
+          return observeGateActivation(
+            definition,
+            executed,
+            "script:check:skill-updaters"
+          );
+        },
+        prepareActivation: async () => {
+          throw new Error("no workspace scan");
+        },
+        publishReceipts: async () => {
+          throw new Error("no receipt publication");
+        },
+        reportInfo: () => undefined,
+        reportError: (message) => diagnostics.push(message),
+        runProject: (definition, controls) =>
+          run(definition, {
+            ...controls,
+            outputs: noOutput,
+            projectRoot: directory
+          })
+      });
+      assert.equal(exit, 1);
+      assert.ok(executed.includes("script:check:skill-updaters"));
+      assert.equal(
+        executed.includes("test:mcpshell:public-distribution"),
+        false
+      );
+      const providerDiagnostic = diagnostics.find((message) =>
+        message.startsWith("script:check:skill-updaters: rerun ")
+      );
+      assert.ok(providerDiagnostic);
+      assert.ok(
+        providerDiagnostic.includes(
+          "rerun bun run check:skill-updaters --skill mcpshell-workspace-tools from "
+        ),
+        providerDiagnostic
+      );
+      assert.match(providerDiagnostic, /checks\/\*\*\/process\.log/u);
     }
   );
 });

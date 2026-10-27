@@ -1,7 +1,12 @@
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import type { RunControls } from "@zxyycom/vibe-check";
-import { isGateScope, type GateScope } from "./lib/vibe-gate/profiles.ts";
+import {
+  isGateScope,
+  isGateSelectionScope,
+  type GateScope
+} from "./lib/vibe-gate/profiles.ts";
+import type { GateToolId } from "./lib/vibe-gate/impact-tools.ts";
 import { rootDir } from "./lib/project.ts";
 import {
   gateTags,
@@ -12,14 +17,22 @@ import {
 
 export type GateInvocation = Readonly<{
   baselineRef?: string;
-  scope: GateScope;
+  listScopes?: true;
   cold: boolean;
   diagnosticLog: boolean;
   tags: readonly GateTag[];
-}>;
+}> &
+  (
+    | Readonly<{ scope: "selected"; selectionScopes: readonly GateToolId[] }>
+    | Readonly<{
+        scope: Exclude<GateScope, "selected">;
+        selectionScopes?: never;
+      }>
+  );
 
 type GateInvocationParserState = {
-  scope: Exclude<GateScope, "release"> | undefined;
+  scope: Exclude<GateScope, "release" | "selected"> | undefined;
+  selectionScopes: GateToolId[];
   baselineRef: string | undefined;
   cold: boolean;
   diagnosticLog: boolean;
@@ -103,22 +116,35 @@ function setBaselineRef(
   return 1;
 }
 
+function setGateScope(
+  state: GateInvocationParserState,
+  value: string | undefined
+): 1 | null {
+  if (isGateSelectionScope(value)) {
+    if (state.scope !== undefined) return null;
+    if (!state.selectionScopes.includes(value))
+      state.selectionScopes.push(value);
+    return 1;
+  }
+  if (
+    state.scope !== undefined ||
+    state.selectionScopes.length > 0 ||
+    !isGateScope(value) ||
+    value === "release" ||
+    value === "selected"
+  ) {
+    return null;
+  }
+  state.scope = value;
+  return 1;
+}
+
 function applyGateArgument(
   state: GateInvocationParserState,
   argument: string | undefined,
   value: string | undefined
 ): 0 | 1 | null {
-  if (argument === "--scope") {
-    if (
-      state.scope !== undefined ||
-      !isGateScope(value) ||
-      value === "release"
-    ) {
-      return null;
-    }
-    state.scope = value;
-    return 1;
-  }
+  if (argument === "--scope") return setGateScope(state, value);
   if (argument === "--tag") {
     return appendGateTag(state.tags, value) ? 1 : null;
   }
@@ -137,25 +163,14 @@ function applyGateArgument(
   return null;
 }
 
-export function resolveGateInvocation(
-  argv: readonly string[]
+function finalizeGateInvocation(
+  state: GateInvocationParserState
 ): GateInvocation | null {
-  const state: GateInvocationParserState = {
-    scope: undefined,
-    baselineRef: undefined,
-    cold: false,
-    diagnosticLog: false,
-    tags: []
-  };
-  for (let index = 0; index < argv.length; index += 1) {
-    const consumed = applyGateArgument(state, argv[index], argv[index + 1]);
-    if (consumed === null) {
-      return null;
-    }
-    index += consumed;
-  }
   const normalizedTags = normalizeGateTags(state.tags);
-  if (state.scope !== undefined && normalizedTags.includes("release"))
+  if (
+    (state.scope !== undefined || state.selectionScopes.length > 0) &&
+    normalizedTags.includes("release")
+  )
     return null;
   if (
     (state.baselineRef !== undefined || state.cold) &&
@@ -163,15 +178,56 @@ export function resolveGateInvocation(
   ) {
     return null;
   }
-  return {
+  const options = {
     ...(normalizedTags.includes("release")
       ? { baselineRef: state.baselineRef ?? "HEAD" }
       : {}),
-    scope: normalizedTags.includes("release")
-      ? "release"
-      : (state.scope ?? "quick"),
     cold: state.cold,
     diagnosticLog: state.diagnosticLog,
     tags: normalizedTags
   };
+  if (normalizedTags.includes("release"))
+    return { ...options, scope: "release" };
+  if (state.selectionScopes.length > 0)
+    return {
+      ...options,
+      scope: "selected",
+      selectionScopes: state.selectionScopes
+    };
+  return { ...options, scope: state.scope ?? "quick" };
+}
+
+export function resolveGateInvocation(
+  argv: readonly string[]
+): GateInvocation | null {
+  const arguments_ = argv[0] === "--" ? argv.slice(1) : argv;
+  if (arguments_.length === 1 && arguments_[0] === "--list-scopes") {
+    return {
+      scope: "quick",
+      cold: false,
+      diagnosticLog: false,
+      tags: [],
+      listScopes: true
+    };
+  }
+  const state: GateInvocationParserState = {
+    scope: undefined,
+    selectionScopes: [],
+    baselineRef: undefined,
+    cold: false,
+    diagnosticLog: false,
+    tags: []
+  };
+  for (let index = 0; index < arguments_.length; index += 1) {
+    const consumed = applyGateArgument(
+      state,
+      arguments_[index],
+      arguments_[index + 1]
+    );
+    if (consumed === null) {
+      return null;
+    }
+    index += consumed;
+  }
+  return finalizeGateInvocation(state);
 }

@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { gateCheckIds, releaseRequiredCheckIds } from "./definition.ts";
+import type { GateSelectedOutcome } from "./selection.ts";
+import { releaseRequiredCheckIds } from "./definition.ts";
 import {
   publicGateDiagnostic,
   type GateInputClosureDiagnostic
@@ -9,11 +10,9 @@ import type {
   GateActivationPlan,
   GateReceiptPublication
 } from "./impact-activation.ts";
-import {
-  isQuickGateCheck,
-  quickGateCheckIds,
-  type GateScope
-} from "./profiles.ts";
+import type { GateScope } from "./profiles.ts";
+
+type GateActivationScope = Exclude<GateScope, "quick" | "selected">;
 
 type GateIncrementalSummary = Readonly<{
   counts: GateActivationCounts;
@@ -22,36 +21,41 @@ type GateIncrementalSummary = Readonly<{
   fallbackDetail: string | null;
   unclosedInputs: GateInputClosureDiagnostic | null;
   mode: GateActivationPlan["kind"];
-  publication:
-    | GateReceiptPublication
-    | Readonly<{ published: false; reason: "quick-scope" }>;
-  completeChangePlan?: GateActivationPlan["decisions"];
+  publication: GateReceiptPublication;
 }>;
 
 type GateActivationCounts = Readonly<{
   execute: number;
-  disabled?: number;
   fallback: number;
   firstRun: number;
   reuse: number;
 }>;
 
+export function describeSelectedGateOutcome(
+  outcome: GateSelectedOutcome | null
+): string {
+  if (outcome === null)
+    return "Vibe Check selected scope: native selection facts unavailable; no repository-wide success is proved.";
+  return (
+    `Vibe Check selected scope execution: ${outcome.executedCheckIds.join(", ") || "none"}. ` +
+    `Additional success prerequisites: ${outcome.dependencyCheckIds.join(", ") || "none"}. ` +
+    "This run covers only selected checks and prerequisites; success is not a repository-wide validation claim."
+  );
+}
+
 function scopeActivationDecisions(
   plan: GateActivationPlan,
-  scope?: GateScope
+  scope: GateActivationScope
 ): GateActivationPlan["decisions"] {
-  return plan.decisions.filter(({ checkId }) =>
-    scope === "quick"
-      ? isQuickGateCheck(checkId)
-      : scope === "full"
-        ? releaseRequiredCheckIds.some((id) => id === checkId)
-        : true
+  return plan.decisions.filter(
+    ({ checkId }) =>
+      scope !== "full" || releaseRequiredCheckIds.some((id) => id === checkId)
   );
 }
 
 function activationCounts(
   plan: GateActivationPlan,
-  scope?: GateScope
+  scope: GateActivationScope
 ): GateActivationCounts {
   const decisions = scopeActivationDecisions(plan, scope);
   const execute = decisions.filter(({ action }) => action === "execute").length;
@@ -65,27 +69,17 @@ function activationCounts(
     )
   ).length;
   return {
-    execute:
-      execute +
-      (scope === "quick"
-        ? quickGateCheckIds.filter(
-            (checkId) =>
-              !decisions.some((decision) => decision.checkId === checkId)
-          ).length
-        : 0),
+    execute,
     fallback,
     firstRun,
-    reuse,
-    ...(scope === "quick"
-      ? { disabled: gateCheckIds().length - quickGateCheckIds.length }
-      : {})
+    reuse
   };
 }
 
 export function describeActivationPlan(
   plan: GateActivationPlan,
   unclosedInputs: GateInputClosureDiagnostic | null,
-  scope: GateScope
+  scope: GateActivationScope
 ): string {
   const counts = activationCounts(plan, scope);
   const summary = `Vibe Check ${scope} input plan: ${plan.kind}; execute ${counts.execute}, reuse ${counts.reuse}, fallback ${counts.fallback}, first-run ${counts.firstRun}.`;
@@ -118,7 +112,7 @@ async function writeIncrementalSummary(
 
 type GateActivationOutputOptions = Readonly<{
   plan: GateActivationPlan;
-  scope: GateScope;
+  scope: GateActivationScope;
   invocationDirectory: string;
   unclosedInputs: GateInputClosureDiagnostic | null;
   publication: GateIncrementalSummary["publication"];
@@ -142,7 +136,6 @@ export async function reportGateActivationOutcome(
       counts: activationCounts(plan, scope),
       activeToolIds: plan.activeToolIds,
       decisions: scopeActivationDecisions(plan, scope),
-      ...(scope === "quick" ? { completeChangePlan: plan.decisions } : {}),
       fallbackDetail:
         plan.kind === "fallback"
           ? publicGateDiagnostic(plan.fallbackDetail)

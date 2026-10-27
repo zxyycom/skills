@@ -25,7 +25,7 @@ const incrementalSummarySchema = v.looseObject({
   counts: v.record(v.string(), v.unknown())
 });
 
-test("CLI enforces only quick budgets including input preparation and late report overhead", async () => {
+test("CLI enforces only quick budgets including entry and late report overhead", async () => {
   await withTemporaryDirectory("gate-cli-performance-", async (directory) => {
     for (const mode of [
       "quick",
@@ -35,8 +35,8 @@ test("CLI enforces only quick budgets including input preparation and late repor
       "release",
       "ci"
     ] as const) {
-      let currentTime = 0;
       let clockReads = 0;
+      const clockSamples = mode === "late" ? [0, 29_999, 30_000] : [0, 30_000];
       const invocationDirectory = path.join(directory, mode);
       const exit = await runVibeCheck(
         mode === "release"
@@ -46,10 +46,8 @@ test("CLI enforces only quick budgets including input preparation and late repor
             : [],
         {
           continuousIntegration: mode === "ci",
-          nowMilliseconds: () => {
-            clockReads += 1;
-            return mode === "late" && clockReads >= 3 ? 30_000 : currentTime;
-          },
+          nowMilliseconds: () =>
+            clockSamples[Math.min(clockReads++, clockSamples.length - 1)]!,
           createInvocationDirectory: () => invocationDirectory,
           createDefinition(invocation, _plan, dependencies) {
             assert.equal(
@@ -61,7 +59,6 @@ test("CLI enforces only quick budgets including input preparation and late repor
             return passedDefinition();
           },
           prepareActivation: async () => {
-            currentTime = mode === "late" ? 29_999 : 30_000;
             return {
               kind: "incremental",
               snapshot: fixtureGateWorkspaceSnapshot(),

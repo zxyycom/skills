@@ -6,7 +6,7 @@
 
 1. [环境自举](tooling-environment.md)及[稳定维护命令](tooling-commands.md)：pnpm 安装依赖，Bun 调度仓库脚本，Node.js 运行分发入口和 Gate，tsgo 承担类型检查；环境 setup 具有安装和本地配置副作用。
 2. [源码生成与分发](tooling-distribution.md)：`tools/` 拥有分发源码，`scripts/` 组织仓库自动化；显式同步生成包内产物，版本管理的 pending 快照定义 hash 与 zip 的输入。
-3. [Gate 执行](gate-execution.md)及[测试与测试证据维护](test-maintenance.md)：quick 仅提供反馈，changed/full 完成适用验收，release 在普通检查后以同一快照授权版本并打包；[验证模型](validation-model.md)定义证明责任，[Gate 政策](gate-policy.md)定义精确运行政策。
+3. [Gate 执行](gate-execution.md)及[测试与测试证据维护](test-maintenance.md)：日常以 quick 基线和显式能力范围验证当前任务，changed/all 提供自动兜底，full/CI 全量检查；release 在普通检查后以同一快照授权版本并打包。[验证模型](validation-model.md)定义证明责任，[Gate 政策](gate-policy.md)定义精确运行政策。
 4. [交付操作](tooling-delivery.md)：worktree hook、本地与远端验收、CI、聚合发布及恢复有各自授权和证明边界。日常本地验收不证明远端保护或发布已生效。
 
 实现质量由[编码规范](coding-style.md)承接；单个工具的行为和内部契约由相邻源码目录与对应 skill 承接。[仓库导航](navigation.md)提供按任务的入口和内容 owner。

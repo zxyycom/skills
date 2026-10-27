@@ -19,8 +19,9 @@
 | `bun run publish:skills -- <rolling\|snapshot>` | 供发布 workflow 校验 `dist/` 制品并执行滚动发布或不可变快照事务；需要 GitHub Actions 提供的 `GH_TOKEN`、`GITHUB_SHA` 和 `PACKAGE_HASH` |
 | `bun run setup-hooks` | 配置当前 worktree 的 `core.hooksPath`，并在 POSIX 文件系统恢复 hook 可执行权限 |
 | `bun run setup-repository` | 配置当前 worktree hook，并确认当前项目的主 worktree 可作为默认 task-graph root |
-| `bun run check [--diagnostic-log]` | 默认 quick：只承担 [Catalog 与选择](gate-execution.md#catalog-与选择)列出的十项必要 eligible 范围，强制快速性能预算；消费既有精确 receipt，不发布或清除 receipt。用于日常反馈，不代替完成验收。 |
-| `bun run check:changed`（或 `bun run all`） | changed：对完整 base 范围执行变更相关验收，沿用精确 receipt、共享工具 flag、成功前置和成功发布事务；完成维护工作前使用。 |
+| `bun run check [--diagnostic-log]` | 默认 quick：执行 [Catalog 与选择](gate-execution.md#catalog-与选择)列出的十项快速基线，强制快速性能预算；不采集全局指纹或读写 receipt。 |
+| `bun run check -- --scope <capability> [--scope <capability> ...]` | 快速基线加显式能力订阅及必要依赖，重复范围去重；用 `bun run check -- --list-scopes` 查询实际能力名。按当前任务影响选择，不随其他工作区改动扩张。 |
+| `bun run check:changed`（或 `bun run all`） | changed：自动判断完整 base 范围的变更相关验收，使用精确 receipt 与成功发布事务；用于影响范围不明或需要工作区整体兜底时。 |
 | `bun run check --scope full` | 实际执行全部 66 项 base，不复用或发布 receipt；CI 的任意 base scope 均提升到 full。 |
 | `bun run check --tag release [--baseline-ref <ref>] [--cold] [--diagnostic-log]` | 运行完整 69 项 release Gate，不采集、读取或发布项目 receipt；环境前置通过后实际执行普通检查，再完成版本授权与打包。省略基线时使用 `HEAD`，CI 使用事件基线；`--cold` 明确表达全执行意图。 |
 

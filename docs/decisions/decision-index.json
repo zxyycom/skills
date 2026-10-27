@@ -100,7 +100,7 @@
       "260912-isolate-release-version-control-resource-boundary": "sha256:d0b1c3ab246caf6c5e955a1be034596feb1111ff3772a2a95c4f4d223b883c6d",
       "260912-separate-relation-summary-consumption-by-reading-task": "sha256:2093bfefc99214415a4837aa63e194facca4dd82562ca523181abd6d8f7b33d6",
       "260912-support-per-successor-complete-relation-replacements": "sha256:9f9070118c7255359e629a86ce2b305ff13f19d120207182a50b18147ea59811",
-      "260919-require-gate-environment-check-prerequisite": "sha256:caafe023f09c9c09798962b13c24bdf9c99f0e8fa809e74e5be45c70e22a50b4",
+      "260919-require-gate-environment-check-prerequisite": "sha256:81fe963133b35ef8885e481e6b2615c9ff86a124ed04c92af1d7d967d2d43197",
       "260920-finalize-change-plans-by-deletion": "sha256:10cf6690d9ae70af12a38dc54996b809086e14a58c7311812c93d0715c87ba7e",
       "260922-front-load-record-context-recovery": "sha256:457ea886d899da2a9d80e4118b33afc814f5ce3951b0f64f168a96d2ec244785",
       "260922-unify-cli-workspace-location-and-help": "sha256:5a823ce3607c76af0f0bb9b735fba8e04d2a517e245c9e8e69dcf67f4a498a01",
@@ -133,16 +133,16 @@
       "261017-complete-change-plans-through-task-declarations": "sha256:de38af27e41917cae426abb4903d4b20492b7c84f0b5b6643753b714b309f2bb",
       "261017-lightweight-judgment-faithful-protocol-adapters": "sha256:bb4a453ec6fb6159f865a3b5b3307e5ff5b0585a3aa9481a78919fd79ebc40b3",
       "261017-route-record-documentation-by-consumer-task": "sha256:45930827a933def1ad4df38f87547f0418e595912280f7ae9e03f3e3d7d0884a",
-      "261020-distinguish-tool-change-flags-from-check-subscriptions": "sha256:363f90cc826c7fc64862aab4ee9c82febde91863eb6bd75a11d789db02ee10b8",
+      "261020-distinguish-tool-change-flags-from-check-subscriptions": "sha256:18ed9b4c8fea3fc553e1b11ae1a2914d63f92705163cae088a7a946a93fba069",
       "261020-distribute-editable-typescript-runtimes": "sha256:75ad71558cc22324b6d1a395a5da53cd1c32a791e5e0284c3b61d0051f09342a",
       "261020-native-gate-execution-and-project-receipts": "sha256:772251971e6bffa6678b1dedc8068cb2faed11f3e9c52d73676e4d7f7e17436d",
       "261020-retain-release-version-control-isolation": "sha256:3187831faf378e199547da7d80794b5918a132652d5ee6fdcc65d71c96003e83",
-      "261020-unify-gate-generated-artifact-prerequisite": "sha256:dadfc27ecd56b60a6042e853c9992988079247cb4be5e81481439b8520d6a682",
+      "261020-unify-gate-generated-artifact-prerequisite": "sha256:8f5fd71c1e4ae67d94aa80d0d71102f5b7e7f61e4f6307b32d43179f4e5840d7",
       "261021-allow-markdown-lint-receipts": "sha256:cdfc74f1d08ac5007a57ff3df2d32daeb3e8fc89022b9d57c34c3dedd973dca5",
       "261022-refresh-selected-records-in-pending": "sha256:27d396dd4c2eabb60077f1c3d8a77a372d45c5ed251da13897ecbd9b0645571b",
       "261022-scope-investigation-index-payload-validation": "sha256:7ae97d432be75b020bfa96b6cb8dfba88fda65acdd0ac820118458ddf75bdd8c",
       "261022-scope-record-index-payload-validation": "sha256:15a8b3bfb68b1506decaf895dea6b8a9c9604b63f55e31fe7c3d1fe83b4de664",
-      "261022-separate-quick-gate-from-complete-validation": "sha256:38418e687ffc5adb5244d3f32cde7c41e304786bad7118b6e3f55fae8e8c2c78",
+      "261022-separate-quick-gate-from-complete-validation": "sha256:870daa955a75a674c0b43e766708e7072be194527249b977f1175374b35bc13d",
       "261022-separate-record-local-operations-from-collection-audits": "sha256:5b78b1072903759b5e1160e3c4fc7f59b12984704568b47a18fdde794e6ff952",
       "261024-bound-record-operations-to-published-facts": "sha256:0b2816d33c81b7e861d69e2b2c0507037b22e0655012bac50c3d186fc220b9f4",
       "261024-bound-selected-record-sync-currentness": "sha256:a596c6c1a8820189c71cddf0fb539c49a8d319997bfd33366e0df5712c1fa13f",
@@ -160,6 +160,7 @@
       "261026-stage-and-refresh-explicit-record-selections": "sha256:5233a04b8e68840c465edf731625ba71a8a0f408c54ef979c31bd2b7ecf49345",
       "261027-accept-available-bun-without-version-gate": "sha256:eb4da115c8c497cf423d354aa10de09e76e19c61029d4232d8fa05037e9065fd",
       "261027-layer-maintenance-docs-by-abstraction": "sha256:a2a2b44693c9130623c694a3f130dcdb7e3ad215ea43a0b052f2ca9c5fc2618a",
+      "261027-prefer-explicit-local-gate-scopes": "sha256:83e1bb06bfc3dea05e861a52867893e9a39cf9c4aa21f79e4f00ad47e7f76688",
       "261027-remove-openspec-skills": "sha256:a9e822ad13475b138a4639f19e7a57db6a7a7b38fca77d84d53d3295d15fee25",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
@@ -3189,9 +3190,9 @@
     },
     "261020-unify-gate-generated-artifact-prerequisite": {
       "name": "unify-gate-generated-artifact-prerequisite",
-      "sourcePath": "unify-gate-generated-artifact-prerequisite.md",
+      "sourcePath": "archive/unify-gate-generated-artifact-prerequisite.md",
       "title": "以统一生成结果作为 Gate 分发消费前置",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-10-20T07:38:35Z",
       "purpose": "让所有分发消费者只在唯一完整生成检查通过后运行，并保留领域定位能力。",
@@ -3308,9 +3309,9 @@
     },
     "261022-separate-quick-gate-from-complete-validation": {
       "name": "separate-quick-gate-from-complete-validation",
-      "sourcePath": "separate-quick-gate-from-complete-validation.md",
+      "sourcePath": "archive/separate-quick-gate-from-complete-validation.md",
       "title": "分离快速 Gate 与完整验收并约束性能预算",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-10-22T09:57:42Z",
       "purpose": "让日常反馈快速可控，同时保留完整变更验收、可信证明与发布授权。",
@@ -3707,6 +3708,35 @@
         "responsibility-boundaries"
       ],
       "relations": []
+    },
+    "261027-prefer-explicit-local-gate-scopes": {
+      "name": "prefer-explicit-local-gate-scopes",
+      "sourcePath": "261027-prefer-explicit-local-gate-scopes.md",
+      "title": "以快速基线和显式范围完成日常验证",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-27T09:10:40Z",
+      "purpose": "让本地验证按任务责任选择，避免其他工作区改动扩大执行，同时保留完整验收与发布兜底。",
+      "background": "强制 changed 验收、全域输入采集及统一生成阻断使局部任务承担无关验证成本。",
+      "decision": "默认 quick，显式能力 scope 追加检查与必要前置；自动 changed 和全量发布作为独立兜底。",
+      "tags": [
+        "project-tooling",
+        "responsibility-boundaries",
+        "validation-boundaries",
+        "vibe-gate"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "261022-separate-quick-gate-from-complete-validation",
+          "summary": "以任务显式范围替代每次维护必须完整changed"
+        },
+        {
+          "type": "修订",
+          "target": "261020-unify-gate-generated-artifact-prerequisite",
+          "summary": "显式模式限定生成consumer的真实skill闭包"
+        }
+      ]
     },
     "261027-remove-openspec-skills": {
       "name": "remove-openspec-skills",

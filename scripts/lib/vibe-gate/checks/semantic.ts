@@ -15,6 +15,7 @@ export type SemanticGateCheck = Readonly<{
   toolIds: GateToolSubscription;
   command: GateCommand;
   dependsOn?: readonly GatePackageScriptCheckId[];
+  generationSkillNames?: readonly string[];
   displayName: string;
   requiredTag?: GateTag;
 }>;
@@ -45,6 +46,7 @@ export const semanticGateChecks = [
     checkId: "test:video-understanding:public-distribution",
     toolIds: ["video-understanding"],
     dependsOn: ["script:check:skill-updaters"],
+    generationSkillNames: ["video-understanding"],
     displayName: "Video Understanding public distribution",
     requiredTag: undefined,
     command: bunTest(
@@ -55,6 +57,7 @@ export const semanticGateChecks = [
     checkId: "test:novel-cards:card-and-query-contract",
     toolIds: ["novel-cards"],
     dependsOn: ["script:check:skill-updaters"],
+    generationSkillNames: ["novel-cards"],
     displayName: "Novel Cards runtime, history and transactions",
     requiredTag: undefined,
     command: bunTest(
@@ -64,6 +67,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:lightweight-judgment:request-and-response",
     dependsOn: ["script:check:skill-updaters"],
+    generationSkillNames: ["lightweight-judgment"],
     toolIds: ["lightweight-judgment"],
     displayName:
       "Lightweight Judgment requests, responses, logs and migrations",
@@ -76,6 +80,7 @@ export const semanticGateChecks = [
     checkId: "test:lightweight-judgment:public-distribution",
     toolIds: ["lightweight-judgment"],
     dependsOn: ["script:check:skill-updaters"],
+    generationSkillNames: ["lightweight-judgment"],
     displayName: "Lightweight Judgment standalone distribution",
     requiredTag: undefined,
     command: bunTest(
@@ -102,6 +107,7 @@ export const semanticGateChecks = [
     checkId: "test:change-plan:public-distribution",
     toolIds: ["change-plan"],
     dependsOn: ["script:check:skill-updaters"],
+    generationSkillNames: ["change-plan"],
     displayName: "Change Plan public distribution",
     requiredTag: undefined,
     command: bunTest("./tools/change-plan/tests/checks/public-distribution.ts")
@@ -114,6 +120,7 @@ export const semanticGateChecks = [
       "record-reader-distribution"
     ],
     dependsOn: ["script:check:skill-updaters"],
+    generationSkillNames: ["decision-records", "investigation-report"],
     displayName: "Record Operations shared transactions and readers",
     requiredTag: undefined,
     command: bunTest(
@@ -220,6 +227,7 @@ export const semanticGateChecks = [
       "relation-graph"
     ],
     dependsOn: ["script:check:skill-updaters"],
+    generationSkillNames: ["decision-records"],
     displayName: "Decision Records public distribution",
     requiredTag: undefined,
     command: bunTest(
@@ -240,6 +248,7 @@ export const semanticGateChecks = [
       "relation-graph"
     ],
     dependsOn: ["script:check:skill-updaters"],
+    generationSkillNames: ["investigation-report"],
     displayName: "Investigation Report collection and resources",
     requiredTag: undefined,
     command: bunTest(
@@ -299,6 +308,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:investigation-report:cli-contract",
     dependsOn: ["script:check:skill-updaters"],
+    generationSkillNames: ["investigation-report"],
     toolIds: [
       "investigation-cli-tests",
       "investigation-record",
@@ -366,6 +376,7 @@ export const semanticGateChecks = [
     checkId: "test:task-graph:public-distribution",
     toolIds: ["task-graph"],
     dependsOn: ["script:check:skill-updaters"],
+    generationSkillNames: ["task-graph"],
     displayName: "Task Graph public distribution",
     requiredTag: undefined,
     command: bunTest("./tools/task-graph/tests/checks/public-distribution.ts")
@@ -387,6 +398,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:test-evidence:public-boundary",
     dependsOn: ["script:check:skill-updaters"],
+    generationSkillNames: ["test-evidence-review"],
     toolIds: ["test-evidence"],
     displayName: "Test Evidence public API and CLI boundary",
     requiredTag: undefined,
@@ -423,7 +435,10 @@ export const semanticGateChecks = [
         `./tools/mcpshell-workspace-bridge/tests/${name === "public-distribution" ? "generated" : name}.test.ts`
       ),
       ...(name === "public-distribution"
-        ? { dependsOn: ["script:check:skill-updaters"] as const }
+        ? {
+            dependsOn: ["script:check:skill-updaters"] as const,
+            generationSkillNames: ["mcpshell-workspace-tools"] as const
+          }
         : {})
     })
   )

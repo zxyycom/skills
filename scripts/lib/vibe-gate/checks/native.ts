@@ -124,12 +124,18 @@ export function createVibeNativeChecks(
   workspaceRoot: string = rootDir,
   configuration: GateCheckConfiguration = {}
 ): readonly Check[] {
+  const codeActivation =
+    configuration.scope === "selected"
+      ? projectActivationCondition(["repository-code"], configuration)
+      : undefined;
   return [
     duplicateDetection({
       ...gateCheckDeclaration(
         "duplicate-detection",
         configuration,
-        repositoryScanClaim
+        repositoryScanClaim,
+        [],
+        codeActivation
       ),
       cache: {
         enabled: true,
@@ -237,7 +243,9 @@ export function createVibeNativeChecks(
       ...gateCheckDeclaration(
         "file-metrics",
         configuration,
-        repositoryProcessClaims
+        repositoryProcessClaims,
+        [],
+        codeActivation
       ),
       codeAreas: {
         maintained: {
@@ -252,7 +260,9 @@ export function createVibeNativeChecks(
       ...gateCheckDeclaration(
         "function-metrics",
         configuration,
-        repositoryScanClaim
+        repositoryScanClaim,
+        [],
+        codeActivation
       ),
       codeAreas: {
         product: {

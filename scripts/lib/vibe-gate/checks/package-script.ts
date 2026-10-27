@@ -102,6 +102,14 @@ export const packageScriptDependencies: Readonly<
   "test:skill-validator": ["script:check:skill-updaters"]
 };
 
+// Keep the generated packages next to the consumers that import them.
+export const packageScriptGenerationSkillNames: Readonly<
+  Partial<Record<GatePackageScript, readonly string[]>>
+> = {
+  "test:skill-updater": ["ai-ready-docs"],
+  "test:skill-validator": ["skill-maintainer"]
+};
+
 export function packageScriptCheckId(
   script: GatePackageScript
 ): GatePackageScriptCheckId {
@@ -113,13 +121,19 @@ export function createPackageScriptCheck(
   configuration: GateCheckConfiguration = {}
 ) {
   const checkId = packageScriptCheckId(script);
+  const generationSkillNames =
+    script === "check:skill-updaters" && configuration.scope === "selected"
+      ? configuration.generationSkillNames
+      : undefined;
   return commandCheck({
     checkId,
     displayName:
       script === "test:environment"
         ? "Repository bootstrap and maintenance wiring"
         : script === "check:skill-updaters"
-          ? "All skill runtime generation consistency"
+          ? generationSkillNames === undefined
+            ? "All skill runtime generation consistency"
+            : "Selected skill runtime generation consistency"
           : `Script: ${script}`,
     ...gateCheckDeclaration(
       checkId,
@@ -133,6 +147,10 @@ export function createPackageScriptCheck(
     ),
     ...gateCommandPolicy,
     executable: "bun",
-    arguments: ["run", script]
+    arguments: [
+      "run",
+      script,
+      ...(generationSkillNames?.flatMap((name) => ["--skill", name]) ?? [])
+    ]
   });
 }

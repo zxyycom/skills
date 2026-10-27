@@ -109,3 +109,35 @@ export async function runInProject(
     projectRoot
   });
 }
+
+// The product under test is the real catalog's activation/dependency wiring.
+// Replace only execution so this test cannot recursively invoke test:check.
+export function observeGateActivation(
+  definition: ProjectDefinition,
+  executed: string[],
+  failedCheckId?: string
+): ProjectDefinition {
+  return defineConfig({
+    checks: definition.checks.map((check) =>
+      defineCheck({
+        checkId: check.checkId,
+        displayName: check.displayName,
+        options: check.options ?? {},
+        ...(check.dependsOn === undefined
+          ? {}
+          : { dependsOn: check.dependsOn }),
+        ...(check.enabledByFlags === undefined
+          ? {}
+          : { enabledByFlags: check.enabledByFlags }),
+        execute() {
+          executed.push(check.checkId);
+          return {
+            status: check.checkId === failedCheckId ? "failed" : "passed",
+            data: {}
+          };
+        }
+      })
+    ),
+    outputs: noOutput
+  });
+}

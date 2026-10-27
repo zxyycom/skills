@@ -4,7 +4,7 @@
 
 ## 工具 CLI 与 Git fixture 测试边界
 
-`test:<tool>` 是工具行为与分发边界的稳定重跑入口；需要完整变更验收时使用 `bun run check:changed`，需要 release 范围时使用 `bun run check --tag release`，不在维护说明中以测试文件路径替代这些 package scripts。
+`test:<tool>` 是工具行为与分发边界的稳定重跑入口；日常验证使用 quick 加本任务相关能力 scope，影响不明或需要全工作区变更验收时才用 `bun run check:changed`，release 使用 `bun run check --tag release`。精确原生测试节点用于定向验证与诊断，不替代这些稳定聚合入口的责任说明。
 
 按待证明契约选择最小充分边界：规则矩阵使用领域/API，来源读取、文件系统身份、Git 历史/index/worktree 和恢复使用必要真实状态，命令接线使用 CLI，分发消费使用生成物。每个上层测试应说明降层后会丢失的不可替代观察；边界数量与执行成本分别报告，不以标签或数量代替证明。fixture-only、Git 与 CLI 支持按职责分离，顶层 import 也是实际输入；收窄 Gate 订阅前须核对完整加载闭包。
 

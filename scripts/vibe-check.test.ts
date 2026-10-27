@@ -16,5 +16,8 @@ import "./vibe-check-proof-mode.test.ts";
 import "./vibe-check-release.test.ts";
 
 import "./vibe-check-profiles.test.ts";
+import "./vibe-check-scope-arguments.test.ts";
+import "./vibe-check-scope-selection.test.ts";
+import "./vibe-check-runtime-selection.test.ts";
 import "./vibe-check-cli-performance.test.ts";
 import "./lib/vibe-gate/performance.test.ts";

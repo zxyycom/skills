@@ -64,7 +64,9 @@ pnpm --dir "<skill-directory>" install \
   --config.node-linker=isolated
 ```
 
-同步检查只核对 manifest 与锁文件中的直接依赖声明一致；完整依赖解析可用性由独立 frozen 安装证明。`sync:skill-updaters` 与 `check:skill-updaters` 覆盖全部 skill 的联合运行时，包括同时带领域工具的 skill。
+同步检查只核对 manifest 与锁文件中的直接依赖声明一致；完整依赖解析可用性由独立 frozen 安装证明。`sync:skill-updaters` 与无参数 `check:skill-updaters` 覆盖全部 skill 的联合运行时，包括同时带领域工具的 skill。
+
+只读检查支持 `bun run check:skill-updaters -- --skill <name> [--skill <name> ...]`，按所选 skill 的真实领域、updater 与共享模块闭包重建全部受管内容。选择在加载生成器前完整校验；未知或空名称失败。`--skill` 不用于同步写入。Gate 显式范围如何选择此闭包见[生成前置与发布快照](gate-execution.md#生成前置与发布快照)。
 
 ### 打包输入
 
