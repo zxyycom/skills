@@ -1,7 +1,7 @@
 ---
 title: 将 OpenSpec 四阶段组成聚合分发单元
 id: distribute-openspec-as-an-aggregate-unit
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-11T04:03:15Z
 purpose: 让四个阶段以一个聚合分发契约协同交付，同时保持成员制品、版本、更新与选择安装独立。

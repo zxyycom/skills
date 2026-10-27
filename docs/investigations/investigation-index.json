@@ -1677,7 +1677,7 @@
   "schemaVersion": 4,
   "sourceRevision": {
     "entries": {
-      "260903-explore-name-collisions-in-retained-artifacts": "sha256:b5279794cc21d3ddc7b1f6485caa9d79561d03167d82a624d9b969dcff6d4f7b",
+      "260903-explore-name-collisions-in-retained-artifacts": "sha256:917cde39059f74edf802b1020cd37e223ad0e39309bb77bae32cfedae656f971",
       "260907-investigate-vibe-check-test-evidence": "sha256:ceb08a215fca02e71e3197ff8bac3f1b3cb2ecff83e88cece860bba39f4867bb",
       "260908-recall-historical-decision-alignment": "sha256:5b5baaff297122336c96e05a2cfb2c1ab97099a062cb373ef8ea3aa489cf1b4e",
       "260911-bound-bun-optional-peer-resolution": "sha256:25bb80ae52bcbca6b21c4ec640c3dcee96ec88038e59c9b61ca9a556d581c526",
@@ -1735,7 +1735,7 @@
       "evaluate-mcpshell-as-user-scoped-workspace-bridge": "sha256:1117a288375c051f938c6115783f0e084fd01e819fb332197fd9cec606a5794a",
       "ground-positive-negative-asymmetry-in-reference-structure": "sha256:23bdef79371bc4a9c883e32abba5255f1409bad4dba630d28c4da57d59be194d",
       "identify-operation-time-skill-rerouting-gap": "sha256:21f570c4ef34d834621fb23c34f78d30818898bf0fa722700ede500fb7f96829",
-      "identify-routing-and-coordination-gaps-in-context-management": "sha256:6b953106a0ffadb738b662b90244c5f68d811b736203dd6b7872ebd63264d36b",
+      "identify-routing-and-coordination-gaps-in-context-management": "sha256:38f3c87eb94537e089cbc401c6a61179bf5d4da042a3b1c7b75d016423f03e53",
       "identify-vibe-001-jscpd-path-and-lizard-version-gaps": "sha256:5ab2c102f8afec6e68ff5499f8718fbd575480bce9f36b41242bf3051297d086",
       "model-goals-as-layered-partially-expressible-intentions": "sha256:c64d32dfe7fd1ed38314254be75af7712aa276bb337e5dad2a5eeef60f538c03",
       "preserve-redacted-conversations-in-two-derived-forms": "sha256:2f496ad741ff081a5919760c0f918b815e1bcde4df520289072c81b15ae0610c",

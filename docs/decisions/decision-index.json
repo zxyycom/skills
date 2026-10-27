@@ -159,6 +159,7 @@
       "261026-search-published-scope-with-current-text": "sha256:42a4e201f62000ff45552224697ee195407576335e42d1c873fbdeb8b21af954",
       "261026-stage-and-refresh-explicit-record-selections": "sha256:5233a04b8e68840c465edf731625ba71a8a0f408c54ef979c31bd2b7ecf49345",
       "261027-accept-available-bun-without-version-gate": "sha256:eb4da115c8c497cf423d354aa10de09e76e19c61029d4232d8fa05037e9065fd",
+      "261027-remove-openspec-skills": "sha256:a9e822ad13475b138a4639f19e7a57db6a7a7b38fca77d84d53d3295d15fee25",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -200,7 +201,7 @@
       "declare-generated-artifact-prerequisites-for-vibe-consumers": "sha256:30e8a75f880b94db79de0adaa5f126e1b9c3f191a453e89c1af1d131ed519b10",
       "default-checks-to-warnings": "sha256:10031f9892fbfd52a5d85997690c2c1e8a66429abe5b1974f91b46205526c00b",
       "default-to-current-task-changes": "sha256:0e216c611c56a648e33b1db7c448a33c54b8cd7f34dc0d5be8204528ec02e33f",
-      "defer-openspec-maintenance-during-removal-review": "sha256:1ede5e595a5a5ebe546c28d1ac29d6a20e399d58039e593e9b87c5b3f0371b12",
+      "defer-openspec-maintenance-during-removal-review": "sha256:7da668259d0f60cfd8dc4a81b9fb893ae76d860ac2329e57b7d15ec3edb92573",
       "defer-standard-test-result-blocking": "sha256:7a4a6d1cd686117d378d95d0920295b62ea3b92337d14c6ae0255d3d06a34280",
       "defer-terminal-correction-until-confirmed-recovery-need": "sha256:29d2b4991e92cabc4ba236f49fcf34c2695caf0f1b014635da08f304aaf52a2c",
       "define-decision-alignment-semantics": "sha256:0f80dfe50628ed41a91cc2ecfb687d4af623fefaf6d4e737ac56cb400c8b95c9",
@@ -217,7 +218,7 @@
       "discard-complete-unreferenced-investigation-reports": "sha256:6a3e7443aeed329230e883b6e3c093b78f570c2b30b4d22f2673406e8dc5b795",
       "discover-skill-behavior-before-lifecycle-implementation": "sha256:0b99aeee36843ae7efef9fe5aefadb5f822bcda590e56a219ed953ac3eba0e4f",
       "distinguish-skill-and-distribution-unit-boundaries": "sha256:75307e3fe0ba006b1c7086acd21217b0e09bb1bfcdc37ae2da8e84b6a7f38db5",
-      "distribute-openspec-as-an-aggregate-unit": "sha256:4487088ffa447245d27dd3e80c07acda715dacd95e28d794fae71520034355a4",
+      "distribute-openspec-as-an-aggregate-unit": "sha256:81d031c0c3da6c815fb732555a4055f83805ffaf7d6668866fa2daf52cadb9dc",
       "distribute-openspec-skills-independently": "sha256:ea79501a8a6a5a6ae5cd5b75d6770c18e61c27b2e83f2776b44d9439a0f62615",
       "enforce-one-oxlint-quality-baseline": "sha256:51a547891e781e31e4d9ffa2de7613d0ce02a420aee0e99bb008fadaf884565b",
       "establish-decisions-with-atomic-evolution": "sha256:ffa369890a36f9060c604f6b1ea68bbe78f211349e6d71f65066f0bb8f3e03bd",
@@ -231,7 +232,7 @@
       "express-decision-alignment-state": "sha256:4bdefc92f185b05d51e80a8a6ce08d961075eedab485b14572d46eb9fdba21d9",
       "fix-test-evidence-workspace-contract": "sha256:add0a0443d7ee01d81e0238eec879ebe4fa69f61a1b8af7b70fcabff25a8edea",
       "form-proposal-and-initial-design-in-draft": "sha256:b335593195f691badf808dea33aee6ca4b8c56a0f29884d0d76508fd386db824",
-      "gate-change-implementation-by-review": "sha256:18b4630003cf4dd09da217b4b38fa1ef10817cf8f3bca2feafb546f701e423d9",
+      "gate-change-implementation-by-review": "sha256:01a07ecbca862b3a19f84f7a85bcd1702a829a3b343ac5885c4389fe420b24bc",
       "gate-packaging-on-selected-checks": "sha256:623cad196539240323645044e8404d67de3e89e480017f69121ca3ce03a307f2",
       "generate-and-check-import-safe-tool-artifacts": "sha256:10283c1a490f1befe93676928f9746abf8824b532a68792fa4a1c359b2005b45",
       "generate-import-safe-self-contained-tool-artifacts": "sha256:85ae105988a1067c9138711063644b23629ce5fdbaed2f6bd899cd5718eb3558",
@@ -283,7 +284,7 @@
       "package-skills-from-versioned-pending-snapshot": "sha256:83ca86df943447c22b1846113e0c25e9ad1167af3c6a34c227630d49762b3d6f",
       "pass-commit-messages-with-arguments-or-files": "sha256:62d661ec199b4250233003f8c45eb133595d1a2dfeb5bac499627d9be636f327",
       "pass-id-and-metadata-to-projection-strategies": "sha256:43fc58fc276312083a9ca4a5ddab5c094efcfd65b5935c219c8aacb06193a271",
-      "prefer-cli-for-change-state-and-artifact-routing": "sha256:9d268b2f14d39eb969512eb9d31f4fbee69877ea28790eea203dd347281fdc90",
+      "prefer-cli-for-change-state-and-artifact-routing": "sha256:d4f47ed9bb3f79240aefccacb37ca3305e44d6bbe386feaf0fc46d506d9c0b50",
       "prefer-mature-libraries-for-common-automation": "sha256:a71468bdd140448f5e96dcf963d878d945bc1447849a36c718fa6c88e6fca1df",
       "preserve-comparable-investigation-inputs": "sha256:c84eb19b1bb0814818db0e2918860e6fed45b62b3574e99fb15300550c8695df",
       "preserve-pinned-upstream-snapshots-for-traceability": "sha256:7afe3015780894eddd784cf52368af063218ae1a0c8c87153bffa77a957646d8",
@@ -3690,6 +3691,44 @@
         }
       ]
     },
+    "261027-remove-openspec-skills": {
+      "name": "remove-openspec-skills",
+      "sourcePath": "261027-remove-openspec-skills.md",
+      "title": "停止维护和分发 OpenSpec 四阶段 skills",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-27T03:17:58Z",
+      "purpose": "让已确认退出的 OpenSpec 能力离开当前维护与分发集合，并保留其历史可回放性。",
+      "background": "四阶段能力曾共同分发并进入去留观察期；使用者现明确选择整组删除，继续保留入口或活动专属决策会混淆当前范围。",
+      "decision": "删除四个技能包与当前入口，归档专属决策；历史认识、独立 Change Plan 和用户已有安装保持各自边界。",
+      "tags": [
+        "openspec",
+        "project-documentation",
+        "skill-maintainer"
+      ],
+      "relations": [
+        {
+          "type": "替代",
+          "target": "defer-openspec-maintenance-during-removal-review",
+          "summary": "结束去留观察，按明确授权退出仓库维护与分发"
+        },
+        {
+          "type": "替代",
+          "target": "distribute-openspec-as-an-aggregate-unit",
+          "summary": "移除聚合单元及四个成员的当前分发"
+        },
+        {
+          "type": "替代",
+          "target": "gate-change-implementation-by-review",
+          "summary": "退出四阶段能力，停止维护其专属实施门禁"
+        },
+        {
+          "type": "替代",
+          "target": "prefer-cli-for-change-state-and-artifact-routing",
+          "summary": "退出四阶段能力，停止维护其专属CLI路由"
+        }
+      ]
+    },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",
       "sourcePath": "archive/activate-release-gate-checks-by-tag.md",
@@ -4534,9 +4573,9 @@
     },
     "defer-openspec-maintenance-during-removal-review": {
       "name": "defer-openspec-maintenance-during-removal-review",
-      "sourcePath": "defer-openspec-maintenance-during-removal-review.md",
+      "sourcePath": "archive/defer-openspec-maintenance-during-removal-review.md",
       "title": "在删除观察期延期 OpenSpec 维护",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-11T06:09:16Z",
       "purpose": "在 OpenSpec skills 的去留尚未确认时停止继续投入普通改进，同时保留当前使用和最终退出的清楚边界。",
@@ -4887,9 +4926,9 @@
     },
     "distribute-openspec-as-an-aggregate-unit": {
       "name": "distribute-openspec-as-an-aggregate-unit",
-      "sourcePath": "distribute-openspec-as-an-aggregate-unit.md",
+      "sourcePath": "archive/distribute-openspec-as-an-aggregate-unit.md",
       "title": "将 OpenSpec 四阶段组成聚合分发单元",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-11T04:03:15Z",
       "purpose": "让四个阶段以一个聚合分发契约协同交付，同时保持成员制品、版本、更新与选择安装独立。",
@@ -5187,9 +5226,9 @@
     },
     "gate-change-implementation-by-review": {
       "name": "gate-change-implementation-by-review",
-      "sourcePath": "gate-change-implementation-by-review.md",
+      "sourcePath": "archive/gate-change-implementation-by-review.md",
       "title": "将 Change 结构完成与实施许可分离",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-11T03:26:59Z",
       "purpose": "允许未成熟的 OpenSpec Change 先形成结构，同时阻止未审计或仍有关键歧义的方案进入实现。",
@@ -6298,9 +6337,9 @@
     },
     "prefer-cli-for-change-state-and-artifact-routing": {
       "name": "prefer-cli-for-change-state-and-artifact-routing",
-      "sourcePath": "prefer-cli-for-change-state-and-artifact-routing.md",
+      "sourcePath": "archive/prefer-cli-for-change-state-and-artifact-routing.md",
       "title": "优先用 OpenSpec CLI 恢复 Change 状态与材料路径",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-11T03:26:59Z",
       "purpose": "让 OpenSpec skills 从工具事实源恢复状态、schema、依赖和验证结果，并只在信息不足时读取精确材料。",

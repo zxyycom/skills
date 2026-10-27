@@ -66,7 +66,7 @@ relations: []
 1. [`change-plan` 固定契约](../../skills/change-plan/references/change-plan-contract.md)规定 Change 根目录直属成员为 active、`archive/` 直属成员为 archived；归档把目录移动到同名目标，目标已存在时拒绝。Archived Change 没有 stage，不再由 checker 解释，只能由 `list` 和 `show` 发现或读取原始 artifacts。
 2. [`Decision Records` 固定规则](../../skills/decision-records/references/decision-record-rules.md)规定含 `.md` 的 basename 是全集合稳定 Decision ID，active 与 archived 共用统一索引和 ID 空间；关系从新记录指向直接前序，完整图必须无环。重新激活保留原 `createdAt` 和既有关系，不借重新激活修改关系；改 basename 本来就是身份变化，选择性暂存也要求以旧、新 ID 显式表达改名。
 3. [`Investigation Report` 固定契约](../../skills/investigation-report/references/investigation-report-contract.md)规定 basename 是正式集合唯一 Investigation ID，每份报告必须保存带时区的 `formedAt`，所有未 discard 的正式报告留在同一集合，并以从新报告指向前序的无环关系表达补充、复查、修正等认识演进。Investigation 没有 archive lifecycle。
-4. [`OpenSpec Change 归档`](../../skills/openspec-archive-change/SKILL.md)要求归档前检查 delta spec，并默认由 OpenSpec CLI 同步 spec；只有用户明确选择 `--skip-specs` 时才跳过。这证明 OpenSpec 的 archive 不只是目录搬移，而独立 Change Plan 的 archive 没有对应稳定事实同步结果。
+4. [`OpenSpec Change 归档`](https://github.com/zxyycom/skills/blob/e1e5e2e7c5ff74d783821d28adca937dacc41164/skills/openspec-archive-change/SKILL.md)要求归档前检查 delta spec，并默认由 OpenSpec CLI 同步 spec；只有用户明确选择 `--skip-specs` 时才跳过。这证明 OpenSpec 的 archive 不只是目录搬移，而独立 Change Plan 的 archive 没有对应稳定事实同步结果。
 5. [`项目工具链`](../tooling.md)明确排除 `changes/archive/**` 的持续 Markdown 链接校验，并把归档目录描述为 Change Plan 历史参考；这进一步限定了当前归档内容的维护和消费强度。
 
 形成时集合包含 6 个 active Change、34 个 archived Change、325 条已建立 Decision 和 36 份正式 Investigation。对 active 与 archived Change basename 做集合交集，结果为空。通过 Investigation 索引按 `ID`、`名称` 和 `归档` 查询，没有找到直接回答本问题的既有报告，因此本报告使用空前序关系。

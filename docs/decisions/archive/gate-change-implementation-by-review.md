@@ -1,7 +1,7 @@
 ---
 title: 将 Change 结构完成与实施许可分离
 id: gate-change-implementation-by-review
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-11T03:26:59Z
 purpose: 允许未成熟的 OpenSpec Change 先形成结构，同时阻止未审计或仍有关键歧义的方案进入实现。

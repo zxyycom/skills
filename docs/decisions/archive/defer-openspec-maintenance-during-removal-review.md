@@ -1,7 +1,7 @@
 ---
 title: 在删除观察期延期 OpenSpec 维护
 id: defer-openspec-maintenance-during-removal-review
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-11T06:09:16Z
 purpose: 在 OpenSpec skills 的去留尚未确认时停止继续投入普通改进，同时保留当前使用和最终退出的清楚边界。

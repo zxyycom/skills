@@ -54,8 +54,6 @@
 
 [Subagent Orchestration](docs/skills/subagent-orchestration.md) 在用户明确要求委派，或复杂任务适合拆成边界清楚的调查、实现、验证和审查子任务时，指导主 agent 选择最小充分历史、划分互斥写入所有权并审计结果。它让子代理负责有界交付，主 agent 保持目标一致性和下一步判断。实际 skill 位于 [`skills/subagent-orchestration/`](skills/subagent-orchestration/)。
 
-[OpenSpec Skills](docs/skills/openspec-skills.md) 当前保留探索、提案、实施和归档四个入口，但整组能力已经进入去留观察期：现有行为继续可用，普通维护与改进默认延期，观察本身不表示已经删除或授权删除。实际 skill 位于 [`skills/openspec-explore/`](skills/openspec-explore/)、[`skills/openspec-propose/`](skills/openspec-propose/)、[`skills/openspec-apply-change/`](skills/openspec-apply-change/) 和 [`skills/openspec-archive-change/`](skills/openspec-archive-change/)。
-
 [Codex Shell Permissions](docs/skills/codex-shell-permissions.md) 关注 Codex shell 失败后的下一步执行选择。它让 agent 判断应改用简单命令、申请必要提权、确认高风险范围，还是回到真实程序错误处理；当用户主动要求时，再进入 `execpolicy` 和 `allow/prompt/block` 的权限规则维护流程。实际 skill 位于 [`skills/codex-shell-permissions/`](skills/codex-shell-permissions/)。
 
 [MCPShell Workspace Tools](docs/skills/mcpshell-workspace-tools.md) 让保存个人规则和 skills 的 agent 项目，经 MCPShell 操作另一个隔离的固定项目根。它提供 `workspace_shell`、`workspace_apply_patch`、`workspace_put_file` 和 `workspace_get_file`：查看与命令用 shell，文本修改用 patch，文件实体跨边界才用 put/get。skill 随包分发 Node initializer、runtime helper 与 MCPShell definitions；这些 tools 是便捷入口，不排斥已验证指向同一 root 的其他工具。实际 skill 位于 [`skills/mcpshell-workspace-tools/`](skills/mcpshell-workspace-tools/)。
