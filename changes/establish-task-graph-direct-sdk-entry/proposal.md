@@ -4,13 +4,13 @@
 
 ## Why
 
-当前 task-graph 已经由 `TaskGraphService`、engine、projection、Schema 与 staging 模块承接领域行为，CLI dispatch 也直接调用这些能力；分发模块能够无副作用导入，TypeScript 声明由实现机械生成。可是分发 bundle、声明闭包、源码测试和长期决策仍以 `tools/task-graph/src/cli.ts` 作为共同公开入口，并由 CLI 文件反向 `export *` 领域入口。这使“CLI 是适配层”与“CLI 是接口事实源”同时成立，调用关系和维护责任不够单向，也容易让后续实现把 SDK 误作需要独立模型、稳定性或便利方法的第二层。
+当前 task-graph 已经由 `TaskGraphService`、engine、projection、Schema 与 staging 模块承接领域行为，CLI dispatch 也直接调用这些能力；分发模块能够无副作用导入，TypeScript 声明由实现机械生成。可是 TS 分发入口、声明闭包、源码测试和长期决策仍以 `tools/task-graph/src/cli.ts` 作为共同公开入口，并由 CLI 文件反向 `export *` 领域入口。这使“CLI 是适配层”与“CLI 是接口事实源”同时成立，调用关系和维护责任不够单向，也容易让后续实现把 SDK 误作需要独立模型、稳定性或便利方法的第二层。
 
 仓库中其他可导入工具还存在手写声明、分层接口或仅导出 CLI runner 等不同形态。一次重写全部工具会混合多个领域 owner、兼容边界和正在推进的 Change，无法形成小而可验证的实施批次。task-graph 已最接近目标结构，适合作为首个明确实施范围。
 
 ## Outcome
 
-task-graph 形成单向调用面：领域操作与类型由 `tools/task-graph/src/index.ts` 组合，CLI runner 只把进程参数转换为领域输入并把领域结果转换为 JSON 或文本，新的 `tools/task-graph/src/entry.ts` 同时导出二者并独占主模块启动。程序化调用从同一分发模块直接取得 CLI 所调用的领域能力，跳过进程、argv 和序列化。本文中的“SDK”仅指这种直接 import 的消费方式，不指另一套实现、模型、校验、便利协议、接口版本或稳定性承诺。
+task-graph 形成单向调用面：领域操作与类型由 `tools/task-graph/src/index.ts` 组合，CLI runner 只把进程参数转换为领域输入并把领域结果转换为 JSON 或文本，新的 `tools/task-graph/src/entry.ts` 同时导出二者并独占主模块启动。保持 `skills/task-graph/scripts/task-graph.ts` 公开入口与包内可达运行时模块结构；程序化调用从同一分发模块直接取得 CLI 所调用的领域能力，跳过进程、argv 和序列化。本文中的“SDK”仅指这种直接 import 的消费方式，不指另一套实现、模型、校验、便利协议、接口版本或稳定性承诺。
 
 ## Scope
 
@@ -39,17 +39,17 @@ task-graph 形成单向调用面：领域操作与类型由 `tools/task-graph/sr
 
 1. task-graph 源码存在明确的领域直接入口、CLI 适配入口和分发组合入口；`cli.ts` 不再通过 re-export 拥有领域公开面。
 2. CLI 的领域命令继续调用与直接 import 相同的 Service/operation；CLI 只拥有 argv、stdin/`--file`、renderer、envelope 和退出码等适配责任。领域对象、状态、图、租约、revision 与持久化规则由领域层独立校验和执行，绕过 CLI 时仍不能绕过这些规则。
-3. `skills/task-graph/scripts/task-graph.mjs` 的运行时 export key 与 `tools/task-graph/tests/generated-artifacts.test.ts` 中既有 `publicRuntimeExports` 基线一致；CLI 命令、参数、输出、错误码和 protocol version 不变。源码入口与生成模块被 import 时均不启动 CLI，也不产生文件 mutation、runtime 安装或网络副作用。
+3. `skills/task-graph/scripts/task-graph.ts` 的运行时 export key 与实施前实际生成入口的既有公开导出基线一致；CLI 命令、参数、输出、错误码和 protocol version 不变。源码入口与生成模块被 import 时均不启动 CLI，也不产生文件 mutation、runtime 安装或网络副作用。
 4. `.d.mts` 根入口及其可达声明树从实际 TypeScript 入口机械生成，不新增手写 SDK 声明源，也不把内部 store、锁、runtime 注入或测试 hook 暴露为公开能力。
-5. task-graph 稳定 owner 与后继决策明确 SDK 只是同一领域操作的直接调用方式，不单独承诺稳定性、版本或第二套契约；其他工具只保留审计结论和独立后续边界。
+5. task-graph 稳定 owner 与项目级后继决策明确 SDK 只是同一领域操作的直接调用方式，不单独承诺稳定性、版本或第二套契约；后继仅修订 task-graph CLI-root／三入口职责，逐项承接前序全部未变化的项目级契约，包括 Decision Records CLI 与声明、updater、安装、分发及 pending/release；其他工具不因此迁移。
 6. 等价性测试至少覆盖一条读取、一条 mutation 和一条领域失败：在固定 clock 下比较直接结果与 CLI JSON envelope 的对应 `revision`/`data`，在相同 request、固定 clock 和独立同构 workspace 下比较持久化结果，并比较 `TaskGraphError.code` 与 CLI error code；受影响原生测试、生成漂移、声明 consumer、决策与测试证据检查以及仓库完整门禁通过。
 
 ## Affected Owners
 
 - [`docs/coding-style.md`](../../docs/coding-style.md)：入口、领域规则、直接 import 与错误映射的仓库级实现边界。
-- [`docs/tooling.md`](../../docs/tooling.md)：可分发源码、声明来源、生成闭包与稳定性含义。
+- [`docs/tooling-distribution.md`](../../docs/tooling-distribution.md)：可分发源码、声明来源、生成闭包与稳定性含义。
 - [`skills/task-graph/SKILL.md`](../../skills/task-graph/SKILL.md) 与 [`docs/skills/task-graph.md`](../../docs/skills/task-graph.md)：task-graph 当前调用面、行为和人类说明。
-- [`docs/decisions/distribute-editable-typescript-runtimes.md`](../../docs/decisions/distribute-editable-typescript-runtimes.md)：需要通过后继决策修订的现有 CLI/SDK 入口判断。
+- [`docs/decisions/distribute-editable-typescript-runtimes.md`](../../docs/decisions/distribute-editable-typescript-runtimes.md)：项目级前序；后继只修订 task-graph CLI-root／三入口职责，并逐项承接全部未变化契约。
 - [`tools/task-graph/src/`](../../tools/task-graph/src/) 与 [`scripts/build/task-graph.ts`](../../scripts/build/task-graph.ts)：领域入口、CLI 适配、分发组合和生成实现。
-- [`skills/task-graph/scripts/`](../../skills/task-graph/scripts/) 与 [`skills/task-graph/references/task-graph-index.schema.json`](../../skills/task-graph/references/task-graph-index.schema.json)：机械生成的分发 bundle、声明树、source map 与同一同步批次中的 Schema；本 Change 预期 Schema 语义和内容不变，但仍由统一同步入口核对。
+- [`skills/task-graph/scripts/`](../../skills/task-graph/scripts/) 与 [`skills/task-graph/references/task-graph-index.schema.json`](../../skills/task-graph/references/task-graph-index.schema.json)：同步的 TS 分发入口及包内运行时模块、机械生成的声明树与同一同步批次中的 Schema；本 Change 预期 Schema 语义和内容不变，但仍由统一同步入口核对。
 - [`tools/task-graph/tests/`](../../tools/task-graph/tests/) 与 [`docs/test-evidence/cases/`](../../docs/test-evidence/cases/)：源码、分发与直接/CLI 调用边界的验证证据。

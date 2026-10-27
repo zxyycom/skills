@@ -17,7 +17,7 @@
 - [ ] 1.4 为 `task create` 增加可选 `--id` 并让全部后续 task 命令、关系、remove 与 `index stage` 使用联合 ID validator，保持现有输出 envelope、parent sentinel 和 alias 语法。
 - [ ] 1.5 同步 `skills/task-graph/SKILL.md`、`docs/skills/task-graph.md` 和 skill 独立版本，明确 CLI 裸 token、实际返回 ID、自动 ID 不复用、显式 ID 当前索引唯一、旧 runtime 前向边界和非目标。
 - [ ] 1.6 新增自包含的 task-graph 后继决策，以 `修订` 关系指向实施基线中的直接前序，保留权威 JSON 索引、受控删除和无默认历史方向；实现与稳定 owner 对齐后建立为当前基线并同步决策索引。
-- [ ] 1.7 通过既有 task-graph 生成入口同步分发 MJS、source map、SDK 声明和 task index JSON Schema，并复核生成内容只来自源码与行为 owner。
+- [ ] 1.7 通过既有 task-graph 生成入口同步 TS 分发入口、包内可达运行时模块、SDK 声明和 task index JSON Schema，并复核生成内容只来自源码与行为 owner。
 
 ## Verification
 
@@ -26,4 +26,4 @@
 - [ ] 2.3 用最小原生测试入口证明 CLI 的 `--id <id>` 与 `--id=<id>`、实际 ID 返回、全部 ID 消费命令和 `index stage` 均接受联合 task ID。
 - [ ] 2.4 按一入口一 case 同步 task-graph test-evidence Markdown，并通过统一命令同步派生测试证据索引。
 - [ ] 2.5 运行受影响的 task-graph 原生测试、生成漂移检查、决策记录严格检查和 test-evidence 严格检查，确认 source、生成 CLI、SDK 类型、JSON Schema、稳定说明与长期决策一致。
-- [ ] 2.6 运行 `bun run check --full`，逐项复核 proposal 成功标准、稳定 owner、版本、生成产物和全部任务证据后再申请归档。
+- [ ] 2.6 运行 `bun run check --tag release`（原 `--full` 的等价 release 别名），逐项复核 proposal 成功标准、稳定 owner、版本、生成产物和全部任务证据后再申请归档。

@@ -32,7 +32,7 @@ Tags 只解决人工分类和任务发现。它们必须在 task entry 被移除
 ### Resulting Impacts
 
 - Tags 必须在全部 execution phase 中可维护，但只能更新 tags 与 entry `updatedAt`；既有 `update-content` 则必须保留 tags，避免新分类元数据改变 execution、lease、result 或其他 content 语义。
-- 新的持久化字段与公开查询要在不含 tags 的既有 index 上保持可读，并同步 task-graph 协议与 skill 版本、生成 bundle、SDK 声明和 JSON Schema。
+- 新的持久化字段与公开查询要在不含 tags 的既有 index 上保持可读，并同步 task-graph 协议与 skill 版本、生成 TS 分发入口、包内运行时模块、SDK 声明和 JSON Schema。
 - Task-graph 领域说明与长期决策需记录 tags 与 find 的责任边界；源码、CLI、SDK、分发产物和兼容行为需保持一致。
 - 每个新增或修改的最小原生测试入口都需有唯一 test-evidence case，且相关派生索引必须同步。
 
@@ -63,7 +63,7 @@ Tags 只解决人工分类和任务发现。它们必须在 task entry 被移除
 | --- | --- |
 | [`tools/task-graph/src/`](../../tools/task-graph/src/) | 持久化类型与 Schema、mutation、service 查询、CLI 和公开运行时导出 |
 | [`tools/task-graph/tests/`](../../tools/task-graph/tests/) | 源码、CLI、SDK、分发模块和兼容行为证据 |
-| [`scripts/build/task-graph.ts`](../../scripts/build/task-graph.ts) | 从运行时源码机械生成 bundle、source map、SDK 声明和 index JSON Schema；只有生成边界确需变化时修改源码 |
+| [`scripts/build/task-graph.ts`](../../scripts/build/task-graph.ts) | 从运行时源码同步 TS 分发入口与可达模块，并机械生成 SDK 声明和 index JSON Schema；只有生成边界确需变化时修改源码 |
 | [`skills/task-graph/SKILL.md`](../../skills/task-graph/SKILL.md) 与 [`docs/skills/task-graph.md`](../../docs/skills/task-graph.md) | AI 行为入口与人类说明中的当前 tags/find 契约、CLI/SDK 边界和版本 |
 | [`docs/decisions/`](../../docs/decisions/) 与 [`docs/decisions/decision-index.json`](../../docs/decisions/decision-index.json) | 保存“tags 只用于发现、find 直接扫描权威索引”的长期架构理由及索引状态 |
 | [`docs/test-evidence/`](../../docs/test-evidence/) | 为本 change 新增或修改的每个最小原生测试入口维护一个可检索 case，并同步派生索引 |

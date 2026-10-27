@@ -9,7 +9,7 @@
 - 当前图结构 mutation 通过 `TaskGraphService.apply`、expected revision、native lock 和原子写入执行；execution mutation 另有 lease 或 expected revision 前置条件。
 - 当前 `update-content` 全量替换描述内容，并禁止 `running`、`succeeded` 和 `cancelled`。Tags 必须独立于该限制，否则已完成 task 无法继续分类，描述更新也可能意外清空 tags。
 - 当前大多数 CLI command 使用标准 JSON envelope；只有明确拥有 renderer 的命令使用专门文本输出。Find 不需要新增 renderer。
-- Task-graph bundle、source map、公开 SDK 声明和 index JSON Schema 都从 `tools/task-graph/src/` 机械生成，不存在第二套手写声明 owner。
+- Task-graph TS 入口、包内可达运行时模块、公开 SDK 声明和 index JSON Schema 都从 `tools/task-graph/src/` 机械生成，不存在第二套手写声明 owner。
 - `task-000040` 拥有 result 与集成版本锚点的说明，`task-000037` 拥有成功任务重开、result/audit 与终态 mutation。实施前需要在 Readiness 中确认前者的目标状态已经进入当前基线，并避免与后者同时修改 task-graph 核心 owner。
 
 ## Goals / Non-Goals
@@ -191,7 +191,7 @@ CLI 使用标准 task-graph JSON envelope，不增加专用文本 renderer；env
 
 `update-task-tags` 属于工作区 mutation，继续通过 `TaskGraphService.apply`、store native lock、expected revision、canonical candidate 和原子写入；CLI command help 标记 `requiresMutationRuntime: true`。`task create --tag` 继续通过同一 batch apply 边界执行。
 
-运行时类型、Schema、engine、service 和 CLI 位于 `tools/task-graph/src/`。`scripts/build/task-graph.ts` 从这些导出机械生成分发 bundle、source map、SDK 声明和 index JSON Schema；除非现有生成闭包不能覆盖新导出，否则不修改 build owner。Skill 与人类说明只描述当前公开行为，不复制完整类型定义。
+运行时类型、Schema、engine、service 和 CLI 位于 `tools/task-graph/src/`。`scripts/build/task-graph.ts` 从维护源码同步 TS 分发入口与可达运行时模块，并机械生成 SDK 声明和 index JSON Schema；除非现有生成闭包不能覆盖新导出，否则不修改 build owner。Skill 与人类说明只描述当前公开行为，不复制完整类型定义。
 
 长期决策记录聚焦以下架构边界：tags 只承担发现；find 直接扫描权威 index；简单确定性匹配满足定位需求；不建立第二事实源或搜索平台。大小写、Unicode normalization 和具体 helper 实现只在 design/测试中固定，不扩写成决策记录的中心问题。
 
@@ -210,4 +210,4 @@ CLI 使用标准 task-graph JSON envelope，不增加专用文本 renderer；env
 
 ## Open Questions
 
-无。每个 task 最多保存 5 个 tags；`text` 搜索 title、goal、acceptance、context 和非空 `result.summary`，但不搜索 references 或 tags。Tags 的 token 规则、全量更新、全部 phase 可维护、find 单 tag 条件、默认 phase 集合、completed opt-in、组合关系、返回形状、排序和非目标均已确定。
+无。上述 tags、find 与兼容边界均已确定。

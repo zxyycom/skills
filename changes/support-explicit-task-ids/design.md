@@ -93,7 +93,7 @@
 - `schema.ts` 承接 ID 字符串事实源与 JSON Schema 派生信息；types、engine、CLI 和 staging 消费导出的领域判断，不各自复制正则。
 - canonical serializer 继续按 task ID 字符串排序；显式 ID 排除纯数字键后，不需要替换对象表示或手写 JSON serializer。
 - 默认 renderer 可以原样显示 ID，因为白名单排除了现有 token 分隔符和换行；本 Change 不增加 escaping 或显示别名。
-- `tools/task-graph/` 是源码 owner；分发 MJS、source map、SDK 声明与 task index JSON Schema 只由现有同步入口生成，不直接编辑。
+- `tools/task-graph/` 是源码 owner；TS 分发入口、包内可达运行时模块、SDK 声明与 task index JSON Schema 只由现有同步入口生成，不直接编辑。
 
 #### Decision 7: 通过后继决策修订 ID 不复用规则
 

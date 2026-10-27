@@ -39,7 +39,7 @@
 持久 task ID 从单一自动格式扩大为自动与显式 ID 的联合后，所有依赖该身份域的既有边界都必须消费同一事实源，因此还需处理以下连锁影响：
 
 - 调整 `nextTaskId` 语义校验、关系字典、staging、规范序列化和全部 task ID 消费入口，避免形成只能创建却不能完成后续生命周期的半能力。
-- 同步 task-graph 行为 owner、人类说明、公开 CLI 版本、生成 JSON Schema、分发 bundle、SDK 声明和 skill 独立版本，并新增承接身份分配方向的长期决策。
+- 同步 task-graph 行为 owner、人类说明、公开 CLI 版本、生成 JSON Schema、TS 分发入口、包内可达运行时模块、SDK 声明和 skill 独立版本，并新增承接身份分配方向的长期决策。
 - 新增或更新原生测试，并按 test-evidence-review 契约维护一入口一 case 的 task-graph 测试证据。
 
 ## Success Criteria
@@ -55,6 +55,6 @@
 
 - `skills/task-graph/SKILL.md` 与 `docs/skills/task-graph.md`：task ID、创建和 CLI 的稳定行为说明。
 - `tools/task-graph/src/types.ts`、`schema.ts`、`engine.ts`、`service.ts`、`cli.ts` 与 `staging.ts`：公开类型、运行时校验、分配事务、命令和 Git staging 实现。
-- `skills/task-graph/references/task-graph-index.schema.json`、`skills/task-graph/scripts/task-graph.mjs`、source map 与 `task-graph-sdk/`：从源码机械生成的分发契约。
+- `skills/task-graph/references/task-graph-index.schema.json`、`skills/task-graph/scripts/task-graph.ts`、包内可达运行时模块与 `task-graph-sdk/`：从源码机械生成的分发契约。
 - `tools/task-graph/tests/` 与 `docs/test-evidence/task-graph/`：原生测试入口及其权威测试证据；派生测试证据索引由统一同步命令维护。
 - `docs/decisions/` 与决策索引：以新的完整决策收窄既有“任务 ID 不复用”规则，保留权威 JSON 索引和受控删除方向，同时区分自动 ID 不复用与显式 ID 当前索引唯一；不直接改写既有已建立决策正文。
