@@ -2,6 +2,17 @@
 
 本文承接主仓库从环境准备到 skill 制品发布的项目级工具链：依赖与运行时分工、package scripts、`scripts/` 与 `tools/` 的边界、生成和校验、Git hook、CI 与 release。具体组件的内部契约由相邻源码目录承接，实现代码的通用质量规则由 [编码规范](coding-style.md) 承接。
 
+## 读取策略
+
+按任务选择章节，不必通读：
+
+- 环境准备：读[环境自举](#环境自举)。
+- 日常操作：读[核心命令](#核心命令)或[仓库维护短命令](#仓库维护短命令)。
+- 验收：先读[核心命令](#核心命令)及[权威 Vibe 门禁](#权威-vibe-门禁)的入口与范围，不必为普通验收通读 Gate 内部契约。
+- 源码与生成：读[源码与依赖边界](#源码与依赖边界)及[生成与分发](#生成与分发)中相关章节。
+- 修改 Gate 实现或质量政策：按需深入[权威 Vibe 门禁](#权威-vibe-门禁)的内部契约。
+- Hook 与远端交付：分别读 [Git hook](#git-hook) 和 [CI 与发布](#ci-与发布)。
+
 ## 内容边界
 
 本文件负责：
@@ -422,7 +433,7 @@ pnpm --dir "<skill-directory>" install \
 | --- | --- |
 | `tools/novel-cards/` | `skills/novel-cards/scripts/novel-cards.ts` 与包内运行时；构建适配为 `scripts/build/novel-cards.ts` |
 | `tools/video-understanding/` | `skills/video-understanding/scripts/video.ts`、包内运行时及媒体辅助／安装资源；构建适配为 `scripts/build/video-understanding.ts` |
-| `tools/lightweight-judgment/` | `skills/lightweight-judgment/scripts/lightweight-judgment.ts` 与包内运行时；`migrations/log-v1-to-v2.sql` 同步到该 skill 的 `migrations/log-v1-to-v2/migrate.sql`，迁移记录手工维护；构建适配为 `scripts/build/lightweight-judgment.ts` |
+| `tools/lightweight-judgment/` | `skills/lightweight-judgment/scripts/lightweight-judgment.ts` 与包内运行时；`migrations/` 下的版本迁移 SQL 同步到该 skill 对应迁移目录，迁移记录手工维护；支持的转换见[迁移清单](../skills/lightweight-judgment/migrations/README.md)；构建适配为 `scripts/build/lightweight-judgment.ts` |
 | `tools/change-plan/` | `skills/change-plan/scripts/change-plan.ts` 与包内运行时 |
 | `tools/decision-records/` | `skills/decision-records/scripts/decision-records.*` 和索引 Schema |
 | `tools/investigation-report/` | `skills/investigation-report/scripts/check-investigations.*` 和索引 Schema |

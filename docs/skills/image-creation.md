@@ -21,7 +21,7 @@ Image Creation 以提示词工程为核心，把用户意图变成可执行画�
 
 ## 按缺口读取
 
-主入口维护从意图到交图的顺序和完成义务；首次构建或改写提示词必读[提示词指南](../../skills/image-creation/references/prompting-guide.md)，实际调用必须落实[生成记录](../../skills/image-creation/references/generation-records.md)。需要具体光色、机位和表情时读[视觉表达](../../skills/image-creation/references/visual-brief.md)；借风格、复用偏好与产品海报读[风格与设计](../../skills/image-creation/references/style-and-design.md)；编辑提示写法与诊断／控制选择分别由[编辑实例](../../skills/image-creation/references/editing-prompts.md)和[参考诊断](../../skills/image-creation/references/references-and-edits.md)承接；故事、多视角、独立方案、过程板与图标读[系列版面](../../skills/image-creation/references/series-and-layouts.md)。各专题有完整可改写示意，不代表已验证模型收益。其余资源按选定接口与结构缺口读取。简单请求不要求先填完整表单；一次预览可由对话承接记录，项目／多轮使用可恢复文件。
+[主入口](../../skills/image-creation/SKILL.md)维护从意图到交图的顺序、完成义务和完整读取策略。提示构建从[提示词指南](../../skills/image-creation/references/prompting-guide.md)进入，实际调用按[生成记录](../../skills/image-creation/references/generation-records.md)留存；编辑、风格、系列与其他专题按主入口指引选读。专题示意可供改写，不代表已验证模型收益。简单请求不要求先填完整表单；一次预览可由对话承接记录，项目／多轮使用可恢复文件。
 
 ## 验证与发展边界
 
