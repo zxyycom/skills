@@ -5,7 +5,7 @@ description: >-
   用低成本、低延迟的结构化判断处理分类、候选选择、相关性筛选、命题判断
   和程度评分；以 JEV 载体调用 JEV 或 OpenAI Decisions，复核类型化结果后继续原任务。
 metadata:
-  version: "11"
+  version: "12"
 ---
 
 # Lightweight Judgment
@@ -25,7 +25,7 @@ metadata:
 | 当前任务 | 执行与读取路径 |
 | --- | --- |
 | 首次选模型、升级或比较替代方案 | 先读[模型对照与选择](references/model-comparison.md)，比较基础能力、效果证据、校准、耗时与费用，再核对所需接入合同 |
-| 发起新的语义判断 | 按下方任务选择与判断流程执行；初次调用或配置变化时先读[合同选择](references/protocol-adapters.md#选择合同)与 [CLI 配置](references/cli.md#配置)，再核对命令和输出 |
+| 发起新的语义判断 | 按下方任务选择与判断流程执行；初次调用或配置变化时先读[合同选择](references/protocol-adapters.md#选择合同)与 [CLI 配置与连接](references/cli-configuration.md)，再核对命令和输出 |
 | 使用图片、Box 或长输入 | 读取[接入合同与模态](references/protocol-adapters.md)，核对所选 adapter、模型与可信配置门禁后再准备请求 |
 | 处理有效原答或拒答 | 读取[原答、统一结果与采用](references/protocol-adapters.md#原答统一结果与采用)；技术错误另按 [CLI 技术失败](references/cli.md#技术失败)处理 |
 | 核对配置 | 按 [CLI 操作契约](references/cli.md#doctor本地前置检查)运行 `doctor`，检查配置与凭据；此检查不发送请求 |
@@ -72,7 +72,7 @@ pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfi
 | 一个明确命题的肯定概率 | Noul；可用 true／false 条件澄清含义 | `noul` 为 0–1 的肯定概率，无单独 confidence |
 | JEV 图中目标的位置 | Box；instructions 指明目标，无 criteria | 归一化边坐标与 confidence；框不证明目标存在，需先核对[模态前置](references/protocol-adapters.md#jev-box) |
 
-可以同时成立的标签或性质分别提问；择优单选时说明选择标准。例如“局部冲突”和“各有独有内容”可同时成立，拆成两题，见 [CLI 双题示例](references/cli.md#json完整请求)。
+可以同时成立的标签或性质分别提问；择优单选时说明选择标准。例如“局部冲突”和“各有独有内容”可同时成立，拆成两题，见 [双题请求示例](references/request-examples.md#同一材料的独立双题)。
 
 Noul 接近 0.5 只表示肯定与否定概率相近，不表示程度中等或证据不足。需要显式区分缺证、冲突或无匹配时，用含相应出口的 Choice。
 

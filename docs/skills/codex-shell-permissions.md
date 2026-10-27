@@ -12,30 +12,9 @@ agent 如果忽略执行身份，只凭失败文本改引号、换 shell、增�
 
 这个 skill 的价值是让 agent 先按失败阶段处置：创建进程失败就考虑提权，目标程序启动后的路径权限错误就定位拒绝层，组合命令就判断是拆开还是提权一次执行，网络/安装就申请权限，破坏性操作就确认范围并审批，明确业务错误才回到目标程序处理。需要长期改变 shell rule 行为时，再进入 rules 维护路径。
 
-## 内容结构
+## 阅读入口
 
-`SKILL.md` 是双功能入口，保留触发条件、失败后 shell 使用指挥、提权条件和 rules 维护分流。
-
-`skills/codex-shell-permissions/references/rules-and-syntax.md` 只承接复杂 shell 组合和 PowerShell 表达式的处理选择；一般失败分类、提权和授权边界仍由 `SKILL.md` 承接。
-
-`skills/codex-shell-permissions/references/path-permission-diagnosis.md` 用于目标程序已经启动、但文件或目录访问被拒绝的情况，区分执行身份、permission profile、文件系统权限、程序请求权限、隐式路径和 shell rule。
-
-`skills/codex-shell-permissions/references/permission-rules-maintenance.md` 是第二个主要功能的操作手册。它只在用户明确要求或批准后使用，用于处理权限 rules、`allow/prompt/block`、`execpolicy check` 和热加载问题。
-
-`skills/codex-shell-permissions/references/command-examples.md` 保存命令组合试验的形成时证据，不作为当前执行规则。
-
-## 希望形成的能力
-
-它希望让 agent 在遇到 shell 权限问题时，不再直接从“命令能不能跑”下结论，而是快速选择：
-
-1. 在拆成更简单的命令和提权一次执行复杂命令之间选择。
-2. 按当前权限规则提权重跑必要命令。
-3. 对目标程序启动后的路径错误先确认实际执行身份，再定位拒绝层，而不是把所有权限问题都归给 shell rule。
-4. 改成更稳定的 PowerShell/命令形态。
-5. 回到真实程序错误处理。
-6. 在用户主动要求时进入 Codex rules 权限配置维护。
-
-通过这种处置卡，shell 失败可以被转化成明确下一步，而不是在命令语法、规则配置、路径权限和审批策略之间来回猜测。
+[SKILL.md](../../skills/codex-shell-permissions/SKILL.md) 是执行与分流入口。目标程序启动后发生路径拒绝时，读取[路径权限诊断](../../skills/codex-shell-permissions/references/path-permission-diagnosis.md)；复杂 shell 组合和 PowerShell 表达式的选择见[规则与语法](../../skills/codex-shell-permissions/references/rules-and-syntax.md)。用户明确要求或批准维护 rules 时，读取[权限规则维护](../../skills/codex-shell-permissions/references/permission-rules-maintenance.md)。[命令示例](../../skills/codex-shell-permissions/references/command-examples.md)是形成时证据，不是当前执行规则。
 
 ## 发展方向
 

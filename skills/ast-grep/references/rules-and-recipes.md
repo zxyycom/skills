@@ -124,24 +124,17 @@ rule:
 
 ## 输出配方
 
-```text
-# 人类查看
-ast-grep run --pattern '<pattern>' --lang <lang> <path>
+按消费者选择输出；以下命令中的 `<path>` 和 `<rule.yml>` 为占位：
 
-# agent 或脚本逐条处理
-ast-grep run --pattern '<pattern>' --lang <lang> --json=stream <path>
+| 任务 | 命令 |
+| --- | --- |
+| 人类查看 | `ast-grep run --pattern '<pattern>' --lang <lang> <path>` |
+| 逐条机器处理 | 同一 `run` 加 `--json=stream` |
+| 仅文件清单 | 同一 `run` 加 `--files-with-matches` |
+| 独立复杂规则 | `ast-grep scan --rule <rule.yml> --json=stream <path>` |
+| 排查项目扫描发现 | `ast-grep scan --inspect summary <path>` |
 
-# 只列出有匹配的文件
-ast-grep run --pattern '<pattern>' --lang <lang> --files-with-matches <path>
-
-# 单一复杂 rule，不需要 sgconfig.yml
-ast-grep scan --rule <rule.yml> --json=stream <path>
-
-# 解释项目扫描发现过程
-ast-grep scan --inspect summary <path>
-```
-
-需要指定机器输出样式时使用 `--json=stream` 这类带等号的形式；当前版本支持的 style 和冲突选项以本机帮助为准。
+机器输出使用 `--json=stream` 这类带等号的形式；可用 style 和冲突选项以本机帮助为准。
 
 ## Rewrite 配方
 

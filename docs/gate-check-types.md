@@ -1,0 +1,50 @@
+# Gate Check 类型接入
+
+本文承接按类型实施 Gate Check 的精确接入步骤；先按[编写与接入](gate-check-authoring.md)确定证明责任、类型、公共契约及交付验收。
+
+## 语义命令 Check
+
+按证明义务选择最小充分层级：规则矩阵由纯函数或轻量领域函数验证，真实接线、失败与恢复由必要集成测试验证。
+同进程 CLI、真实 Node 和 Git fixture 的边界见[工具链](test-maintenance.md#工具-cli-与-git-fixture-测试边界)。
+调整测试层级时，确认每项证明由哪个保留入口继续承担并更新 Case/index；成本按同机实际工作量另行报告。
+
+1. 确认精确测试入口和实际加载边界。共同协议归共同 owner，两域 adapter 各自保留；源码 CLI 矩阵与真实生成 Node smoke 分别归位。多个文件共同证明同一契约时，可建立只导入这些文件的 `tests/checks/<contract>.ts` 容器；Test Evidence 登记框架可独立选择与报告的最小原生测试入口，而非容器。
+2. 在 `semanticGateChecks` 增加声明，例如消费分发制品的 Check：
+
+   ```ts
+   {
+     checkId: "test:<owner>:public-distribution",
+     toolIds: ["<existing-capability-id>"],
+     displayName: "<Owner> public distribution",
+     requiredTag: undefined,
+     command: bunTest("./tools/<owner>/tests/checks/public-distribution.ts"),
+     dependsOn: ["script:check:skill-updaters"]
+   }
+   ```
+
+3. 为该 ID 核对能力订阅与对应输入 patterns；精确 runner/路径直接来自实际 `command`，Bun 与 Node 均独立执行。上例的能力 ID 须替换为已声明的实际能力。
+4. 更新 `scripts/vibe-check-catalog-fixture.ts` 的 ID、runner、命令与前置期望；catalog 测试从 wrapper 的磁盘 imports 推导 leaf，并核对领域聚合入口，不另维护逐文件副本。
+5. 当前数量变化时同步[工具链 catalog 事实](gate-execution.md#catalog-与选择)，测试变化按 Test Evidence owner 同步 Case/index。
+
+## 包脚本 Check
+
+1. 在 `package.json#scripts` 建立或确认稳定维护命令，将名称加入 `releaseRequiredPackageScripts`。
+2. 适配器构造独立 `commandCheck`；需要生成物时在 `packageScriptDependencies` 声明统一 provider。
+3. 在 `packageScriptToolSubscriptions` 声明能力订阅，核对其输入 patterns 与 Definition/package-adapter/catalog 测试期望。
+
+已有语义 Checks 完整覆盖的 `test:*` 聚合 script 保留人工领域回归入口，不重复登记 Gate leaf。统一生成入口已覆盖的领域生成命令也保留人工入口，由统一 Gate Check 承接。
+
+## 原生 Check
+
+1. 读取对应随包文档，确认完整 patterns、默认排除、finding policy、限制、waiver、工具及 unavailable 边界。
+2. 在原生 Check owner 中调用 package-root 构造器，加入环境与资源声明；项目质量 finding 显式 blocking。
+3. 新增项将稳定 ID 加入 `vibeNativeCheckIds`；调整 options 时保留 ID，并核对完整 Definition 与 release-required 集合。
+4. 复用适合的 selection/exclusion；维护范围变化同时复核安全上限与历史材料边界。Markdown 内容检查以同一 selection owner 的完整磁盘 source 集合纳入既有输入证明，覆盖 ignored、根目录与额外目录材料；通过原生 condition 选择，精确命中才可省略。其余原生材料在适用范围中每轮结算；计算事实缓存只复用执行中的计算，不充当 passed receipt。
+5. 使用现有 selection、blocking、metrics 或 Definition 测试验证项目配置、范围与阻断义务。
+
+## 自定义与 release DAG Check
+
+1. 只有原生材料或独立命令不能表达领域契约时，才使用 `defineCheck`；领域实现保留直接 owner，`definition.ts` 只组合。
+2. 明确 options、context needs、取消、data/Records/handoff 和可信终态；只在需要验证/准备时增加 `prepare`。
+3. release prepare → authorization → pack 传递同一 private snapshot。依赖声明、provider 原对象、跨 Run 隔离与 machine 摘要边界须保持；pack 不重读 index。
+4. 需要必达清理的调用方资源使用自身 `try/finally`，不把 scheduler terminal effect 当作 `finally`。

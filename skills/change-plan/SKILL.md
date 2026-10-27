@@ -5,7 +5,7 @@ description: >-
   design.md、tasks.md 和 .change-plan.json 维护明确 Change 的目标、设计、任务、
   验证与 draft/plan stage，并在结项时删除短期计划目录。
 metadata:
-  version: "40"
+  version: "41"
 ---
 
 # Change Plan
@@ -28,8 +28,8 @@ metadata:
 ## 读取路径与职责
 
 - 本文件承接内容判断、任务完成声明、执行流程与授权边界。
-- 操作 Change 前完整读取[固定结构与 CLI 契约](references/change-plan-contract.md)。它唯一承接
-  目录、metadata、artifact 结构、Git 距离及随包 `scripts/change-plan.ts` 的机械行为。
+- 操作 Change 前完整读取[固定结构契约](references/change-plan-contract.md)；调用 CLI 或直接导入时，
+  另读[CLI 契约](references/cli-contract.md)，其中承接命令、输出、写入及恢复的机械行为。
 - Change Plan 保存临时实施上下文；稳定事实与行为归项目文档，跨 Change 的长期理由与方向归项目
   已有决策 owner。执行者核实实际工作与验收证据，CLI 核实结构和删除安全条件。
 
@@ -121,7 +121,7 @@ Change 根和 tombstone 路径的命名空间稳定，不与其他操作者或�
 
 ## 故障与取消
 
-- 版本保存、机械门禁或清理失败时，按[写入命令契约](references/change-plan-contract.md#写入命令)
+- 版本保存、机械门禁或清理失败时，按[写入命令契约](references/cli-contract.md#写入命令)
   处理 outcome 与恢复路径，解除原因后继续；需要外部条件或额外授权时报告具体阻塞。任务状态仍
   按工作与验收事实记录。`committed-cleanup-pending` 表示仍待清理，应检查报告的 tombstone 路径，
   或从报告的 Git revision 恢复。

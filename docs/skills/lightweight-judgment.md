@@ -29,29 +29,11 @@ skill 包含行为文档、TS CLI 与模块源码、Codex 调用策略和通用 
 
 以下是仓库内的设计与选型资料，不随 skill 分发。按各报告的取证日期、版本和测量条件解读；当前已实现能力由上方的 `SKILL.md` 与 CLI 操作契约承接。
 
-### 模型与效果证据
+模型选型的历史证据包括 [Laya](../investigations/laya-decision-model-evidence.md)、[Intern-Decision 与 CLM](../investigations/intern-decision-clm-evidence.md)、[OpenAI Decisions 接口](../investigations/openai-decisions-api-contract.md)、[Decisions 与 Jev 对照](../investigations/openai-decisions-jev-comparison.md) 和 [Jev 1.14](../investigations/jev-1-14-capabilities-and-comparison.md)。各报告分别记录取证日期、测量条件和证据缺口。
 
-| 取证日期 | 调查 | 主要内容 |
-| --- | --- | --- |
-| 2026-09-20 | [Laya](../investigations/laya-decision-model-evidence.md) | 本地实现、上下文与候选限制、领域微调及性能证据 |
-| 2026-09-26 | [Intern-Decision 与 CLM](../investigations/intern-decision-clm-evidence.md) | 类型语义、校准入口、缓存、部署及官方／第三方测量 |
-| 2026-10-09 | [OpenAI Decisions 接口](../investigations/openai-decisions-api-contract.md) | 请求与响应、拒答、输入限制、费用和数据条件 |
-| 2026-10-09 | [Decisions 与 Jev 对照](../investigations/openai-decisions-jev-comparison.md) | 质量、概率校准、延迟、成本及评测可比性 |
-| 2026-10-15 | [Jev 1.14](../investigations/jev-1-14-capabilities-and-comparison.md) | 模型版本、图像、Box、长上下文与新版证据缺口 |
+2026-10-17 的接入设计依据分别见 [JEV 到 OpenAI Decisions 的映射](../investigations/jev-carrier-openai-decisions-mapping.md)、[图片、Box 与长上下文](../investigations/decision-model-multimodal-long-context-integration.md) 和 [跨协议运行时](../investigations/lightweight-judgment-multi-protocol-runtime-boundaries.md)。[OpenRouter 真协议取证](../investigations/openrouter-decision-live-protocols.md)区分直接 HTTP 与 CLI 的有限样本：它不证明 Box 精度、整体质量或最大容量。原生 TypeSafe／OpenAI 仅有离线／mock 合同验证；OpenRouter 指定 OpenAI 路由返回 403，原因、成功响应与拒答形状未证。
 
-### 接入设计依据
-
-以下三份报告形成于 2026-10-17，分别承接多模型接入形成时的设计依据；当前落实范围以包内接入合同和 CLI 为准，历史报告不作为运行入口。
-
-| 调查 | 主要内容 |
-| --- | --- |
-| [JEV 载体到 OpenAI Decisions](../investigations/jev-carrier-openai-decisions-mapping.md) | 文本字段转换、顺序与精度、原始响应与统一结果、部分拒答 |
-| [图片、Box 与长上下文](../investigations/decision-model-multimodal-long-context-integration.md) | 图像节点与通道传输、题目可见性、能力限制与实验开关 |
-| [跨协议运行时](../investigations/lightweight-judgment-multi-protocol-runtime-boundaries.md) | 配置和凭据隔离、日志恢复、统计口径与验收 |
-
-2026-10-17 的[OpenRouter 真协议取证](../investigations/openrouter-decision-live-protocols.md)分开记录直接 HTTP 探查与新版公开 CLI 的文本、嵌套图片、Box、有限长输入及临时日志／stats 贯通证据。有限样本只证明所列接收与贯通，不证明 Box 精度、整体质量或最大容量。原生 TypeSafe／OpenAI 仅有离线／mock 合同验证；OpenRouter 的指定 OpenAI 路由返回 403，具体原因、成功响应与拒答形状均未证。
-
-接口兼容与目标任务效果分别验收。运行所需的转换与限制已集中在包内参考；维护时仍按目标版本核对来源、能力限制和未验证项。
+接口兼容与目标任务效果分别验收；维护时按目标版本核对来源、能力限制和未验证项。
 
 ## 验证责任
 

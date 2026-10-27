@@ -6,7 +6,7 @@ description: >-
   审查其 Contract 与 Proves，再维护可检索的 Case-only 账本。
   工程校验、仅运行既有测试或只修改被测对象不使用。
 metadata:
-  version: "45"
+  version: "46"
 ---
 
 # Test Evidence Review
@@ -22,9 +22,10 @@ Case 以测试意图而非一对一实体关系组织：一个 Case 可以在 `T
 ## 读取路径与 owner
 
 1. 本文件承接触发、粒度、证据审查、维护流程和完成标准。
-2. 写入、结构修复、查询或引用检查时完整读取 [Case 账本契约](references/catalog-contract.md)。它是字段、固定目录、索引、JSON 快照、CLI/API 和迁移边界的 owner。
-3. 审查或修改测试时读取项目测试约定、目标测试、当前 diff 和被测行为 owner。`Contract:` 只压缩理解当前测试所需的稳定背景，不取代行为 owner。
-4. 工作区仍有旧 topic/`Entry:` 目录时，读取契约中的迁移边界与[旧 Topic 账本升级](references/upgrade-from-legacy-topic-catalog.md)；旧布局只由显式迁移入口处理，不由正常查询兼容读取。其他历史布局不在当前入口或迁移器的支持范围内，先人工恢复为受支持的旧布局或另行建立迁移方案。
+2. 写入、结构修复或查询 Case 时读取 [Case 账本契约](references/catalog-contract.md)的目录、Case 和索引查询章节；迁移时再读其迁移章节。它承接字段、固定目录、索引和迁移边界。
+3. 生产实体快照、集成引用门禁或查询完整 CLI/API 形状时，读取[实体快照与集成接口](references/snapshot-and-api.md)；它承接快照格式、独立来源校验与接口契约。
+4. 审查或修改测试时读取项目测试约定、目标测试、当前 diff 和被测行为 owner。`Contract:` 只压缩理解当前测试所需的稳定背景，不取代行为 owner。
+5. 工作区仍有旧 topic/`Entry:` 目录时，读取契约中的迁移边界与[旧 Topic 账本升级](references/upgrade-from-legacy-topic-catalog.md)；旧布局只由显式迁移入口处理，不由正常查询兼容读取。其他历史布局不在当前入口或迁移器的支持范围内，先人工恢复为受支持的旧布局或另行建立迁移方案。
 
 核心工具只读写固定 Case 根和派生索引；它不扫描测试源码、执行测试、运行采集命令、调用网络或自动登记 Case。项目可以产生实体快照并实行“所有发现实体都有 Case”等项目覆盖策略，但这不是通用 skill 或核心引用检查的责任。
 

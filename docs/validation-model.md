@@ -1,6 +1,6 @@
 # 项目验证模型
 
-本文帮助维护者理解项目要证明什么、证据如何形成，以及如何选择验收路径。实际命令、范围和预算由[项目工具链](tooling.md#权威-vibe-门禁)承接；运行结果与失败诊断见 [Gate 运行结果与诊断](gate-runtime.md)，新增或修改 Check 见 [Gate Check 编写与接入](gate-check-authoring.md)。
+本文帮助维护者理解项目要证明什么、证据如何形成，以及如何选择验收路径。实际命令、范围和预算由[项目工具链](gate-execution.md#权威-vibe-门禁)承接；运行结果与失败诊断见 [Gate 运行结果与诊断](gate-runtime.md)，新增或修改 Check 见 [Gate Check 编写与接入](gate-check-authoring.md)。
 
 ## 谁负责证明什么
 
@@ -19,7 +19,7 @@
 
 quick 和 changed 可复用既有 receipt：它证明某项 Check 在完整有效输入下曾通过。只有输入闭包、契约和工具链身份均精确匹配，才能省略该项；计算缓存或调度历史不是通过证明。
 
-只有 changed 可以发布 receipt，而且必须整轮成功、所有本次实际执行项通过，并在重新采集后确认输入及工具链没有漂移。输入未知、未闭合、不可读取或必要探测失败时，在当前有效范围保守执行，不发布部分证明。full、CI 和 release 全执行，不复用或发布 receipt。具体选择与失败处理见[权威 Vibe 门禁](tooling.md#权威-vibe-门禁)。
+只有 changed 可以发布 receipt，而且必须整轮成功、所有本次实际执行项通过，并在重新采集后确认输入及工具链没有漂移。输入未知、未闭合、不可读取或必要探测失败时，在当前有效范围保守执行，不发布部分证明。full、CI 和 release 全执行，不复用或发布 receipt。具体选择与失败处理见[权威 Vibe 门禁](gate-execution.md#权威-vibe-门禁)。
 
 ## 制品与发布边界
 

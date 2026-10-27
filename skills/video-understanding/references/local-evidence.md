@@ -8,6 +8,12 @@
 
 新材料按[字幕](subtitle-tools.md)或[画面](frame-text.md)操作取得；启动与位置见[本地工具入口](local-tools.md)。
 
+## 证据模型与证明范围
+
+一个 `scopeId` 对应一代证据；其中原始材料 M 包含字幕、ASR 或 OCR 等来源，条目 T、帧 F 和帧 OCR O 提供可定位的观察。请求覆盖与实际处理覆盖不同，帧的请求时点与实际 PTS 也不同；读取某个窗口或离散帧不证明其间连续过程。新 scope 不继承旧 ID。
+
+采用 S 表示任务选择的来源或基于原始证据撰写的文本，C 是对同一来源字幕的忠实修正，D 是人工核实的单帧描述；它们引用原始对象，不取代原始记录。authored 文本的覆盖由引用支持，不能当作连续字幕；机器 ASR/OCR、采用和校正均不自动证明真实性。结论应标明来源、实际核实范围、时点及未覆盖部分；状态、hash 和成功读取只支持各自的可用性或完整性判断。
+
 ## 继续已有证据
 
 1. 首次调用先完成[共同准备](local-tools.md#调用前准备)。从保存或交接的实际响应复制完整绝对 `output` 赋给 `$evidence`，并保留预期 `scopeId` 与材料 ID。同一 shell 内可复用已赋值变量；每次新的 shell 工具调用重新提供所需赋值或使用已填入实际值的完整命令。路径和 ID 沿用已知原值，不由目录片段、截短哈希或当前工作目录重建。
@@ -132,89 +138,27 @@ read 只读取记录；真实性由材料和实际核实支持，查询状态与
 
 ### JSON 示例与调用
 
-下列示例中的 scope、ID、文字与时点须替换为本目录实际值和本次核实内容，保存为获授权的绝对本地 JSON 路径 `$refinement` 再执行 `node "$cli" refine --output "$evidence" --file "$refinement"`。
+按实际 scope、ID、时点与核实内容准备获授权的绝对本地 JSON 路径 `$refinement`，执行 `node "$cli" refine --output "$evidence" --file "$refinement"`。source、correction、authored、单帧 description 和撤销的完整输入例子见[校正 JSON 示例](refine-examples.md)；字段和生效规则以上文为准。
 
 #### 选用一份字幕
 
-source 的 material 是成功字幕 M，使用 material 而非 refs/text。
-
-```json
-{
-  "scopeId": "<本目录 scopeId>",
-  "action": "create",
-  "kind": "selection",
-  "mode": "source",
-  "material": "M0002",
-  "purpose": "transcript",
-  "reason": "需要原音听写，字幕材料另保留供比较",
-  "verified": {"refs": ["T0003"], "note": "只回听核对了此条，其余仍是机器转录"}
-}
-```
+source selection 选用一份成功字幕；见[输入示例](refine-examples.md#选用一份字幕)。
 
 #### 同材料局部忠实修正／重分句
 
-```json
-{
-  "scopeId": "<本目录 scopeId>",
-  "action": "create",
-  "kind": "correction",
-  "targets": ["T0003", "T0004"],
-  "support": ["F0001"],
-  "replacement": {"segments": [
-    {"start": 10, "end": 11.2, "text": "第一段已核实原话"},
-    {"start": 11.2, "end": 12, "text": "第二段已核实原话"},
-    {"start": 12, "end": 13.5, "text": "第三段已核实原话"}
-  ]},
-  "reason": "回听后修正分句与时间，保留原始两条",
-  "verified": {"refs": ["T0003", "T0004", "F0001"], "note": "只核实本组原话和该离散画面"}
-}
-```
+correction 保留原始条目并表达修正；见[输入示例](refine-examples.md#同材料局部忠实修正重分句)。
 
 #### 另写译文／综合文案
 
-```json
-{
-  "scopeId": "<本目录 scopeId>",
-  "action": "create",
-  "kind": "selection",
-  "mode": "authored",
-  "refs": ["T0003", "F0001", "O0001"],
-  "purpose": "narrative",
-  "text": "依据已核实片段与画面形成的采用文案",
-  "reason": "该任务需要综合文案而非原音字幕",
-  "verified": {"refs": ["F0001", "O0001"], "note": "实际核对该帧文字；原音未回听"}
-}
-```
+authored selection 以原始证据锚定另写文本；见[输入示例](refine-examples.md#另写译文综合文案)。
 
 #### 实际看过的单帧描述
 
-support 仅可为 T/O，无字幕也可保存。
-
-```json
-{
-  "scopeId": "<本目录 scopeId>",
-  "action": "create",
-  "kind": "description",
-  "refs": ["F0001"],
-  "support": ["O0001"],
-  "text": "该帧招牌显示已看清的文字",
-  "reason": "保存此离散画面的核实描述",
-  "verified": {"refs": ["F0001", "O0001"], "note": "实际打开该 PNG 核对文字；帧间状态未知"}
-}
-```
+description 保存核实过的单帧观察；见[输入示例](refine-examples.md#实际看过的单帧描述)。
 
 #### 更新与撤销
 
-已有 active S 时完整 update 同一 S：使用实际 id/expectedRevision，将 source 的 material 换为 authored 的 refs/text，kind 保持 selection。撤销仅提交以下字段；更新／撤销均使用本次读取的最新 revision：
-
-```json
-{
-  "scopeId": "<本目录 scopeId>",
-  "action": "revoke",
-  "id": "S0001",
-  "expectedRevision": 1
-}
-```
+以实际 revision 更新或撤销校正；见[输入示例](refine-examples.md#更新与撤销)。
 
 ### 保存后回读
 
@@ -237,42 +181,15 @@ prepare/frames/ocr/refine 在 `runs/<UTC开始时间>-<运行ID>.json` 保存开
 
 ## 复用、状态与失败恢复
 
-新目录或空叶目录经独占锁复核后初始化；已有证据通过 v5 协议与当前性核对后继续。不支持版本、未知非空目录或坏 manifest 明确报错并阻断自动读写，保持已有文件和目录内容不变。
-
-恢复时保留原素材及有价值证据，由操作者按以下顺序选择：
-
-1. 按[当前性与完整性](#当前性与完整性)区分局部影响与根级阻断，局部问题按下表处理。
-2. 根级阻断后需要新证据时，显式指定新 output，保留原目录。
-3. 确需同址重建时，另行授权备份并清空精确叶目录，再初始化新 scope；新 scope 不继承原 ID 或校正。CLI 不自动迁移、转换或清理。
+新目录经独占锁复核后初始化；已有证据须通过协议与当前性核对。不可用或失败时保留原素材及证据，按[证据恢复](evidence-recovery.md)判断局部影响、根级阻断和授权后的恢复路径。
 
 ### 当前性与完整性
 
-根级核对视频规范路径、大小、mtime、manifest 结构、唯一 ID、引用与 scope；源视频变化、重复 ID、悬空引用或 scope 不一致阻断正常读写，logs 仍提供诊断。prepare 另核对本次请求。
-
-被选外部字幕变化／消失、某 M 产物 hash 或 payload 与索引不符只使该 M 不可用；单帧损坏只影响该 F 及依赖它的 O／校正，其他材料仍可读和获取。自动发现重查候选，已有 M 只依赖实际所选来源，新增无关 sidecar 不使已有 M 失效。
-
-C/D payload 或佐证失效局部回退仍有效原文／原帧并标 unavailable；目标不可用则只返回定位、原因与 null 正文。S 无效使采用 unavailable，raw 仍可读，不自动替换来源；撤销 S 后才恢复无选择规则。raw 是历史材料，不绕过本次当前性检查。
-
-视频 stat 不防御刻意同大小、同 mtime 的内容替换；素材替换或元数据不可信时停止复用，按上述人工评估恢复。输出摘要证明完整性，不是真实性签名。
+视频或根协议异常可能阻断正常读写；材料、帧或校正损坏可能局部影响。具体核对、可用性与恢复见[当前性与完整性](evidence-recovery.md#当前性与完整性)。
 
 ### 局部操作与恢复单位
 
-| 状态或检查结果 | 含义与下一步 |
-| --- | --- |
-| M complete / empty | 成功有内容 / 成功但有效输出为空；核对后同请求复用。empty 不证明静音或无视觉信息 |
-| 无对应 M | 该路线未运行；帧-only 是正常 scope，可按需补文字 |
-| 局部 failed / interrupted | 操作失败或中断；合法、当前的 v5 根可显式新尝试，保留旧成功材料 |
-| 根陈旧、损坏、未知或不支持 | 阻断自动读写并保留原目录，按上述恢复顺序处理 |
-
-失败非零退出；失败状态发布成功时，文字或帧操作保存 failure 的 kind/stage/target/reason/action。后续发布或清理再失败仍保留主错误，并补充安全诊断；已发布状态可能未更新，须结合本次退出和诊断判断。新操作不覆写或复用失败 raw，也不清除旧成功文字/帧；局部失败不使整个作用域成为半成品。
-
-写入取得独占锁，并发或遗留锁明确拒绝；正常结束只回收自身锁。遗留锁需先确认操作者/进程状态，再按精确目标恢复，不能自动抢占。索引原子发布，不发布 running 半索引：操作期间 read 读取旧已发布快照，首次尚无已知时长则 read 不可用。孤儿 artifacts 和失败诊断保留，不自动删除。
-
-目录可能含私人信息，manifest 与原始结果共同保留；经筛选诊断、失败中间物和 `.process/` 是可再生成工作物，清理须确认授权精确目标。提取的临时 WAV 成功解析后删除。
-
-`--timeout 0` 默认无固定死限，正秒数限制每个子进程；OCR 超时／取消必须回收工具进程树，是否已通过真实回收验收按运行时资格核对。失败批次不参与复用。
-
-媒体子进程结构化响应有大小上限，超限按 protocol 失败停止；stderr 筛选后限量保存，超限只留说明。Whisper 原始结果直接保存为文件，不重复收集完整 stdout；此上限不是 ASR 文件或 read 文本的字数预算。
+成功、未运行、失败与中断分别处理；锁、并发和超时边界见[局部操作与恢复单位](evidence-recovery.md#局部操作与恢复单位)。
 
 ## 时间解释与素材提交
 

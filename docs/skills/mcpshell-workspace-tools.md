@@ -10,7 +10,7 @@
 
 ## 支持与验证
 
-支持 profile 是具备 `/bin/sh`、Node、已安装 `mcpshell` 和系统 `ssh` 的 POSIX agent host；backend 必须可由 `ssh -T` 访问，并提供 POSIX `sh`、`git apply`、`mktemp`、`wc` 与 SHA-256 工具。skill 不安装或降级 MCPShell，也不管理 SSH config、credential、账号、daemon 或生产连接。
+支持 POSIX agent host 和通过 SSH 可访问的 backend；具体可执行程序前置见 [运行前提](../../skills/mcpshell-workspace-tools/SKILL.md#运行前提)。skill 不安装或降级 MCPShell，也不管理 SSH 配置、凭据、账号、daemon 或生产连接。
 
 仓库 fixture 验证 bridge 协议；真实集成须显式运行 `validate --tools`、stdio initialize、tools/list 和一次只读 shell call。已有 MCPShell v0.2.0 binary 已通过此最小 smoke；其他 binary 仍需独立验证。
 

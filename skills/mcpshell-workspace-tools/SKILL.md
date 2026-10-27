@@ -6,14 +6,14 @@ description: >-
   双向单文件 tools。查看文件和执行命令优先用 shell，修改文本优先用 patch，
   put/get 只传输文件实体；已有等价 workspace tools 时直接使用。
 metadata:
-  version: "9"
+  version: "10"
 ---
 
 # MCPShell Workspace Tools
 
 ## 主承诺
 
-让 AI 从 **agent 项目** 操作固定的 **目标 project root**，同时保留 agent 项目中的个人规则、skills 和项目级 MCP 配置。backend 屏蔽目标位于同机、容器或远端的差异；AI 取得 tools 后按操作选择并继续原任务。
+让 AI 从 **agent 项目** 操作固定的 **目标 project root**，同时保留 agent 项目中的个人规则、skills 和项目级 MCP 配置。backend 是通过 SSH 访问目标的执行端，可位于同机、容器或远端；AI 取得 tools 后按操作选择并继续原任务。
 
 ```text
 agent project (rules, skills, MCP registration)
@@ -60,7 +60,7 @@ pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfi
 | 本 skill 同目录的 `.env.mcpshell` | backend handle、目标 project root、agent staging root 的本机值 |
 | 同目录 `.gitignore` 与 `.env.mcpshell.example` | 忽略真实 env；提供可跟踪的字段说明 |
 
-server identity 是创建、恢复和精确移除这组 tools 的稳定名称。project root 是 backend 所见的目标项目绝对路径；staging root 是 agent 环境的任务交换区。runtime 每次调用读取 env，因此 env 修改从**下一次调用**生效；修改后先重新核验 root。不要把本机路径或连接信息写入跟踪配置。
+server identity 是创建、恢复和精确移除这组 tools 的稳定名称。project root 是 backend 所见的目标项目绝对路径；staging root 是 agent 环境的任务交换区。每次调用都会读取 env，修改从**下一次调用**生效；修改后先重新核验 root。不要把本机路径或连接信息写入跟踪配置。
 
 ### 2. 先审阅 action，再在授权后 apply
 
@@ -119,7 +119,7 @@ runtime deadline 为 shell/patch 110 秒、put/get 290 秒；对应 YAML outer t
 1. AI 能区分 agent 项目、目标 project root 与 agent staging root，并从正确位置恢复注册和本机配置。
 2. 四项 tools 的实际名称和固定 roots 已恢复；shell 的 root 与失败结果已验证。
 3. 后续查看、修改与传输按“选择 tool”执行，目标项目只收到原任务要求的内容。
-4. 原任务所需的可观察结果已按所用 tool 的完成证据核验：shell 看 stdout、stderr、退出状态和 root，patch 看内容与 Git diff，file 看两端路径、byte count 和 SHA-256。
+4. 原任务所需的可观察结果已按“选择 tool”的完成证据核验；patch 另核验内容与 Git diff。
 
 ## 自更新
 

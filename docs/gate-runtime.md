@@ -1,6 +1,6 @@
 # Gate 运行结果与诊断
 
-本文供维护者排查本仓库 Gate 的执行、输入证明与性能结果；证明模型见[项目验证模型](validation-model.md)，命令、范围、预算和结算边界见[项目工具链](tooling.md#权威-vibe-门禁)。新增或修改 Check 时另读 [Gate Check 编写与接入](gate-check-authoring.md)。
+本文供维护者排查本仓库 Gate 的执行、输入证明与性能结果；证明模型见[项目验证模型](validation-model.md)，命令、范围、预算和结算边界见[项目工具链](gate-execution.md#权威-vibe-门禁)。新增或修改 Check 时另读 [Gate Check 编写与接入](gate-check-authoring.md)。
 
 ## 从结果定位失败
 
@@ -15,7 +15,7 @@
 | `checks/**/process.log` | 单个命令完整 stdout/stderr transcript。 |
 | `diagnostics/core.log`、`scheduler.log` | 仅 `--diagnostic-log` 启用并回显。 |
 
-增量计划中 `tool-triggered` 表示共享能力 flag 带入，`prerequisite-triggered` 表示成功前置带入，均计入 execute。quick 的 `counts` 覆盖必要 10 项（包括每轮执行的检查），`decisions` 只投影其中可复用证明条目，`completeChangePlan` 保留完整原候选；full/CI 的 `counts` 和 `decisions` 覆盖 base 66 项，不含未激活的 release 3 项。性能样本和阈值的准确含义见[性能报告与快速预算](tooling.md#性能报告与快速预算)。
+增量计划中 `tool-triggered` 表示共享能力 flag 带入，`prerequisite-triggered` 表示成功前置带入，均计入 execute。quick 的 `counts` 覆盖必要 10 项（包括每轮执行的检查），`decisions` 只投影其中可复用证明条目，`completeChangePlan` 保留完整原候选；full/CI 的 `counts` 和 `decisions` 覆盖 base 66 项，不含未激活的 release 3 项。性能样本和阈值的准确含义见[性能报告与快速预算](gate-policy.md#性能报告与快速预算)。
 
 ## 输入证明诊断
 

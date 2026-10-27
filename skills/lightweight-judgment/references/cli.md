@@ -1,6 +1,6 @@
 # CLI 操作契约
 
-本文是随 skill 分发的 CLI 操作 owner，定义运行、配置、输入输出、校验和错误处理。可选 SQLite 留存与恢复由 [调用日志](call-logging.md) 承接，离线统计由[统计契约](statistics.md)承接。
+本文是随 skill 分发的 CLI 操作入口，定义日常调用、输入输出、校验和错误处理；[配置与连接](cli-configuration.md)承接配置的精确合同。可选 SQLite 留存与恢复由 [调用日志](call-logging.md) 承接，离线统计由[统计契约](statistics.md)承接。
 
 使用 Node.js 24.18 或更新版本直接运行 `scripts/lightweight-judgment.ts`；兼容依赖复用与独立安装见[工具运行前置](../SKILL.md#工具运行前置)。下列绝对路径均为占位示例，调用前替换为实际路径。
 
@@ -14,73 +14,23 @@ CLI 负责配置、输入、鉴权、请求发送、响应校验、可选调用�
 
 ## 配置
 
+首次调用或配置变化时，先按[配置与连接](cli-configuration.md)选择可信配置，再运行 `doctor` 和离线预览。配置文件只选择一个，不跨文件合并；默认通道与调用顺序见上文。更换接收方须先确认数据外发和费用授权，凭据不得进入请求正文、仓库或用户输出。
+
 ### 文件与默认值
 
-配置文件按优先级选择一个，不跨文件合并：
-
-1. 全局 `--config <path>`。
-2. 环境变量 `LIGHTWEIGHT_JUDGMENT_CONFIG`。
-3. 用户目录的 `.config/lightweight-judgment/config.json`。
-
-显式选择的文件缺失时报错；默认文件缺失时使用默认值。选中的现有文件不可读或无效均报错。未知字段拒绝；缺省 adapter 的兼容默认值如下：
-
-```json
-{
-  "adapter": "openrouter-systemone",
-  "images": false,
-  "longContext": false,
-  "endpoint": "https://openrouter.ai/api/v1/systemone",
-  "model": "typesafe/jev-1.13",
-  "apiKeyEnv": "OPENROUTER_API_KEY",
-  "timeoutMs": 15000,
-  "logging": {
-    "enabled": false,
-    "databasePath": "~/.local/share/lightweight-judgment/calls.sqlite3",
-    "saveRequest": false,
-    "saveResponse": true
-  }
-}
-```
-
-`adapter` 另可为 `typesafe`、`openrouter-decisions`、`openai-decisions`。这些新合同必须显式提供 endpoint、model，以及 apiKey 或 apiKeyEnv；不继承旧地址、模型或密钥变量。选合同后再验证各来源，未知合同与非法组合在发送前拒绝。`images`、`longContext` 均为布尔值，默认 false，仅由可信配置设置，没有同名推理 CLI 开关；支持组合见[模态合同](protocol-adapters.md)。
-
-例如仓库外 OAI 私有配置（地址与 model 仍须按实际账号核对，本例不证明可用）：
-
-```json
-{
-  "adapter": "openai-decisions",
-  "endpoint": "https://api.openai.com/v1/decisions",
-  "model": "gpt-6-luna",
-  "apiKeyEnv": "OPENAI_API_KEY"
-}
-```
+配置来源优先级、缺省值和其他 adapter 的必填项见[文件与默认值](cli-configuration.md#文件与默认值)。
 
 ### 连接与凭据
 
-`endpoint` 须为完整 URL，不自动拼接路径；`--endpoint <URL>` 可覆盖本次调用，配置值仍须合法。允许 HTTPS，以及 `localhost`、`127.0.0.1`、`[::1]` 的 HTTP；拒绝 URL 中的用户名、密码、查询参数与片段。自定义服务仍须兼容所选 adapter；endpoint 覆盖不重选合同或凭据，不由 hostname 推断协议；更换接收方须先确认外发授权。
-
-凭据来源按以下顺序选择：
-
-1. 配置中的可选 `apiKey`；提供时直接使用，不回退到环境密钥。
-2. 未提供 `apiKey` 时，读取 `apiKeyEnv` 指定的环境变量。变量名须以字母或下划线开头，后接字母、数字或下划线。
-
-两种来源的密钥均须为非空、无空白的可打印 ASCII 字符；显式空值报错。优先用环境变量避免明文配置留存；确需 `apiKey` 时使用仓库外的私有文件，不放入版本控制。CLI 不提供会暴露于进程参数的 `--api-key`，不输出密钥值。
-
-所有调用均非交互式，配置创建和凭据注入由使用者显式完成。请求数据不能覆盖 endpoint、凭据来源、超时或日志设置；CLI 不自动加载项目 `.env`、写入配置、跟随重定向转发凭据或尝试其他账号。
+地址限制、凭据来源优先级与保密要求见[连接与凭据](cli-configuration.md#连接与凭据)。
 
 ### 模型与超时
 
-JEV 模型接受 bare `jev-*`、作者前缀 `typesafe/jev-*` 与 namespaced alias `~typesafe/jev-*` 形状的 JEV 标识，原样发送；`openrouter-decisions` 另支持 `openai/gpt-6-luna-decisions` 并按其模型级能力门禁，见[选择合同](protocol-adapters.md#选择合同)。直接 OAI 使用自身模型标识，不把 JEV 名翻译为 OAI 名。本地形状校验不证明标识当前可用。
-
-`model` 优先级为 `--model` > 请求中的 model > 配置；各来源须先通过自身校验，覆盖只决定发送值。实际版本以响应为准。
-
-`timeoutMs` 须为 1–2147483647 的整数；`--timeout-ms` 仅覆盖本次等待。15 秒是操作默认值而非实测最优值或 SLA。
+标识校验、模型选择优先级和超时范围见[模型与超时](cli-configuration.md#模型与超时)；本次覆盖参数见[推理参数](#推理参数与帮助)。
 
 ### 可选调用日志
 
-日志默认关闭；设置 `logging.enabled: true` 后，真实推理通过输入和凭据校验才创建或打开 SQLite 库。`help`、`doctor`、`dry-run` 均不访问数据库。开启前按 [调用日志](call-logging.md) 确认正文留存、私有路径与数据权限。
-
-启用后先提交发送意图，再调用 HTTP；检查结果时同时检查 `meta.persistence` 和退出码。正常读写只接受当前日志结构；遇到旧库，按[旧库处理](call-logging.md#当前格式与旧库处理)选择重新建库或保留数据的迁移。存储失败使用退出 4，保留已知远端结果，具体处理见下方“技术失败”。
+日志默认关闭；启用条件、存储失败和恢复入口见[可选调用日志](cli-configuration.md#可选调用日志)。
 
 ## 命令与输入
 
@@ -117,45 +67,7 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts json --
 | `noul` | 可省略；提供时为只含 `true`／`false` 的对象，两字段均可省略，条件为字符串、对象或数组 |
 | `box` | 不接受 criteria；须满足[模型／图片前置](protocol-adapters.md#jev-box) |
 
-双题示例：比较两份共同适用的规范，分别判断是否冲突、是否各有独有要求。以下为虚构的完整材料，两题共享 state；可保存为 JSON 后通过 `json --file` 发送：
-
-```json
-{
-  "state": {
-    "scope": "两份规范当前均适用于同一项目的每次正式发布，没有例外条件。",
-    "a": {
-      "id": "A",
-      "text": "发布前必须完成安全检查。版本号采用递增整数。"
-    },
-    "b": {
-      "id": "B",
-      "text": "发布前允许跳过安全检查。发布时必须附带变更说明。"
-    }
-  },
-  "questions": {
-    "conflict": {
-      "type": "choice",
-      "instructions": "依据 state.scope，比较 state.a.text 与 state.b.text 是否对同一行为提出互不相容的要求或许可；一方要求必做而另一方允许不做，也属于冲突。",
-      "criteria": {
-        "conflict": "共同适用时存在互不相容的要求或许可",
-        "compatible": "材料足够，且共同适用时要求与许可相容",
-        "insufficient": "正文或适用条件不足以确定是否相容"
-      }
-    },
-    "distinct_requirements": {
-      "type": "choice",
-      "instructions": "只根据 state.a.text 与 state.b.text 判断：双方是否各自包含对方未覆盖的要求？有无独有要求与是否存在局部冲突分别判断。",
-      "criteria": {
-        "yes": "双方各有对方未覆盖的要求",
-        "no": "至少一方的全部要求已被另一方覆盖",
-        "insufficient": "正文不足以确定要求是否被覆盖"
-      }
-    }
-  }
-}
-```
-
-阅读预期（非服务实测）：`conflict=conflict` 且 `distinct_requirements=yes`。安全检查的要求与许可冲突，版本号和变更说明则各自独有；两种性质可以同时成立。两题均保留缺证出口，实际使用时核对正文与适用条件，再由 agent 复核原文形成建议；改写、合并或删除遵循原任务授权。
+同一 state 的独立判断可以组合为多题；候选设计和阅读预期见[双题请求示例](request-examples.md#同一材料的独立双题)。
 
 ### `ask`：单题参数
 
@@ -171,17 +83,6 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts ask --t
   --option "feature=请求新增能力" \
   --option "other=信息足够，但不属于以上类别" \
   --option "unclear=信息不足"
-
-node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts ask --type score \
-  --text-file /absolute/path/message.txt \
-  --question "这段文本表达的紧迫程度如何？" \
-  --level "未提出时限或急迫要求" \
-  --level "希望尽快处理，但未要求立即处理" \
-  --level "明确要求立即处理"
-
-node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts ask --type noul \
-  --text "请把刚才的版本回退。" \
-  --question "是否明确请求回退版本？"
 ```
 
 Choice 重复 `--option key=description`，按第一个等号分隔，键唯一；Score 重复 `--level`，顺序即等级。不同题型的 criteria 参数不可混用。Box 不接受 criteria；复杂 instructions、图片 state、结构化 criteria、Noul 的 true／false 定义及多题使用 `json`。

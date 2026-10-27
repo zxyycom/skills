@@ -24,7 +24,7 @@
 2. **语义清楚**：按可独立审查和回滚的语义分组，用稳定类型、中文全角冒号、中文标题与正文 bullet 表达意图。
 3. **证据真实**：复核实际 diff 与快照，正文只描述真实改动和实际验证；未运行验证、无关残留与范围风险留在交付说明中。
 
-精确的类型、暂存方式、消息格式和检查流程由 [SKILL.md](../../skills/git-commit-organizer/SKILL.md) 承接。
+暂存方式与检查流程由 [SKILL.md](../../skills/git-commit-organizer/SKILL.md) 承接；精确类型和消息格式见[提交类型与信息](../../skills/git-commit-organizer/references/commit-message.md)。
 
 ## 发展方向
 
