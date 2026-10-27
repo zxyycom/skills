@@ -4,7 +4,7 @@
 
 ## Context
 
-本 Change 提炼可独立使用的写作辅助能力，与[卡片写作工作流](../establish-card-driven-novel-writing/design.md)各有交付结果。两者按实际需要协作，辅助能力的提炼与验证可独立推进。
+本 Change 提炼可独立使用的写作辅助能力，与[卡片写作工作流](../../skills/novel-cards/SKILL.md)各有交付结果。两者按实际需要协作，辅助能力的提炼与验证可独立推进。
 
 以下是初始参考；采用前需核对具体版本、许可及行为证据。
 
