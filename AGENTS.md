@@ -1,81 +1,64 @@
 # Agent Instructions
 
-## 目标与适用范围
+## 范围与导航
 
-1. 本文件约束 agent 在本仓库内的协作方式、改动边界和交付检查。
-2. 本仓库是 Codex skills 单仓库, 集中维护多个 skill 本体、共享工具链、决策记录、聚合打包发布和项目级维护说明。
-3. 评估仓库目标、skill 选择与启用边界或分发边界时, 先读取 `docs/repository-model.md`。
-4. `skills/` 是 skill 本体根目录; 每个一级目录代表一个可打包分发的 skill, 且必须包含 `SKILL.md`; 其 frontmatter 的 `metadata.version` 保存正整数字符串形式的独立版本。
-5. 根目录维护跨 skill 的共享能力, 包括仓库说明、维护约定、决策记录、工具链、自动化、CI 和聚合发布。
-6. 长期文档只沉淀当前仓库内可维护、可复用、当前有效的信息; 仓库外路径、临时来源、迁移过程和一次性调查上下文不进入长期文档。
-7. 改动范围以用户请求为准; 不为整理风格、统一措辞或顺手清理而重写无关文件。
+本仓库集中维护 Codex skills 及其共享工具链。本文约束仓库内的协作、改动范围和交付义务；[仓库导航](docs/navigation.md) 统一维护任务路由、内容 owner 和必读材料。
 
-## Skill 指代与概览
+- 开始任务时按导航确认适用流程与内容 owner，只补读本次涉及的材料。目标已明确时可直接读取，但仍须核对该任务的前置与验收义务。
+- 对话中未给路径的 skill 名称默认指 `skills/` 下的本仓库 skill；已给出路径时按该路径定位。
+- 使用或维护某个 skill，以其 `skills/<skill-name>/SKILL.md` 为行为入口，按读取策略加载引用；人类介绍仅按需了解定位和背景。
 
-1. 在本仓库的对话、任务和维护说明中, 只提到 `skill`、skill 名称或某类 skill, 且未直接给出路径时, 默认指 `skills/` 下由本仓库维护的 skill。
-2. 对话中直接给出路径时, 按该路径定位 skill; 不因本仓库存在同名目录而改写其来源。
-3. 解析到仓库内 skill 后, 以对应的 `skills/<skill-name>/SKILL.md` 为行为入口, 并按该文件的读取策略加载必要引用。
-4. 以下概览只用于让 agent 了解本仓库维护的 skill 及其大致核心内容; 需要进一步理解时再读取对应 `SKILL.md` 和人类介绍:
-   - `product-architecture-judgment`: 从产品价值和架构责任判断工程事项是否该做、做到什么程度以及由谁实现。
-   - `common-denominator-design`: 识别多个现实场景可共同依赖的契约边界, 并决定公约数的数量与层次。
-   - `dependency-boundary-design`: 判断分散的依赖调用是否需要收口, 并形成明确的责任边界。
-   - `minimal-implementation`: 在目标和责任明确后, 比较正确候选的整体维护面并选择更小方案。
-   - `novel-cards`: 用详情与递归总结组织小说规划、分层修改、按卡写作和正文反推对照；以独立章节编号定位，用版本快照与统一变迁连接故事演进和作者修订。
-   - `image-creation`: 以提示词工程结合实际参考与可选结构引导完成生图或编辑，逐次保存生成目的、实际原词和回看结果；支持仅提示词或诊断。
-   - `video-understanding`: 按交付物和范围读取视频文字与画面，用本地工具维护可回查证据，形成总结、答案或操作步骤。
-   - `lightweight-judgment`: 仅在用户点名该 skill 时启用, 以 JEV 载体调用 JEV 或 OpenAI Decisions 进行低成本、低延迟的分类、候选选择、相关性筛选和评分; 配套自包含 CLI 支持单次请求、离线检查与响应校验。
-   - `skill-design-discovery`: 在创建或重构 skill 前, 从现实材料恢复流程、判断、约束、权限和验证义务。
-   - `investigation-report`: 以带稳定 ID、tags 与显式关系的单份报告保存可独立复核的调查背景、依据、结果与边界。
-   - `test-design`: 从真实错误和行为契约设计、编写与改进测试，选择最小充分边界、区分性数据和独立预期，兼顾辨错能力、合理重构兼容性与必要成本。
-   - `test-evidence-review`: 以最小原生测试入口为单位审查测试证据，区分测试节点与聚合容器或内部环节，并维护带 Tests、可选 tags、Contract 与 Proves 的 Case-only 账本。
-   - `ai-ready-docs`: 优化说明、规则、任务和工作流等文档, 使 AI 能准确理解和可靠使用。
-   - `file-lifecycle-hygiene`: 以轻量习惯管理 agent 主导的文件输出、复制、移动和留存, 让最终产物与辅助物都有可理解的归宿。
-   - `skill-maintainer`: 维护 skill 的能力归属、组成和交付边界。
-   - `git-commit-organizer`: 整理当前 Git 改动并创建范围清楚、信息可追踪的提交。
-   - `change-plan`: 用 proposal、design、tasks 与 draft/plan 元数据维护明确 Change，并在 Plan 内推进任务；以 `finalize` 结项时删除短期目录。
-   - `task-graph`: 用权威 JSON 索引维护当前工作中可恢复的候选、父子、依赖、排斥和执行租约。
-   - `codex-shell-permissions`: 指导 shell 失败后的下一步命令选择, 并在用户要求时维护 Codex 权限 rules。
-   - `mcpshell-workspace-tools`: 当 AI 与目标项目处于不同执行边界时提供 shell、apply-patch 与双向单文件便捷 tools，按操作选择后继续原任务。
-   - `ast-grep`: 使用 ast-grep CLI 按 AST 结构概览、搜索、规则扫描和受控重写代码。
-   - `decision-records`: 以可回放记录与索引维护长期决策及其演进关系。
-   - `subagent-orchestration`: 维护复杂任务的子代理拆分、上下文控制、写入所有权和结果审计。
-5. 仓库内 skill 的实际清单以 `skills/*/SKILL.md` 为准; 新增、重命名或移除 skill 时同步更新本节概览。
+## 协作与改动边界
 
-## 工作流程
+- 修改前检查主仓库状态；目标路径已有改动时先检查 diff，保留无关工作。无法判断能否安全延续时，再询问用户。
+- 改动以当前任务授权为界。只读审阅交付发现与建议；实施任务在正确 owner 修改，不因整理风格或目录相邻扩大范围。
+- 删除、覆盖或外部写入前，确认精确目标、影响、授权和恢复边界；敏感值不写入仓库、日志或面向用户的输出。
+- 项目级维护与 skill 本体按各自职责修改；先确认实际源码 owner，再通过项目公开入口同步受影响的生成与分发产物。
+- 理解代码结构与调用关系时优先使用可用的 CodeGraph；结果不精确、索引陈旧或工具不可用时，用限定路径的 `rg` / `rg --files` 补充。
+- 维护操作使用项目公开命令入口，具体命令及适用例外由相应 owner 定义。
+- 打包产物、依赖目录和 workflow 运行产物不作为长期源文件提交。
 
-1. 修改前先检查主仓库状态; 保留无关改动, 目标路径已有改动时先检查 diff, 无法确认能够安全延续时再询问用户。
-2. 编辑前先通过 `docs/navigation.md` 判断内容 owner; 只在当前文件适合承接该信息时修改当前文件。
-3. 理解实现代码结构、符号调用关系或改动影响时, 优先使用当前可用的 CodeGraph 工具; 结果不精确、索引陈旧或工具不可用时, 再用带路径过滤的 `rg` / `rg --files` 补充。CodeGraph 的环境、索引与 MCP 边界见 `docs/tooling.md#环境自举`。
-4. 排查或解决 Bug 时按 `docs/complex-bug-investigation.md` 建立问题框架、取得区分性证据、闭合根因、修复并验证; 当前用户没有明确选择时, 结构性复杂度与独立复核价值同时成立的 Bug 自动形成调查报告, 其他 Bug 在当前任务内完成。
-5. 在本仓库内调用领域维护 CLI 时, 按 `docs/tooling.md#仓库维护短命令` 使用已经列出的 `bun run <command> -- <arguments>`; 完整路径只用于该节声明的源码与生成边界验证、入口调试和仓库外可移植说明。
-6. 修改 `scripts/` 或 `tools/` 下的实现代码时, 先读取 `docs/coding-style.md`, 再按任务读取相关行为 owner 和 `docs/tooling.md`。
-7. 修改 skill 本体时进入 `skills/<skill-name>/`; 只修改项目级文档、脚本、CI 或配置时, 不顺手改 skill 本体。
-8. 同时修改 skill 本体和可分发工具源码时, 先确认 `tools/` 源码、`scripts/` 构建适配和 `skills/` 生成产物的 owner 分工, 再让文档和验证入口保持一致。
-9. 新增 skill 时, 在 `skills/<skill-name>/` 放置本体, 在 `SKILL.md` frontmatter 写入初始 `metadata.version`, 按需在 `docs/skills/` 增加人类介绍, 再确认聚合打包和自更新脚本覆盖该 skill。
-10. 新增或调整主仓库自动化时放在 `scripts/`; 新增需要随 skill 分发的工具实现时放在 `tools/`, 真实跨工具运行时能力再进入 `tools/shared/` 或独立协议 owner; skill 专属规则仍留在对应 skill 目录。
-11. 打包产物、依赖目录和 workflow 运行产物不作为长期源文件提交。
-12. 新增、修改、删除或审查测试实现时，按 `skills/test-design/SKILL.md` 判断测试设计与改进，按 `skills/test-evidence-review/SKILL.md` 核对并按需维护证据账本。当前账本覆盖 `test:*` 保留的全部可独立选择和报告的最小原生测试入口，测试框架不限；Case 格式、目录与索引事务由该 skill 承接，项目实体快照与覆盖策略见 `docs/tooling.md#测试证据账本`。
-13. 当前 worktree 启用 `.githooks` 后，使用者即已授权 `post-commit` 按[项目工具链](docs/tooling.md#git-hook)定义自动推送。agent 获得当前 commit 授权后，不再为该自动推送单独请求授权或绕过 hook；当前任务明确要求停用或限制自动推送时，按该要求执行。此许可不覆盖手工调用 helper、手工或强制 push、其他 remote/ref。
+## 文档与项目级记录义务
 
-## 写作约定
-
-1. 正文主要使用中文; 除用户要求、目标文件已有语言要求或代码/API 名称外, 新增维护文本保持中文。
-2. 规则写成当前推荐做法、判断条件或验收标准; 不把旧方案、迁移痕迹或一次性错误写成长期提醒。
-3. 新增长期规则前先判断是否引入新的 owner 边界、执行约束或验收标准; 只是已有规则的重复例子时, 合并到 owner 位置或删除。
-4. 跨文件引用优先指向稳定 owner 文档; 不在多个位置重复解释同一规则。
-
-## 决策记录
-
-1. 决策记录只记录后续维护需要回放原因的判断, 不作为变更日志。
-2. Skill 行为、触发条件、读取策略、引用 owner、规则边界或验收标准发生变化时, 按决策记录规则判断是否达到记录门槛。
-3. 项目级决策只在改变长期维护契约、目录边界、自动化交付方式或跨文件 owner 时记录。
-4. 单个 skill 专属决策要写明适用 skill 和当前 `skills/<skill-name>/` 路径, 避免写成全部 skill 的通用规则。
-5. 普通文字修正、格式调整、链接修复和按既有规则执行的一次性细节不记录。
-6. Decision Records 的当前集合以 Decision ID、记录级非空 tags 和 status 派生的根目录或 `archive/` 位置维护；具体格式、事务与查询规则只由 `skills/decision-records/` 承接。
+- 新增维护正文主要使用中文，尊重目标文件已有语言要求及代码、API 名称。
+- 当前规范表达现行规则、推荐做法和验收标准；形成时认识、历史理由及必要迁移契约分别由调查报告、决策记录和对应领域 owner 承接。临时路径、过程日志和一次性错误不充当长期规则。
+- 新增长期规则前，确认它引入了实际的 owner 边界、执行约束或验收标准；已有规则覆盖的内容回到 owner 合并，跨文件优先引用稳定 owner。
+- 用户未明确选择调查载体时，同时具备结构性复杂度和独立复核价值的 Bug 自动形成报告；写入范围及是否实施修复仍服从当前任务授权。
+- 新增、修改、删除或审查测试实现时，核对测试设计与证据覆盖，并按需维护账本；仅设计方案不自动创建测试或账本。
+- Skill 行为、触发、读取策略、引用 owner、规则边界或验收标准变化时，按领域标准判断决策记录门槛。项目级决策只记录长期维护契约、目录边界、自动化交付方式或跨文件 owner 的取舍；skill 专属决策写明适用 skill 及其 `skills/<skill-name>/` 路径。
 
 ## 验证与交付
 
-1. 修改主仓库维护文档、`scripts/`、`tools/`、CI、配置或 `skills/` 目录结构后, 完成维护工作前运行 `bun run check:changed`（或 CI 全量门禁）；`bun run check` 只提供 quick 日常反馈, 成功不代替完整变更验收。范围与预算见[项目工具链](docs/tooling.md#权威-vibe-门禁)。
-2. 只改某个 skill 本体时, 根据该 skill 内容选择最小验证; 涉及打包输入、hash 或 updater 时同步运行主仓库相关检查。
-3. 提交或汇报前说明实际运行过的验证; 未运行验证时直接说明原因。
-4. 聚合发布须完成 Linux 全仓 release Gate 和 Windows 视频源码／同次制品验收；日常任务交付与远端 CI 等待边界、发布及合并保护要求由[项目工具链](docs/tooling.md#ci-与发布)承接。
+- 修改主仓库维护文档、`scripts/`、`tools/`、CI、配置或 `skills/` 目录结构后，完成维护前运行 `bun run check:changed` 或 CI 全量门禁；`bun run check` 仅提供 quick 反馈，不替代完整变更验收。范围与预算见 [权威 Vibe 门禁](docs/tooling.md#权威-vibe-门禁)。
+- 仅修改单个 skill 本体时，按其内容选择最小验证；涉及打包输入、hash 或 updater 时补齐主仓库相关检查。聚合发布另须完成发布验收，日常检查不替代发布证明。
+- 提交前确认改动归属、验证证据和提交范围，只提交属于当前任务的内容；提交与远端写入服从当前授权。
+- 当前 worktree 启用 `.githooks` 后，使用者已授权 [Git hook](docs/tooling.md#git-hook) 定义的 `post-commit` 自动推送。取得当前 commit 授权后，无需再次请求该自动推送授权，也不绕过 hook；当前任务明确限制自动推送时服从该限制。此许可不覆盖手工调用 helper、手工或强制 push、其他 remote/ref。
+- 交付说明实际改动、已运行的验证、未验证边界和剩余风险；区分文件写入、命令成功、测试通过与实际环境生效。
+
+## Skill 速览
+
+以下仅帮助识别能力，不自动启用各 skill。实际清单以 `skills/*/SKILL.md` 为准；新增、重命名或移除 skill 时同步本节，并按需同步面向人类的 skill 入口。
+
+- `product-architecture-judgment`：判断工程事项的产品价值、投入程度与架构责任。
+- `common-denominator-design`：识别现实场景可共同依赖的契约边界。
+- `dependency-boundary-design`：判断依赖调用是否需要收口及由谁负责。
+- `minimal-implementation`：在正确候选中选择整体维护面更小的实现。
+- `novel-cards`：用分层卡片、章节定位与版本演进组织小说规划和写作。
+- `image-creation`：结合提示词、参考与回看完成生图、编辑或诊断。
+- `video-understanding`：按交付范围读取视频文字与画面，维护可回查证据。
+- `lightweight-judgment`：仅在用户点名时启用，完成低成本分类、选择、筛选和评分。
+- `skill-design-discovery`：从现实材料恢复 skill 设计所需的流程、判断与约束。
+- `investigation-report`：保存可独立复核的一轮调查认识及其依据和边界。
+- `test-design`：围绕真实错误与行为契约设计、编写和改进测试。
+- `test-evidence-review`：审查最小原生测试入口的证据能力并维护 Case 账本。
+- `ai-ready-docs`：优化文档语义与组织，使 AI 准确理解和可靠使用。
+- `file-lifecycle-hygiene`：管理 agent 主导的文件输出、移动和留存。
+- `skill-maintainer`：维护 skill 的能力归属、组成与交付边界。
+- `git-commit-organizer`：整理改动并创建范围清楚、信息可追踪的提交。
+- `change-plan`：维护明确 Change 的提案、设计、实施任务与结项。
+- `task-graph`：维护当前工作的非线性关系、协调状态与执行租约。
+- `codex-shell-permissions`：选择 shell 失败后的执行路径，按用户要求维护权限规则。
+- `mcpshell-workspace-tools`：在隔离执行边界间操作目标项目的命令和文件。
+- `ast-grep`：按 AST 结构搜索、扫描和受控重写代码。
+- `decision-records`：维护长期判断的理由、适用范围与演进。
+- `subagent-orchestration`：拆分有界代理任务，控制上下文、写入所有权和结果审计。

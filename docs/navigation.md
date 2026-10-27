@@ -15,7 +15,7 @@
 | 仅设计测试方案或测试验收方法 | [Test Design](../skills/test-design/SKILL.md) | [项目测试边界](tooling.md#工具-cli-与-git-fixture-测试边界)、目标行为 owner 和相关实现；方案交付不自动创建测试、Case 或索引。涉及测试实现审查或改动时，另按 [Test Evidence Review](../skills/test-evidence-review/SKILL.md) 核对证据 |
 | 新增、修改、删除或审查测试实现 | [Test Design](../skills/test-design/SKILL.md)、[Test Evidence Review](../skills/test-evidence-review/SKILL.md) | [工具 CLI 与 Git fixture 测试边界](tooling.md#工具-cli-与-git-fixture-测试边界)、[测试账本覆盖](tooling.md#测试证据账本)、目标测试及被测契约；核对后按需写入 Case。仅运行既有测试或仅修改被测对象不触发此证据维护流程 |
 | 查询、整理或修复测试证据 Case | [Test Evidence Review](../skills/test-evidence-review/SKILL.md) | 写入 Case 时读取该 skill 的目录契约；需要改进测试实现时再进入 Test Design |
-| 创建、显著扩展或大幅重构 skill | [Skill Maintainer](../skills/skill-maintainer/SKILL.md)、已有目标 skill 的 `SKILL.md` | 真实流程、关键判断、约束或验收仍隐含或冲突时读 [Skill Design Discovery](../skills/skill-design-discovery/SKILL.md)；涉及通用分发边界时读 [仓库模型](repository-model.md) |
+| 创建、显著扩展或大幅重构 skill | [Skill Maintainer](../skills/skill-maintainer/SKILL.md)、已有目标 skill 的 `SKILL.md` | 新增 skill 时读 [Skill 接入](tooling.md#skill-接入)；真实流程、关键判断、约束或验收仍隐含或冲突时读 [Skill Design Discovery](../skills/skill-design-discovery/SKILL.md)；涉及通用分发边界时读 [仓库模型](repository-model.md) |
 | 调整仓库定位、skill 选择与启用边界或通用分发边界 | [仓库模型](repository-model.md) | 涉及具体打包、发布或 updater 机制时读 [项目工具链](tooling.md)；只影响特定 skill 时读其行为 owner |
 | 维护项目文档或优化其 AI 可读性 | 目标文档及本文的内容 owner | 需要改善 AI 对文档的理解或使用时读 [AI-Ready Docs](../skills/ai-ready-docs/SKILL.md)；纯视觉润色不触发 |
 | 修改项目级 agent 协作约定 | [AGENTS](../AGENTS.md) | 改变任务路由或内容 owner 时读本文；需要让文档更适合 AI 阅读和使用时读 [AI-Ready Docs](../skills/ai-ready-docs/SKILL.md) |
@@ -49,7 +49,7 @@
 | 内容 | Owner | 承接范围 |
 | --- | --- | --- |
 | 项目首页 | `README.md` | 项目起点、当前方向和面向人类的 skill 入口 |
-| Agent 协作约定 | `AGENTS.md` | 仓库级适用范围、skill 概览、工作流程、写作约定、决策门槛和交付要求 |
+| Agent 协作约定 | `AGENTS.md` | 仓库级协作与授权边界、skill 指代与速览、写作及项目级记录义务、验证和交付要求 |
 | 仓库导航 | `docs/navigation.md` | 任务对应的先读内容、稳定内容 owner 和仓库位置 |
 | 仓库模型 | `docs/repository-model.md` | 仓库目标、skill 选择与启用、集中维护和轻量分发边界、受管记录身份与位置、验证职责 |
 | 项目工具链 | `docs/tooling.md` | 环境、稳定命令、源码与生成边界、校验、打包、Git hook、CI 和 release 主线 |
