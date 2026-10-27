@@ -65,7 +65,7 @@
 1. `checkId` 是稳定 machine 身份，显示名、顺序、耗时和资源变化不改语义身份。语义 Check 用 `test:<owner>:<contract>`，包脚本由适配器派生 `script:<package-script>`；`displayName` 用简短英文描述对象。
 2. 每次 invocation 保留相同完整 ID 集合。scope、项目输入证明和成功前置通过原生条件与 flags 选择，不动态删除成员；新增 quick eligible 项改变反馈责任和性能预算的实际负载，应显式复核并测试，新增公开 tag 需要独立产品契约设计。
 3. 普通命令通过现有 `createSemanticGateCheck` / `createPackageScriptCheck` 构造独立 `commandCheck`，复用共享命令政策和 `gateCheckDeclaration`，取得环境前置及资源声明。argv 保持参数数组；cwd、继承环境、transcript、限额与失败重跑按[运行时 owner](tooling.md#调度与命令执行)维护。
-4. 自定义 Check 使用 `prepare` 验证/准备本项 options，使用 `execute` 运行并决定终态。第一业务参数是 options，需要框架字段时通过 `defineContextCallback` 声明第二参数的 context；不依赖未声明字段。
+4. 自定义 Check 使用 `execute` 运行并决定终态；需要验证或准备本项 options 时增加 `prepare`。第一业务参数是 options，需要框架字段时通过 `defineContextCallback` 声明第二参数的 context；不依赖未声明字段。
 5. `passed` 表示契约成立，`failed` 表示违反规则，带稳定 reason code 的 `unavailable` 表示无法形成可信结论，`not-applicable` 表示本次不适用。passed/failed 的 data 为 object；Records 只作补充事实。可等待 I/O 与子进程协作响应取消，不遗留未等待工作。
 6. machine data、Records 与 message 只含安全、有界摘要；完整命令原文进入 Check transcript，敏感业务材料留在授权的 Check-owned artifact。
 

@@ -12,6 +12,7 @@
 | 使用或审阅某个 skill | `skills/<skill-name>/SKILL.md` | 该入口按读取策略指向的 `references/`、`scripts/` 或其他材料；按需读取对应 `docs/skills/<skill-name>.md` |
 | 排查或解决 Bug | [复杂 Bug 调查与报告](complex-bug-investigation.md) | 目标代码、测试和领域 owner；需要形成报告时，读取 [Investigation Report](../skills/investigation-report/SKILL.md) 及其固定契约 |
 | 维护或恢复非线性任务图 | [Task Graph](../skills/task-graph/SKILL.md)，按其流程使用工具查询 | 需要检查权威数据位置时见下方 owner 表；需要持久 change、长期知识或代理编排时按该 skill 的交接条件读取对应 owner |
+| 仅设计测试方案或测试验收方法 | [Test Design](../skills/test-design/SKILL.md) | [项目测试边界](tooling.md#工具-cli-与-git-fixture-测试边界)、目标行为 owner 和相关实现；方案交付不自动创建测试、Case 或索引。涉及测试实现审查或改动时，另按 [Test Evidence Review](../skills/test-evidence-review/SKILL.md) 核对证据 |
 | 新增、修改、删除或审查测试实现 | [Test Design](../skills/test-design/SKILL.md)、[Test Evidence Review](../skills/test-evidence-review/SKILL.md) | [工具 CLI 与 Git fixture 测试边界](tooling.md#工具-cli-与-git-fixture-测试边界)、[测试账本覆盖](tooling.md#测试证据账本)、目标测试及被测契约；核对后按需写入 Case。仅运行既有测试或仅修改被测对象不触发此证据维护流程 |
 | 查询、整理或修复测试证据 Case | [Test Evidence Review](../skills/test-evidence-review/SKILL.md) | 写入 Case 时读取该 skill 的目录契约；需要改进测试实现时再进入 Test Design |
 | 创建、显著扩展或大幅重构 skill | [Skill Maintainer](../skills/skill-maintainer/SKILL.md)、已有目标 skill 的 `SKILL.md` | 真实流程、关键判断、约束或验收仍隐含或冲突时读 [Skill Design Discovery](../skills/skill-design-discovery/SKILL.md)；涉及通用分发边界时读 [仓库模型](repository-model.md) |
@@ -35,9 +36,9 @@
 
 | 当前需要保存的结果 | 最小载体 | 载体退出条件 |
 | --- | --- | --- |
-| 只在当前任务中形成的想法、比较或临时步骤 | 当前任务上下文 | 当前任务结束后不另行持久化；需要独立复核时才按调查报告契约建立报告 |
+| 只在当前任务中形成的想法、比较或临时步骤 | 当前任务上下文 | 当前任务结束后不另行持久化；当前请求或生效项目规则要求保留独立调查时，按 [Investigation Report](../skills/investigation-report/SKILL.md) 建立报告 |
 | 跨 change 持续影响后续选择的方向、理由和长期约束 | Decision record | 决策按自身生命周期修订、拆分或归档；`active + unaligned` 只表示未来方向，不自动产生实施 task 或等待状态 |
-| 已经明确、需要跨文件或 owner 持久规划和交接的实施 change | Change plan | 完成后删除；不再实施的 draft 不作为未来资料柜，只有具备独立复核价值的调查材料才迁入调查 owner |
+| 已经明确、需要跨文件或 owner 持久规划和交接的实施 change | Change plan | 完成后删除；不再实施的 draft 不作为未来资料柜。需要保留的独立调查材料按[报告触发与边界](../skills/investigation-report/SKILL.md#目标与适用范围)另行归位 |
 | 已选择的当前工作所需的非线性协调，或具有明确外部条件的等待 | Task Graph task | 目标达成后完成；目标放弃或不再具有当前协调价值时取消；`waiting` 必须写明能够被观察的外部条件 |
 | 单个 Change 内的 readiness、implementation 和 verification 分解 | 该 Change 的 `tasks.md` | complete 后随 Change 目录删除，历史由 Git 恢复；不复制为 Task Graph 子任务，除非其中一项已经成为需要独立租约、关系或跨 Change 协调的当前工作 |
 
@@ -63,8 +64,8 @@
 | 共同记录操作 | `tools/record-operations/` | Decision Records 与 Investigation Report 的共同操作编排、阶段证明交接和失败边界；领域规则与适配仍归各域，stage 协调仍归 Index Runtime；入口见该目录 README |
 | 可分发工具源码 | `tools/<tool-name>/` | 随 skill 分发的源码、声明、测试、fixture 和局部组件契约；`tools/shared/` 承接跨工具运行时不变量，`tools/skill-package/` 承接发布端与 updater 共用的分发协议 |
 | 主仓库自动化与共享交付 | 主仓库根目录、`scripts/` 和 CI 配置 | 命令编排、生成适配、共享校验、打包、聚合发布、依赖入口、Git 和 CI 自动化；不承接随 skill 分发工具的运行时源码 |
-| 调查报告 | `docs/investigations/<investigation-id>.md`、`docs/investigations/investigation-index.json` | 根目录直属 Markdown 各承接一份可独立复核的报告；Investigation ID、tags、关系、资源与验证含义由 `skills/investigation-report/references/investigation-report-contract.md` 承接，调用前提与操作结果由同目录 `cli-operations.md` 承接，JSON 是派生索引 |
-| 长期决策 | `docs/decisions/*.md`、`docs/decisions/archive/*.md`、`docs/decisions/decision-index.json` | frontmatter `id` 声明稳定 Decision ID，basename 与 `sourcePath` 表达位置；非空 tags 承接分类，status 决定根目录或 `archive/` 位置；Markdown 承接生命周期、对齐状态和完整语义。`skills/decision-records/SKILL.md` 是 agent 行为入口，`references/decision-record-rules.md` 承接决策语义与维护不变量，`references/cli-operations.md` 承接调用前提与操作结果，JSON Schema 承接索引精确结构，索引 JSON 是查询投影 |
+| 调查报告 | `docs/investigations/<investigation-id>.md`、`docs/investigations/investigation-index.json` | Markdown 承接形成时认识与依据，JSON 是派生索引。[Investigation Report](../skills/investigation-report/SKILL.md) 是行为入口，按任务路由读取报告契约、CLI 操作与 Schema |
+| 长期决策 | `docs/decisions/*.md`、`docs/decisions/archive/*.md`、`docs/decisions/decision-index.json` | Markdown 承接完整判断、生命周期、对齐状态与演进，JSON 是派生索引。[Decision Records](../skills/decision-records/SKILL.md) 是行为入口，按任务路由读取领域规则、CLI 操作与 Schema |
 
 ## 维护规则
 

@@ -360,7 +360,14 @@ Vibe 的原生 `markdown-link-validation` Check 是当前维护 Markdown 链接�
 
 本仓库使用固定的 `docs/test-evidence/` 根目录、其中的 `cases/` 单 Case 文件和固定派生索引维护测试账本。账本覆盖 `test:*` 稳定入口保留的全部最小原生测试入口；每个 Case 按同一测试意图承接一个或多个可独立选择、单独报告的最小原生测试节点。框架不限，本仓库当前沿用 `node:test` API 定义节点；普通测试通过 `bun test` 执行，task-graph 原生 lock 集成测试通过其声明支持的 Node.js `--test` 执行。测试文件、package script 和完整检查仍只是聚合容器。
 
-Case 使用 Tests、可选 tags、Contract 与 Proves，由测试改动显式维护；工具不扫描源码、自动登记 Case 或执行测试。核心 `check`、查询和 `sync-index` 只读取 Case 与索引；项目 `snapshot:test-evidence` 产生 schema v2 实体快照，引用检查必须同时接收独立的 expected source。`check:test-evidence-catalog` 先检查 Case/index，再计算当前项目测试来源 revision；若 `.log/vibe-check/cache/test-evidence-snapshots-v1/<revision>.json` 是通过 schema、expected source 与引用校验的完整 snapshot fact，则直接复用实体集合，否则重新生成并以同一 revision 发布可丢弃 cache。无论是否命中，Case 引用、实体覆盖和结束来源漂移都在本次重新判断。快照引用有效不等同于测试执行通过，未引用实体在通用核心中合法。正文变化后运行 `sync:test-evidence-catalog`；完整检查中的 `check:test-evidence-catalog` 不写回版本管理文件。
+Case 使用 Tests、可选 tags、Contract 与 Proves，由测试改动显式维护。工具不扫描源码、自动登记 Case 或执行测试；核心 `check`、查询和 `sync-index` 只读取 Case 与索引。
+
+项目快照与校验按以下边界衔接：
+
+1. `snapshot:test-evidence` 产生 schema v2 实体快照；引用检查必须同时接收独立的 expected source。
+2. `check:test-evidence-catalog` 先检查 Case/index，再计算当前项目测试来源 revision。若 `.log/vibe-check/cache/test-evidence-snapshots-v1/<revision>.json` 是通过 schema、expected source 与引用校验的完整 snapshot fact，则复用实体集合；否则重新生成，并以同一 revision 发布可丢弃 cache。
+3. 无论是否命中缓存，Case 引用、实体覆盖和结束来源漂移都在本次重新判断。快照引用有效不等同于测试执行通过，未引用实体在通用核心中合法。
+4. Case 正文变化后运行 `sync:test-evidence-catalog`；完整检查中的 `check:test-evidence-catalog` 不写回版本管理文件。
 
 项目快照在单次调用内共享模块源码、import 与文件存在性事实，注册形状的规则匹配事实也在同次会话中共用，各 command 的可达闭包和注册集合仍独立计算；起止 source fingerprint 独立读取。每次顶层调用创建新会话，输入事实不跨调用复用。
 
@@ -449,7 +456,14 @@ pnpm --dir "<skill-directory>" install \
 
 ### 制品身份与独立版本
 
-Skill hash 和 zip 使用相同的版本管理 `pending` 快照，只覆盖最终进入 `skills/<skill-name>/` zip 的文件。默认 Git 实现把 `pending` 映射到 index，避免工作区覆盖和跨平台换行改变待提交制品。聚合 hash、zip 和 release 检测始终纳入每个包内文件的原始字节；这保证源码、锁文件、声明及其他制品字节改变都能得到不同的制品身份。每个 `SKILL.md` frontmatter 的 `metadata.version` 是手动维护的正整数字符串独立版本；版本门禁只对版本承载变化要求提升：`scripts/` 内由相邻 `.mjs` 的最后一个非空行以完整 `//# sourceMappingURL=<basename>` 指令链接的生成 `.mjs.map` 调试元数据编辑、新增或删除不承载版本，成对存在的 `.d.mts` 声明以根目录 `.oxfmtrc.json` 的配置规范化后比较，纯格式差异不承载版本；运行时 `.ts`、manifest、锁文件、声明语义、普通包内容以及声明的新增或删除仍承载版本，必须提升版本。
+Skill hash 和 zip 使用相同的版本管理 `pending` 快照，只覆盖最终进入 `skills/<skill-name>/` zip 的文件。默认 Git 实现把 `pending` 映射到 index，避免工作区覆盖和跨平台换行改变待提交制品。聚合 hash、zip 和 release 检测始终纳入每个包内文件的原始字节；这保证源码、锁文件、声明及其他制品字节改变都能得到不同的制品身份。
+
+每个 `SKILL.md` frontmatter 的 `metadata.version` 是手动维护的正整数字符串独立版本。版本门禁只对版本承载变化要求提升，以下变化不承载版本：
+
+1. `scripts/` 内生成的 `.mjs.map` 调试元数据编辑、新增或删除，且该文件由相邻 `.mjs` 的最后一个非空行以完整 `//# sourceMappingURL=<basename>` 指令链接。
+2. 成对存在的 `.d.mts` 声明以根目录 `.oxfmtrc.json` 的配置规范化后比较，只有格式不同。
+
+运行时 `.ts`、manifest、锁文件、声明语义、普通包内容以及声明的新增或删除仍承载版本，必须提升版本。版本例外不改变上述原始字节参与制品身份的规则。
 
 `hash:skills` 只在本次命令运行期间计算全部 skill 的聚合 hash，不把 hash 或 lock 写入仓库。它将 Git `pending` 快照中发生的版本承载变化与指定 Git 基线 `SKILL.md` 中的 `metadata.version` 比较；pre-commit hook 默认使用 `HEAD`。release Gate 将 `--baseline-ref <ref>` 交给 prepare；prepare 在普通 Check 结算期间解析该基线并运行版本分析，authorization 只消费 prepare 保留的结果。本地 release Gate 缺省基线为 `HEAD`，CI 传入事件基线。hash 用于标识本次制品，既不是 updater 输入，也不是长期状态。
 
