@@ -113,7 +113,7 @@ show 的完整正文读取交给共同操作的 `source.ts`；本域提供所选
 
 公开 scope、选择与安全前提见 [暂存操作契约](../../skills/investigation-report/references/cli-operations.md#待提交快照)。共同 scope 策略、H/W/P 投影兼容、pending 基底选中刷新与准备→fresh 复核→发布顺序由 [Index Runtime 内部记录暂存协调器](../index-runtime/README.md#记录领域的内部暂存协调)承接，本领域保留以下适配责任：
 
-`staging-domain-adapter.ts` 的单调用适配器管理固定 H 的资源成员事实与各阶段所需保留路径；可变字节仍逐阶段取得。`staging-domain-index.ts` 承接工作区索引原始字节、解析复用与完整 stage 图验证；`staging-pending.ts` 从所需索引或所选 canonical locator 定位 pending 身份／旧位置并接线 pending 投影。pending 捕获通过共同 `readRecordStagePending`，`staging-domain-membership.ts` 按所需保留路径决定复用本阶段 snapshot 或扩展保留集；身份发现与内容捕获各有明确入口。
+领域适配提供固定 HEAD 的资源成员、所选位置、索引与完整领域图；可变字节和目录事实逐阶段取得，身份发现与内容捕获不得混同。
 
 1. 准备和写前复核阶段各自维护目录名字索引，使用时仍核对身份、类型和 canonical 路径。同身份目录 metadata 改变时重新枚举，核对相关 exact、casefold 和缺失匹配；发现相关匹配、完整树成员或目录替换，容许无关 sibling 活动。目录事实只在本阶段有效。
 2. 两阶段在获取资源字节前检查资源根、owner 及全部路径分量，零引用或空树也不跳过。引用路径按领域字符契约，未引用成员只按安全普通文件路径检查。

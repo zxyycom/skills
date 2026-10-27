@@ -6,7 +6,7 @@ description: >-
   选择、领取并收敛任务；少量固定顺序步骤继续使用当前对话计划。
 compatibility: "Requires Node.js ^22.22.2 || ^24.15.0 || >=26.0.0 and Git for pending staging; workspace task-index mutations require a caller-provisioned compatible native runtime."
 metadata:
-  version: "28"
+  version: "29"
 ---
 
 # Task Graph
@@ -47,9 +47,9 @@ pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfi
 ## 内容 owner 与工具
 
 1. 本文件承接触发、任务记录判断、调度流程、权限边界、恢复和交接。
-2. `scripts/task-graph.ts` 同时是 CLI 和程序化导入模块。Service 与 dispatch 先产生结构化 raw result object；CLI 再按已识别的操作选择 JSON serializer、task-list renderer 或 task-index stage renderer。程序化调用直接导入同一份公开导出，不经过文本 renderer、JSON 往返或另一套 SDK 实现。
+2. `scripts/task-graph.ts` 同时提供 CLI 和程序化导入；调用方可直接使用其公开导出。
 3. `scripts/task-graph.d.mts` 及其包内声明树从同一 TypeScript 实现机械生成。[task index Schema](references/task-graph-index.schema.json) 描述权威索引结构。精确命令、参数、是否需要 native runtime、raw result 和错误结构以 JSON help 的 `requiresMutationRuntime`、公开声明及 Schema 为准；调用前使用 `help` 或 `help <command-path>` 恢复当前契约。
-4. 目标仓库的 `docs/task-graph/task-graph-index.json` 是该工作区任务图的唯一权威索引，只能通过工具事务化修改。系统临时目录中的空锁文件与原子写临时文件都不是事实源。
+4. 目标仓库的 `docs/task-graph/task-graph-index.json` 是该工作区任务图的唯一权威索引，只能通过工具事务化修改。系统临时目录中的空锁文件与原子写临时文件都不是事实源。索引 mutation 的互斥支持边界限于同一主机、本地文件系统、稳定索引路径和遵守 CLI 写入协议的写入者；不承诺网络文件系统或恶意本机路径竞争。
 
 ## 对象模型
 
@@ -78,13 +78,7 @@ pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfi
 
 ## Task list 输出与程序化边界
 
-1. 实际执行的 `task list` 默认输出全量静态文本视图；索引中的每个 task 使用实际 `taskId` 恰好出现一次。实际 `index stage` 默认输出专用单行文本。需要 raw result 的完整 JSON 序列化时，使用一个独立、无值且最多出现一次的全局 `--json`，它可以放在 command 前后。合法 `--json` 对任意协议内 success 或 failure 固定执行 `JSON.stringify(result) + "\n"`；help、version、其他 command、全局参数 failure，以及专用 route 建立前的 service construction / 全局路径校验 failure 默认也保持 JSON。Help 属于 help，已识别专用 route 后的局部参数错误才使用对应 failure 文本。输出路由依据已经识别的操作，不从 argv 前缀或 data shape 猜测。
-2. `TaskGraphService.listTasks()` 返回结果的 `data` 是 `Record<string, TaskListItem>`；字典 key 等于 item 的 `taskId`。`TaskListItem` 直接复用 `TaskProjection` 的 effective control、完整 blockers、effective dependency/exclusion source、children、dependents 和 next action，只增加 title、direct parent 与 execution phase。公开面不保留 `TaskSummary` alias。
-3. Renderer 以全部 list item 为 vertex，在 parent-child 之间和每条 effective dependency 的两端增加无向 track edge；每个弱连通分量是一个 track，孤立 task 自成 track，exclusion 不连接 track。Track 按成员中的最小实际 task ID 排序并从 `T01` 编号。没有 effective dependency 的 task 位于 `L0`，其余 task 的 layer 是全部 dependency layer 的最大值加一；parent 不改变 layer。Track 内依次按 layer、从顶层祖先到 direct parent 的实际 ID path、当前实际 task ID 排序。
-4. 默认 node 始终显示 layer、实际 task ID、effective state 和 title，并按条件显示 direct parent、去重后的 dependency endpoint、blocker、active mutex、非空 control reason 与 next action。`blocked-by` 只保留 `dependency-failed`、`dependency-cancelled`、`ancestor-terminal`、`all-children-cancelled` 和 `descendant-lease`；`dependency-incomplete`、`child-incomplete` 与 control blocker 由同一全量视图中的关系、state 和 reason 表达，`exclusion-running` 转为 `mutex`。Children、dependents、完整 blockers、relation source 和 inheritance path 不在 node 重复展开，但始终保留在程序化 `listTasks()` 与 `task list --json` 中。
-5. Success 摘要分别计数 tasks、tracks、actionable、running、recovery-needed 和 mutex-blocked。全部 effective exclusion pair 规范化为按实际 task ID 排序的无向 pair，对称去重后按较小 endpoint 分组并放在独立 `RUN MUTEX` section；只有已经形成 `exclusion-running` blocker 的对端才同时出现在受阻 node 的 `mutex` token 中。Exclusion 只禁止同时运行，不建立 dependency；track 数也不表示可并行数。
-6. 文本 renderer 使用固定 inline/block form；有效 columns 低于 `80`，或去重后的 `needs`、`blocked-by`、`mutex` 任一超过三个 item 时，node 使用 block form；run mutex group 在 columns 低于 `80` 或右 endpoints 超过三个时使用 block form。缺少有效 columns 时回退到 `80`。Title、reason、task ID 的长度和 Unicode 显示宽度不触发自动换行、截断、隐藏或任务重排。摘要、各 track 与 `RUN MUTEX` 是独立 section，相邻 section 之间一个空行，结果只以一个 LF 结束。Renderer 只消费 raw result 并派生显示结构，不读取索引、不解析 JSON 文本，也不重新推导领域状态。
-7. 当前 CLI 协议版本是 `3.1.0`。默认 `task list` 与 `index stage` 文本输出以及公开 `TaskListItem`、`TaskIndexStageResult` 类型都是协议边界；需要原始序列化的 CLI 调用方必须显式使用 `--json`。Renderer、render context、track、layer 与 folded token 保持内部显示边界，不扩展为公开领域 API。
+默认 `task list` 提供全量文本视图，`index stage` 提供单行文本；需要完整结构化结果时显式使用全局 `--json`。精确输出、协议版本与 SDK 类型见[输出与程序化契约](references/output-contract.md)；命令参数以 help 和公开声明为准。
 
 ## 工作流程
 

@@ -159,6 +159,7 @@
       "261026-search-published-scope-with-current-text": "sha256:42a4e201f62000ff45552224697ee195407576335e42d1c873fbdeb8b21af954",
       "261026-stage-and-refresh-explicit-record-selections": "sha256:5233a04b8e68840c465edf731625ba71a8a0f408c54ef979c31bd2b7ecf49345",
       "261027-accept-available-bun-without-version-gate": "sha256:eb4da115c8c497cf423d354aa10de09e76e19c61029d4232d8fa05037e9065fd",
+      "261027-layer-maintenance-docs-by-abstraction": "sha256:a2a2b44693c9130623c694a3f130dcdb7e3ad215ea43a0b052f2ca9c5fc2618a",
       "261027-remove-openspec-skills": "sha256:a9e822ad13475b138a4639f19e7a57db6a7a7b38fca77d84d53d3295d15fee25",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
@@ -3690,6 +3691,22 @@
           "summary": "取消 Bun 版本门槛，保留基础环境 Check 与其他工具前置"
         }
       ]
+    },
+    "261027-layer-maintenance-docs-by-abstraction": {
+      "name": "layer-maintenance-docs-by-abstraction",
+      "sourcePath": "261027-layer-maintenance-docs-by-abstraction.md",
+      "title": "以稳定模型分层组织维护文档",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-27T06:37:07Z",
+      "purpose": "让维护者先恢复整体责任与边界，再按任务读取必要精确契约，避免私有实现反过来约束设计。",
+      "background": "工具链和记录维护文档混合整体规则与内部步骤，单纯删减或搬移难以兼顾理解成本和有效信息保留。",
+      "decision": "由导航连接稳定模型、精确契约和维护依据，按职责分层并保留安全、授权和兼容边界。",
+      "tags": [
+        "project-documentation",
+        "responsibility-boundaries"
+      ],
+      "relations": []
     },
     "261027-remove-openspec-skills": {
       "name": "remove-openspec-skills",

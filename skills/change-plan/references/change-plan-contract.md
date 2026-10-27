@@ -78,9 +78,7 @@ Plan：
 `baseCommit` 是不含空白的非空字符串，表示最后一次成功运行 `plan` 时读取的 `HEAD`，只作为
 后续 Git 距离起点。Artifacts 的工作树、index 和提交内容不参与设置或解释此基线。
 
-Active reader、规范 parser 与 writer 使用同一个 runtime schema。读取边界按 lstat、读取、JSON
-parse、schema parse 的顺序完成一次校验；writer 在同目录完成整个临时文件后直接发布到 metadata
-路径，不解析或写入符号链接的外部目标。Writer 属于内部持久化边界。
+Metadata 读取和写入遵守同一 schema；不解析或写入符号链接的外部目标。
 
 ## Artifact 结构
 
@@ -94,8 +92,7 @@ parse、schema parse 的顺序完成一次校验；writer 在同目录完成整�
    H3 各出现一次，并作为该 H2 内的 H3 起始序列按模板顺序排列；每节必须有非空语义内容，必需序列
    之后可以追加 H3。
 6. 固定标题使用英文，正文沿用用户输入语言或项目语言。
-7. Checker 统一换行后只解析一次 Markdown AST；HTML 注释不算语义内容，代码围栏和 HTML 注释中的
-   checklist 相似文本不算任务。
+7. HTML 注释不算语义内容，代码围栏和 HTML 注释中的 checklist 相似文本不算任务；换行形式不改变检查语义。
 
 ### Stage 与受检制品
 
@@ -233,8 +230,7 @@ Tasks 规则：
 ## Plan Git 距离
 
 需要 Git 证据时，统一使用 Change 根所属的上层项目仓库；普通仓库与 linked worktree 均可。
-`list` 与 `check-all` 在单次查询中共享仓库发现和 `HEAD`，同基线历史只读取一次，每个 Change
-仍独立排除自己的目录内变化。缓存在查询结束后退出；Draft 查询和 `list --stage draft` 不调用 Git。
+每个 Change 独立排除自己的目录内变化；Draft 查询和 `list --stage draft` 不调用 Git。
 
 Plan 使用 `baseCommit` 到当前 `HEAD` 的 first-parent Git 距离。可用时从基线到当前 `HEAD`
 逐个提交统计：
@@ -353,19 +349,11 @@ Git-tree 门禁确保当前 `HEAD` 保留全部任务完成的最终 Plan 与恢
 
 对现有 Plan 运行 `plan` 前，由操作者完成语义复核；命令将调用时的 `HEAD` 记录为新基线。
 
-`finalize --preflight` 执行与实际删除相同的 Plan、任务、Git-tree、同设备、tombstone target 和
-identity 准备，零写入且不保存 receipt。实际 finalize 按以下顺序执行：
+**删除前条件：** `finalize --preflight` 执行与实际删除相同的 Plan、任务、Git-tree、同设备、tombstone target 和 identity 准备，零写入且不保存 receipt。实际 finalize 在 Change root 下使用私有 `.change-plan-tombstones`，重新核对 Plan/任务/base/HEAD 门禁；其两次准备的生命周期和 HEAD 快照必须一致。声明 tombstone child 前重验 root、source、tombstone 身份、当前 HEAD、完整 physical member 和 target absence。
 
-1. 在 Change root 下创建私有 `.change-plan-tombstones`（如尚不存在），重新读取完整
-   Plan/任务/base/HEAD 门禁并准备；两次 lifecycle 与 HEAD snapshot 必须一致。
-2. 声明 tombstone child 前，重验 root/source/tombstone identity、当前 `HEAD`、完整 physical member
-   和 target absence。只接受 Git regular file mode `100644`、`100755`，且每个 physical file 的字节及
-   owner executable bit 一致；symlink、submodule、特殊文件、空/未知目录、已修改、未跟踪或忽略成员
-   均被拒绝。
-3. 以独占目录声明 target，逐项以不覆盖复制建立验证快照；POSIX `rename()` 不作为 no-overwrite
-   目录移动原语。
-4. 在复制快照与 source 均仍精确匹配后，unlink 已预演 files，再从深到浅 `rmdir` 已预演目录，绝不
-   递归删除。并发 target 或成员漂移均不覆盖、不删除外来内容。
+**保护范围：** 只接受 Git regular file mode `100644`、`100755`，且每个 physical file 的字节及 owner executable bit 一致；symlink、submodule、特殊文件、空/未知目录、已修改、未跟踪或忽略成员均被拒绝。删除以前建立并验证不覆盖既有内容的 tombstone 快照；source 和快照须保持精确匹配。只清理已验证成员，并发 target 或成员漂移时不覆盖、不删除外来内容；不递归删除。
+
+**恢复结果：** 以下 outcome 区分零写、未提交、完成和已提交但仍需清理；恢复位置和 revision 必须以实际结果为准。
 
 `finalize --json` 始终返回 `sourceDirectory`、`check`、`changed`、`outcome`、`headCommit`、
 `memberCount`、`tombstoneDirectory` 与 `error`。`outcome` 为：

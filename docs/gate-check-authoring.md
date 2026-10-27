@@ -2,7 +2,7 @@
 
 本文指导维护者在本仓库新增、修改或移除 Gate Check：选择最小责任类型，声明独立可归因的结果、完整输入与成功前置，并交付可复核的测试和门禁证据。
 
-[项目工具链](tooling.md#权威-vibe-门禁)拥有当前 catalog、运行、输入证明、调度、输出与 release 行为；本文拥有接入流程。Vibe 公共 API 的精确字段与生命周期由当前安装版本的随包文档和类型声明承接。
+先以[项目验证模型](validation-model.md)理解整体证明责任；[项目工具链](tooling.md#权威-vibe-门禁)拥有当前 catalog、运行政策、输入证明与 release 行为，本文拥有接入流程。Vibe 公共 API 的精确字段与生命周期由当前安装版本的随包文档和类型声明承接。
 
 ## 推荐工作流
 
@@ -64,7 +64,7 @@
 
 1. `checkId` 是稳定 machine 身份，显示名、顺序、耗时和资源变化不改语义身份。语义 Check 用 `test:<owner>:<contract>`，包脚本由适配器派生 `script:<package-script>`；`displayName` 用简短英文描述对象。
 2. 每次 invocation 保留相同完整 ID 集合。scope、项目输入证明和成功前置通过原生条件与 flags 选择，不动态删除成员；新增 quick eligible 项改变反馈责任和性能预算的实际负载，应显式复核并测试，新增公开 tag 需要独立产品契约设计。
-3. 普通命令通过现有 `createSemanticGateCheck` / `createPackageScriptCheck` 构造独立 `commandCheck`，复用共享命令政策和 `gateCheckDeclaration`，取得环境前置及资源声明。argv 保持参数数组；cwd、继承环境、transcript、限额与失败重跑按[运行时 owner](tooling.md#调度与命令执行)维护。
+3. 普通命令通过现有语义或包脚本适配器构造独立 `commandCheck`，复用共享命令政策、环境前置及资源声明。argv 保持参数数组；cwd、继承环境、transcript、限额与失败重跑按[运行时 owner](tooling.md#调度与命令执行)维护。
 4. 自定义 Check 使用 `execute` 运行并决定终态；需要验证或准备本项 options 时增加 `prepare`。第一业务参数是 options，需要框架字段时通过 `defineContextCallback` 声明第二参数的 context；不依赖未声明字段。
 5. `passed` 表示契约成立，`failed` 表示违反规则，带稳定 reason code 的 `unavailable` 表示无法形成可信结论，`not-applicable` 表示本次不适用。passed/failed 的 data 为 object；Records 只作补充事实。可等待 I/O 与子进程协作响应取消，不遗留未等待工作。
 6. machine data、Records 与 message 只含安全、有界摘要；完整命令原文进入 Check transcript，敏感业务材料留在授权的 Check-owned artifact。
@@ -81,14 +81,14 @@
 
 语义命令、包脚本和 Markdown 内容 Check 由 `impact-catalog.ts` 完整覆盖；只有已评审完整输入闭包才允许复用 receipt。各 scope 的适用范围与发布权限按[运行时 owner](tooling.md#项目输入与成功证明)维护。
 
-1. 在 `impact-tools.ts#gateToolInputs` 按独立源码职责维护能力 ID 与实际读取的 patterns，组合 `commonGateInputPatterns`；共享运行时、build adapters、fixtures、内部 ignored 文件、生成物、TS/MTS、manifest/lock 和配置均按真实消费纳入。flag 由 ID 派生，无须另列。声明时区分：
+1. 在 `impact-tools.ts` 按独立源码职责维护能力 ID 与实际读取的 patterns，并纳入共同输入；共享运行时、build adapters、fixtures、内部 ignored 文件、生成物、TS/MTS、manifest/lock 和配置均按真实消费纳入。flag 由 ID 派生，无须另列。声明时区分：
    - 同一能力可有多个消费者；源码与其分发副本属于同一能力时共同声明。
    - 公共运行时与独立测试分别声明能力；每个 Check 订阅实际测试、fixtures/helpers 和传递运行闭包。共同输入承接实际公共加载与配置，额外复制/构建输入归实际 consumer。
    - 区分目录/文件身份与字节消费；现有模型能表达时按事实建模，不能无损表达时保守保留字节。catalog 仍需覆盖 leaf 存在、可访问与删除，裁剪未读 helper 内容不等于去掉 leaf 输入。
-2. 在语义 Check 的 `toolIds`、包脚本的 `packageScriptToolSubscriptions` 或原生 lint 的 `markdownLintToolSubscription` 中显式订阅所需能力。原生 `any(...)` 组合能力 flags，`dependsOn` 独立声明成功前置。新读取域不在现有采集范围时，同步 `impact-paths.ts` 的磁盘目录/配置及已知 owner 判定，覆盖 Git ignore 下仍被命令读取的材料。
+2. 在语义 Check、包脚本或原生 lint 的对应订阅声明中显式订阅所需能力；能力选择与 `dependsOn` 的成功前置分别声明。新读取域不在现有采集范围时，同步 `impact-paths.ts` 的磁盘目录/配置及已知 owner 判定，覆盖 Git ignore 下仍被命令读取的材料。
 3. Check 读取新外部工具或环境时，核对 `impact-toolchain.ts`。必要 probe 失败扩大执行；基础环境 Check 只承接既定 Git/Node/Bun/pnpm/SCC 政策，业务测试前置不自动扩成全 Gate 环境要求。
 4. 跨 owner import、构建/测试入口或动态读取来源变化时，同步复核 consumer 的订阅及能力 patterns，纳入传递闭包。consumer 自身源码变化会使当轮执行，但只有声明完整，才会覆盖新依赖后续单独变化；闭包无法确认时使用较宽输入或保持保守执行。两领域未归属文件检查是遗漏提示，不能代替依赖审查。
-5. 输入含义变化时按范围更新全局 `gateImpactContractVersion` 或逐 Check `version`。新增/收窄模式应验证受影响与不受影响场景、删除/重命名、ignored 输入、未知/symlink/错误、共享 flag 扩散、成功前置带入和起止漂移；带入项必须如实执行并通过后才可发布证明。receipt 形状与完整事务由[输入证明 owner](tooling.md#项目输入与成功证明)承接。
+5. 输入含义变化时按范围更新全局 `gateImpactContractVersion` 或逐 Check `version`。新增/收窄模式应验证受影响与不受影响场景、删除/重命名、ignored 输入、未知/symlink/错误、共享 flag 扩散、成功前置带入和起止漂移；带入项必须如实执行并通过后才可发布证明。receipt 复用条件与完整事务由[输入证明 owner](tooling.md#项目输入与成功证明)承接。
 
 ## 按类型接入
 
@@ -127,7 +127,7 @@
 ### 原生 Check
 
 1. 读取对应随包文档，确认完整 patterns、默认排除、finding policy、限制、waiver、工具及 unavailable 边界。
-2. 在 `createVibeNativeChecks()` 直接调用 package-root 构造器，以 `gateCheckDeclaration` 加入环境与资源声明；项目质量 finding 显式 blocking。
+2. 在原生 Check owner 中调用 package-root 构造器，加入环境与资源声明；项目质量 finding 显式 blocking。
 3. 新增项将稳定 ID 加入 `vibeNativeCheckIds`；调整 options 时保留 ID，并核对完整 Definition 与 release-required 集合。
 4. 复用适合的 selection/exclusion；维护范围变化同时复核安全上限与历史材料边界。Markdown 内容检查以同一 selection owner 的完整磁盘 source 集合纳入既有输入证明，覆盖 ignored、根目录与额外目录材料；通过原生 condition 选择，精确命中才可省略。其余原生材料在适用范围中每轮结算；计算事实缓存只复用执行中的计算，不充当 passed receipt。
 5. 使用现有 selection、blocking、metrics 或 Definition 测试验证项目配置、范围与阻断义务。

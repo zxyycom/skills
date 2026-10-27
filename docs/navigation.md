@@ -21,8 +21,10 @@
 | 修改项目级 agent 协作约定 | [AGENTS](../AGENTS.md) | 改变任务路由或内容 owner 时读本文；需要让文档更适合 AI 阅读和使用时读 [AI-Ready Docs](../skills/ai-ready-docs/SKILL.md) |
 | 修改工具源码、项目脚本、校验、打包、CI 或 updater | [项目工具链的源码与依赖边界](tooling.md#源码与依赖边界)、[编码规范](coding-style.md) | 按工具链开头的读取策略选择相关章节；修改 `tools/<tool-name>/` 时补读该目录的局部契约；工具服务特定 skill 时再读其行为 owner；改变通用分发边界时读 [仓库模型](repository-model.md) |
 | 维护视频源码、Windows 开发或验收视频 zip | [视频工具维护](../tools/video-understanding/README.md) | [CI 与发布](tooling.md#ci-与发布)；实际媒体、网站与 OCR 支持范围由 [Video Understanding](../skills/video-understanding/SKILL.md) 的参考材料承接 |
-| 修改调查或决策工具的 CLI、SDK 或测试实现 | [调查工具维护](../tools/investigation-report/README.md)、[决策工具维护](../tools/decision-records/README.md)中对应入口 | 所改行为的领域规则与 CLI 操作契约；普通报告或决策维护从各自 skill 进入 |
-| 新增、修改或移除 Gate Check | [Gate Check 编写与接入](gate-check-authoring.md) | [项目工具链的权威 Vibe 门禁](tooling.md#权威-vibe-门禁)、[编码规范](coding-style.md)；涉及测试实现或 Case 时读 [Test Evidence Review](../skills/test-evidence-review/SKILL.md) |
+| 修改调查或决策工具的 CLI、SDK 或测试实现 | [调查工具维护](../tools/investigation-report/README.md)、[决策工具维护](../tools/decision-records/README.md)中对应入口 | 所改行为的领域规则与 CLI 操作契约；共同操作的责任与事务模型见 [Record Operations 模型](../tools/record-operations/model.md)；普通报告或决策维护从各自 skill 进入 |
+| 理解验证责任或选择验收范围 | [项目验证模型](validation-model.md) | [项目工具链的权威 Vibe 门禁](tooling.md#权威-vibe-门禁)及目标行为 owner；测试实现或 Case 按各自任务路由进入 |
+| 排查 Gate 运行结果或输入证明 | [项目验证模型](validation-model.md)、[Gate 运行结果与诊断](gate-runtime.md) | [权威 Vibe 门禁](tooling.md#权威-vibe-门禁)的范围和政策；需要修改 Check 时进入其编写路由 |
+| 新增、修改或移除 Gate Check | [项目验证模型](validation-model.md)、[Gate Check 编写与接入](gate-check-authoring.md) | [项目工具链的权威 Vibe 门禁](tooling.md#权威-vibe-门禁)、[编码规范](coding-style.md)；涉及测试实现或 Case 时读 [Test Evidence Review](../skills/test-evidence-review/SKILL.md) |
 | 成批审阅或持续纠正记录 | [记录维护入口](record-maintenance-workflow.md) | 按对象选择[决策流程](record-maintenance/decisions.md)或[调查流程](record-maintenance/investigations.md)及其领域 skill；明确使用 JEV 时读取 [Lightweight Judgment](../skills/lightweight-judgment/SKILL.md) |
 | 恢复、审阅或维护长期决策 | [Decision Records](../skills/decision-records/SKILL.md)，按需使用 show、list、search 或 trace 查询 | 相关决策 Markdown、领域规则和所选 CLI 操作或恢复章节；索引位置见下方 owner 表 |
 | 创建、更新或审阅调查报告 | [Investigation Report](../skills/investigation-report/SKILL.md)，按需使用 show、list、search 或 trace 查询 | 相关调查报告、领域规则和所选 CLI 操作或恢复章节；索引位置见下方 owner 表 |
@@ -38,7 +40,7 @@
 | --- | --- | --- |
 | 只在当前任务中形成的想法、比较或临时步骤 | 当前任务上下文 | 当前任务结束后不另行持久化；当前请求或生效项目规则要求保留独立调查时，按 [Investigation Report](../skills/investigation-report/SKILL.md) 建立报告 |
 | 跨 change 持续影响后续选择的方向、理由和长期约束 | Decision record | 决策按自身生命周期修订、拆分或归档；`active + unaligned` 只表示未来方向，不自动产生实施 task 或等待状态 |
-| 已经明确、需要跨文件或 owner 持久规划和交接的实施 change | Change plan | 完成后删除；不再实施的 draft 不作为未来资料柜。需要保留的独立调查材料按[报告触发与边界](../skills/investigation-report/SKILL.md#目标与适用范围)另行归位 |
+| 已经明确、需要跨文件或 owner 持久规划和交接的实施 change | [Change Plan](../skills/change-plan/SKILL.md) | 完成后删除；不再实施的 draft 不作为未来资料柜。需要保留的独立调查材料按[报告触发与边界](../skills/investigation-report/SKILL.md#目标与适用范围)另行归位 |
 | 已选择的当前工作所需的非线性协调，或具有明确外部条件的等待 | Task Graph task | 目标达成后完成；目标放弃或不再具有当前协调价值时取消；`waiting` 必须写明能够被观察的外部条件 |
 | 单个 Change 内的 readiness、implementation 和 verification 分解 | 该 Change 的 `tasks.md` | complete 后随 Change 目录删除，历史由 Git 恢复；不复制为 Task Graph 子任务，除非其中一项已经成为需要独立租约、关系或跨 Change 协调的当前工作 |
 
@@ -52,8 +54,10 @@
 | Agent 协作约定 | `AGENTS.md` | 仓库级协作与授权边界、skill 指代与速览、写作及项目级记录义务、验证和交付要求 |
 | 仓库导航 | `docs/navigation.md` | 任务对应的先读内容、稳定内容 owner 和仓库位置 |
 | 仓库模型 | `docs/repository-model.md` | 仓库目标、skill 选择与启用、集中维护和轻量分发边界、受管记录身份与位置、验证职责 |
-| 项目工具链 | `docs/tooling.md` | 环境、稳定命令、源码与生成边界、校验、打包、Git hook、CI 和 release 主线 |
+| 项目验证模型 | `docs/validation-model.md` | 验证责任、阶段、复用与失败边界和发布证据的整体关系 |
+| 项目工具链 | `docs/tooling.md` | 环境、稳定命令、源码与生成边界、校验运行政策、打包、Git hook、CI 和 release 主线 |
 | 编码规范 | `docs/coding-style.md` | `scripts/` 与 `tools/` 实现代码的归属、边界、类型、组织和风险验证规则 |
+| Gate 运行结果与诊断 | `docs/gate-runtime.md` | invocation 输出、计划与实际结果的区别、输入证明诊断与排查入口 |
 | Gate Check 编写与接入 | `docs/gate-check-authoring.md` | 新增、修改或移除 Gate Check 时的类型选择、建模要求、接入步骤、npm 随包文档入口和交付检查；Gate 运行时事实仍由 `docs/tooling.md` 承接 |
 | 复杂 Bug 调查与报告规则 | `docs/complex-bug-investigation.md` | 复杂 Bug 的识别、调查主线、修复验证、报告触发与证据要求和其他 owner 交接 |
 | 记录维护工作流 | `docs/record-maintenance-workflow.md` 及 `docs/record-maintenance/` | 决策与调查分别拥有主代理审查清单、处置和验收；公共层承接执行、局部 JEV 辅助与对账，领域语义及事务由各自 skill 承接 |
@@ -61,7 +65,7 @@
 | Skill 本体 | `skills/<skill-name>/SKILL.md` 及其相邻材料 | 单个 skill 的触发、行为、读取策略、执行流程、边界、验收和分发内容 |
 | 任务图索引 | `docs/task-graph/task-graph-index.json` | 当前工作中 task、真实父子、显式依赖与排斥、执行租约的唯一权威事实；只由 task-graph 工具事务化修改，复杂有效状态由查询投影 |
 | 测试证据账本 | `docs/test-evidence/cases/*.md`、`docs/test-evidence/test-evidence-index.json` | 每个 Markdown 承接一个权威 Case，索引 JSON 是 Case-only 查询投影。项目实体快照与覆盖策略由项目工具链承接，格式和维护事务由 `skills/test-evidence-review/` 承接 |
-| 共同记录操作 | `tools/record-operations/` | Decision Records 与 Investigation Report 的共同操作编排、阶段证明交接和失败边界；领域规则与适配仍归各域，stage 协调仍归 Index Runtime；入口见该目录 README |
+| 共同记录操作 | `tools/record-operations/` | Decision Records 与 Investigation Report 的共同操作编排、阶段证明交接和失败边界；领域规则与适配仍归各域，stage 协调仍归 Index Runtime；责任与事务模型见 `tools/record-operations/model.md`，维护入口见该目录 README |
 | 可分发工具源码 | `tools/<tool-name>/` | 随 skill 分发的源码、声明、测试、fixture 和局部组件契约；`tools/shared/` 承接跨工具运行时不变量，`tools/skill-package/` 承接发布端与 updater 共用的分发协议 |
 | 主仓库自动化与共享交付 | 主仓库根目录、`scripts/` 和 CI 配置 | 命令编排、生成适配、共享校验、打包、聚合发布、依赖入口、Git 和 CI 自动化；不承接随 skill 分发工具的运行时源码 |
 | 调查报告 | `docs/investigations/<investigation-id>.md`、`docs/investigations/investigation-index.json` | Markdown 承接形成时认识与依据，JSON 是派生索引。[Investigation Report](../skills/investigation-report/SKILL.md) 是行为入口，按任务路由读取报告契约、CLI 操作与 Schema |

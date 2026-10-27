@@ -24,7 +24,7 @@ Skill 包内提供 `scripts/validate-skill.ts` 与所需模块。按[工具运�
 node scripts/validate-skill.ts <skill-directory>
 ```
 
-同一模块也可以从已安装 skill 的实际路径直接导入，使用 `validateSkillDirectory` 获取结构化结果，或使用 `runSkillValidatorCli` 在当前进程中复用 CLI 语义；导入不会自动运行校验，相邻的 `validate-skill.d.mts` 提供 TypeScript 类型。
+验证器也提供可导入的程序化入口；具体 API 和类型声明见[结构验证入口](../../skills/skill-maintainer/SKILL.md#结构验证器)及随包源码，导入不会自动运行校验。
 
 它检查单个 skill 的 `SKILL.md`、frontmatter 必需字段、名称与目录、正文、资源目录和内部 Markdown 链接；分发单元成员、跨 skill 依赖、项目专属 metadata、索引和打包规则继续由项目自己的验证入口补充。没有单元级机械入口时，维护者需要逐项检查并报告残余风险。
 

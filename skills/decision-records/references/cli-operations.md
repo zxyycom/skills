@@ -25,7 +25,7 @@ legacy ID 的字面值也是 name 查询键，与日期 ID 同名时可能歧义
 
 无关系条件的 list、metadata、show 和 content 只验严格索引结构、字段、definition 及实际读取的来源/直接依赖；完整关系图不作前置。使用关系条件或 trace 时验证完整发布图，同一投影只准备和证明一次。普通发现成功不声明当前全集健康，全集体检由全量 check／sync-index 承担。
 
-show 通过安全 FileHandle 对同 inode、同一读取字节核对 frontmatter ID，并严格解码 UTF-8；越界、路径替换或非法 UTF-8 失败。返回完整正文，不受搜索/preview 预算限制。
+show 安全读取来源，核对读取内容的 frontmatter ID 与所选身份，并严格解码 UTF-8；越界、路径替换或非法 UTF-8 失败。返回完整正文，不受搜索/preview 预算限制。
 
 `list` 与 `search` 默认查 active、全部 alignment；查历史时显式筛选。状态、alignment、tags、时间和关系条件取交集，重复 tags 为 AND，时间边界包含端点。空页只说明本次筛选与窗口无结果。`--related-to` 的方向相对目标解释，type 与 target 同用时须命中同一条边。
 
@@ -153,7 +153,7 @@ HEAD 已记录目标时，首次不带 `--delete-recorded` 的调用在其他条
 
 严格 `check` 验证 Markdown、身份、tags、状态位置、关系、索引结构与新鲜度，区分 scaffold 与 body-ready candidate。首次仅有候选的集合按[恢复手册](maintenance-recovery.md#状态分流)检查，不提前同步索引。
 
-全量只读 `check` 使用首次安全采集的成员身份、源字节与解析结果比较完整预期索引，不在结束时重读全集。因此成功只证明本次取得的事实，不保证结束新鲜度或跨文件原子快照；采集中的路径或身份替换仍拒绝。sync 与写事务继续独立 fresh。
+全量只读 `check` 比较安全取得的成员身份与来源内容和完整预期索引；成功只证明本次取得的事实，不保证结束新鲜度或跨文件原子快照。读取中的路径或身份替换仍拒绝；sync 与写事务另行核对当前事实。
 
 已知合法正式来源变化先 `sync-index`；任务要求当前全集结论或正在恢复集合时再严格检查。未解释异常先检查诊断。来源合法而索引缺失、损坏、陈旧或 definition 过期时全量重建；非法来源先恢复，索引和默认值不能补造 alignment。
 
@@ -204,7 +204,7 @@ HEAD 与工作区发布索引必须合法；index／all 还验证 pending 索引
 
 `all`／`domain` 的所选现存正文须符合工作区发布投影；合法手改先同步。index／all 的最终合成图必须合法，必要依赖缺失时提示补选，不自动夹带未选对象。domain 只证明领域文件范围，不证明 pending 索引与正文已配套。stage 核对所选已知受管位置，未知位置的未同步身份重现由显式 check／sync 发现。
 
-准备阶段取得 scope 所需来源、成员、工作区索引、HEAD 与完整受管 pending 身份；写前独立重取可变事实，锁内执行 HEAD 与 pending 的比较并交换（CAS），写后验证目标并保护范围外状态。各阶段按 scope 验收 payload：`index` 只验收所需索引内容，其余 pending 成员以完整路径、文件模式与对象 ID 保护身份；`all`／`domain` 只读取本次所选正文及必要定位索引的 payload；关系依赖由索引验证，不读取未选依赖正文。所需读取失败或保护范围漂移时停止，未变化结果也须通过保护检查。
+操作核对 scope 所需来源、成员、工作区索引、HEAD 与完整受管 pending 身份；写前独立重新核对可变事实，写后验收实际目标并保护范围外状态。HEAD、pending 或其他受保护事实发生冲突时停止。按 scope 验收 payload：`index` 只验收所需索引内容，其余 pending 成员以完整路径、文件模式与对象 ID 保护身份；`all`／`domain` 只读取本次所选正文及必要定位索引的 payload；关系依赖由索引验证，不读取未选依赖正文。所需读取失败或保护范围漂移时停止，未变化结果也须通过保护检查。
 
 原子更新以完整 Git 路径、mode 和 OID 保留未选 pending（含 staged 删除）；所有 scope 对未选 payload 均只保证身份保持，不证明内容即时可读或指纹有效。`index` 的配套正文验证由调用方负责，`all`／`domain` 独立验收所选正文。可连续 stage A、stage B，再修改 A 并重选 A；B 始终保留原 pending。索引 JSON 可规范化序列化，未选条目含义保持。
 

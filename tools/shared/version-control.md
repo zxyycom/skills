@@ -103,21 +103,7 @@ Git adapter 按 `core.fileMode` 确定有效执行位：
 
 #### Blob 指纹模式
 
-Git adapter 内部的 `git-blob-batch.ts` 按对象 ID 的唯一 selection 批量读取；每项选择
-完整保留（`null`）、有限前缀或零保留。指纹模式独立于保留量：
-
-| `readGitBlobSelections` 模式 | 返回项与实际责任 | 消费者 |
-| --- | --- | --- |
-| 省略模式或 `sha256` | `GitBlobSelection` 的 `fingerprint` 必有；SHA256 覆盖该对象的完整实际 payload，包括未保留后段。 | pending snapshot |
-| 显式 `none` | `GitBlobContent` 只含 `data` 与完整 `size`，不计算 SHA256。 | 普通完整读、revision prefix |
-
-两种模式均完整读取每个 unique 对象，执行相同的 frame、对象身份、类型、长度、
-separator、EOF 和输出预算检查；缺失、腐败、输入失败及进程失败继续阻断读取。
-指纹需求不能减少 payload I/O 或失败检查，Git OID 也不能代替实际 payload 指纹。
-
-增量 reader 的 constructor 固定该批的模式与结果容器；`finish()` 验证完整 batch 后返回
-内容结果，`finishFingerprinted()` 另要求 `sha256` 模式，返回实际构造的必有指纹项；
-`none` 调用后者失败。这些是 adapter 内部责任，不扩张通用仓库入口。
+内部批量读取可只保留完整内容、有限前缀或零字节；保留量不减少所选对象的完整 payload 读取和验证。pending snapshot 使用覆盖完整实际 payload 的 SHA-256 指纹，普通完整读与 revision prefix 不计算该指纹。两者均检查对象身份、类型、长度、帧、结束与输出预算；缺失、腐败、输入或进程失败都阻断读取，Git OID 不能代替实际 payload 指纹。内部具体 reader 接口见 `git-blob-batch.ts`，不扩张通用仓库入口。
 
 #### Pending snapshot
 
@@ -185,7 +171,6 @@ Decision Records 与 Investigation Report 的内部记录暂存协调器在所�
 读取的表示，或调用方无法判定当前内容，必须停止并交给该范围的 owner；不得调用底层
 Git 命令绕过公共读取和恢复语义。
 
-当前直接生产消费者包括 skill 打包 hash、独立版本门禁、change-plan 的 first-parent 距离评估、decision-records 的基线读取与决策范围替换、investigation-report 的来源读取与调查范围替换，以及 index-runtime 和 task-graph 的基线读取与受期望保护的单索引替换。
 验证入口是：
 
 ```bash

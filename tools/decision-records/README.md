@@ -95,7 +95,7 @@ relationReview 按规范 source ID 排序，覆盖全部所选成员，before �
 
 可变来源与成员只在本阶段有效；固定 H 的不可变事实可调用内复用。Decision 所选正文仍按既有常规文件表示写入，不套用 Investigation 资源树的执行位策略。各 scope 的 payload 与完整 pending 身份保证由上述共同协调器承接。
 
-`decision-stage-refresh.ts` 的 `decisionStageSuccess` 将共同协调结果映射为本领域成功 envelope：`preservedPendingPaths` 是 scope 中所有未更新 snapshot 成员，`pendingFileCount` 计完整 scope 成员，不改成仅相对 H 的变化路径。来源失败、pending conflict 与恢复失败按真实阶段映射，不把普通失败附会为 mutation。所有 scope 的未选 pending 只保护完整路径、mode 与 OID，不读取其 payload；所选旧位置无可靠索引或 canonical locator 时明确恢复，不能读取全集 blob 发现身份。
+本领域成功 envelope 中，`preservedPendingPaths` 是 scope 中所有未更新 snapshot 成员，`pendingFileCount` 计完整 scope 成员，不改成仅相对 H 的变化路径。来源失败、pending conflict 与恢复失败按真实阶段映射，不把普通失败附会为 mutation。所有 scope 的未选 pending 只保护完整路径、mode 与 OID，不读取其 payload；所选旧位置无可靠索引或 canonical locator 时明确恢复，不能读取全集 blob 发现身份。
 
 ## 非 stage 事务与恢复
 

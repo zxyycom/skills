@@ -2,17 +2,11 @@
 
 `mcpshell-workspace-tools` 让保存个人规则和 skills 的 agent 项目，经 MCPShell 操作另一个隔离的固定 project root。查看、命令、构建、测试和 Git 审查使用 `workspace_shell`；文本修改使用 `workspace_apply_patch`；只有文件实体跨边界时才使用 `workspace_put_file` 或 `workspace_get_file`。这些是便捷入口，不排斥已验证指向同一 root 的其他工具。
 
-## 配置与初始化
+## 配置与运行边界
 
-agent 项目的 `.codex/config.toml` 注册 MCP；skill 同目录的 `.env.mcpshell` 保存本机 backend handle、目标 project root 和 staging root；`.gitignore` 排除真实 env，`.env.mcpshell.example` 提供可跟踪的字段说明。runtime 每次调用读取 env，修改从下一次调用生效，之后必须重新核验目标 root。
+安装后的 bridge 使用本机配置连接隔离的目标 root；配置包含敏感本机信息，不应提交。初始化先预览，只有显式 apply 才写入；切换已有 bridge identity 需要明确授权。配置变更后重新核验目标 root。具体字段、初始化与移除流程以 [Skill](../../skills/mcpshell-workspace-tools/SKILL.md) 及其引用为准。
 
-initializer 先以 preview 输出 env 和受管 registration 的无敏感值 `create`、`update` 或 `unchanged` action；显式 apply 才写入实际改变。三项 config flag 要么全部提供，要么全部省略并复用已有有效 env 来恢复 registration；其余输入或前置条件失败均在写入前停止。一个安装的单例 env 只允许一个 active bridge-owned identity：存在另一 identity 时 preview/apply 返回 `config_conflict`，维护者须在明确授权下精确 remove 旧 identity 后再切换。
-
-## 结果与运行边界
-
-shell/patch 的 helper deadline 是 110 秒，put/get 是 290 秒；相应 YAML outer timeout 是 2m、5m。返回 MCP 的 stdout、stderr 各最多 1 MiB：`output_limit` 表示只取得有界前缀，必须用 stream/limit evidence 继续判断，不能认定目标成功。get 的原始文件字节不计入此文本预算。
-
-put 在可能提交阶段发生输出超限时返回 `outcome_unknown`，其 evidence 包含 destination、预期 bytes、SHA-256、`cause: "output_limit"`、stream 和 limit。目标可能已经写入：必须先用 `workspace_shell` 核验 destination 与 SHA-256，不能直接覆盖重传。已知未提交的超限仍是 `output_limit`。
+命令及传输有时间和输出边界。输出受限不证明目标成功；上传在提交结果未知时，必须先核验目标内容，不能直接覆盖重传。准确结果、预算与恢复步骤由 skill 的工具契约承接。
 
 ## 支持与验证
 

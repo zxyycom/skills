@@ -2,6 +2,8 @@
 
 本 owner 为 Decision Records（DR）与 Investigation Report（IR）维护共同操作编排、同阶段证明交接和失败边界。依赖方向为 `DR / IR → record-operations → index-runtime / shared`；两个领域保留各自的 skill、CLI、公开程序化边界、持久格式和独立分发。
 
+共同事实、范围与阶段证明的阅读骨架见[共同记录操作模型](model.md)；本页承接维护入口和精确实现约束。
+
 ## 操作入口与责任
 
 按维护对象选择入口：
@@ -51,32 +53,15 @@ DR/IR selected 的已知路径缺失按删除处理，不辨认未知位置移�
 
 ### 文件验收阶段的重叠保护
 
-`RecordVerificationPhase` 固定一个真实事务 root 和一次验收阶段。首次访问绝对目标时安全读取实际 snapshot；后续保护只在 root、目标和完整预期事实均匹配时复用。等价比较覆盖 bytes、dev/ino、mode 与完整父链，不要求预期对象引用相同；不同 namespace、路径或预期事实重新读取并验收。内部保存实际 bytes，隔离调用者可变的 expected 引用。
+写前 fresh 与写后验收分别取得真实事务 root 下的独立事实；写后以实际 written snapshot 为预期。相同阶段内只有 root、路径及完整预期 bytes、身份、mode 和父链相同才可复用观察。writes、index 与适用 guards 均受安全验收；包括 unchanged 的提案先检查重复路径和权限，冲突或 alias 不合并。安全文本读取严格解码 UTF-8，失败不产生证明；单文件错误按路径顺序汇集，基础执行失败中止。
 
-1. **写前**：在 `fresh` 回调开始时建立 phase，再由 `verifyPlan` 消费。
-2. **写后**：`verifyWritten` 独立建立另一 phase，以实际 written snapshot 确定预期，不从 plan.next 猜测身份或最终 mode。
-3. **有序验收**：各 phase 将 writes、index 和适用 guards 组成同一队列，批量选择不依赖计划表示。每个提案（包括 unchanged）在跳过前验证重复路径与权限；结构、权限错误先于文件验收拒绝。计划归一化不合并冲突或 alias 的预期事实，unchanged 判据与 journal 一致。
-
-领域 fresh 可经 phase 的安全 text-snapshot 入口取得本阶段来源，再完成解析、图和资源证明。该入口实际读取并严格 UTF-8 解码，绑定同一 root/path，向领域交接 bytes、parents 数组及父身份对象的独立副本。成功观察可供随后完整 expected facts 比较；缺失、读取或解码失败不形成成功证明。另一入口按原路径顺序汇集单文件 mismatch/read failure，基础 worker 失败仍中止。
-
-领域阶段适配如下；各阶段独立读取，写前通过不替代写后读取：
-
-- IR rename 在 beforePublish 后通过本 phase 验来源与索引，保留有序错误聚合、target/owner absence、membership 和 no-op 身份重备。
-- IR discard 将 transaction fresh 的来源采集交给本 phase，图与资源计算仍执行；较早 hook 后的集合/index 对照及 post collection 各自取证。
-- 显式 fresh 的资源文件保护共用当次 root-bound phase 队列，目录证明保持领域顺序；资源 copy/delete 保留各自时点的独立证明。
-- 实际写入 handle/readback、恢复 CAS 及领域 postverify 保持各自的证明责任，不跨阶段或调用保存事实。
+IR rename/discard、资源文件与目录、实际写入 handle/readback、恢复 CAS 和领域 postverify 各保持自身时点的证明责任；实际 copy/delete 不以其他阶段证明替代。
 
 ## 阶段内读取队列
 
-调用方决定来源范围与事务阶段，队列执行给定路径及读取契约。
+调用方决定来源范围与事务阶段，队列按给定顺序交接完整读取结果，并以背压限制待消费数据；单文件不因分块截断，也不承诺精确内存峰值。同步与异步路径共享安全规则，强 snapshot 保留真实 root/path、bytes、identity、mode 与父链。
 
-| 条件 | 执行方式 |
-| --- | --- |
-| 少于 1000 项 | 当前进程 async 读取。 |
-| 达到 1000 项 | 同阶段使用一个独立 worker 串行同步读取。1000 是已观察的最小有益规模，并非最优交叉点。 |
-| 父 Node permission 模型启用，或实际使用 `--input-type` | 预先选择当前进程 async 读取，不启动 worker；保留父执行约束，此分支不承诺 worker 加速。 |
-
-正常 worker 继承 Node 原生执行参数，不提供 fast/unsafe 开关。结果按最多 64 路径、约 8 MiB 的软字节块交接，等待有序 consumer 消费后继续。字节阈值用于背压，不截断单文件，也不承诺精确内存峰值；正文完整读取。同步和异步共享安全规则，强 snapshot 保留真实 root/path、bytes、identity、mode 与父链。
+进程内读取与 worker 的选择、阈值和分块大小属于内部调优，不构成调用者容量或性能契约。启用父 Node permission 模型或实际使用 `--input-type` 时，预先选择进程内读取，保留父执行约束。worker 继承原生执行参数，不提供 fast/unsafe 开关。
 
 单文件失败按原路径顺序交给领域，保留 Error 类型及可用系统 code。启动、协议或 worker 异常属于基础执行失败，不能自动切换读取模式重试。consumer 异常、取消或提前停止均先收束 worker，调用返回后不再后台读取或回调。写入、提交、权限、实际句柄证明与恢复不进入队列。
 
