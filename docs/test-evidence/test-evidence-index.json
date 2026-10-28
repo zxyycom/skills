@@ -237,8 +237,10 @@
       "DECISION-QUERY-INDEX-MEMBERSHIP-001": "sha256:79d1ca9c1e710754ebeea14ae27a539b41ba48a41e05ce4e0043907fe96d3b24",
       "DECISION-RAW-INDEX-VALIDATION-001": "sha256:505d1126a0c8fe4bca1368ba935d2366e412e7fb4941b8c795cd8b82e0b46cd8",
       "DECISION-REALLOCATION-CANDIDATE-001": "sha256:594300cf32842ac397dcc52bfb27d7f87131ed18d959b46dc8dd28ad3e8ffa23",
-      "DECISION-REALLOCATION-CLOSURE-001": "sha256:12570c29b9e24da19610ec511bfdfa77cb00ff19e5bd8ffdb78a12a16d2d9720",
+      "DECISION-REALLOCATION-CLOSURE-001": "sha256:0eafa65d68bda0e0f9fe86ae0a02379bd8a0697ad1a9952cad37b2077e2e49fb",
+      "DECISION-REALLOCATION-CLOSURE-002": "sha256:c03c887206e7e0e7ddbd4c725cef1b08d69c551ba75e92560b54e49f71b3f904",
       "DECISION-REALLOCATION-CONNECTIVITY-001": "sha256:b662df76cd94986ba2688f24697c2b638450a8e4179db384704f9cc04c14887a",
+      "DECISION-REALLOCATION-COST-001": "sha256:8edfc8b04891e63f7a1a4697f56899c96d8226236fbd6cece84b614e2c1816dd",
       "DECISION-REALLOCATION-DIRECT-CONTEXT-001": "sha256:a25ad86976071e739245daff90011612c26bf1f4e02e4501f022a4e1d83f0a46",
       "DECISION-REALLOCATION-GRAPH-001": "sha256:188ff839f4b23dfc148398d8914ea80047679e639d9f9819ec8ccf10b204f8e0",
       "DECISION-REALLOCATION-HISTORY-BOUNDARY-001": "sha256:c00f8dd1665ef0707aaba8b701326db2b1a99249a310d6cc53de09e35845609c",
@@ -402,7 +404,10 @@
       "ENV-NODE-RUNTIME-001": "sha256:765f9bc7777babbcf4bee5e86aa1377ad36c19d6b839ed7dedac8ef5d173d71c",
       "ENV-WORKTREE-SETUP-001": "sha256:6a4e7fb21bf58dcba402cb1fec09c3f1ded4f99828fbfbd07c04ad21850cc009",
       "FILE-TEXT-SEARCH-ABORT-001": "sha256:bcc8f8bed1a9ba717eeac9ae5ba9d3435701a9e5f76240d411be6ae8072d3a02",
-      "FILE-TEXT-SEARCH-LIMITS-001": "sha256:81336a04d6931042c4865514efee9dcb12d2956dcc296b29ea4d6ac5c78d9970",
+      "FILE-TEXT-SEARCH-LIMITED-ERRORS-001": "sha256:bdc3240fdf793d69cc3a349ebf07e4478026ae63dd3856f58158b66a4877e297",
+      "FILE-TEXT-SEARCH-LIMITED-RANGES-001": "sha256:2439e15431e52cfce7b2dc212a1d17c3a8e67e05157a10d9979ed17444600f9e",
+      "FILE-TEXT-SEARCH-LIMITS-001": "sha256:bf39ac74a24b910e6599cf47a749b1e6eb0e3ceaee97fba9e7e840990f810dbd",
+      "FILE-TEXT-SEARCH-LONG-LINE-001": "sha256:09d9f60bc38fef83e2458413a21b6a0225e13d8f160a8cbe4defad25b635ed7b",
       "FILE-TEXT-SEARCH-MODES-001": "sha256:77e9172a9317589f265121a02ac78e4bff35db5f7ccf69b52804aa1aae873962",
       "FILE-TEXT-SEARCH-PREVIEW-001": "sha256:38435c5875281aa2b9675f38051b7361367d71ab610c2ad756c4bd831af676e3",
       "FILE-TEXT-SEARCH-PREVIEW-BUDGET-001": "sha256:24bb266870c1153295c86f66ab3c61b3506131b62065c6ec3ca0f39c5fdb98d0",
@@ -462,7 +467,7 @@
       "GATE-PERFORMANCE-REPORT-ONLY-001": "sha256:f4868c7634b11ab896f34aa24d5abe74fb6b0752d3385951811258f12133d561",
       "GATE-PERFORMANCE-STRICT-BUDGETS-001": "sha256:3d02e96b313ad7b02d51a6ad25eb79fe8f855a7bee40ac0b7aa9779157b08f4a",
       "GATE-PERFORMANCE-UNAVAILABLE-001": "sha256:a5beca486a1bce844bf1f3145ac261e9d5a2c5c8cc28345ed79b2998efc7760f",
-      "GATE-PUBLIC-TEST-INPUTS-001": "sha256:503b615ced983c514825e620607bf462ec5b8fa0148eda5db61350eacaa219b6",
+      "GATE-PUBLIC-TEST-INPUTS-001": "sha256:14ff5884cabcf947d1b41d8f233a40cc1bf046e208f36aee59011e621b42c3f0",
       "GATE-QUERY-ADAPTER-HELPER-OWNER-001": "sha256:d8b7cf18032e71140efadbef610e08a73bab768932d75626f9b873a3f42aa04e",
       "GATE-QUICK-RECEIPT-ISOLATION-001": "sha256:0a506aeb61dea3cd64a772f56ce44143232ef19cf61dbab8495640a25a1c5603",
       "GATE-RECORD-OPERATIONS-INPUTS-001": "sha256:b7cc0fe0b86dcce84dde79a0877c433ecf336a5a98b2dee5a6959dd076350213",
@@ -540,6 +545,13 @@
       "INDEX-RUNTIME-PREVIEW-SOURCE-001": "sha256:829a6aab5492b3d0661f549ca04bdc1e5949da2539c3e99e41c2f6a8d7a1bccf",
       "INDEX-RUNTIME-PROTOCOL-001": "sha256:d372b2dda926bbe1f7fe432283d4501f9c55503fed53d4b8e08082b09e1237e3",
       "INDEX-RUNTIME-QUERY-001": "sha256:0a8a35ba966169b8e4b68929451463123ae1d4c712a8f9175abd9d342f2493d6",
+      "INDEX-RUNTIME-QUERY-COST-001": "sha256:88f1c527ac8188444b19cf301fedd9d00719f7b61e05b1a6bc8f4e1d041374ab",
+      "INDEX-RUNTIME-QUERY-TRUST-001": "sha256:b62e22fca21b6cda07d133f815f55ad1d8342f153d81c1023643aa748a6c6f78",
+      "INDEX-RUNTIME-QUERY-TRUST-002": "sha256:87787d80225c12ec7868025f924ed9e15b119daf106d577f927a17c528bfd29a",
+      "INDEX-RUNTIME-QUERY-TRUST-003": "sha256:28da1cffeb01c69e562a3eee49ceb50c9807ce3037b071977e1532c4b62e41b8",
+      "INDEX-RUNTIME-QUERY-TRUST-004": "sha256:818242853dcfa0de3f5f1cca7147dc0c9ce1aa6cc0740498bc1b97981e3e940d",
+      "INDEX-RUNTIME-QUERY-TRUST-005": "sha256:92fc535909bfb9d0eff328b55414b72aa68dd3767801b56bcbfc947ed4b7fdd6",
+      "INDEX-RUNTIME-QUERY-TRUST-006": "sha256:248928998c9ccc385392fefdd2c744dfda6069fe166ccecb909747eacccb03bc",
       "INDEX-RUNTIME-QUERY-VALIDATION-001": "sha256:f31219b4238156b1b38850bef38820876089d0dc1384faba9aab370857a914a4",
       "INDEX-RUNTIME-READER-001": "sha256:b9ddd566fb5f950636606ca9480dad766018f2a2275637c7a263c75427785ea0",
       "INDEX-RUNTIME-READER-002": "sha256:44c4c5d33930c9f198da63901bd7a0959ac77fb64a59b07fed6032de5c8257e4",
@@ -548,7 +560,8 @@
       "INDEX-RUNTIME-RUNTIME-001": "sha256:69c4367689a67d3ff483783f354b0e34fa766a02354acbd439e66425f39aed7c",
       "INDEX-RUNTIME-RUNTIME-OVERLAY-001": "sha256:76c413b0cc2c290113d07d331edf039ac6b766e87270cb33a1373f9969cc7056",
       "INDEX-RUNTIME-SCHEMA-001": "sha256:89ee8fc56a6e7c1054bc3ab72ed0c218c3091258d1556c6a830af6d5c7653603",
-      "INDEX-RUNTIME-SELECTED-SYNC-001": "sha256:2990ce8e04f4b4c11993e10cf9c13ae1b1d70b4d5cd69db586d434184714a2b3",
+      "INDEX-RUNTIME-SELECTED-COST-001": "sha256:586a4dbf57930cc777fda33da7bd2fa51e66448aaad69a058de174ef6c41ebfd",
+      "INDEX-RUNTIME-SELECTED-SYNC-001": "sha256:6f20c5fe75615f1d80adb76dec1bac8089ed7e6cec63376a57c519c7c25eff82",
       "INDEX-RUNTIME-SELECTED-SYNC-002": "sha256:07be68c0f4e2af99e6d7a39149f69b94f2feca32a3f7204ae17b49120c48bd8d",
       "INDEX-RUNTIME-SERIALIZATION-001": "sha256:68310295f09bdf2c09616f4abe2f13641841f8dd3b14e69fdf0d4e0ed07705d6",
       "INDEX-RUNTIME-SOURCE-REVISION-001": "sha256:1f62b9b608596d17e4bf3d12bf5d77a454465f9505568fce845bdfae15e3c0f9",
@@ -1031,7 +1044,7 @@
       "RECORD-COST-CASE-019": "sha256:69301362912ceeb17c00a8a41c26eea687c7473f37661763f81bccddd1788c51",
       "RECORD-COST-CASE-020": "sha256:7ed4c17e79f67e0ca9410e1f058fbd68fec180ddb73ab9d8d8faed5b432a8145",
       "RECORD-COST-CASE-021": "sha256:990034b2a3ed051fd99fe238e010a458b19d9d11b014afcfa5d77d41eda63867",
-      "RECORD-COST-CASE-022": "sha256:0b1dc6c701f8d80c2d70beab54452a85c116d54d7c704858a30fa0cd1db01d82",
+      "RECORD-COST-CASE-022": "sha256:5fdaf6c14848f81e158a6c884e565882c0608c8c33a18b8522f5e6a063ed11d6",
       "RECORD-COST-CASE-023": "sha256:61ba343f9d84629a8d9b3080f44dd4f1b9125af5a9698909c275bd743234e241",
       "RECORD-COST-CASE-024": "sha256:aceb887f1d33f91412112bc37bd4e501c90c5e1184eda89f707c37fc3ed1e51b",
       "RECORD-COST-CASE-025": "sha256:02bd30c9ee7045774118c4186edd45eda0fe2178ddad704492ad5a0fb8685884",
@@ -3855,6 +3868,16 @@
         "test:89a6aafebddb4323e28dc06711553b96bc8fe3cecb37b18771cf7a8399d3f0f2"
       ]
     },
+    "DECISION-REALLOCATION-CLOSURE-002": {
+      "title": "重划闭包保留首分量诊断",
+      "sourcePath": "cases/decision-reallocation-first-component.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:f32b4ba98756b70e99e4984a18e4107e2f69fa5159dde5e8cebc082dd5f63ac6"
+      ]
+    },
     "DECISION-REALLOCATION-CONNECTIVITY-001": {
       "title": "Evolve 拒绝不连通重划图",
       "sourcePath": "cases/decision-reallocation-connectivity-001.md",
@@ -3863,6 +3886,16 @@
       ],
       "testIds": [
         "test:05115fda4c496e4bd80297340a946fd2081dba3b90063c4422282cf1d548899b"
+      ]
+    },
+    "DECISION-REALLOCATION-COST-001": {
+      "title": "重划闭包查较小集合",
+      "sourcePath": "cases/decision-reallocation-membership-cost.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:6a8fcee7592785ab32d4a110feb85fe2d60cc5b7c074934fcbc72f33a616864e"
       ]
     },
     "DECISION-REALLOCATION-DIRECT-CONTEXT-001": {
@@ -5532,6 +5565,26 @@
         "test:bde344d7a447f26abe03e6c178bce724857e8258871d3d6b9de78f7490cc49c5"
       ]
     },
+    "FILE-TEXT-SEARCH-LIMITED-ERRORS-001": {
+      "title": "有界命中范围保留取消和异常",
+      "sourcePath": "cases/file-text-search-limited-errors.md",
+      "tags": [
+        "file-text-search"
+      ],
+      "testIds": [
+        "test:a491c2a762a70b6de407a902dd2bde02c6fe038c4659f039e22bb0954c38fe30"
+      ]
+    },
+    "FILE-TEXT-SEARCH-LIMITED-RANGES-001": {
+      "title": "有界范围保留匹配与合并语义",
+      "sourcePath": "cases/file-text-search-limited-ranges.md",
+      "tags": [
+        "file-text-search"
+      ],
+      "testIds": [
+        "test:11ac3cc920b7f1f7c6f9a4d2a3c13d26e259bada96120a580e43a7ef64ff69bc"
+      ]
+    },
     "FILE-TEXT-SEARCH-LIMITS-001": {
       "title": "文件搜索报告每类输出截断",
       "sourcePath": "cases/file-text-search-limits-001.md",
@@ -5540,6 +5593,16 @@
       ],
       "testIds": [
         "test:a9479af78e65c0ad73b7fb8b5763190501e7f3dee836d7cd8717b601a1d3d7cb"
+      ]
+    },
+    "FILE-TEXT-SEARCH-LONG-LINE-001": {
+      "title": "长行限量止于首个省略范围",
+      "sourcePath": "cases/file-text-search-long-line-cost.md",
+      "tags": [
+        "file-text-search"
+      ],
+      "testIds": [
+        "test:9d6b67403f66b264467fcf80d404579c8e93533f060b17a7d4eefc16a20bc992"
       ]
     },
     "FILE-TEXT-SEARCH-MODES-001": {
@@ -6968,6 +7031,76 @@
         "test:4b6d314f96708e9e1d2923acdc989d77eda16987b9d3e0fa8221813e17169760"
       ]
     },
+    "INDEX-RUNTIME-QUERY-COST-001": {
+      "title": "单查询来源沿用原校验路径",
+      "sourcePath": "cases/index-runtime-query-single-source-cost.md",
+      "tags": [
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:e5a04cfa34d3c1bb1efe1a3e3af5cc1b8a80b5dd7d7949fdfc75c7c31822b0c7"
+      ]
+    },
+    "INDEX-RUNTIME-QUERY-TRUST-001": {
+      "title": "原始冻结 getter 和代理不能获得验证复用",
+      "sourcePath": "cases/index-runtime-query-untrusted-getter.md",
+      "tags": [
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:7c478d37b02ecf792a42aba385d0742319f300ce98fcc6196e67d564803b1468"
+      ]
+    },
+    "INDEX-RUNTIME-QUERY-TRUST-002": {
+      "title": "动态克隆产物不获得验证复用",
+      "sourcePath": "cases/index-runtime-query-array-clone.md",
+      "tags": [
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:85367aa99750045d1cf32d2674b876829aefa75a821a1a20150ca5f88e430510"
+      ]
+    },
+    "INDEX-RUNTIME-QUERY-TRUST-003": {
+      "title": "查询子树证明只在单次投影复用",
+      "sourcePath": "cases/index-runtime-query-call-local.md",
+      "tags": [
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:c3f64dad77001c6d6fd34e974f852a175cbed0352bd16ab51ece98625ef13439"
+      ]
+    },
+    "INDEX-RUNTIME-QUERY-TRUST-004": {
+      "title": "克隆数组代理不获得数据证明",
+      "sourcePath": "cases/index-runtime-query-proxy-array.md",
+      "tags": [
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:cbc3716d7956ab029ca56f9651ca3e414f3106c85f8e8db3122d6f882a184b9e"
+      ]
+    },
+    "INDEX-RUNTIME-QUERY-TRUST-005": {
+      "title": "自冻结动态值不能沿用旧校验",
+      "sourcePath": "cases/index-runtime-query-self-freeze.md",
+      "tags": [
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:4d0ccd970307078183b298c2570ccfadc5002b6e9cb2cf2dfd4e8c1b394c9616"
+      ]
+    },
+    "INDEX-RUNTIME-QUERY-TRUST-006": {
+      "title": "动态字段描述保留访问顺序",
+      "sourcePath": "cases/index-runtime-query-dynamic-descriptor.md",
+      "tags": [
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:d7f771bf0d71508e7130157021953a143e0e316f7a5b5e400520ef674e794189"
+      ]
+    },
     "INDEX-RUNTIME-QUERY-VALIDATION-001": {
       "title": "拒绝未知模式不匹配及多值排序键",
       "sourcePath": "cases/index-runtime-query-validation-001.md",
@@ -7049,6 +7182,16 @@
       ],
       "testIds": [
         "test:b9792b8a99200344ffb5045462db3d1e27e9749f74022d70021145c6199df14e"
+      ]
+    },
+    "INDEX-RUNTIME-SELECTED-COST-001": {
+      "title": "revision 不同时跳过 state 比较",
+      "sourcePath": "cases/index-runtime-selected-revision-cost.md",
+      "tags": [
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:a552d7367c16102d745e4d2fd0177daaec54ff9be8173fc41da6d76a3771e6e1"
       ]
     },
     "INDEX-RUNTIME-SELECTED-SYNC-001": {
@@ -11997,7 +12140,7 @@
         "record-cost"
       ],
       "testIds": [
-        "test:cb5d5a80e43ecee976779a642c664ac7f6e0789650a6628d7186ea821821c989"
+        "test:8a0546cc61b27d7efccba3c846e689c82453790c99c893bb906a2f8a284262d7"
       ]
     },
     "RECORD-COST-CASE-023": {

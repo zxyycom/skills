@@ -10,4 +10,4 @@ Contract:
 - 重划关系的建立或修订必须选择最终连通分量中的全部已建立后继。
 
 Proves:
-- 内存来源包含第三个已建立连通后继而仅选择原来两个时，纯事务准备返回 error、exitCode=1，诊断指出遗漏的 Decision ID，且不产生 changes。
+- 前面存在不相交重划分量时，目标分量含第三个已建立后继而仅选择原来两个，纯事务准备返回 error、exitCode=1，诊断指出遗漏的 Decision ID，且不产生 changes。

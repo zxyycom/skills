@@ -5,6 +5,7 @@ await import("./materialization-path.test.ts");
 await import("./protocol-definition.test.ts");
 await import("./protocol-snapshot.test.ts");
 await import("./protocol-query.test.ts");
+await import("./query-data-proof.test.ts");
 await import("./query.test.ts");
 await import("./runtime-schema.test.ts");
 await import("./runtime-reader.test.ts");

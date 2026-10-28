@@ -39,7 +39,8 @@ test("reports every output limit instead of presenting an incomplete result as c
   await withFixture(
     {
       "a.md": "needle\n",
-      "b.md": "needle\nneedle\n"
+      "b.md": "needle\nneedle\n",
+      "long.md": "prefix needle suffix needle\n"
     },
     async (root) => {
       const matchLimited = await searchFileText({
@@ -79,6 +80,29 @@ test("reports every output limit instead of presenting an incomplete result as c
         }
       ]);
       assert.equal(previewLimited.truncation.previewCharacters, true);
+
+      const clipped = await searchFileText({
+        ...request(root, { kind: "files", sourcePaths: ["long.md"] }, "needle"),
+        preview: {
+          contextLines: 0,
+          maxFiles: 1,
+          maxMatchesPerFile: 1,
+          maxPreviewCharacters: 8
+        }
+      });
+      assert.deepEqual(clipped.hits[0]?.previews, [
+        {
+          column: 1,
+          line: 1,
+          preview: "needle s",
+          ranges: [{ start: 0, end: 6 }]
+        }
+      ]);
+      assert.deepEqual(clipped.truncation, {
+        files: false,
+        matches: true,
+        previewCharacters: true
+      });
 
       const fileLimitedBeforeMatchProcessing = await searchFileText({
         ...request(

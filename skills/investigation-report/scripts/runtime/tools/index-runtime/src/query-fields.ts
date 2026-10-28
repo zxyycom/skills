@@ -7,8 +7,13 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import { types as utilTypes } from "node:util";
 import { failure } from "./diagnostics.ts";
-import { freezeObject } from "./frozen-json.ts";
+import {
+  cloneAndFreezeTypedJsonObject,
+  cloneWithDataProof,
+  freezeObject
+} from "./frozen-json.ts";
 import { isJsonObject } from "./json.ts";
 import {
   freezeStateIndexKeyMap,
@@ -41,11 +46,162 @@ export function materializeStateIndexEntry<
   id: string,
   state: State
 ): StateIndexResult<MaterializedStateIndexEntry<State>> {
+  return materializeEntry(definition, id, state);
+}
+
+/** The clone and its proof are created and consumed within this one projection. */
+export function materializeClonedStateIndexEntry<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  definition: StateIndexDefinition<State, Metadata>,
+  id: string,
+  state: State
+): StateIndexResult<MaterializedStateIndexEntry<State>> {
+  if (!hasRepeatedStaticRootSources(definition))
+    return materializeEntry(
+      definition,
+      id,
+      cloneAndFreezeTypedJsonObject(state, false)
+    );
+  const clone = cloneWithDataProof(state);
+  return materializeEntry(
+    definition,
+    id,
+    clone.value,
+    clone.dataOnly ? { root: clone.value, valid: false } : undefined
+  );
+}
+
+function hasRepeatedStaticRootSources(definition: object): boolean {
+  try {
+    const fields = staticQueryFields(definition);
+    return fields !== null && hasRepeatedRootSources(fields);
+  } catch {
+    // Unknown descriptor representations retain the original path.
+    return false;
+  }
+}
+
+function staticQueryFields(definition: object): readonly unknown[] | null {
+  if (utilTypes.isProxy(definition)) {
+    return null;
+  }
+  if (!Object.isFrozen(definition)) {
+    return null;
+  }
+  const descriptor = Object.getOwnPropertyDescriptor(definition, "queryFields");
+  if (descriptor === undefined) {
+    return null;
+  }
+  if (!("value" in descriptor)) {
+    return null;
+  }
+  if (!Array.isArray(descriptor.value)) {
+    return null;
+  }
+  if (utilTypes.isProxy(descriptor.value)) {
+    return null;
+  }
+  if (descriptor.value.length < 2) {
+    return null;
+  }
+  if (!isStaticData(descriptor.value)) {
+    return null;
+  }
+  return descriptor.value;
+}
+
+function hasRepeatedRootSources(fields: readonly unknown[]): boolean {
+  let sources = 0;
+  for (const field of fields) {
+    if (!hasSourceList(field)) return false;
+    for (const source of field.sources) {
+      if (!hasSourceKind(source)) return false;
+      if (readsRootState(source) && ++sources >= 2) return true;
+    }
+  }
+  return false;
+}
+
+function hasSourceList(
+  field: unknown
+): field is { sources: readonly unknown[] } {
+  return (
+    field !== null &&
+    typeof field === "object" &&
+    Object.hasOwn(field, "sources") &&
+    Array.isArray(Reflect.get(field, "sources"))
+  );
+}
+
+function hasSourceKind(
+  source: unknown
+): source is { kind: unknown; path?: unknown } {
+  return (
+    source !== null &&
+    typeof source === "object" &&
+    Object.hasOwn(source, "kind")
+  );
+}
+
+function readsRootState(source: { kind: unknown; path?: unknown }): boolean {
+  return (
+    source.kind === "state-path" &&
+    Object.hasOwn(source, "path") &&
+    Array.isArray(source.path) &&
+    typeof source.path[0] === "string"
+  );
+}
+
+function isStaticData(value: unknown, ancestors = new Set<object>()): boolean {
+  if (value === null || typeof value !== "object")
+    return typeof value !== "function";
+  if (
+    utilTypes.isProxy(value) ||
+    !Object.isFrozen(value) ||
+    ancestors.has(value)
+  )
+    return false;
+  const array = Array.isArray(value);
+  const prototype = Object.getPrototypeOf(value);
+  if (
+    array
+      ? prototype !== Array.prototype
+      : prototype !== Object.prototype && prototype !== null
+  )
+    return false;
+  const keys = Reflect.ownKeys(value);
+  if (array && keys.length !== value.length + 1) return false;
+  if (array)
+    for (let index = 0; index < value.length; index += 1)
+      if (!Object.hasOwn(value, String(index))) return false;
+  ancestors.add(value);
+  for (const key of keys) {
+    if (typeof key === "symbol") return false;
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    if (
+      descriptor === undefined ||
+      !("value" in descriptor) ||
+      !isStaticData(descriptor.value, ancestors)
+    )
+      return false;
+  }
+  ancestors.delete(value);
+  return true;
+}
+
+function materializeEntry<State extends object, Metadata extends JsonObject>(
+  definition: StateIndexDefinition<State, Metadata>,
+  id: string,
+  state: State,
+  proof?: { root: object; valid: boolean }
+): StateIndexResult<MaterializedStateIndexEntry<State>> {
   const values: Record<string, StateIndexKeyScalar[]> = {};
   for (const field of definition.queryFields) {
     const fieldValues: StateIndexKeyScalar[] = [];
     for (const source of field.sources) {
-      const extracted = extractSource(id, state, field, source);
+      const extracted = extractSource(id, state, field, source, proof);
       if (extracted.status === "error") return extracted;
       fieldValues.push(...extracted.value);
     }
@@ -75,7 +231,8 @@ function extractSource<State extends object>(
   id: string,
   state: State,
   field: StateIndexQueryField,
-  source: StateIndexQuerySource
+  source: StateIndexQuerySource,
+  proof: { root: object; valid: boolean } | undefined
 ): StateIndexResult<StateIndexKeyScalar[]> {
   if (source.kind === "entry-id") {
     return { diagnostics: [], status: "ok", value: [id] };
@@ -105,7 +262,7 @@ function extractSource<State extends object>(
     const next: unknown[] = [];
     if (typeof segment === "string") {
       for (const value of values) {
-        if (!isJsonObject(value)) {
+        if (!isProvenOrJsonObject(value, proof)) {
           return sourceFailure(
             id,
             field,
@@ -113,6 +270,7 @@ function extractSource<State extends object>(
             `cannot read property ${JSON.stringify(segment)} from a non-object container`
           );
         }
+        if (proof !== undefined && value === proof.root) proof.valid = true;
         if (Object.hasOwn(value, segment)) next.push(value[segment]);
       }
     } else {
@@ -161,6 +319,19 @@ function extractSource<State extends object>(
   return normalized.status === "ok"
     ? { diagnostics: [], status: "ok", value: normalized.values }
     : sourceFailure(id, field, describeSource(source), normalized.message);
+}
+
+function isProvenOrJsonObject(
+  value: unknown,
+  proof: { root: object; valid: boolean } | undefined
+): value is JsonObject {
+  return (
+    (proof?.valid === true &&
+      value !== null &&
+      typeof value === "object" &&
+      !Array.isArray(value)) ||
+    isJsonObject(value)
+  );
 }
 
 function sourceFailure(

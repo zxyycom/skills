@@ -1,5 +1,6 @@
 import {
   matchTextSegments,
+  matchLimitedTextSegment,
   matchTextSegmentIdentifiers,
   TextSearchMatcherError
 } from "./segment-matcher.ts";
@@ -86,19 +87,17 @@ function materializeLimitedLineMatches(
   const selected: LineMatch[] = [];
   let count = 0;
   for (const line of identifiers) {
-    const match = matchTextSegments(
-      lineQuery,
-      [{ identifier: line, text: lines[line - 1]! }],
-      signal
-    )[0];
-    if (match === undefined) continue;
     const available = maximum - count;
-    if (match.ranges.length > available) {
-      if (available > 0)
-        selected.push({ line, ranges: match.ranges.slice(0, available) });
+    const match = matchLimitedTextSegment(
+      lineQuery,
+      lines[line - 1]!,
+      available,
+      signal
+    );
+    if (match.ranges.length > 0) selected.push({ line, ranges: match.ranges });
+    if (match.truncated) {
       return { matched: true, matches: selected, truncated: true };
     }
-    selected.push({ line, ranges: match.ranges });
     count += match.ranges.length;
   }
   return { matched: true, matches: selected, truncated: false };

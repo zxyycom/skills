@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/test-evidence-review
  * Rebuild: bun run sync:test-evidence-cli
  */
+import { types as utilTypes } from "node:util";
 import {
   isJsonObject,
   type DeepReadonly,
@@ -33,6 +34,74 @@ export function cloneAndFreezeTypedJsonObject<Value extends object>(
   }
   // The validated JSON shape is preserved in a fresh recursively frozen copy.
   return cloneAndFreezeJsonObject(value, sortKeys) as Value;
+}
+
+/**
+ * Clone with an operation-local data proof. This must preserve the value and
+ * input access order of cloneAndFreezeTypedJsonObject(value, false).
+ */
+export function cloneWithDataProof<Value extends object>(
+  value: Value
+): { value: Value; dataOnly: boolean } {
+  if (!isJsonObject(value)) {
+    throw new TypeError(
+      "value must be a JSON object containing only finite JSON values"
+    );
+  }
+  const proven = new WeakSet<object>();
+  const isProven = (child: unknown): boolean =>
+    child === null ||
+    typeof child === "string" ||
+    typeof child === "boolean" ||
+    (typeof child === "number" && Number.isFinite(child)) ||
+    (typeof child === "object" && proven.has(child));
+
+  const cloneValue = (child: JsonValue): JsonValue => {
+    if (Array.isArray(child)) {
+      // Preserve the original map call, including caller-provided overrides.
+      const array = freezeObject(child.map((entry) => cloneValue(entry)));
+      if (isProvenDataArray(array, isProven)) proven.add(array);
+      return array;
+    }
+    if (child !== null && typeof child === "object") return cloneObject(child);
+    return child;
+  };
+  const cloneObject = (input: JsonObject): JsonObject => {
+    let dataOnly = true;
+    const entries = Object.entries(input).map(([key, child]) => {
+      const cloned = cloneValue(child);
+      if (!isProven(cloned)) dataOnly = false;
+      return [key, cloned] as const;
+    });
+    const result = freezeObject(Object.fromEntries(entries));
+    if (dataOnly) proven.add(result);
+    return result;
+  };
+  const cloned = cloneObject(value as JsonObject) as Value;
+  return { value: cloned, dataOnly: proven.has(cloned) };
+}
+
+function isProvenDataArray(
+  value: unknown,
+  isProven: (child: unknown) => boolean
+): value is JsonValue[] {
+  if (
+    !Array.isArray(value) ||
+    utilTypes.isProxy(value) ||
+    Object.getPrototypeOf(value) !== Array.prototype ||
+    Reflect.ownKeys(value).length !== value.length + 1
+  )
+    return false;
+  for (let index = 0; index < value.length; index += 1) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
+    if (
+      descriptor === undefined ||
+      !("value" in descriptor) ||
+      !isProven(descriptor.value)
+    )
+      return false;
+  }
+  return true;
 }
 
 export function freezeObject<Value extends object>(value: Value): Value {

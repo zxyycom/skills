@@ -11,3 +11,4 @@ Contract:
 
 Proves:
 - file-text-search、graph、version-control、index-runtime 与 updater 的测试变化使各自原语脚本和 Gate catalog 自测执行，仓库校验、生成原语、两领域集合/生命周期及 Change Plan 等无关消费者复用。
+- 独立的 file-text-search 限量测试文件也进入同一原语脚本和 Gate catalog 自测，不扩散到无关消费者。

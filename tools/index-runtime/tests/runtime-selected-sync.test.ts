@@ -18,6 +18,7 @@ import {
   stateIndexTextSchema
 } from "../src/index.ts";
 import { isPlainRecord } from "../src/record.ts";
+import { selectedStateIndexChanges } from "../src/selection.ts";
 import {
   decisionDefinition,
   decisionStates,
@@ -34,6 +35,53 @@ import {
   recordMember,
   withTempRoot
 } from "./runtime-fixture.ts";
+
+test("selected comparison skips state serialization for differing revisions", () => {
+  const alpha = { label: "alpha" };
+  const betaBefore = { label: "before" };
+  const betaAfter = { label: "after" };
+  const gamma = { label: "gamma" };
+  const base = {
+    definitionVersion: 1,
+    schemaVersion: 4 as const,
+    namespace: "test",
+    metadata: {},
+    entries: { gamma, beta: betaBefore, alpha },
+    sourceRevision: {
+      metadata: "m",
+      entries: { gamma: "old", beta: "old", alpha: "same" }
+    }
+  };
+  const candidate = {
+    ...base,
+    entries: { gamma, beta: betaAfter, alpha },
+    sourceRevision: {
+      metadata: "m",
+      entries: { gamma: "new", beta: "new", alpha: "same" }
+    }
+  };
+  const original = JSON.stringify;
+  const serialized: unknown[] = [];
+  let result: ReturnType<typeof selectedStateIndexChanges>;
+  try {
+    JSON.stringify = ((value: unknown) => {
+      serialized.push(value);
+      return original(value);
+    }) as typeof JSON.stringify;
+    result = selectedStateIndexChanges(base, candidate, [
+      "alpha",
+      "beta",
+      "gamma"
+    ]);
+  } finally {
+    JSON.stringify = original;
+  }
+  assert.deepEqual(result, { kind: "accepted", changedIds: ["beta", "gamma"] });
+  assert.equal(serialized.filter((value) => value === alpha).length, 2);
+  assert.ok(!serialized.includes(betaBefore));
+  assert.ok(!serialized.includes(betaAfter));
+  assert.ok(!serialized.includes(gamma));
+});
 
 test("selected sync proves the complete projection before publishing it", async () => {
   await withTempRoot(async (tempRoot) => {
@@ -85,6 +133,13 @@ test("selected sync proves the complete projection before publishing it", async 
     const baselineText = await fs.readFile(indexPath, "utf8");
 
     source.states.alpha = { label: "Alpha changed" };
+    const sameRevision = await runtime.sync("preview", {
+      kind: "selected",
+      selectedIds: ["beta"]
+    });
+    assert.equal(sameRevision.state, "unselected-changes");
+    assert.deepEqual(sameRevision.changedIds, ["alpha"]);
+    assert.equal(await fs.readFile(indexPath, "utf8"), baselineText);
     source.revisions.alpha = "alpha-2";
     const unselected = await runtime.sync("preview", {
       kind: "selected",

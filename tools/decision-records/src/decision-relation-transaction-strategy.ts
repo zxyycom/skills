@@ -189,7 +189,11 @@ function hasSelectedSuccessor(
   component: ReadonlySet<DecisionId>,
   selected: ReadonlySet<DecisionId>
 ): boolean {
-  for (const id of selected) if (component.has(id)) return true;
+  const [smaller, larger] =
+    component.size <= selected.size
+      ? [component, selected]
+      : [selected, component];
+  for (const id of smaller) if (larger.has(id)) return true;
   return false;
 }
 function successorSetClosureError(

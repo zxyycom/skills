@@ -67,11 +67,10 @@ test("incremental Gate scopes generated file primitives to their fixture and mod
 
 test("incremental Gate keeps public runtime tests with their actual owner instead of every domain", async () => {
   await withImpactFixture(async (fixture) => {
+    const fileSearch = "script:test:file-text-search";
     for (const [input, consumer] of [
-      [
-        "tools/shared/tests/file-text-search-matching.test.ts",
-        "script:test:file-text-search"
-      ],
+      ["tools/shared/tests/file-text-search-matching.test.ts", fileSearch],
+      ["tools/shared/tests/file-text-search-limited.test.ts", fileSearch],
       [
         "tools/shared/tests/record-text-search.test.ts",
         "script:test:file-text-search"

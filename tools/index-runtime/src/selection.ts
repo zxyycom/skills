@@ -122,12 +122,12 @@ function changedStateIds<State extends object, Metadata extends JsonObject>(
     ...Object.keys(candidate.sourceRevision.entries)
   ]);
   return [...ids]
-    .sort((left, right) => (left < right ? -1 : left > right ? 1 : 0))
     .filter(
       (id) =>
-        JSON.stringify(baseline.entries[id]) !==
-          JSON.stringify(candidate.entries[id]) ||
         baseline.sourceRevision.entries[id] !==
-          candidate.sourceRevision.entries[id]
-    );
+          candidate.sourceRevision.entries[id] ||
+        JSON.stringify(baseline.entries[id]) !==
+          JSON.stringify(candidate.entries[id])
+    )
+    .sort((left, right) => (left < right ? -1 : left > right ? 1 : 0));
 }

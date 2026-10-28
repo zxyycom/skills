@@ -158,6 +158,75 @@ export function matchTextSegmentIdentifiers<Identifier>(
     : matches;
 }
 
+/** Materialize at most maximum merged ranges for one already-matched segment. */
+export function matchLimitedTextSegment(
+  matcher: TextSearchMatcher,
+  text: string,
+  maximum: number,
+  signal?: AbortSignal
+): Readonly<{ ranges: readonly TextSearchRange[]; truncated: boolean }> {
+  throwIfAborted(signal);
+  const segment = normalizeSegment(text);
+  const needles = matcher.mode === "phrase" ? [matcher.phrase] : matcher.terms;
+  const next = (needle: string, from: number) => {
+    throwIfAborted(signal);
+    const index = segment.text.indexOf(needle, from);
+    if (index < 0) return null;
+    const start = segment.spans[index]?.start;
+    const end = segment.spans[index + needle.length - 1]?.end;
+    return start === undefined || end === undefined
+      ? null
+      : { index, start, end };
+  };
+  const heads = needles.map((needle) => next(needle, 0));
+  const ranges: Array<{ end: number; start: number }> = [];
+  while (true) {
+    throwIfAborted(signal);
+    const selected = earliestOccurrenceIndex(heads);
+    if (selected < 0) return { ranges, truncated: false };
+    const current = heads[selected]!;
+    const previous = ranges.at(-1);
+    if (previous !== undefined && current.start <= previous.end) {
+      previous.end = Math.max(previous.end, current.end);
+    } else {
+      if (ranges.length === maximum) return { ranges, truncated: true };
+      ranges.push({ end: current.end, start: current.start });
+    }
+    heads[selected] = next(needles[selected]!, current.index + 1);
+  }
+}
+
+type NeedleOccurrence = Readonly<{ index: number; start: number; end: number }>;
+
+function earliestOccurrenceIndex(
+  heads: readonly (NeedleOccurrence | null)[]
+): number {
+  let selected = -1;
+  for (let index = 0; index < heads.length; index += 1) {
+    const head = heads[index];
+    const current = heads[selected];
+    if (
+      head !== null &&
+      head !== undefined &&
+      precedesOccurrence(head, current)
+    )
+      selected = index;
+  }
+  return selected;
+}
+
+function precedesOccurrence(
+  left: NeedleOccurrence,
+  right: NeedleOccurrence | null | undefined
+): boolean {
+  return (
+    right === undefined ||
+    right === null ||
+    left.start < right.start ||
+    (left.start === right.start && left.end < right.end)
+  );
+}
+
 type NormalizedSegment = Readonly<{
   spans: readonly OriginalSpan[];
   text: string;

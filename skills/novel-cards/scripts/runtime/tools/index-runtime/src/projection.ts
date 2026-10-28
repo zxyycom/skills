@@ -11,13 +11,12 @@ import { canonicalizeStateIndex } from "./canonicalization.ts";
 import { errorText, failure, diagnostic } from "./diagnostics.ts";
 import {
   canonicalizeTypedJsonObject,
-  cloneAndFreezeTypedJsonObject,
   deeplyReadonlyFrozenValue,
   readonlyFrozenStateIndex
 } from "./frozen-json.ts";
 import { isJsonObject } from "./json.ts";
 import {
-  materializeStateIndexEntry,
+  materializeClonedStateIndexEntry,
   type MaterializedStateIndexEntry
 } from "./query-fields.ts";
 import { isStateIndexText, stateIndexSchemaVersion } from "./schemas.ts";
@@ -66,12 +65,15 @@ export function projectStateIndexState<
       { stateId: context.id }
     );
   }
-  const frozen = cloneAndFreezeTypedJsonObject(state, false);
-  const extracted = materializeStateIndexEntry(definition, context.id, frozen);
+  const extracted = materializeClonedStateIndexEntry(
+    definition,
+    context.id,
+    state
+  );
   if (extracted.status === "ok") materializedEntries?.push(extracted.value);
   return extracted.status === "error"
     ? extracted
-    : { diagnostics: [], status: "ok", value: frozen };
+    : { diagnostics: [], status: "ok", value: extracted.value.state };
 }
 
 export function normalizeStateIndex<

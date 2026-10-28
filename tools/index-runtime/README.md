@@ -109,6 +109,8 @@ Valibot Schema 是索引外壳和查询输入的真源。持久索引固定为�
 
 严格 parse/load/build 完成字段物化，同阶段准备结果直接交给 reader。reader 为每个 entry 保存私有 `{ id, state, queryValues }`，后续 `get/query/all` 不再读取 revision 或重复提取静态查询值；要观察新 revision，必须重新 `open`。查询值不进入持久索引或公开 entry，公开 entry 始终只有 `{ id, state }`；公开 metadata、state 与完整索引 view 均是与调用方输入分离的递归冻结快照。
 
+投影中的多个静态 `state-path` 来源可使用克隆构造时形成的调用内数据证明：首次根校验成功后复用其子树校验，不跨投影保存。单字段、动态描述或无法证明安全的克隆结果继续逐次校验；公开原始查询不以调用方冻结或自证代替严格验证。
+
 查询支持：
 
 - 保留 `id` 或 definition 声明字段；
@@ -162,6 +164,8 @@ runtime state overlay 是 `id -> state`。同 ID 临时替换静态 entry，新 
 | `write` | 在根目录边界内原子替换索引并读回验证。 |
 
 省略 scope 或 `{ kind: "all" }` 是全量同步。`{ kind: "selected", selectedIds }` 只限制本次允许接纳的 ID 变化，不减少来源读取、完整验证或最终发布范围。selected 需要可信 baseline；对 baseline/candidate 的 state 与逐 ID revision 计算 `changedIds`。新增选择新 ID，删除选择旧 ID，rename 同时选择旧/新 ID。集合 metadata/revision 变化、所选 ID 两侧均不存在、或存在未选择变化都会在写前失败。成功 write 发布的仍是完整 candidate，字节等同同来源的全量重建。
+
+逐 ID revision 不同已足以判定变更；revision 相同仍须比较 state，包括未选 ID。只对实际变化的 ID 排序，不改变未选变化的拒绝或诊断顺序。
 
 成功结果以 `state` 区分事实：`previewed` 表示完整同步预演通过但投影尚未发布，`current`／`unchanged` 表示已经 current，`written` 才表示实际写入。`changed` 只报告持久写入，因此待发布的预演同样为 `false`，不能据此推断索引 current。selected 的预演与写入执行相同的可信 baseline、完整来源验证、ID 接纳和来源漂移保护，严格 selected `check` 仍拒绝 scoped stale。
 
