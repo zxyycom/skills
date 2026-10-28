@@ -1,0 +1,12 @@
+{
+  "importMs": 654.1307999999999,
+  "uptimeMs": 676.3628,
+  "resolutions": {
+    "commander": "file:///<WORKSPACE>/.codex/skills/investigation-report/node_modules/.pnpm/commander@13.1.0/node_modules/commander/esm.mjs",
+    "simple-git": "file:///<WORKSPACE>/.codex/skills/investigation-report/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/esm/index.js",
+    "valibot": "file:///<WORKSPACE>/.codex/skills/investigation-report/node_modules/.pnpm/valibot@1.5.0/node_modules/valibot/dist/index.mjs",
+    "neverthrow": "file:///<WORKSPACE>/.codex/skills/investigation-report/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+    "yaml": "file:///<WORKSPACE>/.codex/skills/investigation-report/node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/index.js",
+    "fast-glob": "file:///<WORKSPACE>/.codex/skills/investigation-report/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js"
+  }
+}

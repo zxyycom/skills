@@ -1,0 +1,623 @@
+{
+  "uptimeMs": 74780.46949999999,
+  "cliStart": 820.7057,
+  "hookMs": 33.94620000000009,
+  "usage": {
+    "userCPUTime": 3281000,
+    "systemCPUTime": 18781000,
+    "maxRSS": 177456,
+    "sharedMemorySize": 0,
+    "unsharedDataSize": 0,
+    "unsharedStackSize": 0,
+    "minorPageFault": 0,
+    "majorPageFault": 101722,
+    "swappedOut": 0,
+    "fsRead": 4096,
+    "fsWrite": 211,
+    "ipcSent": 0,
+    "ipcReceived": 0,
+    "signalsCount": 0,
+    "voluntaryContextSwitches": 0,
+    "involuntaryContextSwitches": 0
+  },
+  "maxIO": 1,
+  "activeIOAtExit": 0,
+  "spans": {
+    "canonicalRecordCollection": {
+      "count": 1,
+      "ms": 6.1411999999999125,
+      "minStart": 824.5587,
+      "maxEnd": 830.6999
+    },
+    "readRecordText": {
+      "count": 344,
+      "ms": 424.63609999999767,
+      "minStart": 831.9247,
+      "maxEnd": 1262.3758
+    },
+    "investigationIdFromMarkdown": {
+      "count": 552,
+      "ms": 11.153999999951907,
+      "minStart": 834.5684,
+      "maxEnd": 74768.4283
+    },
+    "inspectInvestigationCollectionLayout": {
+      "count": 1,
+      "ms": 431.8543000000001,
+      "minStart": 831.005,
+      "maxEnd": 1262.8593
+    },
+    "parseInvestigationReport": {
+      "count": 344,
+      "ms": 19.31650000000195,
+      "minStart": 1262.947,
+      "maxEnd": 1285.1217
+    },
+    "buildInvestigationReportState": {
+      "count": 344,
+      "ms": 2.591700000001083,
+      "minStart": 1265.0457,
+      "maxEnd": 1285.1245
+    },
+    "collectionStates": {
+      "count": 1,
+      "ms": 22.23109999999997,
+      "minStart": 1262.8945,
+      "maxEnd": 1285.1256
+    },
+    "createInvestigationRelationContext": {
+      "count": 1,
+      "ms": 0.15540000000009968,
+      "minStart": 1285.2456,
+      "maxEnd": 1285.401
+    },
+    "validateInvestigationRelationGraph": {
+      "count": 1,
+      "ms": 1.7748999999998887,
+      "minStart": 1285.4192,
+      "maxEnd": 1287.1941
+    },
+    "readCandidateAuthoringResourceReferences": {
+      "count": 1,
+      "ms": 0.06739999999990687,
+      "minStart": 1287.7106,
+      "maxEnd": 1287.778
+    },
+    "prepareInvestigationResourceRoot": {
+      "count": 1,
+      "ms": 380.3293000000001,
+      "minStart": 1293.3444,
+      "maxEnd": 1673.6737
+    },
+    "discoverVisibleInvestigationResourceIds": {
+      "count": 1,
+      "ms": 0.4391000000000531,
+      "minStart": 1673.7634,
+      "maxEnd": 1674.2025
+    },
+    "validateResourceIds": {
+      "count": 1,
+      "ms": 8862.915599999998,
+      "minStart": 1674.2283,
+      "maxEnd": 10537.1439
+    },
+    "unreferencedResourceWarnings": {
+      "count": 1,
+      "ms": 0.6710000000002765,
+      "minStart": 10537.4763,
+      "maxEnd": 10538.1473
+    },
+    "validateFullInvestigationResources": {
+      "count": 1,
+      "ms": 9250.5572,
+      "minStart": 1287.8085,
+      "maxEnd": 10538.3657
+    },
+    "createInvestigationStateSnapshot": {
+      "count": 1,
+      "ms": 16.523999999999432,
+      "minStart": 10538.6748,
+      "maxEnd": 10555.1988
+    },
+    "checkInvestigationStateSnapshot": {
+      "count": 1,
+      "ms": 64.85050000000047,
+      "minStart": 10555.3536,
+      "maxEnd": 10620.2041
+    },
+    "readHeadInvestigationIndex": {
+      "count": 1,
+      "ms": 247.91380000000026,
+      "minStart": 10822.3243,
+      "maxEnd": 11070.2381
+    },
+    "readRecordedPredecessors": {
+      "count": 1,
+      "ms": 63697.9407,
+      "minStart": 11070.4925,
+      "maxEnd": 74768.4332
+    },
+    "unrecordedPredecessorWarnings": {
+      "count": 1,
+      "ms": 64148.4018,
+      "minStart": 10620.2955,
+      "maxEnd": 74768.6973
+    },
+    "runInvestigationReportCheckCli": {
+      "count": 1,
+      "ms": 73948.7941,
+      "minStart": 820.7057,
+      "maxEnd": 74769.4998
+    }
+  },
+  "fs": {
+    "other|realpathSync": {
+      "count": 1284,
+      "ms": 80.57650000000046,
+      "maxMs": 0.7565000000000026,
+      "uniquePaths": 419,
+      "maxRepeats": 46,
+      "repeatedPaths": 201
+    },
+    "other|openSync": {
+      "count": 257,
+      "ms": 165.57949999999943,
+      "maxMs": 1.419099999999986,
+      "uniquePaths": 257,
+      "maxRepeats": 1,
+      "repeatedPaths": 0
+    },
+    "other|readFileSync": {
+      "count": 410,
+      "ms": 205.9781000000007,
+      "maxMs": 1.5216999999999814,
+      "uniquePaths": 410,
+      "maxRepeats": 1,
+      "repeatedPaths": 0
+    },
+    "other|realpath": {
+      "count": 1,
+      "ms": 5.2327999999999975,
+      "maxMs": 5.2327999999999975,
+      "uniquePaths": 1,
+      "maxRepeats": 1,
+      "repeatedPaths": 0
+    },
+    "report/candidate|realpath": {
+      "count": 1037,
+      "ms": 128.28810000000215,
+      "maxMs": 0.6340000000000146,
+      "uniquePaths": 345,
+      "maxRepeats": 349,
+      "repeatedPaths": 345
+    },
+    "other|stat": {
+      "count": 1,
+      "ms": 0.2619000000000824,
+      "maxMs": 0.2619000000000824,
+      "uniquePaths": 1,
+      "maxRepeats": 1,
+      "repeatedPaths": 0
+    },
+    "report/candidate|stat": {
+      "count": 2,
+      "ms": 0.4024999999995771,
+      "maxMs": 0.24799999999959255,
+      "uniquePaths": 1,
+      "maxRepeats": 2,
+      "repeatedPaths": 1
+    },
+    "report/candidate|readdir": {
+      "count": 1,
+      "ms": 0.39409999999998035,
+      "maxMs": 0.39409999999998035,
+      "uniquePaths": 1,
+      "maxRepeats": 1,
+      "repeatedPaths": 0
+    },
+    "report/candidate|lstat": {
+      "count": 2066,
+      "ms": 191.89879999999653,
+      "maxMs": 0.7144000000000688,
+      "uniquePaths": 345,
+      "maxRepeats": 690,
+      "repeatedPaths": 345
+    },
+    "report/candidate|open": {
+      "count": 344,
+      "ms": 30.141199999997298,
+      "maxMs": 0.4290999999999485,
+      "uniquePaths": 344,
+      "maxRepeats": 1,
+      "repeatedPaths": 0
+    },
+    "report/candidate|handle.stat": {
+      "count": 688,
+      "ms": 20.28389999999797,
+      "maxMs": 0.974100000000135,
+      "uniquePaths": 344,
+      "maxRepeats": 2,
+      "repeatedPaths": 344
+    },
+    "report/candidate|handle.readFile": {
+      "count": 344,
+      "ms": 24.816000000000486,
+      "maxMs": 0.9780999999999267,
+      "uniquePaths": 344,
+      "maxRepeats": 1,
+      "repeatedPaths": 0
+    },
+    "report/candidate|handle.close": {
+      "count": 344,
+      "ms": 9.294299999999453,
+      "maxMs": 0.0946999999999889,
+      "uniquePaths": 344,
+      "maxRepeats": 1,
+      "repeatedPaths": 0
+    },
+    "resource|lstat": {
+      "count": 29319,
+      "ms": 4528.796099999992,
+      "maxMs": 1.7384999999999309,
+      "uniquePaths": 2776,
+      "maxRepeats": 7600,
+      "repeatedPaths": 245
+    },
+    "resource|realpath": {
+      "count": 14238,
+      "ms": 2846.498199999962,
+      "maxMs": 0.838900000000649,
+      "uniquePaths": 2776,
+      "maxRepeats": 2536,
+      "repeatedPaths": 2776
+    },
+    "resource|stat": {
+      "count": 2777,
+      "ms": 458.3491999999926,
+      "maxMs": 1.4170999999996639,
+      "uniquePaths": 2776,
+      "maxRepeats": 2,
+      "repeatedPaths": 1
+    },
+    "other|statSync": {
+      "count": 2,
+      "ms": 0.525499999999056,
+      "maxMs": 0.2647999999990134,
+      "uniquePaths": 1,
+      "maxRepeats": 2,
+      "repeatedPaths": 1
+    },
+    "resource|readdir": {
+      "count": 245,
+      "ms": 43.885400000003756,
+      "maxMs": 0.3855999999996129,
+      "uniquePaths": 245,
+      "maxRepeats": 1,
+      "repeatedPaths": 0
+    },
+    "resource|open": {
+      "count": 2531,
+      "ms": 387.14650000001143,
+      "maxMs": 0.8680999999996857,
+      "uniquePaths": 2531,
+      "maxRepeats": 1,
+      "repeatedPaths": 0
+    },
+    "resource|handle.stat": {
+      "count": 2531,
+      "ms": 137.7962999999745,
+      "maxMs": 1.4174000000002707,
+      "uniquePaths": 2531,
+      "maxRepeats": 1,
+      "repeatedPaths": 0
+    },
+    "resource|handle.close": {
+      "count": 2531,
+      "ms": 127.45290000000159,
+      "maxMs": 0.32569999999986976,
+      "uniquePaths": 2531,
+      "maxRepeats": 1,
+      "repeatedPaths": 0
+    },
+    "index|lstat": {
+      "count": 2,
+      "ms": 0.5823999999993248,
+      "maxMs": 0.3024999999997817,
+      "uniquePaths": 1,
+      "maxRepeats": 2,
+      "repeatedPaths": 1
+    },
+    "index|realpath": {
+      "count": 3,
+      "ms": 0.9521000000004278,
+      "maxMs": 0.4750000000003638,
+      "uniquePaths": 1,
+      "maxRepeats": 3,
+      "repeatedPaths": 1
+    },
+    "index|open": {
+      "count": 1,
+      "ms": 0.2897000000011758,
+      "maxMs": 0.2897000000011758,
+      "uniquePaths": 1,
+      "maxRepeats": 1,
+      "repeatedPaths": 0
+    },
+    "index|handle.stat": {
+      "count": 2,
+      "ms": 0.16469999999753782,
+      "maxMs": 0.10129999999844586,
+      "uniquePaths": 1,
+      "maxRepeats": 2,
+      "repeatedPaths": 1
+    },
+    "index|handle.readFile": {
+      "count": 1,
+      "ms": 0.40970000000015716,
+      "maxMs": 0.40970000000015716,
+      "uniquePaths": 1,
+      "maxRepeats": 1,
+      "repeatedPaths": 0
+    },
+    "index|handle.close": {
+      "count": 1,
+      "ms": 0.0305000000007567,
+      "maxMs": 0.0305000000007567,
+      "uniquePaths": 1,
+      "maxRepeats": 1,
+      "repeatedPaths": 0
+    }
+  },
+  "fsUnionMs": 9230.447399999932,
+  "gitUnionMs": 64053.857700000044,
+  "git": {
+    "rev-parse": {
+      "count": 212,
+      "ms": 22149.238299999994,
+      "maxMs": 325.7186999999976
+    },
+    "ls-files": {
+      "count": 1,
+      "ms": 89.5127,
+      "maxMs": 89.5127
+    },
+    "ls-tree": {
+      "count": 209,
+      "ms": 21013.70909999999,
+      "maxMs": 350.38720000000467
+    },
+    "cat-file": {
+      "count": 209,
+      "ms": 20801.397600000055,
+      "maxMs": 394.0466000000015
+    }
+  },
+  "slowestGit": [
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 42314.6974,
+      "end": 42708.744,
+      "code": 0,
+      "ms": 394.0466000000015
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 43184.5309,
+      "end": 43534.9181,
+      "code": 0,
+      "ms": 350.38720000000467
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 62550.4686,
+      "end": 62876.1873,
+      "code": 0,
+      "ms": 325.7186999999976
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 60830.3097,
+      "end": 61132.1324,
+      "code": 0,
+      "ms": 301.82270000000426
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 39115.7763,
+      "end": 39401.6803,
+      "code": 0,
+      "ms": 285.90400000000227
+    }
+  ],
+  "fsByStage": {
+    "startup/other": {
+      "count": 1951,
+      "ms": 452.13410000000056
+    },
+    "canonicalRecordCollection": {
+      "count": 4,
+      "ms": 5.961200000000076
+    },
+    "inspectInvestigationCollectionLayout": {
+      "count": 1,
+      "ms": 0.39409999999998035
+    },
+    "readRecordText": {
+      "count": 4816,
+      "ms": 402.4026999999933
+    },
+    "prepareInvestigationResourceRoot": {
+      "count": 12,
+      "ms": 2.751999999999498
+    },
+    "validateResourceIds": {
+      "count": 54162,
+      "ms": 8527.726999999939
+    },
+    "checkInvestigationStateSnapshot": {
+      "count": 16,
+      "ms": 4.390999999999622
+    },
+    "unrecordedPredecessorWarnings": {
+      "count": 1,
+      "ms": 0.2647999999990134
+    }
+  },
+  "hotspots": [
+    {
+      "fn": "(idle)",
+      "file": "",
+      "line": 0,
+      "ms": 61328.764
+    },
+    {
+      "fn": "spawn",
+      "file": "node:internal/child_process",
+      "line": 356,
+      "ms": 3298.072
+    },
+    {
+      "fn": "spawn",
+      "file": "node:internal/child_process",
+      "line": 356,
+      "ms": 3258.32
+    },
+    {
+      "fn": "spawn",
+      "file": "node:internal/child_process",
+      "line": 356,
+      "ms": 2873.085
+    },
+    {
+      "fn": "(program)",
+      "file": "",
+      "line": 0,
+      "ms": 553.318
+    },
+    {
+      "fn": "lstat",
+      "file": "",
+      "line": 0,
+      "ms": 317.128
+    },
+    {
+      "fn": "lstat",
+      "file": "node:internal/fs/promises",
+      "line": 1728,
+      "ms": 150.052
+    },
+    {
+      "fn": "realpath",
+      "file": "",
+      "line": 0,
+      "ms": 142.109
+    },
+    {
+      "fn": "(garbage collector)",
+      "file": "",
+      "line": 0,
+      "ms": 100.36
+    },
+    {
+      "fn": "normalizeSpawnArguments",
+      "file": "node:child_process",
+      "line": 584,
+      "ms": 89.594
+    },
+    {
+      "fn": "normalizeSpawnArguments",
+      "file": "node:child_process",
+      "line": 584,
+      "ms": 84.013
+    },
+    {
+      "fn": "spawn",
+      "file": "node:internal/child_process",
+      "line": 356,
+      "ms": 66.638
+    },
+    {
+      "fn": "realpath",
+      "file": "node:internal/fs/promises",
+      "line": 1887,
+      "ms": 63.074
+    },
+    {
+      "fn": "normalizeSpawnArguments",
+      "file": "node:child_process",
+      "line": 584,
+      "ms": 63.01
+    },
+    {
+      "fn": "",
+      "file": "file:///<DIAGNOSTICS>/observe.mjs",
+      "line": 21,
+      "ms": 42.845
+    },
+    {
+      "fn": "category",
+      "file": "file:///<DIAGNOSTICS>/observe.mjs",
+      "line": 19,
+      "ms": 35.512
+    },
+    {
+      "fn": "open",
+      "file": "",
+      "line": 0,
+      "ms": 34.098
+    },
+    {
+      "fn": "",
+      "file": "file:///<DIAGNOSTICS>/observe.mjs",
+      "line": 26,
+      "ms": 33.067
+    },
+    {
+      "fn": "openFileHandle",
+      "file": "",
+      "line": 0,
+      "ms": 29.891
+    },
+    {
+      "fn": "open",
+      "file": "",
+      "line": 0,
+      "ms": 28.04
+    },
+    {
+      "fn": "stat",
+      "file": "",
+      "line": 0,
+      "ms": 25.973
+    },
+    {
+      "fn": "close",
+      "file": "",
+      "line": 0,
+      "ms": 25.554
+    },
+    {
+      "fn": "join",
+      "file": "node:path",
+      "line": 506,
+      "ms": 23.66
+    },
+    {
+      "fn": "category",
+      "file": "file:///<DIAGNOSTICS>/observe.mjs",
+      "line": 19,
+      "ms": 23.564
+    },
+    {
+      "fn": "stat",
+      "file": "node:internal/fs/promises",
+      "line": 1742,
+      "ms": 22.346
+    }
+  ]
+}

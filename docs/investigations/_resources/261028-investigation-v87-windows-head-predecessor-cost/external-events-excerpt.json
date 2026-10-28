@@ -1,0 +1,4500 @@
+{
+  "code": 0,
+  "uptimeMs": 74780.46949999999,
+  "cliStart": 820.7057,
+  "hookMs": 33.94620000000009,
+  "resourceUsage": {
+    "userCPUTime": 3281000,
+    "systemCPUTime": 18781000,
+    "maxRSS": 177456,
+    "sharedMemorySize": 0,
+    "unsharedDataSize": 0,
+    "unsharedStackSize": 0,
+    "minorPageFault": 0,
+    "majorPageFault": 101722,
+    "swappedOut": 0,
+    "fsRead": 4096,
+    "fsWrite": 211,
+    "ipcSent": 0,
+    "ipcReceived": 0,
+    "signalsCount": 0,
+    "voluntaryContextSwitches": 0,
+    "involuntaryContextSwitches": 0
+  },
+  "maxConcurrentIO": 1,
+  "activeIOAtExit": 0,
+  "fsUnionMs": 9230.447399999932,
+  "gitUnionMs": 64053.857700000044,
+  "children": [
+    {
+      "cmd": "rev-parse",
+      "stage": "prepareInvestigationResourceRoot",
+      "start": 1296.4779,
+      "end": 1573.6536,
+      "code": 0
+    },
+    {
+      "cmd": "ls-files",
+      "stage": "prepareInvestigationResourceRoot",
+      "start": 1577.43,
+      "end": 1666.9427,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "unrecordedPredecessorWarnings",
+      "start": 10621.3682,
+      "end": 10750.2875,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "unrecordedPredecessorWarnings",
+      "start": 10752.2765,
+      "end": 10821.7663,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readHeadInvestigationIndex",
+      "start": 10823.245,
+      "end": 10894.5083,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readHeadInvestigationIndex",
+      "start": 10895.3866,
+      "end": 10963.4325,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readHeadInvestigationIndex",
+      "start": 10964.8312,
+      "end": 11038.9873,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 11071.2366,
+      "end": 11136.9852,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 11137.8197,
+      "end": 11208.2688,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 11209.1586,
+      "end": 11361.9677,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 11362.6479,
+      "end": 11516.2544,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 11517.1565,
+      "end": 11586.1688,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 11586.9191,
+      "end": 11657.1952,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 11658.1162,
+      "end": 11815.5363,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 11816.4304,
+      "end": 11888.0167,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 11888.8568,
+      "end": 12041.6578,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 12042.4712,
+      "end": 12113.0273,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 12114.0356,
+      "end": 12235.9595,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 12236.7614,
+      "end": 12304.4297,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 12305.0883,
+      "end": 12375.1303,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 12375.988,
+      "end": 12449.197,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 12450.0078,
+      "end": 12520.1186,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 12521.009,
+      "end": 12675.3616,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 12676.515,
+      "end": 12749.1923,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 12749.9263,
+      "end": 12814.6782,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 12815.4901,
+      "end": 12883.4873,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 12884.5471,
+      "end": 12956.4823,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 12957.3485,
+      "end": 13074.7229,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 13075.5573,
+      "end": 13141.9278,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 13142.8706,
+      "end": 13215.6444,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 13216.2993,
+      "end": 13365.5372,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 13366.2847,
+      "end": 13438.4197,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 13439.3485,
+      "end": 13514.6715,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 13515.5458,
+      "end": 13588.2622,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 13588.9512,
+      "end": 13710.687,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 13711.4888,
+      "end": 13781.5996,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 13782.2788,
+      "end": 13853.2528,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 13853.8362,
+      "end": 14010.9383,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 14011.9722,
+      "end": 14080.4779,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 14081.2385,
+      "end": 14206.5211,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 14207.1997,
+      "end": 14274.9233,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 14275.7144,
+      "end": 14348.2348,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 14348.9689,
+      "end": 14472.0504,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 14472.713,
+      "end": 14547.9347,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 14548.9235,
+      "end": 14677.1841,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 14677.95,
+      "end": 14796.702,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 14797.4019,
+      "end": 14915.5021,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 14916.2423,
+      "end": 15180.0516,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 15180.6786,
+      "end": 15249.4545,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 15250.0994,
+      "end": 15321.4012,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 15322.2578,
+      "end": 15390.8249,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 15391.4342,
+      "end": 15457.9143,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 15458.4465,
+      "end": 15526.1504,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 15526.9868,
+      "end": 15598.6818,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 15599.2731,
+      "end": 15674.8779,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 15675.4692,
+      "end": 15745.6337,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 15746.448,
+      "end": 15822.7564,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 15823.4902,
+      "end": 15893.6329,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 15894.2763,
+      "end": 15966.1449,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 15967.0313,
+      "end": 16038.4078,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 16039.0954,
+      "end": 16108.405,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 16109.063,
+      "end": 16181.9854,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 16182.8233,
+      "end": 16341.7067,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 16342.5742,
+      "end": 16412.0283,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 16412.5885,
+      "end": 16479.6358,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 16480.5113,
+      "end": 16552.1164,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 16552.8261,
+      "end": 16623.5731,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 16624.2736,
+      "end": 16694.0442,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 16694.9692,
+      "end": 16769.0155,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 16769.6144,
+      "end": 16892.5589,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 16893.1195,
+      "end": 16962.5955,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 16963.4616,
+      "end": 17033.6238,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 17034.3701,
+      "end": 17101.2809,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 17101.9832,
+      "end": 17169.6004,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 17170.7405,
+      "end": 17243.8166,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 17244.4168,
+      "end": 17310.521,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 17311.1289,
+      "end": 17388.1849,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 17389.0471,
+      "end": 17456.4832,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 17457.1318,
+      "end": 17613.0955,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 17613.8718,
+      "end": 17684.3276,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 17685.1732,
+      "end": 17754.595,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 17755.4482,
+      "end": 17828.3468,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 17829.0269,
+      "end": 17900.6057,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 17901.3743,
+      "end": 17977.4537,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 17978.2376,
+      "end": 18107.2666,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 18107.901,
+      "end": 18266.9538,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 18267.7768,
+      "end": 18424.0146,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 18424.7428,
+      "end": 18494.7247,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 18495.3974,
+      "end": 18566.4601,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 18567.2685,
+      "end": 18641.5908,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 18642.2317,
+      "end": 18801.5217,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 18802.2581,
+      "end": 18871.1729,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 18872.0905,
+      "end": 18942.2636,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 18943.0147,
+      "end": 19016.3487,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 19016.9328,
+      "end": 19141.5185,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 19142.3329,
+      "end": 19386.0902,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 19386.9236,
+      "end": 19456.3134,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 19456.98,
+      "end": 19534.9613,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 19535.7739,
+      "end": 19614.6649,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 19615.4649,
+      "end": 19689.6293,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 19690.339,
+      "end": 19820.0128,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 19820.7512,
+      "end": 19892.4299,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 19893.0976,
+      "end": 19959.6343,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 19960.3497,
+      "end": 20116.7708,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 20117.4364,
+      "end": 20238.4311,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 20238.964,
+      "end": 20306.1766,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 20306.8899,
+      "end": 20432.5317,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 20433.3723,
+      "end": 20507.0115,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 20507.8172,
+      "end": 20686.8031,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 20687.5638,
+      "end": 20759.0377,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 20759.9557,
+      "end": 20826.3584,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 20827.1057,
+      "end": 20895.6315,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 20896.117,
+      "end": 20963.4523,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 20964.3541,
+      "end": 21030.3884,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 21031.0921,
+      "end": 21098.5239,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 21099.1281,
+      "end": 21255.7636,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 21256.6134,
+      "end": 21416.0228,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 21416.7734,
+      "end": 21484.0855,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 21484.6551,
+      "end": 21633.8628,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 21634.6218,
+      "end": 21703.7657,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 21704.3774,
+      "end": 21768.1061,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 21768.7123,
+      "end": 21839.5325,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 21840.4273,
+      "end": 21913.7523,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 21914.4482,
+      "end": 21983.218,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 21983.9666,
+      "end": 22050.2885,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 22051.0315,
+      "end": 22118.183,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 22118.7211,
+      "end": 22183.7838,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 22184.3544,
+      "end": 22249.9728,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 22250.807,
+      "end": 22318.9126,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 22319.5676,
+      "end": 22436.2309,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 22436.8534,
+      "end": 22501.1135,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 22501.8381,
+      "end": 22574.6208,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 22575.4313,
+      "end": 22729.608,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 22730.2944,
+      "end": 22884.4753,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 22885.4544,
+      "end": 22951.7987,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 22952.446,
+      "end": 23021.087,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 23021.7307,
+      "end": 23087.4739,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 23088.4102,
+      "end": 23155.7273,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 23156.4433,
+      "end": 23311.8325,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 23312.5117,
+      "end": 23388.9808,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 23389.7725,
+      "end": 23470.9921,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 23471.5531,
+      "end": 23549.0675,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 23549.7156,
+      "end": 23763.7267,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 23764.7045,
+      "end": 23845.5707,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 23846.243,
+      "end": 24004.406,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 24004.9078,
+      "end": 24072.1972,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 24072.9201,
+      "end": 24147.9559,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 24148.6161,
+      "end": 24216.3431,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 24216.8375,
+      "end": 24285.8018,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 24286.4897,
+      "end": 24354.9891,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 24355.5993,
+      "end": 24420.6256,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 24421.2382,
+      "end": 24486.7083,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 24487.5011,
+      "end": 24613.0552,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 24613.6402,
+      "end": 24683.006,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 24683.712,
+      "end": 24754.7788,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 24755.3822,
+      "end": 24825.5825,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 24826.1867,
+      "end": 24890.8444,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 24891.5491,
+      "end": 24957.3374,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 24958.0535,
+      "end": 25024.6952,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 25025.4458,
+      "end": 25179.3892,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 25179.934,
+      "end": 25328.9237,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 25330.0935,
+      "end": 25395.631,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 25396.2288,
+      "end": 25455.9484,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 25456.4677,
+      "end": 25573.7671,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 25574.5506,
+      "end": 25649.2926,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 25650.0439,
+      "end": 25722.9936,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 25723.6615,
+      "end": 25840.1907,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 25841.064,
+      "end": 25909.7831,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 25910.4083,
+      "end": 26030.1326,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 26030.6713,
+      "end": 26147.1934,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 26147.983,
+      "end": 26265.2351,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 26265.9102,
+      "end": 26438.1619,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 26438.7128,
+      "end": 26507.6789,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 26508.461,
+      "end": 26578.6561,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 26579.2119,
+      "end": 26649.6383,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 26650.1707,
+      "end": 26717.7576,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 26718.7284,
+      "end": 26790.2986,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 26791.0621,
+      "end": 26863.2698,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 26863.9467,
+      "end": 26932.2438,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 26932.9857,
+      "end": 27001.9417,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 27002.5513,
+      "end": 27068.2025,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 27068.7802,
+      "end": 27225.484,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 27226.2097,
+      "end": 27294.1704,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 27294.767,
+      "end": 27361.8709,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 27362.5846,
+      "end": 27428.0621,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 27428.9321,
+      "end": 27589.684,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 27590.2326,
+      "end": 27663.1496,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 27663.927,
+      "end": 27741.3088,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 27742.1434,
+      "end": 27816.5941,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 27817.2596,
+      "end": 27974.9844,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 27975.6289,
+      "end": 28044.3332,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 28045.1134,
+      "end": 28113.3248,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 28113.8894,
+      "end": 28185.7405,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 28186.3405,
+      "end": 28323.2013,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 28323.9479,
+      "end": 28399.5761,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 28400.3555,
+      "end": 28478.2149,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 28478.9683,
+      "end": 28551.1852,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 28551.8679,
+      "end": 28630.4673,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 28631.1254,
+      "end": 28707.2101,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 28707.8592,
+      "end": 28782.3405,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 28783.3172,
+      "end": 28857.8447,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 28858.6458,
+      "end": 28930.4719,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 28931.1674,
+      "end": 29002.3294,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 29003.1472,
+      "end": 29162.1551,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 29162.8771,
+      "end": 29234.4507,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 29235.0842,
+      "end": 29307.7982,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 29308.5618,
+      "end": 29463.9497,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 29464.7937,
+      "end": 29688.2052,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 29688.6728,
+      "end": 29761.508,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 29762.3084,
+      "end": 29842.784,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 29843.5771,
+      "end": 29916.1634,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 29916.8081,
+      "end": 29988.6372,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 29989.4791,
+      "end": 30061.4772,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 30062.264,
+      "end": 30130.2632,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 30130.8975,
+      "end": 30198.4545,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 30199.2845,
+      "end": 30267.2528,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 30268.0957,
+      "end": 30334.3435,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 30335.3388,
+      "end": 30455.9964,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 30456.932,
+      "end": 30525.3474,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 30526.0047,
+      "end": 30593.8781,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 30594.4313,
+      "end": 30666.4815,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 30667.4228,
+      "end": 30739.0419,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 30739.7629,
+      "end": 30815.3706,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 30815.9334,
+      "end": 30934.5638,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 30935.2465,
+      "end": 31002.962,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 31003.5468,
+      "end": 31067.3637,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 31067.9216,
+      "end": 31138.1733,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 31138.8862,
+      "end": 31258.6778,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 31259.2976,
+      "end": 31327.2353,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 31327.8728,
+      "end": 31399.2862,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 31400.1076,
+      "end": 31519.1379,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 31519.8525,
+      "end": 31588.7099,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 31589.3654,
+      "end": 31712.8786,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 31713.5996,
+      "end": 31970.9984,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 31971.6647,
+      "end": 32042.2876,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 32042.9473,
+      "end": 32114.4963,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 32115.4479,
+      "end": 32194.6394,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 32195.4556,
+      "end": 32266.6602,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 32267.3147,
+      "end": 32334.205,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 32334.8275,
+      "end": 32402.6122,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 32403.1971,
+      "end": 32554.9274,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 32555.591,
+      "end": 32620.7308,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 32621.4306,
+      "end": 32693.0929,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 32693.7009,
+      "end": 32761.7034,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 32762.3751,
+      "end": 32927.6932,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 32928.6925,
+      "end": 33003.0047,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 33003.7721,
+      "end": 33076.0025,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 33076.6739,
+      "end": 33148.6281,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 33149.4577,
+      "end": 33270.6167,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 33271.3115,
+      "end": 33345.0506,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 33345.7962,
+      "end": 33414.2875,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 33415.0472,
+      "end": 33487.0897,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 33487.7393,
+      "end": 33558.0929,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 33558.5798,
+      "end": 33629.31,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 33629.9078,
+      "end": 33704.2136,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 33704.8871,
+      "end": 33771.4192,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 33772.0237,
+      "end": 33839.2292,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 33840.2981,
+      "end": 33909.9083,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 33910.5804,
+      "end": 33975.0778,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 33975.7847,
+      "end": 34041.1024,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 34041.8825,
+      "end": 34109.7966,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 34110.3911,
+      "end": 34178.7088,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 34179.4043,
+      "end": 34333.8963,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 34334.649,
+      "end": 34486.9459,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 34487.5631,
+      "end": 34550.6389,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 34551.3519,
+      "end": 34615.2331,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 34616.2265,
+      "end": 34687.7853,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 34688.2542,
+      "end": 34756.8877,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 34757.4877,
+      "end": 34827.7238,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 34828.4664,
+      "end": 34901.2584,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 34901.9873,
+      "end": 34970.2964,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 34970.8742,
+      "end": 35034.532,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 35035.3705,
+      "end": 35153.4516,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 35154.1257,
+      "end": 35222.8803,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 35223.4374,
+      "end": 35382.536,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 35383.3554,
+      "end": 35449.1265,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 35449.9181,
+      "end": 35513.9828,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 35514.621,
+      "end": 35580.5768,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 35581.2805,
+      "end": 35652.2165,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 35652.8941,
+      "end": 35778.134,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 35778.9725,
+      "end": 35852.3712,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 35853.1173,
+      "end": 35923.5814,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 35924.1823,
+      "end": 35989.9466,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 35990.5204,
+      "end": 36106.2776,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 36107.183,
+      "end": 36174.4603,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 36175.1287,
+      "end": 36239.5428,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 36240.0807,
+      "end": 36359.1757,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 36360.117,
+      "end": 36429.8974,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 36430.5584,
+      "end": 36546.6122,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 36547.2543,
+      "end": 36663.4922,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 36664.4363,
+      "end": 36790.5675,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 36791.2492,
+      "end": 36971.2123,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 36972.078,
+      "end": 37044.3445,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 37045.3074,
+      "end": 37115.7485,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 37116.3067,
+      "end": 37188.0189,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 37188.6047,
+      "end": 37256.7299,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 37257.5542,
+      "end": 37327.628,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 37328.3233,
+      "end": 37400.4671,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 37401.0985,
+      "end": 37473.0104,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 37473.7145,
+      "end": 37547.4628,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 37548.258,
+      "end": 37624.215,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 37624.8943,
+      "end": 37702.1406,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 37702.9534,
+      "end": 37782.9363,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 37783.6458,
+      "end": 37869.5311,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 37870.2962,
+      "end": 37944.4864,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 37945.4117,
+      "end": 38020.3974,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 38021.1111,
+      "end": 38092.268,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 38092.9289,
+      "end": 38163.0452,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 38163.8127,
+      "end": 38233.8458,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 38234.5491,
+      "end": 38299.6685,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 38300.1925,
+      "end": 38502.5288,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 38503.4107,
+      "end": 38668.2334,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 38668.9335,
+      "end": 38795.9174,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 38796.6745,
+      "end": 38887.1144,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 38887.9527,
+      "end": 39115.0482,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 39115.7763,
+      "end": 39401.6803,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 39402.3844,
+      "end": 39642.0276,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 39642.7656,
+      "end": 39859.4614,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 39859.9859,
+      "end": 39950.4723,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 39951.0025,
+      "end": 40035.8628,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 40036.8266,
+      "end": 40191.2724,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 40191.9791,
+      "end": 40285.9455,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 40286.6016,
+      "end": 40383.6911,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 40384.5683,
+      "end": 40590.9278,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 40591.6303,
+      "end": 40672.8234,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 40673.4523,
+      "end": 40789.0426,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 40789.9479,
+      "end": 40964.652,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 40965.4349,
+      "end": 41096.3678,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 41097.0546,
+      "end": 41271.0391,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 41271.69,
+      "end": 41418.1555,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 41418.9242,
+      "end": 41502.4325,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 41503.0906,
+      "end": 41590.7166,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 41591.5106,
+      "end": 41712.7236,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 41713.4203,
+      "end": 41882.685,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 41883.4029,
+      "end": 42098.0279,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 42098.9099,
+      "end": 42313.9924,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 42314.6974,
+      "end": 42708.744,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 42709.4131,
+      "end": 42867.507,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 42868.3234,
+      "end": 42949.0703,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 42949.8519,
+      "end": 43024.5101,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 43025.1367,
+      "end": 43183.7315,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 43184.5309,
+      "end": 43534.9181,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 43535.6857,
+      "end": 43670.1814,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 43670.8463,
+      "end": 43869.1754,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 43870.0137,
+      "end": 43952.9451,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 43953.6727,
+      "end": 44126.0408,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 44126.6929,
+      "end": 44212.0041,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 44212.844,
+      "end": 44354.5369,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 44355.3575,
+      "end": 44430.5561,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 44431.1402,
+      "end": 44592.3289,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 44593.1183,
+      "end": 44665.1808,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 44665.7916,
+      "end": 44782.1587,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 44782.6934,
+      "end": 44857.042,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 44857.782,
+      "end": 44934.8017,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 44935.4025,
+      "end": 45067.2441,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 45067.8136,
+      "end": 45135.8084,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 45136.5143,
+      "end": 45258.4677,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 45259.0027,
+      "end": 45418.1513,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 45418.8541,
+      "end": 45525.687,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 45526.3196,
+      "end": 45596.8744,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 45597.3601,
+      "end": 45715.5983,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 45716.1228,
+      "end": 45839.7734,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 45840.4174,
+      "end": 45958.8282,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 45959.4213,
+      "end": 46125.5611,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 46126.3684,
+      "end": 46202.1105,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 46202.9422,
+      "end": 46271.6365,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 46272.2723,
+      "end": 46430.0912,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 46430.7622,
+      "end": 46591.408,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 46592.2557,
+      "end": 46745.9648,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 46746.6111,
+      "end": 46874.593,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 46875.2052,
+      "end": 46945.1373,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 46945.9529,
+      "end": 47018.7145,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 47019.4173,
+      "end": 47167.5531,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 47168.2078,
+      "end": 47240.7793,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 47241.6709,
+      "end": 47362.7642,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 47363.5113,
+      "end": 47430.4981,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 47431.04,
+      "end": 47559.6881,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 47560.4895,
+      "end": 47712.6032,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 47713.2336,
+      "end": 47919.8567,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 47920.405,
+      "end": 48079.3715,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 48080.2193,
+      "end": 48240.6647,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 48241.3198,
+      "end": 48312.895,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 48313.4467,
+      "end": 48387.6138,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 48388.3484,
+      "end": 48548.0312,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 48548.8025,
+      "end": 48750.6336,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 48751.2489,
+      "end": 48825.8455,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 48826.6614,
+      "end": 48907.3789,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 48908.258,
+      "end": 48982.3902,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 48983.0465,
+      "end": 49059.5635,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 49060.5895,
+      "end": 49137.703,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 49138.4709,
+      "end": 49208.4545,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 49209.1474,
+      "end": 49279.9729,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 49280.8656,
+      "end": 49352.1181,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 49352.7246,
+      "end": 49421.1603,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 49421.991,
+      "end": 49543.2156,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 49544.0556,
+      "end": 49617.4584,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 49618.1281,
+      "end": 49690.9923,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 49691.5701,
+      "end": 49762.2993,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 49763.1563,
+      "end": 49845.1927,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 49845.9376,
+      "end": 49918.2399,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 49918.9428,
+      "end": 49996.8656,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 49997.6781,
+      "end": 50137.419,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 50138.2355,
+      "end": 50206.1342,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 50206.7784,
+      "end": 50273.682,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 50274.4544,
+      "end": 50343.0515,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 50343.7456,
+      "end": 50556.9784,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 50557.6632,
+      "end": 50637.3637,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 50638.0984,
+      "end": 50716.2029,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 50716.9561,
+      "end": 50838.2243,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 50838.8993,
+      "end": 50912.3746,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 50913.1923,
+      "end": 51037.5163,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 51038.2777,
+      "end": 51159.7397,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 51160.3067,
+      "end": 51281.699,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 51282.514,
+      "end": 51471.1832,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 51471.7127,
+      "end": 51543.1974,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 51543.7867,
+      "end": 51609.3735,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 51610.2132,
+      "end": 51679.708,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 51680.269,
+      "end": 51752.3051,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 51752.745,
+      "end": 51925.9141,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 51926.4296,
+      "end": 52001.2117,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 52001.9953,
+      "end": 52075.1282,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 52075.7212,
+      "end": 52144.7562,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 52145.5233,
+      "end": 52217.5425,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 52218.3224,
+      "end": 52284.895,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 52285.5573,
+      "end": 52356.0841,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 52356.9527,
+      "end": 52424.5722,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 52425.3276,
+      "end": 52490.4316,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 52490.9836,
+      "end": 52555.2468,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 52555.95,
+      "end": 52714.4095,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 52715.1371,
+      "end": 52779.5433,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 52780.1563,
+      "end": 52846.7704,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 52847.6516,
+      "end": 52916.6354,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 52917.2191,
+      "end": 52986.9456,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 52987.5187,
+      "end": 53053.5287,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 53054.2024,
+      "end": 53172.8293,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 53173.4352,
+      "end": 53245.0799,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 53245.7004,
+      "end": 53312.4486,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 53313.3563,
+      "end": 53380.8288,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 53381.4703,
+      "end": 53451.6818,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 53452.3609,
+      "end": 53528.8633,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 53529.7843,
+      "end": 53699.5772,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 53700.3026,
+      "end": 53773.2774,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 53773.7934,
+      "end": 53856.049,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 53856.9516,
+      "end": 53932.8077,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 53933.4569,
+      "end": 54003.3808,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 54004.0049,
+      "end": 54075.2992,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 54076.1321,
+      "end": 54147.9637,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 54148.5978,
+      "end": 54224.2115,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 54224.7222,
+      "end": 54346.9926,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 54347.6554,
+      "end": 54416.4669,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 54417.1837,
+      "end": 54483.8379,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 54484.4219,
+      "end": 54551.2424,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 54551.9523,
+      "end": 54620.9332,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 54621.5701,
+      "end": 54688.6818,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 54689.3308,
+      "end": 54754.9603,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 54755.742,
+      "end": 54829.2183,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 54829.988,
+      "end": 54906.7041,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 54907.5084,
+      "end": 54977.5681,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 54978.5362,
+      "end": 55103.8439,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 55104.5152,
+      "end": 55169.9197,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 55170.4629,
+      "end": 55237.0026,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 55237.6548,
+      "end": 55307.1454,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 55307.812,
+      "end": 55372.1524,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 55372.6921,
+      "end": 55438.7962,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 55439.5332,
+      "end": 55508.0147,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 55508.7122,
+      "end": 55625.5593,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 55626.383,
+      "end": 55692.3471,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 55693.2762,
+      "end": 55764.1074,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 55764.6868,
+      "end": 55830.9142,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 55831.4213,
+      "end": 55952.8361,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 55953.6428,
+      "end": 56029.0969,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 56029.9624,
+      "end": 56111.1182,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 56111.7345,
+      "end": 56235.3033,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 56236.1683,
+      "end": 56366.5733,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 56367.1717,
+      "end": 56533.4178,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 56534.0076,
+      "end": 56721.8355,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 56722.5846,
+      "end": 56802.1152,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 56802.8213,
+      "end": 56884.8189,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 56885.4378,
+      "end": 56972.0847,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 56972.8367,
+      "end": 57074.642,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 57075.4358,
+      "end": 57245.0196,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 57245.4922,
+      "end": 57319.5217,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 57320.322,
+      "end": 57399.2076,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 57399.8861,
+      "end": 57464.9161,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 57465.4957,
+      "end": 57531.2511,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 57531.9041,
+      "end": 57619.2427,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 57620.036,
+      "end": 57709.3951,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 57709.9066,
+      "end": 57795.9367,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 57796.6037,
+      "end": 58000.5553,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 58001.1153,
+      "end": 58086.6702,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 58087.3308,
+      "end": 58227.6388,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 58228.4925,
+      "end": 58345.0897,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 58345.8378,
+      "end": 58475.7717,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 58476.3033,
+      "end": 58667.2265,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 58667.9914,
+      "end": 58895.646,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 58896.3553,
+      "end": 58987.0803,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 58987.7459,
+      "end": 59101.7739,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 59102.6821,
+      "end": 59244.4787,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 59244.9418,
+      "end": 59436.2525,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 59436.8917,
+      "end": 59648.1394,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 59648.8334,
+      "end": 59789.3352,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 59789.9972,
+      "end": 59953.1374,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 59953.563,
+      "end": 60073.0428,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 60073.7122,
+      "end": 60276.1518,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 60276.6919,
+      "end": 60485.6931,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 60486.109,
+      "end": 60572.8301,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 60573.6534,
+      "end": 60829.7269,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 60830.3097,
+      "end": 61132.1324,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 61132.6413,
+      "end": 61304.6143,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 61305.2894,
+      "end": 61544.261,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 61544.9399,
+      "end": 61721.1477,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 61721.827,
+      "end": 61796.2245,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 61796.7294,
+      "end": 62006.4509,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 62007.1303,
+      "end": 62092.914,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 62093.3878,
+      "end": 62374.779,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 62375.4397,
+      "end": 62466.3603,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 62466.8895,
+      "end": 62549.9781,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 62550.4686,
+      "end": 62876.1873,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 62876.7541,
+      "end": 63041.7877,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 63042.2357,
+      "end": 63296.2135,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 63296.7436,
+      "end": 63473.8219,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 63474.7955,
+      "end": 63612.9927,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 63613.5108,
+      "end": 63702.7448,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 63703.1504,
+      "end": 63871.3224,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 63872.0398,
+      "end": 63961.4102,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 63961.9916,
+      "end": 64131.7723,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 64132.2821,
+      "end": 64340.1612,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 64340.6975,
+      "end": 64416.8832,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 64417.5674,
+      "end": 64491.1365,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 64491.6349,
+      "end": 64646.2935,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 64646.788,
+      "end": 64882.9693,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 64883.4259,
+      "end": 64952.7121,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 64953.2214,
+      "end": 65110.8559,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 65111.3847,
+      "end": 65299.3927,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 65299.8175,
+      "end": 65451.712,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 65452.2351,
+      "end": 65523.4181,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 65523.9662,
+      "end": 65593.6633,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 65594.1597,
+      "end": 65751.6104,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 65752.0084,
+      "end": 65818.9513,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 65819.4894,
+      "end": 65886.7575,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 65887.1852,
+      "end": 65958.2558,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 65958.6458,
+      "end": 66026.0185,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 66026.5132,
+      "end": 66183.9402,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 66184.382,
+      "end": 66295.3615,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 66295.7761,
+      "end": 66443.7935,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 66444.2847,
+      "end": 66598.6921,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 66599.1243,
+      "end": 66663.9589,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 66664.4139,
+      "end": 66823.9096,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 66824.4171,
+      "end": 66888.0489,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 66888.6253,
+      "end": 67131.3132,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 67131.7657,
+      "end": 67197.1974,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 67197.697,
+      "end": 67348.0728,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 67348.7457,
+      "end": 67532.7105,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 67533.1769,
+      "end": 67730.0789,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 67730.557,
+      "end": 67795.0363,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 67795.5384,
+      "end": 67949.2522,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 67949.6714,
+      "end": 68104.6537,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 68105.44,
+      "end": 68261.8525,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 68262.3659,
+      "end": 68326.7542,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 68327.2207,
+      "end": 68448.7619,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 68449.2752,
+      "end": 68517.7498,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 68518.1948,
+      "end": 68618.4162,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 68618.99,
+      "end": 68685.4612,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 68686.1055,
+      "end": 68759.5439,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 68760.0805,
+      "end": 68824.9639,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 68825.3875,
+      "end": 68970.7871,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 68971.2671,
+      "end": 69046.6009,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 69047.0818,
+      "end": 69209.0952,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 69209.5121,
+      "end": 69361.6552,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 69362.2381,
+      "end": 69428.1962,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 69428.7025,
+      "end": 69494.3181,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 69494.7583,
+      "end": 69610.9315,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 69611.5029,
+      "end": 69675.1814,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 69675.6277,
+      "end": 69739.2624,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 69739.633,
+      "end": 69801.8138,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 69802.3,
+      "end": 69866.8768,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 69867.3088,
+      "end": 69926.0288,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 69926.4009,
+      "end": 70080.7417,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 70081.2354,
+      "end": 70147.0286,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 70147.4647,
+      "end": 70210.9887,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 70211.4363,
+      "end": 70362.3628,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 70362.8376,
+      "end": 70428.5169,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 70428.9482,
+      "end": 70576.0529,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 70576.462,
+      "end": 70638.6804,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 70639.1984,
+      "end": 70703.8951,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 70704.3944,
+      "end": 70771.0557,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 70771.4374,
+      "end": 70977.0664,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 70977.6203,
+      "end": 71058.42,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 71059.0404,
+      "end": 71132.6255,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 71133.0196,
+      "end": 71289.9892,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 71290.6794,
+      "end": 71358.1815,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 71358.664,
+      "end": 71424.2936,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 71424.7448,
+      "end": 71580.7856,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 71581.3247,
+      "end": 71650.8819,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 71651.4354,
+      "end": 71714.4343,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 71714.841,
+      "end": 71869.4358,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 71870.2184,
+      "end": 71937.5135,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 71937.9525,
+      "end": 72006.5042,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 72006.9151,
+      "end": 72076.8443,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 72077.4051,
+      "end": 72148.9758,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 72149.4152,
+      "end": 72259.1172,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 72259.4875,
+      "end": 72324.2362,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 72324.7694,
+      "end": 72473.8773,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 72474.3954,
+      "end": 72546.8999,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 72547.418,
+      "end": 72615.7592,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 72616.2639,
+      "end": 72694.7995,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 72695.3752,
+      "end": 72758.6544,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 72759.0601,
+      "end": 72907.7281,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 72908.2741,
+      "end": 72972.3279,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 72972.8177,
+      "end": 73037.7338,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 73038.1287,
+      "end": 73107.0488,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 73107.6881,
+      "end": 73186.1596,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 73186.7014,
+      "end": 73254.6232,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 73255.0056,
+      "end": 73325.863,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 73326.4032,
+      "end": 73389.6004,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 73390.0416,
+      "end": 73540.0963,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 73540.4828,
+      "end": 73781.5641,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 73782.0587,
+      "end": 73848.3394,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 73848.7707,
+      "end": 73923.2019,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 73923.7018,
+      "end": 73996.1476,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 73996.947,
+      "end": 74064.7749,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 74065.311,
+      "end": 74132.9476,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 74133.3474,
+      "end": 74198.1469,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 74198.6937,
+      "end": 74260.4865,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 74260.9307,
+      "end": 74320.8595,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 74321.2554,
+      "end": 74388.4715,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 74389.047,
+      "end": 74451.9894,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 74452.4108,
+      "end": 74515.5435,
+      "code": 0
+    },
+    {
+      "cmd": "rev-parse",
+      "stage": "readRecordedPredecessors",
+      "start": 74515.9357,
+      "end": 74633.6255,
+      "code": 0
+    },
+    {
+      "cmd": "ls-tree",
+      "stage": "readRecordedPredecessors",
+      "start": 74634.1441,
+      "end": 74706.3709,
+      "code": 0
+    },
+    {
+      "cmd": "cat-file",
+      "stage": "readRecordedPredecessors",
+      "start": 74706.8326,
+      "end": 74768.3592,
+      "code": 0
+    }
+  ],
+  "spans": [
+    {
+      "name": "inspectInvestigationCollectionLayout",
+      "start": 831.005,
+      "end": 1262.8593
+    },
+    {
+      "name": "collectionStates",
+      "start": 1262.8945,
+      "end": 1285.1256
+    },
+    {
+      "name": "validateResourceIds",
+      "start": 1674.2283,
+      "end": 10537.1439
+    },
+    {
+      "name": "validateFullInvestigationResources",
+      "start": 1287.8085,
+      "end": 10538.3657
+    },
+    {
+      "name": "createInvestigationStateSnapshot",
+      "start": 10538.6748,
+      "end": 10555.1988
+    },
+    {
+      "name": "checkInvestigationStateSnapshot",
+      "start": 10555.3536,
+      "end": 10620.2041
+    },
+    {
+      "name": "readHeadInvestigationIndex",
+      "start": 10822.3243,
+      "end": 11070.2381
+    },
+    {
+      "name": "readRecordedPredecessors",
+      "start": 11070.4925,
+      "end": 74768.4332
+    },
+    {
+      "name": "unrecordedPredecessorWarnings",
+      "start": 10620.2955,
+      "end": 74768.6973
+    },
+    {
+      "name": "runInvestigationReportCheckCli",
+      "start": 820.7057,
+      "end": 74769.4998
+    }
+  ],
+  "source": "diagnostics/observed.json; original values, all 631 child-process events and selected enclosing spans retained; fsEvents and individual per-report spans omitted"
+}

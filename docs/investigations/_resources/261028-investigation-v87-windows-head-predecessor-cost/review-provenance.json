@@ -1,0 +1,89 @@
+{
+  "reviewedAtUtc": "2026-10-28T02:40:22Z",
+  "reviewRepositoryCommit": "9556c5a643276185b3c0c90c7d14c54a245ac3e5",
+  "archive": {
+    "name": "investigation-report-v87-performance-20261028.zip",
+    "sha256": "ad0c61e8bbf0dd54b8baf3bd2f4cadd3fe34488be696b6107f42c32e915b3fb0",
+    "embeddedManifestChecks": {
+      "matched": 21,
+      "mismatches": []
+    }
+  },
+  "externalCollectionWindow": "2026-10-28 10:03–10:11 Asia/Shanghai; as reported in archive README",
+  "externalCommand": "node .codex/skills/investigation-report/scripts/check-investigations.ts check",
+  "externalObservedProcessTiming": {
+    "wallMs": 75053.1188,
+    "exitCode": 0,
+    "userMs": 3390.625,
+    "sysMs": 18796.875
+  },
+  "externalObservedStdout": "Investigation report check passed (344 reports checked; full index current).",
+  "externalCompletion": {
+    "timestamp": "2026-10-28T02:11:01.339Z",
+    "runtimeRehashChecked": 273,
+    "runtimeHashMismatches": 0,
+    "statusMatchesEarlierEndSnapshot": true,
+    "statusCounts": {
+      "lines": 57,
+      "modified": 30,
+      "deleted": 1,
+      "untracked": 26
+    },
+    "initialStatusReview": "Initial tool output contained the same 57 status entries; reviewed against the final output. Initial raw status file expired with the first shell sandbox.",
+    "original93914MsSource": "External record supplied by user; no originating run ID or timer boundary supplied, so queue/wrapper/child-process boundary remains unknown."
+  },
+  "upstreamV87Comparison": {
+    "commit": "64527516e8563a8bc97f537924bd987111771d68",
+    "inventoryHashes": 273,
+    "matchingTrackedFiles": 268,
+    "mismatches": [],
+    "pathsNotPresentInV87Tree": [
+      "scripts/runtime/tools/investigation-report/src/publish-preparation-start.ts",
+      "scripts/runtime/tools/investigation-report/src/relation-transaction-publication.ts",
+      "scripts/runtime/tools/investigation-report/src/rename-recovery.ts",
+      "scripts/runtime/tools/investigation-report/src/validation-sync-selectors.ts",
+      "scripts/runtime/tools/shared/src/version-control/revision-file-prefixes.ts"
+    ],
+    "boundary": "Five additional inventory paths cannot be verified against this v87 tree. Matching files do not prove an exact clean installation or explain extra-file origins; relevant validation-history/git-revision/git-blob-batch files match."
+  },
+  "retainedOriginalMembers": {
+    "external-baselines.json": {
+      "archiveMember": "investigation-report-v87-performance-20261028/diagnostics/baselines.json",
+      "sha256": "5c26a2a572d4a2db5795b2272ca4866555e7131e66eedb7ec396bcff0b962f35",
+      "transformation": "none; byte-preserving copy"
+    },
+    "external-imports.json": {
+      "archiveMember": "investigation-report-v87-performance-20261028/diagnostics/imports.json",
+      "sha256": "94cf539eeb0eedabf8fa7c928253bcba84da3362b5f3212d38c23b08c29c4188",
+      "transformation": "none; byte-preserving copy"
+    },
+    "external-inventory.json": {
+      "archiveMember": "investigation-report-v87-performance-20261028/diagnostics/inventory.json",
+      "sha256": "54703a81af54d40a4b59b889a893020522d4fc88edeae75e7d039423e0736411",
+      "transformation": "none; byte-preserving copy"
+    },
+    "external-observe.mjs": {
+      "archiveMember": "investigation-report-v87-performance-20261028/diagnostics/observe.mjs",
+      "sha256": "3a7c6802830a73969dfa490c97286878f82d780795e0a71a187e17b424331dee",
+      "transformation": "none; byte-preserving copy"
+    },
+    "external-summary.json": {
+      "archiveMember": "investigation-report-v87-performance-20261028/diagnostics/summary.json",
+      "sha256": "9700020b6b238062a181b939ef9fce6c7ed6bba34e3c83247185cd01c14e729b",
+      "transformation": "none; byte-preserving copy"
+    },
+    "external-validation-summary.json": {
+      "archiveMember": "investigation-report-v87-performance-20261028/diagnostics/validation-summary.json",
+      "sha256": "945fb2743ff011ca23e63badd62c2dd9d2afd139150758a14dd1c9c42e0e31d6",
+      "transformation": "none; byte-preserving copy"
+    }
+  },
+  "observedExcerpt": {
+    "originalMemberSha256": "85926373c7dd608796306520f467475cb8cf2893f235da1cf36769034f1d292d",
+    "allChildEvents": 631,
+    "keptSpans": 10,
+    "omittedFsEvents": 60963,
+    "omittedIndividualSpans": 1591
+  },
+  "retentionBoundary": "Selected text evidence only; ZIP, CPU profile and full fs event log are not copied into the repository. Source ZIP remains a user attachment; collector is preserved as historical method, not executed or maintained as a tool."
+}

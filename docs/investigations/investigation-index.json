@@ -1013,6 +1013,37 @@
       ],
       "title": "记录工具当前版本一万条存量全入口横向性能复查"
     },
+    "261028-investigation-v87-windows-head-predecessor-cost": {
+      "formedAt": "2026-10-28T02:39:36Z",
+      "name": "investigation-v87-windows-head-predecessor-cost",
+      "question": "344 份报告的约 94 秒检查主要耗在哪里，是否为 v87 缺少性能优化导致？",
+      "relations": [
+        {
+          "summary": "补充 v87 Windows 实测，定位前序逐份读取的进程放大",
+          "target": "261009-skill-cli-repeated-process-and-source-access",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261028-investigation-v87-windows-head-predecessor-cost/external-baselines.json",
+        "261028-investigation-v87-windows-head-predecessor-cost/external-events-excerpt.json",
+        "261028-investigation-v87-windows-head-predecessor-cost/external-imports.json",
+        "261028-investigation-v87-windows-head-predecessor-cost/external-inventory.json",
+        "261028-investigation-v87-windows-head-predecessor-cost/external-observe.mjs",
+        "261028-investigation-v87-windows-head-predecessor-cost/external-summary.json",
+        "261028-investigation-v87-windows-head-predecessor-cost/external-validation-summary.json",
+        "261028-investigation-v87-windows-head-predecessor-cost/review-provenance.json"
+      ],
+      "sourcePath": "261028-investigation-v87-windows-head-predecessor-cost.md",
+      "tags": [
+        "git-integration",
+        "investigation-report",
+        "performance",
+        "root-cause-analysis",
+        "windows"
+      ],
+      "title": "调查报告 v87 在 Windows 上全量检查的前序 Git 调用放大"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -1719,6 +1750,7 @@
       "261024-record-global-throughput-and-memory": "sha256:41cfce6ecb5d66a54f1ad0280baf1500ffdf82639dbe66adfe7dc4292b70a696",
       "261024-record-index-computation-and-transfer": "sha256:21b73c138e7d7085a43f2e592e3b3c64d71b21d4752a8e4fa1df2e3177e5dd79",
       "261024-record-tools-entry-matrix-10k": "sha256:bdb7464449dcae7a158bd1e6d18ed8adae29de35855b26dc3d814ac6ba092149",
+      "261028-investigation-v87-windows-head-predecessor-cost": "sha256:af90a277b436af9c26ccd77c183665275780cc78a088f0135dc41abb8917610b",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

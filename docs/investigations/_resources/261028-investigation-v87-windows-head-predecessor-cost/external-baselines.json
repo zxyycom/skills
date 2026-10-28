@@ -1,0 +1,24 @@
+{
+  "source": "Values transcribed from actual tool output; original shell-temporary raw files expired with its sandbox.",
+  "command": "node .codex/skills/investigation-report/scripts/check-investigations.ts check",
+  "summary": "Investigation report check passed (344 reports checked; full index current).",
+  "stderr": null,
+  "runs": [
+    {
+      "run": 1,
+      "wallMs": 61342.9801,
+      "userMs": 2625,
+      "sysMs": 12062.5,
+      "peakRssBytes": null,
+      "exitCode": 0
+    },
+    {
+      "run": 2,
+      "wallMs": 82541.8894,
+      "userMs": 3390.625,
+      "sysMs": 12484.375,
+      "peakRssBytes": null,
+      "exitCode": 0
+    }
+  ]
+}

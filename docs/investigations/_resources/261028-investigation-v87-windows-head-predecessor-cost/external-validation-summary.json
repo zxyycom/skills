@@ -1,0 +1,96 @@
+{
+  "node-empty": {
+    "count": 8,
+    "totalMs": 658.1387000000001,
+    "minMs": 73.9714,
+    "maxMs": 96.02690000000001,
+    "medianMs": 81.13550000000001
+  },
+  "git-version": {
+    "count": 8,
+    "totalMs": 1042.1189,
+    "minMs": 62.9063000000001,
+    "maxMs": 241.72580000000005,
+    "medianMs": 156.56669999999986
+  },
+  "git-rev-parse": {
+    "count": 8,
+    "totalMs": 1136.2435999999996,
+    "minMs": 63.99240000000009,
+    "maxMs": 251.57310000000007,
+    "medianMs": 155.15159999999992
+  },
+  "load": {
+    "intervalMs": 1000,
+    "aggregateBusyPercent": 26.245584114995737,
+    "freeMemory": 3066544128,
+    "totalMemory": 33459724288
+  },
+  "gitByStage": {
+    "prepareInvestigationResourceRoot|rev-parse": {
+      "count": 1,
+      "ms": 277.1757
+    },
+    "prepareInvestigationResourceRoot|ls-files": {
+      "count": 1,
+      "ms": 89.5127
+    },
+    "unrecordedPredecessorWarnings|rev-parse": {
+      "count": 2,
+      "ms": 198.40909999999894
+    },
+    "readHeadInvestigationIndex|rev-parse": {
+      "count": 1,
+      "ms": 71.26329999999871
+    },
+    "readHeadInvestigationIndex|ls-tree": {
+      "count": 1,
+      "ms": 68.04590000000098
+    },
+    "readHeadInvestigationIndex|cat-file": {
+      "count": 1,
+      "ms": 74.15610000000015
+    },
+    "readRecordedPredecessors|rev-parse": {
+      "count": 208,
+      "ms": 21602.390199999994
+    },
+    "readRecordedPredecessors|ls-tree": {
+      "count": 208,
+      "ms": 20945.663199999988
+    },
+    "readRecordedPredecessors|cat-file": {
+      "count": 208,
+      "ms": 20727.241500000055
+    }
+  },
+  "keyHashes": {
+    "scripts/check-investigations.ts": "f39dbb282d8c95aa2685f0e617918091d46bf2581df7eb6901dfbd63748efbe1",
+    "scripts/runtime/tools/investigation-report/src/resource-directory-facts.ts": "749e0af6665133c39e86d2b69dddaf030c94f2f97b438eba566a31c05e1d5720",
+    "scripts/runtime/tools/investigation-report/src/resource-file-validation.ts": "044a0e49f50868b570d7da6934f9162ca1685ffb895e3606751ac45def44c2b0",
+    "scripts/runtime/tools/investigation-report/src/validation-history.ts": "dbe50a6e9263c86bf7199df32f551270465aaf399f6f1a13a7fcbc819551363e",
+    "scripts/runtime/tools/shared/src/version-control/git-blob-batch.ts": "045f692653031d7c2deac9242bf8c3fc10390b8ac4b9a1f3707569244997d111",
+    "scripts/runtime/tools/shared/src/version-control/git-revision.ts": "867ac8244ac6bcfcecc856f9d95209fb8f5f622be68b4604432aa9f2266c901d",
+    "SKILL.md": "ffec2e724586eb9008072c263044fb7ee4269b2e775690810f2b7d679571ca31",
+    "package.json": "6d53198f13c227c07120d4ab5e9e9e048da89f6531263e89646c5658fb4f6a36",
+    "pnpm-lock.yaml": "ffe3b29d4c5f04c0afa2fd59f53679ad3323146500853ed962361268b355abc6"
+  },
+  "fsCategories": {
+    "other": {
+      "count": 1955,
+      "ms": 458.1542999999997
+    },
+    "report/candidate": {
+      "count": 4826,
+      "ms": 405.51889999999344
+    },
+    "resource": {
+      "count": 54172,
+      "ms": 8529.924599999938
+    },
+    "index": {
+      "count": 10,
+      "ms": 2.42909999999938
+    }
+  }
+}
