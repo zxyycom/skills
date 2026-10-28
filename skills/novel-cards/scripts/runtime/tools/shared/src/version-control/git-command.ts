@@ -7,7 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/novel-cards
  * Rebuild: bun run sync:novel-cards-cli
  */
-import { execFile } from "node:child_process";
+import { execFile, type ExecException } from "node:child_process";
 import { simpleGit, type SimpleGit } from "simple-git";
 
 const gitMaxConcurrentProcesses = 4;
@@ -51,7 +51,30 @@ function runGitProcess(
   input?: Uint8Array
 ): Promise<GitCommandExit> {
   return new Promise((resolve, reject) => {
-    let settled = false;
+    let inputError: Error | null = null;
+    let completion: {
+      error: ExecException | null;
+      stdout: string;
+      stderr: string;
+    } | null = null;
+    let closed = false;
+    let escalation: ReturnType<typeof setTimeout> | undefined;
+    function finish(): void {
+      if (!closed || completion === null) return;
+      if (escalation !== undefined) clearTimeout(escalation);
+      if (inputError !== null) {
+        reject(inputError);
+        return;
+      }
+      const { error, stdout, stderr } = completion;
+      if (error === null) {
+        resolve({ exitCode: 0, stderr, stdout });
+        return;
+      }
+      const exitCode = typeof error.code === "number" ? error.code : null;
+      if (exitCode === null) reject(error);
+      else resolve({ exitCode, stderr, stdout });
+    }
     const child = execFile(
       "git",
       ["-C", rootDirectory, ...args],
@@ -62,33 +85,34 @@ function runGitProcess(
         windowsHide: true
       },
       (error, stdout, stderr) => {
-        if (settled) return;
-        settled = true;
-        if (error === null) {
-          resolve({ exitCode: 0, stderr, stdout });
-          return;
-        }
-        const exitCode = typeof error.code === "number" ? error.code : null;
-        if (exitCode === null) {
-          reject(error);
-          return;
-        }
-        resolve({ exitCode, stderr, stdout });
+        completion = { error, stdout, stderr };
+        finish();
       }
     );
+    child.once("close", () => {
+      closed = true;
+      finish();
+    });
     if (input === undefined) return;
+    function stopAfterInputError(error: Error): void {
+      if (inputError !== null || completion !== null || closed) return;
+      inputError = error;
+      signalChild();
+      escalation = setTimeout(() => signalChild("SIGKILL"), 250);
+      escalation.unref();
+    }
+    function signalChild(signal?: NodeJS.Signals): void {
+      try {
+        child.kill(signal);
+      } catch {
+        // Only child close proves settlement; escalation still runs after a failed signal.
+      }
+    }
     if (child.stdin === null) {
-      settled = true;
-      child.kill();
-      reject(new Error("Git standard input is unavailable"));
+      stopAfterInputError(new Error("Git standard input is unavailable"));
       return;
     }
-    child.stdin.on("error", (error) => {
-      if (settled) return;
-      settled = true;
-      child.kill();
-      reject(error);
-    });
+    child.stdin.on("error", stopAfterInputError);
     child.stdin.end(input);
   });
 }

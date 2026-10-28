@@ -1,0 +1,196 @@
+{
+  "query": [
+    {
+      "domain": "DR",
+      "n": 10,
+      "baselineObjectValues": 45,
+      "candidateObjectValues": 12,
+      "status": "ok"
+    },
+    {
+      "domain": "IR",
+      "n": 10,
+      "baselineObjectValues": 55,
+      "candidateObjectValues": 22,
+      "status": "ok"
+    },
+    {
+      "domain": "DR",
+      "n": 1000,
+      "baselineObjectValues": 4005,
+      "candidateObjectValues": 1002,
+      "status": "ok"
+    },
+    {
+      "domain": "IR",
+      "n": 1000,
+      "baselineObjectValues": 5005,
+      "candidateObjectValues": 2002,
+      "status": "ok"
+    },
+    {
+      "errorEquivalenceCases": 7,
+      "freezeOnlyCounterexample": [
+        true,
+        false
+      ],
+      "getterReads": 2
+    }
+  ],
+  "selection": [
+    {
+      "n": 100,
+      "changedRevisions": 0,
+      "baselineStringify": 202,
+      "candidateStringify": 202,
+      "changedIds": 0,
+      "stateIdentityShared": false
+    },
+    {
+      "n": 100,
+      "changedRevisions": 1,
+      "baselineStringify": 202,
+      "candidateStringify": 200,
+      "changedIds": 1,
+      "stateIdentityShared": false
+    },
+    {
+      "n": 100,
+      "changedRevisions": 100,
+      "baselineStringify": 202,
+      "candidateStringify": 2,
+      "changedIds": 100,
+      "stateIdentityShared": false
+    },
+    {
+      "fixture": "/tmp/remaining-evidence-eea1d03-yGiz82/selected-sync-iTO7bc",
+      "sameRevisionAlteredUnselectedState": {
+        "changed": false,
+        "changedIds": [
+          "b"
+        ],
+        "diagnostics": [
+          {
+            "code": "state-index.unselected-changes",
+            "message": "this source change is outside the selected sync scope; add the ID to --select or run a full sync",
+            "path": "index.json",
+            "stateId": "b"
+          }
+        ],
+        "indexPath": "index.json",
+        "mode": "preview",
+        "namespace": "probe",
+        "scope": "selected",
+        "selectedIds": [
+          "a"
+        ],
+        "state": "unselected-changes",
+        "status": "error"
+      }
+    }
+  ],
+  "longLine": [
+    {
+      "name": "separated-fullwidth",
+      "length": 20000,
+      "rawOccurrences": 10000,
+      "match": {
+        "matched": true,
+        "matches": [
+          {
+            "line": 1,
+            "ranges": [
+              {
+                "end": 1,
+                "start": 0
+              }
+            ]
+          }
+        ],
+        "truncated": true
+      }
+    },
+    {
+      "name": "overlap-chain",
+      "length": 10000,
+      "rawOccurrences": 9999,
+      "match": {
+        "matched": true,
+        "matches": [
+          {
+            "line": 1,
+            "ranges": [
+              {
+                "end": 10000,
+                "start": 0
+              }
+            ]
+          }
+        ],
+        "truncated": false
+      }
+    },
+    {
+      "name": "multi-term-earlier-second",
+      "length": 4000,
+      "rawOccurrences": 2000,
+      "match": {
+        "matched": true,
+        "matches": [
+          {
+            "line": 1,
+            "ranges": [
+              {
+                "end": 1,
+                "start": 0
+              }
+            ]
+          }
+        ],
+        "truncated": true
+      }
+    },
+    {
+      "name": "grapheme-expansion",
+      "length": 10000,
+      "rawOccurrences": 5000,
+      "match": {
+        "matched": true,
+        "matches": [
+          {
+            "line": 1,
+            "ranges": [
+              {
+                "end": 1,
+                "start": 0
+              }
+            ]
+          }
+        ],
+        "truncated": true
+      }
+    },
+    {
+      "crossLineAll": {
+        "matched": true,
+        "matches": [
+          {
+            "line": 1,
+            "ranges": [
+              {
+                "end": 1,
+                "start": 0
+              }
+            ]
+          }
+        ],
+        "truncated": true
+      },
+      "absentTermAll": {
+        "matched": false,
+        "matches": [],
+        "truncated": false
+      }
+    }
+  ]
+}

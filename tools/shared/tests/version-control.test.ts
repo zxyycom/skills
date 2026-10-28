@@ -22,3 +22,6 @@ await import("./version-control-scoped-payload.test.ts");
 await import("./version-control-scoped-payload-integrity.test.ts");
 
 import "./version-control-pending-delta.test.ts";
+
+import "./version-control-blob-write.test.ts";
+import "./version-control-blob-write-failure.test.ts";

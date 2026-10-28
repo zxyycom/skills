@@ -89,3 +89,5 @@ await import("./localize-record-operations/rename-noop.test.ts");
 await import("./localize-record-operations/stage.test.ts");
 await import("./cli-node-protocol.test.ts");
 await import("./source-frontmatter-reuse.test.ts");
+
+await import("./canonical-sync-cost.test.ts");

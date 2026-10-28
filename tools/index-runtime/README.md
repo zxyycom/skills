@@ -97,6 +97,8 @@ Valibot Schema 是索引外壳和查询输入的真源。持久索引固定为�
 
 所有 ID record 使用 own-property 或安全 record 构造访问；`__proto__`、`constructor` 等符合 ID 文本规则的键能够正常构建、解析、序列化和查询。JSON 文件严格解码 UTF-8 后使用标准 `JSON.parse`；不探测标准解析已覆盖的重复 JSON member。
 
+同阶段序列化可复用已验证且规范化前排序规则被证明稳定的规范结果；其他路径继续完整规范化。公开序列化入口不接受调用方自证跳过规范化，完整 schema 与领域校验仍由 build/parse 负责。
+
 ## 严格边界、currentness 与 reader
 
 公开 `parseStateIndex`、`loadStateIndex`、`queryStateIndex`、`findStateIndexEntry` 以及 reader/runtime 构造都必须显式提供 definition。持久文件不是可脱离领域 definition 使用的自描述查询文件。

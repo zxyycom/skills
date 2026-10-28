@@ -1,0 +1,32 @@
+{
+  "revisedAt": "2026-10-28T06:28:37Z",
+  "change": "Formatted and added fail-closed marker, count and JSON-shape checks. A first shape-check replay failed because trace entries is an object, not an array; the corrected method counts its keys. Historical raw results and baseline fingerprints are unchanged.",
+  "files": {
+    "probe-domain.mjs": "8ce2ba32150f7f7dbd21145aa86bc60ffbc361a3862e680e7f3a6f3c6bdb097d",
+    "probe-small.mjs": "b832045088b460a3e11ba1cd00e32928eb2d55114c2872cdd228b2f46b9db280",
+    "probe-files.mjs": "e440b62420cfa57af530044e3be3211c5c81d616f6a2826d1ffcd660fa1ed543",
+    "probe-longline.mjs": "9544a5e99709db86f9700933e0ccf102be4b75ce4048872648aa838358db4bc5",
+    "setup-instrumentation.py": "c79a38f90f4724d55b8d9eebf8647841eff4d1be9ffddcd63dcda948ea6a8fb4",
+    "reproduce.sh": "577d54375cb825fb32bc2cdf45aebafd05d6e854f8cf264c53ab694d4a82b982"
+  },
+  "independentReplay": {
+    "exitCode": 0,
+    "reallocationCounts": [
+      21,
+      401,
+      1601
+    ],
+    "traceMaxEqualPrefixes": [
+      4,
+      20,
+      40
+    ],
+    "traceSequenceComparisons": [
+      31,
+      979,
+      1659
+    ],
+    "unicodeDifferentialCases": 12879
+  },
+  "boundary": "Non-Git filesystem and in-process source CLI; no Windows, packaging, Git transaction or real workload timing proof."
+}

@@ -1,0 +1,33 @@
+--- /tmp/remaining-evidence-eea1d03-yGiz82/baseline/tools/shared/src/file-text-search/segment-matcher.ts	2026-10-28 05:08:32.000000000 +0000
++++ /tmp/remaining-evidence-eea1d03-yGiz82/instrumented/tools/shared/src/file-text-search/segment-matcher.ts	2026-10-28 05:55:05.389160902 +0000
+@@ -286,7 +286,7 @@
+     const start = segment.spans[index]?.start;
+     const end = segment.spans[index + needle.length - 1]?.end;
+     if (start === undefined || end === undefined) break;
+-    ranges.push({ end, start });
++    globalThis.__rawOccurrences += 1; ranges.push({ end, start });
+     searchStart = index + 1;
+   }
+   return mergeRanges(ranges);
+--- /tmp/remaining-evidence-eea1d03-yGiz82/baseline/tools/shared/src/graph/trace-ordering.ts	2026-10-28 05:08:32.000000000 +0000
++++ /tmp/remaining-evidence-eea1d03-yGiz82/instrumented/tools/shared/src/graph/trace-ordering.ts	2026-10-28 05:58:11.519611756 +0000
+@@ -193,7 +193,7 @@
+   if (left === right) return 0;
+   const length = Math.min(left.length, right.length);
+   for (let index = 0; index < length; index += 1) {
+-    const compared = compareStrings(left[index] ?? "", right[index] ?? "");
++    globalThis.__evidence.sequenceItems += 1; const compared = compareStrings(left[index] ?? "", right[index] ?? ""); if (compared === 0) globalThis.__evidence.maxEqualPrefix = Math.max(globalThis.__evidence.maxEqualPrefix, index + 1);
+     if (compared !== 0) {
+       return compared;
+     }
+--- /tmp/remaining-evidence-eea1d03-yGiz82/baseline/tools/decision-records/src/decision-relation-transaction-strategy.ts	2026-10-28 05:08:32.000000000 +0000
++++ /tmp/remaining-evidence-eea1d03-yGiz82/instrumented/tools/decision-records/src/decision-relation-transaction-strategy.ts	2026-10-28 05:53:27.906864339 +0000
+@@ -189,7 +189,7 @@
+   component: ReadonlySet<DecisionId>,
+   selected: ReadonlySet<DecisionId>
+ ): boolean {
+-  for (const id of selected) if (component.has(id)) return true;
++  for (const id of selected) { globalThis.__evidence.closureHas += 1; if (component.has(id)) return true; }
+   return false;
+ }
+ function successorSetClosureError(

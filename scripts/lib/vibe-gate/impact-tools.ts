@@ -91,7 +91,7 @@ const decisionRecordTestInputs = [
 ];
 const decisionQueryTestInputs = [
   ...decisionTestSupportInputs,
-  "tools/decision-records/tests/{index-maintenance,list-facets,queries,cli-output-trace,query-snapshot,query-loaded-snapshot,relation-filter-complexity,index-schema,search-metadata-window,discovery-dependencies,acquisition-safety,sync-preflight-lock,selected-local-contract}.test.ts",
+  "tools/decision-records/tests/{index-maintenance,list-facets,queries,cli-output-trace,query-snapshot,query-loaded-snapshot,canonical-sync-cost,relation-filter-complexity,index-schema,search-metadata-window,discovery-dependencies,acquisition-safety,sync-preflight-lock,selected-local-contract}.test.ts",
   "tools/decision-records/tests/{queries,index-maintenance,lazy-relation-graph}/**",
   "tools/decision-records/tests/search-metadata-window-fixture.ts",
   "tools/decision-records/tests/support-local-contracts.ts",

@@ -1,0 +1,112 @@
+{
+  "version": "eea1d03e3429f83797e660d75326e0ebd752f61d",
+  "seed": "0x261028",
+  "samples": [
+    {
+      "name": "separated-fullwidth",
+      "normalizedOccurrenceHeads": 2,
+      "result": {
+        "matched": true,
+        "matches": [
+          {
+            "line": 1,
+            "ranges": [
+              {
+                "start": 0,
+                "end": 1
+              }
+            ]
+          }
+        ],
+        "truncated": true
+      }
+    },
+    {
+      "name": "overlap-chain",
+      "normalizedOccurrenceHeads": 9999,
+      "result": {
+        "matched": true,
+        "matches": [
+          {
+            "line": 1,
+            "ranges": [
+              {
+                "start": 0,
+                "end": 10000
+              }
+            ]
+          }
+        ],
+        "truncated": false
+      }
+    },
+    {
+      "name": "multi-term-earlier-second",
+      "normalizedOccurrenceHeads": 3,
+      "result": {
+        "matched": true,
+        "matches": [
+          {
+            "line": 1,
+            "ranges": [
+              {
+                "start": 0,
+                "end": 1
+              }
+            ]
+          }
+        ],
+        "truncated": true
+      }
+    },
+    {
+      "name": "grapheme-expansion",
+      "normalizedOccurrenceHeads": 5,
+      "result": {
+        "matched": true,
+        "matches": [
+          {
+            "line": 1,
+            "ranges": [
+              {
+                "start": 0,
+                "end": 1
+              }
+            ]
+          }
+        ],
+        "truncated": true
+      }
+    },
+    {
+      "name": "all-cross-line",
+      "normalizedOccurrenceHeads": 2,
+      "result": {
+        "matched": true,
+        "matches": [
+          {
+            "line": 1,
+            "ranges": [
+              {
+                "start": 0,
+                "end": 1
+              }
+            ]
+          }
+        ],
+        "truncated": true
+      }
+    },
+    {
+      "name": "all-missing",
+      "normalizedOccurrenceHeads": 0,
+      "result": {
+        "matched": false,
+        "matches": [],
+        "truncated": false
+      }
+    }
+  ],
+  "differentialCases": 12879,
+  "scope": "Prototype in /tmp only. Same baseline Unicode mapping; bounded merge compared against full current line matcher. Normalization remains full-input; abort behavior and public metadata consumer not changed or certified."
+}

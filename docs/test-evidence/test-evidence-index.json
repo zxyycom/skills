@@ -1464,7 +1464,23 @@
       "VIDEO-TEXT-OUTPUT-001": "sha256:f30fde863774286e6c4de40ffae872f986ae3073245042d3885342d69a33a75b",
       "VIDEO-UNAVAILABLE-PROJECTION-001": "sha256:747b8b8b330723d482266b2c999dfd827b8e93e63aa71765f08982a0c388a295",
       "VIDEO-VERSION-PROTECTION-001": "sha256:325e4a1fd8cdcd4392c73e265e46c6d0843972859773746121ed0b1689e50f6f",
-      "VIDEO-WRITER-CLEANUP-001": "sha256:98436bd82c845eddabeb471857e0f96b01e311af857b563f5de500c1c4996ec5"
+      "VIDEO-WRITER-CLEANUP-001": "sha256:98436bd82c845eddabeb471857e0f96b01e311af857b563f5de500c1c4996ec5",
+      "WRITE-CANONICAL-CASE-001": "sha256:d8899a6045d2757b75b8fdc02cbf285fdea074ccbea1ef0de54df6f08d37c05d",
+      "WRITE-CANONICAL-CASE-002": "sha256:a521bfc84a586bd412837165e82c974d79c7810ff7223d72d67ec17613379a3f",
+      "WRITE-CANONICAL-CASE-003": "sha256:21b7fa5141715557a4b3477d499064c47bba4e0793f752d3af196c4aca524eb1",
+      "WRITE-CANONICAL-CASE-004": "sha256:8946feff856fd6d1122f043b2588ee5e1f407a88445c1975aeb398127e3bf368",
+      "WRITE-CANONICAL-CASE-005": "sha256:f9761c9a4f6d3bf54340ab7bb51a2aba7efe8e764b96ec4a9055306e31a33ba4",
+      "WRITE-CANONICAL-CASE-006": "sha256:da22ced337b5d30777d1f16243af5f2abb9cc17cdb4f8f6041f0d6d6ff0dd412",
+      "WRITE-CANONICAL-CASE-007": "sha256:c6d8275f96df01dc19f12bb64229eb9438006d2aea2c378d816f76f4bed8e074",
+      "WRITE-CANONICAL-CASE-008": "sha256:a4096e1925d2b5ecf5e60a838ac11514c8d336a1f8aa6146594e44cd91f12c0d",
+      "WRITE-CANONICAL-CASE-009": "sha256:d620e4009b1e16584e4f3c5bce43640b08d75a50e6340a0e3dca87022979c58f",
+      "WRITE-CANONICAL-CASE-010": "sha256:9e02e4caed54e3c773797997e84170e4027101e2becfca7a2cd1e557e81befd7",
+      "WRITE-CANONICAL-CASE-011": "sha256:9f94063d439a56b8ccbcec9d5d93080937ff01ed8bf0a3514d4d87c70f2037d4",
+      "WRITE-CANONICAL-CASE-012": "sha256:964e5d41d3daf79edea89b54cffe02b1dc0a7e72dc9fd77ba80d970c7958c7ed",
+      "WRITE-CANONICAL-CASE-013": "sha256:a0d10753c016ca0436032642d92d57866b04e46b7e625c44f5b996e4d50769de",
+      "WRITE-CANONICAL-CASE-014": "sha256:cc331ac13a52b2a647f1dc75cd530a5d37bb58d06dac224d5f33953866c6ed1e",
+      "WRITE-CANONICAL-CASE-015": "sha256:68343a50f1bb10cdc387ed61a1ca5c67af33190505d9991fe6156055b57540b7",
+      "WRITE-CANONICAL-CASE-016": "sha256:e557abd9754c99d8d230f92393fea384093b5080a61456a05698b1c41ff0fab8"
     },
     "metadata": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
   },
@@ -16476,6 +16492,166 @@
         "test:83d13af581d0dc33a17473a86ec8f451980d33dc0708f64ca92a63c6bcfd6a32",
         "test:9d2ec75785fa343942134c602a67fec0d1efe47723a40c3f9963d871c5e3c669",
         "test:ffcc499c0eb9928024551ff80e9e333785d861a64241e07bd5c59751a4c04cb0"
+      ]
+    },
+    "WRITE-CANONICAL-CASE-001": {
+      "title": "Git 启动失败保持 pending",
+      "sourcePath": "cases/write-canonical-git-start-failure.md",
+      "tags": [
+        "write-canonical"
+      ],
+      "testIds": [
+        "test:df56e3952e77db00d3b79f987560fdb0e5a405950cf780782cd12e9b7fdfeec4"
+      ]
+    },
+    "WRITE-CANONICAL-CASE-002": {
+      "title": "进程信号失败后等待关闭",
+      "sourcePath": "cases/write-canonical-git-signal-failure.md",
+      "tags": [
+        "write-canonical"
+      ],
+      "testIds": [
+        "test:d66c1394569f7607dbc59436563027691e8381728d37b19316f289fd69a45019"
+      ]
+    },
+    "WRITE-CANONICAL-CASE-003": {
+      "title": "写对象失败时收束活动进程",
+      "sourcePath": "cases/write-canonical-git-write-failure.md",
+      "tags": [
+        "write-canonical"
+      ],
+      "testIds": [
+        "test:93c70ed15b854c413d41b98c2247d8e428d55b5308ab8d15eff14a322fcdcfbb"
+      ]
+    },
+    "WRITE-CANONICAL-CASE-004": {
+      "title": "按字节合并对象写入并保留表示",
+      "sourcePath": "cases/write-canonical-git-write-dedup.md",
+      "tags": [
+        "write-canonical"
+      ],
+      "testIds": [
+        "test:bbca60e944b036eb497bcdc607c2f72c283565db7b5b9f6cd05e8f79bbdf906c"
+      ]
+    },
+    "WRITE-CANONICAL-CASE-005": {
+      "title": "对象去重限于单次操作",
+      "sourcePath": "cases/write-canonical-git-write-per-operation.md",
+      "tags": [
+        "write-canonical"
+      ],
+      "testIds": [
+        "test:c2cdd48576366c850acac7112ffd8f6052c1d411b3a7fcf776303ee5c01a9361"
+      ]
+    },
+    "WRITE-CANONICAL-CASE-006": {
+      "title": "兼容 SHA-256 对象格式",
+      "sourcePath": "cases/write-canonical-git-write-sha256.md",
+      "tags": [
+        "write-canonical"
+      ],
+      "testIds": [
+        "test:d52d3ea3422831f9d0995053efa66ec9ebbbdd2a1648ce48f111a89dfca3123f"
+      ]
+    },
+    "WRITE-CANONICAL-CASE-007": {
+      "title": "决策同步复用规范投影",
+      "sourcePath": "cases/write-canonical-index-decision-sync-cost.md",
+      "tags": [
+        "write-canonical"
+      ],
+      "testIds": [
+        "test:d5cc9c157f47346ecfe3ddf5c6ebe586a7e867ec769e6645bad70c27b8a38448"
+      ]
+    },
+    "WRITE-CANONICAL-CASE-008": {
+      "title": "输入失败等待子进程结束",
+      "sourcePath": "cases/write-canonical-git-stdin-close.md",
+      "tags": [
+        "write-canonical"
+      ],
+      "testIds": [
+        "test:28e0e9759d488857acf0235dee751a380e51656e3781d236304b737207fa2a95"
+      ]
+    },
+    "WRITE-CANONICAL-CASE-009": {
+      "title": "准备后定义变化被拒绝",
+      "sourcePath": "cases/write-canonical-index-prepared-frozen-late.md",
+      "tags": [
+        "write-canonical"
+      ],
+      "testIds": [
+        "test:efa3abdc89053d33c4fccbc02b3580a9c8b7e755ce223a26eeb718183cbac35f"
+      ]
+    },
+    "WRITE-CANONICAL-CASE-010": {
+      "title": "构建后冻结仍按当前顺序序列化",
+      "sourcePath": "cases/write-canonical-index-field-order-frozen-late.md",
+      "tags": [
+        "write-canonical"
+      ],
+      "testIds": [
+        "test:fbe0eba3a9a16ffe1c4388748ad44cc0a304e5b31212ff18ff6989397eec0e39"
+      ]
+    },
+    "WRITE-CANONICAL-CASE-011": {
+      "title": "摘要碰撞不得合并不同字节",
+      "sourcePath": "cases/write-canonical-git-digest-collision.md",
+      "tags": [
+        "write-canonical"
+      ],
+      "testIds": [
+        "test:7403e4f18afe2adc16a745c6e614c9e7f7f6f7e2add40a60a957383d65f3327d"
+      ]
+    },
+    "WRITE-CANONICAL-CASE-012": {
+      "title": "异步写入前隔离调用方缓冲区",
+      "sourcePath": "cases/write-canonical-git-input-copy.md",
+      "tags": [
+        "write-canonical"
+      ],
+      "testIds": [
+        "test:5924b690f1574da18aaa62b06fd63df8bd88fcb5b446a42b37c0d9627d40d16f"
+      ]
+    },
+    "WRITE-CANONICAL-CASE-013": {
+      "title": "访问器排序定义保留动态语义",
+      "sourcePath": "cases/write-canonical-index-accessor.md",
+      "tags": [
+        "write-canonical"
+      ],
+      "testIds": [
+        "test:1879d96bd93668bcb43876829d47c9c758d9d28aa4758b7db332b2bae2898ef6"
+      ]
+    },
+    "WRITE-CANONICAL-CASE-014": {
+      "title": "继承排序定义保留动态语义",
+      "sourcePath": "cases/write-canonical-index-inherited.md",
+      "tags": [
+        "write-canonical"
+      ],
+      "testIds": [
+        "test:862697f7ba2932c99b914a149e8bbbdfeb59296b36eb334a2ce0ab6583e03183"
+      ]
+    },
+    "WRITE-CANONICAL-CASE-015": {
+      "title": "冻结代理保持公开序列化行为",
+      "sourcePath": "cases/write-canonical-index-proxy.md",
+      "tags": [
+        "write-canonical"
+      ],
+      "testIds": [
+        "test:fa1e9835f9461166f4b51e976621dfe83f5826804e3573d503bbfcf9bcae317f"
+      ]
+    },
+    "WRITE-CANONICAL-CASE-016": {
+      "title": "新测试叶子的增量门禁路由",
+      "sourcePath": "cases/write-canonical-gate-routing.md",
+      "tags": [
+        "write-canonical"
+      ],
+      "testIds": [
+        "test:6672bba21f8d83d7b7e815836e27bc6a2b26cace55330e25676fb1dea390eb65"
       ]
     }
   }

@@ -1052,6 +1052,24 @@
       ],
       "title": "决策与调查工具的集合成本与入口覆盖审计"
     },
+    "261028-git-stdin-error-lock-lifecycle": {
+      "formedAt": "2026-10-28T06:03:15Z",
+      "name": "git-stdin-error-lock-lifecycle",
+      "question": "Git 写对象输入失败时，何时才能安全释放 pending 锁？",
+      "relations": [],
+      "resourceIds": [
+        "261028-git-stdin-error-lock-lifecycle/probe-results.json",
+        "261028-git-stdin-error-lock-lifecycle/probe.mjs"
+      ],
+      "sourcePath": "261028-git-stdin-error-lock-lifecycle.md",
+      "tags": [
+        "concurrency",
+        "git-integration",
+        "root-cause-analysis",
+        "version-control"
+      ],
+      "title": "Git 输入错误可能先于子进程退出释放暂存锁"
+    },
     "261028-investigation-v87-windows-head-predecessor-cost": {
       "formedAt": "2026-10-28T02:39:36Z",
       "name": "investigation-v87-windows-head-predecessor-cost",
@@ -1082,6 +1100,43 @@
         "windows"
       ],
       "title": "调查报告 v87 在 Windows 上全量检查的前序 Git 调用放大"
+    },
+    "261028-record-cost-reachability-boundaries": {
+      "formedAt": "2026-10-28T06:00:52Z",
+      "name": "record-cost-reachability-boundaries",
+      "question": "新基线中的剩余集合成本候选能否由合法领域入口触发，哪些可消冗余，哪些仍承担结果或拒绝语义？",
+      "relations": [
+        {
+          "summary": "在新基线验证剩余候选的合法可达性与等价边界",
+          "target": "261028-collection-single-item-cost-audit",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "261028-record-cost-reachability-boundaries/README.md",
+        "261028-record-cost-reachability-boundaries/domain-evidence.json",
+        "261028-record-cost-reachability-boundaries/files-results.json",
+        "261028-record-cost-reachability-boundaries/instrumentation.diff",
+        "261028-record-cost-reachability-boundaries/longline-results.json",
+        "261028-record-cost-reachability-boundaries/method-provenance.json",
+        "261028-record-cost-reachability-boundaries/probe-domain.mjs",
+        "261028-record-cost-reachability-boundaries/probe-files.mjs",
+        "261028-record-cost-reachability-boundaries/probe-longline.mjs",
+        "261028-record-cost-reachability-boundaries/probe-small.mjs",
+        "261028-record-cost-reachability-boundaries/provenance.json",
+        "261028-record-cost-reachability-boundaries/reproduce.sh",
+        "261028-record-cost-reachability-boundaries/setup-instrumentation.py",
+        "261028-record-cost-reachability-boundaries/small-results.json"
+      ],
+      "sourcePath": "261028-record-cost-reachability-boundaries.md",
+      "tags": [
+        "decision-records",
+        "index-runtime",
+        "investigation-report",
+        "performance",
+        "root-cause-analysis"
+      ],
+      "title": "剩余集合成本候选的合法可达性与安全优化边界"
     },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
@@ -1790,7 +1845,9 @@
       "261024-record-index-computation-and-transfer": "sha256:21b73c138e7d7085a43f2e592e3b3c64d71b21d4752a8e4fa1df2e3177e5dd79",
       "261024-record-tools-entry-matrix-10k": "sha256:bdb7464449dcae7a158bd1e6d18ed8adae29de35855b26dc3d814ac6ba092149",
       "261028-collection-single-item-cost-audit": "sha256:aab7d365be0bc5778559f12f1dd512a870978454ab04a23a3479ce4da48ac2e4",
+      "261028-git-stdin-error-lock-lifecycle": "sha256:68d33cbbf0d7376ef566fa1155291edce2a55e55d5997ea74df1bfb245ab163d",
       "261028-investigation-v87-windows-head-predecessor-cost": "sha256:af90a277b436af9c26ccd77c183665275780cc78a088f0135dc41abb8917610b",
+      "261028-record-cost-reachability-boundaries": "sha256:b4e86e4f03808bfd98f5e66d9a96954dccf836e47f1cf6ba638f6ffab7b19b0c",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

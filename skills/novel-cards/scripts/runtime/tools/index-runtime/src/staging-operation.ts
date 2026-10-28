@@ -24,7 +24,12 @@ import {
   validateStateIndexSelectedIds
 } from "./selection.ts";
 import { buildStateIndexFromSnapshot } from "./snapshot-builder.ts";
-import { parseStateIndex, serializeStateIndex } from "./snapshot-parser.ts";
+import {
+  hasStableOwnFieldOrder,
+  parseStateIndex,
+  serializeCanonicalStateIndex,
+  serializeStateIndex
+} from "./snapshot-parser.ts";
 import { loadStateIndexAtResolvedPath, resolveIndexPath } from "./storage.ts";
 import {
   abortedStage,
@@ -113,6 +118,7 @@ export async function stageSelectedIndexEntriesWithRepository<
     ]);
   }
   const definition = defineStateIndexDefinition(options.definition);
+  const stableFieldOrder = hasStableOwnFieldOrder(definition);
   const expectation = expectationOf(definition);
   const selected = validateStateIndexSelectedIds(
     options.selectedIds,
@@ -334,7 +340,9 @@ export async function stageSelectedIndexEntriesWithRepository<
     return abortedStage(resultContext, resolvedSelectedIds.selectedIds);
   }
 
-  const targetText = serializeStateIndex(target.value, definition);
+  const targetText = stableFieldOrder
+    ? serializeCanonicalStateIndex(target.value)
+    : serializeStateIndex(target.value, definition);
   const targetFile: VersionControlFile = {
     data: Buffer.from(targetText, "utf8"),
     kind: "regular",

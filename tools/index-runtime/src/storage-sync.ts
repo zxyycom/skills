@@ -15,7 +15,12 @@ import {
 import { resolveSyncScope } from "./selection.ts";
 import { syncSelectedStateIndex } from "./selected-sync.ts";
 import { buildStateIndex } from "./snapshot-builder.ts";
-import { parseStateIndex, serializeStateIndex } from "./snapshot-parser.ts";
+import {
+  hasStableOwnFieldOrder,
+  parseStateIndex,
+  serializeCanonicalStateIndex,
+  serializeStateIndex
+} from "./snapshot-parser.ts";
 import {
   failedSync,
   isStateIndexSyncMode,
@@ -113,6 +118,7 @@ export async function syncStateIndexPrepared<
     });
   }
 
+  const stableFieldOrder = hasStableOwnFieldOrder(definition);
   const proof =
     options.prepared === undefined
       ? null
@@ -163,7 +169,9 @@ export async function syncStateIndexPrepared<
       []
     );
   }
-  const expectedText = serializeStateIndex(built.value, definition);
+  const expectedText = stableFieldOrder
+    ? serializeCanonicalStateIndex(built.value)
+    : serializeStateIndex(built.value, definition);
   let currentText: string | null = null;
   const currentSource = await readBaselineSource({
     indexPath,

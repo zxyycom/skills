@@ -1,0 +1,67 @@
+{
+  "commit": "eea1d03e3429f83797e660d75326e0ebd752f61d",
+  "time": "2026-10-28T05:59:29.075103+00:00",
+  "runtime": {
+    "node": "v26.8.2",
+    "bun": "1.4.4",
+    "git": "git version 2.53.0"
+  },
+  "baselineFiles": {
+    "tools/index-runtime/src/query-fields.ts": "b3ffd99dc8b461ff68bd74c5acee91dc690ace2e6ca653faa7fb4917a2284928",
+    "tools/index-runtime/src/projection.ts": "1a4067cbcb64acfaefbd4908b983326d974b92a92f943266937531979b2317f5",
+    "tools/index-runtime/src/json.ts": "22f350e78a0ca970bfadc4f2340bf4ae509316dcc76ddb39d452bf8a7aa88c5c",
+    "tools/index-runtime/src/selection.ts": "a8fb8c9a51a6e1970d2f07aaadb0b72b248a3ce7406e9b68d1e52209c3502942",
+    "tools/index-runtime/src/selected-sync.ts": "eea9580f645e5457b85dcfeac4e7fc3cf50e53ceb790ecd8b52559992ea743d8",
+    "tools/index-runtime/src/frozen-json.ts": "4679111d350353f2fdd58cdf6f58eefe0d9fc89483b3632810111aa5e4216e0c",
+    "tools/shared/src/file-text-search/segment-matcher.ts": "e542166619b2d9e9a7b5ce04624b1d088a8d5c46101ac575ce11cc4cbb51a785",
+    "tools/shared/src/file-text-search/previews.ts": "b5dd2c2975ba191baa22fb0e321e1927cdeab16f3961037ac6f308230ec67a66",
+    "tools/shared/src/file-text-search/files.ts": "b25a29cd0517826d6ed12ea2a6eaefcc5c4c0f3193d34c0d66eddbd140fa98f9",
+    "tools/shared/src/graph/trace-ordering.ts": "e3da350f34f7fb2d6c27db2d87516c3f7066c2745117d68e62ff04bc4353e12f",
+    "tools/decision-records/src/decision-relation-transaction-strategy.ts": "018f69ffe852d3e385f0246105d04b840c4123fa76cf58ff02b02aac390c6e54",
+    "tools/decision-records/src/decision-trace-admission.ts": "ec752b6e3046f9b0f9ce4b2b426d041b4546b7cb32d0e70772fff5e872347648",
+    "tools/decision-records/src/relation-graph.ts": "e9cfb518e4785a5ef9b1974702f05707a472c56948d9d5d8650c93d95f9efcdf"
+  },
+  "productionChanges": "none by remaining_evidence agent; measurements use baseline archive and local instrumented copy",
+  "dependencyReuse": "baseline/node_modules and instrumented/node_modules symlink to existing /workspace/skills/node_modules; no install",
+  "gitFixture": "all domain fixtures were outside any Git worktree, with no .git, hooks or remotes; no git write was needed",
+  "failedAttempts": [
+    "probe-domain initial sync-index --write rejected unknown option, corrected to sync-index; initial trace --max-depth rejected unknown option, corrected to --depth; both were argument-level errors, no candidate behavior failures"
+  ],
+  "nonGitVerification": [
+    {
+      "root": "/tmp/remaining-evidence-eea1d03-yGiz82/reallocation-5-4-6gvEog",
+      "exitCode": 128,
+      "stderr": "fatal: not a git repository (or any parent up to mount point /)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set)."
+    },
+    {
+      "root": "/tmp/remaining-evidence-eea1d03-yGiz82/reallocation-20-20-qgWWfc",
+      "exitCode": 128,
+      "stderr": "fatal: not a git repository (or any parent up to mount point /)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set)."
+    },
+    {
+      "root": "/tmp/remaining-evidence-eea1d03-yGiz82/reallocation-40-40-ECr0Cu",
+      "exitCode": 128,
+      "stderr": "fatal: not a git repository (or any parent up to mount point /)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set)."
+    },
+    {
+      "root": "/tmp/remaining-evidence-eea1d03-yGiz82/trace-4-4-ik1Bqn",
+      "exitCode": 128,
+      "stderr": "fatal: not a git repository (or any parent up to mount point /)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set)."
+    },
+    {
+      "root": "/tmp/remaining-evidence-eea1d03-yGiz82/trace-20-20-kzWiuT",
+      "exitCode": 128,
+      "stderr": "fatal: not a git repository (or any parent up to mount point /)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set)."
+    },
+    {
+      "root": "/tmp/remaining-evidence-eea1d03-yGiz82/trace-40-40-UQQaml",
+      "exitCode": 128,
+      "stderr": "fatal: not a git repository (or any parent up to mount point /)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set)."
+    }
+  ],
+  "independentReplay": {
+    "exitCode": 0,
+    "outputDirectory": "/tmp/remaining-evidence-replay-9eXYkZ",
+    "allFourProbesPassed": true
+  }
+}

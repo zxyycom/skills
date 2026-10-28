@@ -1,0 +1,280 @@
+{
+  "version": "eea1d03e3429f83797e660d75326e0ebd752f61d",
+  "capture": "Complete raw CLI stdout/stderr remains in generated domain-results.json. This archival subset keeps the smallest full evolve/trace response; all larger check outputs, exit codes, stderr, exact first stdout line or JSON envelope fields, counts, and full-stdout SHA-256. Fixture inputs are deterministically generated in probe-domain.mjs.",
+  "results": [
+    {
+      "kind": "reallocation",
+      "M": 5,
+      "K": 4,
+      "closureHas": 21,
+      "check": {
+        "exitCode": 0,
+        "stdout": "Decision records check passed (26 decisions, 14 active, 14 aligned, 0 unaligned, 12 archived, 0 candidate scaffolds, 0 body-ready candidates).\n",
+        "stderr": ""
+      },
+      "evolve": {
+        "exitCode": 0,
+        "stdout": "Evolved successors aligned z-s-000.md, aligned z-s-001.md, aligned z-s-002.md, aligned z-s-003.md and archived new active predecessors z-p1, z-p2.\nRelation review (committed):\n- z-s-000 action=establish\n  before relations:\n    - z-s-000 --重划--> z-p1: [无摘要]\n    - z-s-000 --重划--> z-p2: [无摘要]\n  after relations:\n    - z-s-000 --重划--> z-p1: [无摘要]\n    - z-s-000 --重划--> z-p2: [无摘要]\n  changes: unchanged\n- z-s-001 action=establish\n  before relations:\n    - z-s-001 --重划--> z-p1: [无摘要]\n  after relations:\n    - z-s-001 --重划--> z-p1: [无摘要]\n  changes: unchanged\n- z-s-002 action=establish\n  before relations:\n    - z-s-002 --重划--> z-p1: [无摘要]\n  after relations:\n    - z-s-002 --重划--> z-p1: [无摘要]\n  changes: unchanged\n- z-s-003 action=establish\n  before relations:\n    - z-s-003 --重划--> z-p1: [无摘要]\n  after relations:\n    - z-s-003 --重划--> z-p1: [无摘要]\n  changes: unchanged\n",
+        "stderr": ""
+      }
+    },
+    {
+      "kind": "reallocation",
+      "M": 20,
+      "K": 20,
+      "closureHas": 401,
+      "check": {
+        "exitCode": 0,
+        "stdout": "Decision records check passed (102 decisions, 60 active, 60 aligned, 0 unaligned, 42 archived, 0 candidate scaffolds, 0 body-ready candidates).\n",
+        "stderr": ""
+      },
+      "evolve": {
+        "exitCode": 0,
+        "stderr": "",
+        "stdoutFirstLine": "Evolved successors aligned z-s-000.md, aligned z-s-001.md, aligned z-s-002.md, aligned z-s-003.md, aligned z-s-004.md, aligned z-s-005.md, aligned z-s-006.md, aligned z-s-007.md, aligned z-s-008.md, aligned z-s-009.md, aligned z-s-010.md, aligned z-s-011.md, aligned z-s-012.md, aligned z-s-013.md, aligned z-s-014.md, aligned z-s-015.md, aligned z-s-016.md, aligned z-s-017.md, aligned z-s-018.md, aligned z-s-019.md and archived new active predecessors z-p1, z-p2.",
+        "stdoutSha256": "9c544c99fcd7ac4935dd5d460d31b9e260c78b1e34efe476766acc4f4ae4fb25"
+      }
+    },
+    {
+      "kind": "reallocation",
+      "M": 40,
+      "K": 40,
+      "closureHas": 1601,
+      "check": {
+        "exitCode": 0,
+        "stdout": "Decision records check passed (202 decisions, 120 active, 120 aligned, 0 unaligned, 82 archived, 0 candidate scaffolds, 0 body-ready candidates).\n",
+        "stderr": ""
+      },
+      "evolve": {
+        "exitCode": 0,
+        "stderr": "",
+        "stdoutFirstLine": "Evolved successors aligned z-s-000.md, aligned z-s-001.md, aligned z-s-002.md, aligned z-s-003.md, aligned z-s-004.md, aligned z-s-005.md, aligned z-s-006.md, aligned z-s-007.md, aligned z-s-008.md, aligned z-s-009.md, aligned z-s-010.md, aligned z-s-011.md, aligned z-s-012.md, aligned z-s-013.md, aligned z-s-014.md, aligned z-s-015.md, aligned z-s-016.md, aligned z-s-017.md, aligned z-s-018.md, aligned z-s-019.md, aligned z-s-020.md, aligned z-s-021.md, aligned z-s-022.md, aligned z-s-023.md, aligned z-s-024.md, aligned z-s-025.md, aligned z-s-026.md, aligned z-s-027.md, aligned z-s-028.md, aligned z-s-029.md, aligned z-s-030.md, aligned z-s-031.md, aligned z-s-032.md, aligned z-s-033.md, aligned z-s-034.md, aligned z-s-035.md, aligned z-s-036.md, aligned z-s-037.md, aligned z-s-038.md, aligned z-s-039.md and archived new active predecessors z-p1, z-p2.",
+        "stdoutSha256": "dd56795ea1d3fa03da125a274d38a41dcdf775c3b066306ffe5876af4590988b"
+      }
+    },
+    {
+      "kind": "trace",
+      "M": 4,
+      "P": 4,
+      "sequenceItems": 31,
+      "maxEqualPrefix": 4,
+      "check": {
+        "exitCode": 0,
+        "stdout": "Decision records check passed (9 decisions, 4 active, 4 aligned, 0 unaligned, 5 archived, 0 candidate scaffolds, 0 body-ready candidates).\n",
+        "stderr": ""
+      },
+      "baselineTraceEquivalent": true,
+      "trace": {
+        "exitCode": 0,
+        "stdout": "{\n  \"status\": \"ok\",\n  \"source\": {\n    \"kind\": \"published-index\",\n    \"currentness\": \"unchecked\",\n    \"fallback\": false\n  },\n  \"anchorId\": \"anchor\",\n  \"direction\": \"successors\",\n  \"limits\": {\n    \"depth\": 1,\n    \"maxRecords\": 9\n  },\n  \"coverage\": {\n    \"complete\": false,\n    \"stoppedBy\": [\n      \"depth\"\n    ]\n  },\n  \"traceIds\": [\n    \"anchor\",\n    \"b-common-000\",\n    \"b-common-001\",\n    \"b-common-002\",\n    \"b-common-003\",\n    \"z-merge-000\",\n    \"z-merge-001\",\n    \"z-merge-002\",\n    \"z-merge-003\"\n  ],\n  \"contextIds\": [],\n  \"frontier\": [\n    {\n      \"fromId\": \"b-common-000\",\n      \"direction\": \"successors\",\n      \"reason\": \"depth\",\n      \"nextIds\": [\n        \"z-merge-000\",\n        \"z-merge-001\",\n        \"z-merge-002\",\n        \"z-merge-003\"\n      ]\n    },\n    {\n      \"fromId\": \"b-common-001\",\n      \"direction\": \"successors\",\n      \"reason\": \"depth\",\n      \"nextIds\": [\n        \"z-merge-000\",\n        \"z-merge-001\",\n        \"z-merge-002\",\n        \"z-merge-003\"\n      ]\n    },\n    {\n      \"fromId\": \"b-common-002\",\n      \"direction\": \"successors\",\n      \"reason\": \"depth\",\n      \"nextIds\": [\n        \"z-merge-000\",\n        \"z-merge-001\",\n        \"z-merge-002\",\n        \"z-merge-003\"\n      ]\n    },\n    {\n      \"fromId\": \"b-common-003\",\n      \"direction\": \"successors\",\n      \"reason\": \"depth\",\n      \"nextIds\": [\n        \"z-merge-000\",\n        \"z-merge-001\",\n        \"z-merge-002\",\n        \"z-merge-003\"\n      ]\n    }\n  ],\n  \"entries\": {\n    \"anchor\": {\n      \"title\": \"使用 Markdown 建立状态\",\n      \"status\": \"archived\",\n      \"alignment\": \"aligned\",\n      \"createdAt\": \"2026-10-01T00:00:00Z\",\n      \"purpose\": \"验证 Markdown 生命周期独立定义候选和已建立状态。\",\n      \"background\": \"索引和版本历史不应共同承担决策成员身份。\",\n      \"decision\": \"使用显式 candidate 状态区分候选与已建立决策。\",\n      \"tags\": [\n        \"decision-records\"\n      ],\n      \"relations\": []\n    },\n    \"b-common-000\": {\n      \"title\": \"使用 Markdown 建立状态\",\n      \"status\": \"archived\",\n      \"alignment\": \"aligned\",\n      \"createdAt\": \"2026-10-01T00:00:00Z\",\n      \"purpose\": \"验证 Markdown 生命周期独立定义候选和已建立状态。\",\n      \"background\": \"索引和版本历史不应共同承担决策成员身份。\",\n      \"decision\": \"使用显式 candidate 状态区分候选与已建立决策。\",\n      \"tags\": [\n        \"decision-records\"\n      ],\n      \"relations\": [\n        {\n          \"type\": \"替代\",\n          \"target\": \"anchor\"\n        }\n      ]\n    },\n    \"b-common-001\": {\n      \"title\": \"使用 Markdown 建立状态\",\n      \"status\": \"archived\",\n      \"alignment\": \"aligned\",\n      \"createdAt\": \"2026-10-01T00:00:00Z\",\n      \"purpose\": \"验证 Markdown 生命周期独立定义候选和已建立状态。\",\n      \"background\": \"索引和版本历史不应共同承担决策成员身份。\",\n      \"decision\": \"使用显式 candidate 状态区分候选与已建立决策。\",\n      \"tags\": [\n        \"decision-records\"\n      ],\n      \"relations\": [\n        {\n          \"type\": \"替代\",\n          \"target\": \"anchor\"\n        }\n      ]\n    },\n    \"b-common-002\": {\n      \"title\": \"使用 Markdown 建立状态\",\n      \"status\": \"archived\",\n      \"alignment\": \"aligned\",\n      \"createdAt\": \"2026-10-01T00:00:00Z\",\n      \"purpose\": \"验证 Markdown 生命周期独立定义候选和已建立状态。\",\n      \"background\": \"索引和版本历史不应共同承担决策成员身份。\",\n      \"decision\": \"使用显式 candidate 状态区分候选与已建立决策。\",\n      \"tags\": [\n        \"decision-records\"\n      ],\n      \"relations\": [\n        {\n          \"type\": \"替代\",\n          \"target\": \"anchor\"\n        }\n      ]\n    },\n    \"b-common-003\": {\n      \"title\": \"使用 Markdown 建立状态\",\n      \"status\": \"archived\",\n      \"alignment\": \"aligned\",\n      \"createdAt\": \"2026-10-01T00:00:00Z\",\n      \"purpose\": \"验证 Markdown 生命周期独立定义候选和已建立状态。\",\n      \"background\": \"索引和版本历史不应共同承担决策成员身份。\",\n      \"decision\": \"使用显式 candidate 状态区分候选与已建立决策。\",\n      \"tags\": [\n        \"decision-records\"\n      ],\n      \"relations\": [\n        {\n          \"type\": \"替代\",\n          \"target\": \"anchor\"\n        }\n      ]\n    },\n    \"z-merge-000\": {\n      \"title\": \"使用 Markdown 建立状态\",\n      \"status\": \"active\",\n      \"alignment\": \"aligned\",\n      \"createdAt\": \"2026-10-01T00:00:00Z\",\n      \"purpose\": \"验证 Markdown 生命周期独立定义候选和已建立状态。\",\n      \"background\": \"索引和版本历史不应共同承担决策成员身份。\",\n      \"decision\": \"使用显式 candidate 状态区分候选与已建立决策。\",\n      \"tags\": [\n        \"decision-records\"\n      ],\n      \"relations\": [\n        {\n          \"type\": \"归并\",\n          \"target\": \"anchor\"\n        },\n        {\n          \"type\": \"归并\",\n          \"target\": \"b-common-000\"\n        },\n        {\n          \"type\": \"归并\",\n          \"target\": \"b-common-001\"\n        },\n        {\n          \"type\": \"归并\",\n          \"target\": \"b-common-002\"\n        },\n        {\n          \"type\": \"归并\",\n          \"target\": \"b-common-003\"\n        }\n      ]\n    },\n    \"z-merge-001\": {\n      \"title\": \"使用 Markdown 建立状态\",\n      \"status\": \"active\",\n      \"alignment\": \"aligned\",\n      \"createdAt\": \"2026-10-01T00:00:00Z\",\n      \"purpose\": \"验证 Markdown 生命周期独立定义候选和已建立状态。\",\n      \"background\": \"索引和版本历史不应共同承担决策成员身份。\",\n      \"decision\": \"使用显式 candidate 状态区分候选与已建立决策。\",\n      \"tags\": [\n        \"decision-records\"\n      ],\n      \"relations\": [\n        {\n          \"type\": \"归并\",\n          \"target\": \"anchor\"\n        },\n        {\n          \"type\": \"归并\",\n          \"target\": \"b-common-000\"\n        },\n        {\n          \"type\": \"归并\",\n          \"target\": \"b-common-001\"\n        },\n        {\n          \"type\": \"归并\",\n          \"target\": \"b-common-002\"\n        },\n        {\n          \"type\": \"归并\",\n          \"target\": \"b-common-003\"\n        }\n      ]\n    },\n    \"z-merge-002\": {\n      \"title\": \"使用 Markdown 建立状态\",\n      \"status\": \"active\",\n      \"alignment\": \"aligned\",\n      \"createdAt\": \"2026-10-01T00:00:00Z\",\n      \"purpose\": \"验证 Markdown 生命周期独立定义候选和已建立状态。\",\n      \"background\": \"索引和版本历史不应共同承担决策成员身份。\",\n      \"decision\": \"使用显式 candidate 状态区分候选与已建立决策。\",\n      \"tags\": [\n        \"decision-records\"\n      ],\n      \"relations\": [\n        {\n          \"type\": \"归并\",\n          \"target\": \"anchor\"\n        },\n        {\n          \"type\": \"归并\",\n          \"target\": \"b-common-000\"\n        },\n        {\n          \"type\": \"归并\",\n          \"target\": \"b-common-001\"\n        },\n        {\n          \"type\": \"归并\",\n          \"target\": \"b-common-002\"\n        },\n        {\n          \"type\": \"归并\",\n          \"target\": \"b-common-003\"\n        }\n      ]\n    },\n    \"z-merge-003\": {\n      \"title\": \"使用 Markdown 建立状态\",\n      \"status\": \"active\",\n      \"alignment\": \"aligned\",\n      \"createdAt\": \"2026-10-01T00:00:00Z\",\n      \"purpose\": \"验证 Markdown 生命周期独立定义候选和已建立状态。\",\n      \"background\": \"索引和版本历史不应共同承担决策成员身份。\",\n      \"decision\": \"使用显式 candidate 状态区分候选与已建立决策。\",\n      \"tags\": [\n        \"decision-records\"\n      ],\n      \"relations\": [\n        {\n          \"type\": \"归并\",\n          \"target\": \"anchor\"\n        },\n        {\n          \"type\": \"归并\",\n          \"target\": \"b-common-000\"\n        },\n        {\n          \"type\": \"归并\",\n          \"target\": \"b-common-001\"\n        },\n        {\n          \"type\": \"归并\",\n          \"target\": \"b-common-002\"\n        },\n        {\n          \"type\": \"归并\",\n          \"target\": \"b-common-003\"\n        }\n      ]\n    }\n  }\n}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "kind": "trace",
+      "M": 20,
+      "P": 20,
+      "sequenceItems": 979,
+      "maxEqualPrefix": 20,
+      "check": {
+        "exitCode": 0,
+        "stdout": "Decision records check passed (41 decisions, 20 active, 20 aligned, 0 unaligned, 21 archived, 0 candidate scaffolds, 0 body-ready candidates).\n",
+        "stderr": ""
+      },
+      "baselineTraceEquivalent": true,
+      "trace": {
+        "exitCode": 0,
+        "stderr": "",
+        "stdoutSha256": "62577230067c45fde65adf13e557e3e800bed7ec4ff696b5099cf3b779a2027f",
+        "envelope": {
+          "status": "ok",
+          "source": {
+            "kind": "published-index",
+            "currentness": "unchecked",
+            "fallback": false
+          },
+          "anchorId": "anchor",
+          "direction": "successors",
+          "limits": {
+            "depth": 1,
+            "maxRecords": 41
+          },
+          "coverage": {
+            "complete": false,
+            "stoppedBy": [
+              "depth"
+            ]
+          },
+          "traceIds": [
+            "anchor",
+            "b-common-000",
+            "b-common-001",
+            "b-common-002",
+            "b-common-003",
+            "b-common-004",
+            "b-common-005",
+            "b-common-006",
+            "b-common-007",
+            "b-common-008",
+            "b-common-009",
+            "b-common-010",
+            "b-common-011",
+            "b-common-012",
+            "b-common-013",
+            "b-common-014",
+            "b-common-015",
+            "b-common-016",
+            "b-common-017",
+            "b-common-018",
+            "b-common-019",
+            "z-merge-000",
+            "z-merge-001",
+            "z-merge-002",
+            "z-merge-003",
+            "z-merge-004",
+            "z-merge-005",
+            "z-merge-006",
+            "z-merge-007",
+            "z-merge-008",
+            "z-merge-009",
+            "z-merge-010",
+            "z-merge-011",
+            "z-merge-012",
+            "z-merge-013",
+            "z-merge-014",
+            "z-merge-015",
+            "z-merge-016",
+            "z-merge-017",
+            "z-merge-018",
+            "z-merge-019"
+          ],
+          "contextIds": []
+        },
+        "frontierCount": 20
+      }
+    },
+    {
+      "kind": "trace",
+      "M": 40,
+      "P": 40,
+      "sequenceItems": 1659,
+      "maxEqualPrefix": 40,
+      "check": {
+        "exitCode": 0,
+        "stdout": "Decision records check passed (81 decisions, 40 active, 40 aligned, 0 unaligned, 41 archived, 0 candidate scaffolds, 0 body-ready candidates).\n",
+        "stderr": ""
+      },
+      "baselineTraceEquivalent": true,
+      "trace": {
+        "exitCode": 0,
+        "stderr": "",
+        "stdoutSha256": "015fb65a58804a259bb2411130629c4ba99121c43c47a0034d891e1a7add6b39",
+        "envelope": {
+          "status": "ok",
+          "source": {
+            "kind": "published-index",
+            "currentness": "unchecked",
+            "fallback": false
+          },
+          "anchorId": "anchor",
+          "direction": "successors",
+          "limits": {
+            "depth": 1,
+            "maxRecords": 81
+          },
+          "coverage": {
+            "complete": false,
+            "stoppedBy": [
+              "depth"
+            ]
+          },
+          "traceIds": [
+            "anchor",
+            "b-common-000",
+            "b-common-001",
+            "b-common-002",
+            "b-common-003",
+            "b-common-004",
+            "b-common-005",
+            "b-common-006",
+            "b-common-007",
+            "b-common-008",
+            "b-common-009",
+            "b-common-010",
+            "b-common-011",
+            "b-common-012",
+            "b-common-013",
+            "b-common-014",
+            "b-common-015",
+            "b-common-016",
+            "b-common-017",
+            "b-common-018",
+            "b-common-019",
+            "b-common-020",
+            "b-common-021",
+            "b-common-022",
+            "b-common-023",
+            "b-common-024",
+            "b-common-025",
+            "b-common-026",
+            "b-common-027",
+            "b-common-028",
+            "b-common-029",
+            "b-common-030",
+            "b-common-031",
+            "b-common-032",
+            "b-common-033",
+            "b-common-034",
+            "b-common-035",
+            "b-common-036",
+            "b-common-037",
+            "b-common-038",
+            "b-common-039",
+            "z-merge-000",
+            "z-merge-001",
+            "z-merge-002",
+            "z-merge-003",
+            "z-merge-004",
+            "z-merge-005",
+            "z-merge-006",
+            "z-merge-007",
+            "z-merge-008",
+            "z-merge-009",
+            "z-merge-010",
+            "z-merge-011",
+            "z-merge-012",
+            "z-merge-013",
+            "z-merge-014",
+            "z-merge-015",
+            "z-merge-016",
+            "z-merge-017",
+            "z-merge-018",
+            "z-merge-019",
+            "z-merge-020",
+            "z-merge-021",
+            "z-merge-022",
+            "z-merge-023",
+            "z-merge-024",
+            "z-merge-025",
+            "z-merge-026",
+            "z-merge-027",
+            "z-merge-028",
+            "z-merge-029",
+            "z-merge-030",
+            "z-merge-031",
+            "z-merge-032",
+            "z-merge-033",
+            "z-merge-034",
+            "z-merge-035",
+            "z-merge-036",
+            "z-merge-037",
+            "z-merge-038",
+            "z-merge-039"
+          ],
+          "contextIds": []
+        },
+        "frontierCount": 40
+      }
+    }
+  ]
+}

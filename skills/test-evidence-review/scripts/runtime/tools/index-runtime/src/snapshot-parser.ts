@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/test-evidence-review
  * Rebuild: bun run sync:test-evidence-cli
  */
+import { types as utilTypes } from "node:util";
 import type { MaterializedStateIndexEntry } from "./query-fields.ts";
 import { expectationOf, validateStateIndexDefinition } from "./definition.ts";
 import { canonicalizeStateIndex } from "./canonicalization.ts";
@@ -132,6 +133,26 @@ function freezeOwnedEnvelope<Value extends JsonValue>(value: Value): Value {
     Object.freeze(value);
   }
   return value;
+}
+
+/** True only for an immutable own ordering value, captured before normalization. */
+export function hasStableOwnFieldOrder(definition: object): boolean {
+  if (utilTypes.isProxy(definition)) return false;
+  const fieldOrder = Object.getOwnPropertyDescriptor(definition, "fieldOrder");
+  return (
+    Object.isFrozen(definition) &&
+    fieldOrder !== undefined &&
+    "value" in fieldOrder &&
+    fieldOrder.writable === false
+  );
+}
+
+/** Internal serialization of the same-stage, already canonical frozen result. */
+export function serializeCanonicalStateIndex<
+  State extends object,
+  Metadata extends JsonObject
+>(index: StateIndex<State, Metadata>): string {
+  return `${JSON.stringify(index, null, 2)}\n`;
 }
 
 export function serializeStateIndex<

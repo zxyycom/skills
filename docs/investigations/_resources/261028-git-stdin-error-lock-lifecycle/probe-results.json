@@ -1,0 +1,11 @@
+{
+  "baselineCommit": "eea1d03e3429f83797e660d75326e0ebd752f61d",
+  "sourceFile": "tools/shared/src/version-control/git-command.ts",
+  "baselineSha256": "c995a8decc4b1237fe2c48db9e10aa5c4f6907bf5d140bdee05d5502dedaf0eb",
+  "modifiedSha256": "b92343438e68b76e7781a329efc8efc6b5de5282194b671cb803946ae0af1ce9",
+  "environment": { "os": "Linux", "node": "v26.8.2", "git": "2.53.0" },
+  "inputBytes": 8388608,
+  "baselineAliveWhenRejected": true,
+  "modifiedAliveWhenRejected": false,
+  "method": "synthetic process closes stdin and ignores SIGTERM; this is not evidence of a naturally occurring Git failure"
+}

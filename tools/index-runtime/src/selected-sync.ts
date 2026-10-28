@@ -17,7 +17,11 @@ import {
   type SelectedStateIndexChanges
 } from "./selection.ts";
 import { buildStateIndex } from "./snapshot-builder.ts";
-import { serializeStateIndex } from "./snapshot-parser.ts";
+import {
+  hasStableOwnFieldOrder,
+  serializeCanonicalStateIndex,
+  serializeStateIndex
+} from "./snapshot-parser.ts";
 import { readSourceRevision, failedSync } from "./storage-shared.ts";
 import type {
   JsonObject,
@@ -52,6 +56,7 @@ export async function syncSelectedStateIndex<
 >(
   options: SelectedSyncOptions<State, Metadata>
 ): Promise<StateIndexSyncResult> {
+  const stableFieldOrder = hasStableOwnFieldOrder(options.definition);
   const baseline = await selectedBaseline(options);
   if (baseline.status === "error")
     return selectedFailure(
@@ -77,7 +82,12 @@ export async function syncSelectedStateIndex<
       selectedChangeDiagnostics(changes, options.indexPath),
       changes.changedIds
     );
-  return await finishSelectedSync(options, candidate.value, changes.changedIds);
+  return await finishSelectedSync(
+    options,
+    candidate.value,
+    changes.changedIds,
+    stableFieldOrder
+  );
 }
 
 async function selectedBaseline<
@@ -139,7 +149,8 @@ async function finishSelectedSync<
 >(
   options: SelectedSyncOptions<State, Metadata>,
   candidate: StateIndex<State, Metadata>,
-  changedIds: string[]
+  changedIds: string[],
+  stableFieldOrder: boolean
 ): Promise<StateIndexSyncResult> {
   if (changedIds.length === 0)
     return selectedSuccess(
@@ -156,7 +167,12 @@ async function finishSelectedSync<
     );
   if (options.mode === "preview")
     return selectedSuccess(options, "previewed", changedIds);
-  return await publishSelectedSync(options, candidate, changedIds);
+  return await publishSelectedSync(
+    options,
+    candidate,
+    changedIds,
+    stableFieldOrder
+  );
 }
 
 async function publishSelectedSync<
@@ -165,9 +181,12 @@ async function publishSelectedSync<
 >(
   options: SelectedSyncOptions<State, Metadata>,
   candidate: StateIndex<State, Metadata>,
-  changedIds: string[]
+  changedIds: string[],
+  stableFieldOrder: boolean
 ): Promise<StateIndexSyncResult> {
-  const expectedText = serializeStateIndex(candidate, options.definition);
+  const expectedText = stableFieldOrder
+    ? serializeCanonicalStateIndex(candidate)
+    : serializeStateIndex(candidate, options.definition);
   let writtenPath: string;
   try {
     writtenPath = await writeTextAtomically(options.resolved, expectedText);

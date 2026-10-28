@@ -1,0 +1,74 @@
+[
+  {
+    "variant": "baseline",
+    "attack": "stable",
+    "leafLstats": 5,
+    "result": {
+      "status": "ok",
+      "value": {
+        "byteLength": 8,
+        "content": "original"
+      }
+    },
+    "root": "/tmp/remaining-evidence-eea1d03-yGiz82/files-baseline-stable-9ZEXeH"
+  },
+  {
+    "variant": "baseline",
+    "attack": "transient-leaf-symlink",
+    "leafLstats": 2,
+    "result": {
+      "status": "error",
+      "code": "invalid-file",
+      "message": "File text search only accepts ordinary files."
+    },
+    "root": "/tmp/remaining-evidence-eea1d03-yGiz82/files-baseline-transient-leaf-symlink-bMgf2o"
+  },
+  {
+    "variant": "baseline",
+    "attack": "opened-replacement",
+    "leafLstats": 5,
+    "result": {
+      "status": "error",
+      "code": "invalid-file",
+      "message": "File text search selected file changed while it was opened."
+    },
+    "root": "/tmp/remaining-evidence-eea1d03-yGiz82/files-baseline-opened-replacement-SQVPd6"
+  },
+  {
+    "variant": "collapsed",
+    "attack": "stable",
+    "leafLstats": 3,
+    "result": {
+      "status": "ok",
+      "value": {
+        "byteLength": 8,
+        "content": "original"
+      }
+    },
+    "root": "/tmp/remaining-evidence-eea1d03-yGiz82/files-collapsed-stable-ezH8ii"
+  },
+  {
+    "variant": "collapsed",
+    "attack": "transient-leaf-symlink",
+    "leafLstats": 3,
+    "result": {
+      "status": "ok",
+      "value": {
+        "byteLength": 8,
+        "content": "original"
+      }
+    },
+    "root": "/tmp/remaining-evidence-eea1d03-yGiz82/files-collapsed-transient-leaf-symlink-DmeoW8"
+  },
+  {
+    "variant": "collapsed",
+    "attack": "opened-replacement",
+    "leafLstats": 3,
+    "result": {
+      "status": "error",
+      "code": "invalid-file",
+      "message": "File text search selected file changed while it was opened."
+    },
+    "root": "/tmp/remaining-evidence-eea1d03-yGiz82/files-collapsed-opened-replacement-PxepB2"
+  }
+]

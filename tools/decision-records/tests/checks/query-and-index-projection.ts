@@ -21,3 +21,5 @@ await import("../discovery-dependencies.test.ts");
 await import("../acquisition-safety.test.ts");
 
 await import("../selected-local-contract.test.ts");
+
+await import("../canonical-sync-cost.test.ts");

@@ -8,6 +8,7 @@
  * Rebuild: bun run sync:change-plan-cli
  */
 import { sameBytes } from "../node/bytes.ts";
+import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import { VersionControlError } from "./errors.ts";
 import { readGitBlobs } from "./git-blob-batch.ts";
@@ -181,25 +182,69 @@ export async function createPendingEntries(
       .filter((entry) => entry.stage === 0)
       .map((entry) => [entry.path, entry])
   );
-  return await Promise.all(
-    files.map(async (file) => {
-      const reusable = reusableEntries.get(file.path);
-      const current = currentFilesByPath.get(file.path);
-      if (
-        reusable !== undefined &&
-        reusable.mode === gitModeForFileKind(file.kind) &&
-        current !== undefined &&
-        sameBytes(current.data, file.data)
-      )
-        return reusable;
-      return {
-        mode: gitModeForFileKind(file.kind),
-        objectId: await writeGitBlob(context, file.data),
-        path: file.path,
-        stage: 0
-      };
-    })
+  const groups: Array<{ data: Buffer; objectId?: string }> = [];
+  const groupsByDigest = new Map<string, number[]>();
+  const targets = files.map((file) => {
+    const reusable = reusableEntries.get(file.path);
+    const current = currentFilesByPath.get(file.path);
+    if (
+      reusable !== undefined &&
+      reusable.mode === gitModeForFileKind(file.kind) &&
+      current !== undefined &&
+      sameBytes(current.data, file.data)
+    )
+      return { file, reusable };
+    const digest = createHash("sha256").update(file.data).digest("hex");
+    const bucket = groupsByDigest.get(digest) ?? [];
+    let group = bucket.find((index) =>
+      sameBytes(groups[index]!.data, file.data)
+    );
+    if (group === undefined) {
+      group = groups.length;
+      groups.push({ data: file.data });
+      bucket.push(group);
+      groupsByDigest.set(digest, bucket);
+    }
+    return { file, group };
+  });
+  await writeUniquePendingBlobs(context, groups);
+  return targets.map((target) => {
+    if (target.reusable !== undefined) return target.reusable;
+    return {
+      mode: gitModeForFileKind(target.file.kind),
+      objectId: groups[target.group!]!.objectId!,
+      path: target.file.path,
+      stage: 0
+    };
+  });
+}
+
+/** Stop dispatch at the first observed failure, then settle every active Git write. */
+async function writeUniquePendingBlobs(
+  context: GitRepositoryContext,
+  groups: Array<{ data: Buffer; objectId?: string }>
+): Promise<void> {
+  const concurrency = 4;
+  let next = 0;
+  let failed = false;
+  let firstError: unknown;
+  async function worker(): Promise<void> {
+    while (!failed && next < groups.length) {
+      const group = groups[next++]!;
+      try {
+        group.objectId = await writeGitBlob(context, group.data);
+      } catch (error) {
+        if (!failed) {
+          failed = true;
+          firstError = error;
+        }
+      }
+    }
+  }
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, groups.length) }, worker)
   );
+  if (failed) throw firstError;
 }
 
 export async function writePendingEntries(
