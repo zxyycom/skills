@@ -31,7 +31,6 @@ import type {
 } from "./types.ts";
 import {
   createEmptyPendingIndex,
-  sameGitIndexEntries,
   type NormalizedPendingReplacementFile
 } from "./git-pending-values.ts";
 
@@ -214,24 +213,27 @@ export async function writePendingEntries(
   await updatePendingIndex(context, pendingIndexPath, records);
 }
 
-function pendingIndexRecords(
+export function pendingIndexRecords(
   currentEntries: readonly GitIndexEntry[],
   targetEntries: readonly GitIndexEntry[]
 ): string | null {
   const removed = removedEntries(currentEntries, targetEntries);
-  if (hasNoPendingChange(removed, currentEntries, targetEntries)) return null;
-  const objectIdLength = objectIdLengthFor(targetEntries, removed);
+  const currentByPath = new Map(
+    currentEntries.map((entry) => [entry.path, entry])
+  );
+  const changed = targetEntries.filter((entry) => {
+    const current = currentByPath.get(entry.path);
+    return (
+      current === undefined ||
+      current.mode !== entry.mode ||
+      current.objectId !== entry.objectId ||
+      current.stage !== entry.stage
+    );
+  });
+  const objectIdLength = objectIdLengthFor(changed, removed);
   return objectIdLength === null
     ? null
-    : recordsForEntries(removed, targetEntries, objectIdLength);
-}
-
-function hasNoPendingChange(
-  removed: readonly GitIndexEntry[],
-  current: readonly GitIndexEntry[],
-  target: readonly GitIndexEntry[]
-): boolean {
-  return removed.length === 0 && sameGitIndexEntries(current, target);
+    : recordsForEntries(removed, changed, objectIdLength);
 }
 
 function objectIdLengthFor(

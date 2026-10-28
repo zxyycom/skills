@@ -235,6 +235,7 @@ function relationGraphCycleIssues<Id extends string, Type extends string>(
   const issues: RelationGraphStructuralIssue<Id, Type>[] = [];
   const visitState = new Map<Id, "visiting" | "visited">();
   const idStack: Id[] = [];
+  const stackPosition = new Map<Id, number>();
   const frames: {
     readonly id: Id;
     readonly targets: readonly Id[];
@@ -243,6 +244,7 @@ function relationGraphCycleIssues<Id extends string, Type extends string>(
 
   function enter(id: Id): void {
     visitState.set(id, "visiting");
+    stackPosition.set(id, idStack.length);
     idStack.push(id);
     frames.push({ id, targets: cycleTargets(graph, id), nextTargetIndex: 0 });
   }
@@ -255,6 +257,7 @@ function relationGraphCycleIssues<Id extends string, Type extends string>(
       if (target === undefined) {
         frames.pop();
         idStack.pop();
+        stackPosition.delete(frame.id);
         visitState.set(frame.id, "visited");
         continue;
       }
@@ -262,7 +265,7 @@ function relationGraphCycleIssues<Id extends string, Type extends string>(
       frame.nextTargetIndex += 1;
       const targetState = visitState.get(target);
       if (targetState === "visiting") {
-        const cycleStart = idStack.indexOf(target);
+        const cycleStart = stackPosition.get(target)!;
         issues.push({
           cycle: [...idStack.slice(cycleStart), target],
           kind: "cycle"

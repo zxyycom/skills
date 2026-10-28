@@ -1,5 +1,6 @@
 import {
   matchTextSegments,
+  matchTextSegmentIdentifiers,
   TextSearchMatcherError
 } from "./segment-matcher.ts";
 import type {
@@ -11,17 +12,111 @@ import type {
 import { FileTextSearchError } from "./contracts.ts";
 
 export function findLineMatches(
-  content: string,
+  lines: readonly string[],
   query: ValidatedRequest["query"],
   signal: AbortSignal | undefined
 ): readonly LineMatch[] {
-  const lines = splitPhysicalLines(content);
   try {
     return matchTextSegments(
       query,
       lines.map((text, index) => ({ identifier: index + 1, text })),
       signal
     ).map(({ identifier: line, ranges }) => ({ line, ranges }));
+  } catch (error) {
+    if (error instanceof TextSearchMatcherError) {
+      throw new FileTextSearchError({
+        code: error.code === "aborted" ? "aborted" : "invalid-request",
+        message: error.message
+      });
+    }
+    throw error;
+  }
+}
+
+/** Find all hit lines cheaply, but materialize ranges only through the first omitted range. */
+export function findLimitedLineMatches(
+  lines: readonly string[],
+  query: ValidatedRequest["query"],
+  maximum: number,
+  signal: AbortSignal | undefined
+): Readonly<{
+  matched: boolean;
+  matches: readonly LineMatch[];
+  truncated: boolean;
+}> {
+  try {
+    const identifiers = matchTextSegmentIdentifiers(
+      query,
+      lines.map((text, index) => ({ identifier: index + 1, text })),
+      signal
+    );
+    if (identifiers.length === 0)
+      return { matched: false, matches: [], truncated: false };
+    return materializeLimitedLineMatches(
+      lines,
+      identifiers,
+      query,
+      maximum,
+      signal
+    );
+  } catch (error) {
+    if (error instanceof TextSearchMatcherError) {
+      throw new FileTextSearchError({
+        code: error.code === "aborted" ? "aborted" : "invalid-request",
+        message: error.message
+      });
+    }
+    throw error;
+  }
+}
+
+function materializeLimitedLineMatches(
+  lines: readonly string[],
+  identifiers: readonly number[],
+  query: ValidatedRequest["query"],
+  maximum: number,
+  signal: AbortSignal | undefined
+): Readonly<{
+  matched: boolean;
+  matches: readonly LineMatch[];
+  truncated: boolean;
+}> {
+  const lineQuery =
+    query.mode === "all" ? { ...query, mode: "any" as const } : query;
+  const selected: LineMatch[] = [];
+  let count = 0;
+  for (const line of identifiers) {
+    const match = matchTextSegments(
+      lineQuery,
+      [{ identifier: line, text: lines[line - 1]! }],
+      signal
+    )[0];
+    if (match === undefined) continue;
+    const available = maximum - count;
+    if (match.ranges.length > available) {
+      if (available > 0)
+        selected.push({ line, ranges: match.ranges.slice(0, available) });
+      return { matched: true, matches: selected, truncated: true };
+    }
+    selected.push({ line, ranges: match.ranges });
+    count += match.ranges.length;
+  }
+  return { matched: true, matches: selected, truncated: false };
+}
+
+export function hasLineMatches(
+  lines: readonly string[],
+  query: ValidatedRequest["query"],
+  signal: AbortSignal | undefined
+): boolean {
+  try {
+    return (
+      matchTextSegmentIdentifiers(
+        query,
+        lines.map((text, index) => ({ identifier: index + 1, text })),
+        signal
+      ).length > 0
+    );
   } catch (error) {
     if (error instanceof TextSearchMatcherError) {
       throw new FileTextSearchError({

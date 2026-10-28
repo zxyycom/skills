@@ -8,3 +8,4 @@ await import("../history-prefix-contract.test.ts");
 await import("../history-pathspec-batching.test.ts");
 
 await import("../batch-source-discovery.test.ts");
+await import("../candidate-resource-root.test.ts");

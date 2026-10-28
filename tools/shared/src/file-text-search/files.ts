@@ -68,9 +68,6 @@ export async function selectSourcePaths(
   const sourcePaths = [...new Set(selected.map(parseSourcePath))].sort(
     compareText
   );
-  for (const sourcePath of sourcePaths) {
-    await verifySelectedFile(root, sourcePath, request.signal);
-  }
   return sourcePaths;
 }
 

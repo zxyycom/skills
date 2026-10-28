@@ -100,7 +100,7 @@ const decisionQueryTestInputs = [
 ];
 const decisionMaintenanceTestInputs = [
   ...decisionTestSupportInputs,
-  "tools/decision-records/tests/{activation-archive,candidate-lifecycle,candidate-scaffold,candidate-operations,evolution,lifecycle-relations,relation-maintenance,rename,transaction-recovery,unrecorded-history,filesystem-boundaries,batch-lookup,first-establishment,reallocation-member-complexity,successor-relation-overrides,local-operation-contracts,candidate-transaction-boundaries,record-shared-transactions,transaction-boundaries,transaction-creation-modes,transaction-strict-preparation}.test.ts",
+  "tools/decision-records/tests/{activation-archive,candidate-lifecycle,candidate-scaffold,candidate-operations,evolution,lifecycle-relations,relation-maintenance,rename,transaction-recovery,unrecorded-history,filesystem-boundaries,batch-lookup,batch-lookup-cost,first-establishment,reallocation-member-complexity,successor-relation-overrides,local-operation-contracts,candidate-transaction-boundaries,record-shared-transactions,transaction-boundaries,transaction-creation-modes,transaction-strict-preparation}.test.ts",
   "tools/decision-records/tests/reallocation-fixture.ts",
   "tools/decision-records/tests/native-creation-mode-probe.ts",
   "tools/decision-records/tests/support-local-contracts.ts",
@@ -130,14 +130,14 @@ const decisionCliTestInputs = [
 ];
 const investigationRecordTestInputs = [
   ...investigationTestSupportInputs,
-  "tools/investigation-report/tests/{candidate,candidate-timestamp,candidate-read-context,parsing-directory,resources,relations,history-prefix-contract,history-pathspec-batching,batch-source-discovery}.test.ts",
+  "tools/investigation-report/tests/{candidate,candidate-timestamp,candidate-read-context,candidate-resource-root,parsing-directory,resources,relations,history-prefix-contract,history-pathspec-batching,batch-source-discovery}.test.ts",
   "tools/investigation-report/tests/checks/collection-and-resources.ts",
   "tools/investigation-report/tests/cli-support.ts"
 ];
 const investigationQueryTestInputs = [
   ...investigationTestSupportInputs,
   "tools/investigation-report/tests/index-fixture.ts",
-  "tools/investigation-report/tests/{index-{query,search,selectors,state,reader},current-index,list-facets,acquisition-contract,identity-membership,candidate-read-failure,snapshot-check-contract,trace-output,relation-context,relation-order,relation-dedup,selected-local-contract}.test.ts",
+  "tools/investigation-report/tests/{index-{query,search,selectors,state,reader},selector-batch-cost,current-index,list-facets,acquisition-contract,identity-membership,candidate-read-failure,snapshot-check-contract,trace-output,relation-context,relation-order,relation-dedup,selected-local-contract}.test.ts",
   "tools/investigation-report/tests/relation-context-support.ts",
   "tools/investigation-report/tests/checks/index-and-query.ts",
   "tools/record-operations/tests/selected-source-safety.ts"
@@ -229,7 +229,7 @@ export const gateToolInputs = {
   ],
   "file-text-search-tests": [
     ...commonGateInputPatterns,
-    "tools/shared/tests/{file-text-search*,record-text-search.test}.ts"
+    "tools/shared/tests/{file-text-search*,record-text-search*}.ts"
   ],
   "version-control": [
     ...commonGateInputPatterns,

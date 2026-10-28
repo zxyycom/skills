@@ -192,9 +192,13 @@ export function selectRelationGraphTrace<
       }
 
       for (const direction of requestedDirections()) {
-        const currentDirectIds = directIds(currentId, direction);
         if (options.maxDepth !== null && currentDepth >= options.maxDepth) {
-          addFrontier(currentId, direction, "depth", currentDirectIds);
+          addFrontier(
+            currentId,
+            direction,
+            "depth",
+            directIds(currentId, direction)
+          );
           continue;
         }
 

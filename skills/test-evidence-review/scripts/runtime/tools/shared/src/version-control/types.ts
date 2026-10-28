@@ -99,6 +99,11 @@ export type VersionControlRepository = {
   replacePendingFiles: (
     options: ReplacePendingFilesOptions
   ) => Promise<ReplacePendingFilesResult>;
+  /** Prepare exact-path reads; each returned function preserves single-file errors and may be left unconsumed. */
+  prepareRevisionFileReads?: (
+    revision: RevisionId,
+    paths: readonly string[]
+  ) => Promise<readonly (() => Promise<VersionControlFile | null>)[]>;
   readRevisionFile: (
     revision: RevisionId,
     filePath: string

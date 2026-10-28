@@ -26,10 +26,9 @@ import { stateIndexQueryMaximumLimit } from "../../index-runtime/src/index.ts";
 import path from "node:path";
 import {
   createTextSearchMatcher,
-  matchTextSegments,
+  matchTextSegmentIdentifiers,
   TextSearchMatcherError
 } from "../../shared/src/file-text-search/index.ts";
-import type { TextSearchSegmentMatch } from "../../shared/src/file-text-search/segment-matcher.ts";
 import {
   decisionDiagnostic,
   decisionFailure,
@@ -220,13 +219,13 @@ function metadataRecordMatches(
 ):
   | {
       status: "ok";
-      value: readonly TextSearchSegmentMatch<DecisionMetadataSegment>[];
+      value: readonly DecisionMetadataSegment[];
     }
   | { failure: DecisionApplicationFailure; status: "error" } {
   try {
     return {
       status: "ok",
-      value: matchTextSegments(matcher, metadataSegments(record))
+      value: matchTextSegmentIdentifiers(matcher, metadataSegments(record))
     };
   } catch (error) {
     return { failure: metadataMatcherFailure(error), status: "error" };
@@ -235,11 +234,11 @@ function metadataRecordMatches(
 
 function metadataSearchRecord(
   record: IndexedDecisionRecord,
-  matches: readonly TextSearchSegmentMatch<DecisionMetadataSegment>[]
+  matches: readonly DecisionMetadataSegment[]
 ): DecisionMetadataSearchRecord {
   const matchedFields = new Set<DecisionMetadataSearchField>();
   const matchedRelations: DecisionMetadataMatchedRelation[] = [];
-  for (const { identifier } of matches) {
+  for (const identifier of matches) {
     if (identifier.kind === "field") matchedFields.add(identifier.field);
     else matchedRelations.push(identifier.relation);
   }

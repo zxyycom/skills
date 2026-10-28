@@ -167,3 +167,29 @@ test("relation structural DFS retains branch diamond disconnected and defect ord
 });
 
 import "./trace-member-facts.test.ts";
+
+test("short back edges report deterministic cycles along a deep chain", () => {
+  const ids = Array.from({ length: 1000 }, (_, index) =>
+    String(index).padStart(4, "0")
+  );
+  const graph = buildRelationGraph(ids, [
+    ...ids
+      .slice(1)
+      .map((target, index) => ({ source: ids[index]!, target, type: "rel" })),
+    ...ids.slice(2).map((source, index) => ({
+      source,
+      target: ids[index + 1]!,
+      type: "rel"
+    }))
+  ]);
+  const issues = relationGraphStructuralIssues(graph);
+  assert.equal(issues.length, 998);
+  assert.deepEqual(issues[0], {
+    kind: "cycle",
+    cycle: ["0001", "0002", "0001"]
+  });
+  assert.deepEqual(issues.at(-1), {
+    kind: "cycle",
+    cycle: ["0998", "0999", "0998"]
+  });
+});

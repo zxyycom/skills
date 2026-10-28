@@ -54,12 +54,11 @@ export async function loadCandidateIdentityContext(
       if (selectors === undefined || indexStatus === "missing") return members;
       if (selectors.length === 0) return [];
       const canonical = new Set(selectors.map((selector) => selector + ".md"));
+      const memberPaths = new Set(members.map((member) => member.sourcePath));
       // Full IDs have a direct locator. Legacy arbitrary basenames need candidate-only discovery.
       if (
         selectors.every((selector) => /^\d{6}-/.test(selector)) &&
-        selectors.every((selector) =>
-          members.some((member) => member.sourcePath === selector + ".md")
-        )
+        selectors.every((selector) => memberPaths.has(selector + ".md"))
       )
         return members.filter((member) => canonical.has(member.sourcePath));
       return members;

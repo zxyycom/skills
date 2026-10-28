@@ -136,15 +136,29 @@ async function readRecordedPredecessors(
   index: PublishedInvestigationIndex,
   ids: Iterable<string>
 ): Promise<Set<string>> {
-  const recorded = new Set<string>();
-  for (const id of new Set(ids)) {
+  const selected = [...new Set(ids)].flatMap((id) => {
     const state = index.entries[id];
-    if (state === undefined) continue;
+    if (state === undefined) return [];
     const target =
       directoryScope.length === 0
         ? state.sourcePath
         : `${directoryScope}/${state.sourcePath}`;
-    const file = await repository.readRevisionFile(revision, target);
+    return [{ id, target }];
+  });
+  const reads =
+    repository.prepareRevisionFileReads === undefined
+      ? selected.map(
+          ({ target }) =>
+            () =>
+              repository.readRevisionFile(revision, target)
+        )
+      : await repository.prepareRevisionFileReads(
+          revision,
+          selected.map(({ target }) => target)
+        );
+  const recorded = new Set<string>();
+  for (const [offset, { id }] of selected.entries()) {
+    const file = await reads[offset]!();
     if (
       file === null ||
       (file.kind !== "regular" && file.kind !== "executable") ||

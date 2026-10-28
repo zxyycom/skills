@@ -372,3 +372,114 @@ test(
     });
   }
 );
+
+test(
+  "replacement preserves flags on unchanged entries while changed entries use Git update semantics",
+  gitTestOptions,
+  async () => {
+    await withTempRoot(async (tempRoot) => {
+      const { currentRevision, repositoryRoot } =
+        await createRepositoryFixture(tempRoot);
+      runGit(repositoryRoot, ["reset", "--quiet", "HEAD"]);
+      runGit(repositoryRoot, [
+        "update-index",
+        "--skip-worktree",
+        "docs/current-only.md"
+      ]);
+      runGit(repositoryRoot, [
+        "update-index",
+        "--assume-unchanged",
+        "docs/tracked.md"
+      ]);
+      const repository = await openVersionControl(repositoryRoot);
+      const current = await repository.readPendingFiles({
+        pathScopes: ["docs"]
+      });
+      const changed = current.map((file) =>
+        file.path === "docs/tracked.md"
+          ? { ...file, data: Buffer.from("replacement\n") }
+          : file
+      );
+      await repository.replacePendingFiles({
+        expectedRevision: currentRevision,
+        expectedFiles: current,
+        files: changed,
+        pathScope: "docs"
+      });
+      const flags = runGit(repositoryRoot, [
+        "ls-files",
+        "-v",
+        "--",
+        "docs/current-only.md",
+        "docs/tracked.md"
+      ]);
+      assert.match(flags, /^S docs\/current-only\.md$/mu);
+      assert.match(flags, /^H docs\/tracked\.md$/mu);
+      assert.deepEqual(await readPendingText(repository, "docs/tracked.md"), [
+        { data: "replacement\n", path: "docs/tracked.md" }
+      ]);
+      const before = flags;
+      await repository.replacePendingFiles({
+        expectedRevision: currentRevision,
+        expectedFiles: changed,
+        files: changed,
+        pathScope: "docs"
+      });
+      assert.equal(
+        runGit(repositoryRoot, [
+          "ls-files",
+          "-v",
+          "--",
+          "docs/current-only.md",
+          "docs/tracked.md"
+        ]),
+        before
+      );
+    });
+  }
+);
+
+test(
+  "pending replacement supports a split index and preserves retained entry flags",
+  gitTestOptions,
+  async () => {
+    await withTempRoot(async (tempRoot) => {
+      const { currentRevision, repositoryRoot } =
+        await createRepositoryFixture(tempRoot);
+      runGit(repositoryRoot, ["reset", "--quiet", "HEAD"]);
+      runGit(repositoryRoot, ["update-index", "--split-index"]);
+      runGit(repositoryRoot, [
+        "update-index",
+        "--skip-worktree",
+        "docs/current-only.md"
+      ]);
+      const repository = await openVersionControl(repositoryRoot);
+      const current = await repository.readPendingFiles({
+        pathScopes: ["docs"]
+      });
+      const changed = current.map((file) =>
+        file.path === "docs/tracked.md"
+          ? { ...file, data: Buffer.from("updated split\n") }
+          : file
+      );
+      await repository.replacePendingFiles({
+        expectedRevision: currentRevision,
+        expectedFiles: current,
+        files: changed,
+        pathScope: "docs"
+      });
+      assert.match(
+        runGit(repositoryRoot, [
+          "ls-files",
+          "-v",
+          "--",
+          "docs/current-only.md"
+        ]),
+        /^S docs\/current-only\.md$/mu
+      );
+      assert.deepEqual(await readPendingText(repository, "docs/tracked.md"), [
+        { data: "updated split\n", path: "docs/tracked.md" }
+      ]);
+    });
+  }
+);

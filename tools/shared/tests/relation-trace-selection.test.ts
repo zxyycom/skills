@@ -296,3 +296,37 @@ test("trace selection unions frozen event targets without inheriting a partial a
   assert.deepEqual(trace.contextIds, []);
   assert.deepEqual(trace.coverage, { complete: true, stoppedBy: [] });
 });
+
+test("ordinary trace reads adjacency only when the adapter asks for it", () => {
+  const count = 100;
+  const ids = Array.from({ length: count }, (_, index) =>
+    String(index).padStart(3, "0")
+  );
+  const graph = buildRelationGraph(
+    ids,
+    ids
+      .slice(1)
+      .map((target, index) => ({ source: ids[index]!, target, type: "rel" }))
+  );
+  let reads = 0;
+  const edgesBySource = new Map(graph.edgesBySource);
+  const get = edgesBySource.get.bind(edgesBySource);
+  edgesBySource.get = (id) => {
+    reads += 1;
+    return get(id);
+  };
+  const trace = selectRelationGraphTrace(
+    { ...graph, edgesBySource },
+    ids[0]!,
+    { direction: "predecessors", maxDepth: null, maxRecords: count },
+    ({ fromId, graph: current }) =>
+      (current.edgesBySource.get(fromId) ?? []).map((edge) => ({
+        kind: "ordinary" as const,
+        recordIds: [edge.target],
+        traceIds: [edge.target]
+      }))
+  );
+  assert.equal(reads, count);
+  assert.equal(trace.traceIds.length, count);
+  assert.equal(trace.coverage.complete, true);
+});

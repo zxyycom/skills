@@ -233,3 +233,63 @@ test("investigation content search checks nonmatching identity without validatin
     assert.match(JSON.stringify(invalid), /identity does not match/);
   });
 });
+
+test("metadata all matching preserves cross-field evidence without ranges", () => {
+  const index = investigationIndexFixture([
+    {
+      id: "one",
+      title: "alpha title",
+      question: "beta question",
+      tags: ["other"]
+    },
+    { id: "two", title: "alpha title", question: "unrelated", tags: ["other"] }
+  ]);
+  const result = searchIndexFixture(index, {
+    query: "alpha beta",
+    in: "metadata",
+    match: "all"
+  });
+  assert.equal(result.status, "ok");
+  assert.deepEqual(
+    result.entries.map((entry) => entry.id),
+    ["one"]
+  );
+  const entry = result.entries[0];
+  assert.ok(entry !== undefined && "matchedFields" in entry);
+  assert.deepEqual(entry.matchedFields, ["title", "question"]);
+});
+
+test("Investigation metadata counts and projects fields without constructing grapheme ranges", () => {
+  const index = investigationIndexFixture(
+    Array.from({ length: 100 }, (_, i) => ({
+      id: `report-${i}`,
+      title: "needle title"
+    }))
+  );
+  const original = Reflect.get(
+    Intl.Segmenter.prototype,
+    "segment"
+  ) as typeof Intl.Segmenter.prototype.segment;
+  let calls = 0;
+  Intl.Segmenter.prototype.segment = function (...args) {
+    calls += 1;
+    return original.apply(this, args);
+  };
+  try {
+    const result = searchIndexFixture(index, {
+      query: "needle",
+      in: "metadata"
+    });
+    assert.equal(result.status, "ok");
+    assert.deepEqual(result.searchInfo.counts.matched, {
+      value: 100,
+      precision: "exact"
+    });
+    const entry = result.entries[0];
+    assert.ok(entry !== undefined && "matchedFields" in entry);
+    assert.deepEqual(entry.matchedFields, ["title"]);
+    assert.equal(calls, 0);
+  } finally {
+    Intl.Segmenter.prototype.segment = original;
+  }
+});

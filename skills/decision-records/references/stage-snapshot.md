@@ -32,6 +32,8 @@ HEAD 与工作区发布索引必须合法；index／all 还验证 pending 索引
 
 ## 独立验证与 pending 保护
 
+未变化条目的现有 Git index 标志保持；变化条目的标志按 Git 对目标的更新处理。
+
 操作核对 scope 所需来源、成员、工作区索引、HEAD 与完整受管 pending 身份；写前独立重新核对可变事实，写后验收实际目标并保护范围外状态。HEAD、pending 或其他受保护事实发生冲突时停止。按 scope 验收 payload：`index` 只验收所需索引内容，其余 pending 成员以完整路径、文件模式与对象 ID 保护身份；`all`／`domain` 只读取本次所选正文及必要定位索引的 payload；关系依赖由索引验证，不读取未选依赖正文。所需读取失败或保护范围漂移时停止，未变化结果也须通过保护检查。
 
 原子更新以完整 Git 路径、mode 和 OID 保留未选 pending（含 staged 删除）；所有 scope 对未选 payload 均只保证身份保持，不证明内容即时可读或指纹有效。`index` 的配套正文验证由调用方负责，`all`／`domain` 独立验收所选正文。可连续 stage A、stage B，再修改 A 并重选 A；B 始终保留原 pending。索引 JSON 可规范化序列化，未选条目含义保持。

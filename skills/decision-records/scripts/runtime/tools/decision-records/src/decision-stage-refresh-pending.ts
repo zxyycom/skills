@@ -140,11 +140,15 @@ function selectedPendingIdentities(
         decisionRelativePath(options.opened.decisionScope, file.path)
       )
     );
+  const expectedByPath = new Map<string, DecisionId>();
+  for (const [id, entry] of Object.entries(locatorIndex?.entries ?? {}))
+    if (selected.has(id as DecisionId) && !expectedByPath.has(entry.sourcePath))
+      expectedByPath.set(entry.sourcePath, id as DecisionId);
   for (const source of sources)
     verifyPendingLocatorIdentity(
       source,
       selected,
-      locatorIndex,
+      expectedByPath,
       baseline.workspace
     );
   const pendingIds = new Map<DecisionId, Set<string>>();
@@ -163,16 +167,11 @@ function selectedPendingIdentities(
 function verifyPendingLocatorIdentity(
   source: ReturnType<typeof stageSourceFromFile>,
   selected: ReadonlySet<DecisionId>,
-  locatorIndex: DecisionIndex | null,
+  expectedByPath: ReadonlyMap<string, DecisionId>,
   workspace: DecisionIndex
 ): void {
-  const expected = Object.entries(locatorIndex?.entries ?? {}).find(
-    ([id, entry]) =>
-      selected.has(id as DecisionId) &&
-      entry.sourcePath === source.source.sourcePath
-  );
-  if (expected === undefined || source.source.decisionId === expected[0])
-    return;
+  const expected = expectedByPath.get(source.source.sourcePath);
+  if (expected === undefined || source.source.decisionId === expected) return;
   const current = workspace.entries[source.source.decisionId];
   if (
     selected.has(source.source.decisionId) &&

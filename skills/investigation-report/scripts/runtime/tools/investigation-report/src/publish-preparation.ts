@@ -311,8 +311,9 @@ function selectedCandidateErrors(
   if (ids.length === 0)
     errors.push("publish requires at least one Investigation ID");
   if (selected.size !== ids.length) errors.push("publish IDs must not repeat");
+  const candidateIds = new Set(layout.candidateIds);
   for (const id of ids) {
-    if (!layout.candidateIds.includes(id)) {
+    if (!candidateIds.has(id)) {
       errors.push(`${id} investigation candidate does not exist`);
     }
   }

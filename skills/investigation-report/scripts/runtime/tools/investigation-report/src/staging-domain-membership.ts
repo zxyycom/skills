@@ -157,9 +157,10 @@ function validateSelectedPathOwnership(
   const entries = [request.pendingIndex, request.workspaceIndex].flatMap(
     (index) => Object.entries(index?.entries ?? {})
   );
+  const selectedIds = new Set(request.selectedIds);
   for (const [id, state] of entries) {
     if (
-      !request.selectedIds.includes(id) &&
+      !selectedIds.has(id) &&
       ownedPaths.has(
         path.posix.join(request.investigationsScope, state.sourcePath)
       )
@@ -169,10 +170,7 @@ function validateSelectedPathOwnership(
       );
   }
   for (const [id, paths] of request.pendingReportPaths) {
-    if (
-      !request.selectedIds.includes(id) &&
-      paths.some((file) => ownedPaths.has(file))
-    )
+    if (!selectedIds.has(id) && paths.some((file) => ownedPaths.has(file)))
       throw new Error(
         `Pending report path ownership requires explicitly selecting ${id} as well`
       );

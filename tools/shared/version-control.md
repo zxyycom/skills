@@ -23,7 +23,7 @@ First-parent 枚举由专用子模块 `tools/shared/src/version-control/git-firs
    first-parent 历史中时，整个操作返回 `null` 表示范围不可用。
 3. 列出 revision 文件、两个 revision 之间的路径变化，以及 revision 与 `pending` 之间的路径变化。
 4. 通过 `readRevisionFiles(revision, { pathScopes? })` 批量读取 revision 文件内容。每个范围是字面仓库相对文件或目录路径；省略或传入空范围时读取整个 revision，多个范围取并集，没有匹配时返回空数组。结果按规范仓库路径稳定排序，保留普通文件、可执行文件和符号链接的字节与文件表示；Gitlink、非 blob 或异常 tree 记录，以及 tree 或对象读取失败均报告 `operation-failed`；不存在的 revision 保持既有 `revision-not-found` 语义。
-5. 读取 revision 中一个确定文件的内容；只有该 revision 确实不存在目标路径时返回 `null`。
+5. 读取 revision 中一个确定文件的内容；只有该 revision 确实不存在目标路径时返回 `null`。支持的 adapter 可批量准备[精确路径读取](#精确路径批量准备)。
 6. 通过通用入口导出的 `repositoryRelativePathFromFileSystemPath(rootDirectory, fileSystemPath)`，把仓库内绝对后代路径转换为规范化仓库相对路径，并拒绝相对路径、仓库根本身和仓库外路径。
 7. 通过 `listWorkspaceFiles({ pathScopes? })` 列出工作区中已经跟踪或未被 ignore 排除的未跟踪文件。省略 `pathScopes` 时返回完整集合；提供范围时，每个值都是字面仓库相对文件或目录路径，结果取各范围的并集。已经跟踪的文件即使后来命中 ignore 仍保留在结果中。
 8. 独立列出工作区变化；工作区文件集合与变化集合不互相替代。
@@ -32,6 +32,12 @@ First-parent 枚举由专用子模块 `tools/shared/src/version-control/git-firs
 11. 通过 `readWorkspaceFile(path)` 读取常规非符号链接工作区文件的字节与有效文件表示；`readWorkspaceFiles(paths)` 对显式文件路径集合在一次调用内批量取得同一新读策略与 pending 表示依据。
 
 `revision` 表示已经提交的不可变版本；`pending` 表示准备进入下一版本的内容。首个 Git 实现在内部将 `pending` 映射到 index，公共参数、结果和错误不暴露该映射。工作区文件和工作区变化不是版本快照，通过独立查询暴露，三者不能互相替代。
+
+### 精确路径批量准备
+
+可选 `prepareRevisionFileReads(revision, paths)` 返回与输入顺序一一对应的读取函数。空数组返回空数组，重复路径保留对应位置；调用方须处理 adapter 不支持此能力的情况。
+
+非空准备固定 revision，解析失败延迟至消费时报告；消费时先校验自身路径，再报告单文件结果或错误。批量读取失败可逐项回退，未消费路径的错误不会提前报告；重复消费不承诺零 IO。Git adapter 对同批存在祖先／后代关系的路径逐项读取，避免目录被误认成缺失。
 
 ### Git 路径查询的分批传输
 
@@ -130,7 +136,7 @@ Pending snapshot 对所验证的完整实际 payload 计算 SHA-256，不能以 
    引号或换行切分。Git 命令、格式、行数或路径记录异常时报告 `operation-failed`，
    不能降级为空结果；只有完整输出表明 `from` 不在 `to` 的 first-parent 历史中时
    返回 `null`。每个 merge revision 相对其 first parent 计算变化。
-7. Git adapter 在 index 互斥边界内核对上述替换前提，再构造目标；条目复用要求 stage-0、同路径、同字节和同目标模式。目标 entries 完全相同时清理未发布的锁并成功返回；有变化时核对读回条目的路径、模式、对象及字节后才发布。前提漂移或写入边界忙碌返回 `pending-conflict`；其他写入或读回失败丢弃锁定目标并保留原范围，恢复完整后返回 `pending-replacement-failed`，恢复无法确认时返回 `pending-recovery-failed`。
+7. Git adapter 在 index 互斥边界内核对上述替换前提，再构造目标；条目复用要求 stage-0、同路径、同字节和同目标模式。目标 entries 完全相同时清理未发布的锁并成功返回；有变化时只向 Git 更新变化或删除的条目，未变化条目不重放以保留已有 index 标志，变化条目遵循 Git 更新语义。核对读回条目的路径、模式、对象及字节后才发布。前提漂移或写入边界忙碌返回 `pending-conflict`；其他写入或读回失败丢弃锁定目标并保留原范围，恢复完整后返回 `pending-replacement-failed`，恢复无法确认时返回 `pending-recovery-failed`。
 8. Git 外部记录 parser 只解码并收窄记录形状，不决定公共失败语义。pending 读取遇到
    未解决、重复或非文件表示时报告 `operation-failed`；带 `expectedFiles` 的替换先核对
    成员和期望文件表示，不满足时在读取对象字节前报告 `pending-conflict`；未设置该期望

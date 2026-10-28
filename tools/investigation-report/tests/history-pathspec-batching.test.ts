@@ -121,3 +121,42 @@ test("history predecessor checks read only indexed predecessors despite large un
     assert.ok(queries.every((line) => Buffer.byteLength(line) < 28_000));
   });
 });
+
+test("HEAD predecessor verification batches many real report payloads at the domain entry", async () => {
+  await withTempRoot("history-many-predecessors", async (root) => {
+    const ids = Array.from({ length: 30 }, (_, i) => `base-${i}`);
+    await writeCollection(root, [
+      ...ids.map((id) => ({ id })),
+      ...ids.map((target, index) => ({
+        id: `next-${index}`,
+        relations: [{ type: "补充" as const, target }]
+      }))
+    ]);
+    initializeGit(root);
+    const loaded = await loadInvestigationIndex({
+      investigationsDirectory: investigationRoot(root)
+    });
+    assert.equal(loaded.status, "ok");
+    if (loaded.status !== "ok") return;
+    const trace = path.join(root, "history-many-trace.jsonl");
+    const previous = process.env.GIT_TRACE2_EVENT;
+    process.env.GIT_TRACE2_EVENT = trace;
+    try {
+      assert.deepEqual(
+        await unrecordedPredecessorWarnings(
+          investigationRoot(root),
+          new Map(Object.entries(loaded.value.entries))
+        ),
+        []
+      );
+    } finally {
+      if (previous === undefined) delete process.env.GIT_TRACE2_EVENT;
+      else process.env.GIT_TRACE2_EVENT = previous;
+    }
+    const starts = (await fs.readFile(trace, "utf8"))
+      .split("\n")
+      .filter((line) => line.includes('"event":"start"'));
+    assert.ok(starts.filter((line) => line.includes('"ls-tree"')).length <= 2);
+    assert.ok(starts.filter((line) => line.includes('"cat-file"')).length <= 2);
+  });
+});

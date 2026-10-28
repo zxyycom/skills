@@ -100,14 +100,13 @@ function selectedPendingReportPaths(
   contentPaths: readonly string[],
   canonicalPaths: readonly string[]
 ): string[] {
+  const selected = new Set(selectors);
   return [
     ...new Set([
       ...Object.entries(locatorIndex?.entries ?? {})
-        .filter(([id]) =>
-          selectors.some(
-            (selector) =>
-              id === selector || investigationNameFromId(id) === selector
-          )
+        .filter(
+          ([id]) =>
+            selected.has(id) || selected.has(investigationNameFromId(id))
         )
         .map(([, state]) =>
           path.posix.join(domain.investigationsScope, state.sourcePath)
@@ -187,6 +186,7 @@ function selectedCanonicalPendingPaths(
   metadata: PendingSnapshot | null,
   control: DomainStageControl
 ): string[] {
+  const selected = new Set(control.input.reportIds);
   return (metadata?.members ?? [])
     .filter((member) => {
       const relative = path.posix.relative(
@@ -195,9 +195,8 @@ function selectedCanonicalPendingPaths(
       );
       if (!isInvestigationSourcePath(relative)) return false;
       const locator = relative.slice(0, -3);
-      return control.input.reportIds.some(
-        (selector) =>
-          locator === selector || investigationNameFromId(locator) === selector
+      return (
+        selected.has(locator) || selected.has(investigationNameFromId(locator))
       );
     })
     .map((member) => member.path);
@@ -208,20 +207,19 @@ function requiresPendingLocator(
   indexes: readonly (DomainSnapshot["baseline"] | undefined)[],
   canonicalPaths: readonly string[]
 ): boolean {
-  return selectors.some(
-    (selector) =>
-      !indexes.some((index) =>
-        Object.keys(index?.entries ?? {}).some(
-          (id) => id === selector || investigationNameFromId(id) === selector
-        )
-      ) &&
-      !canonicalPaths.some((sourcePath) => {
-        const locator = path.posix.basename(sourcePath, ".md");
-        return (
-          locator === selector || investigationNameFromId(locator) === selector
-        );
-      })
-  );
+  const known = new Set<string>();
+  for (const index of indexes) {
+    for (const id of Object.keys(index?.entries ?? {})) {
+      known.add(id);
+      known.add(investigationNameFromId(id));
+    }
+  }
+  for (const sourcePath of canonicalPaths) {
+    const locator = path.posix.basename(sourcePath, ".md");
+    known.add(locator);
+    known.add(investigationNameFromId(locator));
+  }
+  return selectors.some((selector) => !known.has(selector));
 }
 
 async function readDomainLocatorIndex(

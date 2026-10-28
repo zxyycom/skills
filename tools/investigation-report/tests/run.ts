@@ -102,3 +102,7 @@ await import("./resource-phase-verification.test.ts");
 await import("./local-publication.test.ts");
 
 await import("./transaction-member-scan.test.ts");
+
+await import("./selector-batch-cost.test.ts");
+
+import "./candidate-resource-root.test.ts";

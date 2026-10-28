@@ -10,7 +10,7 @@
 import { inspectInvestigationCollectionLayout } from "./investigation-index-source.ts";
 import {
   investigationSelectorEntries,
-  resolveInvestigationSelector
+  createInvestigationSelectorResolver
 } from "./investigation-selector.ts";
 
 export async function resolvePublishCandidateSelectors(
@@ -25,14 +25,11 @@ export async function resolvePublishCandidateSelectors(
   if (layout.errors.length > 0)
     return { errors: layout.errors, status: "error" };
   const entries = investigationSelectorEntries(layout.candidateIds);
+  const resolve = createInvestigationSelectorResolver(entries);
   const ids: string[] = [];
   const errors: string[] = [];
   for (const selector of selectors) {
-    const resolved = resolveInvestigationSelector(
-      entries,
-      selector,
-      "investigation candidate"
-    );
+    const resolved = resolve(selector, "investigation candidate");
     if (resolved.status === "error") errors.push(...resolved.errors);
     else ids.push(resolved.id);
   }

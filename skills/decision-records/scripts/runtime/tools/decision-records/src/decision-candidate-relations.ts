@@ -12,7 +12,8 @@ import {
   bindRelationSummaries,
   normalizeRelationSummary
 } from "./relation-summary.ts";
-import { decisionNameFromId, parseDatedDecisionId } from "./decision-path.ts";
+import { createDecisionNameLookup } from "./decision-record-lookup.ts";
+import { parseDatedDecisionId } from "./decision-path.ts";
 import type { CandidateIdentityContext } from "./decision-candidate-context.ts";
 import type { NewDecisionCandidateRequest } from "./decision-candidate-service.ts";
 import type {
@@ -27,12 +28,21 @@ export function resolveCandidateRelationSelectors(
 ):
   | { request: NewDecisionCandidateRequest; status: "ok" }
   | { diagnostic: ReturnType<typeof decisionDiagnostic>; status: "error" } {
+  let names: ReadonlyMap<string, readonly DecisionId[]> | undefined;
+  const resolve = (selector: DecisionId) => {
+    if (parseDatedDecisionId(selector) !== null)
+      return resolveDecisionRelationSelector(selector, []);
+    names ??= createDecisionNameLookup(
+      scan.records.map((record) => record.decisionId as DecisionId)
+    );
+    return resolveDecisionRelationSelector(selector, names.get(selector) ?? []);
+  };
   const relations: DecisionRelation[] = [];
   for (const relation of request.relations) {
     const normalized = normalizeCandidateRelationSummary(relation.summary);
     if ("error" in normalized)
       return { diagnostic: normalized.error, status: "error" };
-    const target = resolveDecisionRelationSelector(scan, relation.target);
+    const target = resolve(relation.target);
     if (target.status === "error") return target;
     relations.push({
       type: relation.type,
@@ -42,7 +52,7 @@ export function resolveCandidateRelationSelectors(
   }
   const relationSummaries: DecisionRelationSummary[] = [];
   for (const summary of request.relationSummaries ?? []) {
-    const target = resolveDecisionRelationSelector(scan, summary.target);
+    const target = resolve(summary.target);
     if (target.status === "error") return target;
     relationSummaries.push({ ...summary, target: target.decisionId });
   }
@@ -87,20 +97,13 @@ function normalizeCandidateRelationSummary(
 }
 
 function resolveDecisionRelationSelector(
-  scan: CandidateIdentityContext,
-  selector: DecisionId
+  selector: DecisionId,
+  matches: readonly DecisionId[]
 ):
   | { decisionId: DecisionId; status: "ok" }
   | { diagnostic: ReturnType<typeof decisionDiagnostic>; status: "error" } {
   const dated = parseDatedDecisionId(selector);
   if (dated !== null) return { decisionId: dated.id, status: "ok" };
-  const matches = scan.records
-    .filter(
-      (record) =>
-        decisionNameFromId(record.decisionId as DecisionId) === selector
-    )
-    .map((record) => record.decisionId as DecisionId)
-    .sort();
   if (matches.length === 1) return { decisionId: matches[0]!, status: "ok" };
   return {
     diagnostic: decisionDiagnostic({

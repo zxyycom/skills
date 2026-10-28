@@ -175,3 +175,57 @@ test("maps a normalized grapheme match back to its original combining-character 
     ]);
   });
 });
+
+test("identifier-only matching agrees with range matching for Unicode and cross-segment all", async () => {
+  const { matchTextSegmentIdentifiers } =
+    await import("../src/file-text-search/index.ts");
+  const segments = [
+    { identifier: "accent", text: "e\u0301clair ＡLPHA" },
+    { identifier: "sigma", text: "ΟΣ\u00a0beta" },
+    { identifier: "space", text: "\ufeff alpha \ufeff" }
+  ];
+  for (const mode of ["all", "any", "phrase"] as const) {
+    for (const text of ["é alpha", "ος beta", "alpha", "absent"]) {
+      const matcher = createTextSearchMatcher({ mode, text });
+      assert.deepEqual(
+        matchTextSegmentIdentifiers(matcher, segments),
+        matchTextSegments(matcher, segments).map((match) => match.identifier)
+      );
+    }
+  }
+});
+
+test("limited range materialization matches complete Unicode all results and bounds grapheme work", async () => {
+  const { findLimitedLineMatches, findLineMatches, limitMatchRanges } =
+    await import("../src/file-text-search/previews.ts");
+  const lines = [
+    "Ａlpha alpha",
+    "Ｂeta beta",
+    ...Array.from({ length: 998 }, () => "alpha beta")
+  ];
+  const matcher = createTextSearchMatcher({ mode: "all", text: "alpha beta" });
+  const expected = limitMatchRanges(
+    findLineMatches(lines, matcher, undefined),
+    3
+  );
+  const original = Reflect.get(
+    Intl.Segmenter.prototype,
+    "segment"
+  ) as typeof Intl.Segmenter.prototype.segment;
+  let calls = 0;
+  Intl.Segmenter.prototype.segment = function (...args) {
+    calls++;
+    return original.apply(this, args);
+  };
+  try {
+    const actual = findLimitedLineMatches(lines, matcher, 3, undefined);
+    assert.deepEqual(
+      { matches: actual.matches, truncated: actual.truncated },
+      expected
+    );
+    assert.equal(actual.matched, true);
+    assert.equal(calls, 2);
+  } finally {
+    Intl.Segmenter.prototype.segment = original;
+  }
+});

@@ -28,6 +28,7 @@ import {
   getCurrentRevision,
   listRevisionFiles,
   readRevisionFile,
+  prepareRevisionFileReads,
   readRevisionFiles,
   resolveRevision
 } from "./git-revision.ts";
@@ -96,6 +97,12 @@ class GitVersionControlRepository implements VersionControlRepository {
     filePath: string
   ): Promise<VersionControlFile | null> {
     return await readRevisionFile(this.#context, revision, filePath);
+  }
+  async prepareRevisionFileReads(
+    revision: RevisionId,
+    paths: readonly string[]
+  ): Promise<readonly (() => Promise<VersionControlFile | null>)[]> {
+    return await prepareRevisionFileReads(this.#context, revision, paths);
   }
   async readRevisionFiles(
     revision: RevisionId,

@@ -62,43 +62,30 @@ function pendingLocatorRequired(
   metadata: PendingSnapshot
 ): boolean {
   if (options.scope !== "domain") return false;
-  return options.selectors.some(
-    (selector) =>
-      ![baseline.head, baseline.workspace].some((index) =>
-        indexContainsSelector(index, selector)
-      ) &&
-      !metadata.members.some((member) =>
-        canonicalMatchesSelector(
-          options.opened.decisionScope,
-          member.path,
-          selector
-        )
-      )
-  );
-}
-
-function indexContainsSelector(
-  index: DecisionIndex | null,
-  selector: string
-): boolean {
-  const dated = parseDatedDecisionId(selector);
-  return Object.entries(index?.entries ?? {}).some(([id, state]) =>
-    dated === null ? state.name === selector : id === selector
-  );
-}
-
-function canonicalMatchesSelector(
-  scope: string,
-  file: string,
-  selector: string
-): boolean {
-  const basename = pendingBasename(scope, file);
-  if (basename === null) return false;
-  return (
-    selector === basename ||
-    (parseDatedDecisionId(selector) === null &&
-      parseDatedDecisionId(basename)?.name === selector)
-  );
+  const ids = new Set<string>();
+  const names = new Set<string>();
+  for (const index of [baseline.head, baseline.workspace])
+    for (const [id, state] of Object.entries(index?.entries ?? {})) {
+      ids.add(id);
+      names.add(state.name);
+    }
+  const basenames = new Set<string>();
+  const basenameNames = new Set<string>();
+  for (const member of metadata.members) {
+    const basename = pendingBasename(options.opened.decisionScope, member.path);
+    if (basename === null) continue;
+    basenames.add(basename);
+    const dated = parseDatedDecisionId(basename);
+    if (dated !== null) basenameNames.add(dated.name);
+  }
+  return options.selectors.some((selector) => {
+    const dated = parseDatedDecisionId(selector);
+    return (
+      !(dated === null ? names.has(selector) : ids.has(selector)) &&
+      !basenames.has(selector) &&
+      !(dated === null && basenameNames.has(selector))
+    );
+  });
 }
 
 async function readLocatorSnapshot(
@@ -159,11 +146,12 @@ export function selectedPendingPaths(
     selected,
     paths
   );
+  const selectorSet = new Set(options.selectors);
   for (const member of locator.snapshot.members) {
     const basename = pendingBasename(options.opened.decisionScope, member.path);
     if (
       basename !== null &&
-      selectedPendingBasename(basename, options.selectors, selected, names)
+      selectedPendingBasename(basename, selectorSet, selected, names)
     )
       paths.add(member.path);
   }
@@ -212,15 +200,16 @@ function pendingBasename(scope: string, file: string): string | null {
 
 function selectedPendingBasename(
   basename: string,
-  selectors: readonly DecisionId[],
+  selectors: ReadonlySet<DecisionId>,
   selected: ReadonlySet<DecisionId>,
   names: ReadonlyMap<string, readonly DecisionId[]>
 ): boolean {
   if (selected.has(basename as DecisionId)) return true;
   const dated = parseDatedDecisionId(basename);
-  return selectors.some(
-    (selector) =>
-      selector === basename ||
-      (!names.get(selector)?.length && selector === dated?.name)
+  return (
+    selectors.has(basename as DecisionId) ||
+    (dated !== null &&
+      selectors.has(dated.name as DecisionId) &&
+      !names.get(dated.name)?.length)
   );
 }

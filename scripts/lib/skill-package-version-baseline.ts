@@ -32,7 +32,11 @@ export type SkillPackageVersionBaseline = Readonly<{
 /** @internal The only version-control operations the baseline comparison consumes. */
 type SkillPackageBaselineRepository = Pick<
   VersionControlRepository,
-  "listRevisionFiles" | "readRevisionFile" | "resolveRevision" | "rootDirectory"
+  | "listRevisionFiles"
+  | "readRevisionFile"
+  | "prepareRevisionFileReads"
+  | "resolveRevision"
+  | "rootDirectory"
 >;
 
 type SkillBaselineReadOptions = Readonly<{
@@ -146,19 +150,48 @@ async function haveVersionBearingSkillPackageChanges(
   return false;
 }
 
-async function readCachedRevisionFile(
-  repository: Pick<SkillPackageBaselineRepository, "readRevisionFile">,
-  revision: string,
-  filePath: string,
-  cache: Map<string, VersionControlFile | null>
-): Promise<VersionControlFile | null> {
-  if (cache.has(filePath)) {
-    return cache.get(filePath) ?? null;
-  }
-
-  const file = await repository.readRevisionFile(revision, filePath);
-  cache.set(filePath, file);
-  return file;
+function createBaselineRevisionReader(options: SkillBaselineReadOptions) {
+  const paths = [
+    ...new Set([
+      ...options.skillBaselinePaths.map(
+        (filePath) => `${options.tree.treePath}/${filePath}`
+      ),
+      `${options.tree.treePath}/${skillEntryFileName}`
+    ])
+  ];
+  const position = new Map(paths.map((filePath, index) => [filePath, index]));
+  const windows = new Map<
+    number,
+    Promise<readonly (() => Promise<VersionControlFile | null>)[]>
+  >();
+  const windowSize = 32;
+  return async (filePath: string): Promise<VersionControlFile | null> => {
+    if (options.revisionFileCache.has(filePath))
+      return options.revisionFileCache.get(filePath) ?? null;
+    const index = position.get(filePath);
+    let read: (() => Promise<VersionControlFile | null>) | undefined;
+    if (
+      index !== undefined &&
+      options.repository.prepareRevisionFileReads !== undefined
+    ) {
+      const offset = Math.floor(index / windowSize) * windowSize;
+      let prepared = windows.get(offset);
+      if (prepared === undefined) {
+        prepared = options.repository.prepareRevisionFileReads(
+          options.revision,
+          paths.slice(offset, offset + windowSize)
+        );
+        windows.set(offset, prepared);
+      }
+      read = (await prepared)[index - offset];
+    }
+    const file =
+      read === undefined
+        ? await options.repository.readRevisionFile(options.revision, filePath)
+        : await read();
+    options.revisionFileCache.set(filePath, file);
+    return file;
+  };
 }
 
 function groupBaselinePathsBySkill(
@@ -201,6 +234,7 @@ async function readChangedSkillBaselineVersion(
   options: SkillBaselineReadOptions
 ): Promise<number | null | undefined> {
   const baselinePathsSet = new Set(options.skillBaselinePaths);
+  const readRevisionFile = createBaselineRevisionReader(options);
   async function readBaselineSkillFile(
     skillBaselinePath: string
   ): Promise<SkillPackageFile | undefined> {
@@ -208,12 +242,7 @@ async function readChangedSkillBaselineVersion(
       return undefined;
     }
     const baselinePath = `${options.tree.treePath}/${skillBaselinePath}`;
-    const baselineFile = await readCachedRevisionFile(
-      options.repository,
-      options.revision,
-      baselinePath,
-      options.revisionFileCache
-    );
+    const baselineFile = await readRevisionFile(baselinePath);
     if (baselineFile === null) {
       throw new Error(
         `Baseline revision ${options.revision} did not return listed file ${baselinePath}`
@@ -234,12 +263,7 @@ async function readChangedSkillBaselineVersion(
   }
 
   const skillEntryPath = `${options.tree.treePath}/${skillEntryFileName}`;
-  const skillEntry = await readCachedRevisionFile(
-    options.repository,
-    options.revision,
-    skillEntryPath,
-    options.revisionFileCache
-  );
+  const skillEntry = await readRevisionFile(skillEntryPath);
   return skillEntry === null
     ? null
     : readSkillVersionFromMarkdown(

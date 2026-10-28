@@ -37,6 +37,7 @@ await import("./trace-admission-complexity.test.ts");
 await import("./relation-filter-complexity.test.ts");
 
 await import("./batch-lookup.test.ts");
+await import("./batch-lookup-cost.test.ts");
 await import("./reallocation-member-complexity.test.ts");
 
 await import("./cli-stage-contract.test.ts");

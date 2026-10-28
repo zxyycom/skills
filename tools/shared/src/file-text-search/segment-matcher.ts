@@ -113,6 +113,42 @@ export function matchTextSegments<Identifier>(
   return matches;
 }
 
+/** Returns matching segment identities without constructing highlight spans. */
+export function matchTextSegmentIdentifiers<Identifier>(
+  matcher: TextSearchMatcher,
+  segments: readonly TextSearchSegment<Identifier>[],
+  signal?: AbortSignal
+): readonly Identifier[] {
+  throwIfAborted(signal);
+  const foundTerms = new Set<string>();
+  const matches: Identifier[] = [];
+  for (const segment of segments) {
+    throwIfAborted(signal);
+    // normalizeSegment collapses Unicode White_Space and trims only those spaces.
+    const text = segment.text
+      .normalize("NFKC")
+      .toLowerCase()
+      .replace(/\p{White_Space}+/gu, " ")
+      .replace(/^ +| +$/gu, "");
+    if (matcher.mode === "phrase") {
+      if (text.includes(matcher.phrase)) matches.push(segment.identifier);
+    } else {
+      let matched = false;
+      for (const term of matcher.terms) {
+        throwIfAborted(signal);
+        if (text.includes(term)) {
+          foundTerms.add(term);
+          matched = true;
+        }
+      }
+      if (matched) matches.push(segment.identifier);
+    }
+  }
+  return matcher.mode === "all" && foundTerms.size !== matcher.terms.length
+    ? []
+    : matches;
+}
+
 type NormalizedSegment = Readonly<{
   spans: readonly OriginalSpan[];
   text: string;

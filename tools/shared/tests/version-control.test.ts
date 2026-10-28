@@ -1,5 +1,6 @@
 import "./version-control-errors.test.ts";
 import "./version-control-revision.test.ts";
+import "./version-control-revision-batch.test.ts";
 import "./version-control-history.test.ts";
 import "./version-control-workspace.test.ts";
 import "./version-control-replacement.test.ts";
@@ -19,3 +20,5 @@ await import("./version-control-fingerprint-demand.test.ts");
 
 await import("./version-control-scoped-payload.test.ts");
 await import("./version-control-scoped-payload-integrity.test.ts");
+
+import "./version-control-pending-delta.test.ts";

@@ -45,8 +45,9 @@ export async function prepareRelationWrites(
     context.collection.sources.map((source) => [source.id, source])
   );
   const writes = [];
+  const changedSources = new Set(context.changedSources);
   for (const source of context.candidateSources) {
-    if (!context.changedSources.includes(source.id)) continue;
+    if (!changedSources.has(source.id)) continue;
     writes.push(
       ownedDefaultRelationWrite(
         options,

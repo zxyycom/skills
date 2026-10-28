@@ -28,32 +28,49 @@ export function resolveInvestigationSelector(
   selector: string,
   label = "investigation report"
 ): InvestigationSelectorResult {
-  const normalized = normalizeInvestigationSelectorInput(selector);
-  const dated = parseDatedInvestigationId(normalized);
-  if (dated !== null) {
-    return entries.some((entry) => entry.id === dated.id)
-      ? { id: dated.id, status: "ok" }
-      : { errors: [`${normalized} ${label} does not exist`], status: "error" };
+  return createInvestigationSelectorResolver(entries)(selector, label);
+}
+
+/** Builds an operation-local lookup; duplicates remain visible for ambiguity. */
+export function createInvestigationSelectorResolver(
+  entries: readonly InvestigationSelectorEntry[]
+): (selector: string, label?: string) => InvestigationSelectorResult {
+  const ids = new Set<string>();
+  const names = new Map<string, string[]>();
+  for (const entry of entries) {
+    const { id, name } = entry;
+    ids.add(id);
+    const matches = names.get(name) ?? [];
+    matches.push(id);
+    names.set(name, matches);
   }
-  const matches = entries
-    .filter((entry) => entry.name === normalized)
-    .map((entry) => entry.id)
-    .sort(compareText);
-  if (matches.length === 0) {
-    return {
-      errors: [`${normalized} ${label} does not exist`],
-      status: "error"
-    };
-  }
-  if (matches.length > 1) {
-    return {
-      errors: [
-        `Investigation name is ambiguous: ${normalized}; choose one standard ID: ${matches.join(", ")}`
-      ],
-      status: "error"
-    };
-  }
-  return { id: matches[0]!, status: "ok" };
+  for (const matches of names.values()) matches.sort(compareText);
+  return (selector, label = "investigation report") => {
+    const normalized = normalizeInvestigationSelectorInput(selector);
+    const dated = parseDatedInvestigationId(normalized);
+    if (dated !== null) {
+      return ids.has(dated.id)
+        ? { id: dated.id, status: "ok" }
+        : {
+            errors: [`${normalized} ${label} does not exist`],
+            status: "error"
+          };
+    }
+    const matches = names.get(normalized) ?? [];
+    if (matches.length === 0)
+      return {
+        errors: [`${normalized} ${label} does not exist`],
+        status: "error"
+      };
+    if (matches.length > 1)
+      return {
+        errors: [
+          `Investigation name is ambiguous: ${normalized}; choose one standard ID: ${matches.join(", ")}`
+        ],
+        status: "error"
+      };
+    return { id: matches[0]!, status: "ok" };
+  };
 }
 
 export function investigationSelectorEntries(

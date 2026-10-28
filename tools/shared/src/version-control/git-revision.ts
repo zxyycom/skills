@@ -132,6 +132,79 @@ export async function readRevisionFile(
   return { data, kind: fileKindForGitMode(entry.mode), path: normalizedPath };
 }
 
+/** Batch exact paths optimistically; failures are replayed only when each path is consumed. */
+export async function prepareRevisionFileReads(
+  context: GitRepositoryContext,
+  revision: RevisionId,
+  paths: readonly string[]
+): Promise<readonly (() => Promise<VersionControlFile | null>)[]> {
+  if (paths.length === 0) return [];
+  let fixedRevision: RevisionId;
+  try {
+    fixedRevision = await resolveRevision(context, revision);
+  } catch (error) {
+    return paths.map((filePath) => async () => {
+      normalizeRepositoryPath(filePath);
+      throw error;
+    });
+  }
+  const fallback = () =>
+    paths.map(
+      (filePath) => () => readRevisionFile(context, fixedRevision, filePath)
+    );
+  try {
+    const normalized = paths.map(normalizeRepositoryPath);
+    const requested = new Set(normalized);
+    if (hasRequestedAncestor(requested)) return fallback();
+    const entries = await listTreeEntries(context, {
+      revision: fixedRevision,
+      scopes: normalized,
+      recursive: false,
+      operation: "locate a file in a revision"
+    });
+    const byPath = new Map<string, GitTreeEntry[]>();
+    for (const entry of entries) {
+      const found = byPath.get(entry.path) ?? [];
+      found.push(entry);
+      byPath.set(entry.path, found);
+    }
+    // Ambiguous scope expansion must retain the single-path validation behavior.
+    if (entries.some((entry) => !requested.has(entry.path))) return fallback();
+    const readable = entries.filter(isReadableBlob);
+    const blobs = await readGitBlobs(
+      context.rootDirectory,
+      readable.map((entry) => entry.objectId)
+    );
+    return normalized.map((filePath) => async () => {
+      const matches = byPath.get(filePath) ?? [];
+      if (matches.length === 0) return null;
+      const entry = matches[0];
+      if (matches.length !== 1 || entry === undefined || !isReadableBlob(entry))
+        throw operationError("validate a revision file entry", undefined, {
+          target: filePath
+        });
+      const data = blobs.get(entry.objectId);
+      if (data === undefined)
+        return await readRevisionFile(context, fixedRevision, filePath);
+      return { data, kind: fileKindForGitMode(entry.mode), path: filePath };
+    });
+  } catch {
+    return fallback();
+  }
+}
+
+/** Overlapping pathspecs can conceal a tree entry in a union query. */
+function hasRequestedAncestor(paths: ReadonlySet<string>): boolean {
+  for (const filePath of paths) {
+    let separator = filePath.indexOf("/");
+    while (separator >= 0) {
+      if (paths.has(filePath.slice(0, separator))) return true;
+      separator = filePath.indexOf("/", separator + 1);
+    }
+  }
+  return false;
+}
+
 export async function readRevisionFiles(
   context: GitRepositoryContext,
   revision: RevisionId,

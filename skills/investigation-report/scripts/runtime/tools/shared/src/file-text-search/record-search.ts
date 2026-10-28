@@ -13,15 +13,14 @@ import type {
   FileTextSearchResult,
   FileTextSearchResourceLimits,
   FileTextSearchPreviewPolicy,
-  ValidatedRequest,
-  LineMatch
+  ValidatedRequest
 } from "./contracts.ts";
 import { throwIfAborted } from "./contracts.ts";
 import { openRoot, readSelectedFile, selectSourcePaths } from "./files.ts";
 import {
   boundPreviews,
-  findLineMatches,
-  limitMatchRanges,
+  findLimitedLineMatches,
+  hasLineMatches,
   previewsForMatches,
   splitPhysicalLines
 } from "./previews.ts";
@@ -117,19 +116,25 @@ async function collectRecordHit(
   throwIfAborted(validated.signal);
   state.scannedBytes += read.byteLength;
   state.scannedFiles += 1;
-  const matches = findLineMatches(
-    read.content,
+  const lines = splitPhysicalLines(read.content);
+  if (state.hits.length >= validated.preview.maxFiles) {
+    if (hasLineMatches(lines, validated.query, validated.signal)) {
+      state.matched += 1;
+      state.truncation.files = true;
+      return false;
+    }
+    return true;
+  }
+  const matches = findLimitedLineMatches(
+    lines,
     validated.query,
+    validated.preview.maxMatchesPerFile,
     validated.signal
   );
-  if (matches.length === 0) return true;
+  if (!matches.matched) return true;
   state.matched += 1;
-  if (state.hits.length >= validated.preview.maxFiles) {
-    state.truncation.files = true;
-    return false;
-  }
   const previewed = recordPreviews(
-    read.content,
+    lines,
     matches,
     validated.preview,
     state.previewCharacters
@@ -142,14 +147,13 @@ async function collectRecordHit(
 }
 
 function recordPreviews(
-  content: string,
-  matches: readonly LineMatch[],
+  lines: readonly string[],
+  limited: ReturnType<typeof findLimitedLineMatches>,
   policy: ValidatedRequest["preview"],
   usedCharacters: number
 ) {
-  const limited = limitMatchRanges(matches, policy.maxMatchesPerFile);
   const previews = previewsForMatches(
-    splitPhysicalLines(content),
+    lines,
     limited.matches,
     policy.contextLines
   );

@@ -1010,6 +1010,36 @@
       "NOVEL-CARDS-VERSION-REFERENCES-027": "sha256:4d3596bea64db5eabae4cffc63bee1e3056dddb74180de72f7e85a4c5a0cd4a1",
       "NOVEL-CARDS-WITHDRAWAL-023": "sha256:38e744db711a70938817d11f576565baf9009b36fc59b91a7e7b88c5fabc5020",
       "RECORD-CANDIDATE-BOUNDARIES-001": "sha256:6add839f1d577ca31b6f0676ee0a40db253c20dea5531422eec4ee23e2072e12",
+      "RECORD-COST-CASE-001": "sha256:d25f8f33d2378819e9b619294b1f8a1dc2ee47da3fa2bba7c497bef5e38b9983",
+      "RECORD-COST-CASE-002": "sha256:1d2804355b7feebead0cafef424d98ec737b6ef3e14c52967b34f85adf62f25e",
+      "RECORD-COST-CASE-003": "sha256:fb115efe9d53c2bcfbcc991c265dd6c72192f283222a1cc946cbb5cb639dcc11",
+      "RECORD-COST-CASE-004": "sha256:5295b3af46d6e9d5095fcb1fab4a6bb78cb38687e04aaadebcec247ff1bfe9d0",
+      "RECORD-COST-CASE-005": "sha256:06486f647c928f72e32c6e2223a89a1cb64da87572f29f951bd023e4995d60d9",
+      "RECORD-COST-CASE-006": "sha256:be0bd285c3fbbe7d3b4ae724ffc289129018fba303196d3accf43abd259b39a8",
+      "RECORD-COST-CASE-007": "sha256:824f68bdbb703f4ff339414d66d48893663f2ac1b77bc11cc1918bea087f9255",
+      "RECORD-COST-CASE-008": "sha256:6f7c478ebd2b9fc4f8e03c4792e0eaa4a0fc0f78bdcf956de8c1f426ed8bb478",
+      "RECORD-COST-CASE-009": "sha256:920ef577b28ffb7fcf0cda7ac453861af7fddcac9616453488126d5505e2e12d",
+      "RECORD-COST-CASE-010": "sha256:34be00436cbeabe3ee4fff398e910e84d02108a703a4118317fa51047886f61b",
+      "RECORD-COST-CASE-011": "sha256:2fc3b540d6935418184f30231627f37e726686a15cd2892e2aa89af5a5559e1d",
+      "RECORD-COST-CASE-012": "sha256:f97a5b3b96f2536b3eafb99e153f9145baf1f0991dd821d520996029942f4349",
+      "RECORD-COST-CASE-013": "sha256:f48a1f571b9cfa3ebd01a266472cd786045cf5c9b5d44dcea38d85d8bde233b1",
+      "RECORD-COST-CASE-014": "sha256:65994d18a4e9604186d6e6d08b781047fcfd1a6353c6e1844bf0aa08319a7945",
+      "RECORD-COST-CASE-015": "sha256:f9228dc7d0c92c8b43ed54ed16c4b189cd58320bbcaa4fa9e150132becc2b2b2",
+      "RECORD-COST-CASE-016": "sha256:5323d540816fe827b2fa3b3f55a4418b4dd623e864053ef5b43f9a6798cb84f7",
+      "RECORD-COST-CASE-017": "sha256:04639bea118b0551434bb61ed603135ce42997d74d0270c367bd0e43dd3d1d63",
+      "RECORD-COST-CASE-018": "sha256:cb131d3089abe8a446ba2801399835b1f4e96c008ae221f7637cce587fd809e5",
+      "RECORD-COST-CASE-019": "sha256:69301362912ceeb17c00a8a41c26eea687c7473f37661763f81bccddd1788c51",
+      "RECORD-COST-CASE-020": "sha256:7ed4c17e79f67e0ca9410e1f058fbd68fec180ddb73ab9d8d8faed5b432a8145",
+      "RECORD-COST-CASE-021": "sha256:990034b2a3ed051fd99fe238e010a458b19d9d11b014afcfa5d77d41eda63867",
+      "RECORD-COST-CASE-022": "sha256:0b1dc6c701f8d80c2d70beab54452a85c116d54d7c704858a30fa0cd1db01d82",
+      "RECORD-COST-CASE-023": "sha256:61ba343f9d84629a8d9b3080f44dd4f1b9125af5a9698909c275bd743234e241",
+      "RECORD-COST-CASE-024": "sha256:aceb887f1d33f91412112bc37bd4e501c90c5e1184eda89f707c37fc3ed1e51b",
+      "RECORD-COST-CASE-025": "sha256:02bd30c9ee7045774118c4186edd45eda0fe2178ddad704492ad5a0fb8685884",
+      "RECORD-COST-CASE-026": "sha256:925070f7d25d430eb57df658547e2ce1517c5d29d062c83dd44a789b77c796d7",
+      "RECORD-COST-CASE-027": "sha256:a7079c4c1e2e1e4efeca1d0bd9fb40d830db9681462ad0c42086d2bee752d7fd",
+      "RECORD-COST-CASE-028": "sha256:d9fd56bb1fbbb362df7a10c3f71630c6e16e4dae80e2a4860ce40a20474189be",
+      "RECORD-COST-CASE-029": "sha256:7711fd06d8030bb6c5224f053665d38ceec57e1d9b6850e4338ec83cd08f0355",
+      "RECORD-COST-CASE-030": "sha256:b4f11c167c5eaea79648892670b0fd112c3f0f0c8a93fd2c2037b04c24658c34",
       "RECORD-DOMAIN-ADAPTER-COMMIT-001": "sha256:1bcbd7a56e281a20384de19dda1a2c44e9548241bc6c92c802af0c3a7e9d6fcd",
       "RECORD-NATIVE-CREATION-HANDLE-PROOF-001": "sha256:a3fb0e78126c3b462383603a41b224571da23623d72640ab8206df47204d4864",
       "RECORD-NATIVE-CREATION-MODES-001": "sha256:8fddeda1c4ea052a31b6f86ba58cda11941e5c2c0c16cb34d8079578b396ddb6",
@@ -11732,6 +11762,306 @@
       "testIds": [
         "test:5ab537f36b6933577692b7095d5627e16dcee2b744c928a78c46663ade51fd09",
         "test:f74e8e714f519d256d43d4f3e1a3cca7f18202695ef99986be1653c3c8e736da"
+      ]
+    },
+    "RECORD-COST-CASE-001": {
+      "title": "精确目录与子路径",
+      "sourcePath": "cases/record-cost-revision-overlap.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:038587a8442972668f804793378f20cdc17f021c00139b4e247f97e4813122f9"
+      ]
+    },
+    "RECORD-COST-CASE-002": {
+      "title": "损坏对象按需失败",
+      "sourcePath": "cases/record-cost-revision-corrupt-fallback.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:19d41c676b87a7ca0492dc39ff98e6b106b6ab3697e1eac531fbaae743cb1aac"
+      ]
+    },
+    "RECORD-COST-CASE-003": {
+      "title": "待提交差量记录",
+      "sourcePath": "cases/record-cost-pending-delta.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:1e0e349d3e2489fac6945f538d6b415c6bb84d59088710dc197f9b5caff58d86"
+      ]
+    },
+    "RECORD-COST-CASE-004": {
+      "title": "版本基线短路",
+      "sourcePath": "cases/record-cost-baseline-corrupt-short-circuit.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:b8df942504c3c9c40c0c0f512d788e4708308ce7628f12e1e3841becff655b40"
+      ]
+    },
+    "RECORD-COST-CASE-005": {
+      "title": "精确读取错误延迟",
+      "sourcePath": "cases/record-cost-revision-error-deferral.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:4547b37497e6c9d9b5a513b3e409117a8c32c84fd147eb99f722bc129684c4a8"
+      ]
+    },
+    "RECORD-COST-CASE-006": {
+      "title": "版本基线批量工作",
+      "sourcePath": "cases/record-cost-baseline-git-batching.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:f42865b444a30b7fc9870644b6cc3049a1a47cd1bf39b0051733f36574749ac6"
+      ]
+    },
+    "RECORD-COST-CASE-007": {
+      "title": "前序历史批量工作",
+      "sourcePath": "cases/record-cost-history-git-batching.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:5373e89a0beabed9019a6b3d8cfe4394e8be871f395a65ce807d62450cda9d84"
+      ]
+    },
+    "RECORD-COST-CASE-008": {
+      "title": "决策名称关系查找",
+      "sourcePath": "cases/record-cost-decision-relation-lookup.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:f0f86231b721b55cae369922b3eebfb4146001fb52688b55e5d7b57fbeaf091b"
+      ]
+    },
+    "RECORD-COST-CASE-009": {
+      "title": "深链短回环",
+      "sourcePath": "cases/record-cost-graph-short-cycles.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:59c50753c20bcfcc1dc56ab026cbdaa70a6172a4a7b2fb71159140e11f42bb0b"
+      ]
+    },
+    "RECORD-COST-CASE-010": {
+      "title": "决策历史路径查找",
+      "sourcePath": "cases/record-cost-decision-history-lookup.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:dfdb21b23531181648159afc63d1e5c35a52ef796333518b00da3c14877d594b"
+      ]
+    },
+    "RECORD-COST-CASE-011": {
+      "title": "暂存 basename 选择",
+      "sourcePath": "cases/record-cost-decision-stage-lookup.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:be5a78cdbe90b6677119e7d00c03dd51a4a3e6a2f1779a8624abd0366e70279c"
+      ]
+    },
+    "RECORD-COST-CASE-012": {
+      "title": "搜索路径语法与范围",
+      "sourcePath": "cases/record-cost-search-path-syntax.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:88c4be55b2fda1b05e982a54ec29d3c5cc51b5670f4865c870f16bf40baa9a2b"
+      ]
+    },
+    "RECORD-COST-CASE-013": {
+      "title": "身份匹配语义",
+      "sourcePath": "cases/record-cost-search-identifiers.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:9ed7793986a2816b476b1555af92fa4aa37e593e33ea3a6e18b4e3e3d4c6bcda"
+      ]
+    },
+    "RECORD-COST-CASE-014": {
+      "title": "搜索权限访问边界",
+      "sourcePath": "cases/record-cost-search-permission.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:a3ef3497e67762ed159f9ad84166b796df20826823fcb0d09b5c8453ee81a3d1"
+      ]
+    },
+    "RECORD-COST-CASE-015": {
+      "title": "待提交标志保留",
+      "sourcePath": "cases/record-cost-pending-flags.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:a786c25e382867c5f6e26bafa7382440410a4e33540aa3d121499482d246a18c"
+      ]
+    },
+    "RECORD-COST-CASE-016": {
+      "title": "候选资源归属",
+      "sourcePath": "cases/record-cost-candidate-resource-owner.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:a81116de8fb58b64961ff12c17a7b99068e4229c9d07e84a9e19a90ecb8e9836"
+      ]
+    },
+    "RECORD-COST-CASE-017": {
+      "title": "调查元数据无需高亮范围匹配",
+      "sourcePath": "cases/record-cost-investigation-metadata-cost.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:b11040aa68e04ec6972d3063eaee800a947b5ed73fb26af0b80a7fcb37e81257"
+      ]
+    },
+    "RECORD-COST-CASE-018": {
+      "title": "split index 标志",
+      "sourcePath": "cases/record-cost-pending-split-index.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:b34eb6ade6c90300ad8031d09130a03d820c75c1f9565d389c06ea8bf8cdec72"
+      ]
+    },
+    "RECORD-COST-CASE-019": {
+      "title": "固定版本解析失败",
+      "sourcePath": "cases/record-cost-revision-missing-ref.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:bc3aef8ccb2949c64c98421202dddc485ce59d9efe8a9e8e004a813d208a1836"
+      ]
+    },
+    "RECORD-COST-CASE-020": {
+      "title": "搜索来源安全",
+      "sourcePath": "cases/record-cost-search-visited-safety.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:bdec4a3f75ba8bc1aa76b75bfc8c32644de69573d28b1c49c5ece1418210f433"
+      ]
+    },
+    "RECORD-COST-CASE-021": {
+      "title": "调查元数据跨字段匹配",
+      "sourcePath": "cases/record-cost-investigation-metadata-fields.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:c8d1ffbdf48c6f6a2bd5ebbd2c432eb61d2e6cd932b29c1906b0e71108203ce4"
+      ]
+    },
+    "RECORD-COST-CASE-022": {
+      "title": "有界预览范围",
+      "sourcePath": "cases/record-cost-search-preview-budget.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:cb5d5a80e43ecee976779a642c664ac7f6e0789650a6628d7186ea821821c989"
+      ]
+    },
+    "RECORD-COST-CASE-023": {
+      "title": "版本基线窗口",
+      "sourcePath": "cases/record-cost-baseline-preparation-window.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:3ee1b81d8fe763b7f3cf752b9f87865de4ae4fe5f2222bfe4b3ad5b31e3abea5"
+      ]
+    },
+    "RECORD-COST-CASE-024": {
+      "title": "决策元数据无需高亮范围匹配",
+      "sourcePath": "cases/record-cost-decision-metadata-cost.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:de5af59b22722c748fc9fcc039f32ff4b8e7bcd42c4d3976efcbef14d317b215"
+      ]
+    },
+    "RECORD-COST-CASE-025": {
+      "title": "调查批量 selector",
+      "sourcePath": "cases/record-cost-investigation-selector.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:dedfb8a11204123c44ff1624ede065b53f77aeb763c0c83fd76e2aa04fe46e46"
+      ]
+    },
+    "RECORD-COST-CASE-026": {
+      "title": "精确路径传输分批",
+      "sourcePath": "cases/record-cost-revision-transport.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:e2660258f0b3e7ee37fdd498978c06dd4effee3833504d98de5f9d429dc7b78d"
+      ]
+    },
+    "RECORD-COST-CASE-027": {
+      "title": "精确版本批量读取",
+      "sourcePath": "cases/record-cost-revision-real-blobs.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:f1848e457af44cfc90641e393debc7ac81fe37e5d45d3d6e32c31c34682c717f"
+      ]
+    },
+    "RECORD-COST-CASE-028": {
+      "title": "固定 HEAD 读取",
+      "sourcePath": "cases/record-cost-revision-fixed-head.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:f47dcd497690374e2c3803c60a79a6bf150c8ce0073aacd6e5b0d903f6af6d51"
+      ]
+    },
+    "RECORD-COST-CASE-029": {
+      "title": "搜索读取身份替换",
+      "sourcePath": "cases/record-cost-search-identity-replacement.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:f5422976f61dc8d184525e2bdc16fc933dabd610115a5285b4c7c5b4923f4dab"
+      ]
+    },
+    "RECORD-COST-CASE-030": {
+      "title": "普通 trace 邻接读取",
+      "sourcePath": "cases/record-cost-trace-adjacency.md",
+      "tags": [
+        "record-cost"
+      ],
+      "testIds": [
+        "test:ff39a61941fb73d9ac5e7de37d54ada703f5a787a57bdc24c94873a4ebc0fb34"
       ]
     },
     "RECORD-DOMAIN-ADAPTER-COMMIT-001": {

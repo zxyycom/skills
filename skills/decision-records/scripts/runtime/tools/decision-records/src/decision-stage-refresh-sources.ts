@@ -34,6 +34,7 @@ export async function collectRefreshSourceUpdates(
   const { decisionScope } = options.opened;
   const { workspace, selectedIds } = context;
   const updates = new Map<string, PendingFileUpdate>();
+  const selectedIdSet = new Set(selectedIds);
   for (const id of selectedIds) {
     const current = workspace.entries[id];
     const oldPaths = selectedOldSourcePaths(context, id, decisionScope);
@@ -43,7 +44,13 @@ export async function collectRefreshSourceUpdates(
     if (current === undefined) {
       // An object removed from the published workspace must not still exist at an old managed path.
       for (const oldPath of oldPaths)
-        await verifyRemovedSourcePath(options, context, id, oldPath);
+        await verifyRemovedSourcePath(
+          options,
+          context,
+          selectedIdSet,
+          id,
+          oldPath
+        );
 
       continue;
     }
@@ -61,11 +68,12 @@ export async function collectRefreshSourceUpdates(
 async function verifyRemovedSourcePath(
   options: RefreshOptions,
   context: RefreshContext,
+  selectedIds: ReadonlySet<DecisionId>,
   id: DecisionId,
   oldPath: string
 ): Promise<void> {
   const { repository, decisionScope } = options.opened;
-  const { workspace, selectedIds } = context;
+  const { workspace } = context;
   try {
     await ensureDecisionDirectoryPath(
       options.decisionsDirectory,
@@ -81,7 +89,7 @@ async function verifyRemovedSourcePath(
       decisionRelativePath(decisionScope, oldPath)
     );
     if (
-      selectedIds.includes(replacement.source.decisionId) &&
+      selectedIds.has(replacement.source.decisionId) &&
       workspace.entries[replacement.source.decisionId]?.sourcePath ===
         replacement.source.sourcePath
     )

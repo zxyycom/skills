@@ -24,9 +24,10 @@ function validatePendingResources(
       request.investigationsScope,
       investigationResourcesDirectoryName
     ) + "/";
+  const selectedIds = new Set(request.selectedIds);
   for (const resourceId of request.sourceSelection.resourceIds) {
     const owner = resourceId.slice(0, resourceId.indexOf("/"));
-    if (request.selectedIds.includes(owner)) continue;
+    if (selectedIds.has(owner)) continue;
     const resourcePath = prefix + resourceId;
     const current = filesByPath.get(resourcePath);
     const staged = pendingFiles.get(resourcePath);

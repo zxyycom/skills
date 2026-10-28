@@ -83,23 +83,49 @@ async function loadMaintenanceRecords(
     selectors,
     rename
   );
-  const availableIds = new Set([
-    ...Object.keys(location.baseline.entries).filter(isDecisionId),
-    ...(candidateSources?.collection.candidates
-      .map(({ id }) => id)
-      .filter(isDecisionId) ?? [])
-  ]);
+  const availableIds = maintenanceAvailableIds(
+    location.baseline,
+    candidateSources
+  );
   const sourceContext = { ...location, candidateSources, availableIds };
   const resolve = maintenanceSelectorResolver(availableIds);
   const selected = new Set(selectors.map(resolve));
   if (rename) addRenameReferrers(location.baseline, selected);
   const records: DecisionRecord[] = [];
-  await readSelectedMaintenanceSources(selected, records, sourceContext);
+  const recordsById = new Map<string, DecisionRecord>();
+  await readSelectedMaintenanceSources(
+    selected,
+    records,
+    recordsById,
+    sourceContext
+  );
   if (request.action === "publish" || request.action === "evolve") {
-    addActiveMaintenancePredecessors(request, records, selected, sourceContext);
-    await readSelectedMaintenanceSources(selected, records, sourceContext);
+    addActiveMaintenancePredecessors(
+      request,
+      recordsById,
+      selected,
+      sourceContext
+    );
+    await readSelectedMaintenanceSources(
+      selected,
+      records,
+      recordsById,
+      sourceContext
+    );
   }
   return records;
+}
+
+function maintenanceAvailableIds(
+  baseline: MaintenanceLocation["baseline"],
+  candidateSources: Awaited<ReturnType<typeof maintenanceCandidates>>
+): Set<DecisionId> {
+  return new Set([
+    ...Object.keys(baseline.entries).filter(isDecisionId),
+    ...(candidateSources?.collection.candidates
+      .map(({ id }) => id)
+      .filter(isDecisionId) ?? [])
+  ]);
 }
 
 async function maintenanceCandidates(
@@ -138,18 +164,21 @@ function addRenameReferrers(
 async function readSelectedMaintenanceSources(
   selected: ReadonlySet<DecisionId>,
   records: DecisionRecord[],
+  recordsById: Map<string, DecisionRecord>,
   context: MaintenanceSourceContext
 ): Promise<void> {
   for (const id of selected) {
-    if (records.some((record) => record.decisionId === id)) continue;
-    records.push(await readMaintenanceSource(id, context));
+    if (recordsById.has(id)) continue;
+    const record = await readMaintenanceSource(id, context);
+    records.push(record);
+    recordsById.set(record.decisionId, record);
   }
 }
 
 /** Only active direct predecessors are rewritten; archived targets remain index-only. */
 function addActiveMaintenancePredecessors(
   request: Extract<DecisionLifecycleRequest, { action: "publish" | "evolve" }>,
-  records: readonly DecisionRecord[],
+  records: ReadonlyMap<string, DecisionRecord>,
   selected: Set<DecisionId>,
   context: MaintenanceSourceContext
 ): void {
@@ -158,12 +187,25 @@ function addActiveMaintenancePredecessors(
     request.action === "publish"
       ? [{ decisionId: request.decisionId }]
       : request.successors;
+  const groups =
+    request.action === "evolve" ? request.relationOverrideGroups : [];
+  const groupsById = new Map<DecisionId, (typeof groups)[number]>();
+  let nextGroup = 0;
+  const findGroup = (id: DecisionId) => {
+    while (!groupsById.has(id) && nextGroup < groups.length) {
+      const group = groups[nextGroup++]!;
+      const source = resolve(group.source);
+      if (!groupsById.has(source)) groupsById.set(source, group);
+    }
+    return groupsById.get(id);
+  };
   for (const successor of successors) {
     const relations = maintenanceSuccessorRelations(
       request,
       successor,
       records,
-      resolve
+      resolve,
+      findGroup
     );
     for (const relation of relations) {
       const target = resolve(relation.target);
@@ -176,17 +218,16 @@ function addActiveMaintenancePredecessors(
 function maintenanceSuccessorRelations(
   request: Extract<DecisionLifecycleRequest, { action: "publish" | "evolve" }>,
   successor: Pick<DecisionSuccessor, "decisionId" | "relationOverride">,
-  records: readonly DecisionRecord[],
-  resolve: (selector: string) => DecisionId
+  records: ReadonlyMap<string, DecisionRecord>,
+  resolve: (selector: string) => DecisionId,
+  findGroup: (
+    id: DecisionId
+  ) => { relationOverride: DecisionSuccessor["relationOverride"] } | undefined
 ) {
   const id = resolve(successor.decisionId);
-  const record = records.find((record) => record.decisionId === id)!;
+  const record = records.get(id)!;
   const grouped =
-    request.action === "evolve"
-      ? request.relationOverrideGroups.find(
-          (group) => resolve(group.source) === id
-        )?.relationOverride
-      : undefined;
+    request.action === "evolve" ? findGroup(id)?.relationOverride : undefined;
   const fallback =
     request.action === "evolve"
       ? request.relationOverride

@@ -78,6 +78,7 @@ function lifecycleSelectorResolution(
   const publishedIds = Object.keys(
     scan.publishedBaseline?.entries ?? {}
   ).filter(isDecisionId);
+  const publishedIdSet = new Set(publishedIds);
   let names: ReadonlyMap<string, readonly DecisionId[]> | undefined;
   const matches = (normalized: string): readonly DecisionId[] => {
     names ??= createDecisionNameLookup([
@@ -96,7 +97,7 @@ function lifecycleSelectorResolution(
     const normalized = normalizeDecisionSelectorInput(selector);
     const dated = parseDatedDecisionId(normalized);
     const value =
-      dated !== null && publishedIds.includes(dated.id)
+      dated !== null && publishedIdSet.has(dated.id)
         ? dated.id
         : resolveDecisionSelector(records, matches, selector);
     if (typeof value === "object") {

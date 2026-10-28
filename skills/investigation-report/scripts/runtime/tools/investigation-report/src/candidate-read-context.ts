@@ -39,7 +39,8 @@ export async function prepareCandidateReadContext(
   const owners = [...new Set(selectedResources.map((id) => id.split("/")[0]!))];
   appendCandidateOwnerReferences(candidates, owners);
   const formalSources: InvestigationSource[] = [];
-  const formalOwners = owners.filter((id) => layout.reportIds.includes(id));
+  const reportIds = new Set(layout.reportIds);
+  const formalOwners = owners.filter((id) => reportIds.has(id));
   if (formalOwners.length > 0) {
     const loaded = await loadInvestigationQueryIndex({
       investigationsDirectory

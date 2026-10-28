@@ -15,7 +15,7 @@ import {
 } from "../../shared/src/file-text-search/record-search-info.ts";
 import {
   createTextSearchMatcher,
-  matchTextSegments,
+  matchTextSegmentIdentifiers,
   TextSearchMatcherError
 } from "../../shared/src/file-text-search/index.ts";
 import {
@@ -133,12 +133,11 @@ function metadataSearchResult(
     limit: prepared.validated.limit,
     match: (entry) => {
       try {
-        const matches = matchTextSegments(matcher, metadataSegments(entry));
-        return ok(
-          matches.length === 0
-            ? null
-            : matches.map(({ identifier }) => identifier)
+        const matches = matchTextSegmentIdentifiers(
+          matcher,
+          metadataSegments(entry)
         );
+        return ok(matches.length === 0 ? null : matches);
       } catch (error) {
         return err(error);
       }

@@ -201,3 +201,32 @@ test("Decision metadata query API rejects invalid limits before collection failu
   );
   assert.match(content.errors[0]!, /only for metadata/);
 });
+
+test("Decision metadata counts and projects fields without constructing grapheme ranges", async () => {
+  const entries = await metadataEntries(100);
+  const original = Reflect.get(
+    Intl.Segmenter.prototype,
+    "segment"
+  ) as typeof Intl.Segmenter.prototype.segment;
+  let calls = 0;
+  Intl.Segmenter.prototype.segment = function (...args) {
+    calls += 1;
+    return original.apply(this, args);
+  };
+  try {
+    const result = projectDecisionMetadata(entries, metadataRequest());
+    assert.ok(
+      result.status === "ok" &&
+        result.command === "search" &&
+        result.in === "metadata"
+    );
+    assert.deepEqual(result.searchInfo.counts, {
+      matched: { value: 100, precision: "exact" },
+      returned: 100
+    });
+    assert.deepEqual(result.records[0]?.matchedFields, ["title"]);
+    assert.equal(calls, 0);
+  } finally {
+    Intl.Segmenter.prototype.segment = original;
+  }
+});

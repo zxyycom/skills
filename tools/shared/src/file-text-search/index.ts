@@ -7,8 +7,8 @@ import { throwIfAborted } from "./contracts.ts";
 import { openRoot, readSelectedFile, selectSourcePaths } from "./files.ts";
 import {
   boundPreviews,
-  findLineMatches,
-  limitMatchRanges,
+  findLimitedLineMatches,
+  hasLineMatches,
   previewsForMatches,
   splitPhysicalLines
 } from "./previews.ts";
@@ -32,6 +32,7 @@ export {
 export {
   createTextSearchMatcher,
   matchTextSegments,
+  matchTextSegmentIdentifiers,
   TextSearchMatcherError,
   type TextSearchMatcher,
   type TextSearchMatcherErrorCode,
@@ -98,23 +99,22 @@ async function collectSearchHit(
     validated.signal
   );
   state.scannedBytes += read.byteLength;
-  const matches = findLineMatches(
-    read.content,
+  const lines = splitPhysicalLines(read.content);
+  if (state.hits.length >= validated.preview.maxFiles) {
+    if (hasLineMatches(lines, validated.query, validated.signal)) {
+      state.truncation.files = true;
+      return false;
+    }
+    return true;
+  }
+  const matches = findLimitedLineMatches(
+    lines,
     validated.query,
+    validated.preview.maxMatchesPerFile,
     validated.signal
   );
-  if (matches.length === 0) return true;
-  if (state.hits.length >= validated.preview.maxFiles) {
-    state.truncation.files = true;
-    return false;
-  }
-  const hit = createSearchHit(
-    sourcePath,
-    read.content,
-    matches,
-    validated,
-    state
-  );
+  if (!matches.matched) return true;
+  const hit = createSearchHit(sourcePath, lines, matches, validated, state);
   if (hit === null) return false;
   state.hits.push(hit);
   return !state.truncation.previewCharacters;
@@ -122,18 +122,14 @@ async function collectSearchHit(
 
 function createSearchHit(
   sourcePath: string,
-  content: string,
-  matches: ReturnType<typeof findLineMatches>,
+  lines: readonly string[],
+  limited: ReturnType<typeof findLimitedLineMatches>,
   validated: ReturnType<typeof validateRequest>,
   state: SearchState
 ): FileTextSearchHit | null {
-  const limited = limitMatchRanges(
-    matches,
-    validated.preview.maxMatchesPerFile
-  );
   if (limited.truncated) state.truncation.matches = true;
   const previews = previewsForMatches(
-    splitPhysicalLines(content),
+    lines,
     limited.matches,
     validated.preview.contextLines
   );

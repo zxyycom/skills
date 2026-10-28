@@ -77,6 +77,22 @@ test("incremental Gate keeps public runtime tests with their actual owner instea
         "script:test:file-text-search"
       ],
       [
+        "tools/shared/tests/record-text-search-safety.test.ts",
+        "script:test:file-text-search"
+      ],
+      [
+        "tools/shared/tests/version-control-pending-delta.test.ts",
+        "script:test:version-control"
+      ],
+      [
+        "tools/shared/tests/version-control-revision-batch.test.ts",
+        "script:test:version-control"
+      ],
+      [
+        "scripts/lib/skill-package-hash-batch-baseline.test.ts",
+        "script:test:skill-package-hash"
+      ],
+      [
         "tools/shared/tests/relation-trace-selection.test.ts",
         "script:test:relation-graph"
       ],
@@ -202,6 +218,25 @@ test("incremental Gate captures ignored local inputs and rejects drift outside a
 
 test("incremental Gate routes domain capability inputs only to their declared subscribers", async () => {
   await withImpactFixture(async (fixture) => {
+    for (const [input, checkId] of [
+      [
+        "tools/decision-records/tests/batch-lookup-cost.test.ts",
+        "test:decision-records:lifecycle-and-recovery"
+      ],
+      [
+        "tools/investigation-report/tests/candidate-resource-root.test.ts",
+        "test:investigation-report:collection-and-resources"
+      ],
+      [
+        "tools/investigation-report/tests/selector-batch-cost.test.ts",
+        "test:investigation-report:index-and-query"
+      ]
+    ] as const) {
+      const plan = await prepareChangedFixtureActivation(fixture, input);
+      assert.equal(plan.kind, "incremental");
+      assert.deepEqual(plan.snapshot.unclassifiedPaths, []);
+      assert.ok(plan.activeCheckIds.includes(checkId), input);
+    }
     for (const group of [
       {
         input: "tools/decision-records/src/decision-stage-prepare.ts",

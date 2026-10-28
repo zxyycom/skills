@@ -81,6 +81,16 @@ test(
       const revision = runGit(repositoryRoot, ["rev-parse", "HEAD"]).trim();
       const repository = await openVersionControl(repositoryRoot);
 
+      const exactPaths = ["docs/link.md", "docs/run.sh", "docs/*.md"];
+      const exactReads = await repository.prepareRevisionFileReads!(
+        revision,
+        exactPaths
+      );
+      for (const [index, filePath] of exactPaths.entries())
+        assert.deepEqual(
+          await exactReads[index]!(),
+          await repository.readRevisionFile(revision, filePath)
+        );
       const allFiles = await repository.readRevisionFiles(revision);
       assert.deepEqual(
         allFiles.map((file) => ({

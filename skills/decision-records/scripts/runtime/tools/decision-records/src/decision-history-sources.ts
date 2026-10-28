@@ -62,10 +62,17 @@ export function historySourcePaths(
   wanted: ReadonlySet<DecisionId>,
   prefix: string
 ): Map<string, DecisionId> {
+  let selectedById: Map<string, (typeof scan.records)[number]> | undefined;
   return new Map(
     [...wanted].flatMap((id): [string, DecisionId][] => {
       const state = index.entries[id as DecisionId];
-      const selected = scan.records.find((record) => record.decisionId === id);
+      if (state === undefined && selectedById === undefined) {
+        selectedById = new Map();
+        for (const record of scan.records)
+          if (!selectedById.has(record.decisionId))
+            selectedById.set(record.decisionId, record);
+      }
+      const selected = selectedById?.get(id);
       const sourcePath =
         state?.sourcePath ??
         (selected?.source.kind === "candidate"

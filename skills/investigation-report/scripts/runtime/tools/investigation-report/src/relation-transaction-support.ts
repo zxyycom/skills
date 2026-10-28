@@ -18,7 +18,7 @@ import {
 import { investigationIndexFileName } from "./investigation-state-index.ts";
 import { normalizeInvestigationIdInput } from "./report-path.ts";
 import { compareInvestigationRelations } from "./markdown.ts";
-import { resolveInvestigationSelector } from "./investigation-selector.ts";
+import { createInvestigationSelectorResolver } from "./investigation-selector.ts";
 import {
   bindInvestigationRelationSummaries,
   type InvestigationRelationSummaryInput
@@ -129,17 +129,18 @@ export function resolveRelationSelectors(
     id,
     name: state.name
   }));
+  const resolve = createInvestigationSelectorResolver(entries);
   const errors: string[] = [];
   const resolved: InvestigationRelationReplacement[] = [];
   for (const [replacementIndex, replacement] of replacements.entries()) {
-    const source = resolveInvestigationSelector(entries, replacement.source);
+    const source = resolve(replacement.source);
     if (source.status === "error") {
       errors.push(...source.errors);
       continue;
     }
     const relations = [];
     for (const relation of replacement.relations) {
-      const target = resolveInvestigationSelector(entries, relation.target);
+      const target = resolve(relation.target);
       if (target.status === "error") {
         errors.push(...target.errors);
       } else {
@@ -148,7 +149,7 @@ export function resolveRelationSelectors(
     }
     const summaries: InvestigationRelationSummaryInput[] = [];
     for (const summary of relationSummaryGroups[replacementIndex] ?? []) {
-      const target = resolveInvestigationSelector(entries, summary.target);
+      const target = resolve(summary.target);
       if (target.status === "error") {
         errors.push(...target.errors);
       } else {

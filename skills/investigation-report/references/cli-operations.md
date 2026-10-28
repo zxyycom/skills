@@ -33,11 +33,12 @@ show 安全读取来源，核对读取内容的 frontmatter ID 与所选身份�
 
 - content 匹配当前文件的物理行；metadata 匹配发布快照的 ID、name、title、question、tags 与来源关系 summary。`all`/`any` 可跨同一报告的段，`phrase` 限于单段；匹配统一 NFKC、忽略大小写并按空白处理。
 - 关系条件返回的 `filterRelations` 是导致记录命中的边；文本证据单独报告。`matchedRelations: none` 只表示没有摘要文本命中，不否定关系筛选命中。普通预览最多展示三条命中边，`list --detail` 展开当前页全部命中边；完整正文与关系用 `show`。
+- content 先校验全部显式来源路径的格式，按顺序安全打开并读取实际访问的文件，核对普通文件、路径与身份。返回上限已满后继续扫描到第一个额外命中；之后未访问的来源不作存在性、安全或内容证明，实际访问时的权限、替换、符号链接及解码错误仍失败。
 - 先读六行 `Query`、`Filters`、`Source`、`Limits`、`Counts`、`Coverage`，确认本次条件、来源、命中数及三类覆盖。content 的 source 为 `published-index+current-text / unchecked / false`：范围来自发布投影，文本是本次读取，未验证全集来源新鲜度，也不承诺跨文件原子快照。
 
 | 覆盖 | 含义 |
 | --- | --- |
-| `scanComplete` | 待匹配记录是否全部检查；未完成时 `matched` 为下界。 |
+| `scanComplete` | 是否已对筛选范围内全部记录完成匹配检查；content 指来源已实际读取并匹配。未完成时 `matched` 为下界。 |
 | `resultsComplete` | 是否已完整扫描且返回全部命中；扫描完整仍可能因 limit 少返回记录。 |
 | `previewsComplete` | 已返回记录的命中片段是否完整；metadata 不适用。仅预览受限不代表记录发现不完整。 |
 

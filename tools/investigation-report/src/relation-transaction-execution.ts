@@ -61,11 +61,12 @@ export async function applyRelationReplacements(
       await verifyInvestigationMembers(options.root, members);
     },
     verify: async ({ context, members }) => {
+      const changedSources = new Set(context.changedSources);
       await verifyInvestigationMembers(
         options.root,
         members,
         context.candidateSources
-          .filter((source) => context.changedSources.includes(source.id))
+          .filter((source) => changedSources.has(source.id))
           .map((source) => path.join(options.root, source.sourcePath))
       );
       const definition = createInvestigationStateIndexDefinition();
@@ -85,11 +86,12 @@ export async function applyRelationReplacements(
       );
     },
     verifyRecovered: async ({ context, members }) => {
+      const changedSources = new Set(context.changedSources);
       await verifyInvestigationMembers(
         options.root,
         members,
         context.candidateSources
-          .filter((source) => context.changedSources.includes(source.id))
+          .filter((source) => changedSources.has(source.id))
           .map((source) => path.join(options.root, source.sourcePath))
       );
     }

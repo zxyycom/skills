@@ -18,3 +18,4 @@ await import("../relation-order.test.ts");
 await import("../relation-dedup.test.ts");
 
 await import("../selected-local-contract.test.ts");
+await import("../selector-batch-cost.test.ts");
