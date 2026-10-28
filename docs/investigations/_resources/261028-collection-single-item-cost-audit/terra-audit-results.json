@@ -1,0 +1,521 @@
+{
+  "/tmp/dr-audit-1671249/candidate-probe.out": {
+    "sha256": "afab6014712cd00d12f81f3da2f0ba74b8d2802fa87d66220b5edc3cbffc7df0",
+    "records": [
+      {
+        "n": 20,
+        "count": 210,
+        "candidates": 20
+      },
+      {
+        "n": 100,
+        "count": 5050,
+        "candidates": 100
+      },
+      {
+        "n": 200,
+        "count": 20100,
+        "candidates": 200
+      }
+    ]
+  },
+  "/tmp/dr-audit-1671249/evolve-probe.out": {
+    "sha256": "6026a36b4c0dc9a82c151487376ee310ee506d01a7d0826985e6097e4a8625ee",
+    "records": [
+      {
+        "n": 20,
+        "recordComparisons": 210,
+        "groupComparisons": 210,
+        "selected": 20
+      },
+      {
+        "n": 100,
+        "recordComparisons": 5050,
+        "groupComparisons": 5050,
+        "selected": 100
+      },
+      {
+        "n": 200,
+        "recordComparisons": 20100,
+        "groupComparisons": 20100,
+        "selected": 200
+      }
+    ]
+  },
+  "/tmp/dr-audit-1671249/graph-probe.out": {
+    "sha256": "801611aceee5d3cc65ac1472840941812872870a33fbee05d6a14e65607862ee",
+    "records": [
+      {
+        "unrelatedComponents": 20,
+        "selected": 20,
+        "checks": 401,
+        "errors": 0
+      },
+      {
+        "unrelatedComponents": 100,
+        "selected": 100,
+        "checks": 10001,
+        "errors": 0
+      },
+      {
+        "unrelatedComponents": 200,
+        "selected": 200,
+        "checks": 40001,
+        "errors": 0
+      }
+    ]
+  },
+  "/tmp/dr-audit-1671249/locator-probe.out": {
+    "sha256": "3ce7957144d34bc121bf6e24f5fe709a022655685c9fbd5162e84593ebcb370a",
+    "records": [
+      {
+        "n": 20,
+        "checks": 400,
+        "paths": 0
+      },
+      {
+        "n": 100,
+        "checks": 10000,
+        "paths": 0
+      },
+      {
+        "n": 200,
+        "checks": 40000,
+        "paths": 0
+      }
+    ]
+  },
+  "/tmp/dr-audit-1671249/new-probe.out": {
+    "sha256": "26f6979e2ab9f5d425c8f739b508df8daf199da59d476815ae80ee76c4d7ff24",
+    "records": [
+      {
+        "n": 20,
+        "count": 400,
+        "status": "ok"
+      },
+      {
+        "n": 100,
+        "count": 10000,
+        "status": "ok"
+      },
+      {
+        "n": 200,
+        "count": 40000,
+        "status": "ok"
+      }
+    ]
+  },
+  "/tmp/dr-audit-1671249/probe.out": {
+    "sha256": "ca79cbe456fc70dce8d7cee598f0a3c0dcb0a4414702d299084694c345dc4a9b",
+    "records": [
+      {
+        "n": 20,
+        "comparisons": 210,
+        "status": "ok"
+      },
+      {
+        "n": 200,
+        "comparisons": 20100,
+        "status": "ok"
+      },
+      {
+        "n": 1000,
+        "comparisons": 500500,
+        "status": "ok"
+      }
+    ]
+  },
+  "/tmp/dr-audit-1671249/shared/canonical-probe.out": {
+    "sha256": "d8496dd30eb07f89859ff1c78c58f4d32ab29be05d9710624635759e31f06a73",
+    "records": [
+      {
+        "n": 20,
+        "build": 20,
+        "serialization": 20,
+        "bytes": 4311
+      },
+      {
+        "n": 100,
+        "build": 100,
+        "serialization": 100,
+        "bytes": 20951
+      },
+      {
+        "n": 200,
+        "build": 200,
+        "serialization": 200,
+        "bytes": 42051
+      }
+    ]
+  },
+  "/tmp/ir-audit-1793158083/candidate-results.jsonl": {
+    "sha256": "f1faf33c9ae433ab061567a781007f0484e6b1344c5c06724795fa5683e017b8",
+    "records": [
+      {
+        "n": 100,
+        "r": 10,
+        "comparisons": 955,
+        "ownerReferences": 11
+      },
+      {
+        "n": 1000,
+        "r": 10,
+        "comparisons": 9955,
+        "ownerReferences": 11
+      },
+      {
+        "n": 1000,
+        "r": 100,
+        "comparisons": 95050,
+        "ownerReferences": 101
+      }
+    ]
+  },
+  "/tmp/ir-audit-1793158083/dr-trace-results.jsonl": {
+    "sha256": "abc3363eb8c45ed4ab5783c171180e47d13ac859729e478bdf7c778a23209c86",
+    "records": [
+      {
+        "n": 10,
+        "edges": 9,
+        "sourceAdjacencyReads": 20,
+        "traceCount": 10,
+        "complete": true
+      },
+      {
+        "n": 100,
+        "edges": 99,
+        "sourceAdjacencyReads": 200,
+        "traceCount": 100,
+        "complete": true
+      }
+    ]
+  },
+  "/tmp/ir-audit-1793158083/metadata-results.jsonl": {
+    "sha256": "e0575fda7a68362078cb4939e210490706bf01f27c432c4769f8fbb40f76239c",
+    "records": [
+      {
+        "occurrences": 100,
+        "indexOfCalls": 100,
+        "identifiers": [
+          "title"
+        ],
+        "ranges": 100
+      },
+      {
+        "occurrences": 1000,
+        "indexOfCalls": 1000,
+        "identifiers": [
+          "title"
+        ],
+        "ranges": 1000
+      }
+    ]
+  },
+  "/tmp/ir-audit-1793158083/plan-results.jsonl": {
+    "sha256": "52f11168e2444c0c461f0fef2f3139b8d52afd648f3d7bbda2fdd677f88a0128",
+    "records": [
+      {
+        "c": 100,
+        "k": 10,
+        "comparisons": 955,
+        "writes": 10,
+        "guards": 100
+      },
+      {
+        "c": 1000,
+        "k": 10,
+        "comparisons": 9955,
+        "writes": 10,
+        "guards": 1000
+      },
+      {
+        "c": 1000,
+        "k": 100,
+        "comparisons": 95050,
+        "writes": 100,
+        "guards": 1000
+      }
+    ]
+  },
+  "/tmp/ir-audit-1793158083/probe-results.jsonl": {
+    "sha256": "31b7feaa757e49404485038a3a7a6b1a0928fbb8cb0ab614ac834d236ec24a65",
+    "records": [
+      {
+        "n": 100,
+        "k": 10,
+        "pendingComparisons": 955,
+        "canonicalComparisons": 955,
+        "locatorSelectorAccess": 10,
+        "locatorEnumeratedKeys": 1000,
+        "membershipComparisons": 965
+      },
+      {
+        "n": 1000,
+        "k": 10,
+        "pendingComparisons": 9955,
+        "canonicalComparisons": 9955,
+        "locatorSelectorAccess": 10,
+        "locatorEnumeratedKeys": 10000,
+        "membershipComparisons": 9965
+      },
+      {
+        "n": 1000,
+        "k": 100,
+        "pendingComparisons": 95050,
+        "canonicalComparisons": 95050,
+        "locatorSelectorAccess": 100,
+        "locatorEnumeratedKeys": 100000,
+        "membershipComparisons": 95150
+      }
+    ]
+  },
+  "/tmp/ir-audit-1793158083/publish-results.jsonl": {
+    "sha256": "06184958af9518dbd103aa92f949cc32640c09a60831bab2d1296175bf099738",
+    "records": [
+      {
+        "c": 100,
+        "k": 10,
+        "comparisons": 955,
+        "errors": 0
+      },
+      {
+        "c": 1000,
+        "k": 10,
+        "comparisons": 9955,
+        "errors": 0
+      },
+      {
+        "c": 1000,
+        "k": 100,
+        "comparisons": 95050,
+        "errors": 0
+      }
+    ]
+  },
+  "/tmp/ir-audit-1793158083/relation-results.jsonl": {
+    "sha256": "d4c0c79e05166bafd378173349615092178ad6b0a62c882d2fc7a1bd5f2fdc3d",
+    "records": [
+      {
+        "c": 100,
+        "k": 10,
+        "selectorArrayAccessesTwoCallbacks": 1910,
+        "perCallback": 955,
+        "paths": [
+          10,
+          10
+        ]
+      },
+      {
+        "c": 1000,
+        "k": 10,
+        "selectorArrayAccessesTwoCallbacks": 19910,
+        "perCallback": 9955,
+        "paths": [
+          10,
+          10
+        ]
+      },
+      {
+        "c": 1000,
+        "k": 100,
+        "selectorArrayAccessesTwoCallbacks": 190100,
+        "perCallback": 95050,
+        "paths": [
+          100,
+          100
+        ]
+      }
+    ]
+  },
+  "/tmp/ir-audit-1793158083/resource-results.jsonl": {
+    "sha256": "cd660741001a973afef7a903fb8b10af65ab5b51a6def3b85f94e909dafcdfd2",
+    "records": [
+      {
+        "f": 100,
+        "k": 10,
+        "iteratorYields": 1000,
+        "warnings": 0
+      },
+      {
+        "f": 1000,
+        "k": 10,
+        "iteratorYields": 10000,
+        "warnings": 0
+      },
+      {
+        "f": 1000,
+        "k": 100,
+        "iteratorYields": 100000,
+        "warnings": 0
+      }
+    ]
+  },
+  "/tmp/ir-audit-1793158083/shared-search-results.jsonl": {
+    "sha256": "5cb66192f1605fa97c2058fa9c9500e9052127ebedc6d0b76db0036d04f66cb9",
+    "records": [
+      {
+        "selected": 10,
+        "scanned": 2,
+        "matched": 2,
+        "returned": 1,
+        "finds": 2000,
+        "counts": {
+          "lstat": 31,
+          "realpath": 29
+        },
+        "truncation": {
+          "files": true,
+          "matches": true,
+          "previewCharacters": true
+        },
+        "firstPreviewRanges": 3
+      }
+    ]
+  },
+  "/tmp/ir-audit-1793158083/trace-results.jsonl": {
+    "sha256": "abc3363eb8c45ed4ab5783c171180e47d13ac859729e478bdf7c778a23209c86",
+    "records": [
+      {
+        "n": 10,
+        "edges": 9,
+        "sourceAdjacencyReads": 20,
+        "traceCount": 10,
+        "complete": true
+      },
+      {
+        "n": 100,
+        "edges": 99,
+        "sourceAdjacencyReads": 200,
+        "traceCount": 100,
+        "complete": true
+      }
+    ]
+  },
+  "/tmp/terra-shared-audit-696b/blob-trace-summary.jsonl": {
+    "sha256": "5b3fb440a20ad3a3814b399465a0f30f733d6874127278cc013f9b1de696645f",
+    "records": [
+      {
+        "trace": "10-distinct.trace",
+        "starts": 10,
+        "peak_traced_processes": 10,
+        "final_live": 0
+      },
+      {
+        "trace": "10-same.trace",
+        "starts": 10,
+        "peak_traced_processes": 10,
+        "final_live": 0
+      },
+      {
+        "trace": "40-distinct.trace",
+        "starts": 40,
+        "peak_traced_processes": 40,
+        "final_live": 0
+      },
+      {
+        "trace": "40-same.trace",
+        "starts": 40,
+        "peak_traced_processes": 40,
+        "final_live": 0
+      }
+    ]
+  },
+  "/tmp/terra-shared-audit-696b/blob-write-probe.jsonl": {
+    "sha256": "a1580e3e41d3a568074fbb8fd6e11e0262e333049f8744d3e638bffdd2b47730",
+    "records": [
+      {
+        "n": 10,
+        "type": "same",
+        "count": 10,
+        "uniqueObjects": 1
+      },
+      {
+        "n": 10,
+        "type": "distinct",
+        "count": 10,
+        "uniqueObjects": 10
+      },
+      {
+        "n": 40,
+        "type": "same",
+        "count": 40,
+        "uniqueObjects": 1
+      },
+      {
+        "n": 40,
+        "type": "distinct",
+        "count": 40,
+        "uniqueObjects": 40
+      }
+    ]
+  },
+  "/tmp/terra-shared-audit-696b/cycle.jsonl": {
+    "sha256": "898d51db19a4ea184dbfe8ad214838135e3ab701a12d47f6c47f7b43b617d857",
+    "records": [
+      {
+        "n": 20,
+        "edges": 37,
+        "calls": 18,
+        "comparisons": 189,
+        "cycles": 18,
+        "totalCycleMembers": 54
+      },
+      {
+        "n": 200,
+        "edges": 397,
+        "calls": 198,
+        "comparisons": 19899,
+        "cycles": 198,
+        "totalCycleMembers": 594
+      },
+      {
+        "n": 1000,
+        "edges": 1997,
+        "calls": 998,
+        "comparisons": 499499,
+        "cycles": 998,
+        "totalCycleMembers": 2994
+      }
+    ]
+  },
+  "/tmp/terra-shared-audit-696b/git-flags-after.txt": {
+    "sha256": "51339242431cbaf30bc0b22da4cb07e29cc8979cc3915361bac81fb429729351",
+    "records": [
+      "H scope/a",
+      "H scope/b"
+    ]
+  },
+  "/tmp/terra-shared-audit-696b/git-flags-before.txt": {
+    "sha256": "0a1ab25d82a4b8bc4ac6e7e291d69d38d95d8fe94c60b3763b5fc1b0e623ebe7",
+    "records": [
+      "S scope/a",
+      "h scope/b"
+    ]
+  },
+  "/tmp/terra-shared-audit-696b/pending-records-results.jsonl": {
+    "sha256": "e5efcc6d34f4ee31cee4871293e96d6d1f691264046f89b56a901fe69e6939ef",
+    "records": [
+      {
+        "n": 10,
+        "changedEntries": 1,
+        "unchangedIsNull": true,
+        "records": 10,
+        "bytes": 640
+      },
+      {
+        "n": 100,
+        "changedEntries": 1,
+        "unchangedIsNull": true,
+        "records": 100,
+        "bytes": 6400
+      },
+      {
+        "n": 1000,
+        "changedEntries": 1,
+        "unchangedIsNull": true,
+        "records": 1000,
+        "bytes": 64000
+      }
+    ]
+  }
+}

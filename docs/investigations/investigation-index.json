@@ -1013,6 +1013,45 @@
       ],
       "title": "记录工具当前版本一万条存量全入口横向性能复查"
     },
+    "261028-collection-single-item-cost-audit": {
+      "formedAt": "2026-10-28T03:18:27Z",
+      "name": "collection-single-item-cost-audit",
+      "question": "决策与调查工具的公开入口还存在哪些重复获取、乘积扫描或未消费计算，已知问题与覆盖边界是什么？",
+      "relations": [
+        {
+          "summary": "沿集合调用单项模式扩查版本门禁与记录批量路径",
+          "target": "261028-investigation-v87-windows-head-predecessor-cost",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261028-collection-single-item-cost-audit/batch-selection-results.json",
+        "261028-collection-single-item-cost-audit/hash-cli-path-summary.json",
+        "261028-collection-single-item-cost-audit/hash-cli-trace-summary.json",
+        "261028-collection-single-item-cost-audit/lookup-results.json",
+        "261028-collection-single-item-cost-audit/measure-hash-cli.py",
+        "261028-collection-single-item-cost-audit/probe-batch-selection.mjs",
+        "261028-collection-single-item-cost-audit/probe-lookups.mjs",
+        "261028-collection-single-item-cost-audit/provenance.json",
+        "261028-collection-single-item-cost-audit/terra-audit-coverage.csv",
+        "261028-collection-single-item-cost-audit/terra-audit-findings.json",
+        "261028-collection-single-item-cost-audit/terra-audit-gaps.json",
+        "261028-collection-single-item-cost-audit/terra-audit-methods.md",
+        "261028-collection-single-item-cost-audit/terra-audit-provenance.json",
+        "261028-collection-single-item-cost-audit/terra-audit-results.json",
+        "261028-collection-single-item-cost-audit/terra-audit-scope.json"
+      ],
+      "sourcePath": "261028-collection-single-item-cost-audit.md",
+      "tags": [
+        "decision-records",
+        "git-integration",
+        "investigation-report",
+        "performance",
+        "root-cause-analysis",
+        "skill-tooling"
+      ],
+      "title": "决策与调查工具的集合成本与入口覆盖审计"
+    },
     "261028-investigation-v87-windows-head-predecessor-cost": {
       "formedAt": "2026-10-28T02:39:36Z",
       "name": "investigation-v87-windows-head-predecessor-cost",
@@ -1750,6 +1789,7 @@
       "261024-record-global-throughput-and-memory": "sha256:41cfce6ecb5d66a54f1ad0280baf1500ffdf82639dbe66adfe7dc4292b70a696",
       "261024-record-index-computation-and-transfer": "sha256:21b73c138e7d7085a43f2e592e3b3c64d71b21d4752a8e4fa1df2e3177e5dd79",
       "261024-record-tools-entry-matrix-10k": "sha256:bdb7464449dcae7a158bd1e6d18ed8adae29de35855b26dc3d814ac6ba092149",
+      "261028-collection-single-item-cost-audit": "sha256:aab7d365be0bc5778559f12f1dd512a870978454ab04a23a3479ce4da48ac2e4",
       "261028-investigation-v87-windows-head-predecessor-cost": "sha256:af90a277b436af9c26ccd77c183665275780cc78a088f0135dc41abb8917610b",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",

@@ -1,0 +1,392 @@
+{
+  "reviewedAtUtc": "2026-10-28T03:47:46.245993+00:00",
+  "repositoryCommit": "696b888b7256ac185ef43f6fdf36ffe9aa82bd00",
+  "delegation": "User requested GPT-6.1 Terra; one Terra audit owner with Decision and Investigation Terra slices; primary agent performed result review and two count replays.",
+  "commandMatrixRows": 32,
+  "commandsByDomain": {
+    "DR": 18,
+    "IR": 14
+  },
+  "findingRecords": 20,
+  "siteReferences": 29,
+  "sourcePathsAllExist": true,
+  "retention": "Original evidence code retained in language-labelled fences; output lines parsed as JSON when possible. Coverage/findings/scope/gaps normalize /workspace/skills/ to repository-relative paths; temporary evidence origin paths remain historical locators. Raw fixtures, transformed production copies and Trace2 logs stay outside repository.",
+  "inputFiles": {
+    "/tmp/terra-shared-audit-696b/findings.json": {
+      "sha256": "f739c24d4a5b659a74f9cc4b04e7f919eb4fbf7beeba0b8fa8adf53ebcf8b318",
+      "bytes": 14539
+    },
+    "/tmp/terra-shared-audit-696b/remaining-gaps.json": {
+      "sha256": "b80438bf2f290abf0aa9ca37aad98316d63b5470d457cb82a33820f653de68d1",
+      "bytes": 5289
+    },
+    "/tmp/terra-shared-audit-696b/coverage.csv": {
+      "sha256": "319af3061b3e8a41323dc01f4d20eabfc24ae06e88db92a2f950f725a99f41ac",
+      "bytes": 20717
+    },
+    "/tmp/terra-shared-audit-696b/inventory.json": {
+      "sha256": "c1f0cc94d26bc8b1b048e5fe30ca58f6e80e292efd960b6abc488278990f4995",
+      "bytes": 25689
+    },
+    "/tmp/terra-shared-audit-696b/screen-denominator.json": {
+      "sha256": "fd755bb35deee8fe05035d4ccd23bb18c4164b1fb3a694fbe096f0c89e39f670",
+      "bytes": 1994
+    },
+    "/tmp/terra-shared-audit-696b/version-control-coverage.json": {
+      "sha256": "9a7fbf256d8d4ac9287d6ec0286ccc5c1b01407b1acdd35a247a9c87df039a59",
+      "bytes": 5522
+    },
+    "/tmp/dr-audit-1671249/shared/coverage.json": {
+      "sha256": "39ca80c0c2f5d24103942b5110ba14c65f180a97bf49d5283328d1ad4091a56f",
+      "bytes": 26883
+    },
+    "/tmp/ir-audit-1793158083/shared-coverage.json": {
+      "sha256": "d1fd8e0eef113eab3e754e24b2bb6f1fc4987ea52aca852b6300563c29a1acf5",
+      "bytes": 8983
+    },
+    "/tmp/dr-audit-1671249/candidate-probe.out": {
+      "sha256": "afab6014712cd00d12f81f3da2f0ba74b8d2802fa87d66220b5edc3cbffc7df0",
+      "bytes": 118
+    },
+    "/tmp/dr-audit-1671249/candidate-probe.ts": {
+      "sha256": "909f94a7386c28477dd13cec44e832d8b24a35402da0769511fa3fc7f1f5da52",
+      "bytes": 1054
+    },
+    "/tmp/dr-audit-1671249/evolve-probe.out": {
+      "sha256": "6026a36b4c0dc9a82c151487376ee310ee506d01a7d0826985e6097e4a8625ee",
+      "bytes": 220
+    },
+    "/tmp/dr-audit-1671249/evolve-probe.ts": {
+      "sha256": "5ba6a9e8c087c002ba44194b429e405cb23757f45b63c826a4d1fc2aa696fe13",
+      "bytes": 1501
+    },
+    "/tmp/dr-audit-1671249/graph-probe.out": {
+      "sha256": "801611aceee5d3cc65ac1472840941812872870a33fbee05d6a14e65607862ee",
+      "bytes": 203
+    },
+    "/tmp/dr-audit-1671249/graph-probe.ts": {
+      "sha256": "358dcfeef682477f7171b880fa812514765e137b462bb730f4982792fa13ea71",
+      "bytes": 900
+    },
+    "/tmp/dr-audit-1671249/locator-probe.out": {
+      "sha256": "3ce7957144d34bc121bf6e24f5fe709a022655685c9fbd5162e84593ebcb370a",
+      "bytes": 102
+    },
+    "/tmp/dr-audit-1671249/locator-probe.ts": {
+      "sha256": "9711af353730d41c82f673b9e0e6adb7ccb28440dbc6305e9c3f76f2a00d3f29",
+      "bytes": 998
+    },
+    "/tmp/dr-audit-1671249/new-probe.out": {
+      "sha256": "26f6979e2ab9f5d425c8f739b508df8daf199da59d476815ae80ee76c4d7ff24",
+      "bytes": 111
+    },
+    "/tmp/dr-audit-1671249/new-probe.ts": {
+      "sha256": "329ea709860d8b12994113e99dc265d954d5823bc16ad4d2fe4e5a0dc2881a02",
+      "bytes": 782
+    },
+    "/tmp/dr-audit-1671249/probe.out": {
+      "sha256": "ca79cbe456fc70dce8d7cee598f0a3c0dcb0a4414702d299084694c345dc4a9b",
+      "bytes": 131
+    },
+    "/tmp/dr-audit-1671249/probe.ts": {
+      "sha256": "a23da54a56c122061de932908a1e9fa4336026c72c3cf45c8571b2b7375fcc3e",
+      "bytes": 787
+    },
+    "/tmp/dr-audit-1671249/shared/canonical-probe.out": {
+      "sha256": "d8496dd30eb07f89859ff1c78c58f4d32ab29be05d9710624635759e31f06a73",
+      "bytes": 164
+    },
+    "/tmp/dr-audit-1671249/shared/canonical-probe.ts": {
+      "sha256": "d06bfdeb433a558fed04c53de3736caaba0fc0f47d63c4ef8c6123b03b7403be",
+      "bytes": 889
+    },
+    "/tmp/ir-audit-1793158083/candidate-probe.mjs": {
+      "sha256": "e75eb6c592053cfc1d37daf8cc729f7951c1f8c7059f67b8859994cf500a5cde",
+      "bytes": 1708
+    },
+    "/tmp/ir-audit-1793158083/candidate-results.jsonl": {
+      "sha256": "f1faf33c9ae433ab061567a781007f0484e6b1344c5c06724795fa5683e017b8",
+      "bytes": 175
+    },
+    "/tmp/ir-audit-1793158083/dr-trace-probe.mjs": {
+      "sha256": "9611bc6bd1b8080e0cffff349752db490410c1d40ce93890726c6be5cbd8a8bd",
+      "bytes": 725
+    },
+    "/tmp/ir-audit-1793158083/dr-trace-results.jsonl": {
+      "sha256": "abc3363eb8c45ed4ab5783c171180e47d13ac859729e478bdf7c778a23209c86",
+      "bytes": 158
+    },
+    "/tmp/ir-audit-1793158083/metadata-probe.mjs": {
+      "sha256": "f27356567a78beb36f1246feadf68bb3d35c0c1058801865a8ba72433bfa67fe",
+      "bytes": 618
+    },
+    "/tmp/ir-audit-1793158083/metadata-results.jsonl": {
+      "sha256": "e0575fda7a68362078cb4939e210490706bf01f27c432c4769f8fbb40f76239c",
+      "bytes": 155
+    },
+    "/tmp/ir-audit-1793158083/plan-probe.mjs": {
+      "sha256": "4747eca86f308bd486c1bd1731eff81322729ececb73f1865e7eaf234cb575d1",
+      "bytes": 1285
+    },
+    "/tmp/ir-audit-1793158083/plan-results.jsonl": {
+      "sha256": "52f11168e2444c0c461f0fef2f3139b8d52afd648f3d7bbda2fdd677f88a0128",
+      "bytes": 189
+    },
+    "/tmp/ir-audit-1793158083/probe-results.jsonl": {
+      "sha256": "31b7feaa757e49404485038a3a7a6b1a0928fbb8cb0ab614ac834d236ec24a65",
+      "bytes": 475
+    },
+    "/tmp/ir-audit-1793158083/probe.mjs": {
+      "sha256": "3c8da6eb4e3e3f911f72f5c8581071f4d75dc5f72eebdb27b19b3f1617de7bca",
+      "bytes": 2111
+    },
+    "/tmp/ir-audit-1793158083/publish-probe.mjs": {
+      "sha256": "c3b008eea3ed9ab0e840d959e20ad5f035602460f0d52fa8704f808940c406f8",
+      "bytes": 845
+    },
+    "/tmp/ir-audit-1793158083/publish-results.jsonl": {
+      "sha256": "06184958af9518dbd103aa92f949cc32640c09a60831bab2d1296175bf099738",
+      "bytes": 144
+    },
+    "/tmp/ir-audit-1793158083/relation-probe.mjs": {
+      "sha256": "7366822b0f112a1a7bc0c54de081b08cfb955ce2245a2dc1adb33d3fce1627a9",
+      "bytes": 2293
+    },
+    "/tmp/ir-audit-1793158083/relation-results.jsonl": {
+      "sha256": "d4c0c79e05166bafd378173349615092178ad6b0a62c882d2fc7a1bd5f2fdc3d",
+      "bytes": 287
+    },
+    "/tmp/ir-audit-1793158083/resource-probe.mjs": {
+      "sha256": "e5d1ad7336df243aa19ab81dc68141a343566b0db0ff3c2b913c11ed28c32ce5",
+      "bytes": 1523
+    },
+    "/tmp/ir-audit-1793158083/resource-results.jsonl": {
+      "sha256": "cd660741001a973afef7a903fb8b10af65ab5b51a6def3b85f94e909dafcdfd2",
+      "bytes": 162
+    },
+    "/tmp/ir-audit-1793158083/shared-search-probe.mjs": {
+      "sha256": "d8aec6f19a30ef372f0679a325a10d00517fff1ec3d8dabed2c010a4b20f7ca9",
+      "bytes": 1294
+    },
+    "/tmp/ir-audit-1793158083/shared-search-results.jsonl": {
+      "sha256": "5cb66192f1605fa97c2058fa9c9500e9052127ebedc6d0b76db0036d04f66cb9",
+      "bytes": 193
+    },
+    "/tmp/ir-audit-1793158083/trace-probe.mjs": {
+      "sha256": "a1cb71edb0b184e8e325552a1a5a23f0b993c70e720fa5ab46f6a9af5ad7dd91",
+      "bytes": 752
+    },
+    "/tmp/ir-audit-1793158083/trace-results.jsonl": {
+      "sha256": "abc3363eb8c45ed4ab5783c171180e47d13ac859729e478bdf7c778a23209c86",
+      "bytes": 158
+    },
+    "/tmp/terra-shared-audit-696b/blob-trace-summary.jsonl": {
+      "sha256": "5b3fb440a20ad3a3814b399465a0f30f733d6874127278cc013f9b1de696645f",
+      "bytes": 356
+    },
+    "/tmp/terra-shared-audit-696b/blob-write-probe.jsonl": {
+      "sha256": "a1580e3e41d3a568074fbb8fd6e11e0262e333049f8744d3e638bffdd2b47730",
+      "bytes": 218
+    },
+    "/tmp/terra-shared-audit-696b/blob-write-probe.ts": {
+      "sha256": "c6fd8f12d1cb6b8594999d68f99bff615f34eac7856948ccf8a5099e2c813bc3",
+      "bytes": 570
+    },
+    "/tmp/terra-shared-audit-696b/cycle.jsonl": {
+      "sha256": "898d51db19a4ea184dbfe8ad214838135e3ab701a12d47f6c47f7b43b617d857",
+      "bytes": 270
+    },
+    "/tmp/terra-shared-audit-696b/cycle.ts": {
+      "sha256": "9fe68d92ea8b01ad8fe56857e23ae8dfdddad6217b3a5676d4caf783f29cac14",
+      "bytes": 1019
+    },
+    "/tmp/terra-shared-audit-696b/git-flags-after.txt": {
+      "sha256": "51339242431cbaf30bc0b22da4cb07e29cc8979cc3915361bac81fb429729351",
+      "bytes": 20
+    },
+    "/tmp/terra-shared-audit-696b/git-flags-before.txt": {
+      "sha256": "0a1ab25d82a4b8bc4ac6e7e291d69d38d95d8fe94c60b3763b5fc1b0e623ebe7",
+      "bytes": 20
+    },
+    "/tmp/terra-shared-audit-696b/pending-records-probe.ts": {
+      "sha256": "21501940ccc19e781f57539634c3980874cbed90172e2c6d950d819ae090529a",
+      "bytes": 580
+    },
+    "/tmp/terra-shared-audit-696b/pending-records-results.jsonl": {
+      "sha256": "e5efcc6d34f4ee31cee4871293e96d6d1f691264046f89b56a901fe69e6939ef",
+      "bytes": 237
+    }
+  },
+  "sourceSha256": {
+    "tools/decision-records/src/cli-lifecycle-commands.ts": "2d5a47b1c7af2d991e7b1c2919c5c2cb2319c0b04004dee98ccb4bf0547255b3",
+    "tools/decision-records/src/cli-lifecycle-selection.ts": "eb8fadb08478ebc79567625a84a8a581eca35b9f3f35e50e29a9547cac4b4bd4",
+    "tools/decision-records/src/cli-maintenance-execution.ts": "409da0b8b4f88b0e4c17a17b37462c9fd20b4fc5111479a2f686e4ab22bd7f4c",
+    "tools/decision-records/src/cli-mutation-commands.ts": "2e65d895d0bcc955c69fefdb152943ab6970dc44674098e72a0101450d977874",
+    "tools/decision-records/src/cli-query-commands.ts": "16a65a591167e0e62545c606963431bf02552a5aca4225f0ad1f991d6068172b",
+    "tools/decision-records/src/decision-candidate-context.ts": "93c7c6e4bce2a8cbb1c8c93f81373e41e5a0169191b60dcf457c598197bd5983",
+    "tools/decision-records/src/decision-candidate-discovery.ts": "8853a793b668ba48121270581e8333089b81c65fd1198afb0ca26d9f43cc3278",
+    "tools/decision-records/src/decision-candidate-readiness.ts": "b7e88b1e54448c5e568eee350a87cdcad1604de388793ecbc956382c8dea620e",
+    "tools/decision-records/src/decision-candidate-relations.ts": "2e79351347fae406614f91a56baf16b97853dde31866505338df535e7f638692",
+    "tools/decision-records/src/decision-candidate-service.ts": "4e1cddd5134559ca60ad2e305b132c55e479fbf2482cfbd88f244951dbb410f2",
+    "tools/decision-records/src/decision-candidate-validation.ts": "147a71b48ec35e60974b8390e48430ffcbb9ac7b4c54d6ad4a4db4bb166f20bc",
+    "tools/decision-records/src/decision-discard.ts": "ac20556955953d98e5ce8fe20c843d9356b5f857ae44c7f9f88c4be4555c338b",
+    "tools/decision-records/src/decision-history-baseline.ts": "5cd20eab8111dfdd8a00ea46dfefde5451e395b2d79eef9c430894d636bc0d97",
+    "tools/decision-records/src/decision-history-sources.ts": "0ef3d3c06a69d34e43f676821fa1beec5af91dda44cd97800b9828e769c21aff",
+    "tools/decision-records/src/decision-index-snapshot.ts": "c59ea4303bb10573a5d20efe0c2e582d3aca44a3ab1f0affedd6c1dc7c6f2ebf",
+    "tools/decision-records/src/decision-lifecycle-archive.ts": "8b2003b8cb11be87ef4548b89207fb29b5190098d674ec881ad7eac1460c979d",
+    "tools/decision-records/src/decision-lifecycle-service.ts": "894514b2ded427b4c7ef49131edf4da941e7cd78cea6ff348da6770cd0d79acf",
+    "tools/decision-records/src/decision-lifecycle-transition.ts": "c513ff794031debced98925f35c7c575f658d2ae410f46087b7da99d035ad0b1",
+    "tools/decision-records/src/decision-maintenance-context.ts": "51f48db15c71c9f186b31d8aab75570af7cca1f8b118c5679011a930a1b375d2",
+    "tools/decision-records/src/decision-query-candidates.ts": "bdb01228cc34ea1e4d371f3a1f95db8ae6d899063193f1f5bb1238777b8b680e",
+    "tools/decision-records/src/decision-query-context.ts": "7fb2e9c5fa5970c804f4ed9fec44fb65c408072a91c1671d0b6d4dfa5c9d95d3",
+    "tools/decision-records/src/decision-query-list.ts": "bbfe1c8eb38881239c847205aceeccbc1cf1969b29faaf49789c239c428190f8",
+    "tools/decision-records/src/decision-query-record-queries.ts": "358cef7b6c16df2a297808c75748330c919ae3bbbcd699ef77e978f57ff44761",
+    "tools/decision-records/src/decision-query-relation-filter.ts": "de20fd5b0fed7a23ee6af418c9012f479dbd403e0736a497ffb16c3cffc148bf",
+    "tools/decision-records/src/decision-query-search-content.ts": "f69da6675a97b1948ab58e1287a0813e2776f8908d26d77a9c0e0a59c4c33d9d",
+    "tools/decision-records/src/decision-query-search-filter.ts": "f680cab5090b92e000f2c879a4d7e964b533d1601562ccd8ec68e4709f838307",
+    "tools/decision-records/src/decision-query-search-metadata.ts": "25864fa9f340c4d20ef812883751b83427340c6cbb3ac7c8ffbbec8584229854",
+    "tools/decision-records/src/decision-query-search.ts": "98334f298c14be206026e456aba552af0415587024422809f9c4edd1c789209c",
+    "tools/decision-records/src/decision-query-service.ts": "82d39836c034f7bf47bb868d9df9cb7418298e4df234cfdf7b0fa6bd3e8b3dcc",
+    "tools/decision-records/src/decision-query-sync-lock.ts": "fab6065111a1324be852231ed20065c02781a985235407b1944413406111383e",
+    "tools/decision-records/src/decision-query-sync.ts": "32ea07ba0a8a41ded19187afeec9f58cb3fbfadc8dc92c61928a3a7c89df8ad1",
+    "tools/decision-records/src/decision-relation-maintenance.ts": "2db3f3d08ced377624e425c47d4c064553767b2173811e35ad8cd0597e460ae0",
+    "tools/decision-records/src/decision-relation-transaction-projection.ts": "b6a9798fee2f97d23c4d2fa06e4642f4bfe03d27824da55020fc4e27a494337b",
+    "tools/decision-records/src/decision-relation-transaction-strategy.ts": "018f69ffe852d3e385f0246105d04b840c4123fa76cf58ff02b02aac390c6e54",
+    "tools/decision-records/src/decision-relation-transaction.ts": "14eab7a495e8c6a1aa03c1b96df1e048dacb6ac1e1ff516d810432ce0a71df4d",
+    "tools/decision-records/src/decision-rename-noop.ts": "9cf7fdcd0c9bd0d17f51d3628caa989bdb84579b41e937796cae50cf1fdd68c2",
+    "tools/decision-records/src/decision-rename-pending.ts": "99474d909f3188a5c76295c1fd005cda107b58034c28c59ebbbf66ad5e019db0",
+    "tools/decision-records/src/decision-rename-planning.ts": "44f4c6abb6162e4642e599490637f81beef25f94a5a7fdcef8bb8da466d800cc",
+    "tools/decision-records/src/decision-rename.ts": "0604de9148839551c03bd854d908d0f4c2b9764ab763e9b82723b0d9d83c7df9",
+    "tools/decision-records/src/decision-selected-sync.ts": "160aea593a30dab4d5697738861cac402b17cd2ac3c1792cdcf55ad1e158987d",
+    "tools/decision-records/src/decision-source-dependencies.ts": "b531229fa36959ccdeee1202d901ba6492f1de74a751561400765253f678b96e",
+    "tools/decision-records/src/decision-stage-refresh-context.ts": "b35b025774cf332383ca83d32a1165cef65d1a3b744008d704b765acc89577ca",
+    "tools/decision-records/src/decision-stage-refresh-locators.ts": "b85483d4bdb49b942748f8886363d5de19765d7bd047c2c2139945de646f189a",
+    "tools/decision-records/src/decision-stage-refresh-pending.ts": "877ee8d7347cf5aacabfe7fc428e72ce341dc73459926bdfd0b816bfc4ac9c9e",
+    "tools/decision-records/src/decision-stage-refresh-sources.ts": "06e25386411a0e032dd3bcc6e4faf43ce181da587c0d4c87f626ac6e6ef8565b",
+    "tools/decision-records/src/decision-stage-refresh.ts": "cbc35cfa516110f20f2452a6ea2482f46ca0260850228ac3d7662df17f7beff3",
+    "tools/decision-records/src/decision-stage-repository.ts": "88a0b73c563424bcc586e8e3c8346748e7bbb9123da41f7ac2ad53393f91894e",
+    "tools/decision-records/src/decision-stage-service.ts": "13968841f60716dd00a7a61576e5ad2875f5885a1ad962f66d91344685512e78",
+    "tools/decision-records/src/decision-trace-admission.ts": "ec752b6e3046f9b0f9ce4b2b426d041b4546b7cb32d0e70772fff5e872347648",
+    "tools/decision-records/src/index.ts": "cb80897079e7c7eab5022dbcbecf36738b01d3c103d9c04fa48fffdbf0a869cb",
+    "tools/decision-records/src/relation-graph.ts": "e9cfb518e4785a5ef9b1974702f05707a472c56948d9d5d8650c93d95f9efcdf",
+    "tools/decision-records/src/scan-index-check.ts": "b80e6f662dce6cf20b38d9afa18066b93bdfed7ca901383070d7dfd85eaebebd",
+    "tools/decision-records/src/scan-snapshot.ts": "d4dc82a200849402d4a6a55cd8e1bda533ea777da1c21dc29b103ceb97260273",
+    "tools/index-runtime/src/prepared.ts": "3e76c6689797e19bedd73864b7940e12170f0f17fd56d51fd7a9598c674917ee",
+    "tools/index-runtime/src/snapshot-builder.ts": "b14d82c79c086ae6226114cd16bd0387183af5aef2a05512e10bf2de949b022c",
+    "tools/index-runtime/src/snapshot-parser.ts": "0b760e28c1a6c750355a7774b00e53a678331f46cbeb3fca0461b4d9e04092f2",
+    "tools/investigation-report/src/candidate-access.ts": "5cbfbace66165bb7848e60627849499ef47c4d9bbcbd0c904c7063e454773483",
+    "tools/investigation-report/src/candidate-create-result.ts": "f034349a0c0068393e7299c3ced5280c86e1457ac4d8abb51943b9314f2ca1d8",
+    "tools/investigation-report/src/candidate-create-transaction.ts": "dce79f113d94eb30f5976225ae3a90cccf6a89b7488888b0c0d0adad7dca4d21",
+    "tools/investigation-report/src/candidate-create.ts": "12af60f91b48736fa5055b7530f19b157709cb58bd47750b65386cde7863cfa1",
+    "tools/investigation-report/src/candidate-discard-preparation.ts": "edaca0713fdde508c9d862473f33d0876e0d5aea8c98fa3988aa6a54472df8da",
+    "tools/investigation-report/src/candidate-discovery.ts": "30e05aaf520097401f15ba5f162032bec6007f077c76c730a825adbdc999df30",
+    "tools/investigation-report/src/candidate-read-context.ts": "690ea9d72a63889c73656ce4f7d0aa6a0cb909dd09bd8917a02f9e63ddce59c8",
+    "tools/investigation-report/src/candidate-read-resources.ts": "d79c419a7a81ba6c083074bf5b2fe547a6a26bf692240f783502c4cb37f13ed4",
+    "tools/investigation-report/src/cli-candidate-create.ts": "4c63a1a92b901a5e3945cbb64622ae5aa676d2334ad096c35c5bef7282ee3c71",
+    "tools/investigation-report/src/discard-entry.ts": "7d6c3eb8906f8e45d25d8ce940902eedb2f1c2b1cd5f1c54445c30dc4ffb3312",
+    "tools/investigation-report/src/discard-history.ts": "c5747ff3202b2b02565314ac9e77441cc6164672e51309770b3456cc6a704e74",
+    "tools/investigation-report/src/discard-loading.ts": "41372534f040367a3e79fa9417d6cb5484d15c13731cf94fa9ac99955823fc3a",
+    "tools/investigation-report/src/investigation-selector.ts": "241a42d2270e80e092ff5b314259f9f18dd552a9ddfa606f799b8d726733446a",
+    "tools/investigation-report/src/publish-preparation-formal.ts": "0aa1edc8e52f69ee260ee63ef1d89e9552371999e3102ea987f5cc9c1222e212",
+    "tools/investigation-report/src/publish-preparation.ts": "2ee3fd3efa74c2d1a9158d5f719548f9091faa4f8c39136fd9852fbd9b7f800b",
+    "tools/investigation-report/src/publish-selector.ts": "4fd3874820d93a2f0cdfea24f6697ac6cf522c19fc9320961b138cad34ca3d8c",
+    "tools/investigation-report/src/publish-transaction.ts": "fbd0141458853631720336f37b24a9d89f6e305e0f13e33aaec637efeaea9662",
+    "tools/investigation-report/src/publish.ts": "f953efe3e4b7c33f4d18f80f0154d3c2f721c45573421610e26f08d543896d37",
+    "tools/investigation-report/src/published-preparation.ts": "2dcf96a9097ade8acd4f1766ce78a4757e45bedba67040ef61e39d4c96a5639d",
+    "tools/investigation-report/src/query-index.ts": "53fe46f54ee81862adc46450612b7fb416516aeb6397656d4b1c54abcee8d9cb",
+    "tools/investigation-report/src/query-report.ts": "c32585556d2dd31678bc76854dc64e6945766dc7af59cba48265ce7951f91e3e",
+    "tools/investigation-report/src/query-search-content.ts": "6a09c6e6b0db68aacf9fd90ce471879aa5c9cdc5dde45189d030304df27612a9",
+    "tools/investigation-report/src/query-search-selection.ts": "0d3fdb1522ae3a647b292e4df9dc939d12f99dcea880f3bf40c83cdede942023",
+    "tools/investigation-report/src/query-search.ts": "1203158716403df662ee32a22590bd8cb87e870ff6590d6f1cb6775db1f10bfe",
+    "tools/investigation-report/src/query-trace.ts": "325c02e5386eb00174baf7be0eecd4e3e982dbac0fdd9b8dc9d07302349aea50",
+    "tools/investigation-report/src/relation-context.ts": "63317edd76bc9f0db9e901018c03b825b9ce96c5ac3c7551338660125aa18b46",
+    "tools/investigation-report/src/relation-transaction-execution.ts": "0cce5cb17772e82f2a07b5e31b4018594dde619322abb817febe67661152d194",
+    "tools/investigation-report/src/relation-transaction-plan.ts": "0d8b28f38032b71c7d11c040018ccad710524ec44b29537ca0030ddc2e5278c8",
+    "tools/investigation-report/src/relation-transaction-support.ts": "9a54786301403ab53bb2ce1fdd637f968a8cb6106dc284d30a102e46162a474b",
+    "tools/investigation-report/src/relation-transaction.ts": "be092bc0f357187a2164ef8e0bfce0939c4c73263d8735fbce8af8930b44aca3",
+    "tools/investigation-report/src/rename-noop.ts": "36da5ca6db425ae7676f1723187dd1f4468f86c876ce9482f4db4d051c5d1447",
+    "tools/investigation-report/src/rename-preparation.ts": "2ba47d3e439c57224bf4d1c16ea27009a39e075a30a2c197e7d97f7133146199",
+    "tools/investigation-report/src/rename.ts": "0e1cb6504bbd9e781ca5b1f3f6e63717349318f6db7911da5781090ead3f54f1",
+    "tools/investigation-report/src/selected-sync.ts": "aa3073712722d96842887ab09a6f2b0ee894aa03789ba0b5ffaf0eafd2931802",
+    "tools/investigation-report/src/staging-domain-adapter.ts": "f952bf696b6429476b9b63e7a581ba28315f83428636282dd97b051861d5c82c",
+    "tools/investigation-report/src/staging-domain-context.ts": "2640e47f297d7021a93ca1921c059cd93e31482535b82519b72afbf04974772a",
+    "tools/investigation-report/src/staging-domain-membership.ts": "78c92a1315d5fb164ac1e42e0153457a1783a0670893323b857e7bbf22e94638",
+    "tools/investigation-report/src/staging-domain.ts": "77786d192f3361c2caf33098a7c207dcb3a7fedf1dca8840d8c73348bb3b39f7",
+    "tools/investigation-report/src/staging-pending.ts": "20e4ebfc4c547b4ce8974e3dfa3b26e4a4399971f9c265fece20a02f21d0e228",
+    "tools/investigation-report/src/staging.ts": "1970bc87406fa8f72eaf03e7da6975c5bcf027ffb7acaf372ff23e02553d8954",
+    "tools/investigation-report/src/validation-check-flow.ts": "6bd9608f2c2d2063ddfc63ab679ccaefcb9795528a125292adc1b51ffbeaa7c5",
+    "tools/investigation-report/src/validation-history.ts": "2fab05f272d66be06c0507e656ca4e7358952d84fa592cef02bf9c786e3fa002",
+    "tools/investigation-report/src/validation-sync-flow.ts": "11fbd4b2a10997ef7deb8b9b653582a58974a24bb222caf64701b3a300f8f0bb",
+    "tools/record-operations/src/candidate.ts": "66e1715f2638558854be42a0a4b96fc53e26d8a56503ab80c1bb860f930e76c8",
+    "tools/record-operations/src/source.ts": "f23aa63072f35cdeaf306f0fb35b8949df117376a65c48826b841b62b1092b34",
+    "tools/record-operations/src/synchronize.ts": "9c421494906a79ea64178592f4235b46a9abfea40341a6b3107b27b2be3895ff",
+    "tools/shared/src/file-text-search/record-search.ts": "f4b2b1b2d125f37a599a07e8fd72716c285cd4b15719880f6f23d7f6fc82d5d6",
+    "tools/shared/src/file-text-search/segment-matcher.ts": "4750838720fc05b1dbdbdcb2d51d1e083b3d0eb3049d3a774e175ded477093ae",
+    "tools/shared/src/graph/relations.ts": "0dd974ddcee54aa7146e2efa22e0a2a9112a36add08eb12b90615c709a04643f",
+    "tools/shared/src/graph/trace-selection.ts": "bff4ff2ed97531f84ec06e51fd940b369c5b06deed39546a60cfe4529927aef6",
+    "tools/shared/src/version-control/git-pending.ts": "12cfa1caf8a0b03ada88e783e3ab0790020aff30dd0419a6e7464a7ad0b297b6"
+  },
+  "primaryAgentReplays": {
+    "cycle": {
+      "command": "node /tmp/terra-shared-audit-696b/cycle.ts",
+      "exitCode": 0,
+      "stdoutRecords": [
+        {
+          "n": 20,
+          "edges": 37,
+          "calls": 18,
+          "comparisons": 189,
+          "cycles": 18,
+          "totalCycleMembers": 54
+        },
+        {
+          "n": 200,
+          "edges": 397,
+          "calls": 198,
+          "comparisons": 19899,
+          "cycles": 198,
+          "totalCycleMembers": 594
+        },
+        {
+          "n": 1000,
+          "edges": 1997,
+          "calls": 998,
+          "comparisons": 499499,
+          "cycles": 998,
+          "totalCycleMembers": 2994
+        }
+      ],
+      "stderr": ""
+    },
+    "drNewName": {
+      "command": "node /tmp/dr-audit-1671249/new-probe.ts",
+      "exitCode": 0,
+      "stdoutRecords": [
+        {
+          "n": 20,
+          "count": 400,
+          "status": "ok"
+        },
+        {
+          "n": 100,
+          "count": 10000,
+          "status": "ok"
+        },
+        {
+          "n": 200,
+          "count": 40000,
+          "status": "ok"
+        }
+      ],
+      "stderr": ""
+    }
+  },
+  "newResourceHashes": {
+    "terra-audit-coverage.csv": "7e5b6d8fcc0feb2fe76d10fc462144cd16537c528aefc10b8ac66812ca61765c",
+    "terra-audit-findings.json": "d9ca8fedf2216d3b6df0ff64567e550e88a7008211024ab340edf7d3e9ed1284",
+    "terra-audit-gaps.json": "2cd2cba2fd250011b126802111e9c57f337ad98638e76ff9d36dccbe7d90e2d7",
+    "terra-audit-methods.md": "40af13e857017aec826f2bbd2a467eb3ae9dd6293b6db6a4e4aa0d893ab6ab3a",
+    "terra-audit-results.json": "98fe169ea4878418cddc4cd9d11575132316dc85d7a3784a50b42c14cd0abdb4",
+    "terra-audit-scope.json": "a5423f20e2fd3f8a7071a66781c4700258aaaf2babccd22e8e73ccae3562b736"
+  }
+}

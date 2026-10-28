@@ -1,0 +1,24 @@
+{
+  "timestampUtc": "2026-10-28T03:13:00.632230+00:00",
+  "command": "bun run hash:skills --quiet",
+  "wallMs": 7075.387816992588,
+  "exitCode": 0,
+  "timedOut": false,
+  "gitStarts": {
+    "rev-parse": 1347,
+    "ls-files": 1,
+    "cat-file": 1344,
+    "ls-tree": 1344
+  },
+  "gitTotalStarts": 4036,
+  "gitCumulativeMsMayOverlap": {
+    "rev-parse": 969.5580000000007,
+    "ls-files": 3.195,
+    "cat-file": 1085.088,
+    "ls-tree": 1173.9969999999998
+  },
+  "nonzeroGitExits": 0,
+  "traceBytes": 6010653,
+  "stdoutBytes": 0,
+  "stderrBytes": 37
+}

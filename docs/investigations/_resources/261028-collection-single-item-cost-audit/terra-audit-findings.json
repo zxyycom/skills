@@ -1,0 +1,322 @@
+{
+  "head": "696b888b7256ac185ef43f6fdf36ffe9aa82bd00",
+  "interpretation": "mechanism confirmation is not end-to-end impact or safe optimized equivalence; site groups are not independent issue counts",
+  "findings": [
+    {
+      "id": "dr-lifecycle",
+      "root_cause": "stage identity repeated scan",
+      "prior_status": "new",
+      "input_class": "valid batch",
+      "condition": "N formal IDs × Q dated selectors; archive/evolve/set-relations",
+      "sites": [
+        "tools/decision-records/src/cli-lifecycle-selection.ts:68-70,87-93"
+      ],
+      "evidence": [
+        "/tmp/dr-audit-1671249/probe.ts",
+        "/tmp/dr-audit-1671249/probe.out"
+      ],
+      "not_proven": "resolver-only; no CLI time, preserve name/ambiguity/candidate fallback"
+    },
+    {
+      "id": "dr-candidate-members",
+      "root_cause": "stage identity repeated scan",
+      "prior_status": "new",
+      "input_class": "valid batch",
+      "condition": "C canonical candidate members × K selectors; evolve",
+      "sites": [
+        "tools/decision-records/src/decision-candidate-discovery.ts:51-64"
+      ],
+      "evidence": [
+        "/tmp/dr-audit-1671249/candidate-probe.ts",
+        "/tmp/dr-audit-1671249/candidate-probe.out"
+      ],
+      "not_proven": "fixture uses existing valid index; preserve legacy fallback and directory identity"
+    },
+    {
+      "id": "dr-evolve-lookup",
+      "root_cause": "stage identity repeated scan",
+      "prior_status": "new",
+      "input_class": "valid pre-validation input",
+      "condition": "K selected successors × record/group scans",
+      "sites": [
+        "tools/decision-records/src/decision-maintenance-context.ts:161-188"
+      ],
+      "evidence": [
+        "/tmp/dr-audit-1671249/evolve-probe.ts",
+        "/tmp/dr-audit-1671249/evolve-probe.out"
+      ],
+      "not_proven": "empty-relation sample not a legal completed evolve; eager lookup can alter first errors"
+    },
+    {
+      "id": "ir-publish-members",
+      "root_cause": "stage identity repeated scan",
+      "prior_status": "new",
+      "input_class": "valid batch",
+      "condition": "C candidates × K selected, both preparation and fresh independently",
+      "sites": [
+        "tools/investigation-report/src/publish-preparation.ts:98-106,296-310"
+      ],
+      "evidence": [
+        "/tmp/ir-audit-1793158083/publish-probe.mjs",
+        "/tmp/ir-audit-1793158083/publish-results.jsonl"
+      ],
+      "not_proven": "private-function stub only; preserve duplicates, errors and independent fresh"
+    },
+    {
+      "id": "ir-stage-lookup",
+      "root_cause": "stage identity repeated scan",
+      "prior_status": "new",
+      "input_class": "valid stage inputs",
+      "condition": "domain index/pending lookup N×K/P×K; all/domain ownership N×K",
+      "sites": [
+        "tools/investigation-report/src/staging-pending.ts:96-111,185-224",
+        "tools/investigation-report/src/staging-domain-membership.ts:135-165"
+      ],
+      "evidence": [
+        "/tmp/ir-audit-1793158083/probe.mjs",
+        "/tmp/ir-audit-1793158083/probe-results.jsonl"
+      ],
+      "not_proven": "private-function instrumentation; index scope excludes ownership; preserve pending path identity and fresh/CAS"
+    },
+    {
+      "id": "ir-owners",
+      "root_cause": "stage identity repeated scan",
+      "prior_status": "new",
+      "input_class": "valid resources",
+      "condition": "R distinct owner IDs × N formal IDs",
+      "sites": [
+        "tools/investigation-report/src/candidate-read-context.ts:27-33"
+      ],
+      "evidence": [
+        "/tmp/ir-audit-1793158083/candidate-probe.mjs",
+        "/tmp/ir-audit-1793158083/candidate-results.jsonl"
+      ],
+      "not_proven": "stub IO; do not equate owner count to resource files"
+    },
+    {
+      "id": "ir-relation-writes",
+      "root_cause": "stage identity repeated scan",
+      "prior_status": "new",
+      "input_class": "valid preflight and success; recovery on precommit failure",
+      "condition": "C candidate sources × K changed IDs; plan, verify, verifyRecovered",
+      "sites": [
+        "tools/investigation-report/src/relation-transaction-plan.ts:38-40",
+        "tools/investigation-report/src/relation-transaction-execution.ts:63-69,87-93"
+      ],
+      "evidence": [
+        "/tmp/ir-audit-1793158083/plan-probe.mjs",
+        "/tmp/ir-audit-1793158083/plan-results.jsonl",
+        "/tmp/ir-audit-1793158083/relation-probe.mjs",
+        "/tmp/ir-audit-1793158083/relation-results.jsonl"
+      ],
+      "not_proven": "stub IO; success and recovered are mutually exclusive, recovery not fault injected"
+    },
+    {
+      "id": "dr-reallocation",
+      "root_cause": "repeated intersection across graph components",
+      "prior_status": "new",
+      "input_class": "valid closure function input; full legal evolve not demonstrated",
+      "condition": "M unrelated graph components × K selected IDs",
+      "sites": [
+        "tools/decision-records/src/decision-relation-transaction-strategy.ts:170-192"
+      ],
+      "evidence": [
+        "/tmp/dr-audit-1671249/graph-probe.ts",
+        "/tmp/dr-audit-1671249/graph-probe.out"
+      ],
+      "not_proven": "shape and transaction success not demonstrated; preserve first matching component"
+    },
+    {
+      "id": "ir-resource-materialization",
+      "root_cause": "repeated all-resource materialization",
+      "prior_status": "new",
+      "input_class": "valid Git ready resource branch; synthetic IO",
+      "condition": "K candidate owners × F workspace resource files",
+      "sites": [
+        "tools/investigation-report/src/candidate-read-resources.ts:39-45"
+      ],
+      "evidence": [
+        "/tmp/ir-audit-1793158083/resource-probe.mjs",
+        "/tmp/ir-audit-1793158083/resource-results.jsonl"
+      ],
+      "not_proven": "stub root; no full Git CLI or warning order equivalence"
+    },
+    {
+      "id": "trace-adjacency",
+      "root_cause": "same-stage unused graph projection",
+      "prior_status": "earlier audit noted adjacency enumeration; non-depth unused work refined",
+      "input_class": "valid ordinary trace",
+      "condition": "for each non-depth-limited node directIds constructed before domain adapter reads adjacency",
+      "sites": [
+        "tools/shared/src/graph/trace-selection.ts:194-203"
+      ],
+      "evidence": [
+        "/tmp/ir-audit-1793158083/trace-probe.mjs",
+        "/tmp/ir-audit-1793158083/trace-results.jsonl",
+        "/tmp/ir-audit-1793158083/dr-trace-probe.mjs",
+        "/tmp/ir-audit-1793158083/dr-trace-results.jsonl"
+      ],
+      "not_proven": "domain snapshot Map evidence; generic graph dynamic getter observations differ; preserve depth/budget frontier"
+    },
+    {
+      "id": "cycle-position",
+      "root_cause": "linear stack search per back edge",
+      "prior_status": "previously noted static audit; short-cycle separation count refined",
+      "input_class": "invalid graph error path",
+      "condition": "deep path with many short backwards cycles, not healthy graph",
+      "sites": [
+        "tools/shared/src/graph/relations.ts:245-269"
+      ],
+      "evidence": [
+        "/tmp/terra-shared-audit-696b/cycle.ts",
+        "/tmp/terra-shared-audit-696b/cycle.jsonl"
+      ],
+      "not_proven": "function only; preserve exact cycle diagnostics and order"
+    },
+    {
+      "id": "git-duplicate-hash",
+      "root_cause": "per-file Git spawn",
+      "prior_status": "existing observation; duplicate bytes and concurrency refined",
+      "input_class": "valid stage changed payload",
+      "condition": "U changed files; all same bytes nevertheless U hash-object; Promise.all unbounded",
+      "sites": [
+        "tools/shared/src/version-control/git-pending.ts:162-193,310-330"
+      ],
+      "evidence": [
+        "/tmp/terra-shared-audit-696b/blob-write-probe.ts",
+        "/tmp/terra-shared-audit-696b/blob-write-probe.jsonl",
+        "/tmp/terra-shared-audit-696b/blob-trace-summary.jsonl"
+      ],
+      "not_proven": "unique-object writes necessary; observed 40 traced live children Linux only, no equivalent batch protocol proven"
+    },
+    {
+      "id": "git-index-write",
+      "root_cause": "full scope Git update record emission",
+      "prior_status": "new cost candidate; optimization semantics unproven",
+      "input_class": "valid stage with changes",
+      "condition": "one changed pending target makes P target records even if P-1 retained",
+      "sites": [
+        "tools/shared/src/version-control/git-pending.ts:197-217,236-253"
+      ],
+      "evidence": [
+        "/tmp/terra-shared-audit-696b/pending-records-probe.ts",
+        "/tmp/terra-shared-audit-696b/pending-records-results.jsonl",
+        "/tmp/terra-shared-audit-696b/git-flags-before.txt",
+        "/tmp/terra-shared-audit-696b/git-flags-after.txt"
+      ],
+      "not_proven": "no-op emits none; Git flags test shows full reapply clears flags; differential update changes observable behavior and needs decision"
+    },
+    {
+      "id": "metadata-content-ranges",
+      "root_cause": "unused range/normalization work",
+      "prior_status": "existing C9/C10; refreshed evidence",
+      "input_class": "valid metadata and content search",
+      "condition": "metadata consumes identifiers only; content ranges built before preview limit; per-file hard byte caps",
+      "sites": [
+        "tools/shared/src/file-text-search/segment-matcher.ts:89-108,229-270",
+        "tools/shared/src/file-text-search/record-search.ts:92-125"
+      ],
+      "evidence": [
+        "/tmp/ir-audit-1793158083/metadata-probe.mjs",
+        "/tmp/ir-audit-1793158083/metadata-results.jsonl",
+        "/tmp/ir-audit-1793158083/shared-search-probe.mjs",
+        "/tmp/ir-audit-1793158083/shared-search-results.jsonl"
+      ],
+      "not_proven": "C9/C10 known; no M×span mapping; preserve exact match and Unicode/truncation"
+    },
+    {
+      "id": "canonical-serial",
+      "root_cause": "same-stage repeated canonicalization",
+      "prior_status": "existing candidate and measurements; refreshed function evidence",
+      "input_class": "valid sync/stage",
+      "condition": "build/parse canonical frozen index then serialization canonicalizes again",
+      "sites": [
+        "tools/index-runtime/src/snapshot-builder.ts:140-157",
+        "tools/index-runtime/src/snapshot-parser.ts:128-136",
+        "tools/index-runtime/src/prepared.ts:251-260"
+      ],
+      "evidence": [
+        "/tmp/dr-audit-1671249/shared/canonical-probe.ts",
+        "/tmp/dr-audit-1671249/shared/canonical-probe.out"
+      ],
+      "not_proven": "existing 261024 and index-stage reports; internal proof/byte equivalence and observed benefit not established"
+    },
+    {
+      "id": "dr-new-selector",
+      "root_cause": "stage identity repeated scan",
+      "prior_status": "existing C11; refreshed function evidence",
+      "input_class": "valid new candidate",
+      "condition": "name relations and summaries scan N+C records per selector; dated ID bypass",
+      "sites": [
+        "tools/decision-records/src/decision-candidate-relations.ts:21-35,80-94"
+      ],
+      "evidence": [
+        "/tmp/dr-audit-1671249/new-probe.ts",
+        "/tmp/dr-audit-1671249/new-probe.out"
+      ],
+      "not_proven": "original function only; preserve ambiguity and first error"
+    },
+    {
+      "id": "dr-known-pending",
+      "root_cause": "stage identity repeated scan",
+      "prior_status": "existing previous 261028 audit; locator refined",
+      "input_class": "valid stage",
+      "condition": "pending identity N×K; domain locator N×K and P×K",
+      "sites": [
+        "tools/decision-records/src/decision-stage-refresh-pending.ts",
+        "tools/decision-records/src/decision-stage-refresh-locators.ts:59-87,150-170,213-225"
+      ],
+      "evidence": [
+        "/tmp/dr-audit-1671249/locator-probe.ts",
+        "/tmp/dr-audit-1671249/locator-probe.out",
+        "docs/investigations/261028-collection-single-item-cost-audit.md"
+      ],
+      "not_proven": "locator fixture not complete Git snapshot; preserve identity and independent fresh"
+    },
+    {
+      "id": "dr-known-maintenance",
+      "root_cause": "stage identity repeated scan",
+      "prior_status": "existing previous 261028 audit",
+      "input_class": "valid batch",
+      "condition": "records.some K² and unconditional history records.find",
+      "sites": [
+        "tools/decision-records/src/decision-maintenance-context.ts",
+        "tools/decision-records/src/decision-history-sources.ts"
+      ],
+      "evidence": [
+        "docs/investigations/261028-collection-single-item-cost-audit.md"
+      ],
+      "not_proven": "history records means selected/dependency set, not full formal collection"
+    },
+    {
+      "id": "ir-known-selector",
+      "root_cause": "stage identity repeated scan",
+      "prior_status": "existing previous 261028 audit",
+      "input_class": "valid batch",
+      "condition": "publish/relation selector K×N",
+      "sites": [
+        "tools/investigation-report/src/publish-selector.ts",
+        "tools/investigation-report/src/investigation-selector.ts",
+        "tools/investigation-report/src/relation-transaction-support.ts"
+      ],
+      "evidence": [
+        "docs/investigations/261028-collection-single-item-cost-audit.md"
+      ],
+      "not_proven": "distinct from subsequent candidate membership"
+    },
+    {
+      "id": "ir-head-git",
+      "root_cause": "single-file Git retrieval",
+      "prior_status": "existing committed investigation",
+      "input_class": "valid IR check with HEAD predecessors",
+      "condition": "208 distinct predecessors → 624 serialized Git launches in historical Windows sample",
+      "sites": [
+        "tools/investigation-report/src/validation-history.ts:147"
+      ],
+      "evidence": [
+        "docs/investigations/261028-investigation-v87-windows-head-predecessor-cost.md"
+      ],
+      "not_proven": "sample not universal; DR check does not perform this HEAD check"
+    }
+  ]
+}

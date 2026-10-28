@@ -1,0 +1,43 @@
+{
+  "formedAtUtc": "2026-10-28T03:19:50.826528+00:00",
+  "repositoryCommit": "696b888b7256ac185ef43f6fdf36ffe9aa82bd00",
+  "runtime": {
+    "node": "v26.8.2",
+    "bun": "1.4.4",
+    "git": "git version 2.53.0",
+    "platform": "Linux; execution host, not external Windows project"
+  },
+  "productionSourcesSha256": {
+    "scripts/lib/skill-package-version-baseline.ts": "d03561709d4d7820ac283bacd3d543371289d711a36bc2bff2dc05870b0a4344",
+    "scripts/lib/skill-package-release.ts": "9bc8437f448a8f2bf3751d981262d1a89daf064c7d9fe2a89efc821283650087",
+    "tools/shared/src/version-control/git-revision.ts": "36e58bec5de4460e17698beaee76e55bfa4f367b36ba66bcdc9613784bc779f7",
+    "tools/shared/src/version-control/git-pathspec-query.ts": "1a12fa0d8a250c310a6ade21233893b347a4dbc5a6074407e7dce6ba66a5fc87",
+    "tools/shared/src/version-control/git-workspace-file.ts": "c138c84feabf7fdf878fc66ac0ab727c139c30428e8aefba945330c8214371a7",
+    "tools/change-plan/src/git-distance.ts": "93f3f67ff1013848d7ab9cf918cc23a2aceda99f4e23b66ccf5460b91ddc1496",
+    "tools/decision-records/src/decision-history-sources.ts": "0ef3d3c06a69d34e43f676821fa1beec5af91dda44cd97800b9828e769c21aff",
+    "tools/decision-records/src/decision-maintenance-context.ts": "51f48db15c71c9f186b31d8aab75570af7cca1f8b118c5679011a930a1b375d2",
+    "tools/decision-records/src/decision-stage-refresh-pending.ts": "877ee8d7347cf5aacabfe7fc428e72ce341dc73459926bdfd0b816bfc4ac9c9e",
+    "tools/decision-records/src/decision-stage-refresh-locators.ts": "b85483d4bdb49b942748f8886363d5de19765d7bd047c2c2139945de646f189a",
+    "tools/investigation-report/src/investigation-selector.ts": "241a42d2270e80e092ff5b314259f9f18dd552a9ddfa606f799b8d726733446a",
+    "tools/investigation-report/src/publish-selector.ts": "4fd3874820d93a2f0cdfea24f6697ac6cf522c19fc9320961b138cad34ca3d8c",
+    "tools/investigation-report/src/relation-transaction-support.ts": "9a54786301403ab53bb2ce1fdd637f968a8cb6106dc284d30a102e46162a474b",
+    "tools/investigation-report/src/resource-directory-facts.ts": "f8a5492796408cb83a26674356e62bd87d7eebe05341f67e621865ec26e7655c"
+  },
+  "methods": {
+    "hashCli": "Public read-only bun run hash:skills --quiet, Git Trace2 enabled for one run; 120 s observation limit, completed normally. No package or pending inputs modified.",
+    "maintenance": "Read-only source-module loadDecisionMaintenanceContext against 412 published records, selecting 20/100/200; counted some callback visits and restored Array.prototype after each run. Archive request selects context only, no archive transaction executed.",
+    "historyMapping": "Unmodified exported historySourcePaths on synthetic data with counted decisionId getters; all wanted IDs present in published index. Getter timings are not ordinary production latency.",
+    "pendingLocator": "Node registerHooks added an export for the original private verifyPendingLocatorIdentity in memory, without rewriting its body or disk. Synthetic entries Proxy counts materialized Object.entries values. Not a complete stage CLI benchmark.",
+    "investigationSelectors": "Unmodified exported resolveInvestigationSelector on synthetic counted entries, matching the loops in publish and relation-selector callers."
+  },
+  "retention": "Historical investigation methods and small summaries only, not maintained tests or runnable benchmark package; absolute source paths reflect this workspace. No raw trace, temporary stderr or generated package artifacts added.",
+  "resourceHashes": {
+    "batch-selection-results.json": "5e5114183c3a2d16b5c592971592229cdda1a801518d1147456554de78baa8ed",
+    "hash-cli-path-summary.json": "e1bf01280a934e617718c77b833ba9833cac560c2e1711852ae7d9f3c827adb5",
+    "hash-cli-trace-summary.json": "4d1833bbbef796fbaa3242189e5e3c0bd2d459d009bcc563d618a4de1922d88f",
+    "lookup-results.json": "da6bf6d7d7792f728981d0c4890b463a41419a14c25f53d06bfa5c071fbc2937",
+    "measure-hash-cli.py": "9c5a26e4744085ba150639db23d8f7d3d0f9eede648c71f81289f6e0bb6aa60a",
+    "probe-batch-selection.mjs": "17ed069853065601dcfaed1d6034214f8f0b02355976ed1e2dc7b0d2816b2576",
+    "probe-lookups.mjs": "39103e3157beaae767d71c06bada15457ac62a8f105e572d02e5d32b7ae8749c"
+  }
+}

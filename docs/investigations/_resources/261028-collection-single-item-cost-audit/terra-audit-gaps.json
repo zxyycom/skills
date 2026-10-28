@@ -1,0 +1,71 @@
+{
+  "version": "696b888b7256ac185ef43f6fdf36ffe9aa82bd00",
+  "scope_note": "静态闭合指各共享模块的可达核心成本机制已归类，不指每行或每个机械命中单独证明，更不承诺不存在其他热点。模块覆盖见 shared-coverage.json、shared/coverage.json 与 version-control-coverage.json。",
+  "unreviewed_static_candidates": [],
+  "classified_but_unresolved_design_candidates": [
+    {
+      "file": "tools/shared/src/graph/trace-ordering.ts:39-68,178-203",
+      "function": "normalizeAdmissionUnits and compareIdSequences",
+      "entry": "DR/IR trace",
+      "disposition": "同事件同对象已按领域 adapter 去重且 frozen 事实缓存；任意公共 API 构造的增长 union 不等于合法两域图。不同同种事件是否可通过领域校验并有相同成员及长前缀仍未证实；这是已审查的可达性假设，不列 confirmed finding。"
+    },
+    {
+      "file": "tools/index-runtime/src/query-fields.ts:32-49,95-115",
+      "function": "extractSource / isJsonObject",
+      "entry": "DR/IR index projection in sync, stage, query",
+      "disposition": "每固定字段重验 subtree；两域定义各 4 字段，按固定字段×状态字节与边增长，非 N×K。是否可用可信冻结证明省除常数次遍历及错误等价未验证。"
+    },
+    {
+      "file": "tools/index-runtime/src/selection.ts",
+      "function": "selectedStateIndexChanges / changedStateIds",
+      "entry": "DR/IR selected sync",
+      "disposition": "全状态两次 stringify 和排序已原函数计数，完整未选差异检查是契约；可信对象可否安全利用 identity/provenance 尚未证明，不把必要比较视为可删。"
+    },
+    {
+      "file": "tools/shared/src/file-text-search/files.ts:55-73,122-204",
+      "function": "selectSourcePaths / verifySelectedFile / readSelectedFile",
+      "entry": "DR/IR content search",
+      "disposition": "提前核验所有候选与逐读取新鲜句柄检查各有时点，symlink fixture 证明直接懒化改变未扫描路径错误；同一叶节点双 lstat 能否合并并保持瞬时替换拒绝尚未证明。"
+    },
+    {
+      "file": "tools/shared/src/version-control/git-pending.ts:197-217,236-253",
+      "function": "pendingIndexRecords / recordsForEntries",
+      "entry": "DR/IR stage 更新 pending",
+      "disposition": "任意变化时写所有 P 个目标记录；no-op 不写。隔离 Git 实验全量 reapply 会清 skip-worktree/assume-unchanged，差量重放改变可观测行为，须先决定并验证 flags/extensions 与未选保护。"
+    },
+    {
+      "file": "tools/shared/src/version-control/git-pending.ts:162-193,308-330",
+      "function": "createPendingEntries / writeGitBlob",
+      "entry": "DR/IR stage 多 payload 更新",
+      "disposition": "唯一对象写入必要，相同字节重复 hash-object 和并发无上限已确认；安全去重/限并发对失败顺序、对象格式与 lock 时序影响未证明，现成等价多 payload Git 接口不预设存在。"
+    },
+    {
+      "file": "tools/shared/src/file-text-search/segment-matcher.ts:89-108,229-270",
+      "function": "matchTextSegments / rangesForNeedle / mergeRanges",
+      "entry": "DR/IR metadata and content search",
+      "disposition": "既有 C9；范围匹配对象先全部生成，受文件/总字节上限而非显示条数上限。按需或限量优化须证明 Unicode、跨段 all、重叠合并、truncation、失败顺序等价。每次命中只两次数组下标，排除 M×整张 span 表扫描。"
+    },
+    {
+      "file": "tools/index-runtime/src/snapshot-parser.ts:128-136",
+      "function": "serializeStateIndex / canonicalizeStateIndex",
+      "entry": "DR/IR sync and all/index stage",
+      "disposition": "既有报告已记 canonical/serialize，原函数补证同一冻结构造结果二次 canonicalize；可信 proof、公共输入隔离、字节序与诊断等价未证。"
+    }
+  ],
+  "dynamic_unmeasured": [
+    "全真实 CLI 的批量成功、初次发布、空集合、scope all/index/domain no-op、HEAD/无 HEAD/非 Git、legacy 和损坏索引分支的进程数与端到端时延",
+    "Windows、冷缓存、容量上限、长路径和大正文/索引/pending 及 256MiB Git blob batch 读预算",
+    "并发路径替换、锁竞争、目标变更、阶段漂移、各种写后失败与 rollback 的故障注入",
+    "selected/dependency 的串行逐文件安全读取能否批量且不改变错误顺序或 fresh 语义",
+    "图的大 E、高度、重划/拆分/归并复杂事件与 Unicode 多 term 的真实成本分布",
+    "任一候选优化后的正确性、并发安全、平台兼容和实际收益"
+  ],
+  "outside_record_cli_sdk": [
+    "index-runtime generic stageSelectedIndexEntries and createStateIndexRuntime staging; no references in DR/IR source or generated SDK declarations",
+    "shared git-first-parent, git-numstat, revision-file-prefixes; no record static closure caller",
+    "shared markdown/links and option; no record static closure caller",
+    "two index JSON schema source modules are build-time entries, not record operation runtime",
+    "index-runtime reader.all pagination and generic text filter: no matching record consumer call found; generic API semantics remain outside domain request"
+  ],
+  "counting_constraints": "轻量函数探针验证机制和可达静态链，不证明端到端时延；外部调用、非字面动态 dispatch 和运行时反射不由静态 import 闭包完全证明。"
+}

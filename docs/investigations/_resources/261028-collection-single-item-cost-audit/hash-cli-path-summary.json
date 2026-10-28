@@ -1,0 +1,32 @@
+{
+  "sourceSha256": "1521d343b5049caa5aa0ce3eb4aed724a47f830fb3974f1215ac71090662bc01",
+  "allGitStartCount": 4036,
+  "singlePathTreeRequests": 1343,
+  "uniqueLeafPaths": 1343,
+  "leafReadsBySkill": {
+    "ai-ready-docs": 15,
+    "ast-grep": 16,
+    "change-plan": 68,
+    "codex-shell-permissions": 19,
+    "common-denominator-design": 15,
+    "decision-records": 270,
+    "dependency-boundary-design": 14,
+    "file-lifecycle-hygiene": 14,
+    "git-commit-organizer": 16,
+    "image-creation": 27,
+    "investigation-report": 275,
+    "lightweight-judgment": 58,
+    "mcpshell-workspace-tools": 35,
+    "minimal-implementation": 19,
+    "novel-cards": 91,
+    "product-architecture-judgment": 15,
+    "skill-design-discovery": 35,
+    "skill-maintainer": 20,
+    "subagent-orchestration": 14,
+    "task-graph": 99,
+    "test-design": 15,
+    "test-evidence-review": 123,
+    "video-understanding": 70
+  },
+  "boundary": "Aggregate from actual Git Trace2 start events; full 6 MB trace retained only temporarily, not copied into the repository. Distinct leaf paths prove unique-file rather than repeated-same-path calls. Command lifetimes can overlap under four-skill concurrency."
+}

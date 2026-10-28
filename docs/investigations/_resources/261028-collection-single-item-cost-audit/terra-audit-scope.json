@@ -1,0 +1,1264 @@
+{
+  "inventory": {
+    "roots": [
+      "tools/decision-records/src/cli.ts",
+      "tools/decision-records/src/index.ts",
+      "tools/investigation-report/src/cli.ts"
+    ],
+    "files": [
+      "tools/decision-records/src/application-result.ts",
+      "tools/decision-records/src/cli-args.ts",
+      "tools/decision-records/src/cli-command-arguments.ts",
+      "tools/decision-records/src/cli-command-options.ts",
+      "tools/decision-records/src/cli-io.ts",
+      "tools/decision-records/src/cli-lifecycle-commands.ts",
+      "tools/decision-records/src/cli-lifecycle-execution.ts",
+      "tools/decision-records/src/cli-lifecycle-relations.ts",
+      "tools/decision-records/src/cli-lifecycle-selection.ts",
+      "tools/decision-records/src/cli-location.ts",
+      "tools/decision-records/src/cli-maintenance-execution.ts",
+      "tools/decision-records/src/cli-mutation-commands.ts",
+      "tools/decision-records/src/cli-new-arguments.ts",
+      "tools/decision-records/src/cli-option-parsers.ts",
+      "tools/decision-records/src/cli-output-list.ts",
+      "tools/decision-records/src/cli-output-relation-evidence.ts",
+      "tools/decision-records/src/cli-output-relation-review.ts",
+      "tools/decision-records/src/cli-output-search.ts",
+      "tools/decision-records/src/cli-output-trace-events.ts",
+      "tools/decision-records/src/cli-output-trace-layers.ts",
+      "tools/decision-records/src/cli-output-trace-text.ts",
+      "tools/decision-records/src/cli-output-trace-types.ts",
+      "tools/decision-records/src/cli-output-trace.ts",
+      "tools/decision-records/src/cli-output-writer.ts",
+      "tools/decision-records/src/cli-output.ts",
+      "tools/decision-records/src/cli-program-mutations.ts",
+      "tools/decision-records/src/cli-program-options.ts",
+      "tools/decision-records/src/cli-program-queries.ts",
+      "tools/decision-records/src/cli-program.ts",
+      "tools/decision-records/src/cli-query-commands.ts",
+      "tools/decision-records/src/cli-relation-groups.ts",
+      "tools/decision-records/src/cli-search-arguments.ts",
+      "tools/decision-records/src/cli.ts",
+      "tools/decision-records/src/decision-candidate-context.ts",
+      "tools/decision-records/src/decision-candidate-discovery.ts",
+      "tools/decision-records/src/decision-candidate-publication.ts",
+      "tools/decision-records/src/decision-candidate-readiness.ts",
+      "tools/decision-records/src/decision-candidate-relations.ts",
+      "tools/decision-records/src/decision-candidate-service.ts",
+      "tools/decision-records/src/decision-candidate-validation.ts",
+      "tools/decision-records/src/decision-collection-mutation-lock.ts",
+      "tools/decision-records/src/decision-discard.ts",
+      "tools/decision-records/src/decision-history-baseline.ts",
+      "tools/decision-records/src/decision-history-sources.ts",
+      "tools/decision-records/src/decision-index-definition.ts",
+      "tools/decision-records/src/decision-index-diagnostics.ts",
+      "tools/decision-records/src/decision-index-snapshot.ts",
+      "tools/decision-records/src/decision-index-source.ts",
+      "tools/decision-records/src/decision-lifecycle-archive.ts",
+      "tools/decision-records/src/decision-lifecycle-change.ts",
+      "tools/decision-records/src/decision-lifecycle-service.ts",
+      "tools/decision-records/src/decision-lifecycle-support.ts",
+      "tools/decision-records/src/decision-lifecycle-transition.ts",
+      "tools/decision-records/src/decision-location.ts",
+      "tools/decision-records/src/decision-maintenance-context.ts",
+      "tools/decision-records/src/decision-maintenance-source.ts",
+      "tools/decision-records/src/decision-metadata-lifecycle.ts",
+      "tools/decision-records/src/decision-metadata-relations.ts",
+      "tools/decision-records/src/decision-metadata-types.ts",
+      "tools/decision-records/src/decision-metadata.ts",
+      "tools/decision-records/src/decision-path.ts",
+      "tools/decision-records/src/decision-query-candidates.ts",
+      "tools/decision-records/src/decision-query-context.ts",
+      "tools/decision-records/src/decision-query-contract.ts",
+      "tools/decision-records/src/decision-query-list.ts",
+      "tools/decision-records/src/decision-query-record-queries.ts",
+      "tools/decision-records/src/decision-query-records.ts",
+      "tools/decision-records/src/decision-query-relation-filter.ts",
+      "tools/decision-records/src/decision-query-search-content.ts",
+      "tools/decision-records/src/decision-query-search-filter.ts",
+      "tools/decision-records/src/decision-query-search-metadata.ts",
+      "tools/decision-records/src/decision-query-search.ts",
+      "tools/decision-records/src/decision-query-selectors.ts",
+      "tools/decision-records/src/decision-query-service.ts",
+      "tools/decision-records/src/decision-query-sync-lock.ts",
+      "tools/decision-records/src/decision-query-sync.ts",
+      "tools/decision-records/src/decision-record-lookup.ts",
+      "tools/decision-records/src/decision-relation-maintenance.ts",
+      "tools/decision-records/src/decision-relation-transaction-predecessors.ts",
+      "tools/decision-records/src/decision-relation-transaction-projection.ts",
+      "tools/decision-records/src/decision-relation-transaction-strategy.ts",
+      "tools/decision-records/src/decision-relation-transaction-successors.ts",
+      "tools/decision-records/src/decision-relation-transaction-support.ts",
+      "tools/decision-records/src/decision-relation-transaction-types.ts",
+      "tools/decision-records/src/decision-relation-transaction.ts",
+      "tools/decision-records/src/decision-rename-failure.ts",
+      "tools/decision-records/src/decision-rename-noop.ts",
+      "tools/decision-records/src/decision-rename-pending.ts",
+      "tools/decision-records/src/decision-rename-planning.ts",
+      "tools/decision-records/src/decision-rename-target.ts",
+      "tools/decision-records/src/decision-rename.ts",
+      "tools/decision-records/src/decision-selected-sync.ts",
+      "tools/decision-records/src/decision-source-dependencies.ts",
+      "tools/decision-records/src/decision-source-membership.ts",
+      "tools/decision-records/src/decision-source-path-safety.ts",
+      "tools/decision-records/src/decision-source-revision.ts",
+      "tools/decision-records/src/decision-stage-contracts.ts",
+      "tools/decision-records/src/decision-stage-paths.ts",
+      "tools/decision-records/src/decision-stage-prepare.ts",
+      "tools/decision-records/src/decision-stage-refresh-context.ts",
+      "tools/decision-records/src/decision-stage-refresh-index.ts",
+      "tools/decision-records/src/decision-stage-refresh-locators.ts",
+      "tools/decision-records/src/decision-stage-refresh-pending.ts",
+      "tools/decision-records/src/decision-stage-refresh-sources.ts",
+      "tools/decision-records/src/decision-stage-refresh.ts",
+      "tools/decision-records/src/decision-stage-repository.ts",
+      "tools/decision-records/src/decision-stage-service.ts",
+      "tools/decision-records/src/decision-stage-sources.ts",
+      "tools/decision-records/src/decision-stage-support.ts",
+      "tools/decision-records/src/decision-state-index.ts",
+      "tools/decision-records/src/decision-state-snapshot.ts",
+      "tools/decision-records/src/decision-strict-preparation.ts",
+      "tools/decision-records/src/decision-timestamp.ts",
+      "tools/decision-records/src/decision-trace-admission.ts",
+      "tools/decision-records/src/decision-transaction-outcome.ts",
+      "tools/decision-records/src/decision-transaction-plan.ts",
+      "tools/decision-records/src/decision-transaction-projection.ts",
+      "tools/decision-records/src/decision-transaction-source.ts",
+      "tools/decision-records/src/decision-transaction.ts",
+      "tools/decision-records/src/decision-validation.ts",
+      "tools/decision-records/src/index.ts",
+      "tools/decision-records/src/list-facets.ts",
+      "tools/decision-records/src/markdown.ts",
+      "tools/decision-records/src/projection.ts",
+      "tools/decision-records/src/record.ts",
+      "tools/decision-records/src/relation-graph.ts",
+      "tools/decision-records/src/relation-reallocation.ts",
+      "tools/decision-records/src/relation-summary.ts",
+      "tools/decision-records/src/scan-collection.ts",
+      "tools/decision-records/src/scan-contracts.ts",
+      "tools/decision-records/src/scan-index-check.ts",
+      "tools/decision-records/src/scan-index.ts",
+      "tools/decision-records/src/scan-records.ts",
+      "tools/decision-records/src/scan-relations.ts",
+      "tools/decision-records/src/scan-relationship-snapshot.ts",
+      "tools/decision-records/src/scan-snapshot.ts",
+      "tools/decision-records/src/scan-support.ts",
+      "tools/decision-records/src/scan.ts",
+      "tools/decision-records/src/types.ts",
+      "tools/index-runtime/src/canonicalization.ts",
+      "tools/index-runtime/src/definition.ts",
+      "tools/index-runtime/src/diagnostics.ts",
+      "tools/index-runtime/src/frozen-json.ts",
+      "tools/index-runtime/src/index-path.ts",
+      "tools/index-runtime/src/index.ts",
+      "tools/index-runtime/src/json.ts",
+      "tools/index-runtime/src/key-values.ts",
+      "tools/index-runtime/src/ordering.ts",
+      "tools/index-runtime/src/prepared-baseline-source.ts",
+      "tools/index-runtime/src/prepared.ts",
+      "tools/index-runtime/src/projection.ts",
+      "tools/index-runtime/src/query-fields.ts",
+      "tools/index-runtime/src/query-matching.ts",
+      "tools/index-runtime/src/query-sorting.ts",
+      "tools/index-runtime/src/query-source-validation.ts",
+      "tools/index-runtime/src/query.ts",
+      "tools/index-runtime/src/reader.ts",
+      "tools/index-runtime/src/record-staging.ts",
+      "tools/index-runtime/src/record.ts",
+      "tools/index-runtime/src/runtime.ts",
+      "tools/index-runtime/src/schemas.ts",
+      "tools/index-runtime/src/selected-ids.ts",
+      "tools/index-runtime/src/selected-sync.ts",
+      "tools/index-runtime/src/selection.ts",
+      "tools/index-runtime/src/snapshot-builder.ts",
+      "tools/index-runtime/src/snapshot-parser.ts",
+      "tools/index-runtime/src/snapshot.ts",
+      "tools/index-runtime/src/staging-contracts.ts",
+      "tools/index-runtime/src/staging-failures.ts",
+      "tools/index-runtime/src/staging-operation.ts",
+      "tools/index-runtime/src/staging-selection.ts",
+      "tools/index-runtime/src/staging.ts",
+      "tools/index-runtime/src/storage-load.ts",
+      "tools/index-runtime/src/storage-reader.ts",
+      "tools/index-runtime/src/storage-shared.ts",
+      "tools/index-runtime/src/storage-sync.ts",
+      "tools/index-runtime/src/storage.ts",
+      "tools/index-runtime/src/types.ts",
+      "tools/index-runtime/src/validation.ts",
+      "tools/investigation-report/src/candidate-access.ts",
+      "tools/investigation-report/src/candidate-create-publication.ts",
+      "tools/investigation-report/src/candidate-create-result.ts",
+      "tools/investigation-report/src/candidate-create-transaction.ts",
+      "tools/investigation-report/src/candidate-create.ts",
+      "tools/investigation-report/src/candidate-creation-input.ts",
+      "tools/investigation-report/src/candidate-discard-eligibility.ts",
+      "tools/investigation-report/src/candidate-discard-preparation.ts",
+      "tools/investigation-report/src/candidate-discard-resources.ts",
+      "tools/investigation-report/src/candidate-discard-support.ts",
+      "tools/investigation-report/src/candidate-discard-tombstone.ts",
+      "tools/investigation-report/src/candidate-discard.ts",
+      "tools/investigation-report/src/candidate-discovery.ts",
+      "tools/investigation-report/src/candidate-document.ts",
+      "tools/investigation-report/src/candidate-format.ts",
+      "tools/investigation-report/src/candidate-path.ts",
+      "tools/investigation-report/src/candidate-read-context.ts",
+      "tools/investigation-report/src/candidate-read-resources.ts",
+      "tools/investigation-report/src/candidate-resource-references.ts",
+      "tools/investigation-report/src/candidate-support.ts",
+      "tools/investigation-report/src/candidate.ts",
+      "tools/investigation-report/src/cli-candidate-create.ts",
+      "tools/investigation-report/src/cli-candidate-readiness.ts",
+      "tools/investigation-report/src/cli-candidates.ts",
+      "tools/investigation-report/src/cli-contract.ts",
+      "tools/investigation-report/src/cli-io.ts",
+      "tools/investigation-report/src/cli-maintenance-commands.ts",
+      "tools/investigation-report/src/cli-parser.ts",
+      "tools/investigation-report/src/cli-program-commands.ts",
+      "tools/investigation-report/src/cli-program.ts",
+      "tools/investigation-report/src/cli-query-commands.ts",
+      "tools/investigation-report/src/cli-query-help.ts",
+      "tools/investigation-report/src/cli-relation-commands.ts",
+      "tools/investigation-report/src/cli-stage-commands.ts",
+      "tools/investigation-report/src/cli-trace-options.ts",
+      "tools/investigation-report/src/cli.ts",
+      "tools/investigation-report/src/collection-mutation-lock.ts",
+      "tools/investigation-report/src/diagnostics.ts",
+      "tools/investigation-report/src/discard-entry.ts",
+      "tools/investigation-report/src/discard-files.ts",
+      "tools/investigation-report/src/discard-history.ts",
+      "tools/investigation-report/src/discard-index-projection.ts",
+      "tools/investigation-report/src/discard-loading-diagnostics.ts",
+      "tools/investigation-report/src/discard-loading-publication.ts",
+      "tools/investigation-report/src/discard-loading.ts",
+      "tools/investigation-report/src/discard-protection.ts",
+      "tools/investigation-report/src/discard-publication.ts",
+      "tools/investigation-report/src/discard-target.ts",
+      "tools/investigation-report/src/discard-transaction-plan.ts",
+      "tools/investigation-report/src/discard.ts",
+      "tools/investigation-report/src/index-staleness.ts",
+      "tools/investigation-report/src/investigation-index-definition.ts",
+      "tools/investigation-report/src/investigation-index-source.ts",
+      "tools/investigation-report/src/investigation-layout-entry.ts",
+      "tools/investigation-report/src/investigation-layout-support.ts",
+      "tools/investigation-report/src/investigation-layout.ts",
+      "tools/investigation-report/src/investigation-location.ts",
+      "tools/investigation-report/src/investigation-selector.ts",
+      "tools/investigation-report/src/investigation-source-revision.ts",
+      "tools/investigation-report/src/investigation-state-index.ts",
+      "tools/investigation-report/src/list-facets.ts",
+      "tools/investigation-report/src/list-output.ts",
+      "tools/investigation-report/src/local-publication.ts",
+      "tools/investigation-report/src/markdown-body.ts",
+      "tools/investigation-report/src/markdown-frontmatter.ts",
+      "tools/investigation-report/src/markdown-values.ts",
+      "tools/investigation-report/src/markdown.ts",
+      "tools/investigation-report/src/options.ts",
+      "tools/investigation-report/src/publish-contract.ts",
+      "tools/investigation-report/src/publish-index-writer.ts",
+      "tools/investigation-report/src/publish-preparation-candidates.ts",
+      "tools/investigation-report/src/publish-preparation-formal.ts",
+      "tools/investigation-report/src/publish-preparation.ts",
+      "tools/investigation-report/src/publish-resource-snapshot.ts",
+      "tools/investigation-report/src/publish-selector.ts",
+      "tools/investigation-report/src/publish-support.ts",
+      "tools/investigation-report/src/publish-transaction.ts",
+      "tools/investigation-report/src/publish.ts",
+      "tools/investigation-report/src/published-preparation.ts",
+      "tools/investigation-report/src/query-index.ts",
+      "tools/investigation-report/src/query-options.ts",
+      "tools/investigation-report/src/query-report.ts",
+      "tools/investigation-report/src/query-results.ts",
+      "tools/investigation-report/src/query-search-content.ts",
+      "tools/investigation-report/src/query-search-metadata.ts",
+      "tools/investigation-report/src/query-search-selection.ts",
+      "tools/investigation-report/src/query-search.ts",
+      "tools/investigation-report/src/query-trace.ts",
+      "tools/investigation-report/src/query.ts",
+      "tools/investigation-report/src/relation-context.ts",
+      "tools/investigation-report/src/relation-review-output.ts",
+      "tools/investigation-report/src/relation-review.ts",
+      "tools/investigation-report/src/relation-summary.ts",
+      "tools/investigation-report/src/relation-transaction-candidate.ts",
+      "tools/investigation-report/src/relation-transaction-execution.ts",
+      "tools/investigation-report/src/relation-transaction-plan.ts",
+      "tools/investigation-report/src/relation-transaction-preparation.ts",
+      "tools/investigation-report/src/relation-transaction-protection.ts",
+      "tools/investigation-report/src/relation-transaction-support.ts",
+      "tools/investigation-report/src/relation-transaction.ts",
+      "tools/investigation-report/src/relation-validation.ts",
+      "tools/investigation-report/src/rename-contract.ts",
+      "tools/investigation-report/src/rename-index-projection.ts",
+      "tools/investigation-report/src/rename-noop.ts",
+      "tools/investigation-report/src/rename-plan.ts",
+      "tools/investigation-report/src/rename-preparation-source.ts",
+      "tools/investigation-report/src/rename-preparation.ts",
+      "tools/investigation-report/src/rename-publication.ts",
+      "tools/investigation-report/src/rename-resource-move.ts",
+      "tools/investigation-report/src/rename-resource-proof.ts",
+      "tools/investigation-report/src/rename-resource-recovery.ts",
+      "tools/investigation-report/src/rename-resource-snapshot.ts",
+      "tools/investigation-report/src/rename-resource.ts",
+      "tools/investigation-report/src/rename-support.ts",
+      "tools/investigation-report/src/rename-transaction-plan.ts",
+      "tools/investigation-report/src/rename-verification.ts",
+      "tools/investigation-report/src/rename.ts",
+      "tools/investigation-report/src/report-path.ts",
+      "tools/investigation-report/src/report-validation-content.ts",
+      "tools/investigation-report/src/report-validation.ts",
+      "tools/investigation-report/src/resource-canonical-path.ts",
+      "tools/investigation-report/src/resource-directory-facts.ts",
+      "tools/investigation-report/src/resource-file-validation.ts",
+      "tools/investigation-report/src/resource-inspection.ts",
+      "tools/investigation-report/src/resource-reference.ts",
+      "tools/investigation-report/src/resource-root.ts",
+      "tools/investigation-report/src/resources.ts",
+      "tools/investigation-report/src/selected-sync.ts",
+      "tools/investigation-report/src/staging-domain-adapter.ts",
+      "tools/investigation-report/src/staging-domain-context.ts",
+      "tools/investigation-report/src/staging-domain-failures.ts",
+      "tools/investigation-report/src/staging-domain-index.ts",
+      "tools/investigation-report/src/staging-domain-membership.ts",
+      "tools/investigation-report/src/staging-domain-pending-dependencies.ts",
+      "tools/investigation-report/src/staging-domain-resources.ts",
+      "tools/investigation-report/src/staging-domain-sources.ts",
+      "tools/investigation-report/src/staging-domain-support.ts",
+      "tools/investigation-report/src/staging-domain-writes.ts",
+      "tools/investigation-report/src/staging-domain.ts",
+      "tools/investigation-report/src/staging-options.ts",
+      "tools/investigation-report/src/staging-pending.ts",
+      "tools/investigation-report/src/staging-selectors.ts",
+      "tools/investigation-report/src/staging.ts",
+      "tools/investigation-report/src/strict-preparation.ts",
+      "tools/investigation-report/src/timestamp.ts",
+      "tools/investigation-report/src/trace-output.ts",
+      "tools/investigation-report/src/transaction-files.ts",
+      "tools/investigation-report/src/types.ts",
+      "tools/investigation-report/src/validation-check-flow.ts",
+      "tools/investigation-report/src/validation-collection.ts",
+      "tools/investigation-report/src/validation-history.ts",
+      "tools/investigation-report/src/validation-results.ts",
+      "tools/investigation-report/src/validation-sync-flow.ts",
+      "tools/investigation-report/src/validation.ts",
+      "tools/record-operations/src/candidate.ts",
+      "tools/record-operations/src/check.ts",
+      "tools/record-operations/src/query.ts",
+      "tools/record-operations/src/reader-batch.ts",
+      "tools/record-operations/src/reader-protocol.ts",
+      "tools/record-operations/src/reader-sync.ts",
+      "tools/record-operations/src/reader-worker.ts",
+      "tools/record-operations/src/selected-sync-sources.ts",
+      "tools/record-operations/src/selected-synchronize.ts",
+      "tools/record-operations/src/source.ts",
+      "tools/record-operations/src/synchronize.ts",
+      "tools/record-operations/src/transaction-files.ts",
+      "tools/record-operations/src/transaction-journal.ts",
+      "tools/record-operations/src/transaction-plan.ts",
+      "tools/record-operations/src/transaction-snapshot.ts",
+      "tools/record-operations/src/transaction-verification.ts",
+      "tools/record-operations/src/transaction.ts",
+      "tools/shared/src/file-text-search/contracts.ts",
+      "tools/shared/src/file-text-search/files.ts",
+      "tools/shared/src/file-text-search/index.ts",
+      "tools/shared/src/file-text-search/previews.ts",
+      "tools/shared/src/file-text-search/record-search-info.ts",
+      "tools/shared/src/file-text-search/record-search-output.ts",
+      "tools/shared/src/file-text-search/record-search.ts",
+      "tools/shared/src/file-text-search/request.ts",
+      "tools/shared/src/file-text-search/segment-matcher.ts",
+      "tools/shared/src/graph/lazy-relation-graph.ts",
+      "tools/shared/src/graph/relations.ts",
+      "tools/shared/src/graph/trace-contract.ts",
+      "tools/shared/src/graph/trace-ordering.ts",
+      "tools/shared/src/graph/trace-selection.ts",
+      "tools/shared/src/markdown/frontmatter.ts",
+      "tools/shared/src/node/bytes.ts",
+      "tools/shared/src/node/error-detail.ts",
+      "tools/shared/src/node/filesystem-diagnostic.ts",
+      "tools/shared/src/node/filesystem.ts",
+      "tools/shared/src/node/main-module.ts",
+      "tools/shared/src/version-control/error-detail.ts",
+      "tools/shared/src/version-control/errors.ts",
+      "tools/shared/src/version-control/git-blob-batch.ts",
+      "tools/shared/src/version-control/git-command.ts",
+      "tools/shared/src/version-control/git-context.ts",
+      "tools/shared/src/version-control/git-core.ts",
+      "tools/shared/src/version-control/git-pathspec-query.ts",
+      "tools/shared/src/version-control/git-pending-replacement.ts",
+      "tools/shared/src/version-control/git-pending-snapshot-content.ts",
+      "tools/shared/src/version-control/git-pending-values.ts",
+      "tools/shared/src/version-control/git-pending.ts",
+      "tools/shared/src/version-control/git-repository.ts",
+      "tools/shared/src/version-control/git-revision.ts",
+      "tools/shared/src/version-control/git-tree-entry.ts",
+      "tools/shared/src/version-control/git-workspace-file.ts",
+      "tools/shared/src/version-control/git-workspace.ts",
+      "tools/shared/src/version-control/git.ts",
+      "tools/shared/src/version-control/index.ts",
+      "tools/shared/src/version-control/pending-changed-paths.ts",
+      "tools/shared/src/version-control/pending-snapshot-proof.ts",
+      "tools/shared/src/version-control/pending-snapshot.ts",
+      "tools/shared/src/version-control/repository-path.ts",
+      "tools/shared/src/version-control/repository-relative-path.ts",
+      "tools/shared/src/version-control/types.ts"
+    ],
+    "counts": {
+      "tools/decision-records": 139,
+      "tools/index-runtime": 40,
+      "tools/investigation-report": 154,
+      "tools/record-operations": 17,
+      "tools/shared": 44
+    },
+    "unresolved_relative": [],
+    "method": "regex static import/export + literal dynamic import, includes type-only; not proof of execution, external deps excluded",
+    "ir_sdk_declarations": "tools/investigation-report/api/check-investigations.d.mts",
+    "ir_sdk_exports": [
+      "runInvestigationReportCheckCli",
+      "synchronizeInvestigationIndex",
+      "stageInvestigationReports",
+      "queryInvestigationIndex",
+      "showInvestigationReport",
+      "traceInvestigationReports",
+      "setInvestigationRelations",
+      "validateInvestigationReports",
+      "discardInvestigationRecord",
+      "createInvestigationCandidate",
+      "listInvestigationCandidates",
+      "showInvestigationCandidate",
+      "publishInvestigationCandidates",
+      "renameInvestigationRecord",
+      "searchInvestigationReports"
+    ],
+    "ir_sdk_source_entry": "tools/investigation-report/src/cli.ts",
+    "ir_build_typed_exports": [
+      "createInvestigationCandidate",
+      "discardInvestigationRecord",
+      "listInvestigationCandidates",
+      "publishInvestigationCandidates",
+      "queryInvestigationIndex",
+      "renameInvestigationRecord",
+      "runInvestigationReportCheckCli",
+      "searchInvestigationReports",
+      "setInvestigationRelations",
+      "showInvestigationCandidate",
+      "showInvestigationReport",
+      "stageInvestigationReports",
+      "synchronizeInvestigationIndex",
+      "traceInvestigationReports",
+      "validateInvestigationReports"
+    ],
+    "ir_sdk_name_diff": {
+      "declaration_only": [],
+      "build_only": []
+    },
+    "outside_closure": {
+      "tools/decision-records/src/decision-index-json-schema.ts": "build-time schema entry imported by scripts/build/decision-records.ts; not record operations",
+      "tools/investigation-report/src/investigation-index-json-schema.ts": "build-time schema entry imported by scripts/build/investigation-report.ts; not record operations",
+      "tools/shared/src/markdown/links.ts": "no static import from closure; separate markdown-link validation module",
+      "tools/shared/src/option.ts": "no static import from closure; generic Option implementation",
+      "tools/shared/src/version-control/git-first-parent.ts": "no static import from closure; separate first-parent history API, requires independent caller",
+      "tools/shared/src/version-control/git-numstat.ts": "only same-outside-closure git-first-parent import; parser for that separate API",
+      "tools/shared/src/version-control/revision-file-prefixes.ts": "no static import from closure; separate prefix-based Git API"
+    }
+  },
+  "mechanicalScreen": {
+    "method": "mechanical regex hits by category across all TS src; includes types/comments and nonreachable files, counts are screening inputs, not audited findings; patterns overlap",
+    "patterns": {
+      "loops": "\\bfor\\s*(?:await\\s*)?\\(|\\bwhile\\s*\\(",
+      "array_scans": "\\.(?:find|findIndex|some|filter|includes)\\s*\\(",
+      "object_materialization": "Object\\.(?:entries|values|keys)\\s*\\(",
+      "sorting": "\\.sort\\s*\\(",
+      "json": "JSON\\.(?:parse|stringify)\\s*\\(",
+      "fs": "\\b(?:readFile|readdir|lstat|realpath|stat|open)(?:Sync)?\\s*\\(",
+      "git_interfaces": "\\b(?:readRevisionFile|readRevisionFiles|readWorkspaceFile|readWorkspaceFiles|openVersionControl|runGit\\w*)\\s*\\("
+    },
+    "counts": {
+      "decision-records": {
+        "files": 140,
+        "matches": {
+          "loops": 146,
+          "array_scans": 132,
+          "object_materialization": 21,
+          "sorting": 63,
+          "json": 5,
+          "fs": 17,
+          "git_interfaces": 6
+        }
+      },
+      "investigation-report": {
+        "files": 155,
+        "matches": {
+          "loops": 174,
+          "array_scans": 136,
+          "object_materialization": 21,
+          "sorting": 87,
+          "json": 37,
+          "fs": 65,
+          "git_interfaces": 10
+        }
+      },
+      "record-operations": {
+        "files": 17,
+        "matches": {
+          "loops": 33,
+          "array_scans": 9,
+          "object_materialization": 5,
+          "sorting": 6,
+          "json": 0,
+          "fs": 44,
+          "git_interfaces": 0
+        }
+      },
+      "index-runtime": {
+        "files": 40,
+        "matches": {
+          "loops": 28,
+          "array_scans": 26,
+          "object_materialization": 23,
+          "sorting": 10,
+          "json": 14,
+          "fs": 20,
+          "git_interfaces": 2
+        }
+      },
+      "shared": {
+        "files": 49,
+        "matches": {
+          "loops": 69,
+          "array_scans": 43,
+          "object_materialization": 3,
+          "sorting": 32,
+          "json": 2,
+          "fs": 19,
+          "git_interfaces": 28
+        }
+      }
+    }
+  },
+  "versionControl": {
+    "scope": "DR/IR record CLI and declared SDK transitive version-control modules at HEAD 696b888b; grouped source-cost review, not exhaustive dynamic execution",
+    "entries": [
+      {
+        "files": [
+          "git.ts",
+          "index.ts",
+          "git-repository.ts",
+          "git-context.ts",
+          "types.ts"
+        ],
+        "functions": "openVersionControl/openGitVersionControl; repository dispatch",
+        "entry": "DR history/rename/stage; IR history/discard/rename/resources/stage",
+        "disposition": "one Git discovery per open; non-Git marker walk O(path depth), explicitly different discovery/error boundary; no loop-of-open found in audited callers; no cross-phase cache presumed"
+      },
+      {
+        "files": [
+          "git-command.ts",
+          "error-detail.ts",
+          "errors.ts"
+        ],
+        "functions": "createGitClient; runGitProcess; error formatting",
+        "entry": "all Git requests",
+        "disposition": "simple-git maxConcurrentProcesses=4 applies only simple-git client, not execFile; runGitProcess creates independent Git per call; detailed hash-object caller separately classified"
+      },
+      {
+        "files": [
+          "repository-path.ts",
+          "repository-relative-path.ts",
+          "git-core.ts",
+          "git-tree-entry.ts"
+        ],
+        "functions": "normalize paths; parse tree and pending entries",
+        "entry": "all Git path and identity interfaces",
+        "disposition": "per path normalization proportional path bytes; deterministic sorting O(P log P); structural validation and duplicate/conflict checks preserved; one conversion per input, no nested collection scan found"
+      },
+      {
+        "files": [
+          "git-pathspec-query.ts"
+        ],
+        "functions": "gitPathspecBatches; queryGitPathspecs",
+        "entry": "Git revision tree, pending list and workspace list",
+        "disposition": "literal pathspec transport batches at 28KB bound; one process per batch not per path; cross-batch overlap sets and ordered outputs are linear in returned records, not per-record rescans"
+      },
+      {
+        "files": [
+          "git-revision.ts"
+        ],
+        "functions": "getCurrentRevision; listRevisionFiles; readRevisionFile; readRevisionFiles; listTreeEntries",
+        "entry": "IR check historical predecessor; DR history; DR/IR stage; rename/discard HEAD checks",
+        "disposition": "single-file three Git calls; IR check calls it once per distinct predecessor, known Windows issue; DR history uses one index read plus batched files, not same issue; stage fixed revision index is a single read; no HEAD symbolic/ref checks are distinct diagnostics"
+      },
+      {
+        "files": [
+          "git-blob-batch.ts"
+        ],
+        "functions": "readGitBlobSelections; readGitBlobs; GitBlobBatchReader",
+        "entry": "pending payload fingerprints; revision bulk reads",
+        "disposition": "one cat-file batch per requested unique OID, streaming hash/prefix retention and 256MiB total output cap; work O(unique object bytes), not per-path processes; shared-object coalescing; cap remains capacity boundary"
+      },
+      {
+        "files": [
+          "git-workspace.ts"
+        ],
+        "functions": "listWorkspaceFiles; listPendingChangedPaths; changed paths",
+        "entry": "IR resource roots/stage and DR rename pending",
+        "disposition": "one or transport-batched Git query per list; normalize and sort returned paths; scope discovery and fresh queries serve distinct identity checks; no extra collection cross product seen"
+      },
+      {
+        "files": [
+          "git-workspace-file.ts"
+        ],
+        "functions": "readWorkspaceFiles; readWorkspaceFile; workspacePendingKinds",
+        "entry": "IR stage domain writes batch",
+        "disposition": "per selected file lstat and bytes reads sequential; execute policy one Git per batch, pending types one batched list when core.fileMode=false; same data no Git per selected file in batch. Single-file helper has own policy process but no record collection caller found. Safe serial batching possibility not proven."
+      },
+      {
+        "files": [
+          "pending-snapshot.ts",
+          "pending-snapshot-proof.ts",
+          "git-pending-snapshot-content.ts",
+          "pending-changed-paths.ts"
+        ],
+        "functions": "readPendingSnapshot; same/extends identity; replacePendingSnapshot; prepare/write pending patch",
+        "entry": "DR/IR stage all/index/domain",
+        "disposition": "complete P member identities; chosen payloads or all-scope fingerprints read as required. Prepare vs verify vs locked write/readback are distinct fresh/CAS boundaries. Maps/Sets avoid P*K; bytes equality and full index copy are not removable just for performance. Scope target entry update issue classified in git-pending."
+      },
+      {
+        "files": [
+          "git-pending.ts",
+          "git-pending-values.ts",
+          "git-pending-replacement.ts"
+        ],
+        "functions": "createPendingEntries; pendingIndexRecords; runPendingReplacement; replacement comparisons",
+        "entry": "DR/IR stage via pending-snapshot patch; generic index staging through replacement",
+        "disposition": "confirmed: changed files each spawn hash-object; identical fresh bytes spawn duplicate same OID; Promise.all has no limit; separate unique writes required, batching not presumed. confirmed: when any change, pendingIndexRecords emits every target P plus deletions, unchanged returns null; differential update cannot be assumed equivalent: isolated Git experiment reapplying entries clears skip-worktree/assume-unchanged flags. CAS/recovery/readback remain necessary. Full physical index copy under lock scales J bytes including outside scope."
+      }
+    ],
+    "excluded": [
+      {
+        "files": [
+          "git-first-parent.ts",
+          "git-numstat.ts",
+          "revision-file-prefixes.ts"
+        ],
+        "reason": "not imported from record CLI/declared SDK closure; independently available to other tools, not assessed as record call"
+      }
+    ],
+    "dynamic_gaps": [
+      "Full DR/IR stage timing and actual child concurrency",
+      "Windows and cold cache",
+      "concurrent Git index and filesystem mutation",
+      "preservation and intended semantics of Git flags/index extensions",
+      "safe same-payload de-duplication or bounded concurrency failure ordering",
+      "actual memory and 256MiB cap at realistic input sizes"
+    ]
+  },
+  "recordAndIndexRuntime": {
+    "source": "/tmp/terra-shared-audit-696b/inventory.json",
+    "qualification": "static closure is not proof each export reachable; reviewed-static is limited to stated mechanisms, not all branch proof",
+    "files": [
+      {
+        "path": "tools/index-runtime/src/canonicalization.ts",
+        "category": "full/selected/stage",
+        "functions": "sameStateSourceRevision and canonicalization",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "entries/sourceRevision 分别排序 O(N log N)，每 state clone/validate；确定顺序与不可变表示有契约。构建已 canonical 后 serialize 又执行一次，为静态确认的重复计算候选。"
+      },
+      {
+        "path": "tools/index-runtime/src/definition.ts",
+        "category": "transitive index runtime",
+        "functions": "defineStateIndexDefinition; validateStateIndexDefinition; expectationOf; queryFieldDefinitionsOf; sameQueryFieldDefinitions",
+        "public_entry": "DR/IR full/selected/index stage build",
+        "status": "reviewed-static",
+        "disposition": "definition validation loops query fields F/sources, duplicate fields tracked via Set; F=4 DR/IR, linear schema-size not N²"
+      },
+      {
+        "path": "tools/index-runtime/src/diagnostics.ts",
+        "category": "transitive index runtime",
+        "functions": "diagnostic; failure; filesystemFailure; filesystemDiagnostic; errorText; formatValibotIssue",
+        "public_entry": "DR/IR error paths",
+        "status": "reviewed-static",
+        "disposition": "diagnostic creation/valibot issue formatting proportional emitted errors; no collection cross product found"
+      },
+      {
+        "path": "tools/index-runtime/src/frozen-json.ts",
+        "category": "transitive index runtime",
+        "functions": "canonicalizeTypedJsonObject; cloneAndFreezeTypedJsonObject; freezeObject; deeplyReadonlyFrozenValue; readonlyFrozenStateIndex",
+        "public_entry": "DR/IR sync and stage build",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "值验证后递归复制/冻结，值内各对象键排序；成本取决状态字节和每对象键数。和 canonicalization/serialization 同阶段重复 clone 属既列候选，不能跳过外部可变值隔离。"
+      },
+      {
+        "path": "tools/index-runtime/src/index-path.ts",
+        "category": "full/selected",
+        "functions": "resolveIndexPath, writeTextAtomically, verifyWrittenText",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "单索引路径校验、原子发布和写后逐字节回读，按字节与目录深度线性；这些分别为不同时间安全事实。"
+      },
+      {
+        "path": "tools/index-runtime/src/index.ts",
+        "category": "transitive index runtime",
+        "functions": "type/helper exports",
+        "public_entry": "DR/IR index APIs",
+        "status": "barrel",
+        "disposition": "exports only; staging symbols not invoked by record domain adapters"
+      },
+      {
+        "path": "tools/index-runtime/src/json.ts",
+        "category": "transitive index runtime",
+        "functions": "isJsonValue; isJsonObject",
+        "public_entry": "DR/IR projection",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "isJsonObject/isJsonValue 递归祖先集检测，每次扫描 subtree；有固定 F 字段多次遍历已列 query-fields 候选，非所选数乘全集。"
+      },
+      {
+        "path": "tools/index-runtime/src/key-values.ts",
+        "category": "transitive index runtime",
+        "functions": "normalizeStateIndexKeyValues; isStateIndexKeyScalar; keyValueMatchesMode; scalarIdentity; freezeStateIndexKeyMap",
+        "public_entry": "DR/IR index materialization",
+        "status": "reviewed-static",
+        "disposition": "normalization validates scalar list, Map dedup, sorts unique V O(V log V), not N×K"
+      },
+      {
+        "path": "tools/index-runtime/src/ordering.ts",
+        "category": "transitive index runtime",
+        "functions": "compareIndexText; compareStateIndexKeyScalars; compareDefinitionKeyNames",
+        "public_entry": "DR/IR index operations",
+        "status": "reviewed-static",
+        "disposition": "scalar and text comparisons only; callers pay sort costs"
+      },
+      {
+        "path": "tools/index-runtime/src/prepared-baseline-source.ts",
+        "category": "full/selected",
+        "functions": "readBaselineSource",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "读取同一索引的 FileHandle、前后路径/父身份和字节稳定性，O(B+depth)，必要安全事实；无内部 N 次 collection 循环。"
+      },
+      {
+        "path": "tools/index-runtime/src/prepared.ts",
+        "category": "full/selected/stage",
+        "functions": "prepareStateIndexFromSnapshot, consumePreparedStateIndex, prepareSelectedStateIndexBaseline",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "reviewed-static",
+        "disposition": "proof bound to definition/root/path, same operation only; fresh remains independent"
+      },
+      {
+        "path": "tools/index-runtime/src/projection.ts",
+        "category": "full/selected/stage",
+        "functions": "projectIndex",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "每 state parse 后校验 JSON、clone/freeze、query materialize；canonicalize 另复制，各固定遍历轮次，非 K×N；保持领域回调的非可信返回及深冻结。"
+      },
+      {
+        "path": "tools/index-runtime/src/query-fields.ts",
+        "category": "full/selected/stage",
+        "functions": "materialize query fields",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "每 state、每字段/来源遍历；DR/IR 均 4 个固定字段，IR relation-type 单次 each；每 source path 当前以 isJsonObject 递归检查其子树，常数次 state 字节遍历和标签/关系值排序。是否能保留领域回调隔离/严格验证同时复用 JSON 证明属于静态待证明候选。"
+      },
+      {
+        "path": "tools/index-runtime/src/query-matching.ts",
+        "category": "transitive index runtime",
+        "functions": "compileFilter",
+        "public_entry": "DR/IR query",
+        "status": "out-of-scope",
+        "disposition": "query filters per selected entry/value/terms; not stage or sync compilation; generic query paths separate"
+      },
+      {
+        "path": "tools/index-runtime/src/query-sorting.ts",
+        "category": "transitive index runtime",
+        "functions": "effectiveSort; validateSortCardinality; compareEntries",
+        "public_entry": "DR/IR query",
+        "status": "out-of-scope",
+        "disposition": "query sorts/cardinality per sort key; not sync/stage transaction"
+      },
+      {
+        "path": "tools/index-runtime/src/query-source-validation.ts",
+        "category": "transitive index runtime",
+        "functions": "validateQuerySource; validateDescriptorKeys",
+        "public_entry": "DR/IR index definition",
+        "status": "reviewed-static",
+        "disposition": "fixed query definition F and source/path validations; cost definition-sized not per K×N"
+      },
+      {
+        "path": "tools/index-runtime/src/query.ts",
+        "category": "query",
+        "functions": "loadRecordQuery, showPublishedRecord",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "outside-detail",
+        "disposition": "single selector scan/name and strict index; not core requested operation"
+      },
+      {
+        "path": "tools/index-runtime/src/reader.ts",
+        "category": "transitive index runtime",
+        "functions": "createStateIndexReader; createStateIndexReaderFromPrepared",
+        "public_entry": "DR/IR index query",
+        "status": "out-of-scope",
+        "disposition": "prepared reader reuses materialized entries; generic query reader path; not stage/sync write"
+      },
+      {
+        "path": "tools/index-runtime/src/record-staging.ts",
+        "category": "stage",
+        "functions": "stageRecordSelection, prepareRecordStage, recordTarget",
+        "public_entry": "DR/IR stage",
+        "status": "reviewed-static",
+        "disposition": "prepare+fresh+pending CAS, equivalent target reuse; scope index skips domain; sorting selected updates"
+      },
+      {
+        "path": "tools/index-runtime/src/record.ts",
+        "category": "transitive index runtime",
+        "functions": "isPlainRecord; sameRecordMembers; createSafeRecordSchema",
+        "public_entry": "DR/IR index parse/build",
+        "status": "reviewed-static",
+        "disposition": "sameRecordMembers does O(N) key enumeration + O(1) own lookup; safe schema encodes/decodes records linear in entries and errors"
+      },
+      {
+        "path": "tools/index-runtime/src/runtime.ts",
+        "category": "transitive index runtime",
+        "functions": "createStateIndexRuntime",
+        "public_entry": "generic Index Runtime API only",
+        "status": "out-of-scope",
+        "disposition": "generic runtime stageSelectedEntries unrelated: no record-domain source/SDK caller found"
+      },
+      {
+        "path": "tools/index-runtime/src/schemas.ts",
+        "category": "transitive index runtime",
+        "functions": "createStateSourceRevisionSchema; createStateIndexSchema; isStateIndexNamespace; isStateIndexKeyName; isStateIndexText",
+        "public_entry": "DR/IR index parse/build",
+        "status": "reviewed-static",
+        "disposition": "schema construction and identifier/text validation, cost proportional index state and revisions; library internals not benchmarked"
+      },
+      {
+        "path": "tools/index-runtime/src/selected-ids.ts",
+        "category": "selected/stage",
+        "functions": "canonicalSelectedIds",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "对 K 所选做校验去重和排序 O(K log K)，语义上保证一致顺序；未见高阶乘积。"
+      },
+      {
+        "path": "tools/index-runtime/src/selected-sync.ts",
+        "category": "selected",
+        "functions": "syncSelectedStateIndex, finishSelectedSync, publishSelectedSync",
+        "public_entry": "DR/IR selected sync",
+        "status": "reviewed-static",
+        "disposition": "baseline + candidate + fresh; no-change early exit only after fresh; changed write readback"
+      },
+      {
+        "path": "tools/index-runtime/src/selection.ts",
+        "category": "selected",
+        "functions": "selectedStateIndexChanges, changedStateIds",
+        "public_entry": "DR/IR selected sync",
+        "status": "static-candidate",
+        "disposition": "changedStateIds 对 N 条 baseline/candidate state 各 stringify、全 ID 排序，原函数探针 2N 次；完整未选保护是契约，如何用受信同阶段事实避免重复 materialization 尚待证明。"
+      },
+      {
+        "path": "tools/index-runtime/src/snapshot-builder.ts",
+        "category": "full/selected/stage",
+        "functions": "buildStateIndexFromSnapshot",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "先验证 revision/ID，逐 state parse 与 query materialize、组装验证、canonicalize。固定次数全量 O(N+状态字节+排序)，不是 N×K；状态在 canonicalize 中复制，后续 serialize 再复制，另列同阶段重复物化。"
+      },
+      {
+        "path": "tools/index-runtime/src/snapshot-parser.ts",
+        "category": "full/selected/stage",
+        "functions": "parseStateIndex, serializeStateIndex",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "严格 parse：JSON parse、schema、freeze envelope、领域 normalize 与 complete validate；不同责任且常数次 O(B)。serializeStateIndex 对同阶段已 canonical built index 再 canonicalize，为可收敛候选；公开任意输入仍须完整规范。"
+      },
+      {
+        "path": "tools/index-runtime/src/snapshot.ts",
+        "category": "transitive index runtime",
+        "functions": "type/helper exports",
+        "public_entry": "DR/IR index build",
+        "status": "barrel",
+        "disposition": "re-exports snapshot operations, no independent algorithm"
+      },
+      {
+        "path": "tools/index-runtime/src/staging-contracts.ts",
+        "category": "generic stage SDK",
+        "functions": "exports/implementation",
+        "public_entry": "generic Index Runtime stage API only",
+        "status": "out-of-scope",
+        "disposition": "rg stageSelectedIndexEntries/createStateIndexRuntime/stageSelectedEntries across both domain src, record-operations/src and both generated SDK declarations returned no references; DR/IR stage calls stageRecordSelection. Does not exclude separate generic SDK."
+      },
+      {
+        "path": "tools/index-runtime/src/staging-failures.ts",
+        "category": "generic stage SDK",
+        "functions": "exports/implementation",
+        "public_entry": "generic Index Runtime stage API only",
+        "status": "out-of-scope",
+        "disposition": "rg stageSelectedIndexEntries/createStateIndexRuntime/stageSelectedEntries across both domain src, record-operations/src and both generated SDK declarations returned no references; DR/IR stage calls stageRecordSelection. Does not exclude separate generic SDK."
+      },
+      {
+        "path": "tools/index-runtime/src/staging-operation.ts",
+        "category": "generic stage SDK",
+        "functions": "exports/implementation",
+        "public_entry": "generic Index Runtime stage API only",
+        "status": "out-of-scope",
+        "disposition": "rg stageSelectedIndexEntries/createStateIndexRuntime/stageSelectedEntries across both domain src, record-operations/src and both generated SDK declarations returned no references; DR/IR stage calls stageRecordSelection. Does not exclude separate generic SDK."
+      },
+      {
+        "path": "tools/index-runtime/src/staging-selection.ts",
+        "category": "stage",
+        "functions": "selectTargetSnapshot",
+        "public_entry": "DR/IR stage",
+        "status": "reviewed-static",
+        "disposition": "union N IDs sorted, selected workspace vs pending baseline; O(N log N)"
+      },
+      {
+        "path": "tools/index-runtime/src/staging.ts",
+        "category": "generic stage SDK",
+        "functions": "exports/implementation",
+        "public_entry": "generic Index Runtime stage API only",
+        "status": "out-of-scope",
+        "disposition": "rg stageSelectedIndexEntries/createStateIndexRuntime/stageSelectedEntries across both domain src, record-operations/src and both generated SDK declarations returned no references; DR/IR stage calls stageRecordSelection. Does not exclude separate generic SDK."
+      },
+      {
+        "path": "tools/index-runtime/src/storage-load.ts",
+        "category": "full/selected",
+        "functions": "loadStateIndex",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "安全读取或只读加载、整索引 parse/normalize；O(B+N log N)，当前加载 freshness 比较 source revision 是独立事实，不把扫描作为无条件冗余。"
+      },
+      {
+        "path": "tools/index-runtime/src/storage-reader.ts",
+        "category": "transitive index runtime",
+        "functions": "loadStateIndexReader; loadCurrentStateIndexReader",
+        "public_entry": "DR/IR query",
+        "status": "out-of-scope",
+        "disposition": "generic query/current readers, outside scoped sync/stage transaction"
+      },
+      {
+        "path": "tools/index-runtime/src/storage-shared.ts",
+        "category": "full/selected",
+        "functions": "readSourceRevision",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "调用领域 source revision fresh，处理错误；未发现自身嵌套全集循环。"
+      },
+      {
+        "path": "tools/index-runtime/src/storage-sync.ts",
+        "category": "full/selected",
+        "functions": "syncStateIndexPrepared",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "reviewed-static",
+        "disposition": "prepared reuse; independent source revision; serialize full index; no-op after check; write/readback"
+      },
+      {
+        "path": "tools/index-runtime/src/storage.ts",
+        "category": "transitive index runtime",
+        "functions": "type/helper exports",
+        "public_entry": "DR/IR index APIs",
+        "status": "barrel",
+        "disposition": "re-exports storage read/sync operations; no algorithm"
+      },
+      {
+        "path": "tools/index-runtime/src/types.ts",
+        "category": "transitive index runtime",
+        "functions": "type/helper exports",
+        "public_entry": "type-only",
+        "status": "barrel",
+        "disposition": "types only"
+      },
+      {
+        "path": "tools/index-runtime/src/validation.ts",
+        "category": "transitive index runtime",
+        "functions": "validateStateIndexValue; validateStateSourceRevisionValue",
+        "public_entry": "DR/IR build and parse",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "schema parse + revision 和状态成员验证为按状态/字节及错误总量固定遍历；build 前后存在固定次成员校验，未见 N×K；省略需保留 schema 和领域调用的外部值安全。"
+      },
+      {
+        "path": "tools/record-operations/src/candidate.ts",
+        "category": "new/publish/query",
+        "functions": "prepareRecordCandidates, readRecordCandidates, createRecordCandidate",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "成员列表逐项 header 发现，selected 准备逐个候选；全量候选范围是语义/恢复约束；逐 selector O(CK) 问题在领域 candidate discovery 已独立记录，未再发现共享层高阶。"
+      },
+      {
+        "path": "tools/record-operations/src/check.ts",
+        "category": "check",
+        "functions": "checkCollectedRecordIndex",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "reviewed-static",
+        "disposition": "first scan snapshot reused, readRevision returns captured fingerprint; no Git HEAD"
+      },
+      {
+        "path": "tools/record-operations/src/query.ts",
+        "category": "query",
+        "functions": "loadRecordQuery, showPublishedRecord",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "outside-detail",
+        "disposition": "single selector scan/name and strict index; not core requested operation"
+      },
+      {
+        "path": "tools/record-operations/src/reader-batch.ts",
+        "category": "scan/transaction",
+        "functions": "forEachRecordFileSnapshot, readBatch",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "小批量有序串行，>=1000 且运行时允许 worker 按 64 路径/字节限制分批；每文件安全读一次；限制内无输入集合二次扫描。吞吐与阈值是动态缺口。"
+      },
+      {
+        "path": "tools/record-operations/src/reader-protocol.ts",
+        "category": "scan/transaction",
+        "functions": "reader protocol",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "每批协议固定 64 路径、8MiB 的预算；schema 按当前批数据遍历，无所有批与文件相乘。"
+      },
+      {
+        "path": "tools/record-operations/src/reader-sync.ts",
+        "category": "scan/transaction",
+        "functions": "synchronous reader",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "每次同步文件安全读取按路径父层和数据字节线性，前后 parent 检查是安全时点；没有扫描其他文件。"
+      },
+      {
+        "path": "tools/record-operations/src/reader-worker.ts",
+        "category": "scan/transaction",
+        "functions": "worker reader",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "worker 单批逐文件读取，bounded chunk/背压；没有嵌套遍历全集，排队性能动态未测。"
+      },
+      {
+        "path": "tools/record-operations/src/selected-sync-sources.ts",
+        "category": "selected",
+        "functions": "SelectedRecordSources.prepare/readSelected/readDependency/fresh",
+        "public_entry": "DR/IR selected sync",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "readSelected、readDependency、fresh 各一层遍历 selected/dependency；每 readRecordFileSnapshot 按字节和路径深度检查，观察 Map 按路径唯一；无 K×N 嵌套。串行 I/O 及预读 worker 候选为传输问题，独立 fresh 和顺序诊断必须保持。"
+      },
+      {
+        "path": "tools/record-operations/src/selected-synchronize.ts",
+        "category": "selected",
+        "functions": "synchronizeSelectedRecordIndex, SelectedSynchronization.run",
+        "public_entry": "DR/IR selected sync",
+        "status": "reviewed-static",
+        "disposition": "strict baseline, graph baseline, selected prepare, fresh, publication; check vs preview vs write"
+      },
+      {
+        "path": "tools/record-operations/src/source.ts",
+        "category": "all",
+        "functions": "canonicalRecordCollection, readRecordText",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "canonical 检查逐父路径分量和单文件读取，成本 O(depth+bytes)，每条路径独立的 symlink 身份证明；调用批量时总和不是乘全集。"
+      },
+      {
+        "path": "tools/record-operations/src/synchronize.ts",
+        "category": "full/selected",
+        "functions": "synchronizeRecordIndex, validateSelectors, resolveSelectors",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "reviewed-static",
+        "disposition": "full snapshot->prepared; selected names map once; deterministic ordering"
+      },
+      {
+        "path": "tools/record-operations/src/transaction-files.ts",
+        "category": "transaction",
+        "functions": "restoreRecordWrites, createRecordWriteParents, restoreRecordDirectories",
+        "public_entry": "DR/IR lifecycle/new/rename/discard",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "restoreRecordWrites 反向遍历实际 W 次，每个 verify/写回/readback O(bytes+depth)，无 W×N 或 W²；cleanup 遍历已创建目录，目录身份 CAS 不可删。"
+      },
+      {
+        "path": "tools/record-operations/src/transaction-journal.ts",
+        "category": "transaction",
+        "functions": "RecordWriteJournal",
+        "public_entry": "DR/IR lifecycle/new/rename/discard",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "每次 apply 单写项：前置读、写入、capture/回读；失败 observeRejectedWrite 单目标；时间点不同并受所有权保护，无全写集重复查找。"
+      },
+      {
+        "path": "tools/record-operations/src/transaction-plan.ts",
+        "category": "transaction",
+        "functions": "normalizeRecordTransactionPlan, validateRecordTransactionWrites",
+        "public_entry": "DR/IR lifecycle/new/rename/discard",
+        "status": "reviewed-static",
+        "disposition": "writes validated before no-op to guards, duplicate path Set; no-op still protected"
+      },
+      {
+        "path": "tools/record-operations/src/transaction-snapshot.ts",
+        "category": "transaction/selected",
+        "functions": "readRecordFileSnapshot, sameRecordFile",
+        "public_entry": "DR/IR adapters; see category (transitive reachability not inferred)",
+        "status": "static-disposed-dynamic-open",
+        "disposition": "readRecordFileSnapshot 单路径两次父链检查、lstat/open/fstat/read，其循环仅路径深度及字节；sameRecordFile 按父链及字节线性。跨路径共同父链重复系统调用需动态评估，不能跨时间移除身份安全校验。"
+      },
+      {
+        "path": "tools/record-operations/src/transaction-verification.ts",
+        "category": "transaction",
+        "functions": "RecordVerificationPhase.verifyMany, scheduleGuards",
+        "public_entry": "DR/IR lifecycle/new/rename/discard",
+        "status": "reviewed-static",
+        "disposition": "same-phase observed path reuse; threshold batch worker; distinct fresh/postwrite/recovery scheduleGuards 对每路径 Map 查询且有序，O(W+G) 加各自 bytes/depth；非逐 guard 遍历全集合。"
+      },
+      {
+        "path": "tools/record-operations/src/transaction.ts",
+        "category": "transaction",
+        "functions": "runRecordTransaction, verifyPlan, verifyWritten, verifyRecoveredFiles",
+        "public_entry": "DR/IR lifecycle/new/rename/discard",
+        "status": "reviewed-static",
+        "disposition": "prepare -> independent fresh -> journal -> commit -> readback; recovery CAS reverse actual writes; preflight prepare only verifyRecoveredFiles 用 Set 一次写集与 guards；rollback 不遍历所有记录。"
+      }
+    ]
+  },
+  "searchAndGraph": {
+    "scope": "Static scan of shared search, graph, markdown, and node files for actual DR/IR reachability; not proof of complete transitive call graph",
+    "files": [
+      {
+        "path": "tools/shared/src/file-text-search/contracts.ts",
+        "functions": "errors, abort, request and result types",
+        "reach": "DR/IR content search",
+        "disposition": "constant per call; errors/abort necessary"
+      },
+      {
+        "path": "tools/shared/src/file-text-search/files.ts",
+        "functions": "openRoot, selectSourcePaths, verifySelectedFile, readSelectedFile, verifyOpenedFile, readHandleBytes",
+        "reach": "DR/IR content search",
+        "disposition": "original fixture confirmed all selected prevalidation and read-time revalidation; symlink in unscanned third candidate fails before any content read, so cannot lazily defer without changing current behavior; duplicate leaf lstat and repeated realpath are race-sensitive, optimization equivalence unproven"
+      },
+      {
+        "path": "tools/shared/src/file-text-search/index.ts",
+        "functions": "searchFileText, collectSearchResult, collectSearchHit",
+        "reach": "matcher reexports used by both metadata searches; direct searchFileText not found in DR/IR",
+        "disposition": "direct generic entry distinct from record-search; no claim DR/IR call it"
+      },
+      {
+        "path": "tools/shared/src/file-text-search/previews.ts",
+        "functions": "findLineMatches, limitMatchRanges, boundPreviews, previewsForMatches",
+        "reach": "both content searches",
+        "disposition": "existing C10: repeated line split. Per-file range cap applied only after match generation; IR/DR previews bounded by 3 matches and context 1; no absolute unbounded file bytes."
+      },
+      {
+        "path": "tools/shared/src/file-text-search/record-search-info.ts",
+        "functions": "contentSearchFacts, metadataSearchFacts, searchLimitWarnings",
+        "reach": "both search modes",
+        "disposition": "small coverage projection; no extra nested collection issue identified"
+      },
+      {
+        "path": "tools/shared/src/file-text-search/record-search-output.ts",
+        "functions": "renderRecordSearchSummary",
+        "reach": "both CLI search",
+        "disposition": "bounded output field projection; no identified issue"
+      },
+      {
+        "path": "tools/shared/src/file-text-search/record-search.ts",
+        "functions": "searchRecordText, collectRecordHits, collectRecordHit, recordPreviews",
+        "reach": "both content searches",
+        "disposition": "scan to first hidden matching file; unbounded match range materialization before preview caps, confirmed by lightweight fixture"
+      },
+      {
+        "path": "tools/shared/src/file-text-search/request.ts",
+        "functions": "validateRequest, validateSelection, parseSourcePath",
+        "reach": "both content searches",
+        "disposition": "candidate path validation linear in selected path bytes; necessary and separate from filesystem safety"
+      },
+      {
+        "path": "tools/shared/src/file-text-search/segment-matcher.ts",
+        "functions": "createTextSearchMatcher, matchTextSegments, normalizeSegment, mapOriginalGraphemes, rangesForTerms, rangesForNeedle, mergeRanges",
+        "reach": "both metadata and content search",
+        "disposition": "existing C9: metadata unused ranges and zero-hit spans; content pre-cap ranges are adjacent same owner. Grapheme/spans built once per segment, two direct span lookups per hit, not M times full span scan."
+      },
+      {
+        "path": "tools/shared/src/graph/lazy-relation-graph.ts",
+        "functions": "createLazyRelationGraph",
+        "reach": "DR/IR relation contexts",
+        "disposition": "one lazy graph per immutable context; no cross-stage freshness assumptions"
+      },
+      {
+        "path": "tools/shared/src/graph/relations.ts",
+        "functions": "buildRelationGraph, relationGraphStructuralIssues, relationGraphCycleIssues, cycleTargets",
+        "reach": "DR/IR graph validation and trace context",
+        "disposition": "invalid-graph cycle DFS stack indexOf independently confirmed N=1000 / 499499 comparisons vs 2994 emitted members; maintain stack-position map candidate, preserve ordering and diagnostics; not healthy graph trace"
+      },
+      {
+        "path": "tools/shared/src/graph/trace-contract.ts",
+        "functions": "types",
+        "reach": "both trace",
+        "disposition": "type only"
+      },
+      {
+        "path": "tools/shared/src/graph/trace-ordering.ts",
+        "functions": "normalizeAdmissionUnits, stableRecordMembers, hasStableIdArray, ordering comparators",
+        "reach": "both trace selection",
+        "disposition": "IR and DR adapters deduplicate same event within expansion and freeze event units; shared arbitrary duplicate merging and long prefix comparator have possible high complexity but legitimate domain reachability not demonstrated"
+      },
+      {
+        "path": "tools/shared/src/graph/trace-selection.ts",
+        "functions": "selectRelationGraphTrace, directIds, addBudgetFrontiers",
+        "reach": "both trace",
+        "disposition": "both IR and DR original trace with ordinary chain n=100 count 200 adjacency get; non-depth directIds duplicate confirmed; event graphs and mutable custom graph semantics unmeasured"
+      },
+      {
+        "path": "tools/shared/src/markdown/frontmatter.ts",
+        "functions": "parseYamlFrontmatter",
+        "reach": "DR decision-metadata; IR uses own markdown parser",
+        "disposition": "one regex and YAML parse per call; repeated caller parse not closed"
+      },
+      {
+        "path": "tools/shared/src/markdown/links.ts",
+        "functions": "extractMarkdownLinks, validateMarkdownLinks",
+        "reach": "no DR/IR reference found; skill-validator only",
+        "disposition": "excluded from actual reachability, not classified as record performance issue"
+      },
+      {
+        "path": "tools/shared/src/node/bytes.ts",
+        "functions": "sameBytes",
+        "reach": "IR and DR stage/index runtime",
+        "disposition": "linear byte equality required; stages retain fresh snapshots"
+      },
+      {
+        "path": "tools/shared/src/node/error-detail.ts",
+        "functions": "operationErrorDetail",
+        "reach": "diagnostics transitively",
+        "disposition": "bounded diagnostic formatting; no collection cost identified"
+      },
+      {
+        "path": "tools/shared/src/node/filesystem-diagnostic.ts",
+        "functions": "fileSystemDiagnostic",
+        "reach": "IR diagnostics and index runtime",
+        "disposition": "error classification, no collection cost identified"
+      },
+      {
+        "path": "tools/shared/src/node/filesystem.ts",
+        "functions": "isFileSystemError, pathExists, toPosix, isPathWithinDirectory",
+        "reach": "both domain path checks, shared source and transactions",
+        "disposition": "single path/metadata check; repeated callers assessed independently"
+      },
+      {
+        "path": "tools/shared/src/node/main-module.ts",
+        "functions": "isMainModule",
+        "reach": "DR/IR CLI boot",
+        "disposition": "single startup check"
+      },
+      {
+        "path": "tools/record-operations/src/source.ts",
+        "functions": "canonicalRecordCollection, readRecordSource, readRecordText, inspectSourcePath, assertStableSource",
+        "reach": "DR/IR show and selected sources",
+        "disposition": "per file safe handle and parent inspection before and after read; lstat and realpath are mutation/race proofs and not automatically redundant; N times component depth and total bytes"
+      }
+    ],
+    "unclosed": [
+      "Whether candidate-wide prevalidation and per-read repeated checks can be reduced without changing errors on unscanned selected paths or filesystem race guarantees.",
+      "Bounded range algorithm for hidden hits and exhausted previews preserving all/any/phrase, full-word existence, merged overlapping ranges, actual truncation reasons, UTF-16 offsets, normalization, cancellation and ID/safety failures.",
+      "Trace admission unit duplicate merging or compare sequences on realistic DR/IR adapters; frozen data optimizations and dynamic semantics need preserved.",
+      "Files/AST outside listed module groups and their full transitive consumers not exhaustively inventoried; unsafe to claim all shared performance paths are covered.",
+      "End-to-end timing, Windows, long UTF-8/NFKC inputs, actual Git/CLI, error precedence and concurrent filesystem mutation not tested.",
+      "Candidate prevalidation followed by pre-open and post-open checks each protect distinct time boundary; leaf repeated stat within one check might combine but changes ability to detect transient symlink replacement, so no safety-equivalent implementation proven.",
+      "Whether distinct same-kind valid domain events can normalize to identical member sets and whether long comparator prefixes cause meaningful high-order work remains unproven; arbitrary shared API input alone is not evidence of domain reachability.",
+      "Cycle stack-position optimization not implemented; invalid graphs and exact diagnostic ordering require verification."
+    ]
+  },
+  "boundary": "Module and reachable core-cost dispositions; import closure includes type-only imports. Neither full dynamic branch execution nor a proof of no remaining performance issues."
+}

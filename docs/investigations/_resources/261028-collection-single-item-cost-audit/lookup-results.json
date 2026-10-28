@@ -1,0 +1,60 @@
+{
+  "syntheticHistory": [
+    {
+      "records": 20,
+      "wanted": 20,
+      "allWantedInPublishedIndex": true,
+      "resultPaths": 20,
+      "decisionIdVisits": 210,
+      "elapsedMs": 0.1057869999999923,
+      "expectedTriangular": 210
+    },
+    {
+      "records": 200,
+      "wanted": 200,
+      "allWantedInPublishedIndex": true,
+      "resultPaths": 200,
+      "decisionIdVisits": 20100,
+      "elapsedMs": 0.5029350000000079,
+      "expectedTriangular": 20100
+    },
+    {
+      "records": 2000,
+      "wanted": 2000,
+      "allWantedInPublishedIndex": true,
+      "resultPaths": 2000,
+      "decisionIdVisits": 2001000,
+      "elapsedMs": 27.197678999999965,
+      "expectedTriangular": 2001000
+    }
+  ],
+  "realMaintenanceReadOnly": [
+    {
+      "publishedRecords": 412,
+      "selected": 20,
+      "loaded": 20,
+      "dedupSomeCalls": 20,
+      "dedupSomeVisits": 190,
+      "expectedTriangular": 190,
+      "elapsedMs": 143.36567300000002
+    },
+    {
+      "publishedRecords": 412,
+      "selected": 100,
+      "loaded": 100,
+      "dedupSomeCalls": 100,
+      "dedupSomeVisits": 4950,
+      "expectedTriangular": 4950,
+      "elapsedMs": 282.12346199999996
+    },
+    {
+      "publishedRecords": 412,
+      "selected": 200,
+      "loaded": 200,
+      "dedupSomeCalls": 200,
+      "dedupSomeVisits": 19900,
+      "expectedTriangular": 19900,
+      "elapsedMs": 531.27961
+    }
+  ]
+}

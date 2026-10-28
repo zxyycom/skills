@@ -1,0 +1,55 @@
+{
+  "investigationBatchSelectors": [
+    {
+      "entries": 20,
+      "selectors": 20,
+      "idVisits": 210,
+      "expectedTriangular": 210,
+      "elapsedMs": 0.5957369999999855
+    },
+    {
+      "entries": 200,
+      "selectors": 200,
+      "idVisits": 20100,
+      "expectedTriangular": 20100,
+      "elapsedMs": 0.8320470000000171
+    },
+    {
+      "entries": 2000,
+      "selectors": 2000,
+      "idVisits": 2001000,
+      "expectedTriangular": 2001000,
+      "elapsedMs": 26.65875299999996
+    }
+  ],
+  "decisionPendingLocator": [
+    {
+      "indexEntries": 1000,
+      "selectedPayloads": 1,
+      "materializedEntryValues": 1000,
+      "expectedProduct": 1000,
+      "elapsedMs": 0.7180950000000053
+    },
+    {
+      "indexEntries": 1000,
+      "selectedPayloads": 20,
+      "materializedEntryValues": 20000,
+      "expectedProduct": 20000,
+      "elapsedMs": 10.062229000000002
+    },
+    {
+      "indexEntries": 1000,
+      "selectedPayloads": 100,
+      "materializedEntryValues": 100000,
+      "expectedProduct": 100000,
+      "elapsedMs": 30.993757000000016
+    },
+    {
+      "indexEntries": 10000,
+      "selectedPayloads": 100,
+      "materializedEntryValues": 1000000,
+      "expectedProduct": 1000000,
+      "elapsedMs": 283.11821800000007
+    }
+  ]
+}
