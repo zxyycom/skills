@@ -2,6 +2,7 @@ import path from "node:path";
 import process from "node:process";
 import { createInterface } from "node:readline/promises";
 import { parseArgs } from "node:util";
+import type { GitHubCliFailureReason } from "./github-auth.ts";
 import type { CliOptions, UpdaterConfig } from "./types.ts";
 
 const cliOptionDefinitions = {
@@ -20,6 +21,21 @@ export type UpdaterLinks = {
   sourceRepositoryUrl: string;
   updaterSourceUrl: string;
 };
+
+export function printGitHubAuthWarning(reason: GitHubCliFailureReason): void {
+  const reasons: Readonly<Record<GitHubCliFailureReason, string>> = {
+    "not-installed": "gh is not installed",
+    "timed-out": "gh credential lookup timed out",
+    "command-failed": "gh credential lookup failed",
+    "empty-output": "gh returned no credentials",
+    "invalid-output": "gh returned an invalid credential format"
+  };
+  console.warn(
+    `GitHub CLI credentials unavailable (${reasons[reason]}); ` +
+      "using unauthenticated GitHub requests with shared IP rate limits. " +
+      "Set GITHUB_TOKEN/GH_TOKEN or run gh auth login --hostname github.com."
+  );
+}
 
 function defaultTargetDir(scriptPath: string): string {
   const scriptDir = path.dirname(scriptPath);
@@ -43,7 +59,7 @@ function resolveTargetDir(
   return path.resolve(requestedTargetDir ?? defaultTargetDir(scriptPath));
 }
 
-export function getUpdaterLinks(config: UpdaterConfig): UpdaterLinks {
+export function getUpdaterLinks(config: Readonly<UpdaterConfig>): UpdaterLinks {
   const sourceRepositoryUrl = `https://github.com/${config.repo}`;
   const latestReleaseUrl = `${sourceRepositoryUrl}/releases/latest`;
 
@@ -57,7 +73,10 @@ export function getUpdaterLinks(config: UpdaterConfig): UpdaterLinks {
   };
 }
 
-export function printHelp(config: UpdaterConfig, scriptPath: string): void {
+export function printHelp(
+  config: Readonly<UpdaterConfig>,
+  scriptPath: string
+): void {
   const links = getUpdaterLinks(config);
   console.log(
     [
@@ -79,6 +98,10 @@ export function printHelp(config: UpdaterConfig, scriptPath: string): void {
       "  If runtime files or manifest/lockfile are damaged, re-obtain this skill, restore dependencies and retry.",
       "  Updates overwrite matching packaged files; other local files remain. Reinstall dependencies if required by the new package.",
       "",
+      "GitHub authentication:",
+      "  Uses GITHUB_TOKEN, then GH_TOKEN, then gh auth token --hostname github.com.",
+      "  If no credentials are available, warns and uses unauthenticated requests with shared IP rate limits.",
+      "",
       "Options:",
       "  --check             Check whether the installed version differs from the remote version, without updating.",
       "  --yes, -y           Update without prompting.",
@@ -90,7 +113,7 @@ export function printHelp(config: UpdaterConfig, scriptPath: string): void {
 }
 
 export function parseCliOptions(
-  config: UpdaterConfig,
+  config: Readonly<UpdaterConfig>,
   argv: readonly string[],
   scriptPath: string
 ): CliOptions {

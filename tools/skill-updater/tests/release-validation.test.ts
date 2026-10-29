@@ -38,7 +38,12 @@ async function withAssetResponse(
 test("updater rejects a manifest version that differs from the package", async () => {
   await withAssetResponse(zipData, async () => {
     await assert.rejects(
-      loadRemoteSkillFiles(skillUpdaterConfig, validRelease, { version: 3 }),
+      loadRemoteSkillFiles(
+        skillUpdaterConfig,
+        validRelease,
+        { version: 3 },
+        null
+      ),
       /does not match skill-release-manifest\.json version/u
     );
   });
@@ -52,7 +57,12 @@ test("updater rejects a remote package owned by another skill", async () => {
   });
   await withAssetResponse(wrongRemoteZipData, async () => {
     await assert.rejects(
-      loadRemoteSkillFiles(skillUpdaterConfig, validRelease, { version: 2 }),
+      loadRemoteSkillFiles(
+        skillUpdaterConfig,
+        validRelease,
+        { version: 2 },
+        null
+      ),
       /identifies skill "different-skill" in SKILL\.md, but this updater expects "ai-ready-docs"/u
     );
   });
@@ -67,7 +77,12 @@ test("updater rejects aliased non-canonical package paths", async () => {
   });
   await withAssetResponse(aliasedRemoteZipData, async () => {
     await assert.rejects(
-      loadRemoteSkillFiles(skillUpdaterConfig, validRelease, { version: 2 }),
+      loadRemoteSkillFiles(
+        skillUpdaterConfig,
+        validRelease,
+        { version: 2 },
+        null
+      ),
       /non-canonical skill path/u
     );
   });
@@ -89,7 +104,7 @@ test("updater reports invalid release payloads", () => {
 test("updater reports invalid manifest payloads", async () => {
   await withAssetResponse(Buffer.from("{}"), async () => {
     await assert.rejects(
-      resolveRemoteSkillPackage(skillUpdaterConfig, validRelease),
+      resolveRemoteSkillPackage(skillUpdaterConfig, validRelease, null),
       /contains invalid skill-release-manifest\.json:[\s\S]*schemaVersion/u
     );
   });

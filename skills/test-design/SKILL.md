@@ -5,7 +5,7 @@ description: >-
   包括功能开发和 Bug 修复中的测试工作。从行为契约选择测试边界、场景、
   数据与断言，兼顾辨错能力、合理重构兼容性及运行维护成本。
 metadata:
-  version: "3"
+  version: "4"
 ---
 
 # Test Design

@@ -5,7 +5,7 @@ description: >-
   用低成本、低延迟的结构化判断处理分类、候选选择、相关性筛选、命题判断
   和程度评分；以 JEV 载体调用 JEV 或 OpenAI Decisions，复核类型化结果后继续原任务。
 metadata:
-  version: "12"
+  version: "13"
 ---
 
 # Lightweight Judgment

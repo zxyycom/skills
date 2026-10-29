@@ -1153,11 +1153,16 @@
       "SKILL-RELEASE-PUBLISH-005": "sha256:553669863f6166311b69c0f5345a1933751e9accc2aedf25552d169391da1f2c",
       "SKILL-RELEASE-PUBLISH-006": "sha256:a14fe349506e2bbfa268087eb8a299120ec6b626970315a0913374be8a7004b2",
       "SKILL-RELEASE-UPLOAD-FAILURE-001": "sha256:c9b8b6306b1399f9d35836641d3bb9d8ba154fb90823f4178aecf7089b9e2862",
+      "SKILL-UPDATER-ANONYMOUS-AUTH-001": "sha256:5d9686369f023bac4d627644a9814a6091c7eaaebffe2ecd7c815946fd58b995",
+      "SKILL-UPDATER-AUTH-FAILURE-001": "sha256:dd71bff393bfadc3e05b48f13ac915529be3882b9661227d83e26c61ce9f5169",
       "SKILL-UPDATER-CANONICAL-PATH-001": "sha256:799ef5ed1bee3b5b3221ab3a794e555717d880b486998607e47a6fe03759279f",
       "SKILL-UPDATER-CURRENT-CHECK-001": "sha256:b6a26c8af0330924d1a15a80caea08904fee47080ebb8f8aea293b63177f60d5",
       "SKILL-UPDATER-DECLARATIONS-001": "sha256:53646150494e5390570156b0def183cd2e1b29ef374bd8e0ca63e44a6624ea51",
+      "SKILL-UPDATER-DEFER-AUTH-001": "sha256:c57189a1f6ec294be993d52b84d389b2e3cadf8fd71420f35db33ed332f3cd9f",
       "SKILL-UPDATER-DEPENDENCY-RECOVERY-001": "sha256:ad896fba1148744c718f00517a599b3b5773296191e45e899db684d6500b23ba",
       "SKILL-UPDATER-EMPTY-TARGET-001": "sha256:9ccf818321f75149218307738adf2f6a9baf7114f12e42c935b2c484beebc8ef",
+      "SKILL-UPDATER-ENV-AUTH-001": "sha256:4ad07ed1f8af00020524f64eb224b63299db58666b0bec33084b0e0859e01c50",
+      "SKILL-UPDATER-GH-AUTH-001": "sha256:95c983d89fefa318f2b45da94ed56b05b6a0ebc22cb13f5fb21f6c17c289387b",
       "SKILL-UPDATER-HELP-001": "sha256:6d3241af93c2049aafe67747081c021386f3400366f2ab4ef292dc615f4a7e8b",
       "SKILL-UPDATER-INCOMPATIBLE-DEPENDENCIES-001": "sha256:1155422f9fd3612a6491e0950857a0ab0f66136d7fd41451159987e7a6e55739",
       "SKILL-UPDATER-LOCAL-OWNER-001": "sha256:454a842a325f2ba41353bcdde58f20d7b7a67329d9656d59859e48bae5237c71",
@@ -1171,6 +1176,7 @@
       "SKILL-UPDATER-REMOTE-PAYLOADS-001": "sha256:c88df6a47fd77174a1f184c895775bb13069381a0cfa8c3dea18207259bde9e6",
       "SKILL-UPDATER-REPLACE-PRESERVE-001": "sha256:a2094e116ace5a7df985277ef6fa98557ff042a4a7b05a4c849196130bb11dfd",
       "SKILL-UPDATER-SELF-OVERWRITE-001": "sha256:a6e646c7c7d11be1b3c55ce2a4ffc79efb6b388bfa1b3173bb7c642671ac54e0",
+      "SKILL-UPDATER-TOKEN-SAFETY-001": "sha256:514b549d75eda4c649368dc6922e386907b46a50a12fdd58f667d65bfe11d255",
       "SKILL-UPDATER-UNVERSIONED-001": "sha256:c460d997a44ec31ef03b894cfb09020fb6bd801cc7865e38f3290051dedc0481",
       "SKILL-UPDATER-WRITE-ROLLBACK-001": "sha256:5f4f1530cd5bd795b407838d866ea4aeddfdda35600d62fe87335d943bfaf0e4",
       "SKILL-VALIDATOR-CLI-ARGS-001": "sha256:4396d0e50f078a20db0931566b4125f5d7928ac1dc83016c3bd8d321b860472c",
@@ -13293,6 +13299,30 @@
         "test:3399d3ff7a08cafbb7a2883ca17733c874d399a277ce245890f5cc79e6eccd30"
       ]
     },
+    "SKILL-UPDATER-ANONYMOUS-AUTH-001": {
+      "title": "可选 CLI 凭据不可用时明确警告并匿名访问",
+      "sourcePath": "cases/skill-updater-anonymous-auth.md",
+      "tags": [
+        "skill-updater"
+      ],
+      "testIds": [
+        "test:7f61912d85f9559acfa74ae2b793be799a3731e7dcfbb0019fd7557b6fe6ff5a",
+        "test:9be65948bab77e385f54239691a800ee3e0855c32a470c86352baee771707360",
+        "test:b5dcac47f247eb80dd6e2a2424e6c0745ef2a20f6c90e0dc0aa4370cafa367ff",
+        "test:be6f3d888b5c7c5d576c7573783c2b60119d2527f966edff76215a6f3afa3813",
+        "test:e673c090ede87015504c7d84ac3c10464d4984ce3f26ff66033097caa06d7aeb"
+      ]
+    },
+    "SKILL-UPDATER-AUTH-FAILURE-001": {
+      "title": "HTTP 认证失败不匿名重试或切换身份",
+      "sourcePath": "cases/skill-updater-auth-failure.md",
+      "tags": [
+        "skill-updater"
+      ],
+      "testIds": [
+        "test:1d554dcddd40840168025cad014ccc64c7f36b88a7af37113e4df911423f5783"
+      ]
+    },
     "SKILL-UPDATER-CANONICAL-PATH-001": {
       "title": "Updater 拒绝非规范包路径别名",
       "sourcePath": "cases/skill-updater-canonical-path-001.md",
@@ -13323,6 +13353,18 @@
         "test:9882e1a719d7e6eaa21598fe221a3751b2053ccdbeb78ea383c841b9592f7b7b"
       ]
     },
+    "SKILL-UPDATER-DEFER-AUTH-001": {
+      "title": "凭据查询晚于本地校验且不影响无副作用入口",
+      "sourcePath": "cases/skill-updater-deferred-auth.md",
+      "tags": [
+        "skill-updater"
+      ],
+      "testIds": [
+        "test:382c14720491e751a2d24b1e70f01372b2ecb03e1e137509054293940e274fd2",
+        "test:62ac9921b72151230fabd8b473719b0cea0e60fc62944b954e39ceba362762c0",
+        "test:8217dbc671aaa3af1e5162527c2e3158691b4c81e18e17cfb2d17bd641dda555"
+      ]
+    },
     "SKILL-UPDATER-DEPENDENCY-RECOVERY-001": {
       "title": "缺少依赖时给出显式恢复并可重试",
       "sourcePath": "cases/skill-updater-dependency-recovery-001.md",
@@ -13341,6 +13383,27 @@
       ],
       "testIds": [
         "test:8d336aad79d96dc2c4813e54f0c3f76ab1464a94d95312a662aee0d9812ca0be"
+      ]
+    },
+    "SKILL-UPDATER-ENV-AUTH-001": {
+      "title": "环境变量凭据优先且空白值不遮蔽后备凭据",
+      "sourcePath": "cases/skill-updater-environment-auth.md",
+      "tags": [
+        "skill-updater"
+      ],
+      "testIds": [
+        "test:658e10aa2ec141c92a911eaaeedd29fdc45cd681db913ed43f17789d2a1995da",
+        "test:7d9f03e295155b9dc96349c1a5fdd2610d35f6b8be7e8829ccb711455fb93fff"
+      ]
+    },
+    "SKILL-UPDATER-GH-AUTH-001": {
+      "title": "复用 GitHub CLI 登录凭据完成更新",
+      "sourcePath": "cases/skill-updater-gh-auth.md",
+      "tags": [
+        "skill-updater"
+      ],
+      "testIds": [
+        "test:d9734398f2e75cb07e45e183c9314f176f304aece273751273a4e270bac5d1bd"
       ]
     },
     "SKILL-UPDATER-HELP-001": {
@@ -13471,6 +13534,17 @@
       ],
       "testIds": [
         "test:0408a8e73a48610e62ed34349fd4e77e3b8affeaff21e0fff1577c5fef5ce6ca"
+      ]
+    },
+    "SKILL-UPDATER-TOKEN-SAFETY-001": {
+      "title": "非法凭据在 HTTP 请求前处理且诊断不回显原值",
+      "sourcePath": "cases/skill-updater-token-safety.md",
+      "tags": [
+        "skill-updater"
+      ],
+      "testIds": [
+        "test:9b49ab0cfd64b6f46c51ffa09626a63927ebcf055e9daff4d65d960ca392ac37",
+        "test:f252f79a9b570512bf3d715e9219089aeee67a78304037e07d845527b4c312ec"
       ]
     },
     "SKILL-UPDATER-UNVERSIONED-001": {

@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { after } from "node:test";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { zipSync } from "fflate";
 import {
   runSkillUpdaterCli,
@@ -34,6 +34,7 @@ export const validRelease = {
 
 type UpdaterRunOptions = Readonly<{
   args: readonly string[];
+  env?: Readonly<NodeJS.ProcessEnv>;
   fetchMarkerPath?: string;
   updaterPath?: string;
   useDefaultTarget?: boolean;
@@ -68,8 +69,8 @@ export function runUpdater(
   const result = spawnSync(
     "node",
     [
-      "--require",
-      mockFetchPath,
+      "--import",
+      pathToFileURL(mockFetchPath).href,
       options.updaterPath ?? generatedUpdaterPath,
       ...options.args,
       ...(options.useDefaultTarget ? [] : ["--target-dir", options.targetDir])
@@ -79,6 +80,10 @@ export function runUpdater(
       encoding: "utf8",
       env: {
         ...process.env,
+        GITHUB_TOKEN: "fixture-updater-token",
+        GH_TOKEN: "",
+        SKILLS_TEST_AUTH_LOG: "",
+        ...options.env,
         SKILLS_TEST_FETCH_MARKER_PATH: options.fetchMarkerPath ?? "",
         SKILLS_TEST_MANIFEST_JSON: JSON.stringify(options.manifest),
         SKILLS_TEST_RELEASE_JSON: JSON.stringify(options.release),
@@ -100,37 +105,9 @@ after(async () => {
   await fs.rm(tempRoot, { force: true, recursive: true });
 });
 
-export const mockFetchPath = path.join(tempRoot, "mock-fetch.cjs");
-await fs.writeFile(
-  mockFetchPath,
-  [
-    "const fs = require('node:fs');",
-    "const requiredEnvironment = (name) => {",
-    "  const value = process.env[name];",
-    "  if (value === undefined) throw new Error(`Missing updater fixture environment: ${name}`);",
-    "  return value;",
-    "};",
-    "const releaseJson = requiredEnvironment('SKILLS_TEST_RELEASE_JSON');",
-    "const manifestJson = requiredEnvironment('SKILLS_TEST_MANIFEST_JSON');",
-    "const zipBase64 = requiredEnvironment('SKILLS_TEST_ZIP_BASE64');",
-    "const fetchMarkerPath = process.env.SKILLS_TEST_FETCH_MARKER_PATH;",
-    "globalThis.fetch = async (input) => {",
-    "  const url = String(input);",
-    "  if (fetchMarkerPath) fs.appendFileSync(fetchMarkerPath, url + '\\n', 'utf8');",
-    "  if (url.startsWith('https://api.github.com/repos/')) {",
-    "    return new Response(releaseJson, { status: 200 });",
-    "  }",
-    `  if (url === ${JSON.stringify(manifestAssetUrl)}) {`,
-    "    return new Response(manifestJson, { status: 200 });",
-    "  }",
-    `  if (url === ${JSON.stringify(zipAssetUrl)}) {`,
-    "    return new Response(Buffer.from(zipBase64, 'base64'), { status: 200 });",
-    "  }",
-    "  return new Response('not found', { status: 404 });",
-    "};",
-    ""
-  ].join("\n"),
-  "utf8"
+export const mockFetchPath = path.join(
+  testsDirectory,
+  "fixtures/mock-fetch.ts"
 );
 
 export const remoteSkillMarkdown = skillMarkdown(2, "# Updated AI-ready docs");

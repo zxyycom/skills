@@ -9,10 +9,12 @@
  */
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { resolveGitHubAuthentication } from "./github-auth.ts";
 import {
   confirmUpdate,
   getUpdaterLinks,
   parseCliOptions,
+  printGitHubAuthWarning,
   printHelp
 } from "./cli.ts";
 import {
@@ -91,15 +93,22 @@ export async function runSkillUpdaterCli(
     options.targetDir,
     skillUpdaterConfig.skillName
   );
+  const authentication = resolveGitHubAuthentication();
+  if (authentication.token === null) {
+    printGitHubAuthWarning(authentication.reason);
+  }
+  const { token } = authentication;
   const release = await fetchGitHubRelease(
     skillUpdaterConfig,
-    options.releaseTag
+    options.releaseTag,
+    token
   );
   console.log(`Resolved release: ${release.tag_name} (${release.html_url})`);
 
   const remotePackage = await resolveRemoteSkillPackage(
     skillUpdaterConfig,
-    release
+    release,
+    token
   );
   console.log(`Remote version: ${remotePackage.version}`);
   console.log(`Local version: ${formatLocalVersion(currentState)}`);
@@ -128,7 +137,8 @@ export async function runSkillUpdaterCli(
   const remoteFiles = await loadRemoteSkillFiles(
     skillUpdaterConfig,
     release,
-    remotePackage
+    remotePackage,
+    token
   );
   const updatePlan = await planSkillUpdate(remoteFiles, options.targetDir);
   printUpdatePlan(updatePlan);

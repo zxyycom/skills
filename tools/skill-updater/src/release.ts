@@ -39,13 +39,15 @@ function formatReleaseIssues(
   });
 }
 
-function githubHeaders(accept: string): Record<string, string> {
+function githubHeaders(
+  accept: string,
+  token: string | null
+): Record<string, string> {
   const headers: Record<string, string> = {
     Accept: accept,
     "User-Agent": "skill-self-updater",
     "X-GitHub-Api-Version": "2022-11-28"
   };
-  const token = process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
@@ -54,7 +56,7 @@ function githubHeaders(accept: string): Record<string, string> {
 }
 
 function findReleaseAsset(
-  release: GitHubRelease,
+  release: Readonly<GitHubRelease>,
   assetName: string
 ): GitHubRelease["assets"][number] | null {
   return (
@@ -63,8 +65,9 @@ function findReleaseAsset(
 }
 
 async function fetchReleaseAsset(
-  release: GitHubRelease,
-  assetName: string
+  release: Readonly<GitHubRelease>,
+  assetName: string,
+  token: string | null
 ): Promise<Uint8Array> {
   const asset = findReleaseAsset(release, assetName);
   if (!asset) {
@@ -76,7 +79,7 @@ async function fetchReleaseAsset(
   }
 
   const response = await fetch(asset.url, {
-    headers: githubHeaders("application/octet-stream")
+    headers: githubHeaders("application/octet-stream", token)
   });
   if (!response.ok) {
     throw new Error(
@@ -88,8 +91,9 @@ async function fetchReleaseAsset(
 }
 
 export async function fetchGitHubRelease(
-  config: UpdaterConfig,
-  releaseTag: string | null
+  config: Readonly<UpdaterConfig>,
+  releaseTag: string | null,
+  token: string | null
 ): Promise<GitHubRelease> {
   const encodedRepo = config.repo.split("/").map(encodeURIComponent).join("/");
   const encodedTag =
@@ -99,7 +103,7 @@ export async function fetchGitHubRelease(
       ? `https://api.github.com/repos/${encodedRepo}/releases/latest`
       : `https://api.github.com/repos/${encodedRepo}/releases/tags/${encodedTag}`;
   const response = await fetch(releaseApiUrl, {
-    headers: githubHeaders("application/vnd.github+json")
+    headers: githubHeaders("application/vnd.github+json", token)
   });
 
   if (!response.ok) {
@@ -130,12 +134,14 @@ export async function fetchGitHubRelease(
 }
 
 async function fetchReleaseManifest(
-  config: UpdaterConfig,
-  release: GitHubRelease
+  config: Readonly<UpdaterConfig>,
+  release: Readonly<GitHubRelease>,
+  token: string | null
 ): Promise<SkillReleaseManifest> {
   const data = await fetchReleaseAsset(
     release,
-    config.releaseManifestAssetName
+    config.releaseManifestAssetName,
+    token
   );
   let parsed: unknown;
   try {
@@ -158,7 +164,7 @@ async function fetchReleaseManifest(
 }
 
 function extractSkillFiles(
-  config: UpdaterConfig,
+  config: Readonly<UpdaterConfig>,
   zipData: Uint8Array
 ): SkillFile[] {
   const sourcePath = config.skillName
@@ -230,18 +236,24 @@ function skillFileTargetIdentity(relativePath: string): string {
 }
 
 async function fetchReleaseSkillFiles(
-  config: UpdaterConfig,
-  release: GitHubRelease
+  config: Readonly<UpdaterConfig>,
+  release: Readonly<GitHubRelease>,
+  token: string | null
 ): Promise<SkillFile[]> {
-  const zipData = await fetchReleaseAsset(release, config.releaseAssetName);
+  const zipData = await fetchReleaseAsset(
+    release,
+    config.releaseAssetName,
+    token
+  );
   return extractSkillFiles(config, zipData);
 }
 
 export async function resolveRemoteSkillPackage(
-  config: UpdaterConfig,
-  release: GitHubRelease
+  config: Readonly<UpdaterConfig>,
+  release: Readonly<GitHubRelease>,
+  token: string | null
 ): Promise<RemoteSkillPackage> {
-  const manifest = await fetchReleaseManifest(config, release);
+  const manifest = await fetchReleaseManifest(config, release, token);
   const skillRelease = manifest.skills[config.skillName];
   if (skillRelease === undefined) {
     throw new Error(
@@ -255,11 +267,12 @@ export async function resolveRemoteSkillPackage(
 }
 
 export async function loadRemoteSkillFiles(
-  config: UpdaterConfig,
-  release: GitHubRelease,
-  remotePackage: RemoteSkillPackage
+  config: Readonly<UpdaterConfig>,
+  release: Readonly<GitHubRelease>,
+  remotePackage: Readonly<RemoteSkillPackage>,
+  token: string | null
 ): Promise<SkillFile[]> {
-  const files = await fetchReleaseSkillFiles(config, release);
+  const files = await fetchReleaseSkillFiles(config, release, token);
   const skillEntry = files.find((file) => file.path === skillEntryFileName);
   if (skillEntry === undefined) {
     throw new Error(
