@@ -6,7 +6,7 @@ description: >-
   改善 AI 阅读或使用效果，或当前任务依赖的文档因目标、结构、关系、范围、
   权威性、重复、冲突、模糊或历史残留而妨碍 AI 使用时触发。
 metadata:
-  version: "10"
+  version: "11"
 ---
 
 # AI-Ready Docs

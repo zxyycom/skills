@@ -36,8 +36,14 @@ export function resolveGitHubAuthentication(): GitHubAuthentication {
     return { token: environmentToken };
   }
 
+  return readGitHubCliAuthentication(process.env);
+}
+
+function readGitHubCliAuthentication(
+  environment: Readonly<NodeJS.ProcessEnv>
+): GitHubAuthentication {
   // Blank overrides must not mask gh's stored login credentials either.
-  const ghEnvironment = { ...process.env };
+  const ghEnvironment = { ...environment };
   delete ghEnvironment.GITHUB_TOKEN;
   delete ghEnvironment.GH_TOKEN;
   const result = childProcess.spawnSync(
@@ -52,22 +58,23 @@ export function resolveGitHubAuthentication(): GitHubAuthentication {
       windowsHide: true
     }
   );
+  if (result.error) {
+    const code = "code" in result.error ? result.error.code : null;
+    const reason =
+      code === "ENOENT"
+        ? "not-installed"
+        : code === "ETIMEDOUT"
+          ? "timed-out"
+          : "command-failed";
+    return { token: null, reason };
+  }
+  if (result.status !== 0) {
+    return { token: null, reason: "command-failed" };
+  }
   const token = result.stdout?.trim();
-  if (
-    !result.error &&
-    result.status === 0 &&
-    token &&
-    githubTokenPattern.test(token)
-  ) {
-    return { token };
+  if (!token) return { token: null, reason: "empty-output" };
+  if (!githubTokenPattern.test(token)) {
+    return { token: null, reason: "invalid-output" };
   }
-
-  let reason: GitHubCliFailureReason = "command-failed";
-  if (result.error && "code" in result.error) {
-    if (result.error.code === "ENOENT") reason = "not-installed";
-    else if (result.error.code === "ETIMEDOUT") reason = "timed-out";
-  } else if (!result.error && result.status === 0) {
-    reason = token ? "invalid-output" : "empty-output";
-  }
-  return { token: null, reason };
+  return { token };
 }

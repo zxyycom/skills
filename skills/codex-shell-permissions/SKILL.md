@@ -6,7 +6,7 @@ description: >-
   CreateProcessAsUserW failed: 5、EPERM/EACCES/Access denied、permission denied，
   或 allow/prompt/block 规则问题时使用。
 metadata:
-  version: "8"
+  version: "9"
 ---
 
 # Codex Shell Permissions

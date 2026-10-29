@@ -5,7 +5,7 @@ description: >-
   备份副本、迁移过渡物、手动导出物的留存方式时使用。帮助明确这些产物的
   来源、用途和后续归宿；已有项目或工具约定的常规输出沿用原约定。
 metadata:
-  version: "3"
+  version: "4"
 ---
 
 # File Lifecycle Hygiene

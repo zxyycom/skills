@@ -6,7 +6,7 @@ description: >-
   也用于用户只要提示词或需要诊断成图偏差的请求。原生矢量、精确数据绘图和
   视频生成交给对应能力。
 metadata:
-  version: "4"
+  version: "5"
 ---
 
 # Image Creation
