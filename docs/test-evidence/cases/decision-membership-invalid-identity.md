@@ -1,7 +1,7 @@
 ### Case DECISION-MEMBERSHIP-INVALID-IDENTITY-001: 失败身份不冒充未发现且保留正文诊断
 
 Tests:
-- `test:172ce0e5d0d894c7a2be782b8a2424ffb885471b61616c72609c32152e7e2d7a`
+- `test:dcd8d20ed6b0d6c5af8fc03759b4eb5d19d53e3428897e4631def11002215359`
 
 Tags:
 - `decision-records`

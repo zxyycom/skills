@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RELATION-TRANSACTION-DRIFT-001: set-relations rejects source or index drift before publishing
 
 Tests:
-- `test:104402c4821e19dfcb3e1b11ccef579de0cf0132865d8884b18e2af21d40783b`
+- `test:55d706a11ab26b2a7bf13f3e01259b0865d99c6ad40ee5093a144b54cac35b4d`
 
 Tags:
 - `investigation-report`

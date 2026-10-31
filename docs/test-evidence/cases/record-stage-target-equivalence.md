@@ -1,9 +1,9 @@
 ### Case RECORD-STAGE-TARGET-EQUIVALENCE-001: 共同协调器仅在两阶段fresh等价后复用不可变target
 
 Tests:
-- `test:353722995af0e87475b5c4ec32828291e49e642e373db96933cbcd05aae27afd`
-- `test:42dde101f734ecd912a354501966d3f0d0c3a120f27b80ed582a06bf48584f29`
-- `test:dc3eb4c15bbd1823a8db2ace05897e8bdf63bbf3cbd6761039f34d50787acfe5`
+- `test:3776e16ce79b677e0c32b480aae5ccb986c94f0956d3a8870f9a46403d9ece1c`
+- `test:b0234a48cf1df5033e8b350d397ad6f5c21541d4f8944b0d0620de15b8957059`
+- `test:f2810620cfdb3c92e453196651c6f70fc478fab3a2d2fc97d6a28b5597f92fc9`
 
 Tags:
 - `index-runtime`

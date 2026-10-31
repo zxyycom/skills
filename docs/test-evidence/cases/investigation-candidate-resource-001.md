@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-RESOURCE-001: candidate owner resources require direct reference
 
 Tests:
-- `test:b7a695fed827a67fca39de06bbdedcd3b0aa531cf3da16db04855b2e860eb36c`
+- `test:4d01d5c05e2648882ec030e15e446a16917f0e60c5c71f11d857bc4b5519be56`
 
 Tags:
 - `investigation-report`

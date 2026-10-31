@@ -1,7 +1,7 @@
 ### Case RECORD-TRANSACTION-READBACK-001: 共同事务验收目标表示后才成功
 
 Tests:
-- `test:7171ec9e595a4baa86185fdba0765e9de419b75643975b073918557ab6be45c9`
+- `test:3d4000e707e18e874ad7b271de5a9a637f4d99179b2761ee976c9dd315f1c111`
 
 Tags:
 - `decision-records`

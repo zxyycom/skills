@@ -4,12 +4,12 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { validateDecisionRecords } from "../../src/index.ts";
-import { executeDecisionQuery } from "../../src/decision-query-service.ts";
+import { executeDecisionQuery } from "../../src/query/decision-query-service.ts";
 import {
   normalizeDecisionSelectorInput,
   parseDatedDecisionId,
   utcDecisionDate
-} from "../../src/decision-path.ts";
+} from "../../src/collection/decision-path.ts";
 import {
   archivedDecisionId,
   candidateDecisionBody,
@@ -21,7 +21,7 @@ import {
   withFixtureWorkspace,
   withTemporaryWorkspace,
   writeDecision
-} from "../support.ts";
+} from "../support/support.ts";
 
 export {
   archivedDecisionId,

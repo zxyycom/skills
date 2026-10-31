@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-DELETION-KNOWN-LOCATION-001: 拒绝已知旧位置仍存在的未同步来源
 
 Tests:
-- `test:ba3df23d0584bf7d77cc74d9cc9dc8ba4df75b4983f3f752b586cc325d04394e`
+- `test:862335610e0e6261efaa5a6eb2751234c6fcc0ff9df8e0272e211f01fe7ab18b`
 
 Tags:
 - `investigation-report`

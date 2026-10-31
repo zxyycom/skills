@@ -11,7 +11,7 @@ import {
   repositoryTestEvidenceSource,
   writeRepositoryTestEvidenceSnapshot,
   type RepositoryTestSnapshot
-} from "./snapshot.ts";
+} from "./snapshot/snapshot.ts";
 
 const snapshotMaximumBytes = 67_108_864;
 

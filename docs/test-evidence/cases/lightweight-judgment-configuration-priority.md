@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-003: 配置与覆盖优先级
 
 Tests:
-- `test:8a2fe20c757f5afc123774e60e0a0ca8662e98b78c7c8e64444190add7237ffc`
+- `test:c7ee847f69c28d3872d97c3bee7750895e26359c7f5f13f0028d366a2440ef41`
 
 Tags:
 - `lightweight-judgment`

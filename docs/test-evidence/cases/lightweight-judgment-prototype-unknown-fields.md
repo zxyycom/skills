@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-019: 未知 own 字段仍拒绝
 
 Tests:
-- `test:4a9e457ad0182c2e6091ed77f555e687d93a1a0ca110a5eeca31538e5915688c`
+- `test:0a693aa4a067b4cdcd3b301133549aa141c31359ca8f706108efa367b18569f1`
 
 Tags:
 - `lightweight-judgment`

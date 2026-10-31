@@ -1,9 +1,9 @@
 ### Case VIDEO-PROCESS-LIFECYCLE-001: 进程失败超时取消与输出限额可区分
 
 Tests:
-- `test:276bbb35a545d50e4abac52606d0dfa2def79ef60cd398ee82e85b4c72155a1e`
-- `test:5e3aca36e637fd0f5b93db22e6e575ec4e59348745702df67ab0e0cbe6c6baf8`
-- `test:f59829da3c9c3772ce1c1c80a54b2e74c306896bc5925e4812300555185606aa`
+- `test:2ad5c09bdd6e305725e4b517f1b742207439f68f0bd99cbc4b5eb04fb066457c`
+- `test:aebe73443d30eac3c0b7d175d3c0b27540ac23abe3d2c7b0aa084e787624977a`
+- `test:f98c1c4013d95ae0ee12ee81c734992d478ec4433e061c4bac2b6282ec53b231`
 
 Tags:
 - `video-understanding`

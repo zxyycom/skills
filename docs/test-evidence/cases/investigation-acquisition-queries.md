@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-ACQUISITION-QUERIES-001: 快照发现不获取正式或候选来源
 
 Tests:
-- `test:fca530377b1b1e97ffd521566b51a0a0ec07bf513d3ec3cb849a2dbac0028bdf`
+- `test:16e710173720078954182b3726640eb438d40352a5dfcb06937b4970a06002b2`
 
 Tags:
 - `investigation-report`

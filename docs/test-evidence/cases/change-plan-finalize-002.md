@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-FINALIZE-002: Finalize 对任务或未知成员门禁零移动
 
 Tests:
-- `test:d595b6d0d4c428787ce116ee097579cf81eabebd23eccaafde359e96e677c552`
+- `test:6a1b0a6d94b61f3668012b5c03a00322b1fd308dae73eeb26d11c3114d824509`
 
 Tags:
 - `change-plan`

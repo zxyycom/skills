@@ -1,7 +1,7 @@
 ### Case DECISION-TRACE-ADMISSION-LINEAR-001: split 与 merge 单次发现并复用稳定单位
 
 Tests:
-- `test:2ba6061edd370040cd69331473aade43deed11177220b494dbd28ee363ef13b3`
+- `test:880d910195ccaeda4c3a416c1f5e56c0296ea688e414fd6040f2d2173c05b9c9`
 
 Tags:
 - `decision-records`

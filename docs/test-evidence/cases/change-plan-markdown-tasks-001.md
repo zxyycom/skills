@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-MARKDOWN-TASKS-001: Markdown 任务统计忽略非任务语境
 
 Tests:
-- `test:6126090c72cefe5f10d6bc924593dc7db490d77bda110aeb48b5b6ac886969cb`
+- `test:461222b98b0c4104168dd4528da8b38ef08bd32ed63ef75254eecdf9203232cd`
 
 Tags:
 - `change-plan`

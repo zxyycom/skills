@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-SEARCH-FAILURE-001: 搜索参数与来源失败保留不同退出状态
 
 Tests:
-- `test:1a8818c699b90d3e09a67b882a2a9ca6d2b0c74a3c5b357c0c1b401896b00cb2`
+- `test:6aee7e946ce969beed861b251d0f3eeebc440dd1350a7a97369c60d3ee13d8b0`
 
 Tags:
 - `investigation-report`

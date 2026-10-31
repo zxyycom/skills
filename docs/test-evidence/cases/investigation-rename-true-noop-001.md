@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RENAME-TRUE-NOOP-001: 调查same-ID同路径更名真零写
 
 Tests:
-- `test:d633c8783f11906c7aa33f959e6d9872f9bc5de94c18775c34193891fa4b199c`
+- `test:f5e79f856c6f93e45ca7aecf160ab6a8da62bc78c1b44c7ab7a7c4d1edec3c90`
 
 Tags:
 - `investigation-report`

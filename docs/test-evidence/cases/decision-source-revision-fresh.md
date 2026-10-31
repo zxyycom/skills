@@ -1,7 +1,7 @@
 ### Case DECISION-SOURCE-REVISION-FRESH-001: 独立来源发现重新观察字节身份与候选状态
 
 Tests:
-- `test:737018312a8c42220cda1444fa0258bc40d7a7c719ceb8fd89a781508030ecda`
+- `test:79f3c1e671c99b1464683cc576f4bda21e9ae59b4c7215974ebbbe828ede26bc`
 
 Tags:
 - `decision-records`

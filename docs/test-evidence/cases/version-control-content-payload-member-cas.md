@@ -1,9 +1,9 @@
 ### Case VERSION-CONTROL-CONTENT-PAYLOAD-CAS-001: 选择性payload仍保护完整成员身份
 
 Tests:
-- `test:5df9539bd1b91ae1d83897a7b539efd797492227135d56e21c5622af70b31a0b`
-- `test:7771171c7c6e0c4c54bc2751c1219971925d6e30034491c17e4ee395a387acba`
-- `test:a1ce2cf3ef8baf4c2bdddfe3828bf59070f0ce52f964b2f5b9346c6dd50d8566`
+- `test:0aa5ac14496b379a09d1ce096d5adc948af49ed625ab23a98080bd8c36cab481`
+- `test:3491a4f4cf8da3e89417322bd2f9e885e90d0c3bed91007a458c69623261fdd4`
+- `test:666271291c1c18e1bbb6af0aad4588a39c9eded8702948b7e8f9dd5036ebbc73`
 
 Tags:
 - `version-control`

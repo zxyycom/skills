@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-LOG-JOURNAL-MODE-001: 确认 WAL 返回值
 
 Tests:
-- `test:9c20adb58f13b725af415c3f24a20e9ebdd993f3b9762c13531d499cc631e031`
+- `test:eef960c00d99710bb45268a562207ff214e985bb4feb60efe6d05e8bee1a802a`
 
 Tags:
 - `lightweight-judgment`

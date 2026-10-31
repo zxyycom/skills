@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-STAGING-TOOL-UNAVAILABLE-001: 暂存前报告不可用的版本控制工具
 
 Tests:
-- `test:a3ff59ee332daed917b623758412bab14bf0dad7c51438a6c51b0ff19dfa5122`
+- `test:4a2ad3dc33a62c3f70f3ac0766e7d495e15568fd6191041ee91bc4ca3df25f88`
 
 Tags:
 - `index-runtime`

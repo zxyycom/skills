@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-PROJECT-NODE-REGISTRATION-001: 项目生产器通过 Bun 注册 Node 目标且保留 selector
 
 Tests:
-- `test:a15a34e8f30bb8e55377a33bc62d129c2915ea53ea8a25af6f29acc61cf0336e`
+- `test:e20783e25a338d1dd6b83122e14b63c11ae17a4dadb9fd4b3ba87278309b9e02`
 
 Tags:
 - `repository-tooling`

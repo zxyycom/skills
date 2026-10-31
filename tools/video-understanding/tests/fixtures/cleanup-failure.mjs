@@ -3,7 +3,7 @@ import { syncBuiltinESMExports } from "node:module";
 import path from "node:path";
 import { complete } from "./evidence-state.ts";
 import { failure, VideoFailure } from "../../src/failure.ts";
-import { publishEvidence, withWriter } from "../../src/store.ts";
+import { publishEvidence, withWriter } from "../../src/store/store.ts";
 
 // Faults live only in this isolated child process, not in a production injection API.
 const [directory, mode] = process.argv.slice(2);

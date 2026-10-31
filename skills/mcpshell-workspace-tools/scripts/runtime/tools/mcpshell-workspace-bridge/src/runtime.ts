@@ -24,14 +24,19 @@ import {
   type RuntimeInput,
   type RuntimeMode,
   type RuntimeOptions
-} from "./runtime-contract.ts";
-import { runGet, runPatch, runPut, runShell } from "./runtime-operations.ts";
+} from "./runtime/runtime-contract.ts";
+import {
+  runGet,
+  runPatch,
+  runPut,
+  runShell
+} from "./runtime/runtime-operations.ts";
 
 export type {
   RuntimeInput,
   RuntimeMode,
   RuntimeOptions
-} from "./runtime-contract.ts";
+} from "./runtime/runtime-contract.ts";
 
 export async function runWorkspaceOperation(
   mode: RuntimeMode,

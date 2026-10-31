@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-COMMITTED-WRITER-REJECTION-001: 调查关系事务保留writer拒绝后的已知提交
 
 Tests:
-- `test:6dc5d6daafc9bf0e1f46e76d11a2d3740bd4124a2c387e1e973ee776df325949`
+- `test:80eb98f7a35ae8ce792e8723915dcc89bf473ed5233084d39d204778fccf233f`
 
 Tags:
 - `investigation-report`

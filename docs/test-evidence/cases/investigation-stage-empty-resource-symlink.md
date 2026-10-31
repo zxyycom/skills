@@ -1,8 +1,8 @@
 ### Case INVESTIGATION-STAGE-EMPTY-RESOURCE-SYMLINK-001: 空所选资源树仍检查根与 owner
 
 Tests:
-- `test:5175c43b7d6b72069d61c45a3173bb44bdbc69357e2bc21e365c9d6614a22cd8`
-- `test:6bbbd3c47bd5fece210c3468c7fb5d0dc2b79d25e6142b8e6c4d6e424a85cd80`
+- `test:0236fea322782f4a96d18bfc137c6f9cb1b38c001735ddca8eeeeb59d413b4f6`
+- `test:9907b10a18d3559e413b6ff4f895aa9025b499f5de69afcc34befe8ed3a08350`
 
 Tags:
 - `investigation-report`

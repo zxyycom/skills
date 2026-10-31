@@ -1,7 +1,7 @@
 ### Case GATE-MARKDOWN-PROOF-MISSING-001: Markdown 内容证明的旧路径归属
 
 Tests:
-- `test:2fd4ea980e3ac01f25b56cdf1d998233e48d2584b3c67675fa2e0707ff3afb2a`
+- `test:69a04e86ba830eb55231fa1e529c68947f181447c0e1b98fb36a07f22d67e09c`
 
 Tags:
 - `repository-tooling`

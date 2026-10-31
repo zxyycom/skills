@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-MEMBER-SCAN-FRESH-001: 成员复核独立重取身份权限并保护排除路径安全
 
 Tests:
-- `test:198de8083ba8b3c3b653987d2a2a6f258b308dfe61eb621d14f9a3f39f8100b5`
+- `test:362e4c7d658a996bea45e6cad3b5a10394ac3bfb750001f612a5ae12c6b51e7c`
 
 Tags:
 - `investigation-report`

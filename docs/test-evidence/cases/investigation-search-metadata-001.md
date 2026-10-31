@@ -1,8 +1,8 @@
 ### Case INVESTIGATION-SEARCH-METADATA-001: metadata search 只查询发布索引并返回匹配证据
 
 Tests:
-- `test:1152418bfd7aa375121fd3658d0b3d699db9eb8a4db4b39674987cb2871f2bda`
-- `test:aa013be1707796818ace7b73fccf6e59bbfe180bfecbb84ff25023cd5d63cb80`
+- `test:791e9f726abb6ddc1dfbb557632dc9bb187f3e4cd94d436024e776596c76c3a4`
+- `test:9afd6e20b46d22587420b7bf43fd27abff057b72c22266d0a1d881fd1e9cd208`
 
 Tags:
 - `investigation-report`

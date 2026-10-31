@@ -1,7 +1,7 @@
 ### Case WRITE-CANONICAL-CASE-014: 继承排序定义保留动态语义
 
 Tests:
-- `test:862697f7ba2932c99b914a149e8bbbdfeb59296b36eb334a2ce0ab6583e03183`
+- `test:b7f881f2348782847b082655e340c81cbf658516d2c6994c939d2508f397f1c2`
 
 Tags:
 - `write-canonical`

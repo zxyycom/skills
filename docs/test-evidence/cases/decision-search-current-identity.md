@@ -1,7 +1,7 @@
 ### Case DECISION-SEARCH-CURRENT-IDENTITY-001: Decision 非命中身份仍核对
 
 Tests:
-- `test:8add261f87c7078fe7dcfe6838df1da15804fa1af86d6613f76885116e664854`
+- `test:c276c3346e953b8116d98f3344d1d0ceb3a865c638df20d917e6e10d6b2f5444`
 
 Tags:
 - `record-search`

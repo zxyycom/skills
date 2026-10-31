@@ -7,4 +7,4 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-export { openGitVersionControl } from "./git-repository.ts";
+export { openGitVersionControl } from "./git/git-repository.ts";

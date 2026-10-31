@@ -1,7 +1,7 @@
 ### Case DECISION-LIFECYCLE-EXISTING-GUARD-001: 既有活动决策拒绝不适用的生命周期动作
 
 Tests:
-- `test:f24ec5fef43d28e5f63c85cd8ebd05949927470d3306c4e7e41373eb501e333d`
+- `test:4cf97fb2c1c79367cd1a7b3b2b7924b90c0ddd1d6904413a27248e712574a47d`
 
 Tags:
 - `decision-records`

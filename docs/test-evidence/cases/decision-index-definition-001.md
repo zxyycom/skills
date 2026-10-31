@@ -1,7 +1,7 @@
 ### Case DECISION-INDEX-DEFINITION-001: 索引拒绝旧 definitionVersion
 
 Tests:
-- `test:cf8b33acb8592f614444d334118993a995ac5e0531305a8234bbb3070ca00df8`
+- `test:8d1ac61b0aef534e4caf4ec16b42a0dae417e4bada4de00c4043cd0dc3aabc24`
 
 Tags:
 - `decision-records`

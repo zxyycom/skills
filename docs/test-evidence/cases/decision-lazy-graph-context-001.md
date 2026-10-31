@@ -1,7 +1,7 @@
 ### Case DECISION-LAZY-GRAPH-CONTEXT-001: 稳定记录快照首次图需求才构建并复用邻接
 
 Tests:
-- `test:46923b08dd4cba87a07f1362c0a418164f46c496b35b4c4ddb4aca41cf89b578`
+- `test:92e781204ed8839b72b5c37fa3dcc4db5045b059ea65f5cc30e0480dd6deec81`
 
 Tags:
 - `decision-records`

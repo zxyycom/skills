@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-GROUP-DIAGNOSTICS-001: 标签分组参数诊断
 
 Tests:
-- `test:456d00a6ad2404bf6886035278246133ab7e4d707a45922bd6b76fd6fe9a3c65`
+- `test:ad2b4bc01f10bde4d475e9be6085578c7142f018e14eec316e1f17357fa87b47`
 
 Tags:
 - `lightweight-judgment`

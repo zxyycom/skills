@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-TYPE-001: attached resource targets must be regular files
 
 Tests:
-- `test:e787e3765add8fb2466cec89dd6690da04fefa797fd82fa0bdc3153648b2eeef`
+- `test:5a39e3d0ad176eb85abbbd712ac70923196a8f8a202a39b0323b035617ce491a`
 
 Tags:
 - `investigation-report`

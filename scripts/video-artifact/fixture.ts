@@ -11,7 +11,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { unzipSync } from "fflate";
-import { runCommand } from "../environment-command.js";
+import { runCommand } from "../environment/environment-command.js";
 import { fileSnapshot } from "../../tools/video-understanding/tests/fixtures/distribution.ts";
 import { root } from "../../tools/video-understanding/tests/fixtures/public-cli.ts";
 import { runProcess } from "../../tools/video-understanding/tests/fixtures/process.ts";

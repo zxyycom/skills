@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-SOURCE-REVISION-001: 拒绝同步期间变化的源修订
 
 Tests:
-- `test:da27352f37a8ebabb056bb088514a1c7475b2ece0d8ae567d49fd113d94f1337`
+- `test:f9827a6da32aba9bd5b2aee70a1f0998fd6d6d83de9c5749f1cdc172bb606fa2`
 
 Tags:
 - `index-runtime`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-LAZY-VALIDATION-001: 乱序构图保持完整校验诊断
 
 Tests:
-- `test:164bf11e3f4db78d6d6a8ab8704bd6d4ca8d30e0520c26381327cd34ffae50e7`
+- `test:c81b7a2a41e3c46b19079d3d0625caa94c7319784fb881429711d2ba88e35689`
 
 Tags:
 - `investigation-report`

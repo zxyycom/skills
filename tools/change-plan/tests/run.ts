@@ -1,14 +1,14 @@
-await import("./finalize.test.ts");
-await import("./finalize-recovery.test.ts");
+await import("./lifecycle/finalize.test.ts");
+await import("./lifecycle/finalize-recovery.test.ts");
 await import("./catalog.test.ts");
-await import("./check.test.ts");
-await import("./cli.test.ts");
-await import("./generated-artifacts.test.ts");
-await import("./git-distance.test.ts");
-await import("./lifecycle.test.ts");
-await import("./markdown.test.ts");
-await import("./metadata.test.ts");
-await import("./repository-boundary.test.ts");
+await import("./validation/check.test.ts");
+await import("./cli/cli.test.ts");
+await import("./distribution/generated-artifacts.test.ts");
+await import("./repository/git-distance.test.ts");
+await import("./lifecycle/lifecycle.test.ts");
+await import("./format/markdown.test.ts");
+await import("./format/metadata.test.ts");
+await import("./repository/repository-boundary.test.ts");
 
-await import("./source-distribution.test.ts");
-await import("./repository-command.test.ts");
+await import("./distribution/source-distribution.test.ts");
+await import("./repository/repository-command.test.ts");

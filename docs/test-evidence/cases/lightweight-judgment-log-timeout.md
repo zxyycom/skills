@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-022: 超时记录不被迟到响应改写
 
 Tests:
-- `test:efe8a7200bd2644dd9af082cd45ad277fb29ff2166237b73c6cd5ed8df60ecc4`
+- `test:9d64d00a01aefbc14da7f35cd8c8065d20ddb8e91c91fe07fb99415669700a49`
 
 Tags:
 - `lightweight-judgment`

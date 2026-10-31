@@ -40,7 +40,7 @@ export const authoritativeGatePackageScripts = {
   check: "node scripts/vibe-check.ts",
   "check:changed": "bun run check --scope changed",
   all: "bun run check:changed",
-  "test:check": "node --test ./scripts/vibe-check.test.ts"
+  "test:check": "node --test ./scripts/tests/gate/vibe-check.test.ts"
 } as const satisfies Readonly<Record<string, string>>;
 
 export const testEvidenceProjectCheckPackageScripts = {
@@ -131,7 +131,7 @@ const requiredProjectFiles = [
   "scripts/task-graph.js",
   "scripts/lint.ts",
   "scripts/vibe-check.ts",
-  "scripts/vibe-check.test.ts",
+  "scripts/tests/gate/vibe-check.test.ts",
   "scripts/lib/vibe-gate.ts",
   "docs/tooling.md",
   "docs/skills",

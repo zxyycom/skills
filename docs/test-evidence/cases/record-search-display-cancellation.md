@@ -1,7 +1,7 @@
 ### Case RECORD-SEARCH-DISPLAY-CANCELLATION-001: 耗尽显示后仍响应后续文件取消
 
 Tests:
-- `test:19549d9deed5849136ef988cf941db72160b626eb4f1de1299fb9d82f0c2107d`
+- `test:a730919d8d687faf50f008d00beb9af7dc06f87868b8aa83015aac0511e3d12c`
 
 Tags:
 - `record-search`

@@ -1,7 +1,7 @@
 ### Case UPDATER-SELECTED-ARGUMENTS-001: updater 选组仅支持只读检查
 
 Tests:
-- `test:28aba50bdb5ccc5bba0188651e3aa105f4d4baede89735e69f5dd52e1b776e83`
+- `test:3965b15d18e0084362ddc8711a071c06ae785690bde733b0d3f6e3d897d39321`
 
 Tags:
 - `repository-tooling`

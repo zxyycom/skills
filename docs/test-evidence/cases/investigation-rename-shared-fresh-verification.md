@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RENAME-SHARED-FRESH-001: 更名 hook 后取得 fresh 来源并复用同阶段保护
 
 Tests:
-- `test:a93779b82bf2b61627949ae7d83f4507a6474a32c75571e6024eba9fccec2e5c`
+- `test:7eedba00a8979b8aaacf9727e98196023743f65e745437ebfc0156e0673b3cdf`
 
 Tags:
 - `investigation-report`

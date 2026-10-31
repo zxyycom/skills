@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-PUBLISH-RESOURCE-BYTE-UPDATE-001: 同 inode 资源字节更新不阻断发布
 
 Tests:
-- `test:a0e1e3e452bbde1716f6f49a9db777abb2920e0ccec2ced05e0fe2ee6a02a0b3`
+- `test:9b6f2f67f163791d459053865e2c70d88f04c59035be752fcd4bbe886b549c11`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-013: 身份匹配语义
 
 Tests:
-- `test:9ed7793986a2816b476b1555af92fa4aa37e593e33ea3a6e18b4e3e3d4c6bcda`
+- `test:d7e659aee83ad252825f7318705ef2e4dadeca416241efd40fa78ffa2a4b12c7`
 
 Tags:
 - `record-cost`

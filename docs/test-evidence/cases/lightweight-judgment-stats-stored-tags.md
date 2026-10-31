@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-STORED-TAGS-001: 存储 JSON 标签独立校验
 
 Tests:
-- `test:62909251cb84b8d3a94927632f1a3c76cbc89375c211dba4cf4e565a92f9d1c5`
+- `test:3a945b557c7363bf2e98326b512c5b47e707f725637ea17c685abaedcebcace2`
 
 Tags:
 - `lightweight-judgment`

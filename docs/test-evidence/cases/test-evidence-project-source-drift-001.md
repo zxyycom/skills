@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-PROJECT-SOURCE-DRIFT-001: 项目生产器拒绝注册期间变更的源输入
 
 Tests:
-- `test:590ebf794891616da8b185b0d8f09534b2d761f85c0ae84ddf3bf0f3d8f21cb2`
+- `test:0c1fb0df0ce52758f84cabf5d26ef7351f66093ef6c6f1d4dc1ca61e2d882d45`
 
 Tags:
 - `repository-tooling`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-LAZY-SNAPSHOT-001: 同一快照的校验筛选与追踪共用一张图
 
 Tests:
-- `test:f767e7585891ccb9cef3a3c8f2bc02513857b54b72e1d6e133b59c89eff66089`
+- `test:b8654ddf8053bad7323baec224380c6ad14ef63b91fadbaef317b9095837987c`
 
 Tags:
 - `investigation-report`

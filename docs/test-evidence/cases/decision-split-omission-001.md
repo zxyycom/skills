@@ -1,7 +1,7 @@
 ### Case DECISION-SPLIT-OMISSION-001: Evolve 在写入前拒绝遗漏既有拆分后继
 
 Tests:
-- `test:17668551ea25b7191b7f703804a2e2aa2cddba7b20a530831c1c5ccc2502cccd`
+- `test:f042f664751ec9612ea438f9e82f2ae1a8789852bbd0c213a39b35c07c9fe921`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-PREPARATION-QUEUE-001: 资源准备阶段使用共同安全读取队列
 
 Tests:
-- `test:af30380f003864257d388ec8b5115eaa080a4bb38da7406879910958ce5ab989`
+- `test:2ae8c57e93970034c28510dd6f7d9385e8c446013418f0d270c091c4f126bad5`
 
 Tags:
 - `investigation-report`

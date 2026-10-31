@@ -1,8 +1,8 @@
 ### Case RECORD-STAGE-BYTE-EQUIVALENCE-001: 字节变化不能以解码相同复用解析
 
 Tests:
-- `test:87b65ab932ac5be05b592e5cb041c9ca344ada7c7ebad7fbf7d7e0a41ee5e37a`
-- `test:9b7bd207fa6ec01e48d98f4238d96aa54e730b84d5f741bff5508ff789819713`
+- `test:886d7df2a05f60936a47db163695ffb79119927109fd12de03455bf58bd5046c`
+- `test:e0d289c126efa02be0d3de8f2223150f84c390688ec6859e93190689e6e1852a`
 
 Tags:
 - `index-runtime`

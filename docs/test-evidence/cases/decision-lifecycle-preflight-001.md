@@ -1,7 +1,7 @@
 ### Case DECISION-LIFECYCLE-PREFLIGHT-001: 生命周期预写入拒绝来源漂移
 
 Tests:
-- `test:42ba479b001509e6664b2b03ff06cba20b3546c7565e738fff9c961f2d61f8fe`
+- `test:264b0b52229ef4bece49f7e08b2399720ea1883f1e57e4838a85f7921b198c0c`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case ENV-WORKTREE-SETUP-001: linked worktree 重复 setup 保持当前项目中央 root
 
 Tests:
-- `test:f96e608ba58498a86d686e3c9d60d7ec2f468710b106bcc3f2674bf9fca77863`
+- `test:21a56c4e36031d5bd25f3e90519128aeec431fd6dc93283555389a0399ef2e31`
 
 Tags:
 - `repository-tooling`

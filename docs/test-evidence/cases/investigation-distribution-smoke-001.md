@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISTRIBUTION-SMOKE-001: generated Investigation Report CLI 与 Trace 声明可用
 
 Tests:
-- `test:0994a4f0ad24c3ca61e90b408f4f93d3b4d4289ad76cab722c77268e93976d1f`
+- `test:5383e90a0c30d42713b22f401a5f0e545b97d6e3f57b2236b195570b9452ea0e`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case SKILL-RELEASE-PUBLISH-003: 快照发布拒绝冲突资产
 
 Tests:
-- `test:8d9983c4c2e61ffbf67dc10b4c8ebeb6f6eeac6879449ebafc4ebe62a2721b2b`
+- `test:809c785c85c015606379ba61bb2fc9e19fda797f8b0409ec7a109ec887053baf`
 
 Tags:
 - `repository-tooling`

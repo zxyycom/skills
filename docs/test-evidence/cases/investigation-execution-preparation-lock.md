@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-EXECUTION-PREPARATION-LOCK-001: 正式更名锁内准备而预检无锁
 
 Tests:
-- `test:72172cf8c31c57d36b1e3c986ad78513a251174e43b2e7af91f59be9e02dc8db`
+- `test:b76cefa93fd2b49ebd5a64fac8e6caab7618cc2a2c03d730e8ebceccb3e2535d`
 
 Tags:
 - `investigation-report`

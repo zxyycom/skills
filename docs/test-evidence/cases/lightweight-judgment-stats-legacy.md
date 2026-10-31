@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-LEGACY-001: 旧库拒绝与显式升级指引
 
 Tests:
-- `test:c35464996687b6039b7277f7dd8ba3e3900e9a34c7d65ec7c309cae0bd097dec`
+- `test:0149dfd740dcfe929ddcb39733a4ce94b3bd53275851029181c24eab38f9e080`
 
 Tags:
 - `lightweight-judgment`

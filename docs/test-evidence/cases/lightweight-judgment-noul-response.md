@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-009: Noul 概率
 
 Tests:
-- `test:62ccd29a2bb32c8ff0ee85ce8208f6a3f953384967fc2884d02bfa1d459c011f`
+- `test:0969714e3da8461dd94f75c10f3c2ad6c8486588704b70df5a4859e2468f5173`
 
 Tags:
 - `lightweight-judgment`

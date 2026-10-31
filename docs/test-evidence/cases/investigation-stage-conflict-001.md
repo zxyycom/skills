@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-CONFLICT-001: stage --scope index preserves strict current index definition requirements
 
 Tests:
-- `test:f6582316998cd40b348c5f65c7e5320caab2691534fa0062a6f327a8dcb4cff7`
+- `test:920652e0dd25e2ad5b37232615f38c44c97842bc09e056b81c714e9d50dece25`
 
 Tags:
 - `investigation-report`

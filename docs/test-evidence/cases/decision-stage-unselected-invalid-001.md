@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-UNSELECTED-INVALID-001: Stage 隔离未选择的无效来源
 
 Tests:
-- `test:7729f02ba8e119b995257d066d2d92611ebe317f3e0577740c2a74a06563d423`
+- `test:fdafea3b600ddd3e6ec041fdd5c0423adbe90c91b8de6a80a9e2e3fcfd13b71b`
 
 Tags:
 - `decision-records`

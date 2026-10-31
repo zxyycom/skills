@@ -1,9 +1,9 @@
 ### Case VERSION-CONTROL-PATH-QUERY-UNION-001: Git 分批查询保留字面范围并集
 
 Tests:
-- `test:821f5ce9b83640aed63a9de211e82861fa056a46c733399ab061568086bf2009`
-- `test:8bc84d5ecb6754f95962a8acc395dd7d0ae1ed12418da30b28c7ae18da53c465`
-- `test:e955ccbe0b92e49c8472ca27501d4b145e3f044f81c75e307d352c2e1059dd8c`
+- `test:8de67bfa22f77cd76b6a024a95d4c948a344d73d49880b020c043a05c880c19c`
+- `test:8ec6b32ff7cb73d635d55e29fd08d076069406675269aa796c72200df908f1fa`
+- `test:f792fbad35eb92fcfc0e5748ec0f07bbbedb53328ba15d5d4129b518b204eb04`
 
 Tags:
 - `version-control`

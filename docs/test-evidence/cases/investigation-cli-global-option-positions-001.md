@@ -1,8 +1,8 @@
 ### Case INVESTIGATION-CLI-GLOBAL-OPTION-POSITIONS-001: 全局定位选项位置与当前目录默认值
 
 Tests:
-- `test:31760eff3e8c3c2a451b43449db4babe81a982fe07d78f2c127c1071481abeee`
-- `test:905f1aadb053ca056a55786072223339d34ea4c75700c2d7d1bb79f39a122e17`
+- `test:0bee667be061d16bbfc613f0980416bc03865e71ace65cf5475b9c1bd040dc25`
+- `test:4f252bb9c7ebe5be44173baa9453b4b2c0b3bfde7544afa6589ee13d2f5e1871`
 
 Tags:
 - `investigation-report`

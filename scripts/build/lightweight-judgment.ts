@@ -1,17 +1,17 @@
-import type { SourceRuntimeFacts } from "../lib/source-runtime.ts";
+import type { SourceRuntimeFacts } from "../lib/generation/runtime/source-runtime.ts";
 import fs from "node:fs/promises";
 import path from "node:path";
 import {
   buildGeneratedFileHeader,
   type GeneratedArtifact,
   type GeneratedFileMode
-} from "../lib/generated-file.ts";
-import { nativeCliEntry } from "../lib/native-cli-entry.ts";
+} from "../lib/generation/generated-file.ts";
+import { nativeCliEntry } from "../lib/generation/native-cli-entry.ts";
 import {
   buildSkillRuntimeArtifacts,
   syncSkillRuntimeArtifacts,
   runRuntimeAdapter
-} from "../lib/skill-runtime.ts";
+} from "../lib/generation/runtime/skill-runtime.ts";
 import { githubRepository, rootDir } from "../lib/project.ts";
 const rebuildCommand = "bun run sync:lightweight-judgment-cli";
 const skillSourcePath = "skills/lightweight-judgment";

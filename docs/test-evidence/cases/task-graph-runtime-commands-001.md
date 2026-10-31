@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-RUNTIME-COMMANDS-001: runtime info 保持单 JSON 且不访问索引
 
 Tests:
-- `test:3511bc1a3e83a1b8547373139e8590405e7de45e51df08cec5941949a870533d`
+- `test:2debc2e113fe4accbb149222aaec3e916644156fb58e4d995ff8b42fba3e3d3c`
 
 Tags:
 - `task-graph`

@@ -1,7 +1,7 @@
 ### Case DR-INDEX-PAYLOAD-WORKSPACE-RECHECK-001: index独立复核工作区发布投影
 
 Tests:
-- `test:4c4f908e4d5ece427383f8878f3aa776a8a5856dd7230e397ba2a57460e32584`
+- `test:ecfdcbb9d722504e4580561caa9083d26d72f7f250ee8e518798db49069c3aa1`
 
 Tags:
 - `decision-records`

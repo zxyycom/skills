@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-ADAPTER-017: 图片头部尺寸的领域含义
 
 Tests:
-- `test:09ea90ef28ebb19955f7a406a3dcaefbdf3ad71d3c38e2d1efc535a0b6cf4d76`
+- `test:b1807c80cce5972174cb21b08755be3d7a65a265f00048423104c4b7194abac6`
 
 Tags:
 - `lightweight-judgment`

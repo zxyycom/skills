@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-PATH-QUERY-SMALL-001: 短输入与空范围保持单批计划
 
 Tests:
-- `test:66fd97c55f92832641f5edbde9f2cfa249a2cfc54ffd9a7f93ecd3d88f9da416`
+- `test:de5777516d08044dc9dff8e26adea330eff388531b2dcffdacdb4626d41f0a44`
 
 Tags:
 - `version-control`

@@ -7,4 +7,4 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/test-evidence-review
  * Rebuild: bun run sync:test-evidence-cli
  */
-export { openGitVersionControl } from "./git-repository.ts";
+export { openGitVersionControl } from "./git/git-repository.ts";

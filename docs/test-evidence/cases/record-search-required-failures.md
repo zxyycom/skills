@@ -1,7 +1,7 @@
 ### Case RECORD-SEARCH-FAILURE-001: 显示耗尽后仍保留必需读取与资源失败
 
 Tests:
-- `test:bfba9235d789831d4ca06cbb2815ee6567b7a7771a074b33544ca667f5804268`
+- `test:ed05e4f274b0cfd6fe4bde0fbbc310cacb708d965dfbaad851c7d3cf71f09a97`
 
 Tags:
 - `record-search`

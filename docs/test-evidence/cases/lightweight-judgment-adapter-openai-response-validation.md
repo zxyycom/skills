@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-ADAPTER-004: OpenAI 答案关联与协议失败
 
 Tests:
-- `test:dc25c3de7e348af80ff562abb1f1d4b67340944a05548458e76235a21953c46f`
+- `test:9a28263940d02c6cb450759377c64db2cc3a2973da4a0e12f4e112d3f52cfbd9`
 
 Tags:
 - `lightweight-judgment`

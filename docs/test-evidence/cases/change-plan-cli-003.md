@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-CLI-003: 当前命令的 text、JSON 与退出协议
 
 Tests:
-- `test:6b094a3251ef51fff41905eb256e5b1f8c440605a90fd5eac7d19fd61febd589`
+- `test:71637fa97eee9757d8c042425ffc8638bc921684a9b7440ea35f6146486ae80f`
 
 Tags:
 - `change-plan`

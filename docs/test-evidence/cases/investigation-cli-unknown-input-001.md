@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-UNKNOWN-INPUT-001: 旧命令与旧参数按普通未知输入失败
 
 Tests:
-- `test:94a9e283d45bbecc68087c2cfc9c095270b5af90ddc50bae522c204927139d34`
+- `test:3dbd7baee50842b3cad36dea67ef27a342c496b9df777d1bd8c5d7c2833fb0b9`
 
 Tags:
 - `investigation-report`

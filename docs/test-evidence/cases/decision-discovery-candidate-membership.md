@@ -1,7 +1,7 @@
 ### Case DECISION-DISCOVERY-CANDIDATE-MEMBERSHIP-001: 排除候选前检查完整来源身份
 
 Tests:
-- `test:5011b6c33eb5c22df6a2db281df24edc6ac6b0e791df8765334c6a1c7d2a8a29`
+- `test:ca9a86db4a0f55d294cf2d9a544b9cc8c682ef71271ae8d2d86b64fa5d09f851`
 
 Tags:
 - `decision-records`

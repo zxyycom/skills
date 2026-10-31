@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-SYNC-UTF8-001: 同步检查拒绝损坏编码并由写入修复
 
 Tests:
-- `test:a67bc4e6fae78b971b21905c788f85b4bbdd2633782d5a6e2df285b32bc1271f`
+- `test:021ed6d28ed036b9a68c32c97d14307acc94bef391a7fc78d42761bba7f57abb`
 
 Tags:
 - `index-runtime`

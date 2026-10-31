@@ -1,7 +1,7 @@
 ### Case SOURCE-RUNTIME-SYNC-001: TS 闭包同步只读检测漂移并保留未受管文件
 
 Tests:
-- `test:3b2a9302dfe7052f7515a1ac3cf552ca598b1eb2224a94d6831773b4514b9441`
+- `test:5e80df22275545af6ffa4ff2c7ac0b136cfeaf0eaac5f9fd5e35aea7917a9fb7`
 
 Tags:
 - `runtime-source`

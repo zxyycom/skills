@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-MEMBER-SCAN-UNSAFE-001: 成员采集拒绝符号链接与特殊文件
 
 Tests:
-- `test:9557525c6f73bc69d9d0ecccb1a2ee6d7af7c4421969b92e33586e2e498899a8`
+- `test:9662962df6f376fbb70526b6144731f179b5445918355c8b5afe83ab7d479085`
 
 Tags:
 - `investigation-report`

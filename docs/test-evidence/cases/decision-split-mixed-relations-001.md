@@ -1,7 +1,7 @@
 ### Case DECISION-SPLIT-MIXED-RELATIONS-001: Evolve 拒绝拆分与非拆分后继混合
 
 Tests:
-- `test:3edb349a3cf4c6bf0acbcedd18dbaca863f678143be942c236411397452f0883`
+- `test:790f344d8da8c1c2de8d24257fe49949c0f2aa0fd7fe4724df0e411596b753a4`
 
 Tags:
 - `decision-records`

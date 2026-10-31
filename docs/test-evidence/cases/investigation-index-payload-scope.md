@@ -1,7 +1,7 @@
 ### Case IR-INDEX-PAYLOAD-SCOPE-001: 所有 stage scope 仅消费必要 payload
 
 Tests:
-- `test:205e6fdc98bd169f4b30bbf5edbd2c77a21869d13134f72bd0e282ceeab83ff9`
+- `test:320c3dd0f5c6a92c313088ae55b2d1a3e3deb1120daa56ef71f31e80a7dd494a`
 
 Tags:
 - `investigation-report`

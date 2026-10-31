@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-005: 精确读取错误延迟
 
 Tests:
-- `test:4547b37497e6c9d9b5a513b3e409117a8c32c84fd147eb99f722bc129684c4a8`
+- `test:840e969940890f5f8e5278a9a34f36c115916691f44a88d8eadf55f70be5bffc`
 
 Tags:
 - `record-cost`

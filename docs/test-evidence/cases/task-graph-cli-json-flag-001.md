@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-JSON-FLAG-001: 全局 JSON flag 可位于 task list 前后
 
 Tests:
-- `test:5635311154c6aba34ed825d312e0caccb5b0e3f7ba2b1aee63a140f172bffd07`
+- `test:2ee89aedccdb1a025d119fa53ff8cc278efe4df168c1d0fae487be4c46071d51`
 
 Tags:
 - `task-graph`

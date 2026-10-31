@@ -1,7 +1,7 @@
 ### Case INDEX-PREPARED-FULL-001: 全量同步复用构建但独立验最终 revision
 
 Tests:
-- `test:63393301f5b762a3e32f9e1ffea20b8f13b8d2b27b8339b10d01a3d9666e8990`
+- `test:030462c9869997ed4dd41b857dfdaa8a239bfa0d3675e8b66cf4ce1e839f2322`
 
 Tags:
 - `index-runtime`

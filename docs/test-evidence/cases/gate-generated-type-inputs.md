@@ -1,7 +1,7 @@
 ### Case GATE-GENERATED-TYPE-INPUTS-001: type-aware 输入保守包含分发 TypeScript
 
 Tests:
-- `test:dd02b5b2081ebcb3440b9d14faf2bbc4ca6abab4179b80626133eae9a183fde9`
+- `test:5aec2f109aafd168930be2dc0406450a674e3bafa8fe7d1f6f1cf3c8339b0d79`
 
 Tags:
 - `repository-tooling`

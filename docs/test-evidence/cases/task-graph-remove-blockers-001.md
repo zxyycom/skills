@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-REMOVE-BLOCKERS-001: task removal 报告终态和关系边界 blocker
 
 Tests:
-- `test:454f9f5006a3b2df4f26a5b6c493be99d2f0bb3aed99628cc77033571273c44d`
+- `test:951d3e9a85664b954d6dc7b8e78c4d796a7c7b13080020ebf5d3afa29e5cde4b`
 
 Tags:
 - `task-graph`

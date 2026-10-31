@@ -1,7 +1,7 @@
 ### Case RECORD-READER-PERMISSIONS-001: Node权限模型不因批量读取而放宽
 
 Tests:
-- `test:af9094504b366250dfa7d4e17aba0b035ac6fe6e4dc81ad13a1407bdfd1deb8b`
+- `test:8e7104d047378e4049bc3542a305bb34d07ddf4b9192d9eb24cb1abaf68377e6`
 
 Tags:
 - `record-operations`

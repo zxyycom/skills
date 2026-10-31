@@ -7,4 +7,4 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/task-graph
  * Rebuild: bun run sync:task-graph-cli
  */
-export { openGitVersionControl } from "./git-repository.ts";
+export { openGitVersionControl } from "./git/git-repository.ts";

@@ -1,7 +1,7 @@
 ### Case DECISION-SOURCE-DIAGNOSTICS-001: 解析交接保留错误类型与顺序
 
 Tests:
-- `test:b7ef685ea6fb8a89b7162cb7e2579278047311173fb47df48e18fb8eec0a7233`
+- `test:e15479648c28579c2d6e8fd7fc6ec6387d412912e1820797a052ffbda1b789c2`
 
 Tags:
 - `decision-records`

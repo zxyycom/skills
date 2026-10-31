@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-SYNC-DISCARD-LOCK-001: sync-index rejects a concurrent rebuild while discard owns the collection
 
 Tests:
-- `test:03e21e66e01e124c33d41ad6114248f638cc839326b0474b6d9107a6ff5266f7`
+- `test:bf06da211076f109b2fd804e0adb67812229cdcbb235d392b60d13c06ba16b72`
 
 Tags:
 - `investigation-report`

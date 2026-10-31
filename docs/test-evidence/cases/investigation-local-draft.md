@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-LOCAL-DRAFT-001: 缺索引的已有正式集合必须显式恢复
 
 Tests:
-- `test:784278276ea7b7bb3215284cc2bfc091a5067b46cc9bf23dd5239d69bcfb623c`
+- `test:ef0287e5c381a5ebcda555a4c4c758b9643e62b1a1e6d2fde252db472e915652`
 
 Tags:
 - `investigation-report`

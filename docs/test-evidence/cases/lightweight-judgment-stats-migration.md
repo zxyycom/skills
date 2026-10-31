@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-MIGRATION-001: 显式 SQL 升级副本并保留原库
 
 Tests:
-- `test:6a04951394e3c5cd70739da8060f64a1dd4a42e01d00efe78a82a372b5b20808`
+- `test:0063812a19e32b268f936fe1d8486970161494783defe9a38c560dc4ec397332`
 
 Tags:
 - `lightweight-judgment`

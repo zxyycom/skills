@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-MIGRATE-SOURCE-RACE-001: 迁移保留预演后被替换的源
 
 Tests:
-- `test:3e079a077dbf4648db55a55c4eb13b8b1e611f93724f2fc08939319929a9bcd8`
+- `test:e9fe048ee10978e7ccb862f2e34ee4a7901daa4fe5b593a77b98636c4810a3e5`
 
 Tags:
 - `repository-tooling`

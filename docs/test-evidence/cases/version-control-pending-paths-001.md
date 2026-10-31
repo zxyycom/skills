@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-PENDING-PATHS-001: 拒绝非法 Pending 替换路径且不产生写入
 
 Tests:
-- `test:43a1f7b877d15639b274743c6ccacc0a06eba28e6412baea20fcce85ee07377b`
+- `test:cb1408b119f369ddbb3a33bc35500c2ea08ab7bf1569a69813e2f7e32ac8b465`
 
 Tags:
 - `version-control`

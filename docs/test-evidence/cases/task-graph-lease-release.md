@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LEASE-RELEASE-001: 释放 lease 清除执行占有并应用控制
 
 Tests:
-- `test:873f207e550365893a63f43176c298b0f64db164cf9d812beb0540afbf54adfc`
+- `test:aa6c4379335e98ccc8342a5795f039b17dac6587ec2e50215077885108abb706`
 
 Tags:
 - `task-graph`

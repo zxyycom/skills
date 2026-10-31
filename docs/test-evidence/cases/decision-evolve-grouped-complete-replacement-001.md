@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-GROUPED-COMPLETE-REPLACEMENT-001: Evolve 拒绝不完整或不纯的分组 replacement
 
 Tests:
-- `test:2e00692e83169eeb04b08d6f4b6eeb8b65e1bbbd4fae0d60204cbe9999b1955b`
+- `test:ba277de217dbedc67c72cb336b66f8c3a2619b3af337123354fe567aad5a2a16`
 
 Tags:
 - `decision-records`

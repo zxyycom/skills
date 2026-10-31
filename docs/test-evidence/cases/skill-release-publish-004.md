@@ -1,7 +1,7 @@
 ### Case SKILL-RELEASE-PUBLISH-004: 发布入口在副作用前拒绝不完整资产
 
 Tests:
-- `test:fb307bb9c082af957a2e3d22cbea5794ef3df7997903d6f6e594ab2c2008add5`
+- `test:83f905d00e0c7112174e472d04e8d394cd3ac327cf1935db29bb880a95972684`
 
 Tags:
 - `repository-tooling`

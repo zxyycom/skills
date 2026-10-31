@@ -1,7 +1,7 @@
 ### Case DECISION-DISCARD-ONLY-ARCHIVED-ESTABLISHED-001: Discard 删除唯一 archived 已建立决策并保留合法空索引
 
 Tests:
-- `test:c1721b4b4fa92fb885c780e4f96103555f4f9fa68e292a1fafad5d7a226d7258`
+- `test:39cdcca75fe5248ded579b6498a09a1de088b7ca92dc92af0e4f6e8136a2dcf8`
 
 Tags:
 - `decision-records`

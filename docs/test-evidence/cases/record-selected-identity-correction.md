@@ -1,8 +1,8 @@
 ### Case RECORD-SELECTED-IDENTITY-CORRECTION-001: 已知路径改身份必须同选旧新ID
 
 Tests:
-- `test:62e910fb5d0b106bddc3f6e90ab5d69621766d47f5744ec8c60109f612c2438b`
-- `test:f1fabc4ac410ea3b4e6ad32775704cf975001c63e2c1a7f132f9d697069d1235`
+- `test:62c41357553572feadfc943dd48da04462e7994ecb31e8c23db6ae1e6d21c58b`
+- `test:90342c6681bf0a19bd04d17ce1ee271a5f840587102654431fde07042aa4c4b9`
 
 Tags:
 - `decision-records`

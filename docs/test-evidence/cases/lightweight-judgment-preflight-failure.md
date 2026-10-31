@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-005: 输入与配置前置校验
 
 Tests:
-- `test:666058ecf4e37e2cec60cc5102808cdc43f06c2b298f29b74cfb475dd749a364`
+- `test:d06044acd469299772395d86744dee16c29187fd28502ffe538020501a454f99`
 
 Tags:
 - `lightweight-judgment`

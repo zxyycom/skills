@@ -1,7 +1,7 @@
 ### Case IR-TRACE-REUSE-001: 完整事件双向查询保留 anchor 与深度边界
 
 Tests:
-- `test:7a988e5ad0704d0ace22f584ac78434e7415c3d42286c98668b221148a666144`
+- `test:a68fb97197f2f361f008542f2a6e7a5ffd55b9c0a3faf1cb4c75a74ddeaf390a`
 
 Tags:
 - `performance`

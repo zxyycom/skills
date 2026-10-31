@@ -1,7 +1,7 @@
 ### Case DECISION-BATCH-LOOKUP-001: 批量定位与准备的 ID 工作线性增长
 
 Tests:
-- `test:d546adc454443e392eb6ba7520d5a15ea4d37e3854b805d8f0b5a7f0e0a3c38d`
+- `test:0461a49f7b2285cb80a69dabce58edc8578c52b5aeca046034efea21f7b532b5`
 
 Tags:
 - `performance`

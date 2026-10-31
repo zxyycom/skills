@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-DIST-002: generated MCPShell definitions expose the four fixed-root operations
 
 Tests:
-- `test:634b8a7f713533d1f63443b552792e075a28239941a5cbf013c043601cc65be8`
+- `test:68ff46043ffdef546ae5370a9cdc497f49a79565146d9b03667c2e6505f9e070`
 
 Tags:
 - `mcpshell-workspace-bridge`

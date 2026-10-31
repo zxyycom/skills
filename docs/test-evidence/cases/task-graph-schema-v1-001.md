@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-SCHEMA-V1-001: scope 形态的 schema v1 不进入兼容路径
 
 Tests:
-- `test:98e4002e5db04773c9765ee18ee1e789469ce023b70c11c47a02b54fd32dc051`
+- `test:a6e61eeef0f0f3edf46af1426eab52bb177ef402dc2bc95e728142e5399d0e6e`
 
 Tags:
 - `task-graph`

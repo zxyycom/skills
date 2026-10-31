@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-INIT-008: initializer recovers registration from a complete existing environment
 
 Tests:
-- `test:38927ff56e327da9c16548fe3ed4803975bdb291fbd8c90fbe246c8f6dcf8de4`
+- `test:2c6f349274b67bb3dd4bb4d3dd3e67aef686727cf99feb82946491cba2bcb361`
 
 Tags:
 - `mcpshell-workspace-bridge`

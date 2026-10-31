@@ -1,7 +1,7 @@
 ### Case WRITE-CANONICAL-CASE-007: 决策同步复用规范投影
 
 Tests:
-- `test:d5cc9c157f47346ecfe3ddf5c6ebe586a7e867ec769e6645bad70c27b8a38448`
+- `test:a9b70d70de65d4d4b5be3814f769bb55d7a6c5defbcd76b9eabe746826ce761b`
 
 Tags:
 - `write-canonical`

@@ -1,7 +1,7 @@
 ### Case INDEX-EXACT-DIAGNOSTICS-001: 精确匹配保留非法标量诊断
 
 Tests:
-- `test:c8a7758097cf4348bbb2082d6a079518ee7c63f2a9026faa6034dcbe2933ac00`
+- `test:6f6edbb001f40bab38fec26bcf9080da4b1fd2216a6c6a95626deaef41c30c04`
 
 Tags:
 - `performance`

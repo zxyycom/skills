@@ -1,16 +1,19 @@
 #!/usr/bin/env node
 
-import { errorMessage } from "./environment-command.js";
-import { parseAction, readEnvironmentConfig } from "./environment-config.js";
+import { errorMessage } from "./environment/environment-command.js";
+import {
+  parseAction,
+  readEnvironmentConfig
+} from "./environment/environment-config.js";
 import {
   printEnvironmentStatus,
   printGateEnvironmentStatus
-} from "./environment-output.js";
-import { setupEnvironment } from "./environment-setup.js";
+} from "./environment/environment-output.js";
+import { setupEnvironment } from "./environment/environment-setup.js";
 import {
   getEnvironmentStatus,
   getGateEnvironmentStatus
-} from "./environment-status.js";
+} from "./environment/environment-status.js";
 
 try {
   const action = parseAction(process.argv.slice(2));

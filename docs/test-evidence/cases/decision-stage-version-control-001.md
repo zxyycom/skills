@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-VERSION-CONTROL-001: Stage 在无版本控制时不写入来源
 
 Tests:
-- `test:1757d7c422d8c952a34120ca8eddca007a69950234f09bb898781202d7165c8a`
+- `test:7183019eb9695704863b318a7206f08afc9808f15f28aff420f73dba1b8c31d9`
 
 Tags:
 - `decision-records`

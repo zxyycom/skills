@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-PATCH-002: workspace apply patch rejects escape paths and oversized text before SSH
 
 Tests:
-- `test:90e0f0a99f0f9d15fe6700f0d75e37addf9d214685a192aa87fbbb2b68113082`
+- `test:6b6df15a2ae72656569fc6909b8755e4f6979b53c26f773a122a67c1331999a4`
 
 Tags:
 - `mcpshell-workspace-bridge`

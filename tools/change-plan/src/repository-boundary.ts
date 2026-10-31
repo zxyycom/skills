@@ -1,7 +1,7 @@
 import type { Dirent } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { errorMessage, lstatOrNull } from "./check-support.ts";
+import { errorMessage, lstatOrNull } from "./checks/check-support.ts";
 import { tombstoneDirectoryName } from "./types.ts";
 
 export type ChangeRootBoundaryFailure = Readonly<{

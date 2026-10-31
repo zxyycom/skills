@@ -12,7 +12,7 @@ import {
   parseTaskGraphApplyRequest as parseApplyRequest,
   parseTaskIndex as parseIndex,
   serializeTaskIndex as serializeIndex
-} from "./schema.ts";
+} from "./schema/schema.ts";
 import type { TaskGraphApplyRequest, TaskIndex } from "./types.ts";
 
 export { TaskGraphError } from "./errors.ts";
@@ -28,7 +28,7 @@ export {
   retryTask,
   type IndexMutation
 } from "./engine.ts";
-export { projectTaskGraph, validateTaskIndexGraph } from "./graph.ts";
+export { projectTaskGraph, validateTaskIndexGraph } from "./graph/graph.ts";
 export {
   TaskGraphService,
   type ServiceResult,

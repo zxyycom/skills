@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-NEW-HELP-001: New 帮助固定显式 scaffold 输入
 
 Tests:
-- `test:2fa56e05cd1f08e94b0465a7877099a00e80e652a31a47732aa5fc6f430c4283`
+- `test:9309ab60136444b8eb95f0499b970693492dd845585fea2e3cb46ec711e0dbe1`
 
 Tags:
 - `decision-records`

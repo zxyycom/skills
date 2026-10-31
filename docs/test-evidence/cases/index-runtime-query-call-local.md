@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-QUERY-TRUST-003: 查询子树证明只在单次投影复用
 
 Tests:
-- `test:c3f64dad77001c6d6fd34e974f852a175cbed0352bd16ab51ece98625ef13439`
+- `test:b2e0543dbd4d5103978f0ff5bf7effca2f3af27ad1df5719d4960f5d2b978d7d`
 
 Tags:
 - `index-runtime`

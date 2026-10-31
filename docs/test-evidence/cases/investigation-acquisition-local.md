@@ -1,8 +1,8 @@
 ### Case INVESTIGATION-ACQUISITION-LOCAL-001: 单条读取与局部检查按需取得普通来源
 
 Tests:
-- `test:7dd31948d0c885a2a8d7af1e9cfcdd3b5d35ecd1081d832b9d1a54cf25f1e461`
-- `test:d947d8f098f7047d41b57f797ad13a7d137195e08cc0810f586d6e96c98cd6df`
+- `test:0381c493aaf2dd8c1d5afef825827a0c46fa6ed00ccb8293a3fd87660d89e12f`
+- `test:36eae212f9aa613a13d4cd675c7db4d19b7d69a44047ae9c948994aa9af2941c`
 
 Tags:
 - `investigation-report`

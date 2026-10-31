@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-TRACE-RENDERING-001: Investigation Trace 分流终端图与 JSON
 
 Tests:
-- `test:8e265388bdccdaaaa216f00df7d1c3714619566e75194917ed02b6a43b610b0a`
+- `test:648250bbcb8e4fdc9315bcaf33ee0e241a3eaba4c10873617caecb89a2be0010`
 
 Tags:
 - `investigation-report`

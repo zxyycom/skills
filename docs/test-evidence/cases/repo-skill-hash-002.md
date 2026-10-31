@@ -1,7 +1,7 @@
 ### Case REPO-SKILL-HASH-002: Runtime and declaration semantic changes require a version
 
 Tests:
-- `test:3433b679fec452a96dbabc642bae4f77c9779e87cff31c6be1e9795c5c03dcc6`
+- `test:6944cee9611e0e7823d128a4f25a291f374438cfd4fcde47f193b6186419852f`
 
 Tags:
 - `repository-tooling`

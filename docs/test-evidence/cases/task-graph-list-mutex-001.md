@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LIST-MUTEX-001: 不同来源路径的对称 exclusion 规范化为唯一 pair
 
 Tests:
-- `test:79760c25d8639197e849b143324c08f9e240482317a317fcded9e32e589e0b39`
+- `test:24ef27e44e1ae98ec7d904c22021375eb8e9dbccab648a11c01eeef1c5566006`
 
 Tags:
 - `task-graph`

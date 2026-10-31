@@ -1,7 +1,7 @@
 ### Case RECORD-SEARCH-WARNING-001: 正常预览限制不要求修复当前来源
 
 Tests:
-- `test:3e2081fb0711ffbd399861224fb6b8a5dc12194914b8eb9711195ffc83fd93f7`
+- `test:340abf27cf7d9c3713264ecc0cca35a49cbecc4466233546fa04e2260dbf0929`
 
 Tags:
 - `record-search`

@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-DEFINITION-003: 拒绝通过原型继承的查询字段与来源属性
 
 Tests:
-- `test:a3dea116a1d7a7661aee5b9f30703ac5ea56729f155eeb35bd984a1853bed3a8`
+- `test:a68a3036ed4e6b07cfb4321193f39da2c90bbf6a9a821439d623c8ffee6b9dd1`
 
 Tags:
 - `index-runtime`

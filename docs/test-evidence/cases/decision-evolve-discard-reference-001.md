@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-DISCARD-REFERENCE-001: Evolve 删除不自动维护未选候选引用
 
 Tests:
-- `test:b1b90a66407c220cbe71dd2bc4fbde2a423085092711282bb8eb5ca8c195eee9`
+- `test:06ee516386792b1fcd6ffee8e0f7c5d9ea9dd0f053e4a5108c511eca98e93b7f`
 
 Tags:
 - `decision-records`

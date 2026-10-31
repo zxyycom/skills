@@ -1,7 +1,7 @@
 ### Case GATE-SCHEMA-BINDING-POLICY-001: 索引 schema 绑定权威来源
 
 Tests:
-- `test:d9554c818b9357b912953a8a76b637da86d2e6b533d4c554e4aa7522b9694e71`
+- `test:57e37204b86535ab00b9751a0556004ff33cb25a5b3294af1d8b2cdda762deff`
 
 Tags:
 - `repository-tooling`

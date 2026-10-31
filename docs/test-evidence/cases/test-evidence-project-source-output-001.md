@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-PROJECT-SOURCE-OUTPUT-001: 项目生产器从源输入排除请求的工作区快照输出
 
 Tests:
-- `test:b2fafe03b7a7d0770875411085f229bb73adcdfb4ad056f59ef3a7a9b5131068`
+- `test:000aa68b5369366355ed775f8d4c42c7023d69300a006040814dce028a136eda`
 
 Tags:
 - `repository-tooling`

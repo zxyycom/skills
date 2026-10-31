@@ -1,7 +1,7 @@
 ### Case DECISION-TAG-VALIDATION-001: 标签必需、有序且唯一
 
 Tests:
-- `test:ffd9039bd7b925232f0935516de08aa07d2204a7eff2d4998b3b358b221d3724`
+- `test:0b4a8633be179593d89423e72ac7f1b1c6de1e6d41287f3760930a733f5f6e2d`
 
 Tags:
 - `decision-records`

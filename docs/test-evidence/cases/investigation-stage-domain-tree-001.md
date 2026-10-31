@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-DOMAIN-TREE-001: stage --scope domain writes the report and its complete owner resource tree
 
 Tests:
-- `test:365afdc71dd8025634717a36b234b9f0ef80ef6175b6a94500d114f2ee651f52`
+- `test:04f890231f4e62763b910e09aaa4f2242f7da600660ef89639b2b0c79cc5ccbf`
 
 Tags:
 - `investigation-report`

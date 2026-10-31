@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-QUERY-TRUST-006: 动态字段描述保留访问顺序
 
 Tests:
-- `test:d7f771bf0d71508e7130157021953a143e0e316f7a5b5e400520ef674e794189`
+- `test:53336f8fb473d77461b2c144a2d99462ba1cc9a3285cd820694bdcfd902f4a52`
 
 Tags:
 - `index-runtime`

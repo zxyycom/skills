@@ -1,7 +1,7 @@
 ### Case RECORD-TRANSACTION-REJECTED-WRITER-001: 共同事务保留拒绝writer的实际索引发布
 
 Tests:
-- `test:bf5dae0465a9246a8dc130eaf5312a61e6ade291dc79a99f297a40f8681452c2`
+- `test:cb1daa8bca2de4ea26d9c8273ba8e40222f6228d53a447272a3a8d47a290deab`
 
 Tags:
 - `decision-records`

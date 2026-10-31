@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-SCOPE-INDEX-CONFLICT-001: stage --scope index composes with a pending index that already differs from the revision
 
 Tests:
-- `test:3513597d7cff8ceeddbbd10873e28b1782007e65952884f33a59597c48454799`
+- `test:ee18ca5ce05f1b2f666c06f5319e3d07f500d67367d14afcbe90051ed18d7801`
 
 Tags:
 - `decision-records`

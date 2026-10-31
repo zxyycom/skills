@@ -7,12 +7,12 @@ import {
   isQuickGateCheck,
   outsideQuickScopeFlag,
   type GateScope
-} from "./profiles.ts";
+} from "./selection/profiles.ts";
 import {
   activationFlagForTool,
   type GateToolId,
   type GateToolSubscription
-} from "./impact-tools.ts";
+} from "./impact/impact-tools.ts";
 
 export const gateTags = ["release"] as const;
 export type GateTag = (typeof gateTags)[number];

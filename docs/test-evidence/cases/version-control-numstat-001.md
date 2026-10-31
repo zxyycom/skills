@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-NUMSTAT-001: 严格解析 NUL numstat 记录
 
 Tests:
-- `test:4643ff21735127ccc94d9cf09023c366ca0d7a5eacded95b172776e1673cc4c9`
+- `test:de62a74dad37d2590ee7511fceee1b402dd92df4bc72d1fc97f3e60542d9a153`
 
 Tags:
 - `version-control`

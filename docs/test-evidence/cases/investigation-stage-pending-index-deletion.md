@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-PENDING-INDEX-DELETION-001: 拒绝以已删除的 pending 索引组合
 
 Tests:
-- `test:a3426d83577a67fb80d0cf707ac3d30563f057ab844824f28645c044b2cc2543`
+- `test:4d86601fce54018f38571bf89ec07d6d0b50339b6349e050575aee58c02ca713`
 
 Tags:
 - `investigation-report`

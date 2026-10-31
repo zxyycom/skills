@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-UNRELATED-RESOURCE-SYMLINK-001: 完整所选树安全校验不遍历其他 owner
 
 Tests:
-- `test:f1227e95c011f2978c3cfba2478e20f62a0202a8158bb80d005c997244ba1141`
+- `test:2ccd5b83766ed66cc4223845e3447e8fe7f6cd252aae3df70c683b9729839d03`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-LOG-JOURNAL-ERRORS-001: 非 BUSY 不重试
 
 Tests:
-- `test:dd96d7b7d6370ccda6562beda9f351535b36aa8c9ca00c755f7cdf14292be3b7`
+- `test:8895941f0d0e602c804947ea9e6f4d0175ff942432f75037c30113633320972f`
 
 Tags:
 - `lightweight-judgment`

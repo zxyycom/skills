@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-DIST-005: 分发忽略契约与真实入口 preview 可用
 
 Tests:
-- `test:436e52816055ca27756a9e8a0afc31d20074794312340818481ffcf8b97b9dc8`
+- `test:19e055ef66ed5166ab1ff1168d91a12ac39ec59ebe1a32997ed2f9a6b4f08f92`
 
 Tags:
 - `mcpshell-workspace-bridge`

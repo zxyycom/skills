@@ -1,0 +1,27 @@
+import "../../lib/vibe-gate/impact/tests/impact.test.ts";
+import "./vibe-check-definition.test.ts";
+import "./vibe-check-environment.test.ts";
+import "./vibe-check-semantic-catalog.test.ts";
+import "./cli/vibe-check-cli-arguments.test.ts";
+import "./cli/vibe-check-cli-diagnostics.test.ts";
+import "./cli/vibe-check-cli-incremental.test.ts";
+import "./cli/vibe-check-cli-input-closure.test.ts";
+import "./vibe-check-command-runner.test.ts";
+import "./native/vibe-check-metrics.test.ts";
+import "./native/vibe-check-native-selection.test.ts";
+import "./native/vibe-check-native-policy.test.ts";
+import "./code/vibe-check-scoped-code.test.ts";
+import "./code/vibe-check-code-scope-kinds.test.ts";
+import "./code/vibe-check-code-coverage.test.ts";
+import "./native/vibe-check-project-files.test.ts";
+import "./native/vibe-check-markdown-capacity.test.ts";
+import "./vibe-check-package-adapter.test.ts";
+import "./vibe-check-proof-mode.test.ts";
+import "./vibe-check-release.test.ts";
+
+import "./scopes/vibe-check-profiles.test.ts";
+import "./scopes/vibe-check-scope-arguments.test.ts";
+import "./scopes/vibe-check-scope-selection.test.ts";
+import "./scopes/vibe-check-runtime-selection.test.ts";
+import "./cli/vibe-check-cli-performance.test.ts";
+import "../../lib/vibe-gate/performance/performance.test.ts";

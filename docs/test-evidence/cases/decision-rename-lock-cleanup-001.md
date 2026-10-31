@@ -1,7 +1,7 @@
 ### Case DECISION-RENAME-LOCK-CLEANUP-001: rename 提交后锁清理失败保留提交事实
 
 Tests:
-- `test:3975197ac26377ca037ae21d1e7600e818d8c8b0f7e8956cd94e21214d400b0d`
+- `test:47453c44f5415ed9bc304f43e14e49843887929846b3f069efdab8f8ef3db10f`
 
 Tags:
 - `decision-records`

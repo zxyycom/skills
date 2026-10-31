@@ -25,7 +25,7 @@ relations: []
 
 ### 根因对照
 
-调用链为[前序历史核对](../../tools/investigation-report/src/validation-history.ts) → [修订前缀读取](../../tools/shared/src/version-control/revision-file-prefixes.ts) → [Git tree 查询](../../tools/shared/src/version-control/git-revision.ts)。原实现把发现的全部路径一次传给 `ls-tree`。
+调用链为[前序历史核对](../../tools/investigation-report/src/records/validation/validation-history.ts) → [修订前缀读取](../../tools/shared/src/version-control/revision-file-prefixes.ts) → [Git tree 查询](../../tools/shared/src/version-control/git/revision/git-revision.ts)。原实现把发现的全部路径一次传给 `ls-tree`。
 
 2026-10-21 在 Linux、Node 26.8.2、Bun 1.4.2、Git 2.53.0 下，通过 `hash-object --stdin`、`mktree` 和 `commit-tree` 建立隔离历史，避免宿主长文件名限制干扰。tree 位于 `docs/investigations/`，包含 `base.md` 和合法的 `report-<五位编号>-<200 个 x>.md`，内容使用同一可读 legacy blob；工作区报告只有一条直接关系指向 `base`。
 
@@ -52,8 +52,8 @@ relations: []
 
 ### 回归与验证
 
-- [Git 路径查询回归](../../tools/shared/tests/version-control-pathspec-query.test.ts)覆盖 revision 列表、完整内容与前缀、workspace、pending、staged 变化、替代 index、空范围、Unicode/引号预算、不可分割输入、批内重复和后续批失败。Trace2 验证实际拆批，较小样本控制常规门禁成本。
-- [前序核对回归](../../tools/investigation-report/tests/history-pathspec-batching.test.ts)使用 201 个历史来源，验证源码、分发模块和真实 Node CLI。断言退出码、索引确认、stderr 及多个有界 `ls-tree` 调用，使退回单次超长 argv 的实现即使在宽松宿主上也会失败。消费该入口的 Gate Check 已配置生成前置和 CLI/分发输入订阅。
+- [Git 路径查询回归](../../tools/shared/tests/version-control/protocol/version-control-pathspec-query.test.ts)覆盖 revision 列表、完整内容与前缀、workspace、pending、staged 变化、替代 index、空范围、Unicode/引号预算、不可分割输入、批内重复和后续批失败。Trace2 验证实际拆批，较小样本控制常规门禁成本。
+- [前序核对回归](../../tools/investigation-report/tests/collection/history-pathspec-batching.test.ts)使用 201 个历史来源，验证源码、分发模块和真实 Node CLI。断言退出码、索引确认、stderr 及多个有界 `ls-tree` 调用，使退回单次超长 argv 的实现即使在宽松宿主上也会失败。消费该入口的 Gate Check 已配置生成前置和 CLI/分发输入订阅。
 - 独立端到端对照通过公开 `bun run investigation-report -- --root <隔离工作区> check`，使用两份完整工作区报告和 10,000 个 HEAD 历史来源：退出 0，输出 `2 reports checked; full index current`，stderr 无历史核对不可用、错误未提交提示或长度错误。隔离样本均已清理。
 - `bun run test:version-control`（75 项）、`bun run test:investigation-report-check`（299 项）、类型、lint、格式和测试证据检查通过。六个受影响 skill 的运行时已通过所属 `sync:*` 同步及 `check:*` 一致性检查，独立版本已提升。
 - 主仓库 `bun run check`：61 passed、0 failed；3 个 release 条件检查未运行。该结果证明检查时的工作树，不代表制品已打包或发布。
@@ -62,7 +62,7 @@ relations: []
 
 根因是 Git 查询把规范化后的全部字面 pathspec 一次交给进程。报告层将该失败降为历史核对不可用 warning；它既不说明报告内容无效，也不是前序未提交的证据。
 
-修复位于 [Git 私有路径查询](../../tools/shared/src/version-control/git-pathspec-query.ts)，服务 `ls-tree`、`ls-files` 和带范围的 `diff --cached --name-only --no-renames`，由六个 skill 的生成运行时共同使用。内部保守参数预算为 28,000，估算同时覆盖固定参数、UTF-8 argv 与 Windows 转义上界；短输入单批，空 scope 保持一次完整范围查询。完整行为契约由[版本管理中间层](../../tools/shared/version-control.md#git-路径查询的分批传输)维护。
+修复位于 [Git 私有路径查询](../../tools/shared/src/version-control/git/git-pathspec-query.ts)，服务 `ls-tree`、`ls-files` 和带范围的 `diff --cached --name-only --no-renames`，由六个 skill 的生成运行时共同使用。内部保守参数预算为 28,000，估算同时覆盖固定参数、UTF-8 argv 与 Windows 转义上界；短输入单批，空 scope 保持一次完整范围查询。完整行为契约由[版本管理中间层](../../tools/shared/version-control.md#git-路径查询的分批传输)维护。
 
 验证边界：
 

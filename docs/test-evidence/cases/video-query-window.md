@@ -1,9 +1,9 @@
 ### Case VIDEO-QUERY-WINDOW-001: 读取窗口末端归一有界且可见
 
 Tests:
-- `test:54e2293fe5a2d559e6ba7fab632a78cc58c1d1e25ebfc032de51a8f3aeb5b265`
-- `test:b95d957918643ef94227716484c3262bcb1ed93e09bc9715059adee0b2b3f614`
-- `test:ff3070c1245324697a3a0c3df55ec577aad239176a50009472ee4229305ba70c`
+- `test:6109aef8a026319ecbbb9f9562b04bf6ea67ddae839b803255d58e17c2c7ee87`
+- `test:b0f74c8c269863ed0691f8d7836c2dc83751bf4c50ffefa11599b8c339716c63`
+- `test:e696485a22e2e0fec6d53783e8eb4a70b5bcefddcbcbb071a18f129f934b9a95`
 
 Tags:
 - `video-understanding`

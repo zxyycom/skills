@@ -1,8 +1,8 @@
 ### Case VIDEO-HELP-ISOLATION-001: 帮助独立于配置且无数据副作用
 
 Tests:
-- `test:096465bb1b5b7559bdb6dcbb8104bb589775fb0bd4276408032369464f2faaf5`
-- `test:b39272c44e16d5c94898ef390d95719ece5dd294b68f1c3135e6064b5a1c2c8e`
+- `test:c9a89b47327e08c38706741ec1c17edd1455941b86801a2fa78fbc06bd21c616`
+- `test:e360407197b9730344da6a2944e56e00a3ee8ec999c53fa2e2f7222ef2c2ff46`
 
 Tags:
 - `video-understanding`

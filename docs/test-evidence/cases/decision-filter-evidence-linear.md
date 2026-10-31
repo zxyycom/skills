@@ -1,7 +1,7 @@
 ### Case DECISION-FILTER-EVIDENCE-LINEAR-001: 关系证据保留首摘要去重与稳定目标顺序
 
 Tests:
-- `test:a88ac358d554b94c6d0fe046b14d262ddbcf5e8c3cef9902f97a9c7bd2d03421`
+- `test:20b1d30984fa0426b7d8b29ff2e47f253437df3d2c425fb16c72a5d6ca2e9b86`
 
 Tags:
 - `decision-records`

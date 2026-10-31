@@ -1,7 +1,7 @@
 ### Case FILE-TEXT-SEARCH-PREVIEW-BUDGET-001: 文件搜索先保留命中预览再消耗上下文预算
 
 Tests:
-- `test:037459d5bd6b2f2997bd537faac1b747f31bfcd3003574613a9ebca56d88bc96`
+- `test:592eca3279b21469a80e044c733fac598c6cf3efab994905159a5751530f445c`
 
 Tags:
 - `index-runtime`

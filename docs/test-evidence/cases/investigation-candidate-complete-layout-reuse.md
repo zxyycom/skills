@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-COMPLETE-LAYOUT-001: 候选准备消费发布 owner 声明
 
 Tests:
-- `test:0a11415296d2048aa1132670418da34a76c6322b60706f4109aaba8133e73083`
+- `test:b82d9ad0ae49d4d58275ed668cccca88bae9fe9349dc65c5e9e34e8e6b34dac9`
 
 Tags:
 - `investigation-report`

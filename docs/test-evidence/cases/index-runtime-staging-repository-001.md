@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-STAGING-REPOSITORY-001: 暂存前报告可执行的仓库发现失败
 
 Tests:
-- `test:c8af51abc8307f8c083950b73956a0bef7a175ccd1a88abc976957515c28d87a`
+- `test:999e0ba2e5d7d86e7c9c994f786c3dc434f190442bf6d1dc2c3058530371edf9`
 
 Tags:
 - `index-runtime`

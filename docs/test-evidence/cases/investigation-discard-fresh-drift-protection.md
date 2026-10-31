@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-FRESH-DRIFT-001: 删除共享新鲜来源仍拒绝正文与成员漂移
 
 Tests:
-- `test:99c30ff8bda7b9758f88049bcf87a25739f50d9281296fa501ee8ad7482d45b5`
+- `test:9ae9bbc7624703b1ffe693b53cae98fb285a5991ddb133dc64a18f447904d614`
 
 Tags:
 - `investigation-report`

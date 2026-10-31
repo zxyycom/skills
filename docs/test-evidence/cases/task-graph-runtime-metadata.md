@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-RUNTIME-METADATA-001: 生成入口给出可维护来源而不泄漏本地路径
 
 Tests:
-- `test:8ecd22aa5e7da34679a898faa9ac41eb39943e7b4792d0078485e49e3a611109`
+- `test:64664651d9a8a8c454f3406a5d8c88050b0e4df817a4ddc3085b26256f07b547`
 
 Tags:
 - `task-graph`

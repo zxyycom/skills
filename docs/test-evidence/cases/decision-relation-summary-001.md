@@ -1,7 +1,7 @@
 ### Case DECISION-RELATION-SUMMARY-001: Relation summary normalization preserves the Unicode boundary
 
 Tests:
-- `test:a12b5236157f17f2f964acb7434ceacfe7febb9cdeb6410e950a11ff6b763f7e`
+- `test:ad7dc17dc2a5018a5ec16bebdfc941537952ea1c57d5e8c803e2634d36f9b196`
 
 Tags:
 - `decision-records`

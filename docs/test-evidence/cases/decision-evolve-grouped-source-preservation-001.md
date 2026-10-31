@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-GROUPED-SOURCE-PRESERVATION-001: Evolve 保留未分组后继的完整关系
 
 Tests:
-- `test:6ddf6fd56181d5d35eea039eafca3e4d0bf0a33031e07f36e0df233bb56307ed`
+- `test:381d5d4cf378107cd3d9008d6fa34838464ae75cdda87b156e056e8dea5a1a58`
 
 Tags:
 - `decision-records`

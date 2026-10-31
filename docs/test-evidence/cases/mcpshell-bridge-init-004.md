@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-INIT-004: initializer rejects non-exact ignore rules and line-breaking configuration
 
 Tests:
-- `test:1cb8b71f7368f82eea626a09b61905178d30df10b438c3f73444e6c8b04932ad`
+- `test:3e24b849d867e52c714e38571f113f28ef67f7f05438248ab8ee7526f1a9ea0f`
 
 Tags:
 - `mcpshell-workspace-bridge`

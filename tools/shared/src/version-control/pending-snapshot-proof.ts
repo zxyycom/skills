@@ -1,6 +1,6 @@
-import { sameFingerprints } from "./git-pending-snapshot-content.ts";
-import type { GitIndexEntry } from "./git-core.ts";
-import { sameGitIndexEntries } from "./git-pending-values.ts";
+import { sameFingerprints } from "./git/pending/git-pending-snapshot-content.ts";
+import type { GitIndexEntry } from "./git/git-core.ts";
+import { sameGitIndexEntries } from "./git/pending/git-pending-values.ts";
 import type { PendingPayloadScope } from "./pending-snapshot.ts";
 import type { VersionControlRepository } from "./types.ts";
 

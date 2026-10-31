@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-UNIFIED-DISCARD-SINGLE-LOCK-001: 统一删除在单锁内分类与执行
 
 Tests:
-- `test:c19c3a2c35c037640c829c941297eb88ca121e0d60d95fabf658e29a495a8c84`
+- `test:d37b9ebf280f676e982e364288caa9aa13bc662c72ba336af77a237f1b9f4ff7`
 
 Tags:
 - `investigation-report`

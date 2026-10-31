@@ -1,8 +1,8 @@
 ### Case DECISION-SET-RELATIONS-REPLACE-001: set-relations 完整替换已建立记录关系并重建索引
 
 Tests:
-- `test:c84710f358f2a49729a026234b015d69bb75635b122d241b6a8ef0d515ebab17`
-- `test:d4e40a307aa628dfac35e51ff2cc4bfae79cba1e0affa7e4d59a9d9b8a7980b8`
+- `test:01e967c2319fce439a60921fdcfaf66c1fb33bd15b36d15ea2b2396036f2c2ea`
+- `test:20a26f5cf5b18ac7019c37baa0aa46e14812ee0fb4f37d12d4ed3b7bc5b72d2d`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-INVALID-OWNER-WARNING-001: visible resource discovery rejects unsafe owner directory names
 
 Tests:
-- `test:eaaf88ac724b4a55cd6b526553645027c9aaba4a912df41b0d28078c180b1deb`
+- `test:b0b37631840b69a839f604a056dfbe6918d4e5c24be5050a4a2f9546b7f09777`
 
 Tags:
 - `investigation-report`

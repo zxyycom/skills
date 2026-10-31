@@ -1,7 +1,7 @@
 ### Case SOURCE-RUNTIME-INVOCATION-FACTS-001: TS 分发闭包同次共享事实且跨调用重新捕获
 
 Tests:
-- `test:de8b536a202973544548d171652a33f0c6843a939ff46434291bdc863b90bbe0`
+- `test:67330a7aa6c2ac560af005300c43d3adbc1e2cf86cca5b7491dc4c8128a6f4be`
 
 Tags:
 - `runtime-source`

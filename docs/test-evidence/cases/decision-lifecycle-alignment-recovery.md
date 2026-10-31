@@ -1,7 +1,7 @@
 ### Case DECISION-LIFECYCLE-ALIGNMENT-RECOVERY-001: 对齐前必须显式恢复缺失索引
 
 Tests:
-- `test:544f7f11812fcfa2bee351b18c48ccb7410c28fee991ba3d6ea9b7e9fa50d840`
+- `test:4138c79b818453c9315a89b3516db6d712a596a55bffbcdbe398dcc5d9fcd354`
 
 Tags:
 - `decision-records`

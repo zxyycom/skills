@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-DISTRIBUTION-001: 独立 Node 离线统计分发
 
 Tests:
-- `test:cb406a4d3c1131f8ca708af1415837125a91a0d961e731ebf476a20040a362c1`
+- `test:a5244a23713493def060a22601f287a0efaaeabdd2c9d15587482b5a064d7737`
 
 Tags:
 - `lightweight-judgment`

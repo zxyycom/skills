@@ -23,7 +23,7 @@ if (process.argv[2] === "leaf") {
     pathToFileURL(
       path.join(
         installed,
-        "scripts/runtime/tools/video-understanding/src/media-process.ts"
+        "scripts/runtime/tools/video-understanding/src/media/media-process.ts"
       )
     ).href
   );

@@ -1,2 +1,2 @@
-await import("../cli.test.ts");
-await import("../task-list-renderer.test.ts");
+await import("../cli/cli.test.ts");
+await import("../rendering/task-list-renderer.test.ts");

@@ -1,8 +1,8 @@
 ### Case RECORD-SYNC-PREFLIGHT-LOCK-001: 两域同步预检不取得独占写锁
 
 Tests:
-- `test:225a9e3610f96e52a1c28dfeff49efd09f0795f294380ebf4bc969c0fd15f207`
-- `test:874ff741913484e7cb618cf00493ea020800532e53eb395b16a347918f08caa3`
+- `test:0493fedd54286314a159187b91b84fe806c1851b6aa54828abffc76da4eea212`
+- `test:1d2614aca920c357c00c82410d4f0c47c636ef69ff7f3971fcb25e81ba3193ba`
 
 Tags:
 - `decision-records`

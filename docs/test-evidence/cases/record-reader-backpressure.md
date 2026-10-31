@@ -1,7 +1,7 @@
 ### Case RECORD-READER-BACKPRESSURE-001: 内部批次背压不截断正文
 
 Tests:
-- `test:573b8acf6ee4a77053daa159e57fa9063fe332773dc01ad57651ddc2ded1e63b`
+- `test:bd9d2301bba5d30b72af69a423d6c15ccfc996b9a0fa70356b11c306cb6cd78d`
 
 Tags:
 - `record-operations`

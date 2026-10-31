@@ -1,8 +1,8 @@
 ### Case GATE-TOOL-PROOF-COMPONENTS-001: 工具证明分量与生成前置共同约束复用发布
 
 Tests:
-- `test:451166b8fdc7af3f26103c4d06d7db8cc4d841825b3720f8834bf76c2f0d6d92`
-- `test:d5fc4f368eebc344916b27b8e613766caf11dc4f09baecaabe58a6a75f1edbb8`
+- `test:32e8a1d8c2f5eda83ac363f5b94dbbc07a586abdb312b4c2702032ff88edd390`
+- `test:a35aa42febded3c86e91e274e0f5644c4e239ccf46e134f7bcec6deccd15c8fa`
 
 Tags:
 - `repository-tooling`

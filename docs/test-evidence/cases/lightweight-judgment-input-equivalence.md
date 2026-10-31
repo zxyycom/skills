@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-002: 等义输入与单次请求
 
 Tests:
-- `test:1f0965dafe5bae6844ab1fed5ee66b2b156f4ca7a9d59f074fdccb757fe05f67`
+- `test:bdd17e0d66f11c85bd269c8f00e3392265b23f5c8c58cac8bc0baa725b6e8d2a`
 
 Tags:
 - `lightweight-judgment`

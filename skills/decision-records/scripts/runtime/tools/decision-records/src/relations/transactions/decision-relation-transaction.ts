@@ -1,0 +1,287 @@
+/*
+ * Synced TypeScript runtime; repository maintenance edits tools/decision-records/src/relations/transactions/decision-relation-transaction.ts.
+ * Installed skill copies may be edited directly; updates overwrite matching files.
+ * Repository: https://github.com/zxyycom/skills
+ * Source path: tools/decision-records/src/relations/transactions/decision-relation-transaction.ts
+ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/decision-records/src/relations/transactions/decision-relation-transaction.ts
+ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
+ * Rebuild: bun run sync:decision-records-cli
+ */
+import {
+  createDecisionRecordLookup,
+  type DecisionRecordLookup
+} from "../../records/decision-record-lookup.ts";
+import {
+  decisionFailure,
+  type DecisionApplicationFailure
+} from "../../application-result.ts";
+import {
+  prepareUnrecordedHistoryAttention,
+  type DecisionHistoryBaseline
+} from "../../records/history/decision-history-baseline.ts";
+import {
+  discardDecisionChange,
+  prepareDiscardDecisionEligibility,
+  prepareRecordedDiscardAttention
+} from "../../lifecycle/decision-discard.ts";
+import { prepareArchivedDecisionChange } from "../../lifecycle/decision-lifecycle-change.ts";
+import { serializeDecisionFrontmatter } from "../../records/decision-metadata.ts";
+import { directPredecessors } from "./decision-relation-transaction-predecessors.ts";
+import {
+  discardedDecisionReferenceErrors,
+  graphPlanOperationConflicts,
+  projectDecisionRelationGraph
+} from "./decision-relation-transaction-projection.ts";
+import { relationStrategyFor } from "./decision-relation-transaction-strategy.ts";
+import { relationsEqual } from "./decision-relation-transaction-support.ts";
+import { prepareSuccessors } from "./decision-relation-transaction-successors.ts";
+import type {
+  DecisionRelationReview,
+  DecisionRelationGraphPlan,
+  DecisionRelationTransactionPreparation,
+  DecisionRelationTransactionRequest
+} from "./decision-relation-transaction-types.ts";
+import { decisionRelationConsistencyIssues } from "../relation-graph.ts";
+import type { DecisionFileChange } from "../../transactions/decision-transaction.ts";
+import type { DecisionPreparationContext } from "../../types.ts";
+
+export type {
+  DecisionRelationTransactionPreparation,
+  DecisionRelationTransactionRequest
+} from "./decision-relation-transaction-types.ts";
+export { decisionRelationTransactionRequiresHistoryBaseline } from "./decision-relation-transaction-support.ts";
+
+export function prepareDecisionRelationTransaction(
+  scan: DecisionPreparationContext,
+  request: DecisionRelationTransactionRequest,
+  currentTimestamp: () => string,
+  historyBaseline: DecisionHistoryBaseline | null,
+  records: DecisionRecordLookup = createDecisionRecordLookup(scan.records)
+): DecisionRelationTransactionPreparation {
+  const successors = prepareSuccessors(
+    { scan, records },
+    request.successors,
+    request.relationOverride,
+    currentTimestamp(),
+    request.kind === "discard"
+  );
+  if (successors.status === "error") return successors;
+  const discarded = prepareDiscardDecisionEligibility(
+    scan,
+    request.discardId,
+    records
+  );
+  if (discarded.status === "error") return discarded;
+  const predecessorSelection = directPredecessors(
+    records,
+    successors.records,
+    scan.publishedBaseline
+  );
+  if (predecessorSelection.errors.length > 0)
+    return decisionFailure(predecessorSelection.errors);
+  const graphPlan: DecisionRelationGraphPlan = {
+    archivedPredecessors: predecessorSelection.activeRecords,
+    discardedRecord: discarded.record,
+    successors: successors.records
+  };
+  const graphFailure = relationGraphFailure(
+    scan,
+    graphPlan,
+    predecessorSelection.errors
+  );
+  if (graphFailure !== null) return graphFailure;
+  const previewRecords = projectDecisionRelationGraph(scan, graphPlan);
+  const strategy = relationStrategyFor(graphPlan.successors);
+  const strategyFailure = decisionRelationConsistencyFailure(
+    strategy,
+    graphPlan,
+    previewRecords
+  );
+  if (strategyFailure !== null) return strategyFailure;
+  const attention = relationTransactionAttention(
+    predecessorSelection.historyAttentionTargets,
+    request,
+    graphPlan,
+    historyBaseline
+  );
+  if (attention !== null) return attention;
+  return relationTransactionChanges(graphPlan, successors.establishedAt);
+}
+
+function relationGraphFailure(
+  scan: DecisionPreparationContext,
+  graphPlan: DecisionRelationGraphPlan,
+  predecessorErrors: readonly string[]
+): DecisionApplicationFailure | null {
+  if (predecessorErrors.length > 0) return decisionFailure(predecessorErrors);
+  const operationConflicts = graphPlanOperationConflicts(graphPlan);
+  if (operationConflicts.length > 0) return decisionFailure(operationConflicts);
+  const discardReferenceErrors = discardedDecisionReferenceErrors(
+    scan,
+    graphPlan
+  );
+  return discardReferenceErrors.length === 0
+    ? null
+    : decisionFailure(discardReferenceErrors);
+}
+
+function decisionRelationConsistencyFailure(
+  strategy: ReturnType<typeof relationStrategyFor>,
+  graphPlan: DecisionRelationGraphPlan,
+  previewRecords: ReturnType<typeof projectDecisionRelationGraph>
+): DecisionApplicationFailure | null {
+  const strategyErrors = strategy.shapeErrors(graphPlan.successors);
+  if (strategyErrors.length > 0) return decisionFailure(strategyErrors);
+  const previewIssues = decisionRelationConsistencyIssues(previewRecords);
+  if (previewIssues.length > 0)
+    return decisionFailure(previewIssues.map((issue) => issue.message));
+  const closureErrors = strategy.closureErrors(
+    graphPlan.successors,
+    previewRecords
+  );
+  return closureErrors.length === 0 ? null : decisionFailure(closureErrors);
+}
+
+function relationTransactionAttention(
+  historyAttentionTargets: Parameters<
+    typeof prepareUnrecordedHistoryAttention
+  >[0],
+  request: DecisionRelationTransactionRequest,
+  graphPlan: DecisionRelationGraphPlan,
+  historyBaseline: DecisionHistoryBaseline | null
+): DecisionRelationTransactionPreparation | null {
+  const unrecordedAttention = prepareUnrecordedHistoryAttention(
+    historyAttentionTargets,
+    request.keepUnrecordedHistory,
+    historyBaseline
+  );
+  if (unrecordedAttention !== null) return unrecordedAttention;
+  return prepareRecordedDiscardAttention(
+    graphPlan.discardedRecord,
+    request.deleteRecorded,
+    historyBaseline
+  );
+}
+
+function relationTransactionChanges(
+  graphPlan: DecisionRelationGraphPlan,
+  establishedAt: string
+): DecisionRelationTransactionPreparation {
+  const changes: DecisionFileChange[] = [];
+  for (const predecessor of graphPlan.archivedPredecessors) {
+    const prepared = prepareArchivedDecisionChange(predecessor);
+    if (prepared.status === "error") return prepared;
+    changes.push(prepared.change);
+  }
+  for (const successor of graphPlan.successors) {
+    if (
+      !successor.candidate &&
+      relationsEqual(successor.sourceRelations, successor.finalRelations)
+    )
+      continue;
+    changes.push(successorRelationChange(successor, establishedAt));
+  }
+  if (graphPlan.discardedRecord !== null)
+    changes.push(discardDecisionChange(graphPlan.discardedRecord));
+  return {
+    archivedPredecessors: graphPlan.archivedPredecessors,
+    changes,
+    discardedRecord: graphPlan.discardedRecord,
+    relationReview: relationReview(graphPlan.successors),
+    status: "ok",
+    successors: graphPlan.successors
+  };
+}
+
+function relationReview(
+  successors: readonly DecisionRelationGraphPlan["successors"][number][]
+): DecisionRelationReview {
+  return {
+    phase: "preflight",
+    sources: successors
+      .map((successor) => ({
+        action: successor.candidate
+          ? ("establish" as const)
+          : relationsEqual(successor.sourceRelations, successor.finalRelations)
+            ? ("unchanged" as const)
+            : ("replace" as const),
+        after: successor.finalRelations.map(copyRelation),
+        before: successor.sourceRelations.map(copyRelation),
+        sourceId: successor.record.decisionId
+      }))
+      .sort((left, right) =>
+        left.sourceId < right.sourceId
+          ? -1
+          : left.sourceId > right.sourceId
+            ? 1
+            : 0
+      )
+  };
+}
+
+function copyRelation(
+  relation: DecisionRelationGraphPlan["successors"][number]["finalRelations"][number]
+) {
+  return relation.summary === undefined
+    ? { target: relation.target, type: relation.type }
+    : {
+        summary: relation.summary,
+        target: relation.target,
+        type: relation.type
+      };
+}
+
+function successorRelationChange(
+  successor:
+    | Extract<
+        DecisionRelationGraphPlan["successors"][number],
+        { candidate: true }
+      >
+    | Extract<
+        DecisionRelationGraphPlan["successors"][number],
+        { candidate: false }
+      >,
+  establishedAt: string
+): DecisionFileChange {
+  const source = successor.record.source;
+  const nextProjection = {
+    ...source.document,
+    relations: successor.finalRelations
+  };
+  const document = successor.candidate
+    ? {
+        alignment: successor.alignment,
+        createdAt: establishedAt,
+        status: "active" as const
+      }
+    : source.document;
+  return {
+    decisionPath: successor.record.decisionPath,
+    expectedText: source.text,
+    nextText:
+      serializeDecisionFrontmatter(
+        successor.record.decisionId,
+        nextProjection,
+        nextProjection.tags,
+        document
+      ) + source.body
+  };
+}
+
+export function decisionRelationTransactionMessage(
+  prefix: string,
+  prepared: Extract<DecisionRelationTransactionPreparation, { status: "ok" }>
+): string {
+  const archived =
+    prepared.archivedPredecessors.length === 0
+      ? ""
+      : " and archived new active predecessors " +
+        prepared.archivedPredecessors
+          .map((record) => record.decisionId)
+          .join(", ");
+  const discarded =
+    prepared.discardedRecord === null
+      ? ""
+      : " and discarded decision " + prepared.discardedRecord.decisionId;
+  return prefix + archived + discarded + ".";
+}

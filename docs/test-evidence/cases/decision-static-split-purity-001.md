@@ -1,7 +1,7 @@
 ### Case DECISION-STATIC-SPLIT-PURITY-001: 严格关系检查拒绝不纯拆分后继
 
 Tests:
-- `test:0bc16347f52804a3f3471db949b091de86a6e98c96022028a42390feb30cc816`
+- `test:c8454be4624f741c0601a2055a44f2982836f3352e18954bc2c3b996b31dba06`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-PRESERVED-INDEX-DELETION-001: worktree 恢复不覆盖未选 pending 删除
 
 Tests:
-- `test:b280aae137ee482c65174523c496961fb1eb1f0f6aed9c4c0362eba92770dcb1`
+- `test:baaec37034e6eeba451cc4c961dad38fc52679b18098ed777073273871832a83`
 
 Tags:
 - `investigation-report`

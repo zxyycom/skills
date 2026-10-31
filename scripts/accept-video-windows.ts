@@ -1,7 +1,10 @@
 import { access, realpath } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
-import { repoRoot, resolveCommandExecution } from "./environment-command.js";
+import {
+  repoRoot,
+  resolveCommandExecution
+} from "./environment/environment-command.js";
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2).filter((arg) => arg !== "--");

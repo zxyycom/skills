@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-GROUPED-RECOVERY-001: 分组 Evolve 在发布后 writer 拒绝时保留提交且不输出成功 review
 
 Tests:
-- `test:65be402f407d5f6befe9007c7d8459d27a14daee794e1354b8ff8410deb9120e`
+- `test:0a65d98bc83c532644a4270f7b73fa7dbe5c7db03d71692c04fd85f2005fb218`
 
 Tags:
 - `decision-records`

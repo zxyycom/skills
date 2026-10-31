@@ -10,24 +10,24 @@
 import {
   consumePreparedStateIndex,
   type PreparedStateIndex
-} from "./prepared.ts";
+} from "./prepared/prepared.ts";
 import {
   createProjectionContext,
   normalizeStateIndex,
   projectStateIndexState,
   readonlyStateIndexMetadata,
   validateCompleteStateIndex
-} from "./projection.ts";
+} from "./protocol/projection.ts";
 import {
   materializeEffectiveEntries,
   queryMaterializedStateIndex,
   stateIndexEntryOf
-} from "./query.ts";
+} from "./query/query.ts";
 import {
   bindMaterializedEntries,
   type MaterializedStateIndexEntry
-} from "./query-fields.ts";
-import { isPlainRecord } from "./record.ts";
+} from "./query/query-fields.ts";
+import { isPlainRecord } from "./protocol/record.ts";
 import { isStateIndexText, stateIndexQueryMaximumLimit } from "./schemas.ts";
 import type {
   JsonObject,
@@ -43,8 +43,8 @@ import type {
 } from "./types.ts";
 import { defineStateIndexDefinition, expectationOf } from "./definition.ts";
 import { diagnostic } from "./diagnostics.ts";
-import { readonlyFrozenStateIndex } from "./frozen-json.ts";
-import { validateStateIndexValue } from "./validation.ts";
+import { readonlyFrozenStateIndex } from "./protocol/frozen-json.ts";
+import { validateStateIndexValue } from "./protocol/validation.ts";
 import type {
   StateIndexAllQuery,
   StateIndexQueryOptions,

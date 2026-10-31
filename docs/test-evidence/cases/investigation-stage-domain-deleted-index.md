@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-DOMAIN-DELETED-INDEX-001: domain 保留 pending 索引删除
 
 Tests:
-- `test:0a26b18334515af1ef08b8f15087406eaff66d96f264e8018ccd928de1ea869b`
+- `test:f1d0670ad43e94afc6f52d4a93dd35991dd1c47035cc3bf8da0962ae067a83c9`
 
 Tags:
 - `investigation-report`

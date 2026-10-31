@@ -1,8 +1,8 @@
 ### Case RECORD-SELECTED-SOURCE-SAFETY-001: 局部来源安全与fresh表示保护
 
 Tests:
-- `test:01856ac07ce3376d487b5707ab9ca383b64436e3115d4f1c1fa8c68774b3fd1e`
-- `test:55d5e20425e199d51403345089b4fe0e169ed33cb58c3a3822cc27bdbd82ee89`
+- `test:a70423865ce37b6b1956b593e5d09f1bca882f65da8e0d666c8ca840bbae0e9e`
+- `test:cc44ecab0849e5fb7e5dcc4c982b13c3646dcd1502de77511d25e2c3edcec3d8`
 
 Tags:
 - `decision-records`

@@ -1,9 +1,9 @@
 ### Case INVESTIGATION-BATCH-DISCOVERED-SOURCES-001: 同次发现集合按唯一身份解析来源
 
 Tests:
-- `test:0fb0c05d78326d68de0032da7add14368cc087c40fc38f93c61bb67886fdf891`
-- `test:75176207984ee344b72a86edc4dd6f97895e63e3a505f7869931211ed7ac1744`
-- `test:b643388992af8350c37dedbd5b25e9b3e69bb22b5d739a7b2d7aa7137eb75f89`
+- `test:145d71fd8e57ed4dacd1c876ac2dc62b2579dca6dba97f5e7a025c7097483fb5`
+- `test:20b8052c88e9e31acb2433e35eb2896ddfd610cda08d45a0226073ae63c340d1`
+- `test:cea090b00ced1698d1fa3094c0fba08310f2fb7a3dbd6fc000d03b90b20e771f`
 
 Tags:
 - `investigation-report`

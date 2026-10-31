@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-023: 版本基线窗口
 
 Tests:
-- `test:3ee1b81d8fe763b7f3cf752b9f87865de4ae4fe5f2222bfe4b3ad5b31e3abea5`
+- `test:f66ef1f798810b1c3e10e22402ef19608d9aeb65d9c59cebf3c37b6b31938cbc`
 
 Tags:
 - `record-cost`

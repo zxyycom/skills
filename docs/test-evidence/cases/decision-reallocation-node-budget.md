@@ -1,7 +1,7 @@
 ### Case DECISION-REALLOCATION-NODE-001: 分发同进程 trace 保留完整事件与默认预算阻断
 
 Tests:
-- `test:09edb1f734fffd9af0da4c2bb343c3f49185a6dc9abdfdb206342e229d2681e0`
+- `test:4ea2c07f1cee3db6fb4c63cc5521e38872e18d398253ceddd00316c635a3e841`
 
 Tags:
 - `generated-runtime`

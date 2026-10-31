@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-LAZY-SCOPE-001: 替换与回滚快照各自独立构图
 
 Tests:
-- `test:058222e67664cacfe94d0ac2681b75a3f44b8b8b95c0a73ddc2db9f257015a91`
+- `test:48eb3d0df598ab6639e8b770ca0ebaa1c8fbcd3c44ca12a08101704e6a1e6205`
 
 Tags:
 - `investigation-report`

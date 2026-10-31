@@ -1,7 +1,7 @@
 ### Case GATE-NATIVE-DURATION-BUDGET-001: CLI 按原生 duration 计算预算
 
 Tests:
-- `test:87c27bad4bfe1b47c7cc8e864e6f0a9e29b2ac769feb70d3a078fc90018b7ad3`
+- `test:3bf8df9034599514c468d0126f9fd51ce4ba0ab74c30c7de6631ad417b8aabd1`
 
 Tags:
 - `repository-tooling`

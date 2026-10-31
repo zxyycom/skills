@@ -1,7 +1,7 @@
 ### Case SKILL-PACKAGE-SOURCE-VERSION-001: 源码及独立安装基线承载版本
 
 Tests:
-- `test:2441985e1a697e552b0d9678d8c4bb2ac1259a59f88e70062feddbb46c05544f`
+- `test:1ebe7551a88d9a029ed564e27f373452292c91cb7cbbf9a215db73a6c4596527`
 
 Tags:
 - `repository-tooling`

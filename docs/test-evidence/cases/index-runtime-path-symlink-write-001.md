@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-PATH-SYMLINK-WRITE-001: 拒绝经符号链接逃逸的索引写入
 
 Tests:
-- `test:2ee34a7c5f8bb73c76e517edc531133f9eb2fb89591c08d14f71a8217d5bc68f`
+- `test:22b8372080c744bb090bbcfe712525998d720e4e794d38674b989437d0e63c82`
 
 Tags:
 - `index-runtime`

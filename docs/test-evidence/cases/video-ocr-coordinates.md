@@ -1,9 +1,9 @@
 ### Case VIDEO-OCR-COORDINATES-001: OCR 结果保持像素坐标与 ROI 契约
 
 Tests:
-- `test:280c36fa90c97a2a3da6747f64f245d85347c8935208f95eb79ed666b508d533`
-- `test:4c0fb2193a41847d44dc98886e9bc3360412e58185bcf0bbda1f8158ea2c4d89`
-- `test:e9f4904af2bcc026880a6604a619e9c6da2aefb09767d198002d2be65bb75f89`
+- `test:17d74b15649dda60ecb7e16613eb82f82212beea47c37b2d0bcfc0c4ea1d2b9e`
+- `test:353931c9d0c1be95131a79b07b63298fe78f5c50dc7f8c88d3ee4b593b326f52`
+- `test:e43cff79666c24629f3679887473b41dcddd7829c8501d1352dbc5a11ee0df3f`
 
 Tags:
 - `video-understanding`

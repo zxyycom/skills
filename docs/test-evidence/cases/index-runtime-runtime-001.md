@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-RUNTIME-001: 通过直接操作查询并获取运行时状态
 
 Tests:
-- `test:ac5c8519d6b86fa42e2b17e148806b85a77e0a657e36c7738f9f2be45842b2e5`
+- `test:6dc7956698eaf09abcfe5e14b6456ae3cdff953cd233b6ff0ec63d247a8464d6`
 
 Tags:
 - `index-runtime`

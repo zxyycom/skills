@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-ADAPTER-001: 适配合同与凭据隔离
 
 Tests:
-- `test:87aa775692550a9a2ee8961603e06ba81cb2ec40f4bda9eed01aab5e71bceab3`
+- `test:ad2e0d1edf155e8bf25870b5fd62e4e174da59ad8d1f1064d6725cf75045de02`
 
 Tags:
 - `lightweight-judgment`

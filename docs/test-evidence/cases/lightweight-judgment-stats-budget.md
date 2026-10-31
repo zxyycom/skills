@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-BUDGET-001: 非法参数资源与精度拒绝
 
 Tests:
-- `test:7126bfcbd2bab5659df73280b6cf5fa1cc1c6246cd206265d0d8e2f0dccb72a0`
+- `test:cbba1ea4d534515d26466bdab9fdfbbbd8960a385b30bdc39ae3ecc87a7ea816`
 
 Tags:
 - `lightweight-judgment`

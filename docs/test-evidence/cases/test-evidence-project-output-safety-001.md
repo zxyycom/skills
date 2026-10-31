@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-PROJECT-OUTPUT-SAFETY-001: 项目生产器拒绝不支持命令并保留独占输出
 
 Tests:
-- `test:f1a7d3ea9aa625f10475402ae5af0454887bb174f4ca9a2cfe42a5254a84dfda`
+- `test:d493c1119b079916405b6a7a529cd0ff57d354976ae909827b50ae18ffcbd168`
 
 Tags:
 - `repository-tooling`

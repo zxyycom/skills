@@ -1,1 +1,1 @@
-export { openGitVersionControl } from "./git-repository.ts";
+export { openGitVersionControl } from "./git/git-repository.ts";

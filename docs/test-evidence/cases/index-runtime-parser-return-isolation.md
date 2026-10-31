@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-PARSER-RETURN-ISOLATION-001: 隔离领域 parser 返回的外部可变对象
 
 Tests:
-- `test:c5ec78f8761c5b1b743e1930494260a81e672fc17e6420ad63d9ee18dd081c3c`
+- `test:de7c88f82eb8f942fd9588a065b5edbd177337cda9fec184c9af2eb5221b3374`
 
 Tags:
 - `index-runtime`

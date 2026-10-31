@@ -1,8 +1,8 @@
 ### Case GATE-RELEASE-FULL-EXECUTION-001: release、cold 与 CI 不按 receipt 省略项目执行
 
 Tests:
-- `test:4a4eb24eb3b07c00dc4da66ba95063770fca8cc4278604c9bc30b7c9cbf6a870`
-- `test:8c75584b6b46a15fe5996b310b8271f60cf06a367315a9afbb2c2bbd11019978`
+- `test:4576387f82bd117c6c48a19b7333fd21c998cd404b83041740624f24b0930aca`
+- `test:dd17c56677c0c68b886ea9d17293b82f4ed29e68b5e7440985befdaa6f187165`
 
 Tags:
 - `repository-tooling`

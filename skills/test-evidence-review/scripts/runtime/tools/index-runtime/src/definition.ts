@@ -7,11 +7,11 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/test-evidence-review
  * Rebuild: bun run sync:test-evidence-cli
  */
-import { compareIndexText } from "./ordering.ts";
+import { compareIndexText } from "./protocol/ordering.ts";
 import {
   validateDescriptorKeys,
   validateQuerySource
-} from "./query-source-validation.ts";
+} from "./query/query-source-validation.ts";
 import { isStateIndexKeyName, isStateIndexNamespace } from "./schemas.ts";
 import type {
   JsonObject,

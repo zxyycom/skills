@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-LAZY-QUERY-001: 普通列表与元数据搜索按需构图
 
 Tests:
-- `test:d4462dbd6befc958bada172606f95d76147d98d85fe8ebf9f809f2d146a8a3fe`
+- `test:6e0110f632c526440465f9e71de68d2764b075fd70dec4a42d3fc44e3973f584`
 
 Tags:
 - `investigation-report`

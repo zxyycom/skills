@@ -1,7 +1,7 @@
 ### Case DECISION-TAG-METADATA-001: 标签 Markdown 往返解析
 
 Tests:
-- `test:dd18d93b69fab8793fdf5b93868a6b576b8e327b8aa43ad14001c70efca2c0be`
+- `test:023fef9c5bcbd23061bdd5dee77d319560ec10314b458fc688c23c61edca7398`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-COLLECTION-ROOT-001: 集合目录误传 --root 时给出恢复形态
 
 Tests:
-- `test:7b3053e9226968a68c779f407d0093ad433f6a647c48a44424d3843f0405ddd3`
+- `test:db36b69a44fa52b8a3e756e337f7309f96865c47a9b98bcc81f30bc8de724f7e`
 
 Tags:
 - `decision-records`

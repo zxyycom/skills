@@ -23,11 +23,11 @@ relations: []
 ## 调查范围与依据
 
 - [共享 owner](../../tools/shared/version-control.md) 与 [文件类型](../../tools/shared/src/version-control/types.ts) 定义快照及替换边界。
-- [期望比较](../../tools/shared/src/version-control/git-pending-values.ts) 原先将每个条目模式与固定普通模式比较；[目标重建](../../tools/shared/src/version-control/git-pending.ts) 也只复用普通模式，其他条目按普通模式重建。
-- [调查范围组装](../../tools/investigation-report/src/staging-domain.ts) 从整个 pending 范围建立目标；原先以路径到字节的 Map 重组，不能传递文件表示。[来源读取与漂移核对](../../tools/investigation-report/src/staging-domain-writes.ts) 原先也只读取与比较字节。
+- [期望比较](../../tools/shared/src/version-control/git/pending/git-pending-values.ts) 原先将每个条目模式与固定普通模式比较；[目标重建](../../tools/shared/src/version-control/git/pending/git-pending.ts) 也只复用普通模式，其他条目按普通模式重建。
+- [调查范围组装](../../tools/investigation-report/src/staging/domain/staging-domain.ts) 从整个 pending 范围建立目标；原先以路径到字节的 Map 重组，不能传递文件表示。[来源读取与漂移核对](../../tools/investigation-report/src/staging/domain/staging-domain-writes.ts) 原先也只读取与比较字节。
 - 修复前的内存单变量对照使用 220 个相同路径、stage-0 条目：全为 100644 时返回 true；只把 measure.sh 与 summarize.py 两项设为 100755 后返回 false。它证明固定模式限制，但不是原现场的全量重演。
 - 修复前运行 `bun run check:investigation-report-check` 通过，证明当时分发脚本与源码一致，而非本地生成漂移。
-- 本轮新增 [共享表示测试](../../tools/shared/tests/version-control-representation.test.ts) 与 [调查表示测试](../../tools/investigation-report/tests/staging-representation.test.ts)，在每个 case 私有的真实 Git 仓库中检查模式、对象/内容、冲突拒绝和完整 index 恢复；不对主仓库执行测试暂存。
+- 本轮新增 [共享表示测试](../../tools/shared/tests/version-control/protocol/version-control-representation.test.ts) 与 [调查表示测试](../../tools/investigation-report/tests/staging/staging-representation.test.ts)，在每个 case 私有的真实 Git 仓库中检查模式、对象/内容、冲突拒绝和完整 index 恢复；不对主仓库执行测试暂存。
 
 ## 调查结果与边界
 

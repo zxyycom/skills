@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-PREVIEW-SOURCE-001: 同步预演拒绝来源无效或期间漂移
 
 Tests:
-- `test:0dec7081a08188d3b9b55c13f191b8a8e8169c25d6a76c6b0aeec6c9d0e51020`
+- `test:29df4dda46d8e6be44f3cf3e9c59f1dc744837987cde34a6fc6baa39ae18f50f`
 
 Tags:
 - `index-runtime`

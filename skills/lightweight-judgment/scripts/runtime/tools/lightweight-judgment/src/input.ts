@@ -8,7 +8,11 @@
  * Rebuild: bun run sync:lightweight-judgment-cli
  */
 import { fail } from "./failure.ts";
-import { preserveKeyOrder, parseJson, type JsonValue } from "./json.ts";
+import {
+  preserveKeyOrder,
+  parseJson,
+  type JsonValue
+} from "./protocol/json.ts";
 import type { Options } from "./options.ts";
 
 export type InputRuntime = Readonly<{

@@ -1,7 +1,7 @@
 ### Case DECISION-LAZY-GRAPH-CONTENT-001: 正文搜索按已发布关系筛选当前正文
 
 Tests:
-- `test:ee7400aba4304d49c7ba77c70c9113c6c35462ba223c5b98cd5f59d84490ad4b`
+- `test:a6ec0ac0ecdb0af6634d313b48ecf2c78c2a018ea021740bf03315550052ecdd`
 
 Tags:
 - `decision-records`

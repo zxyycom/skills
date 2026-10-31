@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-PUBLISH-CURRENT-DEPENDENCY-001: 发布保留未选依赖的当前正文
 
 Tests:
-- `test:f269cde7cdd061bf1d5d64ce688d89873cdf13fd721dae5b705150af6fd74724`
+- `test:41e72406a4792dbcaa0ab77c49ebffbe804020a6fc560a869639a7a9752f1f0c`
 
 Tags:
 - `investigation-report`

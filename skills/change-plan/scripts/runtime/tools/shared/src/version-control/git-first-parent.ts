@@ -9,8 +9,8 @@
  */
 import { execFile } from "node:child_process";
 import { classifyVersionControlCause, VersionControlError } from "./errors.ts";
-import { parseGitFirstParentRevisionChanges } from "./git-numstat.ts";
-import { parseObjectId } from "./git-core.ts";
+import { parseGitFirstParentRevisionChanges } from "./git/revision/git-numstat.ts";
+import { parseObjectId } from "./git/git-core.ts";
 import type {
   RevisionId,
   VersionControlRepository,

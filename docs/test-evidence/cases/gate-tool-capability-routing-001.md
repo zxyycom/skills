@@ -1,9 +1,9 @@
 ### Case GATE-TOOL-CAPABILITY-ROUTING-001: 领域输入只激活明确工具订阅者并拒绝孤儿输入
 
 Tests:
-- `test:46c4385cfe158f39637f7b7b9a1bb6410fbe87542cfc09aa8313bc2fb21d67c7`
-- `test:da36d0d60693208423ac53def4b8a41a0b0cd563580d571e4db94770835da7fb`
-- `test:fe389c82da692fa25deee6686c3384179cc0ee14cb75788dd1c2361853f8d8cc`
+- `test:9fd439a7518966416708445232586c44d3c06726a0b2a8ced9daaff8cab1a6ab`
+- `test:ecb5c76d0aef27c87e3eff8c5f9d9132d77f294a0d204a8005b7fb21c3ca0e96`
+- `test:fb5ea74d69abe69ae09198f155e3f5c6dfad3e3cd5040637e4ce027205d927d3`
 
 Tags:
 - `repository-tooling`

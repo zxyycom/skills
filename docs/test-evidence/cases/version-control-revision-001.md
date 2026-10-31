@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-REVISION-001: 发现仓库根并读取修订快照
 
 Tests:
-- `test:e4fe6e722bdece0b0a5b22bc348eb3b1932e199eca7d0f657e665cc5389f85bf`
+- `test:f06312d425f1aad77bc2a3723f6d54036fa02a630c4991bfd88f3500da694fc0`
 
 Tags:
 - `version-control`

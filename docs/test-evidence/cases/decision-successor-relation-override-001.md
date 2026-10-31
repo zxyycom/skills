@@ -1,7 +1,7 @@
 ### Case DECISION-SUCCESSOR-RELATION-OVERRIDE-001: 后继局部完整 override 优先于事务默认值
 
 Tests:
-- `test:683bc9ad7b65829c45335d083232297fe6b1924fad74148dbd5c8e20ed77694c`
+- `test:d16e09d5760aa1d1dca198bed6283896b8655a45714d07c913b57649a780048e`
 
 Tags:
 - `decision-records`

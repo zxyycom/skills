@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-COLLECTION-LAYOUT-001: full validation rejects nested report directories
 
 Tests:
-- `test:a98ad0bc1cb5abc2a86ca959ae392b381d3c563487c49b56e3a38f70d230d2ee`
+- `test:7f4c0fa39ac0bad0bba5d3531b62b730cb180481aa21ae1fd63b4b8f3272b0fa`
 
 Tags:
 - `investigation-report`

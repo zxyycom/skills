@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-FILESYSTEM-DIAGNOSTIC-002: 非文件系统 source 回调失败不虚构文件系统事实
 
 Tests:
-- `test:747600f28dcfe52e336acfdad52a4f334ad95d01f27f3d2ad604f1b9a829227e`
+- `test:add94e79348f4ab045b086b8f41c984029f75b198a8a2812e6252e32ce88e6ce`
 
 Tags:
 - `index-runtime`

@@ -1,7 +1,7 @@
 ### Case DECISION-STATE-SNAPSHOT-001: 状态快照与后续源变更隔离
 
 Tests:
-- `test:01236c716afe03b3658316bfa073b9113b067f37241329cc404060a121ebeb7a`
+- `test:b6e590bc020128a68ad283801f586fd5bc9643f63dd60de243ba77056da49189`
 
 Tags:
 - `decision-records`

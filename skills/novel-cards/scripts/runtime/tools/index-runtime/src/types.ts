@@ -9,7 +9,7 @@
  */
 import type { FileSystemErrorCauseCategory } from "../../shared/src/node/filesystem-diagnostic.ts";
 import type { VersionControlErrorCauseCategory } from "../../shared/src/version-control/errors.ts";
-import type { DeepReadonly, JsonObject } from "./json.ts";
+import type { DeepReadonly, JsonObject } from "./protocol/json.ts";
 import type {
   StateIndex as StateIndexValue,
   StateIndexKeyMode
@@ -22,7 +22,7 @@ export type {
   JsonValue,
   ReadonlyJsonObject,
   ReadonlyJsonValue
-} from "./json.ts";
+} from "./protocol/json.ts";
 export type {
   StateIndexFilter,
   StateIndexKeyMode,

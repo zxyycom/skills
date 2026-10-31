@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-INVALID-OWNER-ANCHOR-001: owner report must exist for a report-owned resource
 
 Tests:
-- `test:a3c0a77d22dbb1ee18f1a169bc11da84cc8600ee756e148bf4ec1ef80022c173`
+- `test:43fadcebbd6a3054d8b5d63cef8635dc983daff3bdc8a261cbb8cbc775cbc1d9`
 
 Tags:
 - `investigation-report`

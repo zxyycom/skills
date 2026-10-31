@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-031: 正文接收失败保留已知 HTTP 错误
 
 Tests:
-- `test:041a9a51d650a2f3f44415e252081fb83f87923abf029e8406b64553f8db9f62`
+- `test:9eaa2cb5d3d43b166db50a463ff09224e1963be9bb9f0e3b796f689eaf85dd5b`
 
 Tags:
 - `lightweight-judgment`

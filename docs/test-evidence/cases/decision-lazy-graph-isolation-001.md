@@ -1,7 +1,7 @@
 ### Case DECISION-LAZY-GRAPH-ISOLATION-001: 新加载快照隔离变更关系
 
 Tests:
-- `test:27c6b073bc772a87f1d5f865f5df87a0ce6d06f153293b3399700c66762cf22d`
+- `test:560448cded3e927a3b22e748a26f68a67f55f4a9915d16fc8b75972d129848ad`
 
 Tags:
 - `decision-records`

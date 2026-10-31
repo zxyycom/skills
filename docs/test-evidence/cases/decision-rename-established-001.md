@@ -1,7 +1,7 @@
 ### Case DECISION-RENAME-ESTABLISHED-001: 建立记录 rename 保留日期并重建索引
 
 Tests:
-- `test:1e3a07c832554098be105599763555de6aa0920ae9c560912d9c2135ae46e0da`
+- `test:869b2b9ccf686a1fbf3e2dad2de41a0f0a96e27cc2c23fe1b5259d00f5963dc6`
 
 Tags:
 - `decision-records`

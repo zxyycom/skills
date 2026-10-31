@@ -1,7 +1,7 @@
 ### Case GATE-MARKDOWN-PROOF-COLLECTION-001: Markdown 内容证明的目录读取失败
 
 Tests:
-- `test:c90e5f76f8554783a0180502198be9d9a0a48b194106cc2792acfc6fb9e90674`
+- `test:7dff8d025a7bd50368f05a2233f0112ddadbb2839fb59bd3539dd5875f15ae1e`
 
 Tags:
 - `repository-tooling`

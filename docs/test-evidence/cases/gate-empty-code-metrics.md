@@ -1,7 +1,7 @@
 ### Case GATE-EMPTY-CODE-METRICS-001: 预期代码领域的空输入不伪装为通过或 flag 禁用
 
 Tests:
-- `test:b1c62300db68959ea1011a85f06fb08d3b4db12d8df69132ac9b4c19f38cadca`
+- `test:a47033347f59d1f945266a9e9995ee9ed2963a70f7941646a77343f1f7fe34b7`
 
 Tags:
 - `repository-tooling`

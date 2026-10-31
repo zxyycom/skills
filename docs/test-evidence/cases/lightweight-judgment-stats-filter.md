@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-FILTER-001: UTC 窗口与参数绑定筛选
 
 Tests:
-- `test:ef30442b36bbaa25795d8d5475a5961156c9a4c413b666625912e192e4f7c6a0`
+- `test:690203c9a02a709f327563cb5f3dc051ca7dd569324fc0cce36aa22b794caed2`
 
 Tags:
 - `lightweight-judgment`

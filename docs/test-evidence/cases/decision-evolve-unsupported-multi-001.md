@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-UNSUPPORTED-MULTI-001: Evolve 拒绝未获策略支持的普通多后继形状
 
 Tests:
-- `test:a74dac1a7da45b121c7b49109615ed90a3238667c07cd29e6b158dc32220271d`
+- `test:de05ae7f2517ecbd422bd2f70ebe0effd67a947ab9c1e1e97911a8ecddcf7cc5`
 
 Tags:
 - `decision-records`

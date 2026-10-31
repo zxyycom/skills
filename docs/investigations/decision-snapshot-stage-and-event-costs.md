@@ -29,7 +29,7 @@ relations:
 - 事件和渲染使用 d/V=10、100、1000 的合成星形、链和事件样本。七份原终端完整文本形成[原生 golden 输入](../../tools/decision-records/tests/fixtures/trace-render-goldens.json)，覆盖切片外 owner、重叠事件上下文和摘要转义；新输出只允许增加声明来源的一行。
 - 发布新增决策后真实集合为 N=380；生成 Node CLI 的 list、trace、metadata 搜索各总 readFile=1、Markdown readFile=0，全部退出 0 且 stderr 为空。对原生成 CLI 的旧 N=379 样本，各总 readFile=380、Markdown readFile=379。规模增加一条记录不影响零来源读取结论。
 - 原/新事件适配器另以真实发布集合及稀疏重划、归并加普通边、拆分/归并星形，遍历全部 anchor、三方向、depth=0/1/2/all、budget=1/2/3/5/10/50/1000，共 34,440 次完整 selection 深比较通过，包含 trace/context、coverage、frontier 与 blockedEvent。
-- 稳定回归入口包括[快照](../../tools/decision-records/tests/query-snapshot.test.ts)、[阶段来源](../../tools/decision-records/tests/stage-sources.test.ts)、[事件接纳规模](../../tools/decision-records/tests/trace-admission-complexity.test.ts)、[方向与事件](../../tools/decision-records/tests/trace-event-admission.test.ts)、[文本呈现](../../tools/decision-records/tests/cli-output-trace.test.ts)、[关系筛选](../../tools/decision-records/tests/relation-filter-complexity.test.ts)。Case 账本承接各最小测试的证明义务。
+- 稳定回归入口包括[快照](../../tools/decision-records/tests/queries/query-snapshot.test.ts)、[阶段来源](../../tools/decision-records/tests/staging/stage-sources.test.ts)、[事件接纳规模](../../tools/decision-records/tests/records/trace-admission-complexity.test.ts)、[方向与事件](../../tools/decision-records/tests/records/trace-event-admission.test.ts)、[文本呈现](../../tools/decision-records/tests/cli/cli-output-trace.test.ts)、[关系筛选](../../tools/decision-records/tests/queries/relation-filter-complexity.test.ts)。Case 账本承接各最小测试的证明义务。
 
 ## 调查结果与边界
 

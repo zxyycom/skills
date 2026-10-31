@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-FINALIZE-001: Finalize 预演零写入且精确 Plan 可删除
 
 Tests:
-- `test:c766a47c36a9d84411d7020841ad1afd6d7bea8d560bdf538f28787259c06b3d`
+- `test:c6d29cf2b985f8ba630191ec751b03eec09f063cda31a8b2b5a09791ad88ce73`
 
 Tags:
 - `change-plan`

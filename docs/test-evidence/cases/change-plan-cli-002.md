@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-CLI-002: CLI 与生成 Node runtime 保持 finalize preflight 协议
 
 Tests:
-- `test:2b602513dddd102621a1401a5406dd7f5d480f326b292669405d674549515846`
+- `test:6eed9df210929e58b3d35a6a501b72f34f5dad3c56e9deecb469a670488a970b`
 
 Tags:
 - `change-plan`

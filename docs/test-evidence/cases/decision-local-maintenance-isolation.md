@@ -1,7 +1,7 @@
 ### Case DECISION-LOCAL-MAINTENANCE-ISOLATION-001: 普通维护保留无关来源问题给显式检查
 
 Tests:
-- `test:f4411d42efb04e5374496684d2b0926cf54fc21acbc0d78132f6fa57a463675d`
+- `test:e2bb24356153379338f4e2045b3090a5c20aa3385a1b194e12b4d1df02362a7b`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LEASE-UUID-001: 索引内 lease UUID 不可重复
 
 Tests:
-- `test:65aa58944ed029447f353aaa43804f4b06816250fc4c31a94440205bb6469765`
+- `test:44faf2f61d7176537e5b4a995e7a16cdd9f0c5330f8e2977ec65ec71d2850865`
 
 Tags:
 - `task-graph`

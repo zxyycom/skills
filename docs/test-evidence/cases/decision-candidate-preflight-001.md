@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-PREFLIGHT-001: Lifecycle preflight 只读且要求 body-ready candidate
 
 Tests:
-- `test:3b273143a845d2c3010fd07e0d07d547dce7459be95b9e1e8bd1d2bfc8d3d409`
+- `test:c9c109bd1a953087eba8324f4dc51780a0e098f8d60ab1bbe574d9e25bded1cc`
 
 Tags:
 - `decision-records`

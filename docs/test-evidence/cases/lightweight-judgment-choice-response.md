@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-010: Choice 完整校验
 
 Tests:
-- `test:ac43a9b4ec52e24e4245772ad60b93c1ead77924f61cb96ab5c39d7105167951`
+- `test:09e179e54cc5c7bd05188787314dac37f3e2c254889b23ce99e436be53ec2413`
 
 Tags:
 - `lightweight-judgment`

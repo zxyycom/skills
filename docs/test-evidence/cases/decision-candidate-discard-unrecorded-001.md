@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-DISCARD-UNRECORDED-001: Discard 删除未被已记录集合包含的候选
 
 Tests:
-- `test:821b23c971c096d8f57acafcc80ba28d8492c8cd6d9098100238cfb9b0b4e020`
+- `test:1eb0c63a2d81463fcf3c7560802e0d8b039410893979b50e79b5a039411a71ba`
 
 Tags:
 - `decision-records`

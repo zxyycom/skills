@@ -91,7 +91,7 @@ Node v26.8.2 生成 CLI 在新进程中串行运行，文件缓存已暖；Bun 1
 
 原型独立 check 三对 wall 均下降，unchanged／preflight 也各三对下降；changed 有一对反向，wall 中位 **10.913→13.233 秒**。changed／preflight 原型 RSS 中位分别增加约 19.8／20.1 MiB。完整原型矩阵和逐对数值保存在资源；它们说明采用时已有延迟和内存取舍，不能与落地版混算。
 
-12 项原型 CLI 对照覆盖合法输入、BOM／CRLF、YAML 及字段错误、重复身份、正文、关系目标和采用字段；完整退出、stdout／stderr、索引 SHA 与最终文件差异一致。落地实现由[解析 owner](../../tools/decision-records/src/decision-metadata.ts)的 `DecisionMarkdownSource` 绑定原文与私有解析结果，成员发现和正式扫描消费同一来源；公开 raw 入口自行解析，fresh 独立重读。复用限于单阶段对象，无跨调用缓存或失效管理。
+12 项原型 CLI 对照覆盖合法输入、BOM／CRLF、YAML 及字段错误、重复身份、正文、关系目标和采用字段；完整退出、stdout／stderr、索引 SHA 与最终文件差异一致。落地实现由[解析 owner](../../tools/decision-records/src/records/decision-metadata.ts)的 `DecisionMarkdownSource` 绑定原文与私有解析结果，成员发现和正式扫描消费同一来源；公开 raw 入口自行解析，fresh 独立重读。复用限于单阶段对象，无跨调用缓存或失效管理。
 
 实施验证进一步确认：
 

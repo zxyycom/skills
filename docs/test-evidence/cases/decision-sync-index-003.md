@@ -1,7 +1,7 @@
 ### Case DECISION-SYNC-INDEX-003: 决策事务在同步索引持锁时快速失败
 
 Tests:
-- `test:f3c040fc3de70123c81084aff94a4431684cceb587d8d32eed18ecdd13ff99c6`
+- `test:ff932af914dd9fe0c2f8141dd419039441fc0c5360dbaddc8c6fab1bc71ece55`
 
 Tags:
 - `decision-records`

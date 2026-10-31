@@ -1,7 +1,7 @@
 ### Case RECORD-STAGE-INDEX-SELECTED-PAYLOAD-001: index 暂存只读取所选 payload 并保持未选身份
 
 Tests:
-- `test:433fd7f85e75ec3b48ff324d49269cf4817c4ad640160ec5cb5592d1dc343e65`
+- `test:6cc227a05990dd059f76f848dd2426c74ca4d6d1d21415d5da870ddc096396c7`
 
 Tags:
 - `index-runtime`

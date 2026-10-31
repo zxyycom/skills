@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-CHECK-STAGES-001: 检查按生命周期阶段应用制品契约
 
 Tests:
-- `test:e5e49a663f1a034b2b26d0c54a913b6e7819480b529e6d606887672047b56487`
+- `test:88c366901286066d403c97e6faf7fcbad936ec7d839cf6928a15758de4dc3655`
 
 Tags:
 - `change-plan`

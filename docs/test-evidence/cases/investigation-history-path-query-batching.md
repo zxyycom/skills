@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-HISTORY-PATH-QUERY-BATCHING-001: 历史前序按索引定位而非全集正文发现
 
 Tests:
-- `test:be30c8e31d76b394c232128d3a8c86c689c6f7e482da2ae20c85776af2d40061`
+- `test:0d2c309ef66f3f7774ed87f324c9a290f107ecf562a5c2394e70fcba026c8c5e`
 
 Tags:
 - `investigation-report`

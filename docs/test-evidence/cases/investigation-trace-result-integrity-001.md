@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-TRACE-RESULT-INTEGRITY-001: 追溯拒绝缺失成员的发布图
 
 Tests:
-- `test:2b65fbd0378f0e611a5eee1918af3ea11cfada79c47e58012e3e81dcbbb7abe0`
+- `test:e9144de73a3685f9d54beacff2b33990872f79ab7c9fb0abf579f3b0a6a66c71`
 
 Tags:
 - `investigation-report`

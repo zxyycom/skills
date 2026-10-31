@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-QUERY-STALENESS-001: CLI 区分快照查询与当前正文边界
 
 Tests:
-- `test:8003446d3824c4f6cce4f04fd3aae29e1b4db26552973b3a51769c7eab086ff5`
+- `test:b2cee07a0322a329fbbee5fd78e456c2ebfa104679b3948d9c5f138c928d7a11`
 
 Tags:
 - `investigation-report`

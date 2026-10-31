@@ -1,7 +1,7 @@
 ### Case DECISION-SELECTED-SYNC-MEMBERSHIP-001: Decision sync re-discovers complete established membership after an earlier scan
 
 Tests:
-- `test:1c15f2ac2296a56ee97045564c65ce1c19b0d75e6cc52b5847267218515d8a92`
+- `test:c12ef7eaaa0978a4943279cb583e64355419c0dd4c2dc82b2cc65a3b6d9f6da7`
 
 Tags:
 - `decision-records`

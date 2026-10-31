@@ -1,7 +1,7 @@
 ### Case WRITE-CANONICAL-CASE-003: 写对象失败时收束活动进程
 
 Tests:
-- `test:93c70ed15b854c413d41b98c2247d8e428d55b5308ab8d15eff14a322fcdcfbb`
+- `test:a7f6f42e308b3377d6bc4b6f6cbfcf135a901ccf5e1f19c3edd15fd6b1d4c7c8`
 
 Tags:
 - `write-canonical`

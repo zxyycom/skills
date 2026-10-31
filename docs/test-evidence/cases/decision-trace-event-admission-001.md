@@ -1,9 +1,9 @@
 ### Case DECISION-TRACE-EVENT-ADMISSION-001: Decision Trace 原子接纳关系事件
 
 Tests:
-- `test:19e4acf783da95bf4a9760d95a0b230e3cb6bc06c8a9ea11542b752d4e2f953f`
-- `test:7380352825be7a8e2eb8ceacecea8209b21befb3309872bea3b2e82f945b6087`
-- `test:7a57236594c453b8ffdae3c06e3c07e5ce561cb3dc71177a869bd2ca75c145fe`
+- `test:32ca9e1c00fe41bb4045e5cdd5aafad912bb5ff5efb307a4409a6415b00ef076`
+- `test:b284980dc4bce81314b172f19af07ff88f199f4f8ca5d618a3ef0da59e7f1dd4`
+- `test:e9111654edd7f74770843241cad251263f96c1fc5f6b56911888c1ced5b45f8c`
 
 Tags:
 - `decision-records`

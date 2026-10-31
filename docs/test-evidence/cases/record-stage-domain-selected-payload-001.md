@@ -1,7 +1,7 @@
 ### Case RECORD-STAGE-DOMAIN-SELECTED-PAYLOAD-001: domain 暂存只读取所选 payload 并保持未选身份
 
 Tests:
-- `test:6d2e9b5d54ae8c84f5caeb07a703cdddbbd54d01d6a1c8d40545d2bcce1ccfba`
+- `test:1504e422736c6eb134b6715f94b15693a9666fcac80fcf3f33f120669e8195cf`
 
 Tags:
 - `index-runtime`

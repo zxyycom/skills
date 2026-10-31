@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-LIST-RELATION-ERRORS-001: 关系名称歧义与索引失败保持原优先级
 
 Tests:
-- `test:584e2c3db49a100a822e6ebe14db4844e2f87bcba399b801f0bb59ec403241de`
+- `test:8839ba019121cf38937de6de2d6003840ce25e1349656d24b06dadc390408793`
 
 Tags:
 - `investigation-report`

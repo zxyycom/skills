@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-CHECK-METADATA-001: 检查只接受规范 Active Metadata
 
 Tests:
-- `test:eff5b11c2238ea5ee6c5acc9c9273ccc070e5c27b2767af51f9d326d4b1c692a`
+- `test:a9464328c401c2d8a1238bda66c4ea9cd74d9858559128486572ee00e808d609`
 
 Tags:
 - `change-plan`

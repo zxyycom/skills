@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-QUERY-SOURCE-PATH-001: index and show resolve a report id independently from its semantic sourcePath
 
 Tests:
-- `test:dc832830cbcb9bda5b2adad3407376afb08b65260e09c2c50090b04b9de81fac`
+- `test:8e14ad1cc2c3db77677dda12da406a9bc2bb51cc5a71335ab110d61714e126f0`
 
 Tags:
 - `investigation-report`

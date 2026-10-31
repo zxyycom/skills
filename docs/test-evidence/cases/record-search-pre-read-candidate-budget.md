@@ -1,7 +1,7 @@
 ### Case RECORD-SEARCH-PRE-READ-CANDIDATE-BUDGET-001: 候选硬限优先于来源读取
 
 Tests:
-- `test:72a681412286e65f7f4a9fbfc005f0aaff42d2432ee398f5f8d0a8ceb4b1ccae`
+- `test:5b060ac7eedc6d1f244d998e0f6f72afb3aa650b253f673ff2c144ff20a49ec8`
 
 Tags:
 - `record-search`

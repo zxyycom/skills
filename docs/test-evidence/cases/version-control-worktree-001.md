@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-WORKTREE-001: 将 linked worktree 作为独立仓库根打开
 
 Tests:
-- `test:c17de1661d0aaf3b82d81d1f2a4201b1cf51b6d5232d3eacf9a3cd78c794f09e`
+- `test:86b8f95d9b28f0f8fc03f16615e827750de0504fa66a028724200f902339a94b`
 
 Tags:
 - `version-control`

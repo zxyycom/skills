@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-SELECTED-OLD-OWNER-REMNANTS-001: 删除不可留下已知旧owner路径
 
 Tests:
-- `test:1ebaff9644f828b66f2a3fe6fdda21aa5eb7ccbee7e74e57c71cf760be3ff936`
+- `test:727f625cf4f8e0a429fdcc092f6361a77cdfbfed827a9a8d562fce97e6a76e26`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-TOPOLOGY-001: 父子环、展开依赖环和悬空引用均被识别
 
 Tests:
-- `test:6acc1bf79d843359de242da8babf9b948676679fcc2b4c8be29a966e5c8321fe`
+- `test:db1306ba12f9b2853fbc905787d4b22cd848ac7ea0127412e307cfaa90759a0f`
 
 Tags:
 - `task-graph`

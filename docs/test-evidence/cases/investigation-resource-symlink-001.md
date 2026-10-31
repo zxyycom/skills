@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-SYMLINK-001: attached resources reject symbolic link targets
 
 Tests:
-- `test:69f1381eeb268acd1db9c6ffc7390213b48bfd0e216d2cdb3f00bfcd9c771967`
+- `test:ffa64500102760d59de1210c40a8b3f756dbe5f8c936b90c5f573bc2843690aa`
 
 Tags:
 - `investigation-report`

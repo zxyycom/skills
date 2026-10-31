@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-RETENTION-001: 当前摘要与正文隔离
 
 Tests:
-- `test:d33b7daaad7ed821ad29edfaaffa7bace33c4abe2cb2acfa54529daad220f777`
+- `test:81eca07e7bda26e56aba60ac58d59de94ce862c12e2cacb25764c724dd4c51bd`
 
 Tags:
 - `lightweight-judgment`

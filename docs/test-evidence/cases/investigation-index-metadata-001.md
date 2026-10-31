@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-INDEX-METADATA-001: index rejects additional metadata
 
 Tests:
-- `test:2e7e5627a7a02b2d7d73b9671656701d62cc13994b0b7e117baec0b4444d70dc`
+- `test:7419d3345558fd4f23ed3a770d68b605272bdae32da7d6928d08077b11b911aa`
 
 Tags:
 - `investigation-report`

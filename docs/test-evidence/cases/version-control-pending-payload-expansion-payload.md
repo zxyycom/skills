@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-PENDING-PAYLOAD-EXPANSION-PAYLOAD-001: payload 扩展比较旧选择的实际字节
 
 Tests:
-- `test:5dfcc0e315ed4b463648f56f69fcb6df594f8d9edb7c3697af31200425b40909`
+- `test:d2788279793bd921ce1ebc1468eaa8a9d834f74d945900e0f5bf0a1dcbef6a9f`
 
 Tags:
 - `version-control`

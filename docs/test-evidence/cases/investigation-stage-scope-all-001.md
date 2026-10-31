@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-SCOPE-ALL-001: all scope 写入索引投影报告及 owner 树
 
 Tests:
-- `test:8e704636acdf8d1984ea7d2934af68811308e78972e298e4375c1a467e203557`
+- `test:163f86afd9fcef1e7e1fe7e3e19d9b5f361b52e9a4d83e87c51e0bafb6413627`
 
 Tags:
 - `investigation-report`

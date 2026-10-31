@@ -1,8 +1,8 @@
 ### Case INVESTIGATION-STAGE-SOURCE-PATH-DELETE-001: 依据 HEAD 索引位置暂存已删除报告
 
 Tests:
-- `test:2b80afe43b214f7bf66f8ce3feb93b9aa2d7f113bba14397c8caffdba3b971d2`
-- `test:b0d558deb5cf8ac67b946dee9ada6aac3c7a6fe8d2bc1e6fc630898a4658097a`
+- `test:584123487a402ef0827b0283408a891a6a9bc5122249b9b82378481bd1b6a8fe`
+- `test:c9f2a5bc698eeba8be6991b8dcdab16848e93dd3a622e1cd3b28ce848657ad31`
 
 Tags:
 - `investigation-report`

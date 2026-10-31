@@ -1,7 +1,7 @@
 ### Case DECISION-CONFIGURED-RELATIVE-DIRECTORY-001: 相对决策目录从 workspace 根解析
 
 Tests:
-- `test:fcef13fb73948e365a99fd324a0115f9384ef43de58d682f1092167fd28fa0fa`
+- `test:36a71c73a6a837d3ac625ae2e2c7e38dbaf9ab2b1fbc192a32ecf1df534cf967`
 
 Tags:
 - `decision-records`

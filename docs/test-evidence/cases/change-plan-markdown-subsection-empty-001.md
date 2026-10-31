@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-MARKDOWN-SUBSECTION-EMPTY-001: Markdown 报告内容为空的必需子章节
 
 Tests:
-- `test:3b4c0066c83195d50e828666bf6d513f826c4b016ccd9fd845fc76495c4c4316`
+- `test:08a3dc0b08e01b638de98de66e72b3614869200331e9ba2130859f6e60ce5edc`
 
 Tags:
 - `change-plan`

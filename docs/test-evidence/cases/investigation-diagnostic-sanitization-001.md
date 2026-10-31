@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DIAGNOSTIC-SANITIZATION-001: investigation diagnostics sanitize external failure details
 
 Tests:
-- `test:cbe16a55d79ecf5a6ee710fdbe94d01099d36dce6254c1127daf65fd7b21be23`
+- `test:8f153b82600cfe4662dc01b37a7ee753bb7b6a0da9e5930b3ee74c508c0b3745`
 
 Tags:
 - `investigation-report`

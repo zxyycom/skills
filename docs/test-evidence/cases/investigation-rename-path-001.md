@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RENAME-PATH-001: 被占用 name 路径回退完整 ID basename
 
 Tests:
-- `test:b8d52ecfb0d9008d71ed02ef696ed5ffc7abd88e18e0cfcca750a3671515edf8`
+- `test:805a3468907790b7f3d91ce7529103464f537defddb8b0ec514961392436dc2b`
 
 Tags:
 - `investigation-report`

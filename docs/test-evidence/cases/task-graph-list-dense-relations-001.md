@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LIST-DENSE-RELATIONS-001: 任一关系列表超过三个 endpoint 时 node 使用 block form
 
 Tests:
-- `test:8f517f242ec6433af80161f19a31eeab9f0eb9db8ba7bbc7e47f91c169aea47b`
+- `test:2ff19a293b224bbfc8a53e786f56f0de9f5dbd676b4b39e13cea1c3ade81eb6a`
 
 Tags:
 - `task-graph`

@@ -1,7 +1,7 @@
 ### Case GATE-SELECTED-GENERATION-SKILLS-001: 生成前置范围来自实际选中 consumer
 
 Tests:
-- `test:624f6d184594da90260d7aa4912f7465859fc9b0b03abfa9f93fa22b5f5914e1`
+- `test:a9bfcb7b5cc85d43fcea8ef9db4971633ed72c630a90365b354932d49fdf95c3`
 
 Tags:
 - `repository-tooling`

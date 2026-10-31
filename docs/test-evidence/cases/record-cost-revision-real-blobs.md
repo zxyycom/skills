@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-027: 精确版本批量读取
 
 Tests:
-- `test:f1848e457af44cfc90641e393debc7ac81fe37e5d45d3d6e32c31c34682c717f`
+- `test:e81a70d43c6909e9fc3593627ca1ac21cb460fbb58ecc3254ae1e3f47ba1a388`
 
 Tags:
 - `record-cost`

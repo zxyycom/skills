@@ -1,9 +1,9 @@
 ### Case DECISION-STRICT-PREPARATION-SOURCE-PROOF-001: 严格准备交接根绑定来源证明并保留最终全集验收
 
 Tests:
-- `test:0d9ea656bceff2309b62ee742ece0bf10bae1ad9031cd01fe15df753e9b0b79e`
-- `test:52097c6cdef526521c99338972f75a8fabeff11d4238069670519ff3c0492180`
-- `test:6f8defcb471c7df48df73372b8032e00430c1ac88575426f897e4ba7b3d4e8bf`
+- `test:11f4ce9d2054bc14b371fa316793463808e8734b7b7c46bef516251dd4979412`
+- `test:47e1323d5a56d12567454bd7177cea53d04fa273f861db9f2b08410101dbd268`
+- `test:dfb2ee5f9757f3e6b4752c1fe608d84df1bf86d1251d6c2c50bbe1e1512b923c`
 
 Tags:
 - `decision-records`

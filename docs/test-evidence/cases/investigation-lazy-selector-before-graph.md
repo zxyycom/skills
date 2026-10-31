@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-LAZY-SELECTOR-001: 缺失与歧义选择器在构图前返回诊断
 
 Tests:
-- `test:1bc49ff1f0edf000e54b2884f2a9c038296a600d56955e67fb0e3d9f3d995909`
+- `test:3fbd732d385efb423ab8f3e4fe6823f76d6625abb95686b11479df1479ea21d0`
 
 Tags:
 - `investigation-report`

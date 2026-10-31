@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-DOMAIN-BUSY-001: 领域 pending 忙错误映射为无变化冲突
 
 Tests:
-- `test:70c610c954f32b51195d93ededc53b439c24442a26f86dfc1adfbc5674a61eb0`
+- `test:a954f2929237bb67206492702b6289d560783803a2b937c4f940d6ff04d725e9`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-RESPONSE-PRESERVATION-001: CLI 原样保留 schema 有效响应
 
 Tests:
-- `test:553bb34110595832eadfa3fe0714e6ed3079fee0f460737f14f94722e97b9029`
+- `test:9fdebb32e6a51adbe1d09da057dee1f4a4cdfcad3e22b076216420c3de0b7cb9`
 
 Tags:
 - `lightweight-judgment`

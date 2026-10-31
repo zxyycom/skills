@@ -1,7 +1,7 @@
 ### Case GATE-NATIVE-BUILD-CODE-001: 三类原生代码 Check 共用精确的构建源码例外
 
 Tests:
-- `test:8a19afafb1c5b75e480e6913bc4a57e20ad0a59696ee8bafa0bbe388dc547b4d`
+- `test:a9d81906ecc15505ab2e81686da609ffc03a84da918020bdeb0510a212ad4bc6`
 
 Tags:
 - `repository-tooling`

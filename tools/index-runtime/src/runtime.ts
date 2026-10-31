@@ -1,10 +1,13 @@
 import path from "node:path";
 import { defineStateIndexDefinition } from "./definition.ts";
-import { loadCurrentStateIndexReader, syncStateIndex } from "./storage.ts";
+import {
+  loadCurrentStateIndexReader,
+  syncStateIndex
+} from "./storage/storage.ts";
 import {
   stageSelectedIndexEntries,
   type StateIndexEntrySelectionResolver
-} from "./staging.ts";
+} from "./staging/staging.ts";
 import type {
   DeepReadonly,
   JsonObject,

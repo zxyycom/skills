@@ -1,9 +1,9 @@
 ### Case TEST-EVIDENCE-PROJECT-AST-GREP-DECODE-001: ast-grep JSON 只接受可归属的 match 与合法 capture
 
 Tests:
-- `test:3ba6bac4665953fa9865d72400c170101e9b1949f4dce91f8594ab0530184267`
-- `test:6dab7fadce94bfb8d86cc93cad84c18c3bf2f68f152031549b4ab0ed679ea31f`
-- `test:cfbf42d548e2af352eb94b1ea48bfa96a684f67dff0f1bde6f7ad2de535710ec`
+- `test:e4433b41865010956547162eb3201e1afdd41e5ef855fb7d208dc6504e8d8755`
+- `test:e57207ba71c261bb91a203ecf60894df37a81264144b7c3e4be71a0ffa7e9f5a`
+- `test:ff692d7b69b9e3d0a8c46fd85f0dd18162e7f2a951c82593eb3d67b8aacc741d`
 
 Tags:
 - `repository-tooling`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RELATION-SUMMARY-CLI-NEW-001: CLI new binds relation summaries after selector resolution and preserves equals
 
 Tests:
-- `test:05f0a87bc7f446e4c8b79f714682031a4fdbb5b007929ce2233a6b98948f09d5`
+- `test:c87dfebfbb73418754ac0c9ff419c43e33f37d47316b91f501f256e73c1ab678`
 
 Tags:
 - `investigation-report`

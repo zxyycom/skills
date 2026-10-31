@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-010: 决策历史路径查找
 
 Tests:
-- `test:dfdb21b23531181648159afc63d1e5c35a52ef796333518b00da3c14877d594b`
+- `test:998501fb19f2f577c3be9f00c6c71cab031f5926554ff65104388ee2b90c7d58`
 
 Tags:
 - `record-cost`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RELATION-GRAPH-SHAPES-001: relation graph accepts independent ordinary merge and split shapes
 
 Tests:
-- `test:93a233882d8baa69f99ea0ba238e37cc5217c1d330564425643ab5091f37c2d5`
+- `test:bdc132e3fcd974a9a02f2e6feee337bf5e53045adc4be29330dde54a80a3a7fe`
 
 Tags:
 - `investigation-report`

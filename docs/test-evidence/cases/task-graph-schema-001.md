@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-SCHEMA-001: 未知字段和互斥状态组合都返回稳定的结构错误
 
 Tests:
-- `test:acbd5bf575edb77443722c6a931db68bb78e9be939b0c20e76947a40d4995c54`
+- `test:9573b8474c0d312e034e2951ad8fe7e41d52a2b3ab2ec12a1dd95a27782bf15e`
 
 Tags:
 - `task-graph`

@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-FIRST-PARENT-001: 按顺序列出 first-parent 修订变化并保留空提交
 
 Tests:
-- `test:94d198b23fc3c445759ff00df7bbb73da674b47ae15d3abd805156eaf708f3af`
+- `test:cc585cb785eeddc5dbf2bb576ce57e87f3269bcf41efbc2a8fa0ef10d55dc92d`
 
 Tags:
 - `version-control`

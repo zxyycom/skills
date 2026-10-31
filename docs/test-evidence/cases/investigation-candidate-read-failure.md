@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-READ-FAILURE-001: 候选准备失败保持只读诊断边界
 
 Tests:
-- `test:63091a8548ca9ad8fb4671f88f51a80d9a3618ca87884fdeb2bdd16509f67b03`
+- `test:ffb9e64b00daa83db4a518671ea29ac1e7a90d9422da201be1a5cbb29bb52bf7`
 
 Tags:
 - `investigation-report`

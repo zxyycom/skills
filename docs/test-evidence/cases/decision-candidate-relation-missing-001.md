@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-RELATION-MISSING-001: 候选关系校验拒绝缺失目标
 
 Tests:
-- `test:67f663ba1e24731309913f043092b63ac0721802258461a7eeb2d8fa308e7e48`
+- `test:dc539c34ad7d6485cb7dda2a8543bb6b28e3b571c77f34e2d506403c1efcd0c5`
 
 Tags:
 - `decision-records`

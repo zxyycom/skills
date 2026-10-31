@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-GIT-NUMSTAT-001: Git 距离累计新增与删除行
 
 Tests:
-- `test:f74832bc7e340a5ee40a1e35e23b87e976b61745c4d124b3c3cd9d9a7449d1de`
+- `test:e42fcf657636038acdc85116229257e5131445f29b09242f51e7ac127e8796d3`
 
 Tags:
 - `change-plan`

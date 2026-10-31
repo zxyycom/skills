@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-CONTENT-PAYLOAD-BOUNDARY-001: payload策略与精确选集绑定
 
 Tests:
-- `test:4cca32e83fcbcb536b12a228ba65f1aac5834abc59feab4cf7034dfb6ae332dd`
+- `test:dc330a2473c0200211895bf6be0b06266c6e858cc3e7228c2cf09ff87c8ecda2`
 
 Tags:
 - `version-control`

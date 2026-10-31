@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-FRESH-PROOF-001: 调查更名独立fresh保护资源身份和权限
 
 Tests:
-- `test:7b2027cda772f6d68af96bcb52978bb5d9b2633b9eed0c21a71fa5ef38d106eb`
+- `test:5ca2bc1c3d8d9a340ffc61a17c826c7c2dc2141db6e9aa57310eab3c4d1ab61f`
 
 Tags:
 - `investigation-report`

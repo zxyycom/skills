@@ -89,7 +89,7 @@
 
 ### 领域范围与检查订阅
 
-`scripts/lib/vibe-gate/impact-tools.ts` 的 `gateToolScopes` 是能力 ID、领域文件范围与额外检查输入的唯一声明。每个条目包含：
+能力 ID、领域文件范围与额外检查输入由 [`gateToolScopes`](../scripts/lib/vibe-gate/impact/impact-tools.ts) 唯一声明。每个条目包含：
 
 | 字段或投影 | 责任 |
 | --- | --- |

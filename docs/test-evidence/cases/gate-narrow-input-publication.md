@@ -1,7 +1,7 @@
 ### Case GATE-NARROW-PUBLICATION-001: 局部输入仍覆盖 ignored 材料且保持全快照漂移保护
 
 Tests:
-- `test:1cf6a6d1a2b3d78d750d66998182ecc96562de7344646166c002f202b09a6ab2`
+- `test:2288e2f1c2667cc1e1ddd6c4f74eb1120863b4b181adda0a2e183af46824dcc4`
 
 Tags:
 - `repository-tooling`

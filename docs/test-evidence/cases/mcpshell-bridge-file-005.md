@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-FILE-005: workspace put rejects a verified parent moved outside the project and cleans its transfer
 
 Tests:
-- `test:4c84f5d3c17205a364461658de0e45f80b064567850e1766f734f8742a429837`
+- `test:7e1f99a2a2d4e15b7c7e19376815e319d6809b111e0b8a4eb8e9d9b749f845f4`
 
 Tags:
 - `mcpshell-workspace-bridge`

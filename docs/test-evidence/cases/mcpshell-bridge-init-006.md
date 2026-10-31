@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-INIT-006: initializer preserves an indented following TOML table on apply and remove
 
 Tests:
-- `test:f0f0fb552885148ca7d28fbb714f20e5796cfa306ee43cf10f000fdb67f9483a`
+- `test:dcd88f057ab83e50e2086b2c31d966745ee86c9fb2439600d4e0690dba6f72f0`
 
 Tags:
 - `mcpshell-workspace-bridge`

@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-CHANGES-001: 列举已提交与 pending 变化并验证修订路径
 
 Tests:
-- `test:6543807777af4da6fb2d6b8f5f62016393fa2cb2cd255c7a43bffd43ff91656d`
+- `test:58b6dca78109e7229a85a53a087c7e7406519db4c4cc71c9aa58ea8e03a358d6`
 
 Tags:
 - `version-control`

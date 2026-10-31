@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-SOURCE-PATH-REUSE-001: 身份更正共用文件位置时保留所选新报告
 
 Tests:
-- `test:7c1ad2abb52a8e3baeffe77a56db3d865aac2013557e1273ccaa4a6ef63b7985`
+- `test:8d9fa9abe18f15959c120d6995fc02959315b370ef819ce7a28da32a90eba337`
 
 Tags:
 - `investigation-report`

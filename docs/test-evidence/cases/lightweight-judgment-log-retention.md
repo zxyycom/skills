@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-024: 调用意图与独立正文留存
 
 Tests:
-- `test:70cbed3d7f9754f860c6df9b243825263f7c82d55e76201cd360a11dce5d89bd`
+- `test:22e369883675275a1af02d1b3cb782a2591ea2b74f726586d92faca127219038`
 
 Tags:
 - `lightweight-judgment`

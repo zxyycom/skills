@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LIST-ACTIVE-MUTEX-001: Exclusion-running blocker 折叠为 active mutex token
 
 Tests:
-- `test:2a7e0348c7c63f8390a1f903952cb20fbfcfb467cd875af4a31632c4cd481dd2`
+- `test:f0b6e79eba134d0be08ede3d5b615a70c79502cfe161e497851ecf9a8e909b30`
 
 Tags:
 - `task-graph`

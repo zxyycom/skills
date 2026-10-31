@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-LOCKED-READINESS-001: 正式生命周期在集合锁内重读候选 readiness
 
 Tests:
-- `test:3390034807893c7db1bb9c91f84a5613e6136189a9a1388dc29b1039274b0aac`
+- `test:267702e9317b543c80bb023fc2791fc8ce263018ee10ea9c04f531a5904e32d1`
 
 Tags:
 - `decision-records`

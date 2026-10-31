@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-SOURCE-INCOMPATIBLE-001: 可解析但 API 不兼容的宿主依赖显式恢复
 
 Tests:
-- `test:7528bd812b5210effbe380c71ebe68fa260d31ae8ec6f9222460aabf338e6a40`
+- `test:d59920e5154d55c7b6693ce07978d577458e471c0de929a478aaa98fd5f7b194`
 
 Tags:
 - `change-plan`

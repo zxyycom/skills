@@ -1,7 +1,7 @@
 ### Case DECISION-INDEX-PUBLISHED-RELATION-DRIFT-001: 关系查询读取已发布关系
 
 Tests:
-- `test:862017f8f1b88746c263eea14dfe9eb5c0f11a666262b96b03910e164394d36f`
+- `test:006b2f7fa17ae3b5afc9e7f0bf289d740e368ce85d2aa04d5b3376919f69dc17`
 
 Tags:
 - `decision-records`

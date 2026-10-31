@@ -1,8 +1,8 @@
 ### Case INVESTIGATION-CANDIDATE-PUBLISH-005: 发布前重新核对所选候选与索引
 
 Tests:
-- `test:b38e52f9e89cdb53991240fa2d657ccdb40b42c415f634486851d0e1148b71ac`
-- `test:ef4dcdcf6b678c4e7b3c65ea702475999f3cbcebc570312e665f2d1a8cb480e0`
+- `test:4223618bbc7567a2aff44d418b6dcab3a95859c95daf582e141fc6905168145c`
+- `test:c08596a8d6601d5cdc8ef598992b78326b0d42406a33ff40fe777a2a5ea10703`
 
 Tags:
 - `investigation-report`

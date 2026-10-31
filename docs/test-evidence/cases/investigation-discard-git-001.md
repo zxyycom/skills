@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-GIT-001: discard pauses deletion of Git-recorded reports
 
 Tests:
-- `test:e83e160c7538af7ff4656be0092b44f14db026bf78a5c49a8f083eb4e786b554`
+- `test:54a6faa37d432ca39ed222be6de7eaf43502ded9a38e937fe883109a064c331d`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case GATE-MARKDOWN-PROOF-ACQUISITION-001: Markdown 内容证明的磁盘全集
 
 Tests:
-- `test:13bfd791f3f904e0ee61bc0b47cbc20007f95664dacd6c49016853ba9f67c293`
+- `test:c88360dbec16a10d841a65592176af32d80e48aaa9c5f5821fe0ebf0600d9247`
 
 Tags:
 - `repository-tooling`

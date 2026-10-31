@@ -1,7 +1,7 @@
 ### Case INDEX-PREPARED-IDENTITY-001: 准备证明绑定 definition 路径和原始身份
 
 Tests:
-- `test:19f5cd3317f53995af4030e6661bd630456858ec01c3d70c1aa43f32500bead1`
+- `test:76a47ccf77af7d8b5668f324e9304e9c5a101b9186d9f0389cca5148b9c67155`
 
 Tags:
 - `index-runtime`

@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-STAGING-REVISION-CONFLICT-001: 锁内拒绝已变化的 Current Revision
 
 Tests:
-- `test:c38bccc93b62f9271ac2963a6b403cf10a70f67ce26f1c907c837b1a6e48d181`
+- `test:f2ee03331f08fb3fc98b2a5234b2907e7825f11c8c5ae7c64a630871783e50b4`
 
 Tags:
 - `index-runtime`

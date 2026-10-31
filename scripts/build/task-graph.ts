@@ -1,28 +1,28 @@
-import type { SourceRuntimeFacts } from "../lib/source-runtime.ts";
-import { nativeCliEntry } from "../lib/native-cli-entry.ts";
+import type { SourceRuntimeFacts } from "../lib/generation/runtime/source-runtime.ts";
+import { nativeCliEntry } from "../lib/generation/native-cli-entry.ts";
 import {
   buildSkillRuntimeArtifacts,
   syncSkillRuntimeArtifacts,
   runRuntimeAdapter
-} from "../lib/skill-runtime.ts";
-import type { GeneratedFileMode } from "../lib/generated-file.ts";
+} from "../lib/generation/runtime/skill-runtime.ts";
+import type { GeneratedFileMode } from "../lib/generation/generated-file.ts";
 import path from "node:path";
 import { toJsonSchema } from "@valibot/to-json-schema";
 import {
   buildGeneratedTypeScriptDeclarationArtifacts,
   removeStaleGeneratedTypeScriptDeclarations,
   type GeneratedArtifact
-} from "../lib/generated-file.ts";
+} from "../lib/generation/generated-file.ts";
 import { githubRepository, rootDir } from "../lib/project.ts";
 import {
   taskGraphJsonSchemaOverrideAction,
   taskIndexSchema
-} from "../../tools/task-graph/src/schema.ts";
+} from "../../tools/task-graph/src/schema/schema.ts";
 
 const rebuildCommand = "bun run sync:task-graph-cli";
 const skillSourcePath = "skills/task-graph";
 const cliSourcePath = "tools/task-graph/src/cli.ts";
-const schemaSourcePath = "tools/task-graph/src/schema.ts";
+const schemaSourcePath = "tools/task-graph/src/schema/schema.ts";
 const publishedScriptsDirectory = path.join(
   rootDir,
   skillSourcePath,
@@ -142,9 +142,8 @@ export async function syncRuntime(
   const expectedDeclarationPaths = new Set(
     artifacts
       .map((artifact) => artifact.path)
-      .filter(
-        (artifactPath) =>
-          path.dirname(artifactPath) === declarationOutputDirectory
+      .filter((artifactPath) =>
+        artifactPath.startsWith(`${declarationOutputDirectory}${path.sep}`)
       )
   );
   const staleDeclarations = await removeStaleGeneratedTypeScriptDeclarations({

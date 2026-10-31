@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-POSITIONAL-ID-001: CLI 在位置参数边界验证 Decision ID
 
 Tests:
-- `test:76caa9f7d3b144a156c193966a180369f5e92d7b2431d111cf994a40a71fa7ca`
+- `test:410ac65e29edd9d430e5fb1d901aa148ae494144555573fd350cf7d6402efcb1`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case DECISION-SOURCE-SYNC-GUARD-001: 同步不能以早先解析覆盖 fresh 失败
 
 Tests:
-- `test:5a9a775f6a7cab8a3df7d79e9628b8001f1da6164db8c6888c540b74d9ac08da`
+- `test:e1617d2b3f5cb8f7969b95a9b3a46d2a2008de33dd2bd6943884f75d1fb5c9ba`
 
 Tags:
 - `decision-records`

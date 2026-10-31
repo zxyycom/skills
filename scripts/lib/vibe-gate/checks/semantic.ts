@@ -7,7 +7,7 @@ import {
   type GateTag
 } from "../contracts.ts";
 import { gateCommandPolicy, type GateCommand } from "../command-runner.ts";
-import type { GateToolSubscription } from "../impact-tools.ts";
+import type { GateToolSubscription } from "../impact/impact-tools.ts";
 import type { GatePackageScriptCheckId } from "./package-script.ts";
 
 export type SemanticGateCheck = Readonly<{
@@ -193,7 +193,7 @@ export const semanticGateChecks = [
     ],
     displayName: "Decision Records pending stage",
     requiredTag: undefined,
-    command: bunTest("./tools/decision-records/tests/stage.test.ts")
+    command: bunTest("./tools/decision-records/tests/staging/stage.test.ts")
   },
   {
     checkId: "test:decision-records:cli-contract",
@@ -355,7 +355,7 @@ export const semanticGateChecks = [
     requiredTag: undefined,
     command: {
       command: "node",
-      args: ["--test", "./tools/task-graph/tests/native-store.test.ts"]
+      args: ["--test", "./tools/task-graph/tests/store/native-store.test.ts"]
     }
   },
   {
@@ -370,7 +370,7 @@ export const semanticGateChecks = [
     toolIds: ["task-graph"],
     displayName: "Task Graph pending stage",
     requiredTag: undefined,
-    command: bunTest("./tools/task-graph/tests/staging.test.ts")
+    command: bunTest("./tools/task-graph/tests/staging/staging.test.ts")
   },
   {
     checkId: "test:task-graph:public-distribution",
@@ -386,7 +386,9 @@ export const semanticGateChecks = [
     toolIds: ["task-graph"],
     displayName: "Task Graph portable build",
     requiredTag: undefined,
-    command: bunTest("./tools/task-graph/tests/portable-build.test.ts")
+    command: bunTest(
+      "./tools/task-graph/tests/distribution/portable-build.test.ts"
+    )
   },
   {
     checkId: "test:test-evidence:case-runtime",
@@ -409,7 +411,7 @@ export const semanticGateChecks = [
     toolIds: ["test-evidence", "test-evidence-project"],
     displayName: "Test Evidence project snapshot producer",
     requiredTag: undefined,
-    command: bunTest("./scripts/test-evidence/snapshot.test.ts")
+    command: bunTest("./scripts/test-evidence/snapshot/snapshot.test.ts")
   },
   {
     checkId: "test:test-evidence:project-reference-check",
@@ -423,25 +425,39 @@ export const semanticGateChecks = [
     toolIds: ["test-evidence", "test-evidence-project"],
     displayName: "Test Evidence migration",
     requiredTag: undefined,
-    command: bunTest("./scripts/test-evidence/migrate.test.ts")
+    command: bunTest("./scripts/test-evidence/migration/tests/migrate.test.ts")
   },
-  ...(["initializer", "runtime", "public-distribution"] as const).map(
-    (name) => ({
-      checkId: `test:mcpshell:${name}` as const,
-      toolIds: ["mcpshell"] as const,
-      displayName: `MCPShell ${name}`,
-      requiredTag: undefined,
-      command: bunTest(
-        `./tools/mcpshell-workspace-bridge/tests/${name === "public-distribution" ? "generated" : name}.test.ts`
-      ),
-      ...(name === "public-distribution"
-        ? {
-            dependsOn: ["script:check:skill-updaters"] as const,
-            generationSkillNames: ["mcpshell-workspace-tools"] as const
-          }
-        : {})
-    })
-  )
+  ...(
+    [
+      {
+        name: "initializer",
+        testFile:
+          "./tools/mcpshell-workspace-bridge/tests/initializer/initializer.test.ts"
+      },
+      {
+        name: "runtime",
+        testFile:
+          "./tools/mcpshell-workspace-bridge/tests/runtime/runtime.test.ts"
+      },
+      {
+        name: "public-distribution",
+        testFile:
+          "./tools/mcpshell-workspace-bridge/tests/distribution/generated.test.ts"
+      }
+    ] as const
+  ).map(({ name, testFile }) => ({
+    checkId: `test:mcpshell:${name}` as const,
+    toolIds: ["mcpshell"] as const,
+    displayName: `MCPShell ${name}`,
+    requiredTag: undefined,
+    command: bunTest(testFile),
+    ...(name === "public-distribution"
+      ? {
+          dependsOn: ["script:check:skill-updaters"] as const,
+          generationSkillNames: ["mcpshell-workspace-tools"] as const
+        }
+      : {})
+  }))
 ] as const satisfies readonly SemanticGateCheck[];
 
 export function createSemanticGateCheck(

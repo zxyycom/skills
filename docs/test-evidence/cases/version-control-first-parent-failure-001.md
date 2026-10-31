@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-FIRST-PARENT-FAILURE-001: 将 first-parent Git 命令故障映射为操作失败
 
 Tests:
-- `test:d895733a7f1d7868db706a8f47ddbac22c3f2e7c4b5a9931aaacd86240b349f2`
+- `test:027c0353a4a177f70110e6322081b7a2a664a5a8dd0815181fc4b90025240c75`
 
 Tags:
 - `version-control`

@@ -1,0 +1,154 @@
+import assert from "node:assert/strict";
+import { execFile } from "node:child_process";
+import fs from "node:fs/promises";
+import path from "node:path";
+import process from "node:process";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
+import { withTempWorkspace } from "../support/helpers.ts";
+
+const repositoryRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../../../.."
+);
+const execFileAsync = promisify(execFile);
+async function copyTaskGraphBuildCheckout(targetRoot: string): Promise<void> {
+  for (const relativePath of [
+    "package.json",
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+    "scripts/build",
+    "scripts/lib",
+    "tools/shared/src",
+    "tools/skill-updater/src",
+    "tools/skill-package/src",
+    "tools/task-graph/src"
+  ]) {
+    const source = path.join(repositoryRoot, relativePath);
+    const target = path.join(targetRoot, relativePath);
+    await fs.mkdir(path.dirname(target), { recursive: true });
+    await fs.cp(source, target, { recursive: true });
+  }
+  await fs.symlink(
+    path.join(repositoryRoot, "node_modules"),
+    path.join(targetRoot, "node_modules"),
+    process.platform === "win32" ? "junction" : "dir"
+  );
+}
+
+async function artifactFiles(directory: string): Promise<readonly string[]> {
+  const entries = await fs.readdir(directory, {
+    recursive: true,
+    withFileTypes: true
+  });
+  assert.ok(
+    entries.every((entry) => entry.isDirectory() || entry.isFile()),
+    `Generated artifacts must be regular files: ${directory}`
+  );
+  return entries
+    .filter((entry) => entry.isFile())
+    .map((entry) =>
+      path.relative(directory, path.join(entry.parentPath, entry.name))
+    )
+    .sort();
+}
+
+test(
+  "generated task graph artifact bytes are reproducible across checkout paths",
+  { timeout: 180_000 },
+  async () => {
+    await withTempWorkspace(async (root) => {
+      const shortCheckout = path.join(root, "short");
+      const longCheckout = path.join(
+        root,
+        "checkout-with-a-materially-different-absolute-path-length"
+      );
+      await Promise.all([
+        copyTaskGraphBuildCheckout(shortCheckout),
+        copyTaskGraphBuildCheckout(longCheckout)
+      ]);
+      await Promise.all(
+        [shortCheckout, longCheckout].map(async (checkout) => {
+          await execFileAsync(
+            process.execPath,
+            ["scripts/build/task-graph.ts", "--write"],
+            { cwd: checkout, timeout: 120_000, windowsHide: true }
+          );
+        })
+      );
+      const relativeOutput = path.join(
+        "skills",
+        "task-graph",
+        "scripts",
+        "task-graph.ts"
+      );
+      const shortBundle = await fs.readFile(
+        path.join(shortCheckout, relativeOutput)
+      );
+      const longBundle = await fs.readFile(
+        path.join(longCheckout, relativeOutput)
+      );
+      const relativeDeclaration = path.join(
+        "skills",
+        "task-graph",
+        "scripts",
+        "task-graph.d.mts"
+      );
+      const shortDeclaration = await fs.readFile(
+        path.join(shortCheckout, relativeDeclaration)
+      );
+      const longDeclaration = await fs.readFile(
+        path.join(longCheckout, relativeDeclaration)
+      );
+      const relativeDeclarationDirectory = path.join(
+        "skills",
+        "task-graph",
+        "scripts",
+        "task-graph-sdk"
+      );
+      const declarationFiles = await artifactFiles(
+        path.join(shortCheckout, relativeDeclarationDirectory)
+      );
+      assert.deepEqual(
+        declarationFiles,
+        await artifactFiles(
+          path.join(longCheckout, relativeDeclarationDirectory)
+        )
+      );
+      assert.deepEqual(shortBundle, longBundle);
+
+      assert.deepEqual(shortDeclaration, longDeclaration);
+      for (const filename of declarationFiles) {
+        assert.deepEqual(
+          await fs.readFile(
+            path.join(shortCheckout, relativeDeclarationDirectory, filename)
+          ),
+          await fs.readFile(
+            path.join(longCheckout, relativeDeclarationDirectory, filename)
+          )
+        );
+      }
+      assert.equal(shortBundle.includes(Buffer.from("debugId=")), false);
+
+      const runtimePath = path.join("skills/task-graph/scripts/runtime");
+      const runtimeFiles = await artifactFiles(
+        path.join(shortCheckout, runtimePath)
+      );
+      assert.deepEqual(
+        runtimeFiles,
+        await artifactFiles(path.join(longCheckout, runtimePath))
+      );
+      for (const relative of runtimeFiles) {
+        const shortSource = await fs.readFile(
+          path.join(shortCheckout, runtimePath, relative)
+        );
+        const longSource = await fs.readFile(
+          path.join(longCheckout, runtimePath, relative)
+        );
+        assert.deepEqual(shortSource, longSource);
+        assert.equal(shortSource.includes(Buffer.from(shortCheckout)), false);
+      }
+    });
+  }
+);

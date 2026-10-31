@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-ALIGNMENT-CONFIRMATION-001: Evolve 拒绝已建立后继的错误对齐确认
 
 Tests:
-- `test:b3ae929531e4b2470ff80ac69bf94ac017b6e0f9cc329034e7a98eb5158c260f`
+- `test:11422e590a2d2633863a00bd43a4c613e9a2b3a507d37153d4c4da43130492cf`
 
 Tags:
 - `decision-records`

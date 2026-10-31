@@ -1,7 +1,7 @@
 ### Case RECORD-READER-REPRESENTATION-001: 同步强快照拒绝权限和叶身份漂移
 
 Tests:
-- `test:f8e2e50fed9b5afcf6fd53f19ce74ee55b7102abc107dc15a7c5ed90b01694db`
+- `test:dde769e05909397bb0c085ccc2dcff6df4046609b1ac468ae71680401650517e`
 
 Tags:
 - `record-operations`

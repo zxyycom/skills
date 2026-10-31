@@ -1,7 +1,7 @@
 ### Case DECISION-SELECTED-FRESH-WINNER-001: 局部同步保留后来的来源与索引winner
 
 Tests:
-- `test:e8beb0baf76588ea233565501e3c3d834691b328a64d67e34a347bd891ef3657`
+- `test:76c9f755d09b9ecd24fb45f5d9c394b299a9da9642ad5bb8d741ab0e00fc7e33`
 
 Tags:
 - `decision-records`

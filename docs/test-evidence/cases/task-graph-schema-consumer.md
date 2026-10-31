@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-SCHEMA-CONSUMER-001: 分发 schema 与运行约束一致
 
 Tests:
-- `test:71b0ee584a573c08d32d17eecb0234fb3e7d87f26c280fc1c63fbb45c434ebc4`
+- `test:ba3766a53d4edece7129ab3ed96198e00ec5ce7a6cdd7d5118af32f330e601a1`
 
 Tags:
 - `task-graph`

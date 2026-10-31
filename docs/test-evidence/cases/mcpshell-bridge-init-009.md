@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-INIT-009: initializer requires complete CLI configuration flags
 
 Tests:
-- `test:bb7fa75a1fd6e0d46618cf1c13c5fb586892f964de7a3393f55ceb1ed616c4b0`
+- `test:cfa18db40a02eac1488a83d2c212ddb2280d83ade6950a49a5e577da6028971a`
 
 Tags:
 - `mcpshell-workspace-bridge`

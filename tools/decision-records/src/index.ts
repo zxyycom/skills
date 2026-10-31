@@ -1,10 +1,10 @@
 import {
   validateScannedDecisionRecords,
   selectEstablishedDecisionIds as selectValidatedDecisionIds
-} from "./decision-validation.ts";
-import { syncDecisionIndex } from "./decision-state-index.ts";
-import { scanDecisionRecords } from "./scan.ts";
-import { checkScannedDecisionIndex } from "./scan-index-check.ts";
+} from "./records/decision-validation.ts";
+import { syncDecisionIndex } from "./index/decision-state-index.ts";
+import { scanDecisionRecords } from "./scan/scan.ts";
+import { checkScannedDecisionIndex } from "./scan/scan-index-check.ts";
 import {
   type DecisionId,
   type DecisionScan,

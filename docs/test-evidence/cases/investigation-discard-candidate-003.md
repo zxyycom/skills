@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-CANDIDATE-003: 正式删除保留未选候选但不修复其引用
 
 Tests:
-- `test:9280377c6b8cb49c2f34af02bd4d0eae319429ac8dc53bc5daf21de79306a9ae`
+- `test:202f67c982087d9b7e21dba68381275a94f112bde1ca6fc66cfd27fda8818c6f`
 
 Tags:
 - `investigation-report`

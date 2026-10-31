@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-CHECK-VC-001: 检查区分 Git 故障与不可用基线
 
 Tests:
-- `test:2141ff704cd2f0191d29aefe3bec1f189900db82b89157b2f4c4f47bf4bbed88`
+- `test:3decc51d305ab9119be95b6dff6d39dfb33329ab6c882670650d80f3ebc5f27f`
 
 Tags:
 - `change-plan`

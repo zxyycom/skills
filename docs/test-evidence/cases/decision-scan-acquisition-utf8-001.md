@@ -1,7 +1,7 @@
 ### Case DECISION-SCAN-ACQUISITION-UTF8-001: 首次采集拒绝来源和索引的非法UTF-8
 
 Tests:
-- `test:504235141f29d4ce4b2ba006066edab58153d85e1cfe2cb30bea20ab4f1236b0`
+- `test:53b65214f663e21cce0b88985a3e2eb498665adda5ec4d1bafebbd2bcb8fec85`
 
 Tags:
 - `decision-records`

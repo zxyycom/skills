@@ -1,7 +1,7 @@
 ### Case DECISION-INDEX-UNALIGNED-001: 未对齐是合法正式状态
 
 Tests:
-- `test:99a5c9bf2599a80d8f623dba7497608de77f3af96cc16b351017e35e0e01b6b4`
+- `test:dbdccecfffc989b734ca9cf05f84d8b20af67e0a6dd92142459a18693c1e8858`
 
 Tags:
 - `decision-records`

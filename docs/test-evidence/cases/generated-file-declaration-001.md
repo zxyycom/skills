@@ -1,7 +1,7 @@
 ### Case GENERATED-FILE-DECLARATION-001: 声明文件生成结果稳定
 
 Tests:
-- `test:767a4f7a09903417a0bade4dc23500a963b0c576e7245196c753f1023e6950c7`
+- `test:f42710aa6ef472d8425a8ebc0f6722a288e4f9b64872ff33b88c1081ba43088d`
 
 Tags:
 - `repository-tooling`

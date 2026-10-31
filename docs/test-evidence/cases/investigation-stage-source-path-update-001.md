@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-SOURCE-PATH-UPDATE-001: 暂存索引指向的报告而非同 ID 文件名下的其他报告
 
 Tests:
-- `test:2cf39b37168c3a0ef20c43d0c43ccd2758e9835269d1f75dff9c0cf39ee3bc7a`
+- `test:935d44ccbef8e89ab89a97fff9b2845a3118ecdcaa43ab0a1e495b63210d902a`
 
 Tags:
 - `investigation-report`

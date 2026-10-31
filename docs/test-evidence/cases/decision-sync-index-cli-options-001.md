@@ -1,7 +1,7 @@
 ### Case DECISION-SYNC-INDEX-CLI-OPTIONS-001: sync-index CLI 默认发布并以 preflight 分离零写入
 
 Tests:
-- `test:2ddcab0aaa7a1f57c11d3cd610836afec3d474e41f40ca49424035f2aff284af`
+- `test:0e00b384e59c22edde601a1052ae84214f8e6feba74be1c6cb7678fed488cbd2`
 
 Tags:
 - `decision-records`

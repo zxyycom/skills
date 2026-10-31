@@ -1,7 +1,7 @@
 ### Case DECISION-BODY-PUNCTUATION-001: 决策正文字段容忍等价 Markdown 标点
 
 Tests:
-- `test:48e130270c391f2c95bc9928a79b6486ce5c2d9e4a482b7f042e63c06ee46f63`
+- `test:d6a6d169859100c06987326fe62ea79c7db5e3d1efdecf35ab668c9091d4e65a`
 
 Tags:
 - `decision-records`

@@ -1,8 +1,8 @@
 ### Case DECISION-SET-RELATIONS-PREFLIGHT-CLEAR-001: set-relations 预检零写入并区分清空与未变化来源
 
 Tests:
-- `test:5579bff71ff6b8d51d167448e7932dbdb48c1f2989dc736d13355276ad1cb8d0`
-- `test:dc60b4f1fb5d7400c7d3e2827e76c506c49cdf13fd95c4854642588fe6137b15`
+- `test:ea427788a572726711eb2b8acad87076ef0f3b531c8fc26bc45fcb2fff02384e`
+- `test:ec94ef33096f6679939002158dfea18c20a41be4493b38538d79992812534bd3`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-DATE-IDENTITY-001: 日期样式 ID 与标题可建立
 
 Tests:
-- `test:60b9a210f48dc58b15577fe6b7e4eee81bb0b150b3346a98b90155581e1ac37a`
+- `test:e0b78d6049d003fe9a0c52a1fa1caab14c6b7ea7c6d9b8a8b6562ed3b7c3037d`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case DECISION-RELATION-FILTER-001: Decision list 与 search 按直接关系筛选
 
 Tests:
-- `test:c1070cfb2004704eb53c24a1e30ca9b2caea60dc56ed00aae36fd2b0b72db203`
+- `test:f02eeeac2a9214eb15d3cfc0c65f454c29f5799c72329dd66de8a97a6f97caeb`
 
 Tags:
 - `decision-records`

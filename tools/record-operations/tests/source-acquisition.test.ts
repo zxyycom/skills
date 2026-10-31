@@ -8,7 +8,7 @@ import type {
 } from "node:fs";
 import path from "node:path";
 import { readRecordText, recordCollectionIdentity } from "../src/source.ts";
-import { fixture } from "./reader-fixture.ts";
+import { fixture } from "./reader/reader-fixture.ts";
 
 test("Record source reads independently prove canonical namespaces without repeated root resolutions", async () => {
   await fixture(async (root) => {

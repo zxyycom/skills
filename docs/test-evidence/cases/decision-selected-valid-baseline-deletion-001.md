@@ -1,7 +1,7 @@
 ### Case DECISION-SELECTED-VALID-BASELINE-DELETION-001: Selected sync 不将合法基线成员删除误作读取失败
 
 Tests:
-- `test:f80b46fdd89101581edee411b0cb423cdc050eaf6bbb6c9a54df3acfbdcb88d1`
+- `test:0149b67809feb81b3836816a7233c797ad6846d24709539e81fe7ca5ad9b4e68`
 
 Tags:
 - `decision-records`

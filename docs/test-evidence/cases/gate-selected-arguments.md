@@ -1,7 +1,7 @@
 ### Case GATE-SELECTED-ARGUMENTS-001: 显式能力组按首次顺序追加去重
 
 Tests:
-- `test:b58980379a243e5da2ff5382e5b97c74ce3861893f9ea926836623485da30af9`
+- `test:5090e9fde3bebcc67e670d82d6fa6e34c3c875764e83ea33291295ce717340a8`
 
 Tags:
 - `repository-tooling`

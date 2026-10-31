@@ -1,8 +1,8 @@
 ### Case INVESTIGATION-BATCH-STAGE-SELECTORS-001: 整批暂存选择保留身份解析义务
 
 Tests:
-- `test:b3746fe99040065a8ef9cd2415310c6e63e0fed90dd3eb5e364c83dc0b99a855`
-- `test:f099508975f2ff9113aa7f5f9d79557ba17e3ab72c7733d6aaf988e4f013acba`
+- `test:3b49d8a5980b937afa3494f11b8b6c84a677e54c8dee41f11169f9e64d0242e3`
+- `test:ed4363f1189697de9b32860a16ebd30f9e0e5e74c67fade43827ac63f15d33b7`
 
 Tags:
 - `investigation-report`

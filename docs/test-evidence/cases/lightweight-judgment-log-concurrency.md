@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-029: 独立进程并发追加
 
 Tests:
-- `test:226506e6b22ff8c8d7a51b59f505f8302a58bf9b2fc8c1e174f332334b21a262`
+- `test:8204fdd0296ad1035aaab4baf2f7308f87ff0315444b56f7401f029db858c3c2`
 
 Tags:
 - `lightweight-judgment`

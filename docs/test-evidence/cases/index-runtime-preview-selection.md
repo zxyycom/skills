@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-PREVIEW-SELECTION-001: 选择性预演保持完整接纳边界
 
 Tests:
-- `test:3d66119a531e43fc4ff52ec1d0563ec11538533f9896e027fcbd075a5f3a1bb2`
+- `test:27258954bef50a885f17a5a1eef2ebc7e466d5c6fea9b84f1989fe2246bf19cc`
 
 Tags:
 - `index-runtime`

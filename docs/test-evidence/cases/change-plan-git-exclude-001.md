@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-GIT-EXCLUDE-001: Git 距离排除仅修改当前 Change 的提交
 
 Tests:
-- `test:4cf268724a9ee45b7fd487bf9df116d37658f1636b7a5704d10f6fa10a1300ae`
+- `test:b3d97eff9b0d8a47f3b0d3f8b4b3c917cc185370cee1421e00ee2d3d8a3e29e8`
 
 Tags:
 - `change-plan`

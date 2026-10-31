@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-REVISION-001: resource byte changes do not change the report index source revision
 
 Tests:
-- `test:5d2d63be8c56264a62bc2126449d6d3c8cba9ee3afd31c2c8d1055acd52622f0`
+- `test:0d7e44b030fb8001acb8cd069c3724274df9c22d1bd1935682609ecbdf19e932`
 
 Tags:
 - `investigation-report`

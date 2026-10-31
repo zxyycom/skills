@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-DOMAIN-PRESERVE-INDEX-001: stage --scope domain preserves staged index pending bytes and reports the preserved scope
 
 Tests:
-- `test:0b5d4f2a899fdc5ea3979c789f4b3669dce0ada6bef9eed5f17b05a6841772f0`
+- `test:c422b57e2f128c80e31a50194a86896ed2091884d977e3bb011f0d7d6d6c13a4`
 
 Tags:
 - `investigation-report`

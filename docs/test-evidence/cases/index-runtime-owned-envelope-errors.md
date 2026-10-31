@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-ENVELOPE-ERRORS-001: 严格 envelope 在领域 callback 前保持错误边界
 
 Tests:
-- `test:ecd14225441ccfa46b0f00793b1445a4025f41a5e9a9081bf08dee6214b14caa`
+- `test:343c491e2bedc550fd2137b831a8de15f0048b846b664bd1dd0aa038d9c2479d`
 
 Tags:
 - `index-runtime`

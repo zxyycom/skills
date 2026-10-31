@@ -1,7 +1,7 @@
 ### Case GATE-RELEASE-PRIVATE-HANDOFF-001: 发布步骤消费同次 Run 的私有 typed handoff
 
 Tests:
-- `test:8ae6957ad4a2cd1d3216522018da0835003b9698a54bb67114e1e960384bfa8a`
+- `test:547ebc66f1097451b1de21df3fc6585d10d84a4784f7e710475d5a207b5a20fa`
 
 Tags:
 - `repository-tooling`

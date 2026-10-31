@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-CLI-005: 单目录命令只接受直接 active Change
 
 Tests:
-- `test:32cbc4bbfb1e0a91e542b32c5fe2c471e4f82eb88b13d52435834eced2ad8437`
+- `test:7b81d7eb295719a038d3d0182d51ce7176b0d5baba717dd8b4724c386dc5e234`
 
 Tags:
 - `change-plan`

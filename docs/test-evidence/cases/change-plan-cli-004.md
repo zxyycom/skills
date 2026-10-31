@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-CLI-004: CLI 完整报告 committed cleanup pending
 
 Tests:
-- `test:3354bd1d594cc58d21e8c7d7432e23a3d3c081cc2f5951ee8699841baf97437d`
+- `test:86829ddee41360c3b2696f54dc6bef9e681d731b67d00a42cd333b46a2dc5849`
 
 Tags:
 - `change-plan`

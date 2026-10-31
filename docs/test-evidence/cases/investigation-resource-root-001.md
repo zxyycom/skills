@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-ROOT-001: resource root must be a directory when reports declare resources
 
 Tests:
-- `test:2fdcd34e69b75610659007fe49f0095334494999123b1d18b54b8bb7f477a66c`
+- `test:b4924e7dea80ca6f9830b4aa35e299acd83e436b659977ebb92fb7191d80b5ae`
 
 Tags:
 - `investigation-report`

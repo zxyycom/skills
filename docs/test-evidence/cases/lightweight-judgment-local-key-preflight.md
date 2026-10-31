@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-020: 缺失本地密钥是配置前置失败
 
 Tests:
-- `test:a814f594ebb6bdf3c2a1d7616860b007b49c1c6bcc7ff5adbdd1ded5a659e1a8`
+- `test:c89d03b6460790f6fbcd5a6ecc4aef48540bca17b3e4ebed15e45aa1d09ef03b`
 
 Tags:
 - `lightweight-judgment`

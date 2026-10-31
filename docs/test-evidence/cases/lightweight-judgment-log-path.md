@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-025: 默认建库与路径解析
 
 Tests:
-- `test:59054100fec71a89698fe9e3e8b62b54ef1518ec46d5b75e65d61862f7ac4c3f`
+- `test:5850da800489e3df97f161b370ec154da78f2b47422f4be22c356bac7125c3b5`
 
 Tags:
 - `lightweight-judgment`

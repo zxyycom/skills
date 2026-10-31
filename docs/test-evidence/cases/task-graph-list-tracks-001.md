@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LIST-TRACKS-001: Track label 至少两位且没有两位上限
 
 Tests:
-- `test:7c92e32ed9c7e167c1efdc0d6159a586795eac01ad088913272a2f29f6c6c143`
+- `test:519a58b3b0a6877fcba6d7183902ac5c5b9d9f752eab34d1ac1739a41c9583e3`
 
 Tags:
 - `task-graph`

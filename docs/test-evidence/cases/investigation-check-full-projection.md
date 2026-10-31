@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CHECK-FULL-PROJECTION-001: 全量检查比较完整投影
 
 Tests:
-- `test:d7bb287805fa76b76e86579c29864dae58b63cc4f10ecc716c3a78e1391cbd70`
+- `test:728343cd6b8c513c2e70d4ef02e35a05604df225f011ce4553cec82cec6aab28`
 
 Tags:
 - `investigation-report`

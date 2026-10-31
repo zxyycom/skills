@@ -1,7 +1,7 @@
 ### Case GATE-NATIVE-BUILD-MATERIALS-001: JSON Markdown 与密钥材料沿用同一构建源码策略
 
 Tests:
-- `test:5555ec1d2d9c4d9ea2593e65531bc95d57a3a9572cae70762ee20ece456ae644`
+- `test:38bb1bdc8df12208f8beff04fab0394c07e2c1bfa1623e99a421797ac6dae7f1`
 
 Tags:
 - `repository-tooling`

@@ -1,7 +1,7 @@
 ### Case DECISION-FILTER-EVIDENCE-DIRECTIONS-001: 方向类型组合保持同边筛选与省略边界
 
 Tests:
-- `test:2e3e5586e37881f239694ce62be0bd7f0aeb6cbb911148c77ebb9fe0410af89a`
+- `test:1252bc2117111793ac9409ba106af19b27e88575aabe01a9112431ffda2bcdc3`
 
 Tags:
 - `decision-records`

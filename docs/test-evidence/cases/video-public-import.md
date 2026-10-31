@@ -1,7 +1,7 @@
 ### Case VIDEO-PUBLIC-IMPORT-001: 公开导入保持窄 API 与无副作用
 
 Tests:
-- `test:73c938bc8d3fb4c50f6e635d295aba9d71a6dd9b5b1a392a4cbbcbc1d758e4b6`
+- `test:d51ce94f1782c864451fa06ac55fa193a338790e8dd9fa4e93dbe39fb45f5ca1`
 
 Tags:
 - `video-understanding`

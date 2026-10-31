@@ -1,7 +1,7 @@
 ### Case GATE-MARKDOWN-NATIVE-FLAGS-001: Markdown 原生选择
 
 Tests:
-- `test:d09ac5d567b309566b59fb8e7aa32523ef89946f36a84f4c2f0ce718e16750eb`
+- `test:53ca8b3126597d0626f0b07e52a991785b4fd02f20ed13e6744ab73580562bb5`
 
 Tags:
 - `repository-tooling`

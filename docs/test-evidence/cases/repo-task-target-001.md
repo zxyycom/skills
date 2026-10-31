@@ -1,7 +1,7 @@
 ### Case REPO-TASK-TARGET-001: task-graph 短命令拒绝无效的显式项目 root
 
 Tests:
-- `test:3f983281b0ad54b2fba0e221acfd41a72354219a80f7ee5f21af3e7da64ed2e4`
+- `test:2d7488640dde73fa62666080b002efb70c4a56c6c4401a010b42f5c441e7906b`
 
 Tags:
 - `repository-tooling`

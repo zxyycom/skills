@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-DEFAULT-FORMED-AT-001: 源码 CLI 省略 formedAt 时使用当前 UTC 秒
 
 Tests:
-- `test:59e66230166a9994bbbdae81c9e1dfa537ac6bb19a71f0af8bc1cf68cfa1ce23`
+- `test:5f76184851b4930f21488623f5a65da1151391f64b30b191000bd901eacd3ab4`
 
 Tags:
 - `investigation-report`

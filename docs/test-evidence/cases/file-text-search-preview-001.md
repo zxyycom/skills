@@ -1,7 +1,7 @@
 ### Case FILE-TEXT-SEARCH-PREVIEW-001: 文件搜索合并上下文窗口并区分命中行
 
 Tests:
-- `test:b6d86d094ea4eb6e41a48a5da299b676f836a500c80c57ce40d11e951f7fdd0c`
+- `test:71105c9254a50e15bb12b38c1eb61bcbfb5538d9a60b179d6b6bf0463cdd1e0b`
 
 Tags:
 - `index-runtime`

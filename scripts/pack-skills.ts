@@ -1,6 +1,6 @@
 import path from "node:path";
-import { packSkillPackageSnapshot } from "./lib/skill-package-release.ts";
-import { readPendingSkillPackageSnapshot } from "./lib/skill-package-hash.ts";
+import { packSkillPackageSnapshot } from "./lib/skill-package/skill-package-release.ts";
+import { readPendingSkillPackageSnapshot } from "./lib/skill-package/skill-package-hash.ts";
 import { rootDir } from "./lib/project.ts";
 import { skillReleaseManifestFileName } from "../tools/skill-package/src/release-manifest.ts";
 

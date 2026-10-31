@@ -1,7 +1,7 @@
 ### Case WRITE-CANONICAL-CASE-012: 异步写入前隔离调用方缓冲区
 
 Tests:
-- `test:5924b690f1574da18aaa62b06fd63df8bd88fcb5b446a42b37c0d9627d40d16f`
+- `test:127183a6bf6941efaaa07592710664a4e5008ec5b2901863c82dbb94b9e51ded`
 
 Tags:
 - `write-canonical`

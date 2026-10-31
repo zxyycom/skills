@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-LOCAL-ACQUISITION-001: 局部暂存不验证无关原文
 
 Tests:
-- `test:00be29eed594a01aca8446e7af2a4f7efe96c889f1c2062bbcf14623410e623f`
+- `test:cd5dffd67c717e9da0dd2dc0a760d59c4df6bf6728b2ba2e5460ce8a3631d1a7`
 
 Tags:
 - `investigation-report`

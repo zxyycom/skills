@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-MIGRATE-CONFLICT-001: 迁移拒绝已有目标目录
 
 Tests:
-- `test:2de694f5c705f0dfccbfd62ca74e4bd27f957d6790606d597306d589eda498dd`
+- `test:ec737307daaa141fb3e3e7c181544f1bec59b124f5e8a6291b312d8aae28ca76`
 
 Tags:
 - `repository-tooling`

@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-QUERY-TRUST-004: 克隆数组代理不获得数据证明
 
 Tests:
-- `test:cbc3716d7956ab029ca56f9651ca3e414f3106c85f8e8db3122d6f882a184b9e`
+- `test:6ef53d7a5ef0db4c6b11971fdd86f34775cda65e2611b77f31603bb5a979ad93`
 
 Tags:
 - `index-runtime`

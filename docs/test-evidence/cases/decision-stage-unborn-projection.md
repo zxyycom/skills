@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-UNBORN-PROJECTION-001: unborn集合只暂存明确所选投影
 
 Tests:
-- `test:8178e4b672d1a4769b942e7131058b1fb7605a46751593ee77dcd6d9c618b1db`
+- `test:882ac7cfe3274c35cfdc37a4d80813bb788a941864284e4bd2b23a5a00fa5c63`
 
 Tags:
 - `decision-records`

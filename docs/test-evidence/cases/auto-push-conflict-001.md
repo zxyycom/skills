@@ -1,7 +1,7 @@
 ### Case AUTO-PUSH-CONFLICT-001: Main 自动推送拒绝远端分叉
 
 Tests:
-- `test:3e9878379336f88b51b6ca961f25814979f62863d45b53a4f3efdca5a4fe50f8`
+- `test:bcdc19b9241e5bc4485a302d0db26b48b1a38f6f92ea0c971858976d8945e94a`
 
 Tags:
 - `repository-tooling`

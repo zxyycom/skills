@@ -1,7 +1,7 @@
 ### Case ENV-NODE-RUNTIME-001: 环境要求 Vibe 的最低 Node 运行时
 
 Tests:
-- `test:d98de2b5cb9a9685fa1746bcd49751a61e436b8b571542b68f5fc5cc3d68f529`
+- `test:9621b7b9868d295383ed59507f96058278696518b124002ded7021b6d6e9244b`
 
 Tags:
 - `repository-tooling`

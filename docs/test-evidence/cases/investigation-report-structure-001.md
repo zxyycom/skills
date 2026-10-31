@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-REPORT-STRUCTURE-001: validation enforces one report with fixed core and optional resource section
 
 Tests:
-- `test:992ed810c8f249372032f282c48a2fcbe7d79c87904eb8de0b158720ea84478d`
+- `test:6a9db07c48423a95ae0e04a5d3d9eb924ba229da8ca320c8774f51b12225580a`
 
 Tags:
 - `investigation-report`

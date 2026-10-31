@@ -1,8 +1,8 @@
 ### Case DR-INDEX-PAYLOAD-REQUIRED-FAILURE-001: 必需索引payload读取失败不可降级
 
 Tests:
-- `test:60ec34523942f5c2cb68e46c9e4ae6c0f46f767d8b4b13403087afc2265a899f`
-- `test:8821a0cece884fe19a62e3b9cc462ced831146a57ebedce0a45190520a22ccc1`
+- `test:892b5e3000a5f651e556c21a1872c3dc1f1e69c84d477dc9ad967aa785a90890`
+- `test:efff3922a0b148e2c9c65fd1c48f2d8eed6c734829837211e073d3edb7601fd4`
 
 Tags:
 - `decision-records`

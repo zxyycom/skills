@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-GIT-FAILURE-001: discard fails closed when a Git worktree cannot be inspected
 
 Tests:
-- `test:d7bb319d11be801367465a3df616fdcdeb8ca90e684b473f8eda4659ec86b620`
+- `test:862f98eede967a13f047fa92c9d4d4d56d5cf27a3b07c2e5f6154aa535980cbd`
 
 Tags:
 - `investigation-report`

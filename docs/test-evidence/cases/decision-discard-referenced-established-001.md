@@ -1,7 +1,7 @@
 ### Case DECISION-DISCARD-REFERENCED-ESTABLISHED-001: Discard 拒绝仍被引用的已建立决策
 
 Tests:
-- `test:b4df4bb188edd32541b52807c678a272a18f400344f3f92067ffff88a6258e44`
+- `test:e4002b0fdf18f18c81c87b010ebac32aff59a34c39487600ad5565f5779bedaf`
 
 Tags:
 - `decision-records`

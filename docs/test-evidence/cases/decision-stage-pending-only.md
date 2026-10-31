@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-PENDING-ONLY-001: Stage 清理可定位旧路径并拒绝失定位 pending 身份
 
 Tests:
-- `test:66e129c33b9c616e1140c270486856f43bbdf87b04aa40696be2e4929bb34a1b`
+- `test:dfa4633a9388fab03b05034a132f552c282fe6c36ad322e3fc6ceebb7d3f11e0`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-PERSISTED-SCHEMA-VERSION-001: 拒绝不兼容的持久化 Schema 版本
 
 Tests:
-- `test:b83b2dabbf15d28c406d87c1776582e6abc64705a5c130aa78a81c4554f8c99c`
+- `test:561df8bbf7b82a93bb4f3a5fd4c6d973684a5bd8fabbc0c1da5ee1665729f5bc`
 
 Tags:
 - `index-runtime`

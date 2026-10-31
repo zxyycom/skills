@@ -1,7 +1,7 @@
 ### Case DECISION-LOCAL-MAINTENANCE-ACTIONS-001: 普通生命周期与关系操作沿用发布基线
 
 Tests:
-- `test:5bb957883b2ab14e1f8dabcd608cec2aaea11060c857cb37403f7b9e21fd9b6d`
+- `test:ff7186cb5b4515fb9c118ad75f8e90243d881411b38acf0dbb62aa280e46b5ce`
 
 Tags:
 - `decision-records`

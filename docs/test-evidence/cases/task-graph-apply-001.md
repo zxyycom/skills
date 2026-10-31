@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-APPLY-001: 成功返回排序 alias 映射
 
 Tests:
-- `test:1b419d2270b2306bef66f422b339be0b7b9defe4c5a5e15ebfe0a9839f441f74`
+- `test:4439f93db267b68628de5934ee75308e2a565f0c71b309197eeab96a91146251`
 
 Tags:
 - `task-graph`

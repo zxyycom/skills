@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-SCOPE-FIRST-COLLECTION-001: stage --scope domain preserves an unrelated pending index byte-for-byte after source drift is absent
 
 Tests:
-- `test:d1d3d42a634e4b2f9a7ec62f410e5f668e2dee2a4f2ab28f115d15cff091013e`
+- `test:1b1ab79b0799a08c8eec2e9e334877fa2799291e1d0d2120d398376b8e0314b0`
 
 Tags:
 - `decision-records`

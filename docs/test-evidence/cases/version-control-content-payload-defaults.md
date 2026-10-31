@@ -1,9 +1,9 @@
 ### Case VERSION-CONTROL-CONTENT-PAYLOAD-DEFAULTS-001: 显式payload范围与完整默认验收
 
 Tests:
-- `test:3ee2fa24585ea4fa2544e9826707a478f613630603f1329eafe56d622ecb8eb2`
-- `test:b030c1e463213f8c6e6c418cf46a40844346c51a864abe6465026fa9e0ab84f2`
-- `test:fadd77b41bec90606e6c8875dfe5614e675acfc8d33e89b64aea5944cc9049ac`
+- `test:29203e3f3debde471246ea24292a4056ff61bb0850dcc4aa67eca22b7ce80058`
+- `test:5f86bdbba9636a33da0e3ea805c58e88a32dd5a52cfd99f6687bacabf063f16c`
+- `test:7ed7a9fb7ac2a47f9720cf8258925826295ce791cada867c9128eefe08865ec0`
 
 Tags:
 - `version-control`

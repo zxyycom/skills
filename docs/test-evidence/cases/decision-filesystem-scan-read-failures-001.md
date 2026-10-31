@@ -1,7 +1,7 @@
 ### Case DECISION-FILESYSTEM-SCAN-READ-FAILURES-001: Scan 报告文件系统读取失败
 
 Tests:
-- `test:352290afe4280864ecaa6f0aa7adb86279feca1bbfd5df4ed2cbf5dad5082aa3`
+- `test:74476a6dd057d6cd5a50113813380403d6bcafddf73c3ab3875d924de0570107`
 
 Tags:
 - `decision-records`

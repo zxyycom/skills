@@ -8,22 +8,26 @@ import {
   type PrepareOptions,
   type ReadOptions,
   type RefineOptions
-} from "./arguments.ts";
+} from "./cli/arguments.ts";
 import {
   readFileDigest,
   readSubtitleReferences,
   readSourceStamp,
   type Evidence
-} from "./evidence.ts";
+} from "./evidence/evidence.ts";
 import {
   boundaryFailure,
   failure,
   parseJson,
   safeDiagnostic
 } from "./failure.ts";
-import type { ApplicationRootResolver } from "./media-runtime.ts";
-import { formatQuery, queryEvidence } from "./query.ts";
-import { parseDraft, refineRecord, targetRefs } from "./refinement.ts";
+import type { ApplicationRootResolver } from "./media/media-runtime.ts";
+import { formatQuery, queryEvidence } from "./query/query.ts";
+import {
+  parseDraft,
+  refineRecord,
+  targetRefs
+} from "./refinement/refinement.ts";
 import {
   loadEvidence,
   loadSnapshot,
@@ -31,22 +35,22 @@ import {
   operationDirectory,
   publishEvidence,
   withWriter
-} from "./store.ts";
-import { latestSavedRun, queryRuns, recordedOperation } from "./runs.ts";
+} from "./store/store.ts";
+import { latestSavedRun, queryRuns, recordedOperation } from "./runs/runs.ts";
 import {
   createEvidenceParent,
   localInput,
   locateEvidence
 } from "./location.ts";
-import { subtitleInputs } from "./text.ts";
-import { generateText, prepareResult } from "./acquisition.ts";
-import { reusablePreparation } from "./material.ts";
-import { recognizeFrames } from "./frame-ocr.ts";
-import { extractFrames } from "./cli-frames.ts";
+import { subtitleInputs } from "./evidence/text.ts";
+import { generateText, prepareResult } from "./media/acquisition.ts";
+import { reusablePreparation } from "./evidence/material.ts";
+import { recognizeFrames } from "./media/frame-ocr.ts";
+import { extractFrames } from "./cli/cli-frames.ts";
 import { readLocationConfiguration } from "./configuration.ts";
 import type { VideoResources } from "./resources.ts";
 
-export { extractFrames } from "./cli-frames.ts";
+export { extractFrames } from "./cli/cli-frames.ts";
 
 const help = `Local video evidence (Node 24.18+ or Bun; local Windows media runtime)
 node scripts/video.ts prepare --input ABS [--output ABS|--evidence-root ABS] [--subtitle ABS|--subtitle-stream INDEX]

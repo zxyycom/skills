@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-FINALIZE-008: Finalize 在 lifecycle 或 HEAD 漂移时停止
 
 Tests:
-- `test:835b5d1904ae762d4ea4707eadf0a17d520188bd5a2f375e98863981ab00e49d`
+- `test:29c4246551b65cd2c0b78d523acd67b31edada9c43c07d58375008903eb3d6ce`
 
 Tags:
 - `change-plan`

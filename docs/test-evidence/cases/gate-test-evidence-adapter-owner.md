@@ -1,7 +1,7 @@
 ### Case GATE-TEST-EVIDENCE-ADAPTER-OWNER-001: 项目测试证据 adapter 只影响实际项目 Check
 
 Tests:
-- `test:b714dc7470e5dc16af07e803cd6570c5c4c422a052ceb3c001924cf44be80a60`
+- `test:4b8de8d1c92da412ead4b71f10412fddb07457c5768ccf156823913422a5b76a`
 
 Tags:
 - `repository-tooling`

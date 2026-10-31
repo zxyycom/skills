@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-PUBLISH-004: publish preflight validates complete merge and split batches
 
 Tests:
-- `test:e1f164423bbf3341491951bab24eb86241b79cd193dba467e23e16be2d414c57`
+- `test:493d3f3aefb5ee5f66a6075da3df42762f650dab1175e74a359035bb4d76e217`
 
 Tags:
 - `investigation-report`

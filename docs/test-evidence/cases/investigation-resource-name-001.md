@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-NAME-001: resource ID whitelist accepts report-owned names and rejects structural hazards
 
 Tests:
-- `test:a76f028c7d906fd67bc201d3f77419c03682670f1f576741d25cc4b3588df258`
+- `test:1f3c882378a9e723a5fd1c0abddb14ea46bf36ac4ba6bbf8d033b53e44611d89`
 
 Tags:
 - `investigation-report`

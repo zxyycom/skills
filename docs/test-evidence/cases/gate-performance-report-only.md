@@ -1,7 +1,7 @@
 ### Case GATE-PERFORMANCE-REPORT-ONLY-001: 非强制范围如实报告而不新增预算阻断
 
 Tests:
-- `test:667e788783cdc95a65a84b81cce9d7eafb4587362a83ce977ff5c7295de5a248`
+- `test:48e9a037fd0dbc42696766b9b752a97a61314abc7d96a832b2f688dd91f33beb`
 
 Tags:
 - `performance`

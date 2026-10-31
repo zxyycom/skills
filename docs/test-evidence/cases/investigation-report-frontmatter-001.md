@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-REPORT-FRONTMATTER-001: validation enforces report frontmatter fields and canonical ordering
 
 Tests:
-- `test:a494a36a656c27289dcf9919df387b669ef209aef6ac1769e2df1a8d1f3fc793`
+- `test:3580b0874965bde34937a5a136fb0e4fd489daa5cc23dd49492ab3d867134661`
 
 Tags:
 - `investigation-report`

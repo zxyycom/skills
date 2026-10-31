@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LIST-FORM-001: Columns 79 与 80 选择固定 block 和 inline form
 
 Tests:
-- `test:c9316cc7c9c04a1f2053229d420057cc99753f4427fae834c7e50f53951318c1`
+- `test:ebdb4a22ed15471bf4d352fd63b06c08d20dbc15c7adb40eac6bbefc2adfe3c1`
 
 Tags:
 - `task-graph`

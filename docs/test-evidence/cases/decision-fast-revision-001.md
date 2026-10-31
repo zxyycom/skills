@@ -1,7 +1,7 @@
 ### Case DECISION-FAST-REVISION-001: 快速来源 revision 跟踪无效 Markdown 与来源路径
 
 Tests:
-- `test:2b92717a430fd4d45f9a76dea76d4398cfd752d79d23182301294f7645eed22d`
+- `test:dc6e5d24c4f3086b630cafb8a7e7c2b7d0474134b381bce00e6cb2bbae4d208b`
 
 Tags:
 - `decision-records`

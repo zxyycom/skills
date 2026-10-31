@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-SOURCE-PATH-SWAP-001: 同选报告交换位置时保留两个当前版本
 
 Tests:
-- `test:34ac2102d7e8b84cd06c5b2c163acdca02c60de2c5c7060ada97a9ac3838901e`
+- `test:efd882407a418664a3deed40aba8b4d8b4928a06b98d9b91b0d1785126c15a8c`
 
 Tags:
 - `investigation-report`

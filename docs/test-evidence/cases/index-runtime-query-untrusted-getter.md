@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-QUERY-TRUST-001: 原始冻结 getter 和代理不能获得验证复用
 
 Tests:
-- `test:7c478d37b02ecf792a42aba385d0742319f300ce98fcc6196e67d564803b1468`
+- `test:1a643846001d2020462826e164ffcae85ef36feaf3357e81a43a222e62dd1dd8`
 
 Tags:
 - `index-runtime`

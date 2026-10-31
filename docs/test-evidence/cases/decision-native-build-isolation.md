@@ -1,7 +1,7 @@
 ### Case DECISION-NATIVE-BUILD-ISOLATION-001: 构建归一化并隔离来源快照
 
 Tests:
-- `test:be28d1b5c7161519765d0a47676b26954fece2db9c880424fb3af9398d1bdc30`
+- `test:8f496b69cf15cbd1c43c3e30ea5004bac186558aaf729b8a6c0012aae982c7b3`
 
 Tags:
 - `decision-records`

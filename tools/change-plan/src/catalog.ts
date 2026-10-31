@@ -1,12 +1,12 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { errorMessage, lstatOrNull } from "./check-support.ts";
+import { errorMessage, lstatOrNull } from "./checks/check-support.ts";
 import { createPlanVersionControlInspector } from "./git-distance.ts";
 import { inspectChangeRootRepositoryBoundary } from "./repository-boundary.ts";
 import {
   checkChangePlanDirectory,
   checkChangePlanDirectoryInRoot
-} from "./check.ts";
+} from "./checks/check.ts";
 import {
   changePlanArtifactNames,
   tombstoneDirectoryName,

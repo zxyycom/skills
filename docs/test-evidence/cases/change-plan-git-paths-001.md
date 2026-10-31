@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-GIT-PATHS-001: Git 距离按目录边界统计混合提交
 
 Tests:
-- `test:b91662dca4bffc0a511b2fa565c1057b566906c30c36c0c661866be96b17cb71`
+- `test:24d67923101d9486786bc1f2548250ae46bea9acb9d373ab68f3dab7984c2358`
 
 Tags:
 - `change-plan`

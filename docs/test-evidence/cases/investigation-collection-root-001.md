@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-COLLECTION-ROOT-001: full validation rejects unknown investigation root members
 
 Tests:
-- `test:27ddce8a4aad2b2e6dca10eecd09d719db3050790c94865fbde55a8decb60508`
+- `test:a9459009080cc7cf2caf6a5ea0b8099037cdf23fa8ca3c4c074a4cffdabe90dd`
 
 Tags:
 - `investigation-report`

@@ -1,2 +1,2 @@
-await import("../lifecycle.test.ts");
-await import("../task-removal.test.ts");
+await import("../lifecycle/lifecycle.test.ts");
+await import("../lifecycle/task-removal.test.ts");

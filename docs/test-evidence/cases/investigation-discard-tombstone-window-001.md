@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-TOMBSTONE-WINDOW-001: discard restores tombstoned resources when a rename-window member appears
 
 Tests:
-- `test:e5581d5613c38e52806365b1ef99df8b43385db526d9e21c41774d10924ea2b6`
+- `test:aa9e04911b6db2a60ce4cd82ec017846eba125c68cbc63e99954dc8a85fee048`
 
 Tags:
 - `investigation-report`

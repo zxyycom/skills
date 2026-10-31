@@ -5,7 +5,10 @@ import {
   projectActivationCondition,
   type GateCheckConfiguration
 } from "../contracts.ts";
-import { gateCodeToolIds, type GateToolSubscription } from "../impact-tools.ts";
+import {
+  gateCodeToolIds,
+  type GateToolSubscription
+} from "../impact/impact-tools.ts";
 import { gateCommandPolicy } from "../command-runner.ts";
 
 export const compatibilityTestPackageScripts = [

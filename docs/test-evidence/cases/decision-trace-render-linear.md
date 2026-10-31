@@ -1,7 +1,7 @@
 ### Case DECISION-TRACE-RENDER-LINEAR-001: 层与事件渲染复用一次关系上下文
 
 Tests:
-- `test:e5c62914fb5550628fa1beaffeabb81c27f8123c5ec923c5d7596c274f8125b1`
+- `test:1072faef1d26240b40937ff5d6a25fa4ebde8f855ff961971b0e0a86bcbaa773`
 
 Tags:
 - `decision-records`

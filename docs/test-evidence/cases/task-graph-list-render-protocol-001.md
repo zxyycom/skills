@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LIST-RENDER-PROTOCOL-001: 空 task list 使用固定零值摘要
 
 Tests:
-- `test:488badddc9a4f9984cbee7b667e41fee60697be124eb61173ac80206d5b53ffe`
+- `test:1d214ff5f48f2a45de49b775698779b39e366b5f3487e592c68a671a3e6a7c2a`
 
 Tags:
 - `task-graph`

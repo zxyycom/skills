@@ -1,7 +1,7 @@
 ### Case GATE-DECLARATION-QUALITY-001: 声明分发域启动三项质量命令而不启动空指标
 
 Tests:
-- `test:e6fe6a30d0b5af823db51baf2eced63eac93f3474fc045b3d62cb77bce7fa558`
+- `test:ca6c41f92e6bc82dbf19167efc79721f1092e05011c237b7d15d46541f2e5ecf`
 
 Tags:
 - `repository-tooling`

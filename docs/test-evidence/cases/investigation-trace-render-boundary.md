@@ -1,7 +1,7 @@
 ### Case IR-TRACE-BOUNDARY-001: 终端事件与预算边界文本保持完整
 
 Tests:
-- `test:2fe4582fb5d22f4b2d1dd5ba9c2570896c24e090c98f57735c3f8c367f6beaee`
+- `test:e0d82d18735dfac833cd1c36272afb01b251d7be159a734bd636ea398436cc6e`
 
 Tags:
 - `performance`

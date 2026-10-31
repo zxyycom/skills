@@ -1,7 +1,7 @@
 ### Case DECISION-LOADED-SNAPSHOT-SELECTORS-001: 发布快照选择器保留完整身份与名称歧义
 
 Tests:
-- `test:f38f1947b4933cd5d240c0f85d60b6e814d4b592585341bcf4c4c0f99cc152bd`
+- `test:556b2a01e779da8681c4f5d40da3012edd1d5d10e6a47b7a1b7f4bcd3cf8aed1`
 
 Tags:
 - `decision-records`

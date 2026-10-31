@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-SINGLE-OPTIONS-001: 重复单值 CLI 选项不创建集合文件
 
 Tests:
-- `test:21b4502b6054398add0c699e671c83c2a8b96bd796f1f90be1fbaf6ec20a00f7`
+- `test:262ac584eb3d99b3d145a56692e06a25ad3d12619a9e50f7066ffa6b28fb888a`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-STAGE-CONCURRENCY-001: 并发分段暂存只有一个赢家
 
 Tests:
-- `test:fb537ad0fb354f642e1830a28ebea87c29e32123a6cfda4ec6595d19c739c337`
+- `test:fd32d44e70773dc711e38a7f99dab5d965d28d7b2bd8816fb45fb57a05f5fe89`
 
 Tags:
 - `task-graph`

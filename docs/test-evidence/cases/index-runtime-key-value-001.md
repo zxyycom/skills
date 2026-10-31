@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-KEY-VALUE-001: 拒绝声明文本查询 source 的非法值
 
 Tests:
-- `test:577ab4e40012cf5b0697bc5cce3e3927e3add7e23f6ce7a34a4b567a2f1bcbcc`
+- `test:7bbdba81a09a562377caa1f8cc1badd46b6197643ca95d0866dfcbec2a79a410`
 
 Tags:
 - `index-runtime`

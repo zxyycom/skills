@@ -1,8 +1,8 @@
 ### Case VIDEO-OCR-OBSERVATION-001: OCR 保持原始观察身份
 
 Tests:
-- `test:23810b16736ac552930fd1d80bf2649e1eaa3c139c7ce740da418ada19cfe770`
-- `test:9fdb20b584c75685ae0abcaf009efc8f43b4ac652ecbf763407df4a29af33632`
+- `test:ca11fa1661af301dd69bcfb746ed1d77a3c713d2ccc10a30d14aac0506e76d18`
+- `test:d8e9c8b2c5df976fd357b9eed32586c240c1c4cbb202999d4bb59e648a957993`
 
 Tags:
 - `video-understanding`

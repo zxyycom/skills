@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-NODE-SMOKE-001: 生成 Decision Records CLI 保持 Node 进程协议
 
 Tests:
-- `test:3338c687305a981ed94738bc413766d560abeab07f77b6c8794bacb85b0ae978`
+- `test:62f1ee1b3477e99444b91589e1e55bcaa71f12299e7723f5266def03f0421a32`
 
 Tags:
 - `decision-records`

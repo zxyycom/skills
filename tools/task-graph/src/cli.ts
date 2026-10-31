@@ -3,11 +3,11 @@
 import path from "node:path";
 import process from "node:process";
 import { isMainModule } from "../../shared/src/node/main-module.ts";
-import { parseGlobalArguments } from "./cli-arguments.ts";
+import { parseGlobalArguments } from "./cli/cli-arguments.ts";
 import type {
   TaskGraphCliInternalOptions,
   TaskGraphCliOptions
-} from "./cli-contract.ts";
+} from "./cli/cli-contract.ts";
 import {
   executeInvocation,
   failure,
@@ -15,15 +15,15 @@ import {
   resolveInvocation,
   writeJsonResult,
   writeOutput
-} from "./cli-output.ts";
+} from "./cli/cli-output.ts";
 import { TaskGraphError } from "./errors.ts";
 import { loadNativeLockBinding } from "./runtime.ts";
 import { TaskGraphService } from "./service.ts";
 import { defaultTaskGraphIndexPath } from "./types.ts";
 
 /** @internal */
-export type { TaskGraphCliInternalOptions } from "./cli-contract.ts";
-export type { TaskGraphCliOptions } from "./cli-contract.ts";
+export type { TaskGraphCliInternalOptions } from "./cli/cli-contract.ts";
+export type { TaskGraphCliOptions } from "./cli/cli-contract.ts";
 
 /** @internal */
 export function runTaskGraphCli(

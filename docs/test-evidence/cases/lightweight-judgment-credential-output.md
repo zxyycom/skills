@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-015: 短密钥与输出边界
 
 Tests:
-- `test:2b9b9db769d114c47326d213f9a49d01cb1978e95ea9ae6f90ff7c37ad2ec674`
+- `test:7d48a7086ebcc8769bb19a70bccaf41a36289dc3641269212bd022589450cd5c`
 
 Tags:
 - `lightweight-judgment`

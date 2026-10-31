@@ -7,7 +7,10 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
-import { isDecisionId, isDecisionSourcePath } from "./decision-path.ts";
+import {
+  isDecisionId,
+  isDecisionSourcePath
+} from "./collection/decision-path.ts";
 
 export const decisionRelationTypes = [
   "修订",

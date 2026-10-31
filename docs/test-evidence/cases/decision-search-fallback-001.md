@@ -1,7 +1,7 @@
 ### Case DECISION-SEARCH-FALLBACK-001: 发布范围内读取当前正文
 
 Tests:
-- `test:2232aa07aad0753dd20c12316562e5839453ad5687237566e8a200c4cf978745`
+- `test:be47b8b23d77fcd974b344d780ba5861cd11440813143f9e1b19efa7b02989bb`
 
 Tags:
 - `decision-records`

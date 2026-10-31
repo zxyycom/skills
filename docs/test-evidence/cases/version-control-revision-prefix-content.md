@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-REVISION-PREFIX-CONTENT-001: 修订前缀内容明确完整性
 
 Tests:
-- `test:f9d8b76db2c6a2f879374cd2744de65e374cd655704c994e7300ee9d580a68ef`
+- `test:0d45c5680a5e3a98c4daed87a8028482c7ef33cd9987857a3601e44ae04760ba`
 
 Tags:
 - `version-control`

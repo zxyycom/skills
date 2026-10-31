@@ -1,8 +1,8 @@
 ### Case INVESTIGATION-STAGE-SELECTED-REFRESH-001: 选择性刷新保留未选 pending
 
 Tests:
-- `test:01034930902f5ca5e64693b99976e2d0c0a5bea2549e89f7b7cea6b3ad69facf`
-- `test:5f0db11e49618bec74a083e58ed70ea5d3c21641f29d2135aff3bb7250f30c9b`
+- `test:b301c999befa44c5cd70e0a4e49ce7766166f7d4dae91269608168a185b709c0`
+- `test:d40cbc3af7eeb5d5f978a070fa491f86e9a62bcee84f78052a649183e8370a52`
 
 Tags:
 - `investigation-report`

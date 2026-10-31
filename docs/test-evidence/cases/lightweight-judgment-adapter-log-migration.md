@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-ADAPTER-010: 显式 v2 到 v3 迁移与未知合同
 
 Tests:
-- `test:49c66d26c6a0284455419ac9252a51d68ddc54ed652e7af264e1c73915d96f4f`
+- `test:40f8dcdb040c1fb9989c2e604e9b66080d3c84e4e980f82aeec5f637570f9786`
 
 Tags:
 - `lightweight-judgment`

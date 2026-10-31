@@ -1,9 +1,9 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-027: 发送前存储失败关闭调用
 
 Tests:
-- `test:27ef848886be7842f677cc171ba20ba3f89c5320a2bf18e7787e9cad43c01e1e`
-- `test:89823753ca2305febdb65207230cf18ed987055b3086be70f3d6e08f746f601f`
-- `test:ca6bf4ea36ae6d2d5fa0a55250dffff6072d7d45ce47ce0d55b5388d5655b2b0`
+- `test:7592d59374e2ec26e52c8741acd4f364566cc0fcc90e02fbe6c3abf443c27730`
+- `test:8e4d15b7653f6be51b5663d98ff4ee6e97d6e92fff4eb5d4d2b1c421b1f7a656`
+- `test:ac3ce12011f3c6525917ec552b9e8e15917c7241d87eb99a7766ff3a18385f42`
 
 Tags:
 - `lightweight-judgment`

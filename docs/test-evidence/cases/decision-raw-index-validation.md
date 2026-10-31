@@ -1,7 +1,7 @@
 ### Case DECISION-RAW-INDEX-VALIDATION-001: 冻结 raw 输入不能绕过严格验收
 
 Tests:
-- `test:b76ad203ae1bee26519f645044e8eab58b3de0b208b82b5c33e3dd25af1ac37d`
+- `test:229098f0f68ae7875115856b0a15770e85c3bbc918f2e3553d70d0b3ad3b1808`
 
 Tags:
 - `decision-records`

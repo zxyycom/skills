@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001: index state projects strict empty metadata and sourcePath
 
 Tests:
-- `test:2439f944586d48dff33d0004f0814b0c0842b4b2cd1d6993207178da00bc9409`
+- `test:d1eb5a540d7286eff01c09db699e5079a232464e1d3b7d60070fc9ec01d01f68`
 
 Tags:
 - `investigation-report`

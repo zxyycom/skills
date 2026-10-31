@@ -1,7 +1,7 @@
 ### Case RECORD-READER-PROTOCOL-001: 真实Node worker故障不退化为成功
 
 Tests:
-- `test:a49a5789876aef49d092188cb5efa942fa4cee7a40f9fd124210898c1902eb22`
+- `test:404159a5336d1beeedcc40150344b4e1ed6968d2a06ff2dd86e4bc3fa3b6f1e1`
 
 Tags:
 - `record-operations`

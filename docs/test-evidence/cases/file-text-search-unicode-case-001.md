@@ -1,7 +1,7 @@
 ### Case FILE-TEXT-SEARCH-UNICODE-CASE-001: 文件搜索按整行处理希腊 sigma 小写
 
 Tests:
-- `test:3d0098d9f8cefedfc241de441d78fdc305a5b832cc0779c6f5e760395db49c03`
+- `test:6a95ee240f7cf83dda11035afad584ce6b3bf51ff247c176780b76cfd42d342b`
 
 Tags:
 - `index-runtime`

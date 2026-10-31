@@ -1,7 +1,7 @@
 ### Case DECISION-SYNC-FINAL-REVISION-GUARD-001: 同步结束独立检查来源漂移
 
 Tests:
-- `test:33bde5655ecf6e9db4235920d644f19a5b5acf7b3de6cfea4f5c338f4aae01a2`
+- `test:124ab5aa4afa69921362354beca425a6558bfcb6d4b78f9e2448253daf1a40d5`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-DECISIONS-DIR-NORMALIZATION-001: 相对决策目录在参数边界规范化
 
 Tests:
-- `test:bfe3718702b0fe494c495b1a9d516fc334ba8c71db1e74cc993dbaf178c01dab`
+- `test:ecbd7f55eabbb477182a705beceba2787c2fd852ad167f4ce2940bf9c4c48e0d`
 
 Tags:
 - `decision-records`

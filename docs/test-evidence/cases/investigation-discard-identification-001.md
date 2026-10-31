@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-IDENTIFICATION-001: discard 识别正式报告并拒绝缺失目标
 
 Tests:
-- `test:2be7dffb814983d71e6865a9b30cd2524450a728a901cb7d90163b09d2c35319`
+- `test:9f13bc8f9859af329016e56e04d494bbbc1b13b0fef85d9e25fb0be44c6fb215`
 
 Tags:
 - `investigation-report`

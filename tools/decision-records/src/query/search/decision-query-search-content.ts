@@ -1,0 +1,307 @@
+import { canonicalRecordCollection } from "../../../../record-operations/src/source.ts";
+import { decisionIdFromMarkdown } from "../../records/decision-metadata.ts";
+import { loadDecisionIndexSnapshot } from "../../index/decision-index-snapshot.ts";
+import {
+  decisionIndexRecordSnapshot,
+  type DecisionRelationRecordSnapshot
+} from "../decision-query-records.ts";
+import {
+  searchRecordText,
+  type RecordTextSearchResult
+} from "../../../../shared/src/file-text-search/record-search.ts";
+import {
+  contentSearchFacts,
+  searchLimitWarnings
+} from "../../../../shared/src/file-text-search/record-search-info.ts";
+import { FileTextSearchError } from "../../../../shared/src/file-text-search/index.ts";
+import {
+  decisionDiagnostic,
+  decisionFailure,
+  type DecisionApplicationFailure
+} from "../../application-result.ts";
+import { type DecisionLocation } from "../decision-query-context.ts";
+import type {
+  DecisionContentSearchRecord,
+  DecisionFilteredRecord,
+  DecisionQueryRequest,
+  DecisionQueryResult,
+  DecisionSearchSnapshot,
+  DecisionSearchFilters,
+  IndexedDecisionRecord
+} from "../decision-query-contract.ts";
+import { indexFailure } from "../decision-query-records.ts";
+import { filterSearchRecords } from "./decision-query-search-filter.ts";
+import { type DecisionSourcePath } from "../../types.ts";
+
+const decisionSearchPreviewPolicy = {
+  contextLines: 1,
+  maxFiles: 20,
+  maxMatchesPerFile: 3,
+  maxPreviewCharacters: 12_000
+} as const;
+
+export async function searchDecisionContent(
+  request: Extract<DecisionQueryRequest, { command: "search" }>
+): Promise<DecisionQueryResult> {
+  const context = await loadDecisionSearchContext(
+    request.location,
+    request.relatedTo !== undefined || request.relationType !== undefined
+  );
+  if (context.status === "error") {
+    return context.failure;
+  }
+  const snapshot = context.value.snapshot;
+  const selected = filterSearchRecords(context.value.records, request);
+  if (selected.status === "error") {
+    return selected.failure;
+  }
+  try {
+    const selectedBySourcePath = new Map<string, DecisionFilteredRecord>(
+      selected.records.map((record) => [record.sourcePath, record])
+    );
+    const searched = await searchSelectedSources(
+      context.value.decisionsDirectory,
+      selectedBySourcePath,
+      request
+    );
+    const records = projectContentHits(searched, selectedBySourcePath);
+    if (!Array.isArray(records)) return records;
+    return contentSearchSuccess(
+      request,
+      selected.filters,
+      snapshot,
+      records,
+      searched
+    );
+  } catch (error) {
+    return searchFileFailure(error);
+  }
+}
+
+function projectContentHits(
+  searched: RecordTextSearchResult,
+  selectedBySourcePath: ReadonlyMap<string, DecisionFilteredRecord>
+): DecisionContentSearchRecord[] | DecisionApplicationFailure {
+  const records: DecisionContentSearchRecord[] = [];
+  for (const hit of searched.hits) {
+    const record = searchedDecisionRecord(
+      selectedBySourcePath,
+      hit.sourcePath,
+      hit.previews
+    );
+    if ("status" in record && record.status === "error") {
+      return record;
+    }
+    records.push(record);
+  }
+  return records;
+}
+
+async function searchSelectedSources(
+  decisionsDirectory: string,
+  selectedBySourcePath: ReadonlyMap<string, DecisionFilteredRecord>,
+  request: Extract<DecisionQueryRequest, { command: "search" }>
+) {
+  return await searchRecordText(
+    {
+      preview: decisionSearchPreviewPolicy,
+      query: { mode: request.match, text: request.text },
+      root: decisionsDirectory,
+      selection: {
+        kind: "files",
+        sourcePaths: [...selectedBySourcePath.keys()]
+      }
+    },
+    ({ sourcePath, content }) => {
+      if (
+        decisionIdFromMarkdown(content) !==
+        selectedBySourcePath.get(sourcePath)?.decisionId
+      )
+        throw new FileTextSearchError({
+          code: "invalid-file",
+          sourcePath,
+          message:
+            "Decision source identity does not match the published index."
+        });
+    }
+  );
+}
+
+function contentSearchSuccess(
+  request: Extract<DecisionQueryRequest, { command: "search" }>,
+  filters: DecisionSearchFilters,
+  snapshot: DecisionSearchSnapshot,
+  records: DecisionContentSearchRecord[],
+  searched: RecordTextSearchResult
+): Extract<DecisionQueryResult, { command: "search"; in: "content" }> {
+  const facts = contentSearchFacts(searched);
+  return {
+    searchInfo: {
+      query: {
+        text: request.text,
+        in: "content",
+        match: request.match,
+        filters,
+        limits: facts.limits
+      },
+      source: snapshot.source,
+      counts: facts.counts,
+      coverage: facts.coverage
+    },
+    command: "search",
+    in: "content",
+    records,
+    status: "ok",
+    truncation: searched.truncation,
+    warnings: [...snapshot.warnings, ...searchLimitWarnings(facts.coverage)]
+  };
+}
+
+function searchedDecisionRecord(
+  recordsBySourcePath: ReadonlyMap<string, DecisionFilteredRecord>,
+  sourcePath: string,
+  previews: DecisionContentSearchRecord["previews"]
+): DecisionContentSearchRecord | DecisionApplicationFailure {
+  const record = recordsBySourcePath.get(sourcePath);
+  if (record !== undefined) return { ...record, previews };
+  return decisionFailure([
+    decisionDiagnostic({
+      code: "decision-records.search-source-unmapped",
+      reason:
+        "A searched Decision source path does not map to one indexed Decision ID: " +
+        sourcePath,
+      recovery:
+        "Correct the Decision source and index mapping, then retry the search.",
+      target: sourcePath
+    })
+  ]);
+}
+
+type DecisionSearchContext = Readonly<{
+  snapshot: DecisionSearchSnapshot;
+  records: DecisionRelationRecordSnapshot;
+  decisionsDirectory: string;
+}>;
+
+type DecisionSearchContextResult =
+  | { status: "ok"; value: DecisionSearchContext }
+  | { failure: DecisionApplicationFailure; status: "error" };
+
+export async function loadDecisionSearchSnapshot(
+  location: DecisionLocation
+): Promise<
+  | { status: "ok"; value: DecisionSearchSnapshot }
+  | { failure: DecisionApplicationFailure; status: "error" }
+> {
+  const context = await loadDecisionSearchContext(location);
+  return context.status === "error"
+    ? context
+    : { status: "ok", value: context.value.snapshot };
+}
+
+async function loadDecisionSearchContext(
+  location: DecisionLocation,
+  requiresRelations = false
+): Promise<DecisionSearchContextResult> {
+  let decisionsDirectory: string;
+  try {
+    decisionsDirectory = (
+      await canonicalRecordCollection(
+        location.workspaceRoot,
+        location.decisionsDir
+      )
+    ).collectionRoot;
+  } catch (error) {
+    return {
+      status: "error",
+      failure: decisionFailure([
+        error instanceof Error
+          ? error.message
+          : "Decision collection could not be safely resolved"
+      ])
+    };
+  }
+  const persisted = await loadDecisionIndexSnapshot({
+    decisionsDirectory,
+    queryOnly: !requiresRelations
+  });
+  if (persisted.status === "error")
+    return {
+      status: "error",
+      failure: indexFailure(persisted, "Decision search index")
+    };
+  const records = decisionIndexRecordSnapshot(persisted.value);
+  const entries = [...records.records].sort((left, right) =>
+    left.sourcePath.localeCompare(right.sourcePath)
+  );
+  const mapped = decisionSearchMap(entries);
+  if (mapped.status === "error") return mapped;
+  return {
+    status: "ok",
+    value: {
+      decisionsDirectory,
+      records: { ...records, records: entries },
+      snapshot: {
+        entries,
+        sourcePathToRecord: mapped.value,
+        warnings: [],
+        source: {
+          kind: "published-index+current-text",
+          currentness: "unchecked",
+          fallback: false
+        }
+      }
+    }
+  };
+}
+
+function decisionSearchMap(records: readonly IndexedDecisionRecord[]):
+  | {
+      status: "ok";
+      value: ReadonlyMap<DecisionSourcePath, IndexedDecisionRecord>;
+    }
+  | { failure: DecisionApplicationFailure; status: "error" } {
+  const sourcePathToRecord = new Map<
+    DecisionSourcePath,
+    IndexedDecisionRecord
+  >();
+  for (const record of records) {
+    if (sourcePathToRecord.has(record.sourcePath))
+      return {
+        failure: decisionFailure([
+          decisionDiagnostic({
+            code: "decision-records.search-source-ambiguous",
+            reason:
+              "A Decision source path maps to more than one Decision ID: " +
+              record.sourcePath,
+            recovery:
+              "Correct the Decision source projection, then retry the search.",
+            target: record.sourcePath
+          })
+        ]),
+        status: "error"
+      };
+    sourcePathToRecord.set(record.sourcePath, record);
+  }
+  return { status: "ok", value: sourcePathToRecord };
+}
+
+function searchFileFailure(error: unknown): DecisionApplicationFailure {
+  const reason =
+    error instanceof FileTextSearchError
+      ? error.message
+      : "The file text search operation failed.";
+  const target =
+    error instanceof FileTextSearchError && error.sourcePath !== null
+      ? error.sourcePath
+      : "Decision search";
+  return decisionFailure([
+    decisionDiagnostic({
+      code: "decision-records.search-failed",
+      reason,
+      recovery:
+        "Correct the Decision search input or source collection, then retry.",
+      target
+    })
+  ]);
+}

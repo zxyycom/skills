@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-ADAPTER-006: TypeSafe 资产与 OR 长上下文
 
 Tests:
-- `test:6df3087ce1a65b5939ac880e8961f9f4bf64aa2c5dc34edd95deea56e1514ba0`
+- `test:93657aefbaa1d025e00339621cea65cf831e612f70d26ba8731e28820f4809cc`
 
 Tags:
 - `lightweight-judgment`

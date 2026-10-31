@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-SHELL-001: workspace shell preserves multiline data until the fixed target shell consumes it
 
 Tests:
-- `test:3b786b60e9def3d38c96b555e8913d2815942841e833d44bdff64fcc7cd9ed8c`
+- `test:d7d374a322074bfccbc00a78e389ce4e2053528edda5ff1055a5d4c378086b10`
 
 Tags:
 - `mcpshell-workspace-bridge`

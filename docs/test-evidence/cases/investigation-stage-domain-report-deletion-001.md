@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-DOMAIN-REPORT-DELETION-001: stage --scope domain stages report deletion with the owner tree for a baseline-only ID
 
 Tests:
-- `test:2b80afe43b214f7bf66f8ce3feb93b9aa2d7f113bba14397c8caffdba3b971d2`
+- `test:c9f2a5bc698eeba8be6991b8dcdab16848e93dd3a622e1cd3b28ce848657ad31`
 
 Tags:
 - `investigation-report`

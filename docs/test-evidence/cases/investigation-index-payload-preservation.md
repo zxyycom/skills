@@ -1,7 +1,7 @@
 ### Case IR-INDEX-PAYLOAD-PRESERVATION-001: index保留未选部分暂存表示与删除
 
 Tests:
-- `test:8a792301272f007a9bfc0d4e71462adcf868938b00af6e7ff82f64ab885513a9`
+- `test:44a32fc7f0bcb51ad84c93aa8601da57ab8eabc5673bed2e263c047f16211fa6`
 
 Tags:
 - `investigation-report`

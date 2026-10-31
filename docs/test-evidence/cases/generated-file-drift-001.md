@@ -1,7 +1,7 @@
 ### Case GENERATED-FILE-DRIFT-001: 生成文件检查识别真实漂移
 
 Tests:
-- `test:228837c4aeb91d1788045125a81a4607d0d3e1f6d5d5af1e573c0cbaffd02e27`
+- `test:13dfb56d5ab85438e969df5a76ca65e932b9567ffbc18a949849d121a8ac97f2`
 
 Tags:
 - `repository-tooling`

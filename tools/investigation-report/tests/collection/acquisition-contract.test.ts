@@ -1,0 +1,353 @@
+import { acquireDomainPhase } from "../../src/staging/domain/staging-domain-membership.ts";
+import { investigationIndexFixture } from "../query/index/index-fixture.ts";
+import { createInvestigationStageIndexDefinition } from "../../src/staging/domain/staging-domain-index.ts";
+import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { test } from "node:test";
+import { openVersionControl } from "../../../shared/src/version-control/index.ts";
+import {
+  listInvestigationCandidates,
+  showInvestigationCandidate
+} from "../../src/candidates/candidate.ts";
+import { loadInvestigationIndex } from "../../src/index/investigation-state-index.ts";
+import {
+  queryInvestigationIndex,
+  searchInvestigationReports,
+  showInvestigationReport,
+  traceInvestigationReports
+} from "../../src/query/query.ts";
+import { domainSourceSelection } from "../../src/staging/domain/staging-domain-sources.ts";
+import {
+  collectDomainWrites,
+  prepareDomainAcquisitionRequest
+} from "../../src/staging/domain/staging-domain-writes.ts";
+import { validateInvestigationReports } from "../../src/records/validation/validation.ts";
+import { git, initializeGit } from "../support/git-support.ts";
+import {
+  investigationRoot,
+  reportMarkdown,
+  withTempRoot
+} from "../support/fixture-support.ts";
+import { writeCollection } from "../support/collection-support.ts";
+
+async function observeSourceReads<T>(
+  root: string,
+  run: () => Promise<T>
+): Promise<{ result: T; paths: string[] }> {
+  const original = fs.readFile;
+  const originalOpen = fs.open;
+  const paths: string[] = [];
+  fs.readFile = (async (...args: Parameters<typeof fs.readFile>) => {
+    const target = typeof args[0] === "string" ? args[0] : "";
+    if (
+      target.startsWith(investigationRoot(root) + path.sep) &&
+      (target.endsWith(".md") ||
+        path.basename(target).startsWith("_candidate."))
+    )
+      paths.push(target);
+    return await original(...args);
+  }) as typeof fs.readFile;
+  fs.open = async (...args) => {
+    const target = typeof args[0] === "string" ? args[0] : "";
+    if (
+      target.startsWith(investigationRoot(root) + path.sep) &&
+      (target.endsWith(".md") ||
+        path.basename(target).startsWith("_candidate."))
+    )
+      paths.push(target);
+    return await originalOpen(...args);
+  };
+  try {
+    return { result: await run(), paths };
+  } finally {
+    fs.readFile = original;
+    fs.open = originalOpen;
+  }
+}
+
+test("published investigation queries read no formal or candidate Markdown even when sources disappear", async () => {
+  await withTempRoot("snapshot-acquisition", async (root) => {
+    await writeCollection(root, [{ id: "one" }, { id: "two" }]);
+    await fs.rm(path.join(investigationRoot(root), "one.md"));
+    await fs.writeFile(
+      path.join(investigationRoot(root), "_candidate.other"),
+      "invalid source\n"
+    );
+    const observed = await observeSourceReads(root, async () => ({
+      list: await queryInvestigationIndex({ workspaceRoot: root, limit: 1 }),
+      trace: await traceInvestigationReports({
+        workspaceRoot: root,
+        id: "one"
+      }),
+      search: await searchInvestigationReports({
+        workspaceRoot: root,
+        query: "当前",
+        in: "metadata",
+        limit: 1
+      })
+    }));
+    assert.deepEqual(observed.paths, []);
+    assert.deepEqual(observed.result.list.errors, []);
+    assert.equal(observed.result.trace.status, "ok");
+    assert.equal(observed.result.search.status, "ok");
+    assert.deepEqual(observed.result.list.warnings, []);
+    assert.deepEqual(observed.result.trace.warnings, []);
+    assert.deepEqual(observed.result.search.warnings, [
+      "search results limited: max-records"
+    ]);
+  });
+});
+
+test("investigation show and indexed scoped check read only their selected ordinary source", async () => {
+  await withTempRoot("local-acquisition", async (root) => {
+    await writeCollection(root, [
+      { id: "one", sourcePath: "semantic.md" },
+      { id: "two" }
+    ]);
+    await fs.writeFile(
+      path.join(investigationRoot(root), "two.md"),
+      "unrelated malformed source"
+    );
+    const shown = await observeSourceReads(root, () =>
+      showInvestigationReport({ workspaceRoot: root, id: "one" })
+    );
+    assert.equal(shown.result.status, "ok");
+    assert.deepEqual(shown.paths, [
+      path.join(investigationRoot(root), "semantic.md")
+    ]);
+    const checked = await observeSourceReads(root, () =>
+      validateInvestigationReports({ workspaceRoot: root, ids: ["one"] })
+    );
+    assert.deepEqual(checked.result.errors, []);
+    assert.equal(checked.result.indexChecked, false);
+    assert.deepEqual(checked.paths, shown.paths);
+    const target = path.join(investigationRoot(root), "semantic.md");
+    await fs.rm(target);
+    await fs.writeFile(
+      path.join(root, "outside.md"),
+      reportMarkdown({ id: "one" })
+    );
+    await fs.symlink(path.join(root, "outside.md"), target);
+    assert.equal(
+      (await showInvestigationReport({ workspaceRoot: root, id: "one" }))
+        .status,
+      "error"
+    );
+    assert.ok(
+      (
+        await validateInvestigationReports({
+          workspaceRoot: root,
+          ids: ["one"]
+        })
+      ).errors.length > 0
+    );
+  });
+});
+
+test("scoped investigation discovery resolves moved and unpublished formal identities without global proof", async () => {
+  await withTempRoot("local-discovery", async (root) => {
+    await writeCollection(root, [{ id: "one" }]);
+    await fs.rename(
+      path.join(investigationRoot(root), "one.md"),
+      path.join(investigationRoot(root), "moved.md")
+    );
+    await fs.writeFile(
+      path.join(investigationRoot(root), "new.md"),
+      reportMarkdown({ id: "new" })
+    );
+    await fs.writeFile(
+      path.join(investigationRoot(root), "unrelated.md"),
+      "malformed\n"
+    );
+    const checked = await validateInvestigationReports({
+      workspaceRoot: root,
+      ids: ["one", "new"]
+    });
+    assert.deepEqual(checked.errors, []);
+    assert.equal(checked.selectedReportCount, 2);
+    assert.equal(checked.indexChecked, false);
+    assert.ok(
+      (await validateInvestigationReports({ workspaceRoot: root })).errors
+        .length > 0
+    );
+  });
+});
+
+test("candidate listing shares one identity snapshot and candidate show uses indexed formal owners", async () => {
+  await withTempRoot("candidate-acquisition", async (root) => {
+    const directory = investigationRoot(root);
+    await fs.mkdir(path.join(directory, "_resources", "formal"), {
+      recursive: true
+    });
+    await fs.writeFile(
+      path.join(directory, "_resources", "formal", "sample.txt"),
+      "shared sample\n"
+    );
+    await writeCollection(root, [
+      { id: "formal", resources: ["formal/sample.txt"] },
+      { id: "unused" }
+    ]);
+    for (let index = 0; index < 8; index += 1)
+      await fs.writeFile(
+        path.join(directory, `_candidate.item-${index}`),
+        reportMarkdown({
+          id: `item-${index}`,
+          ...(index === 0 ? { resources: ["formal/sample.txt"] } : {})
+        })
+      );
+    const listed = await observeSourceReads(root, () =>
+      listInvestigationCandidates({ workspaceRoot: root })
+    );
+    assert.equal(listed.result.status, "ok");
+    assert.equal(listed.result.candidates.length, 8);
+    const candidateReads = listed.paths.filter((file) =>
+      path.basename(file).startsWith("_candidate.")
+    );
+    assert.equal(candidateReads.length, 8);
+    assert.equal(new Set(candidateReads).size, 8);
+    const shown = await observeSourceReads(root, () =>
+      showInvestigationCandidate({ workspaceRoot: root, id: "item-0" })
+    );
+    assert.equal(shown.result.status, "ok");
+    assert.deepEqual(
+      shown.paths.filter((file) => file.endsWith(".md")),
+      []
+    );
+    assert.equal(
+      shown.paths.filter((file) =>
+        path.basename(file).startsWith("_candidate.")
+      ).length,
+      8
+    );
+    assert.equal(shown.result.candidate?.readiness.resourceReady, true);
+  });
+});
+
+test("investigation domain preparation batches selected member and source reads but rereads before writing", async () => {
+  await withTempRoot("domain-acquisition", async (root) => {
+    await writeCollection(root, [{ id: "one" }, { id: "two" }]);
+    initializeGit(root);
+    const repository = await openVersionControl(root);
+    const loaded = await loadInvestigationIndex({
+      investigationsDirectory: investigationRoot(root)
+    });
+    assert.ok(loaded.status === "ok");
+    const calls = { workspace: 0, head: 0, sources: 0 };
+    const originalWorkspace = repository.listWorkspaceFiles;
+    const originalHead = repository.listRevisionFiles;
+    const originalSources = repository.readWorkspaceFiles;
+    repository.listWorkspaceFiles = async (options) => {
+      calls.workspace += 1;
+      return await originalWorkspace.call(repository, options);
+    };
+    repository.listRevisionFiles = async (revision, options) => {
+      calls.head += 1;
+      return await originalHead.call(repository, revision, options);
+    };
+    repository.readWorkspaceFiles = async (paths, basis) => {
+      calls.sources += 1;
+      return await originalSources.call(repository, paths, basis);
+    };
+    const options = await prepareDomainAcquisitionRequest({
+      pendingIndex: loaded.value,
+      pendingReportPaths: new Map(),
+      pendingResourcePaths: [],
+      scope: "all",
+      repository,
+      sourceSelection: domainSourceSelection(loaded.value, ["one", "two"]),
+      baseline: loaded.value,
+      workspaceIndex: loaded.value,
+      revision: await repository.getCurrentRevision(),
+      selectedIds: ["one", "two"],
+      investigationsScope: "docs/investigations"
+    });
+    const collect = async () => {
+      const phase = await acquireDomainPhase(options);
+      assert.ok(phase.status === "ok");
+      return await collectDomainWrites(options, phase.value);
+    };
+    const prepared = await collect();
+    assert.ok(prepared.status === "ok");
+    assert.deepEqual(calls, { workspace: 1, head: 1, sources: 1 });
+    assert.deepEqual(await collect(), prepared);
+    assert.deepEqual(calls, { workspace: 2, head: 1, sources: 2 });
+    await fs.mkdir(path.join(investigationRoot(root), "_resources", "one"), {
+      recursive: true
+    });
+    await fs.writeFile(
+      path.join(investigationRoot(root), "_resources", "one", "new.txt"),
+      "new member\n"
+    );
+    const refreshed = await collect();
+    assert.ok(refreshed.status === "ok");
+    assert.deepEqual(refreshed.value.map((file) => file.path).sort(), [
+      "docs/investigations/_resources/one/new.txt",
+      "docs/investigations/one.md",
+      "docs/investigations/two.md"
+    ]);
+    const source = path.join(investigationRoot(root), "one.md");
+    await fs.appendFile(source, "changed source\n");
+    assert.equal((await collect()).status, "error");
+    await fs.writeFile(source, new Uint8Array([0xff]));
+    assert.equal((await collect()).status, "error");
+    assert.equal(git(root, ["diff", "--cached", "--name-only"]), "");
+  });
+});
+
+test("investigation stage rejects invalid formal resource ownership before pending writes", () => {
+  const index = investigationIndexFixture([
+    { id: "owner" },
+    { id: "shared", resources: ["owner/sample.txt"] }
+  ]);
+  assert.throws(
+    () => createInvestigationStageIndexDefinition().validateIndex?.(index),
+    /must be referenced by its owner/u
+  );
+});
+
+test("investigation predecessor diagnostics skip Git without targets and never read all HEAD files for an empty report scope", async () => {
+  await withTempRoot("history-acquisition", async (root) => {
+    await fs.writeFile(path.join(root, "notes.txt"), "unrelated HEAD data\n");
+    initializeGit(root);
+    await writeCollection(root, [
+      { id: "base" },
+      { id: "next", relations: [{ type: "补充", target: "base" }] }
+    ]);
+    const loaded = await loadInvestigationIndex({
+      investigationsDirectory: investigationRoot(root)
+    });
+    assert.ok(loaded.status === "ok");
+    const { unrecordedPredecessorWarnings } =
+      await import("../../src/records/validation/validation-history.ts");
+    const previous = process.env.GIT_TRACE2_EVENT;
+    const trace = path.join(root, "history.jsonl");
+    try {
+      process.env.GIT_TRACE2_EVENT = trace;
+      assert.deepEqual(
+        await unrecordedPredecessorWarnings(
+          investigationRoot(root),
+          new Map([["base", loaded.value.entries["base"]!]])
+        ),
+        []
+      );
+      await assert.rejects(fs.access(trace));
+      const warnings = await unrecordedPredecessorWarnings(
+        investigationRoot(root),
+        new Map(Object.entries(loaded.value.entries))
+      );
+      assert.equal(warnings.length, 1);
+      assert.match(warnings[0]!, /前序报告 base 尚未进入 Git HEAD/u);
+      const starts = (await fs.readFile(trace, "utf8"))
+        .split("\n")
+        .filter((line) => line.includes('"event":"start"'));
+      assert.equal(
+        starts.filter((line) => line.includes('"cat-file"')).length,
+        0
+      );
+    } finally {
+      if (previous === undefined) delete process.env.GIT_TRACE2_EVENT;
+      else process.env.GIT_TRACE2_EVENT = previous;
+    }
+  });
+});

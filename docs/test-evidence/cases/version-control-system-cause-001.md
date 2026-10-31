@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-SYSTEM-CAUSE-001: 分类注入的版本控制系统原因
 
 Tests:
-- `test:f274494b1c104108d02dc08b40f2110bcd3d6c1b98b01d9314e75f79040a0169`
+- `test:10bcd278b45eb8d1dbc588b21ccd09edb1734c49da26552d66225cfb78dd0171`
 
 Tags:
 - `version-control`

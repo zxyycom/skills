@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RENAME-NO-CHANGE-001: 已规范 identity 的 rename 零写入
 
 Tests:
-- `test:fd3056c4a055acee12aa414a5d60d329da6f855b6b7cfffcb51578c54bb875ca`
+- `test:6120c7ad81f12d9260d3abd6b4dfa41926ddb03ccf0c920afffb950cbb6e4b4e`
 
 Tags:
 - `investigation-report`

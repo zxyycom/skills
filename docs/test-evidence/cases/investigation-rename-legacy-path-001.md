@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RENAME-LEGACY-PATH-001: legacy ID 迁移可保留既有 sourcePath
 
 Tests:
-- `test:7e9b533ecfb532a377b8192d5a9bfd1dc4a643af996ea42c49daa1dae53bd95b`
+- `test:b8e12910f551649e3b2aea661470f8810fc5069b7bd2d8694c8cb827103e8e61`
 
 Tags:
 - `investigation-report`

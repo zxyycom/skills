@@ -1,7 +1,7 @@
 ### Case INDEX-PREPARED-BYTES-001: baseline 保留原始字节与规范安全门槛
 
 Tests:
-- `test:9ac4e26d0381f577d7a0c9bfc51e78128200fef09c79633624984d39497e04c9`
+- `test:bb9c8ca13af5e76a8d7200a58b4d9147b9ba70954507a5caf2d3e8d164232e54`
 
 Tags:
 - `index-runtime`

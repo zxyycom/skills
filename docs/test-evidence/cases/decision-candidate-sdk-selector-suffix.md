@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-SDK-SELECTOR-SUFFIX-001: 直接 SDK 候选查询规范化一次 Markdown 后缀
 
 Tests:
-- `test:d1d9a02be7633b5ff58767dfa8a0aff22c911935e44b9202a28315eca34bfdb4`
+- `test:9935afbe15f30a320ed9ab76b2aa2a44a4e219d118248bc8952e305aa2a3959c`
 
 Tags:
 - `decision-records`

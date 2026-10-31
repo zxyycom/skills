@@ -1,7 +1,7 @@
 ### Case RECORD-READER-PHASE-001: 批量验收保持阶段和实际观察绑定
 
 Tests:
-- `test:89ab044c0f0cf8830c10ed2469e2d58236823a6c748389c56ed7a4b27171790c`
+- `test:7be2f34011914bac3813287dc010cdfa3e37836d7fb74be9ec2414f7d1b62ec7`
 
 Tags:
 - `record-operations`

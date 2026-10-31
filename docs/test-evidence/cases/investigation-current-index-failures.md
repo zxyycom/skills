@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CURRENT-INDEX-FAILURES-001: Current 加载保留外部边界失败
 
 Tests:
-- `test:7e02fbe8fa9db76c58f20a6e0654489acc3acd276142b43ae0927700292ca5e2`
+- `test:69a29d8c416296b41b2c854c065acad2914f3432212f133966e869afb913e254`
 
 Tags:
 - `investigation-report`

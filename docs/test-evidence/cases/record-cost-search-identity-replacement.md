@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-029: 搜索读取身份替换
 
 Tests:
-- `test:f5422976f61dc8d184525e2bdc16fc933dabd610115a5285b4c7c5b4923f4dab`
+- `test:ddf9902ba173bebb4c3614fd7490c32faf8c43c122c03f7000db3380a3749e1c`
 
 Tags:
 - `record-cost`

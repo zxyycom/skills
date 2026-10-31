@@ -1,7 +1,7 @@
 ### Case DECISION-RENAME-PREFLIGHT-001: preflight 零写入且 legacy candidate 显式选日期
 
 Tests:
-- `test:9063c3c0ef4f216469b0f3b7d48a9e0d2484bab99b00cb289836e9d2e7334092`
+- `test:74b79b67662eb95808e9010266d2eacd44fb58f8e2e03452dccb283b706b5479`
 
 Tags:
 - `decision-records`

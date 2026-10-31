@@ -1,7 +1,7 @@
 ### Case DECISION-RELATION-SUMMARY-002: Evolve 将 selector 摘要绑定到完整关系集合
 
 Tests:
-- `test:918761b2385aa0a5fce8492d5eabee995ad85e2d18ea97b0d59410cca4bb475f`
+- `test:0819893b63215460c342b5f95ac01003fada4a803190c6df2a4f5c37c8d65690`
 
 Tags:
 - `decision-records`

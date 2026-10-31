@@ -1,7 +1,7 @@
 ### Case DECISION-STATE-SOURCE-PARITY-001: 内存来源按稳定 ID 确定性构造索引
 
 Tests:
-- `test:0a26744beb176049b6a8c1f3f591368a6f42e834fdac799a41cb6bad9ae52f54`
+- `test:693d3dbf3e495825e84aae6540c2f07627c1d9b7ccf857f4c7c54cd58a8647a4`
 
 Tags:
 - `decision-records`

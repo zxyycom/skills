@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-TRACKED-MISSING-ROOT-001: unreferenced resource members produce warnings without blocking report checks
 
 Tests:
-- `test:c01d3007142d62c09aa80a2400e7e14fb94b550f392a69e352fc9d9f0cd46c96`
+- `test:4331d1fdaab86ae8bf4f2f58d0a3aef910d7e10ce0edb9e4bc0b0e98d4d3f0c3`
 
 Tags:
 - `investigation-report`

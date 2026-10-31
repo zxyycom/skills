@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-PENDING-REPLACE-001: 精确替换字面 pending 范围并保留范围外文件
 
 Tests:
-- `test:b5e1d12f39fb46789a3bf82b626a168dd8799841ed2766e65c02dd7e03b8cb40`
+- `test:73815575e7186d0f34968db502252ed53ab3915084e8d98517a9d0d0cf3b096f`
 
 Tags:
 - `version-control`

@@ -1,7 +1,7 @@
 ### Case RUNTIME-PARENT-SYMLINK-ESCAPE-001: 源码父目录链接逃逸在扫描或读取外部字节前拒绝
 
 Tests:
-- `test:38e4ef40e7e34e245321bb9f2e67d35e7c029d5ea2fa55ffd892d69299873b26`
+- `test:103f01f8aa3e1633a8a0bba646ee7aed610cab46d8107f73c5c932c01c2e6fd7`
 
 Tags:
 - `repository-tooling`

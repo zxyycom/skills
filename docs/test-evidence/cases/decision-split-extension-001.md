@@ -1,7 +1,7 @@
 ### Case DECISION-SPLIT-EXTENSION-001: Evolve 选全既有成员后扩充闭合拆分
 
 Tests:
-- `test:a67584e58ed14d103abc92c6ab2c3e0f5ba8fd95381c1e5c1feea511cde92831`
+- `test:8763d752db4ffe619758858b71bf4ef68279923c9ff40ba9d17c39165014c7c6`
 
 Tags:
 - `decision-records`

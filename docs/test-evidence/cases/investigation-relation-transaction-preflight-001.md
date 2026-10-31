@@ -1,8 +1,8 @@
 ### Case INVESTIGATION-RELATION-TRANSACTION-PREFLIGHT-001: set-relations 预检返回完整关系核对且零写入
 
 Tests:
-- `test:27e93f40b6c03233c690eca300058f594bc4cc564a651f87d18e29ecbef1fcc6`
-- `test:9e5c500c4651bfeeb5aaf2bc18d6fcde89dd35cbc17b9c4c22305ae45502dca6`
+- `test:08646fe1314d62b1814b24189ba9d8048094637e68d009c0ee4b8c1ef762204d`
+- `test:8e1dc7b82dafaa66855f917e9f45910e9439099140ed5afaca1b91047c1d2f53`
 
 Tags:
 - `investigation-report`

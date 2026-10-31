@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-ROOT-REPOSITORY-GATE-001: 整个 Change 根的子仓库阻断查询和写入
 
 Tests:
-- `test:77a0de61962e774b0211279a33d4491cfed34d20a3b7628d7752643deae7a3d5`
+- `test:ce9e67ebabf5d57fbaa1f9c152178bd2e54de517beee5708fdc4b5a0ecafef33`
 
 Tags:
 - `change-plan`

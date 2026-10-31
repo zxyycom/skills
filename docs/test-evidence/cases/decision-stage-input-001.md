@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-INPUT-001: Stage 在工作区读取前拒绝重复与路径形选择器
 
 Tests:
-- `test:7fa71bfe94130acb3bce37c9890b5f3dd1e5431acdb3008030f79d73fc07b39c`
+- `test:70d5ff5b7acbc34d6838a40625a5746511576e8c951fa9e1cc01083905b6f31f`
 
 Tags:
 - `decision-records`

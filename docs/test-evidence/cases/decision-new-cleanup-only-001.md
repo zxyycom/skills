@@ -1,7 +1,7 @@
 ### Case DECISION-NEW-CLEANUP-ONLY-001: 候选创建清理失败保留准确结果与残留路径
 
 Tests:
-- `test:386e7d134fb6b614d4f514194579f7ff359d2ae0dfea4733dce0f53e1bc98490`
+- `test:5656424d8899ed31b14f508f92762daf325dc9f09e6114c979ad3d8c1f95b8bd`
 
 Tags:
 - `decision-records`

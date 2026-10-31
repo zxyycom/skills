@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-PROTOCOL-001: 排序查询标量
 
 Tests:
-- `test:00b4b0c3ea5cc0cd44b1b594afa68ad9718dc9d09a65781874aac205be607e47`
+- `test:da4c956125c87ad8e27bd5f13998889b42e85e996eb6a6ec492956a4aa3e16c4`
 
 Tags:
 - `index-runtime`

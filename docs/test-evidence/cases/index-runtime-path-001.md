@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-PATH-001: 拒绝配置根目录之外的索引路径
 
 Tests:
-- `test:5752b904b453cdad07781143d3fcf2831818f6e9625f18ef8273765cd2b2f413`
+- `test:390b5cc073b784ec4c05ff3a61342f855fd4243371ff2c57935a3f4da60391b9`
 
 Tags:
 - `index-runtime`

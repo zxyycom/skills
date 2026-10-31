@@ -1,7 +1,7 @@
 ### Case WRITE-CANONICAL-CASE-016: 新测试叶子的增量门禁路由
 
 Tests:
-- `test:6672bba21f8d83d7b7e815836e27bc6a2b26cace55330e25676fb1dea390eb65`
+- `test:29667633a533db6c242d95f3aefe0ed8e78bed448f97ad1fd9f5454ca66041dc`
 
 Tags:
 - `write-canonical`

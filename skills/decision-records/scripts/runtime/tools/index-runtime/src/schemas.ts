@@ -8,8 +8,8 @@
  * Rebuild: bun run sync:decision-records-cli
  */
 import * as v from "valibot";
-import { isJsonObject, type JsonObject } from "./json.ts";
-import { createSafeRecordSchema } from "./record.ts";
+import { isJsonObject, type JsonObject } from "./protocol/json.ts";
+import { createSafeRecordSchema } from "./protocol/record.ts";
 
 export const stateIndexSchemaVersion = 4 as const;
 export const stateIndexQueryDefaultLimit = 50;

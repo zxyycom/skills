@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-PATH-QUERY-BUDGET-001: Git 参数预算计入编码与固定开销
 
 Tests:
-- `test:3a14d8a02cb83c0469c5b80df9fdf906cccdb31b4a746221178b25d22e44a93b`
+- `test:1a8c1107f76b7bcc20b95b380b3f9b36bdfe81a66414096870085fc9349ef388`
 
 Tags:
 - `version-control`

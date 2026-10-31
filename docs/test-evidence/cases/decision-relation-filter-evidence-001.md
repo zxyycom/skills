@@ -1,7 +1,7 @@
 ### Case DECISION-RELATION-FILTER-EVIDENCE-001: 关系筛选完整投影边并按预算展示
 
 Tests:
-- `test:aa3c19d12ddda4c83cbdd53bab59500e1deb098f63b80cc89cb55eae81cd0699`
+- `test:88c30b0d7afe040af41502e233061100c390ee2dcefe75c8561af88466b56a0c`
 
 Tags:
 - `decision-records`

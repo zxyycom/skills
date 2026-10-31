@@ -25,7 +25,7 @@ Git 历史中的 `create-task-graph` design 要求索引存储在本地文件系
 
 ## 调查范围与依据
 
-需求依据是 2026-08-06 Git 历史中的 `create-task-graph` proposal、design、tasks 和当时尚在实施中的 [`store.ts`](../../tools/task-graph/src/store.ts)。候选覆盖纯 JavaScript 锁库 `proper-lockfile`、旧式锁库 `lockfile`、原生系统锁库 `fs-ext`，以及原子写库 `write-file-atomic`、`atomically`。
+需求依据是 2026-08-06 Git 历史中的 `create-task-graph` proposal、design、tasks 和当时尚在实施中的 [`store.ts`](../../tools/task-graph/src/store/store.ts)。候选覆盖纯 JavaScript 锁库 `proper-lockfile`、旧式锁库 `lockfile`、原生系统锁库 `fs-ext`，以及原子写库 `write-file-atomic`、`atomically`。
 
 生态数据取自 2026-08-06 观察到的官方 npm 包页面和注册表元数据；npm 页面提供的是滚动周下载量，本报告用它作为采用规模的粗略代理，不将下载量等同于质量或安全性。活跃度、实现行为与已知限制取自各项目的官方 GitHub 仓库、对应版本源码和 README。没有安装候选、运行本仓库适配器、执行 Windows 故障注入或完成依赖供应链安全审计。
 

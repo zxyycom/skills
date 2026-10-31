@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-003: 待提交差量记录
 
 Tests:
-- `test:1e0e349d3e2489fac6945f538d6b415c6bb84d59088710dc197f9b5caff58d86`
+- `test:39ef5459bce4f5cffd7da014c67941d2f0b1f487a5be1bb3eb6bb6bf20e49282`
 
 Tags:
 - `record-cost`

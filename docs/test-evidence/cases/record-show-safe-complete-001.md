@@ -1,8 +1,8 @@
 ### Case RECORD-SHOW-SAFE-COMPLETE-001: 两域完整正文读取保持安全字节边界
 
 Tests:
-- `test:87a6a7eea8fde9d5abb21891e6188651e13576cbd6f455c6cc54d19377ea430c`
-- `test:a4c41c0f4744d19825b1397dc64e6cf8daad986ccd5450cc7be6458e5eee914b`
+- `test:026448ab9563a473616fb961d53eba9156c4955114b372a5704905b61b108f0b`
+- `test:b9f5a11b124e38a2873dab76d78907dee7bd7fb6e5f3fc9579aa8d07bd1aed35`
 
 Tags:
 - `decision-records`

@@ -26,7 +26,7 @@ Git 历史中的 `reduce-task-graph-infrastructure` design 进一步收窄边界
 
 ## 调查范围与依据
 
-本轮不重新比较 npm 生态候选，也不改变两个固定依赖版本。判断依据是 Git 历史中的 `reduce-task-graph-infrastructure` design、[`runtime.ts`](../../tools/task-graph/src/runtime.ts)、[`store.ts`](../../tools/task-graph/src/store.ts)，以及对应 runtime、store、CLI、跨进程和生成产物测试。验证环境是当前 Windows 与受支持 Node；网络文件系统、断电目录持久性、恶意路径替换和不遵守 CLI 的写入者不在范围内。
+本轮不重新比较 npm 生态候选，也不改变两个固定依赖版本。判断依据是 Git 历史中的 `reduce-task-graph-infrastructure` design、[`runtime.ts`](../../tools/task-graph/src/runtime.ts)、[`store.ts`](../../tools/task-graph/src/store/store.ts)，以及对应 runtime、store、CLI、跨进程和生成产物测试。验证环境是当前 Windows 与受支持 Node；网络文件系统、断电目录持久性、恶意路径替换和不遵守 CLI 的写入者不在范围内。
 
 ## 调查结果与边界
 

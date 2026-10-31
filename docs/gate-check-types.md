@@ -24,7 +24,7 @@
    ```
 
 3. 为该 ID 核对能力订阅与统一领域声明的 `kind`、`files`、`additionalInputs`；精确 runner/路径直接来自实际 `command`，Bun 与 Node 均独立执行。上例的能力 ID 须替换为已声明的实际能力，`generationSkillNames` 列出该消费者实际读取的 skill，用于显式范围的生成前置。显式质量类别、完整输入闭包与领域代码范围分别按[领域声明契约](gate-check-authoring.md#领域范围与检查订阅)核对。
-4. 更新 `scripts/vibe-check-catalog-fixture.ts` 的 ID、runner、命令与前置期望；catalog 测试从 wrapper 的磁盘 imports 推导 leaf，并核对领域聚合入口，不另维护逐文件副本。
+4. 更新 [catalog fixture](../scripts/tests/gate/vibe-check-catalog-fixture.ts) 的 ID、runner、命令与前置期望；catalog 测试从 wrapper 的磁盘 imports 推导 leaf，并核对领域聚合入口。
 5. 当前数量变化时同步[工具链 catalog 事实](gate-execution.md#catalog-与选择)，测试变化按 Test Evidence owner 同步 Case/index。
 
 ## 包脚本 Check

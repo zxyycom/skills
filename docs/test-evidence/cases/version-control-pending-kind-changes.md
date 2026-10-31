@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-PENDING-KIND-CHANGES-001: 变化报告包含仅文件表示变化
 
 Tests:
-- `test:f1a55a7f1ae8a6a7cf067e2bffa5d850049a3092d65d41410bf67d630e46f39c`
+- `test:23e303942ac780164fbd9d00d990e450374750bb6f86610033f7ee92739222a3`
 
 Tags:
 - `version-control`

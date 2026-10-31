@@ -1,8 +1,8 @@
 ### Case RECORD-NATIVE-CREATION-MODES-001: 原生创建尊重两域权限请求与进程 umask
 
 Tests:
-- `test:2ebd36adfc9936f1317f06d7d8e8ec9f5d46ae47fdb559f7d58afd43cc583cf4`
-- `test:daa7f0acfc04346620bd4fdab58c9d053970e0d683c1b6fa226921d79b1180b6`
+- `test:04bf9093f3818e7ef19f74d1e2905c06b7d69f64075050b07169087ac57d9e06`
+- `test:3d6eb88c5b500d0d695871791169053ab9246a2c3cb0eac83271fc909d7ef867`
 
 Tags:
 - `record-operations`

@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-CONFLICT-001: 索引含冲突时拒绝 pending 读取
 
 Tests:
-- `test:85413c260c16304e0430facc676e56bd9d13eb19cd9166c263be56a8b50382c4`
+- `test:057086f8ddad7fc46ecf7b2370a5d7188e1b8cfdb6a7a8402300def9f452d6e9`
 
 Tags:
 - `version-control`

@@ -1,7 +1,7 @@
 ### Case UPDATER-SELECTED-DISCOVERY-001: 选中 skill 身份校验不枚举无关包
 
 Tests:
-- `test:33ad53eb4c3da9b36a3191ae234af16bd0b882f935ebc5f96a1e53c7c9c3f65f`
+- `test:3ab5deb3959a9bdb64aa623cc77fda20c1f69c76d4c0f3bded3834d566b83e74`
 
 Tags:
 - `repository-tooling`

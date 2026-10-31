@@ -1,9 +1,9 @@
 ### Case DECISION-STAGE-SCOPE-DOMAIN-DELETION-001: stage --scope domain writes a deletion for a baseline-only ID without touching the pending index
 
 Tests:
-- `test:4644164e5cc373d6a01f19e18904b954ffd884b0c0b312ba1ab6af0723837415`
-- `test:dca3fbd723a76c5f76404de687ea00ed30673148c224a57535df8b257684c1ee`
-- `test:e93a001bdc6122e6909c687e476c4d6e423991b8b0af29ac991e4dfe59857594`
+- `test:1223577c6a08dbc18f78c7193aedb47c209f96125d3ba92e3f050b980d3bc8e9`
+- `test:70b42cdc11ebed0c409f872e9af8d7d8fd41663c00f045f1c105b8b6a304238a`
+- `test:e9629a4062b9ba08b1643e320b474858d97748b7bc886c7ba875ffe390fc6d8c`
 
 Tags:
 - `decision-records`

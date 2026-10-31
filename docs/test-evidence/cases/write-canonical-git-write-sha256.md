@@ -1,7 +1,7 @@
 ### Case WRITE-CANONICAL-CASE-006: 兼容 SHA-256 对象格式
 
 Tests:
-- `test:d52d3ea3422831f9d0995053efa66ec9ebbbdd2a1648ce48f111a89dfca3123f`
+- `test:4730c973e769ae2c487c3267cfca627049b19c4c89c3a43a8221877fa5abe225`
 
 Tags:
 - `write-canonical`

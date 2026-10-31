@@ -1,7 +1,7 @@
 ### Case DECISION-STATE-MEMORY-RELATION-SOURCE-001: 内存来源拒绝缺失的关系目标
 
 Tests:
-- `test:3f0429170abea4939112cc5d563783ff501721b96cfca9fa783e36cbd98a09e1`
+- `test:c983724d922eab4a81bfcfbdd4b1bda382c371f2afaa11706b7c095cbd8f45a8`
 
 Tags:
 - `decision-records`

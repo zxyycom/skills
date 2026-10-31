@@ -1,7 +1,7 @@
 ### Case GENERATED-FILE-SYMLINK-001: 生成文件同步拒绝符号链接制品路径
 
 Tests:
-- `test:234e68e4e0dc8b99c4f7f546a5d48f869811ba167e5381d843c728f4838a79c4`
+- `test:ddb66e5cbd11bd634922f8ccfb3ad0746dff79ac55fd31f4820de6377d1da07f`
 
 Tags:
 - `repository-tooling`

@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-FILE-001: 二进制与空文件的真实 put/get 字节往返
 
 Tests:
-- `test:dd7e41180518a98684b9fb167fbf8d68e20400909fcaf79ed35577f4b4aa7c65`
+- `test:c0b39b08a054ec3e24b36bf3744eb714f373cbacc382056d936f462051f2a906`
 
 Tags:
 - `mcpshell-workspace-bridge`

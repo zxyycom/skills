@@ -1,7 +1,7 @@
 ### Case DECISION-ID-INDEX-001: State-only ID 键索引
 
 Tests:
-- `test:8ec9a6d510509f1e1ffb8e33d6665c728761b2a8cd5ccbb1d1b489bab100d2dc`
+- `test:20bec216e67ab786d17e83fcc0ea692eccc87af49d5a6fd1dd77bf9087af364e`
 
 Tags:
 - `decision-records`

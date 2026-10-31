@@ -1,7 +1,7 @@
 ### Case INDEX-PREPARED-READER-001: reader 复用已验证快照并保留 raw 边界
 
 Tests:
-- `test:c77cecdf31b059c764b06986b94d7c8100c8e371138d8070f1da3ccc4860a939`
+- `test:cd78d55f647e07b8a7b1fecaaa173ef850a120890cce4a33e3e0c03a783230e7`
 
 Tags:
 - `index-runtime`

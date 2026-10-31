@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-REFERENCES-001: discard rejects referenced reports and owner resources
 
 Tests:
-- `test:f35bc89d70e26f6832573448b6b33a384d244b9b7a4b2f7e122ce6bc3c9f0e65`
+- `test:ed2321b9d4b1156d922824d12298a01ad59394b2de3354a5c082668429753744`
 
 Tags:
 - `investigation-report`

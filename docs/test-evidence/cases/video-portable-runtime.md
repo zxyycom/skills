@@ -1,8 +1,8 @@
 ### Case VIDEO-PORTABLE-RUNTIME-001: Node 与 Bun 独立运行完整分发入口
 
 Tests:
-- `test:6fc0f4fd577195ea9c42e66f58c13cb19c9c3ff17cfedf002bd38b102e8d2ccf`
-- `test:f594ea68442d8566ae6aa38625845436e0afd1a4be36b3677f2218d9633e962e`
+- `test:7255b035c0d395aa4ec8140c1b4d12952d17481af3f07705db49c95dfc9aed91`
+- `test:75ff7fd3bd4424326970daa08ce686fbe30d481b35b1a030c96120855b1bb47f`
 
 Tags:
 - `video-understanding`

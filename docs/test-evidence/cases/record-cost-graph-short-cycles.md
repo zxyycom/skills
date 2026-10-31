@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-009: 深链短回环
 
 Tests:
-- `test:59c50753c20bcfcc1dc56ab026cbdaa70a6172a4a7b2fb71159140e11f42bb0b`
+- `test:1bf9ce9a475d23d6749fba709059a64c74af0a32a3369dbc28154ca6a95ac24e`
 
 Tags:
 - `record-cost`

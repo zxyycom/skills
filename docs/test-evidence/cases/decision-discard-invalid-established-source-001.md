@@ -1,7 +1,7 @@
 ### Case DECISION-DISCARD-INVALID-ESTABLISHED-SOURCE-001: 局部候选删除不验证未选正式正文
 
 Tests:
-- `test:ec58a8559ac3caa9df9cf303bae3dea0890a2e5802fdbc7e76552de498e71b55`
+- `test:f228b6c851478cf5cc0cb0e39dff7a5ef97e1836bf1ba7311fe3221c255e2a9d`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case GRAPH-TRACE-UNION-001: 冻结事件单位合并后仍接纳完整 trace 集合
 
 Tests:
-- `test:e6735dbe751d39df4d988bbb8e5ced9f1110d77a33b5279ffa90400fafe1239d`
+- `test:e12c661695d4873d797915404a0e143f4f44f28785b78d7ff0921b4c6027e08e`
 
 Tags:
 - `performance`

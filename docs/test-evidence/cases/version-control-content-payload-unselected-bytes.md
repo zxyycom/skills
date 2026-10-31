@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-CONTENT-PAYLOAD-EXCLUSION-001: 未选payload字节验收的明确排除
 
 Tests:
-- `test:4e947e9bc40534d307f2a017bb66f2308b88b03498d092a6446dfcde7bf9bb3a`
+- `test:93627950925156ce60bf0563a2a76e1e4cb477369d3defa9ec13a5e918196caa`
 
 Tags:
 - `version-control`

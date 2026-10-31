@@ -1,7 +1,7 @@
 ### Case FILE-TEXT-SEARCH-UNICODE-RANGE-001: 文件搜索将组合字符命中映射回原始范围
 
 Tests:
-- `test:ec447b422d47c922d6d8eded3f722bdeec9b98f68f5318d6c33a60e2245b08af`
+- `test:1ed1ef93c9382da15910dc706e1af8d84058808768da84b8d103ca6bd16ea290`
 
 Tags:
 - `index-runtime`

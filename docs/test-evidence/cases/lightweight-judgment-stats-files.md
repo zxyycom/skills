@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-FILES-001: 私有普通文件与符号链接边界
 
 Tests:
-- `test:1d5eb0bc818d36be9975c4d2160e4ec8041a1205bbe73e53ba2b8edb119f8ead`
+- `test:dee3b4f533c917661b24af86aa6e0aab7b7d551b6c40446f5a5acb91eac2c152`
 
 Tags:
 - `lightweight-judgment`

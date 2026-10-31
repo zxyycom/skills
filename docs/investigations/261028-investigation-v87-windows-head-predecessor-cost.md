@@ -67,7 +67,7 @@ relations:
 
 ### 因果链：208 个前序 × 每份 3 次串行 Git
 
-领域入口 [validation-history.ts](../../tools/investigation-report/src/validation-history.ts) 去重关系目标并加载 HEAD 索引后，在 `readRecordedPredecessors` 中逐份 `await repository.readRevisionFile(revision, target)`。共享入口 [git-revision.ts](../../tools/shared/src/version-control/git-revision.ts) 每次解析 revision、查询 tree、读取 blob，对应 `rev-parse → ls-tree → cat-file`。
+领域入口 [validation-history.ts](../../tools/investigation-report/src/records/validation/validation-history.ts) 去重关系目标并加载 HEAD 索引后，在 `readRecordedPredecessors` 中逐份 `await repository.readRevisionFile(revision, target)`。共享入口 [git-revision.ts](../../tools/shared/src/version-control/git/revision/git-revision.ts) 每次解析 revision、查询 tree、读取 blob，对应 `rev-parse → ls-tree → cat-file`。
 
 | Git 类别 | 整个 check 次数 | 整个 check 累计生命周期 | 其中前序循环次数 |
 | --- | ---: | ---: | ---: |
@@ -79,7 +79,7 @@ relations:
 
 子进程生命周期区间没有重叠，累计与区间并集一致。前序循环本身为 **63.698 秒**，其中 624 次子进程合计约 63.275 秒，平均每次约 **101 ms**；循环外还有资源发现、HEAD 索引及上下文准备等 7 次调用。
 
-底层 [git-blob-batch.ts](../../tools/shared/src/version-control/git-blob-batch.ts) 使用 `cat-file --batch`，单文件入口每次只传一个 object ID。**集合级循环反复进入单项 Git 入口**，使进程数量随唯一前序数增长。
+底层 [git-blob-batch.ts](../../tools/shared/src/version-control/git/git-blob-batch.ts) 使用 `cat-file --batch`，单文件入口每次只传一个 object ID。**集合级循环反复进入单项 Git 入口**，使进程数量随唯一前序数增长。
 
 独立观测中，8 次 `git --version` 合计 1.042 秒、8 次 `rev-parse` 合计 1.136 秒，支持现场小命令的固定成本显著。此证据定位到进程调用放大，具体启动、Git 初始化、安全软件及调度开销仍待区分。
 

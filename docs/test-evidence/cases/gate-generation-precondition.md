@@ -1,7 +1,7 @@
 ### Case GATE-GENERATION-PRECONDITION-001: 生成 provider 失败阻断分发 consumer
 
 Tests:
-- `test:e5853c511fdfe4be5c9982878b6de79ff94dc89ddbc6960bdb630bcf95672df7`
+- `test:3ebeebed809db41bf1915e8f94e8bc60ea0b462254b77d86556a0201d6d16749`
 
 Tags:
 - `repository-tooling`

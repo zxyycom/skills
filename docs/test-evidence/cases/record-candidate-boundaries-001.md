@@ -1,8 +1,8 @@
 ### Case RECORD-CANDIDATE-BOUNDARIES-001: 两域候选按所选范围起草与恢复
 
 Tests:
-- `test:5ab537f36b6933577692b7095d5627e16dcee2b744c928a78c46663ade51fd09`
-- `test:f74e8e714f519d256d43d4f3e1a3cca7f18202695ef99986be1653c3c8e736da`
+- `test:cede43da0cc7fbe10afeb73ff44dcd8869a6b70c41d7c6f9df2e73bfae738d03`
+- `test:ee7ef8b6f2f86e78e4272fc2724c0a875eb7a84dd8d52424e47d2cd54668696e`
 
 Tags:
 - `decision-records`

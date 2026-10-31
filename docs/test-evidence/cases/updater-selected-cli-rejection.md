@@ -1,7 +1,7 @@
 ### Case UPDATER-SELECTED-CLI-REJECTION-001: 真实 CLI 非法选集零写拒绝
 
 Tests:
-- `test:bee65c05aeb7db05531768c3bb36e06a085ce592d92c4bbf2cab9e986b3b103c`
+- `test:247b967840c6e93d7015398ffb026868263e3810c1cd98490d4751ccabc77f6b`
 
 Tags:
 - `repository-tooling`

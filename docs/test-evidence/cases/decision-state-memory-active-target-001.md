@@ -1,7 +1,7 @@
 ### Case DECISION-STATE-MEMORY-ACTIVE-TARGET-001: 内存来源拒绝活动关系目标
 
 Tests:
-- `test:c2102ef785f41ac688fd2961b3e2b22a3fc4064dc7b111670c4e704ca077f226`
+- `test:3863c3af2379c7671bc0a6743626cbe9ef35f42f6c2377746b556575fd79a4f3`
 
 Tags:
 - `decision-records`

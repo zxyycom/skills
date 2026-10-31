@@ -1,7 +1,7 @@
 ### Case GATE-FILE-SELECTION-001: 原生 Check 排除历史内容和未建立候选
 
 Tests:
-- `test:3f274048c2b86b61fb37e8881126b8b2964fe42c612859aca578352054781803`
+- `test:4a45dc4f44483a71b6b422ac4d2829b8ee022745937cfbb2ed3d52e5ea05dda7`
 
 Tags:
 - `repository-tooling`

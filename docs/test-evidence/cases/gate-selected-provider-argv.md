@@ -1,7 +1,7 @@
 ### Case GATE-SELECTED-PROVIDER-ARGV-001: Definition 把必要 skill 传给生成命令
 
 Tests:
-- `test:e450547ff8c8a13f5f5cbba51922a94e3960d12289f5f326e8d33a21b1b7024d`
+- `test:dc1d1d61df5dbf012db3b7d82d525ac7de719e12e73a62c2681f3115a2e0f176`
 
 Tags:
 - `repository-tooling`

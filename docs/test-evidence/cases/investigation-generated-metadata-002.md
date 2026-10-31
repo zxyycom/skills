@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-GENERATED-METADATA-002: CLI set-relations rejects relations that do not follow a source
 
 Tests:
-- `test:04e0f7ce3749df06dd77c19fc8c546a790d25040c6cc33ca355ddbbc7d5a96d1`
+- `test:20bf26bd92c838824a17132e7f47733a76f0122a22a9f949461736e726dad556`
 
 Tags:
 - `investigation-report`

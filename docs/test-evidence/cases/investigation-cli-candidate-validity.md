@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-CANDIDATE-VALIDITY-001: 候选查询区分结构无效和机械未就绪
 
 Tests:
-- `test:9b23d0eaea4077383114e89a19170ae8b8fef5908c4f12d12cacb6f12a34f608`
+- `test:0e86f851f9e19d01c5b918f6312948af129150d2cf25ca4eae92199d4a025d0f`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-NATIVE-AST-GREP-001: 项目快照以原生 ast-grep 保留多行扫描参数
 
 Tests:
-- `test:282a4b69ad4fe8a7cb190e545f6be9399c52960e1c2566b7963b255a11d71317`
+- `test:d321c8dffa3a6c60075d18de5d85fd31b6056df665b58e621e71fbc0d04a0737`
 
 Tags:
 - `repository-tooling`

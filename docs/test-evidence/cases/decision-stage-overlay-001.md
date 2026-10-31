@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-OVERLAY-001: Stage 应用选择的新增、修改与删除
 
 Tests:
-- `test:4644164e5cc373d6a01f19e18904b954ffd884b0c0b312ba1ab6af0723837415`
+- `test:70b42cdc11ebed0c409f872e9af8d7d8fd41663c00f045f1c105b8b6a304238a`
 
 Tags:
 - `decision-records`

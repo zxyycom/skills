@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-FINALIZE-005: Finalize 删除准备拒绝 Git 特殊 tree entry
 
 Tests:
-- `test:e88365536ef548a7922e03b156f89ca83891d92b0560c324872e161babf990a3`
+- `test:34335ce84e545ec1fe3dbc2434805978d00b453a73208bf885c3df6cc11d8a27`
 
 Tags:
 - `change-plan`

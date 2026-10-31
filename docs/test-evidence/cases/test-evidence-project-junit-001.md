@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-PROJECT-JUNIT-001: 项目注册只接受完整 skipped JUnit 报告
 
 Tests:
-- `test:b1c9223e625fee1ea640d65f6037e8dba13d7d15ea76e915e71ca2a442838d5d`
+- `test:216ac30cb50786e451c6fc4c3c5020a10356d5e257e4cf53684a5de0a92d547b`
 
 Tags:
 - `repository-tooling`

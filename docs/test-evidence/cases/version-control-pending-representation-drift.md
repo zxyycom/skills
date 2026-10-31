@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-PENDING-REPRESENTATION-DRIFT-001: 拒绝仅表示变化的期望漂移
 
 Tests:
-- `test:12cc3be19df0e2d241708b72b4a97324200c466fb751adacb4327dda9308b9ea`
+- `test:e6785c090aad6f715ceb730377b50a48611a007ffc83689db7c8722a9efe7aa0`
 
 Tags:
 - `version-control`

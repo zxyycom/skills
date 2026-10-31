@@ -1,6 +1,6 @@
-export type { IndexMutation } from "./engine-content.ts";
-export { applyTaskGraphOperations } from "./engine-apply.ts";
-export { claimTask } from "./engine-claim.ts";
+export type { IndexMutation } from "./engine/engine-content.ts";
+export { applyTaskGraphOperations } from "./engine/engine-apply.ts";
+export { claimTask } from "./engine/engine-claim.ts";
 export {
   cancelTask,
   completeTask,
@@ -8,5 +8,5 @@ export {
   releaseTask,
   renewTaskLease,
   retryTask
-} from "./engine-lifecycle.ts";
-export { removeTasks } from "./engine-removal.ts";
+} from "./engine/engine-lifecycle.ts";
+export { removeTasks } from "./engine/engine-removal.ts";

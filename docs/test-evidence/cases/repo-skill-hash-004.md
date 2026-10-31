@@ -1,7 +1,7 @@
 ### Case REPO-SKILL-HASH-004: Aggregate hash retains raw package bytes
 
 Tests:
-- `test:b61659ab952d4bb3e972de24ffdef3bd83526b2825218b941102ecfa4e19a9d0`
+- `test:5d9b4eb66b8d1348802fe85922f48b535af29be96e0f2d35400add5b001b9b16`
 
 Tags:
 - `repository-tooling`

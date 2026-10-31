@@ -1,8 +1,8 @@
 ### Case RECORD-STAGE-PARSE-EQUIVALENCE-001: 两域fresh真实读取后复用同调用解析
 
 Tests:
-- `test:4bd23531078f431024342dbced0241ee0ff802e041b03dc64d5d2d84ab6e4380`
-- `test:d804b8fee726218117778c7759adb9a180176830f1d476885e0884fe7169d01a`
+- `test:d04acca477bb503216c2ce5afecc529194f43367355a9190e09b3cbf66e73a1a`
+- `test:e13917ad335ae93f508c669b7f0891b6bd9fbc44bb7c0307a4dd6c0a2cde652d`
 
 Tags:
 - `index-runtime`

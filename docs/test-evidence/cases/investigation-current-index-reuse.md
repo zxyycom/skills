@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CURRENT-INDEX-REUSE-001: Current 加载只解析一次索引并逐次核对来源
 
 Tests:
-- `test:5454b785ae4b0e5bc3cdf0cc7e548f8f0ddfc3e790469111ce1f23b531f05467`
+- `test:e976d927a9eaf387784b781682787dbab82b11f58f9b17f3192aad74e47efd7f`
 
 Tags:
 - `investigation-report`

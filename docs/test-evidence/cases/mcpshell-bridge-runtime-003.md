@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-RUNTIME-003: workspace put preserves verification evidence after a post-commit output limit
 
 Tests:
-- `test:5cb270e2c730a893a29532b565fba3c99b2976f71f110ca942d90b17c3dd79f4`
+- `test:11938ae692dc1872c74bb600b35da4a30fc4bad81a45d73ad8bb1b01fd1757aa`
 
 Tags:
 - `mcpshell-workspace-bridge`

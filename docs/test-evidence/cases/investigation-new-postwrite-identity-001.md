@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-NEW-POSTWRITE-IDENTITY-001: 调查新建写后核对相关身份和成员
 
 Tests:
-- `test:73d396c503b70d50d172db04d7ab47281fcba2a76b1a1a9d32f62ff5fab26d25`
+- `test:4ae06b42db440c74ca8697c92a21ac503fc0227057d2d689ac5a131e0cbaa885`
 
 Tags:
 - `investigation-report`

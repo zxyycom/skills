@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-026: 失败状态与原始异常正文
 
 Tests:
-- `test:e40b077ccd84a9ee43c0a7ddfc4e9873a7968a68e23a694153c31758f00bb854`
+- `test:cab64e05cd62a5b88f3e0ce1bfd80eda88dc9e37e6c2b7eb0e2aeb642d4d9617`
 
 Tags:
 - `lightweight-judgment`

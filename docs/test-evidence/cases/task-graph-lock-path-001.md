@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LOCK-PATH-001: 锁路径由系统临时目录中的索引 hash 确定
 
 Tests:
-- `test:278791121c800f23a8f4cc9591cc9bc321cf20bfa900a899db66a6111fd5f457`
+- `test:1c689495820baf623e5230e8e9992bda83ca6f826e96ffddaf5a06f4f9a5a0bf`
 
 Tags:
 - `task-graph`

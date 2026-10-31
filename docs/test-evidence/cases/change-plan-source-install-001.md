@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-SOURCE-INSTALL-001: 独立 frozen 安装后的 TS 可运行可改且公开类型可消费
 
 Tests:
-- `test:8363f047e9d1a85b825c3bc7c0c60ff3858f9cc46aba6c266738d5baac91f1ea`
+- `test:8c9ec196038cd5049392823b7becafecc2278a5a848985c16d18c366810bbdab`
 
 Tags:
 - `change-plan`

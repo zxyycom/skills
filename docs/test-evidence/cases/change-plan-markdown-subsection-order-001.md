@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-MARKDOWN-SUBSECTION-ORDER-001: Markdown 报告顺序错误的必需子章节
 
 Tests:
-- `test:1096612bd2c9f5d96e9bc4b32557f7ed93b24660d9a024a482db2280b3b421a9`
+- `test:d97b8e092bcd875250601930a7bea8e871db35a61ea053cae06ca13c4cd1f7fc`
 
 Tags:
 - `change-plan`

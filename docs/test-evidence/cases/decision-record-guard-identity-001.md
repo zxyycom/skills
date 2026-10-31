@@ -1,7 +1,7 @@
 ### Case DECISION-RECORD-GUARD-IDENTITY-001: Record 类型守卫拒绝无效身份字段
 
 Tests:
-- `test:ed55d834488b879dd65d7f8d3d483edf0cafb6eb3b6a738bd468316133409305`
+- `test:59cf882df9b216dc0da8a5222aba3520f71349680cfefd6bddb96b9cc1256d92`
 
 Tags:
 - `decision-records`

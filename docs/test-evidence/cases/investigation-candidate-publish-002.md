@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-PUBLISH-002: 发布基线与同批关系闭合
 
 Tests:
-- `test:930c609a450602de353eedcde0a8a97ff40d41f937d3394dbff80167f0a3ef5a`
+- `test:ecf09aaa698d4f3654173a0d7bb43f9f648831d9c17a97f5373001d5532858e0`
 
 Tags:
 - `investigation-report`

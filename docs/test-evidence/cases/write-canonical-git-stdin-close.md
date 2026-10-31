@@ -1,7 +1,7 @@
 ### Case WRITE-CANONICAL-CASE-008: 输入失败等待子进程结束
 
 Tests:
-- `test:28e0e9759d488857acf0235dee751a380e51656e3781d236304b737207fa2a95`
+- `test:a2e0e3a61fecb4027de1dbf95aa9a44f4227cff852e95d7528397376a68d89dd`
 
 Tags:
 - `write-canonical`

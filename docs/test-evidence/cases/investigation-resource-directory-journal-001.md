@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-DIRECTORY-JOURNAL-001: 资源根与子目录创建在chmod前进入实际写集
 
 Tests:
-- `test:a42db37dc47f0eff5c814738654e50ff99e4c7c7f234799a5127ea27d526bcd0`
+- `test:b9b76347826937e38d7d295ccc4f0c087a730a392827c4674d9cd26a9995841a`
 
 Tags:
 - `investigation-report`

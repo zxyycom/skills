@@ -1,0 +1,89 @@
+/*
+ * Synced TypeScript runtime; repository maintenance edits tools/decision-records/src/query/decision-query-service.ts.
+ * Installed skill copies may be edited directly; updates overwrite matching files.
+ * Repository: https://github.com/zxyycom/skills
+ * Source path: tools/decision-records/src/query/decision-query-service.ts
+ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/decision-records/src/query/decision-query-service.ts
+ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
+ * Rebuild: bun run sync:decision-records-cli
+ */
+import {
+  listDecisionCandidates,
+  checkDecisionRecords
+} from "./decision-query-candidates.ts";
+import { listDecisionRecords } from "./decision-query-list.ts";
+import { executeDecisionSearch } from "./search/decision-query-search.ts";
+import {
+  showDecisionCandidate,
+  showDecisionRecord,
+  traceDecisionRecord
+} from "./decision-query-record-queries.ts";
+import { synchronizeDecisionIndex } from "./sync/decision-query-sync.ts";
+import type { DecisionLocation } from "./decision-query-context.ts";
+import type {
+  DecisionQueryRequest,
+  DecisionQueryResult
+} from "./decision-query-contract.ts";
+
+export type {
+  CandidateDecisionRecord,
+  DecisionContentSearchRecord,
+  DecisionListAppliedFilters,
+  DecisionMetadataMatchedRelation,
+  DecisionMetadataSearchField,
+  DecisionMetadataSearchRecord,
+  DecisionQueryRequest,
+  DecisionQueryResult,
+  DecisionQuerySuccess,
+  DecisionTraceEntry,
+  DecisionTraceSuccess,
+  IndexedDecisionRecord
+} from "./decision-query-contract.ts";
+export { decisionMetadataSearchFields } from "./decision-query-contract.ts";
+export type { DecisionLocation } from "./decision-query-context.ts";
+
+type QueryHandler = (
+  request: DecisionQueryRequest
+) => Promise<DecisionQueryResult>;
+const decisionQueryHandlers: Readonly<
+  Record<DecisionQueryRequest["command"], QueryHandler>
+> = {
+  candidates: (request) =>
+    listDecisionCandidates(
+      (request as unknown as { location: DecisionLocation }).location
+    ),
+  check: (request) =>
+    checkDecisionRecords(
+      (request as unknown as { location: DecisionLocation }).location
+    ),
+  list: (request) =>
+    listDecisionRecords(
+      request as Extract<DecisionQueryRequest, { command: "list" }>
+    ),
+  search: (request) =>
+    executeDecisionSearch(
+      request as Extract<DecisionQueryRequest, { command: "search" }>
+    ),
+  show: (request) =>
+    showDecisionRecord(
+      request as Extract<DecisionQueryRequest, { command: "show" }>
+    ),
+  "show-candidate": (request) =>
+    showDecisionCandidate(
+      request as Extract<DecisionQueryRequest, { command: "show-candidate" }>
+    ),
+  "sync-index": (request) =>
+    synchronizeDecisionIndex(
+      request as Extract<DecisionQueryRequest, { command: "sync-index" }>
+    ),
+  trace: (request) =>
+    traceDecisionRecord(
+      request as Extract<DecisionQueryRequest, { command: "trace" }>
+    )
+};
+
+export async function executeDecisionQuery(
+  request: DecisionQueryRequest
+): Promise<DecisionQueryResult> {
+  return await decisionQueryHandlers[request.command](request);
+}

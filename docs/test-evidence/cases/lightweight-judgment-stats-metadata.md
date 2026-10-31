@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-METADATA-001: 本地元数据与独立字节记录
 
 Tests:
-- `test:189baa58a92574752090c51cdb65bcbfbd3eab6e3b7095810b01810a1f5e231d`
+- `test:21cd1678f07ea102ecbe6c7d33e5920e19acb19ed857530713580bace2ea4d7c`
 
 Tags:
 - `lightweight-judgment`

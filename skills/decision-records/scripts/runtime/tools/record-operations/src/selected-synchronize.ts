@@ -13,9 +13,9 @@ import {
   prepareStateIndexFromSnapshot,
   syncStateIndexPrepared,
   type PreparedSelectedStateIndexBaseline
-} from "../../index-runtime/src/prepared.ts";
+} from "../../index-runtime/src/prepared/prepared.ts";
 import { filesystemDiagnostic } from "../../index-runtime/src/diagnostics.ts";
-import { selectedBaselineDiagnostics } from "../../index-runtime/src/selected-sync.ts";
+import { selectedBaselineDiagnostics } from "../../index-runtime/src/staging/selected-sync.ts";
 import type {
   JsonObject,
   StateIndex,
@@ -28,7 +28,7 @@ import {
   readRecordFileSnapshot,
   sameRecordFile,
   type RecordFileSnapshot
-} from "./transaction-snapshot.ts";
+} from "./transactions/transaction-snapshot.ts";
 import {
   resolveSelectors,
   validateSelectors,

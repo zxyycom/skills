@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-ALL-LOCATOR-PARSE-REUSE-001: all 暂存复用已验 locator 索引解析
 
 Tests:
-- `test:ca064806ea21982904eea07660f7188a6716e2b85364f5d929f8d7343ed34af8`
+- `test:d11489bbe78535815bdd00328736021ebeed466d981667679bdb92047fc47282`
 
 Tags:
 - `decision-records`

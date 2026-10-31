@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CHECK-FIRST-ACQUISITION-001: 全量检查仅验证首次采集对象
 
 Tests:
-- `test:14bd6ef5246554bed48130a29fa43a8cee20e546f6f4dcd1321d97e51397ad9d`
+- `test:565d5df32a6ae295d82c5ad469bd0676af6d3d3b3b8344cdc5bc41bf7680e915`
 
 Tags:
 - `investigation-report`

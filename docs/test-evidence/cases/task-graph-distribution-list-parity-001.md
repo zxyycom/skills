@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-DISTRIBUTION-LIST-PARITY-001: 生成 CLI 的 task list 文本与 JSON 模式均与源码一致
 
 Tests:
-- `test:1ee371501517d3702a522f438cb6fb538932684f24e89dfd139313aeb0b3afed`
+- `test:16fb3704ca99ccdcd234d46db91b8e55981749ac671c44b2b42b57e58dc0f41c`
 
 Tags:
 - `task-graph`

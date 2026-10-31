@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-INVESTIGATIONS-DIR-NORMALIZATION-001: 相对调查目录在参数边界规范化
 
 Tests:
-- `test:4eddde9845e113ea7056fd624667eba7687726c4a0c22e121a47f66ec24d7d80`
+- `test:b93193249f9c6b8ede6fcd3a3aad236684c4cc9c95f69af7cfcc21facfb16005`
 
 Tags:
 - `investigation-report`

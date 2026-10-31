@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-SYMLINK-SOURCE-001: 选中 owner 的符号链接来源阻断暂存
 
 Tests:
-- `test:7ac0dd172559dd3a0ff045b2245b4d03fd6080b08484eee2cff548b4e9297d72`
+- `test:1b186d4b46a1c822e62f03a8f6fbae83f1b5159c421c3a067e49deecbb41731e`
 
 Tags:
 - `investigation-report`

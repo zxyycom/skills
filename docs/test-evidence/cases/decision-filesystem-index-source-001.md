@@ -1,7 +1,7 @@
 ### Case DECISION-FILESYSTEM-INDEX-SOURCE-001: 索引源读取拒绝非普通决策文件
 
 Tests:
-- `test:7986def22857af86615fc256ef8b69c2379bd96ddd8ff3b736a9dad8c9196749`
+- `test:ef24d00188c84e6de5333e6be7d81962a2d8122c97c5fd8d173b1cee62404438`
 
 Tags:
 - `decision-records`

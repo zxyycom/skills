@@ -1,7 +1,7 @@
 ### Case GATE-VALIDATION-INPUTS-001: 仓库结构校验只订阅实际布局与内容输入
 
 Tests:
-- `test:9bff3192ef1cbd78cc63cc4122458c72b54c1d5f4a7d6b7ae1f36b65116b2ec8`
+- `test:89c41965010a3ec075c10ea449c12ce9aa0d0c556afa9591d7f5ec8f2c22d31c`
 
 Tags:
 - `repository-tooling`

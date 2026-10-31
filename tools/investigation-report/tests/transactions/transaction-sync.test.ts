@@ -1,0 +1,186 @@
+import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import { test } from "node:test";
+import { setInvestigationRelations } from "../../src/relations/transactions/relation-transaction.ts";
+import { parseInvestigationReport } from "../../src/records/markdown.ts";
+import { synchronizeInvestigationIndex } from "../../src/records/validation/validation.ts";
+import {
+  parseJsonObject,
+  jsonObjectMember,
+  investigationRoot,
+  withTempRoot
+} from "../support/fixture-support.ts";
+import { writeCollection } from "../support/collection-support.ts";
+
+test("sync-index preserves post-rename uncertainty when lock cleanup also fails", async (t) => {
+  await withTempRoot("sync-post-rename-release-failure", async (root) => {
+    await writeCollection(root, [{ id: "report" }]);
+    await fs.appendFile(`${investigationRoot(root)}/report.md`, "\n", "utf8");
+    const indexPath = `${investigationRoot(root)}/investigation-index.json`;
+    const lockPath = `${root}/docs/.investigation-index.json.mutation.lock`;
+    const originalReadFile = fs.readFile;
+    const originalRm = fs.rm;
+    let indexReadCount = 0;
+    let racedAfterRename = false;
+    const observedRead = t.mock.method(
+      fs,
+      "readFile",
+      async (...args: Parameters<typeof fs.readFile>) => {
+        if (args[0] === indexPath) {
+          indexReadCount += 1;
+          if (indexReadCount === 1) {
+            racedAfterRename = true;
+            await fs.writeFile(indexPath, "interleaving index write\n", "utf8");
+          }
+        }
+        return await originalReadFile(...args);
+      }
+    );
+    fs.rm = async (...args) => {
+      if (args[0] === lockPath) {
+        throw Object.assign(new Error("injected lock release failure"), {
+          code: "EIO"
+        });
+      }
+      return await originalRm(...args);
+    };
+    let result;
+    try {
+      result = await synchronizeInvestigationIndex({
+        workspaceRoot: root
+      });
+    } finally {
+      observedRead.mock.restore();
+      fs.rm = originalRm;
+    }
+    assert.equal(racedAfterRename, true);
+    assert.equal(result.changed, false);
+    assert.ok(result.errors.length > 0);
+    assert.equal(result.diagnostics.length, 2);
+    assert.match(
+      result.diagnostics[0]?.code ?? "",
+      /^state-index\.index-write-failed$/u
+    );
+    assert.deepEqual(result.mutation, {
+      outcome: "partial-or-unknown",
+      scope: "investigation report index collection"
+    });
+    assert.deepEqual(
+      result.diagnostics.find(
+        (diagnostic) =>
+          diagnostic.code ===
+          "investigation-report.collection-lock-release-failed"
+      )?.mutation,
+      result.mutation
+    );
+    assert.equal(
+      await fs.readFile(indexPath, "utf8"),
+      "interleaving index write\n"
+    );
+    await fs.rm(lockPath, { force: true });
+  });
+});
+
+test("set-relations applies multi-source replacements and explicit clears", async () => {
+  await withTempRoot("replace", async (root) => {
+    await writeCollection(root, [
+      { id: "base" },
+      { id: "split-a" },
+      { id: "split-b", sourcePath: "semantic-split.md" }
+    ]);
+    const applied = await setInvestigationRelations({
+      replacements: [
+        {
+          relations: [
+            { type: "拆分", target: "base", summary: "  第二条拆分  " }
+          ],
+          source: "split-b"
+        },
+        {
+          relations: [{ type: "拆分", target: "base", summary: "第一条拆分" }],
+          source: "split-a"
+        }
+      ],
+      workspaceRoot: root
+    });
+    assert.deepEqual(applied.errors, []);
+    assert.equal(applied.changed, true);
+    for (const [id, sourcePath] of [
+      ["split-a", "split-a.md"],
+      ["split-b", "semantic-split.md"]
+    ] as const) {
+      const parsed = parseInvestigationReport(
+        await fs.readFile(`${investigationRoot(root)}/${sourcePath}`, "utf8"),
+        id
+      );
+      assert.deepEqual(parsed.errors, []);
+      assert.deepEqual(parsed.report?.relations, [
+        {
+          type: "拆分",
+          target: "base",
+          summary: id === "split-a" ? "第一条拆分" : "第二条拆分"
+        }
+      ]);
+      assert.deepEqual(Object.keys(parsed.report?.relations[0] ?? {}), [
+        "type",
+        "target",
+        "summary"
+      ]);
+    }
+    const appliedIndexText = await fs.readFile(
+      `${investigationRoot(root)}/investigation-index.json`,
+      "utf8"
+    );
+    const appliedIndex = parseJsonObject(appliedIndexText);
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(appliedIndex, "entries"), "split-a")
+        .relations,
+      [{ type: "拆分", target: "base", summary: "第一条拆分" }]
+    );
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(appliedIndex, "entries"), "split-b")
+        .relations,
+      [{ type: "拆分", target: "base", summary: "第二条拆分" }]
+    );
+    assert.equal(
+      jsonObjectMember(jsonObjectMember(appliedIndex, "entries"), "split-b")
+        .sourcePath,
+      "semantic-split.md"
+    );
+    const cleared = await setInvestigationRelations({
+      replacements: [
+        { relations: [], source: "split-a" },
+        { relations: [], source: "split-b" }
+      ],
+      workspaceRoot: root
+    });
+    assert.deepEqual(cleared.errors, []);
+    for (const [id, sourcePath] of [
+      ["split-a", "split-a.md"],
+      ["split-b", "semantic-split.md"]
+    ] as const) {
+      const parsed = parseInvestigationReport(
+        await fs.readFile(`${investigationRoot(root)}/${sourcePath}`, "utf8"),
+        id
+      );
+      assert.deepEqual(parsed.errors, []);
+      assert.deepEqual(parsed.report?.relations, []);
+    }
+    const clearedIndex = parseJsonObject(
+      await fs.readFile(
+        `${investigationRoot(root)}/investigation-index.json`,
+        "utf8"
+      )
+    );
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(clearedIndex, "entries"), "split-a")
+        .relations,
+      []
+    );
+    assert.deepEqual(
+      jsonObjectMember(jsonObjectMember(clearedIndex, "entries"), "split-b")
+        .relations,
+      []
+    );
+  });
+});

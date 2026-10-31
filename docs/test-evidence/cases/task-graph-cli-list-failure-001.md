@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-LIST-FAILURE-001: Task-list command failure 遵循选定输出协议
 
 Tests:
-- `test:77b527cc7f7d9261f70ec4b208a30ec3bdb741c467016a3235cd78579dc6710e`
+- `test:b59d709ac5ee419b7ec63138e1bd99f4d98c1714cfb8cb0b41dbaec9f29dfe0d`
 
 Tags:
 - `task-graph`

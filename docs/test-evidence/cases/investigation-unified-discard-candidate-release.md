@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-UNIFIED-DISCARD-CANDIDATE-RELEASE-001: 候选删除后解锁失败保留真实结果
 
 Tests:
-- `test:c936e79570472b1c7e21230ddb2cca5abba7ecb5ba904852822b6d573b3d6726`
+- `test:19d2805c63968a65b4822e0fd8c5095b9a19c818164606f4c2e22680b7eee8cd`
 
 Tags:
 - `investigation-report`

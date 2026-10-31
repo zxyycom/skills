@@ -1,7 +1,7 @@
 ### Case GATE-MARKDOWN-PROOF-MISSINGEXCLUDED-001: Markdown 内容证明的排除路径归属
 
 Tests:
-- `test:b222e3a2384febb3ff724611e914b171304a2c9e9290122053bde50e60d7ccf3`
+- `test:98a7150a78762c14f4e6b020d35481e8510ecbba7808fdae3dff143b52bda492`
 
 Tags:
 - `repository-tooling`

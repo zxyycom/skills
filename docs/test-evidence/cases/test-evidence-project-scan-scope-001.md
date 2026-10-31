@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-PROJECT-SCAN-SCOPE-001: 项目注册扫描包含 MTS 与被 suppression 标记的 TypeScript
 
 Tests:
-- `test:f429cc44c24af4714834d9c1d2869ea389d53a650876bfaf7931432e1bae30a5`
+- `test:6bf534cf2b74318a59ef9cf7961154f924bac52a38d49570b1eb17e22e1ce0a2`
 
 Tags:
 - `repository-tooling`

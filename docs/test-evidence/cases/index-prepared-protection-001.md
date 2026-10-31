@@ -1,7 +1,7 @@
 ### Case INDEX-PREPARED-PROTECTION-001: 选择同步保留全集与 fresh 门槛
 
 Tests:
-- `test:9dc0d92b0411368fdf9f74ded222f8fde2546a77a69e46fe15958f6377d60c01`
+- `test:2d1614d28f97195f3c4ceaf4a3d1d7f53d441f1584ad918b7fc4f25b64cdbb9c`
 
 Tags:
 - `index-runtime`

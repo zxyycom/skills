@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-READ-FAILURE-FACTS-001: 写前读取失败保留净化事实与恢复动作
 
 Tests:
-- `test:34ccfba0b5f409f1fa425733856e42291608080009e47f0a58568c99aca9879f`
+- `test:ffdf554fca50ff213ec6f093c717db4ded564c0b4ef2c2944e24f960823d794f`
 
 Tags:
 - `investigation-report`

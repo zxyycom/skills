@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-METADATA-SCHEMA-001: Metadata parser 只接受规范 Draft 与 Plan
 
 Tests:
-- `test:67ac652fc934f37d07a9d522df57bf3903b5994a1a132fa07392018031bbf354`
+- `test:a58ffd48fb046516fd30ab49ecd7aa2997c3314429b920d39409b79b5228249b`
 
 Tags:
 - `change-plan`

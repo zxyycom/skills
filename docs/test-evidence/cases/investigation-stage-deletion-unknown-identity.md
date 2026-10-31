@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-DELETION-UNKNOWN-IDENTITY-001: 局部删除不发现未知位置的未同步身份
 
 Tests:
-- `test:a91a996b222a4cdf9ed57e21bf080510da7c51ca60e7d4f105b8eef069b86db4`
+- `test:90283be5f409843f815ae1e3ff4be67ea6fa3cade01330575e029afc96adf2d7`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-ABORT-001: 遵守已取消的构建信号
 
 Tests:
-- `test:69eee12f7bfb41a1c314b590d95a61e9781df0b8e61eaf660f7695efd92294f5`
+- `test:0eddd2cdf086838a55a7fe11a1dda94507bac8f9c2b8491c02e4b4d37e2752d5`
 
 Tags:
 - `index-runtime`

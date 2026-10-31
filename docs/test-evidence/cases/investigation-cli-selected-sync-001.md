@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-SELECTED-SYNC-001: CLI selected sync publishes by default and keeps --preflight zero-write
 
 Tests:
-- `test:06267a316e544644393723e47b8d092e0e978b5ff78bec8ab51e5852c8d98352`
+- `test:91ad5d7686de762058bbaefab626f503e3d44cbef1630a317bb1db34eac3697b`
 
 Tags:
 - `investigation-report`

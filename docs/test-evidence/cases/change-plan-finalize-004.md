@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-FINALIZE-004: 删除准备拒绝 physical tree 漂移
 
 Tests:
-- `test:62f9ab2385068919d31e7005e510e9b093bc587535dbfeedd93495416ccd22e9`
+- `test:f620bb701e1d3edf1eef133ad26b6b3ee0cbf6a413e8cb838e36262c5330fb80`
 
 Tags:
 - `change-plan`

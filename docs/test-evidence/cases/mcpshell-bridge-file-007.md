@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-FILE-007: workspace get commits to its canonical staging parent after a lexical destination swap
 
 Tests:
-- `test:34bf8497256f504218218bd81dc527138ebed0f58780d2d4ca847b5a54c0f5ce`
+- `test:784dfd8a28456324ab98cc4550c476ce6204c27dba5f5c84a3aaf288ad31a8a9`
 
 Tags:
 - `mcpshell-workspace-bridge`

@@ -1,7 +1,7 @@
 ### Case GATE-METRICS-BLOCKING-001: 生产指标使用 blocking 政策与随包函数分析器
 
 Tests:
-- `test:481f2b51899a4df37a0e686a409b77a5b1c86617f87ba2623a27dfb4841d7f1d`
+- `test:f1fa9415398c0eee4ef2df0e2094488aa41908cf26d1a11bb19f22561ea3eb51`
 
 Tags:
 - `repository-tooling`

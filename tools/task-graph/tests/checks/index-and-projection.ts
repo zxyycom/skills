@@ -1,2 +1,2 @@
-await import("../schema-index.test.ts");
-await import("../graph-projection.test.ts");
+await import("../graph/schema-index.test.ts");
+await import("../graph/graph-projection.test.ts");

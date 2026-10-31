@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-MIGRATE-PREFLIGHT-001: 迁移预演精确映射 locator 并保留 Case 语义
 
 Tests:
-- `test:736e5e8c64b862662648128c4f842cd7e3fd3eddd11518c94b4d671df20f58ec`
+- `test:077c3e3c23e9e85c2c8d3a9251ce7c57e8fa3d0a9acb010165983da414e86fb4`
 
 Tags:
 - `repository-tooling`

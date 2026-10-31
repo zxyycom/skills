@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-NEW-CLEANUP-FACT-001: 创建后解锁失败保留实际创建事实
 
 Tests:
-- `test:ea59b304ce8466758cd63b0eceaca4d6dd9bf1d22d9abb6c6420556222a29389`
+- `test:f20d886cdb28f63458ff625762e6c094e684621960b120a0d06b82bbb7eff5ef`
 
 Tags:
 - `investigation-report`

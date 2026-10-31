@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-007: 技术失败与隐私
 
 Tests:
-- `test:7a44b92636478e8235d46915e3f0d1edb194d95170ff47bb870bcc0a4a90ba11`
+- `test:1c3c9a862a1282f436cb779ac03769b82ebc692215fde78e562b3a00c8e3e24d`
 
 Tags:
 - `lightweight-judgment`

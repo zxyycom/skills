@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-DISTRIBUTION-004: 不同 checkout 路径下制品字节可复现
 
 Tests:
-- `test:1e7b3db48fec225e1222ad5ca91bdaa58ff1c7ee087bf3ab08715b2d5abdb4fd`
+- `test:6bd78e04e19a6813073b8890874f0d6095ff86f81fec239ffec1195d7b413dce`
 
 Tags:
 - `task-graph`

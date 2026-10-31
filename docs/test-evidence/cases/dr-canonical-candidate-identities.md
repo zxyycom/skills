@@ -1,9 +1,9 @@
 ### Case DR-CANONICAL-CANDIDATE-IDENTITIES-001: 完整日期身份的新建与局部候选定位
 
 Tests:
-- `test:025759d45c39b41e5ee31c56633a58e3aff942acbff9808dda7507100c63730c`
-- `test:4c231553b395d60de51dd69a7d285ae413f5660a16b657935f444bdd15ca0246`
-- `test:ad666dd3158242a43f4f33fa840c9c1f973557f5556485ce6e26872fe0741118`
+- `test:0c2d244fca23ed4b53407a69a5b0ea74bb4c786f790825b9dc51acfa1c0b24ba`
+- `test:be86b737d509fbf6a3f45fffd8fce521074d6cb80b8427b5dda6e8c725ec6a70`
+- `test:c3567b09c28d940aca0633d0f662937917cb45dc15f0c9b51a1e926aa6c70920`
 
 Tags:
 - `decision-records`

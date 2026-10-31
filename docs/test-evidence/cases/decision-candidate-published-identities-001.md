@@ -1,9 +1,9 @@
 ### Case DECISION-CANDIDATE-PUBLISHED-IDENTITIES-001: 候选准备复用正式发布身份而不重读正文
 
 Tests:
-- `test:4f946c54a75e183920ada1fa4d5deffb0f0ba31da01faf731b95fb5bde9dc508`
-- `test:abb01a88e105a90aa4d181e8cfcbe8e75205b3763d13d081c5510f618c421b76`
-- `test:ecd0d5831eff1f2645f488ce9aaefbeb65824a51d67ed7abf92726b0b6f2a1cb`
+- `test:0f162583b051e7265ff3c49b9629715be41975ec87bd00a36e0b95503fd01c93`
+- `test:9413f4dbee0a75493ce665ada6c34f5b3f3abc33877b7a88a96913001ef19ad4`
+- `test:b451e902ff7ca87920966efd66545098e538905d8597c0bd2487c37b57ad2ddf`
 
 Tags:
 - `decision-records`

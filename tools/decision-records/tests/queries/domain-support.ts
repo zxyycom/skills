@@ -1,17 +1,17 @@
 export { listStateSnapshot, listSnapshotEntries } from "./snapshot-fixture.ts";
 import os from "node:os";
-import { isDecisionTag } from "../../src/decision-path.ts";
+import { isDecisionTag } from "../../src/collection/decision-path.ts";
 import assert from "node:assert/strict";
 
 import {
   prepareDecisionListRequest,
   projectDecisionList
-} from "../../src/decision-query-list.ts";
-import { printDecisionListSuccess } from "../../src/cli-output-list.ts";
+} from "../../src/query/decision-query-list.ts";
+import { printDecisionListSuccess } from "../../src/cli/output/cli-output-list.ts";
 import type {
   DecisionQueryRequest,
   IndexedDecisionState
-} from "../../src/decision-query-contract.ts";
+} from "../../src/query/decision-query-contract.ts";
 
 type ListRequest = Extract<DecisionQueryRequest, { command: "list" }>;
 type ListOptions = Partial<Omit<ListRequest, "tags">> & {

@@ -1,7 +1,7 @@
 ### Case INV-SEARCH-METADATA-001: 元数据保留精确全集计数并标记隐藏返回
 
 Tests:
-- `test:70fed2ed8864d3f7ccd99df532168bb6f54d5c726b38137eb6e92afa661a3655`
+- `test:13527f5cef61ad9c21f24fbe8f63399afbc2ce9e5f7adb6b3c2e80f9ab2229ff`
 
 Tags:
 - `record-search`

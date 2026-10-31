@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-MISSING-COMMAND-001: 缺少命令时渲染顶层帮助并按参数错误结束
 
 Tests:
-- `test:9c37cdc63ebb7f6cb47f9aad3f170593fbf280089f75acccb0ee0cb5aa56f898`
+- `test:c46f1d65ec90a4ba8b99a4b32cdf5e9d91c2ad0bf042a0d37a4cb84fed6241c5`
 
 Tags:
 - `investigation-report`

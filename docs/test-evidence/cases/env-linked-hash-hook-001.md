@@ -1,7 +1,7 @@
 ### Case ENV-LINKED-HASH-HOOK-001: linked worktree 的真实 hash hook 隔离 Git 环境
 
 Tests:
-- `test:8112af4769b8a9393fa3e397c495540ace5727b67aa607a2237d8c198630df4f`
+- `test:f5494977ed7d132cfc234a9cde6503adfbbc40d51106283d385ec07d48f70058`
 
 Tags:
 - `repository-tooling`

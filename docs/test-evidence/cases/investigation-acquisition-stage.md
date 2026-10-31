@@ -1,8 +1,8 @@
 ### Case INVESTIGATION-ACQUISITION-STAGE-001: domain 暂存批量取得事实且独立写前复核
 
 Tests:
-- `test:6ef460a926d427834a0dadaa1646d72d1dce8789a17ffaa90d7e629b751d6e24`
-- `test:ac733a647c9412bec77f02528573e629fc35303e3e2b575181e0ec4204374dd2`
+- `test:100cd281c0bac94b0d32763e95eabf5009ee11670755852a390b3c072a1b24b1`
+- `test:42a59cda31ccb12ef2e4365262e70075819b0192dc73b58c649fbb10e72cd3b2`
 
 Tags:
 - `investigation-report`

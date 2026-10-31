@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-ADAPTER-012: 选定合同的真实发送表示
 
 Tests:
-- `test:aadb7ffd1303434b134a2287d021d63ca561e793f68f0a4ffda1ee8477951017`
+- `test:69a3178a7cf2252242d020b544f2f7b15e702fc1328ec7cdd5386c3910a7ef45`
 
 Tags:
 - `lightweight-judgment`

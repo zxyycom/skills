@@ -1,8 +1,8 @@
 ### Case RECORD-SELECTED-KNOWN-LOCATION-DELETION-001: 已知位置缺失按删除且不发现未知移动
 
 Tests:
-- `test:ce5ee6138e0f6b1eb3da65e1b132a7d2f20c302d02beca6d8a778f71851e72d9`
-- `test:fe178da5a4380287767574794068158e6a7a0794eb00d7321387c59173adb426`
+- `test:32fdea0169626076e47f1a31a626f4b4e8bf75b6c2e51ff2dfce8554a64dfdcf`
+- `test:7407040124314e6e92e6ee7a9b5e1c14c1405a447f0774fc39ca038da626f71f`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,10 @@
-import { fileKindForGitMode, operationError } from "./git-core.ts";
-import { gitContextForRepository } from "./git-repository.ts";
-import { readGitBlobSelections } from "./git-blob-batch.ts";
-import { isReadableBlob, listTreeEntries } from "./git-revision.ts";
+import { fileKindForGitMode, operationError } from "./git/git-core.ts";
+import { gitContextForRepository } from "./git/git-repository.ts";
+import { readGitBlobSelections } from "./git/git-blob-batch.ts";
+import {
+  isReadableBlob,
+  listTreeEntries
+} from "./git/revision/git-revision.ts";
 import type {
   RevisionId,
   VersionControlFile,

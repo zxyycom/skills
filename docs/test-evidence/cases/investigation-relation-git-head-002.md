@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RELATION-GIT-HEAD-002: 无基线时跳过前序提示并报告不可用的历史检查
 
 Tests:
-- `test:8eb3971351ab7e4b445c7ebb18f8c67496681de4ac65f8658dd8aa6c32e5f9ae`
+- `test:0d23b8c10341f8709a1e861e58e2fefc379cd8e2275baaa8c72c5ec2449880f2`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case GATE-PUBLIC-TEST-INPUTS-001: 共享运行时测试不扩散到领域消费者
 
 Tests:
-- `test:156a60e20495abe64570ab4e9c2193c8cf854a901da68e54d4afc4b2fd7686b9`
+- `test:ea9512d4031ba0753aff35913ac6e102fd3d51024792244638bf1d66b4bd0d7f`
 
 Tags:
 - `repository-tooling`

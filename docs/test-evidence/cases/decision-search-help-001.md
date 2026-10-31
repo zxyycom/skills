@@ -1,7 +1,7 @@
 ### Case DECISION-SEARCH-HELP-001: Decision search 帮助公开匹配模式与结构筛选
 
 Tests:
-- `test:c2a9d2571921da70cb29aa1d9f28da06d0c4e0c71fb123f87fca43bf6c19c70f`
+- `test:bee7862a6601e89aac021aa6d9d39c8a57458307c67502dc59597fb1ccb56b37`
 
 Tags:
 - `decision-records`

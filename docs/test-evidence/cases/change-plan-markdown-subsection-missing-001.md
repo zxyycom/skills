@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-MARKDOWN-SUBSECTION-MISSING-001: Markdown 报告缺失的必需子章节
 
 Tests:
-- `test:c5fc176a0c54494deff21f0fadb2d1c59a773872b2139f1ca473fc5143bad991`
+- `test:a60e39ad68d9f3601b8986ecc44b860165f26451cb3ca3392b17db134cffda88`
 
 Tags:
 - `change-plan`

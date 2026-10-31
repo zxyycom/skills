@@ -1,7 +1,7 @@
 ### Case DECISION-PUBLISHED-INDEX-FAIL-CLOSED-001: 发布索引严格验收与按依赖验图
 
 Tests:
-- `test:f4f765b5c23e346836261743bacd24ea8823726c1a0ba14ba4248f7833e4cf4d`
+- `test:75fdc6ee2ba3a59d488880ee86fad1d769471680fe505941c35d40db064e1c65`
 
 Tags:
 - `decision-records`

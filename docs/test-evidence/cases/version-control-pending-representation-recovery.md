@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-PENDING-REPRESENTATION-RECOVERY-001: 读回失败保留原可执行快照
 
 Tests:
-- `test:fc76c5e7c49e90be580a77d4b535d374d496c9542086836b85e3fd501dbc8223`
+- `test:f8f8ccbec6e35cbc2e939bcbc239a9e961833a847748e7ca257cea6f3478bfe2`
 
 Tags:
 - `version-control`

@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-ADAPTER-007: OpenAI 图像作用域与容量门禁
 
 Tests:
-- `test:9e26b02cd2ba011a704a134fc75a6c3ab682d5221318d12dc7bb4926d49e2b3d`
+- `test:3f0612feba31c6a2601b2ccbdffb781d3a94eab30e44437f5977aada1ead7d5b`
 
 Tags:
 - `lightweight-judgment`

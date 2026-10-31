@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-DIST-001: 分发模块无需配置即可无可观察副作用地导入
 
 Tests:
-- `test:8dc6273cd02bc7c53076bf7ced7d40f45f8d2ca68f62162d44d6f4b455ee9dd6`
+- `test:9961bd4e324712dbfce4b027343b76002ab28402b67c45be8fc8173e0743b556`
 
 Tags:
 - `mcpshell-workspace-bridge`

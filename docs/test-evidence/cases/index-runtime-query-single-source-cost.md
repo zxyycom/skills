@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-QUERY-COST-001: 单查询来源沿用原校验路径
 
 Tests:
-- `test:e5a04cfa34d3c1bb1efe1a3e3af5cc1b8a80b5dd7d7949fdfc75c7c31822b0c7`
+- `test:74441891aa8df9e09955d732319f5186d02b0e55ec190ca7e56af4b4c9deef64`
 
 Tags:
 - `index-runtime`

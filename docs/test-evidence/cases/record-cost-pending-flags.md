@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-015: 待提交标志保留
 
 Tests:
-- `test:a786c25e382867c5f6e26bafa7382440410a4e33540aa3d121499482d246a18c`
+- `test:d238a122ee34a41650b53ac8dff7cd382c4209d071955513afa2c05efe673847`
 
 Tags:
 - `record-cost`

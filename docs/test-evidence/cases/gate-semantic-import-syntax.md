@@ -1,7 +1,7 @@
 ### Case GATE-SEMANTIC-IMPORT-SYNTAX-001: catalog 只采纳实际 import 语法
 
 Tests:
-- `test:a0af622c6fd8b858d884204584879352f4898fe3d08f7d4c7a4c07576d72231e`
+- `test:3ca5987eec09be54c64e4a50f4b024091ed6ab375c7d78b0f2b5684f7b8167d4`
 
 Tags:
 - `repository-tooling`

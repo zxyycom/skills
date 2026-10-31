@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-EXPECTED-PATH-EVIDENCE-001: 预期路径的失败不能被同 ID 他处来源遮蔽
 
 Tests:
-- `test:32f4526900f1665a37bfe9e35ab5b55328a78c2b07dded296fd423228a637d3d`
+- `test:0e87e1290eb46e3e6b2e9d6573cdac588cd6b946888387e262f4a24030d08780`
 
 Tags:
 - `decision-records`

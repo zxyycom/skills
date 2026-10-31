@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LIST-REASON-ESCAPE-001: Control reason 使用 JSON string escaping
 
 Tests:
-- `test:7ac6194e2daa2f55bac1adf5b92e5b2dd709d74177e5f4a474491a6b00576d4b`
+- `test:363c46a756ef23714256a88865dcb66aaad031e3d511706e76c9843642223cb4`
 
 Tags:
 - `task-graph`

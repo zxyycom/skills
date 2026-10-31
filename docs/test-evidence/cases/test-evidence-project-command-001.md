@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-PROJECT-COMMAND-001: 项目快照命令解析只接受受限测试形式
 
 Tests:
-- `test:36868b7785c201294ecfdd722fadbcc9d2b22eab00e85eb70e857f961d54b7b7`
+- `test:19b19ebdfcb726b9dd54d55f4becd1cf822aa9abaad3b4997d73312d89ecde1c`
 
 Tags:
 - `repository-tooling`

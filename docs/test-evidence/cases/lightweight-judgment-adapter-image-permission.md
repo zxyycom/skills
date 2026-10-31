@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-ADAPTER-005: 图片识别与零发送门禁
 
 Tests:
-- `test:5d2f18a3c2d73f7c596ba01d1db802340ebacf7e1f62c4619fb5974333cf44d0`
+- `test:af0969fd3d717a24d789d052d414f7d8332928297ee48be184e400793fb2fc8c`
 
 Tags:
 - `lightweight-judgment`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-TRACE-LIMITS-001: Investigation Trace API 分别诊断范围限制
 
 Tests:
-- `test:199811a2d31e037897a744918f729e4f10f1a47a6441d64ebc7cea2337a8c135`
+- `test:78899819927e05f6c9e654b52903933475bf3a228afdbf403855f432b371b26c`
 
 Tags:
 - `investigation-report`

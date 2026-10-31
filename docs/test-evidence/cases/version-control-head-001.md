@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-HEAD-001: 区分未诞生 HEAD 与损坏 HEAD
 
 Tests:
-- `test:745b4474957d0c3c05651a72b3d6b39cab5fd73cf1c39e5eabf3ea1f428a04d8`
+- `test:ab1bda5ae407b731e1b491a884bc443e1244dff1604de8889b2c19e9b008ba18`
 
 Tags:
 - `version-control`

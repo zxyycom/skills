@@ -1,7 +1,7 @@
 ### Case GATE-SELECTED-CI-FULL-001: CI 不被显式选组缩窄
 
 Tests:
-- `test:63799e6458099e20143f17fbf1c490bdb5ff12aa53f6b9ad37f727360064c4ee`
+- `test:93348b9e2d849a0b1440c57f5876b4d3e0652cc4f2c03c9c3e53f193f8ddb4e0`
 
 Tags:
 - `repository-tooling`

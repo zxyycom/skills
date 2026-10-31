@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-004: 版本基线短路
 
 Tests:
-- `test:b8df942504c3c9c40c0c0f512d788e4708308ce7628f12e1e3841becff655b40`
+- `test:8384b662abcc8937d510df374a83f5b80a031c6df78f510dfd51f12d584eb6db`
 
 Tags:
 - `record-cost`

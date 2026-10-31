@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-ADAPTER-009: 多协议日志留存与拒答成功
 
 Tests:
-- `test:0fe646d23041eb16909483174d4bb710802661f79718c9800c128e6c8a8f24d4`
+- `test:b45aee5e08a2161b100d7dc8d206fb258306880fc43017bac1ed70984929df57`
 
 Tags:
 - `lightweight-judgment`

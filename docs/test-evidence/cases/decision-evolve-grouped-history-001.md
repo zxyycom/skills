@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-GROUPED-HISTORY-001: Evolve 为仅由分组引入的前序执行历史门禁
 
 Tests:
-- `test:c631a4216c677190057e4171db97975ade5e7348ac4dc6f0a056425a45919a66`
+- `test:86b9c73a5d8ed8d9a0758e249c3342d7614798bb402e7042a5611b6aaf1ff536`
 
 Tags:
 - `decision-records`

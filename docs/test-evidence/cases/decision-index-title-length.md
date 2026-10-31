@@ -1,7 +1,7 @@
 ### Case DECISION-INDEX-TITLE-LENGTH-001: 来源标题遵守长度契约
 
 Tests:
-- `test:ccad6bd1e3deab1e3b6ab1c04e7fabf4f0a8681d154e4bb84d3bd58f1b63f4d5`
+- `test:f251179c6e54bed81be7aef84d8e3f5d688427b57b07bd659f1f26602f5b5b5a`
 
 Tags:
 - `decision-records`

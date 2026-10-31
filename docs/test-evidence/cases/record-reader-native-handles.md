@@ -1,7 +1,7 @@
 ### Case RECORD-READER-HANDLES-001: Node取消和消费失败关闭全部真实读取句柄
 
 Tests:
-- `test:4c900e86efdf569f32cb48e8c90bb771fe956e077617d372bca5dc6926c180b6`
+- `test:2d4a3c45e79d69615be2d820f404fda1ff6fb820b6c2542632e500baea94a613`
 
 Tags:
 - `record-operations`

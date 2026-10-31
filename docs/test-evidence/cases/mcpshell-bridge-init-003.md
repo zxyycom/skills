@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-INIT-003: initializer stops on an unowned identity and removes only owned configuration
 
 Tests:
-- `test:22b1fbba09cb7cf7b41b2a3cea3ecea1615877184a0ae4214e33159271d0e865`
+- `test:754fc9770b497d3835081aa5ed20c38ef4000fae04b6708514f5bbd19635ded2`
 
 Tags:
 - `mcpshell-workspace-bridge`

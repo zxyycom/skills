@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-INHERITANCE-001: 子任务得到完整约束来源，反向关系按 task ID 确定性返回
 
 Tests:
-- `test:f5e267863198f36d383a19a0016edfd69beaeddf79556fe96cbcdd8fe602f386`
+- `test:1c13e6569bc2a16f04dfe5165f853f7f3ac1b1fef19951a6a17299401779c563`
 
 Tags:
 - `task-graph`

@@ -1,11 +1,11 @@
 ### Case INVESTIGATION-DATED-SELECTOR-001: 普通 Investigation selector 先解析日期 ID 再查询名称
 
 Tests:
-- `test:1a2917df30caf1808b4e0a6e6c59a31b64d3279484f7172ed9fd9d97596d6765`
-- `test:3aa746ed9b9e7a36ef91ffc5b3520160a6a72c030819d6f40f6f9a810fb2df24`
-- `test:4a6e9856533ef43e66521ebf37159aa5bfa8555ba77a97d45f93467e5ce1ab9e`
-- `test:80f4943358fdb5890ba19fe5fce575a664ee6942db327973485cb743af09739f`
-- `test:9f7cd102c213861b58af8c36403aac95adffe8171f096fb1c0f57d475810292d`
+- `test:11420a0ddba3c451d083ae7940e8862e6154dca316c3ec2faefe37d60f47c6f4`
+- `test:4fb6fca59e03fcef103dba631f03dd41dd1314bdae2b3afa1b53aef5ff6eb434`
+- `test:7790448290703dd61a37ebed46687a82236e12c14ca9d567573c87c05a28bed9`
+- `test:c684bbf9574dfc6f0b7d1c0ca27f030fbb4eafe1878ae38b056e6e92caec0a6b`
+- `test:fa7228aea0cd214547a3d8e724f2b735ae4ba383c8a462bc1984c5bc46728283`
 
 Tags:
 - `investigation-report`

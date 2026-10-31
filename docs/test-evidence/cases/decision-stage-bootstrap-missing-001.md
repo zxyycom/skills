@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-BOOTSTRAP-MISSING-001: 无 revision 的 Stage 拒绝不存在 ID
 
 Tests:
-- `test:52be62c17ca77ede97918809893f1176cc31176bdc9f14706fd6a88ba9366eb6`
+- `test:e80e47396d2ab860b3f8b47415a9a3e6cd101645bbfd73d1277d8c8c54d56997`
 
 Tags:
 - `decision-records`

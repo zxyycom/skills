@@ -1,7 +1,7 @@
 ### Case DECISION-TRANSACTION-UNCHANGED-FRESH-001: Unchanged 仍独立验证所选来源
 
 Tests:
-- `test:da4f40f51705de7ab8633f7289ed833fec4caa8aa6c228bc22454c6b2f549f35`
+- `test:2d591f517f4bf67508058a893fe424072f40e9393b8d656dc999a087871cffd6`
 
 Tags:
 - `decision-records`

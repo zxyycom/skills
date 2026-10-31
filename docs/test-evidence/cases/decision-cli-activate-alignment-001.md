@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-ACTIVATE-ALIGNMENT-001: Publish 要求 alignment 参数
 
 Tests:
-- `test:2ac240c11034af9054eec4dda4c628546e33caea42b3d412f03c9cc0c1efcc60`
+- `test:27c2d2edad3be51f9b1bf1a2271f8c9edfc141c7907196b07cc7741497f7fcf9`
 
 Tags:
 - `decision-records`

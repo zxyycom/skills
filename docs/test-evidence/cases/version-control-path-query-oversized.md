@@ -1,8 +1,8 @@
 ### Case VERSION-CONTROL-PATH-QUERY-OVERSIZED-001: 不可分割的 Git 参数超限明确失败
 
 Tests:
-- `test:7707ca24b0d799a5d5badc0a67c3902a3829e7d60123bc580b4aa71ea384eb20`
-- `test:c300aa13cac151767794086d7e087dc33fd316574b1bc016e2e007f94fb01051`
+- `test:5f0ab65dbae3e90975e094f69f264f9cc7d79e91230f24f3c4fe656922e17b83`
+- `test:b75ad9a9893aaf7858d330601ff11fb58091d552f238cfb23e1a11c15a529e32`
 
 Tags:
 - `version-control`

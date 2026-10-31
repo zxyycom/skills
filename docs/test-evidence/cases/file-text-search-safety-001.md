@@ -1,7 +1,7 @@
 ### Case FILE-TEXT-SEARCH-SAFETY-001: 文件搜索拒绝不安全路径、链接和无效 UTF-8
 
 Tests:
-- `test:9ca8756ea5a4a503b5aed2339f7e9f8c249e68b03d6850f9aa75eb3bd98faaa8`
+- `test:be1b3cb2ab6c24f0e7e7f48ade43c1f48d2dc92f5ebba61920be87366e389375`
 
 Tags:
 - `index-runtime`

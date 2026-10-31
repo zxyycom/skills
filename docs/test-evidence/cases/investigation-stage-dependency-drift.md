@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-DEPENDENCY-DRIFT-001: stage 复核实际消费的共享资源字节
 
 Tests:
-- `test:a19c4e215fa2fbefab4d0175fed7718c41d9bb7849dd6fdbd18b3bd9d2cfd398`
+- `test:a74f699c98e4d8e1521d553836333fd6e7ba2cfe9899c1bb7e81bd48ef665cc4`
 
 Tags:
 - `investigation-report`

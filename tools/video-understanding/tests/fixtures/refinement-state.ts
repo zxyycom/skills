@@ -7,16 +7,16 @@ import {
   type Evidence,
   type Material,
   type Provenance
-} from "../../src/evidence.ts";
-import { materialFields } from "../../src/material.ts";
+} from "../../src/evidence/evidence.ts";
+import { materialFields } from "../../src/evidence/material.ts";
 import {
   loadEvidence,
   loadSnapshot,
   operationDirectory,
   publishEvidence
-} from "../../src/store.ts";
-import { queryEvidence } from "../../src/query.ts";
-import { parseOptions } from "../../src/arguments.ts";
+} from "../../src/store/store.ts";
+import { queryEvidence } from "../../src/query/query.ts";
+import { parseOptions } from "../../src/cli/arguments.ts";
 import { locateEvidence } from "../../src/location.ts";
 import { readEvidence, refine } from "../../src/video.ts";
 

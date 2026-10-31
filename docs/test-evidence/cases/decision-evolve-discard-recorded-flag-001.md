@@ -1,8 +1,8 @@
 ### Case DECISION-EVOLVE-DISCARD-RECORDED-FLAG-001: Evolve discard 参数在无需历史基线时准备删除与建立
 
 Tests:
-- `test:b83b49feb3611be972ed455041f6b8899d47112ff2f3df10aba7411d7f1ed26c`
-- `test:b92b974d04348b5a4f2657373f788aceb5390963529b10731d8bc421e3757619`
+- `test:9716aaa6fdffd6f3f0d925278242789f94101b1e901a0f6d58c0bc9ddd8561e8`
+- `test:cf199beb47b15e0c523864903cebdb103449715d0fd2cf12bcacead20508704d`
 
 Tags:
 - `decision-records`

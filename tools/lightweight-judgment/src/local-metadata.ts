@@ -1,6 +1,6 @@
 import { fail } from "./failure.ts";
 import * as v from "valibot";
-import { record } from "./json.ts";
+import { record } from "./protocol/json.ts";
 
 export type LocalTags = Readonly<Record<string, string>>;
 export type LocalMetadata = Readonly<

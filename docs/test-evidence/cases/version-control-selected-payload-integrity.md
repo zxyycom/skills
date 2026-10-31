@@ -1,9 +1,9 @@
 ### Case VERSION-CONTROL-SELECTED-PAYLOAD-INTEGRITY-001: 选择性内容保留仍读取全部范围payload
 
 Tests:
-- `test:585091e093a5a39d47f55b3007dcc29409615eb56b13baa005d9d6c58eb8c27b`
-- `test:7a983d9eb9a467fbdce63c2c3a67ea3673cacbe99ffb2987857d66685e2fae32`
-- `test:d9a587ee5313e15a691fec1bda838d73a107714930b3b4160ce3d19898c6a256`
+- `test:77c1730918ed8fd41bb2e800cb9cad0aec7cb07f64afb0007f48e6290ce3fd10`
+- `test:b4976d7832c08f3cd691c8b15074fcf3fc216083e696ca66a0f4a3001c628edf`
+- `test:d6ae07fd49e615651b04b8b98c19ea45f42a8a40bef25a711e0fa6135773592b`
 
 Tags:
 - `version-control`

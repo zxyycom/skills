@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-GROUPED-SPLIT-001: Evolve 为闭合拆分的每个后继保存独立摘要
 
 Tests:
-- `test:a99715aebebe4f2347e7a5ce0c0bbd73cb393ededb4a1a6e79fc2364e3eb9817`
+- `test:0e920c20211d6cdddb6b5f07dc5991559926e80a0158b182e18e8f515496ffac`
 
 Tags:
 - `decision-records`

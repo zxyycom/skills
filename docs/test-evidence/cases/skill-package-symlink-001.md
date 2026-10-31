@@ -1,7 +1,7 @@
 ### Case SKILL-PACKAGE-SYMLINK-001: 正式路径的符号链接封闭失败
 
 Tests:
-- `test:85424d8235bc6851f98b89052ce591a1be2fd4f6f2f15dabd2a8729cdfad6894`
+- `test:8f4c2a82f5ce09ac1d6ce3587bd49457f736ffe0875343e9ca35129b8107e2ca`
 
 Tags:
 - `repository-tooling`

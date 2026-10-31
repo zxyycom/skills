@@ -1,7 +1,7 @@
 ### Case DECISION-LAYOUT-INVALID-001: 扫描器拒绝无效物理布局
 
 Tests:
-- `test:43de7f9c443eb8386055f31dca7ed9b2bbc3bcd7f18e189a66b5f6d2902b3b29`
+- `test:34f322fc10fb5eba4ce011fc03a2f2539412a849d50d04d24e01e7438ab2192d`
 
 Tags:
 - `decision-records`

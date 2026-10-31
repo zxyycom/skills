@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-DIRECTORY-UNKNOWN-001: 资源目录身份未知或被新建winner取代时保留现场
 
 Tests:
-- `test:030c707a640653d001635d01bfafb5e21e778457c66bbc5ec8af1dec93c96258`
+- `test:de039a229fee5c23e517029279e85af2a95a472d0fd271b7203b5383a83648f3`
 
 Tags:
 - `investigation-report`

@@ -1,9 +1,9 @@
 ### Case DECISION-INDEX-MAINTENANCE-001: 索引规范重建与严格投影校验
 
 Tests:
-- `test:721cba81356e6de88947b4392de4f94c08d4c40f9cb61602914d4bf5157e220d`
-- `test:ae2873a7692a5f881da181a853b23aea559f0c6d3e18073cc14897f1b5e9fc1c`
-- `test:f6a82c16f67340767ec38edb9d050ed0f6e45149836197967c9110fb21a347dc`
+- `test:2cd5e80f4988ed7a41fcf6f5d2f818caf951444391e9ea45208874b7361b78fc`
+- `test:52fcca11b6aa47380f44682858978e4093d304fc752a363fd2fbb2a14a71f11a`
+- `test:b9cb8ab6461e8c5f00d670d56e4ff160239e4b2688ddfecc3c1b85bc8f102dff`
 
 Tags:
 - `decision-records`

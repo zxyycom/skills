@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-CHECK-SYMLINK-001: 检查拒绝符号链接目录与 artifact
 
 Tests:
-- `test:0c1ab8cd9a458816ee38b72440b6c251c94d53c7d5e94cb9221769cc42730d82`
+- `test:75896b404a8962d1a6209dbade98f159d7c26169900972a37c99fc225fa58ba0`
 
 Tags:
 - `change-plan`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-MEMBER-SCAN-DRAIN-001: 有界元数据读取排空后按名字返回首错
 
 Tests:
-- `test:2bb158927fd55da07769543d3bde4a59d7aeb6a3038219be195c302910f3e812`
+- `test:d4967d63a4dc31b3f735f66172c41ecc1d6aaa324a801650908bfd6b3a9c1584`
 
 Tags:
 - `investigation-report`

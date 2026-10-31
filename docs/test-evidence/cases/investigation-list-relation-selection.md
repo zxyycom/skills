@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-LIST-RELATION-SELECTION-001: 列表关系选择复用依据并保持窗口边界
 
 Tests:
-- `test:c605a43130bc05b05585903ae3b261367cf61798962e17c68796bd4be964bfa3`
+- `test:6975459dd9bea65c3ca3aeb09f523ae172bdd52c1414de0e99e2ac59043e0378`
 
 Tags:
 - `investigation-report`

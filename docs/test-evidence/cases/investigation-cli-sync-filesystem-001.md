@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-SYNC-FILESYSTEM-001: CLI sync-index renders filesystem diagnostics structurally
 
 Tests:
-- `test:17263c6340b557a84f05948026091e4ca816f47d65409946ad72650053b3d60e`
+- `test:8dd1fa75889ed29d5447e4f797051606a95b14291355da3f6c00edc7c671a458`
 
 Tags:
 - `investigation-report`

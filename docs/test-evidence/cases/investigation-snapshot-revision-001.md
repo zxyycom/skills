@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-SNAPSHOT-REVISION-001: list filters reports at an inclusive formedAt range
 
 Tests:
-- `test:7e46c5ac31555d94044eff461f5b74ba39ecf28097f643b36bf75ddb2a3dc785`
+- `test:76aa1068b92c08d41e343d6fc8f327739370e1fcbf6522b2a8f9e456092d2ab6`
 
 Tags:
 - `investigation-report`

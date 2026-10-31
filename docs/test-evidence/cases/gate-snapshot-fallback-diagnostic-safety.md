@@ -1,7 +1,7 @@
 ### Case GATE-SNAPSHOT-FALLBACK-DIAGNOSTIC-SAFETY-001: 采集失败上下文与未闭合路径分开且安全公开
 
 Tests:
-- `test:06766f8b5d918e2859c0f09b1c2e13eb573bb785f9167569895680f4a7fb1616`
+- `test:06a8374656f0556a7dfda7596740831eeef3a6f3110ff1f31aeb4c7ea2fad4ec`
 
 Tags:
 - `repository-tooling`

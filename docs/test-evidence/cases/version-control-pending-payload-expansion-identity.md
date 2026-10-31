@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-PENDING-PAYLOAD-EXPANSION-IDENTITY-001: payload 扩展拒绝外来或不兼容快照
 
 Tests:
-- `test:3a9699b3f18e48ed68dd6e6b86111e9820976bcd564d7dddd4afdd14dea2a700`
+- `test:3cee9c6b394eba59551a01b3d70477265d8e89f420bd3a9a624c8ab5f2e6c0c5`
 
 Tags:
 - `version-control`

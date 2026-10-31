@@ -1,7 +1,7 @@
 ### Case FILE-TEXT-SEARCH-RESOURCE-LIMIT-001: 文件搜索在候选和字节扫描前执行资源限制
 
 Tests:
-- `test:94d611a52f37b531fbadc51ff84d34d8daa53d89d8a4706195163e5cf65a8e0c`
+- `test:ee128cedc6a5f6f5256e109ccf73575630e4e840a2f65c134b4a5aa2d034ba91`
 
 Tags:
 - `index-runtime`

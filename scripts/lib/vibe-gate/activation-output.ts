@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { GateSelectedOutcome } from "./selection.ts";
+import type { GateSelectedOutcome } from "./selection/selection.ts";
 import { releaseRequiredCheckIds } from "./definition.ts";
 import {
   publicGateDiagnostic,
@@ -9,8 +9,8 @@ import {
 import type {
   GateActivationPlan,
   GateReceiptPublication
-} from "./impact-activation.ts";
-import type { GateScope } from "./profiles.ts";
+} from "./impact/impact-activation.ts";
+import type { GateScope } from "./selection/profiles.ts";
 
 type GateActivationScope = Exclude<GateScope, "quick" | "selected">;
 

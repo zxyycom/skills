@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-METADATA-WRITER-001: Metadata writer 只写规范 Draft 与 Plan
 
 Tests:
-- `test:b7ff40ca9733f34488177a2c37864d0e498188a40e9c80615e814684c6b120ed`
+- `test:d270bc22e6ffec5435bdad25c92a7703290b9f1a91d41317cf1895090f2f9f35`
 
 Tags:
 - `change-plan`

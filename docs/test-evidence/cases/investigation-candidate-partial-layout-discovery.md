@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-PARTIAL-DISCOVERY-001: 候选资源 owner 使用发布定位基线
 
 Tests:
-- `test:73e9f70d5e8b13badab18506123d1d9faf854a2a87a00afc2fda4f8c7d9944f3`
+- `test:6a650a2d19e6790ff4d0c2db97a07881e6be1783ffa0a54f316bc1f5ea6e58f4`
 
 Tags:
 - `investigation-report`

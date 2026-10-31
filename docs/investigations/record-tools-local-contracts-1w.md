@@ -117,7 +117,7 @@ relations:
 
 ### 后续最小优化候选（静态证据）
 
-本轮只读复核定位到 Investigation stage 更新路径的五处完整领域 pending 获取／校验：[readDomainPending](../../tools/investigation-report/src/staging-pending.ts)、[初始与独立写前 phase](../../tools/investigation-report/src/staging-domain.ts)经 [acquireDomainPhase](../../tools/investigation-report/src/staging-domain-membership.ts)取得快照，以及[共享 pending 替换](../../tools/shared/src/version-control/pending-snapshot.ts)的锁内 CAS 与写后核对；unchanged 路径省去写后核对。这里的完整范围是调查领域 pending，不是整个仓库。前两次同属准备阶段，index scope 中间主要进行选择与投影，不读取工作区正文或资源，可优先评估合并这两次获取。
+本轮只读复核定位到 Investigation stage 更新路径的五处完整领域 pending 获取／校验：[readDomainPending](../../tools/investigation-report/src/staging/staging-pending.ts)、[初始与独立写前 phase](../../tools/investigation-report/src/staging/domain/staging-domain.ts)经 [acquireDomainPhase](../../tools/investigation-report/src/staging/domain/staging-domain-membership.ts)取得快照，以及[共享 pending 替换](../../tools/shared/src/version-control/pending-snapshot.ts)的锁内 CAS 与写后核对；unchanged 路径省去写后核对。这里的完整范围是调查领域 pending，不是整个仓库。前两次同属准备阶段，index scope 中间主要进行选择与投影，不读取工作区正文或资源，可优先评估合并这两次获取。
 
 这是静态优化接点，不是回退归因：合并后的时序与诊断等价、payload 损坏、准备漂移和 unchanged 路径覆盖，以及可节省成本的比例均未验证；不能据此解释全部回退。本轮没有为该候选修改实现或重新测量。
 

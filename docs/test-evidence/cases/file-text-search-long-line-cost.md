@@ -1,7 +1,7 @@
 ### Case FILE-TEXT-SEARCH-LONG-LINE-001: 长行限量止于首个省略范围
 
 Tests:
-- `test:9d6b67403f66b264467fcf80d404579c8e93533f060b17a7d4eefc16a20bc992`
+- `test:60d542d37ca09dac7acee150bbed4054650f4e34402ce0dc624142c1c60eb614`
 
 Tags:
 - `file-text-search`

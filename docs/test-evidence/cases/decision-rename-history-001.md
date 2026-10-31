@@ -1,7 +1,7 @@
 ### Case DECISION-RENAME-HISTORY-001: 已记录 Decision 需要 rename 专属确认
 
 Tests:
-- `test:6c4385d66463c34830c92e710d0617160be16406433d74044d7fc001b7104daf`
+- `test:22914a00b0fe5f520566cfa409510577bb9254e4c51378cfa668d2230c65acd0`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-DISCARD-006: candidate discard rechecks Git HEAD before deletion
 
 Tests:
-- `test:a089e0c5e892bdee5383b5dcbbece35f6b38c4a489a5705753951cdab3456652`
+- `test:40bd4f5a7d53814c97218078c3990ee9d03a3930bb9ba98df048d763d6b4309e`
 
 Tags:
 - `investigation-report`

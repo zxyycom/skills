@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-PENDING-REPRESENTATION-001: 保真替换可执行文件与符号链接快照
 
 Tests:
-- `test:217b40fe8bb0913d2d16bd6a5d2944986a1a3a5137406adc4e949d42d6dfb1aa`
+- `test:138ff57d327d445262aa06c50c879fb1f38e4accafb245f3cbbf0f02d6cb3fa2`
 
 Tags:
 - `version-control`

@@ -1,7 +1,7 @@
 ### Case DECISION-INDEX-TITLE-SYNC-001: 标题更新需显式同步
 
 Tests:
-- `test:0ee2dfb958ec4391e2a633f470c70a03ab603b0b77a47dedbb7118d869ee3eac`
+- `test:e87372c9b5159dc9f2c6adf6a2abb066f22ba1e859927142ffca777b3f69b13b`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-STAGE-WATERMARK-CONFLICT-001: 工作区 revision 回退不改 pending
 
 Tests:
-- `test:cbdee5c1661865c13c9641651beb6ec3acca4e53fad29ca4c644ca12beb91d35`
+- `test:3c26dd210e0c1a1f91d5d9bc62d1fd36a926393e8b2946faa35263259e4e0566`
 
 Tags:
 - `task-graph`

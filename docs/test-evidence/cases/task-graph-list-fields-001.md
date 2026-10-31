@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LIST-FIELDS-001: Node 显示字段保持固定顺序
 
 Tests:
-- `test:557127b94b500031335d5d30c00169754bb6ed934cfcffb0e077e4cc5021de3b`
+- `test:786bfe10b436b14df64973edffb1658821fe0ce154451a2d77d5bd5d88064ecf`
 
 Tags:
 - `task-graph`

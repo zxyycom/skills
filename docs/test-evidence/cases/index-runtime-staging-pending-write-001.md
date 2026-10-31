@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-STAGING-PENDING-WRITE-001: 注入权限拒绝的 Pending 替换失败时保留范围
 
 Tests:
-- `test:6ce0a0fc23e3caa52093a1d932f1b5fbbd27d6a7d04d3bb21bb421512a695ad0`
+- `test:84c578913260ba93cd53318b337888c2a5c310aa3026d1a84c28c29fb12e551c`
 
 Tags:
 - `index-runtime`

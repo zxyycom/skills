@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-LOG-JOURNAL-BUDGET-001: WAL 切换等待预算
 
 Tests:
-- `test:f5185371d50ef26b5d8f581dd751dce77631ee70b51b7aea8f986b6c547a1cfc`
+- `test:a6abb86973e5a1dff57e213f663bafd78bc02745ac504a944285dc7d200ea4db`
 
 Tags:
 - `lightweight-judgment`

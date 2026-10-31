@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-NATIVE-EXIT-001: 持锁子进程退出后 OS 自动释放 native lock
 
 Tests:
-- `test:d3268d2f9f1e11d9a23bb33102aadf0172df15c740eef044d081dcc21e61fe1f`
+- `test:8a1dbab2ce9b4b61500050d3177ed353ab742ca1753795bd0aa73e5824e4bf80`
 
 Tags:
 - `task-graph`

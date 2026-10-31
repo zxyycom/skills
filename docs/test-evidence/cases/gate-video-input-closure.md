@@ -1,7 +1,7 @@
 ### Case GATE-VIDEO-INPUT-CLOSURE-001: 视频源码资源与分发副本共同失效对应输入证明
 
 Tests:
-- `test:f66300742475f3f387855db15c67b7b7ad584b1a08a0c1bed45a2ec7aae51925`
+- `test:0f9b623a32d103d4cc062c1b7811ea4b765675d88ccad4ea418a4f0cd035229f`
 
 Tags:
 - `repository-tooling`

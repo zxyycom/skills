@@ -1,7 +1,7 @@
 ### Case DECISION-SEARCH-UNINDEXED-001: Decision search 按发布范围排除未同步来源
 
 Tests:
-- `test:645485388a55505edf0f180c87aa44b41bc0fe159200e65feb247a883e1f7b86`
+- `test:960c5abe67add369f9c071343fa454512c3c70a4a45009ed0ea41552890f886d`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-MIGRATE-WRITE-001: 迁移写入只替换已验证的旧源
 
 Tests:
-- `test:b7d66419ecab0ee7cf8fff317474abed420605c62c0c8d307c891041de7ce798`
+- `test:317062ef0faf53282c7c48c69d011777319500078b08b2da2d83d9728b7ad7cb`
 
 Tags:
 - `repository-tooling`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-DISCARD-005: 候选删除只消费发布资源声明
 
 Tests:
-- `test:63676bc3474ee6193f3cf0f003c466c2b015c63570c329c8d8cbeb100a1830d6`
+- `test:e82ad2b85e6ff6cff0b80a01c5c36f24ece006e4df38e267a403e2557c87b9e7`
 
 Tags:
 - `investigation-report`

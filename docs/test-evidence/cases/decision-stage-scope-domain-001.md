@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-SCOPE-DOMAIN-001: stage --scope domain writes only formal Markdown and preserves the pending index
 
 Tests:
-- `test:dca3fbd723a76c5f76404de687ea00ed30673148c224a57535df8b257684c1ee`
+- `test:1223577c6a08dbc18f78c7193aedb47c209f96125d3ba92e3f050b980d3bc8e9`
 
 Tags:
 - `decision-records`

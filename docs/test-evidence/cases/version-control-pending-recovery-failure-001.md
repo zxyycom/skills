@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-PENDING-RECOVERY-FAILURE-001: 以稳定公共语义报告 pending 恢复不完整
 
 Tests:
-- `test:ec5d86eeb87921db66e8b6dd99e8a6b7f12da22c89a38fc42624bcef68f16bbe`
+- `test:129e1286378a66baa73be41c2a6fd3104b095227ff53b1b5c2b942007b8883c1`
 
 Tags:
 - `version-control`

@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LIST-LAYOUT-001: Track、layer 与 parent path 使用实际 task ID 稳定排序
 
 Tests:
-- `test:f74d1d05202750fa59149c4ca0e7c0c946bec195671e8a447f2f01f1bbb72f17`
+- `test:7528e9aa790b28d913d298c11680e32fdaabffb4ae22dc1ac7b060b9b300a2ea`
 
 Tags:
 - `task-graph`

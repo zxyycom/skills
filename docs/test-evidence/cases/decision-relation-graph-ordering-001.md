@@ -1,7 +1,7 @@
 ### Case DECISION-RELATION-GRAPH-ORDERING-001: 共享边排序按 UTF-16 代码单元排序且不改变输入
 
 Tests:
-- `test:129c5ee13444b82710d70e3b1801fd05f9e9d6335f0fd36893fae4d8d9227716`
+- `test:b0f7b666e98f3c32352408c7e34be50c724be32fa4b5b5b85a2967044608248b`
 
 Tags:
 - `decision-records`

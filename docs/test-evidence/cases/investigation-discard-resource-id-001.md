@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-RESOURCE-ID-001: discard rejects illegal owner resource IDs without deleting the report
 
 Tests:
-- `test:cca6f8a5a769ac3f82b8e23f35e58e6a101dd3c958c963a65e3dab383c77e8b1`
+- `test:aea3fd6da96e68809dc4e98d48bedef7d8eca44e2dcab71573732add626c2908`
 
 Tags:
 - `investigation-report`

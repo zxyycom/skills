@@ -1,7 +1,7 @@
 ### Case GATE-MARKDOWN-PROOF-READ-001: Markdown 内容证明的正文读取失败
 
 Tests:
-- `test:00224e2880eb57b0a5fd940c07f7f45f79e5e3e900387596ad94d841584fede9`
+- `test:314bedada90f1a47876607d53a7258a365946bc5203c289b164e2e5650c1aaed`
 
 Tags:
 - `repository-tooling`

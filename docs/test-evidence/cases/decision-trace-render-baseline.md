@@ -1,7 +1,7 @@
 ### Case DECISION-TRACE-RENDER-BASELINE-001: 渲染保留无层级节点与历史事件归属
 
 Tests:
-- `test:b531a63a9b25deb098d500f4802666f7f611b3327caef2bbb27460b6bc553fe9`
+- `test:597da9675c53fac06bd1982e6a195587ffc75b6c2ccbeb5203fd5032fe2d56b6`
 
 Tags:
 - `decision-records`

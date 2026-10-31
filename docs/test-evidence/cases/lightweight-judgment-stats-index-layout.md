@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-INDEX-LAYOUT-001: 固定日志索引布局
 
 Tests:
-- `test:ecbddfed1aaae9c4170418712937a510d5bf0458131d52936835a402d54812d1`
+- `test:5c5bcdaea68eecdf477a803a9fe09b39fc325f9ddf659cba4608e66532fe1519`
 
 Tags:
 - `lightweight-judgment`

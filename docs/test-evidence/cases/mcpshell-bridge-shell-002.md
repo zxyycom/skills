@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-SHELL-002: workspace shell distinguishes target exit, timeout, and SSH transport failure
 
 Tests:
-- `test:46b392a6aa26d3ec7284a04ed4c6b1c16c96fda491d6ff53239ff2dac0180bc0`
+- `test:23d35d88f7a6242676cf1947db710bb37780cd39522b09192b2bf8a17b9caaa9`
 
 Tags:
 - `mcpshell-workspace-bridge`

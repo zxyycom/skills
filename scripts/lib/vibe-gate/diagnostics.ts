@@ -1,7 +1,7 @@
 import type { CheckResult } from "@zxyycom/vibe-check";
 import { operationErrorDetail } from "../../../tools/shared/src/node/error-detail.ts";
-import { isKnownGateInput } from "./impact-paths.ts";
-import type { GateWorkspaceSnapshot } from "./impact-snapshot.ts";
+import { isKnownGateInput } from "./impact/impact-paths.ts";
+import type { GateWorkspaceSnapshot } from "./impact/impact-snapshot.ts";
 
 type CheckMessage = NonNullable<CheckResult["messages"]>[number];
 

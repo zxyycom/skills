@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-OFFLINE-001: 关闭日志仍可离线读取历史
 
 Tests:
-- `test:cfdf092b0e948878441e19a891bcb1fb3ba42cd04d5eebf77412e5b7615f99b3`
+- `test:e1d4c21b7b354efbd2123473460c96290bb956006dc2a46fc75caa3f4e159c95`
 
 Tags:
 - `lightweight-judgment`

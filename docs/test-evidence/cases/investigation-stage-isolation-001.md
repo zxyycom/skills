@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-ISOLATION-001: stage --scope index keeps report Markdown outside selected index staging
 
 Tests:
-- `test:22e5559a81a7f6fcc8c82df6073e2497f3258ef6dd3070ef979b006342f37c4b`
+- `test:f53961e50995a3fca9515c10e81750751d4045072c8ef0784ef0352ef7c70afc`
 
 Tags:
 - `investigation-report`

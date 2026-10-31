@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RELATION-TRANSACTION-IDEMPOTENCE-001: set-relations is idempotent and leaves unrelated report fields unchanged
 
 Tests:
-- `test:ca160229ceeeb4f3c33fade1c4d857785be9abdc16e231f981f197881f8ba6c2`
+- `test:421d9a7f79e3b6b99b1f41cb32e255b2dcc8c85994f64bdc0c0f609db19b1dba`
 
 Tags:
 - `investigation-report`

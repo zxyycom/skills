@@ -1,7 +1,7 @@
 ### Case GATE-MARKDOWN-PROOF-KIND-001: Markdown 内容证明的类型身份
 
 Tests:
-- `test:85eb5a2d779bb3f45f34c39d87ed824524c0b29a3da5325cb8e5404b92030ddc`
+- `test:48f43b9e7e9d22c18e79a042fae95da8473655fe21867567e4ebf1b46554ae0a`
 
 Tags:
 - `repository-tooling`

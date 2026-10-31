@@ -1,7 +1,7 @@
 ### Case DECISION-TRANSACTION-FILESYSTEM-DIAGNOSTIC-001: 事务访问拒绝按稳定诊断输出并净化 detail
 
 Tests:
-- `test:ddbf87e496754578cbc2108016e9313b2d7f81c777f5e4a4d596510c9ef28a25`
+- `test:2e4f6d0ed44f206c0d965ad17e27d7b1a861d7c14c951d087576f2ba11dad231`
 
 Tags:
 - `decision-records`

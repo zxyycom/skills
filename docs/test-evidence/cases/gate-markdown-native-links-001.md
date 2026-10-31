@@ -1,7 +1,7 @@
 ### Case GATE-MARKDOWN-NATIVE-LINKS-001: Markdown 链接继续结算
 
 Tests:
-- `test:1dd866c1cc7fe20d25027def1b7fc85ddd7476bdaa18356253029095b3c4331d`
+- `test:54d2bd6b248095c10943665368a84116034e8fda9d16a7a6c99dc5bce28ceaad`
 
 Tags:
 - `repository-tooling`

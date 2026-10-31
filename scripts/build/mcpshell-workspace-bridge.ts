@@ -1,15 +1,15 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { GeneratedFileMode } from "../lib/generated-file.ts";
+import type { GeneratedFileMode } from "../lib/generation/generated-file.ts";
 import type {
   SourceRuntimeOptions,
   SourceRuntimeFacts
-} from "../lib/source-runtime.ts";
+} from "../lib/generation/runtime/source-runtime.ts";
 import {
   buildSkillRuntimeArtifacts,
   syncSkillRuntimeArtifacts,
   runRuntimeAdapter
-} from "../lib/skill-runtime.ts";
+} from "../lib/generation/runtime/skill-runtime.ts";
 import { rootDir } from "../lib/project.ts";
 
 const rebuildCommand = "bun run sync:mcpshell-workspace-bridge";

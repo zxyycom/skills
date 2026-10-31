@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001: 关系替换与显式清空写入规范投影
 
 Tests:
-- `test:04c20126b770a5196f9ec1c8ad87e1d1453aa10c16036b1facd3eda43d941a60`
+- `test:233a2f8b8fcd744d531492f8922264cb685dd6adbcbd0ea302d65c8021a0c281`
 
 Tags:
 - `investigation-report`

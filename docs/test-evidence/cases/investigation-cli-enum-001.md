@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-ENUM-001: CLI 拒绝非法关系与 Trace 枚举
 
 Tests:
-- `test:fcf1c5016114731f5a51143e850ca3894f8ef7443d486f2e94717c61c34b2d45`
+- `test:7c439c8a992be9447cde3791007a33064625b3b0294f54fb8c9a3b536af6c0d4`
 
 Tags:
 - `investigation-report`

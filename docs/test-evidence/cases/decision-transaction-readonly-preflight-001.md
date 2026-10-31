@@ -1,7 +1,7 @@
 ### Case DECISION-TRANSACTION-READONLY-PREFLIGHT-001: 事务预检不持写锁且不写领域文件
 
 Tests:
-- `test:64d3276ec586c1c28ff903cb4ab4406efcc353ccddbbc232ffe617237de22f6a`
+- `test:eacc3e8245b65bbc0fbeb60c850af5579af87b7fd6f306d45e027de4688a5ec2`
 
 Tags:
 - `decision-records`

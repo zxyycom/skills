@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-REPORT-VALIDATION-SCOPE-001: scoped validation selects report ids without claiming full graph proof
 
 Tests:
-- `test:69eac613dd3d3fc1f506e565da088fae0f30e20d9670e95ccf78c467b2b72831`
+- `test:f12d42e17035a734bd0c3ea89cc2063902295603cef42874ced3b0d2b459ad93`
 
 Tags:
 - `investigation-report`

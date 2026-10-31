@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-028: 发送后存储失败保留远端结果
 
 Tests:
-- `test:577954375d616804d292851eb888ec5172f5acf2e8ccc4c5891345d778262efb`
+- `test:dfc3ffffa215c1f5a39444d97b9fc8cf3e2db89b074fbb4476ca467a8793fc95`
 
 Tags:
 - `lightweight-judgment`

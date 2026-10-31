@@ -1,7 +1,7 @@
 ### Case DECISION-SOURCE-FRESH-REVISION-001: 独立 fresh 重新读取并解析来源
 
 Tests:
-- `test:b6a01affa5135a2cbe8b29c8edcf3e7c5a632658b28fae516e1a735c577d6ea3`
+- `test:34f7d6fb1a8673c9e78036bc8ce3c7bff8d4159e7d021303eccc1ebcccba7645`
 
 Tags:
 - `decision-records`

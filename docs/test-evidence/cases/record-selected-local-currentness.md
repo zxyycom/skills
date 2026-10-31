@@ -1,8 +1,8 @@
 ### Case RECORD-SELECTED-LOCAL-CURRENTNESS-001: 局部同步只刷新所选当前来源
 
 Tests:
-- `test:197a3d5444959b785a7b94aa0addbe2dc120cc22ae9e7b1efa166f418e9128be`
-- `test:6568bdf36fafb3b7fbcb9df8cfab5c3d99809bab48af2f163c3a466bb8167d69`
+- `test:479110cb41b07827ce503abc969d32e056a9a706c9b35eeec204999831fac90b`
+- `test:cd84ec6133bb1baa241c89f122e1005cbb31d1f7d1b9ebdf2eee6dc77fa60606`
 
 Tags:
 - `decision-records`

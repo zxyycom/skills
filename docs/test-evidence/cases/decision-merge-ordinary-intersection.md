@@ -1,7 +1,7 @@
 ### Case DECISION-MERGE-ORDINARY-INTERSECTION-001: 归并事件 direct 集合包含事件内普通邻居
 
 Tests:
-- `test:20010d5510a22600bf081fb812042e580a4aa0e958238ed2eb6f8857e53ef36b`
+- `test:abb4e7a64a41419906063907d31200bb1eee5f42024dd6dd7724e79f61524e64`
 
 Tags:
 - `decision-records`

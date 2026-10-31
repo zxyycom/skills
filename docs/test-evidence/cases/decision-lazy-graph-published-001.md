@@ -1,7 +1,7 @@
 ### Case DECISION-LAZY-GRAPH-PUBLISHED-001: 发布快照查询保留校验结果且不暴露图访问器
 
 Tests:
-- `test:7688fa25da8c5fe2c96ba22e7a4f4296d73f1b585bd171aa1dc1a472f7ae04f5`
+- `test:5c5b7ed8532518f844101185b73b476ae90d5a7e73158126b36124dd93ecc9ec`
 
 Tags:
 - `decision-records`

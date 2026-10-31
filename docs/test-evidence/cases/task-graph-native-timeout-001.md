@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-NATIVE-TIMEOUT-001: 活跃 native holder 超时且稳定锁文件保留
 
 Tests:
-- `test:77b69b15595897d9df1e04c1da1241cd5a69dd10240e9ece0cf3b25315774622`
+- `test:2793b45e9cafa88341b53ad48c686d6ef2147a32259b77f42c0cbba8d8947e7e`
 
 Tags:
 - `task-graph`

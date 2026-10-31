@@ -1,7 +1,7 @@
 ### Case DECISION-REALLOCATION-PURITY-001: Evolve 拒绝混合重划关系
 
 Tests:
-- `test:86dc78286535129cc283a322443f84703c39a9eb40d2d436be10b3706a42c47c`
+- `test:d7336aad16283e4c8bf90b8246638ccb9638a4c83d84f9669ef6c0678a9cf12c`
 
 Tags:
 - `decision-records`

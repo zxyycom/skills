@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-DIST-003: generated Node initializer and runtime execute from an installed skill layout
 
 Tests:
-- `test:d60c4b7ef2459cecf9d929258c9c643c03c0e8983df73db3dd78aeef30975a5d`
+- `test:6d3e4af1161361c6d6e999321f97bd08e332c65d19dc1ef17ab9ffd9de9aadd1`
 
 Tags:
 - `mcpshell-workspace-bridge`

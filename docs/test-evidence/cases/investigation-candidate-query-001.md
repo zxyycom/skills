@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-QUERY-001: candidate queries report readiness without affecting formal sources
 
 Tests:
-- `test:50ee266e01539af0aa70cea9b8fe2d1be99b91788869093a540083bd25cad9a6`
+- `test:f50d99c1a807777ca515a54ad76af091b015d621a035388516ecaf7c46a67e5b`
 
 Tags:
 - `investigation-report`

@@ -1,0 +1,329 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import fs from "node:fs/promises";
+import { test } from "node:test";
+import { parseInvestigationReport } from "../../src/records/markdown.ts";
+import { discardInvestigationCandidate } from "../../src/candidates/discard/candidate-discard.ts";
+import { publishInvestigationCandidates } from "../../src/publication/publish.ts";
+import { validateInvestigationReports } from "../../src/records/validation/validation.ts";
+import {
+  investigationRoot,
+  reportMarkdown,
+  withTempRoot
+} from "../support/fixture-support.ts";
+import { writeCollection } from "../support/collection-support.ts";
+
+test("validation enforces report frontmatter fields and canonical ordering", () => {
+  const source = reportMarkdown({ id: "valid-report" });
+  assert.deepEqual(parseInvestigationReport(source, "valid-report").errors, []);
+  const reordered = source.replace(
+    'title: "valid-report"\nid: "valid-report"\nformedAt: "2026-08-28T12:00:00+00:00"',
+    'formedAt: "2026-08-28T12:00:00+00:00"\ntitle: "valid-report"\nid: "valid-report"'
+  );
+  assert.ok(
+    parseInvestigationReport(reordered, "valid-report").errors.some((error) =>
+      error.includes("fixed order")
+    )
+  );
+  const nonCanonicalEmptyRelations = source.replace(
+    "relations: []",
+    "relations:"
+  );
+  assert.ok(
+    parseInvestigationReport(
+      nonCanonicalEmptyRelations,
+      "valid-report"
+    ).errors.some((error) => error.includes("empty relations"))
+  );
+  const controlCharacter = source.replace(
+    /question: "[^"]+"/u,
+    'question: "bad\\rvalue"'
+  );
+  assert.ok(
+    parseInvestigationReport(controlCharacter, "valid-report").errors.some(
+      (error) => error.includes("question must be a non-empty")
+    )
+  );
+});
+
+test("relation summary Markdown accepts only normalized optional short text", () => {
+  const boundary = "😀".repeat(40);
+  const source = reportMarkdown({
+    id: "summary-report",
+    relations: [{ type: "补充", target: "base-report", summary: boundary }]
+  });
+  assert.deepEqual(
+    parseInvestigationReport(source, "summary-report").report?.relations,
+    [{ type: "补充", target: "base-report", summary: boundary }]
+  );
+  for (const invalid of [
+    source.replace(boundary, "😀".repeat(41)),
+    source.replace(JSON.stringify(boundary), '"first\\nsecond"'),
+    source.replace(JSON.stringify(boundary), '" whitespace "')
+  ]) {
+    assert.ok(
+      parseInvestigationReport(invalid, "summary-report").errors.some((error) =>
+        error.includes("optional normalized single-line summary")
+      )
+    );
+  }
+  const legacy = source.replace(
+    `\n    summary: ${JSON.stringify(boundary)}`,
+    ""
+  );
+  assert.deepEqual(
+    parseInvestigationReport(legacy, "summary-report").report?.relations,
+    [{ type: "补充", target: "base-report" }]
+  );
+});
+
+test("validation enforces one report with fixed core and optional resource section", () => {
+  assert.ok(
+    parseInvestigationReport(
+      "# 旧主题\n\n## 调查信息\n- 核心问题: 不允许\n",
+      "old-topic"
+    ).errors.some((error) => error.includes("frontmatter"))
+  );
+  const valid = reportMarkdown({ id: "valid-report" });
+  const fencedHeadings = valid.replace(
+    "形成此报告时的已知事实和边界。",
+    "```markdown\n## fenced H2\n# fenced H1\n```\n形成此报告时的已知事实和边界。"
+  );
+  assert.deepEqual(
+    parseInvestigationReport(fencedHeadings, "valid-report").errors,
+    []
+  );
+  assert.deepEqual(
+    parseInvestigationReport(
+      `${valid}\n## 合规附加章节\n这里允许出现。\n`,
+      "valid-report"
+    ).errors,
+    []
+  );
+  const withResources = reportMarkdown({
+    id: "valid-report",
+    resources: ["valid-report/evidence.txt"]
+  });
+  assert.deepEqual(
+    parseInvestigationReport(
+      `${withResources}\n## 资源后的附加章节\n这里允许出现。\n`,
+      "valid-report"
+    ).errors,
+    []
+  );
+  assert.ok(
+    parseInvestigationReport(
+      valid.replace(
+        "## 调查目的",
+        "## 不允许插入\n这里不能位于核心之间。\n\n## 调查目的"
+      ),
+      "valid-report"
+    ).errors.some((error) => error.includes("H2 section"))
+  );
+  assert.ok(
+    parseInvestigationReport(
+      withResources.replace(
+        "## 随附资源",
+        "## 资源前附加章节\n这里不能位于资源之前。\n\n## 随附资源"
+      ),
+      "valid-report"
+    ).errors.some((error) => error.includes("immediately follow"))
+  );
+  assert.ok(
+    parseInvestigationReport(
+      withResources.replace("## 随附资源", "## 随附资源   "),
+      "valid-report"
+    ).errors.some((error) => error.includes("resource heading must be exactly"))
+  );
+});
+
+test("scoped validation selects report ids without claiming full graph proof", async () => {
+  await withTempRoot("scope", async (root) => {
+    await writeCollection(root, [
+      { id: "first-report" },
+      { id: "second-report" }
+    ]);
+    await fs.mkdir(`${investigationRoot(root)}/unrelated-legacy-category`);
+    const result = await validateInvestigationReports({
+      ids: ["first-report.md"],
+      workspaceRoot: root
+    });
+    assert.equal(result.errors.length, 0);
+    assert.equal(result.indexChecked, false);
+    assert.equal(result.selectedReportCount, 1);
+    const nonCanonical = await validateInvestigationReports({
+      ids: ["./first-report.md", " second-report.md "],
+      workspaceRoot: root
+    });
+    assert.notEqual(nonCanonical.errors.length, 0);
+    assert.ok(nonCanonical.errors.every((error) => error.includes("check id")));
+  });
+});
+
+test("validation enforces investigation directory path rules", async () => {
+  const result = await validateInvestigationReports({
+    investigationsDir: "/tmp",
+    workspaceRoot: "."
+  });
+  assert.ok(result.errors.some((error) => error.includes("relative")));
+});
+
+test("full validation rejects nested report directories", async () => {
+  await withTempRoot("layout", async (root) => {
+    await writeCollection(root, [{ id: "report" }], false);
+    await fs.mkdir(`${investigationRoot(root)}/legacy-category`);
+    const result = await validateInvestigationReports({ workspaceRoot: root });
+    assert.ok(result.errors.some((error) => error.includes("not allowed")));
+  });
+});
+
+test("full validation rejects unknown investigation root members", async () => {
+  await withTempRoot("unknown-root-member", async (root) => {
+    await writeCollection(root, [{ id: "report" }], false);
+    await fs.writeFile(
+      `${investigationRoot(root)}/unexpected.txt`,
+      "x",
+      "utf8"
+    );
+    const result = await validateInvestigationReports({ workspaceRoot: root });
+    assert.ok(
+      result.errors.some((error) =>
+        error.includes(
+          "unexpected.txt must be a root-level Investigation Markdown source path"
+        )
+      )
+    );
+  });
+});
+
+test("full validation rejects an empty report collection", async () => {
+  await withTempRoot("empty-layout", async (root) => {
+    await fs.mkdir(investigationRoot(root), { recursive: true });
+    const result = await validateInvestigationReports({ workspaceRoot: root });
+    assert.ok(
+      result.errors.some((error) => error.includes("at least one report"))
+    );
+  });
+});
+
+test("public APIs diagnose malformed runtime options without throwing", async () => {
+  const result = await validateInvestigationReports({
+    workspaceRoot: 1
+  } as unknown as { workspaceRoot: string });
+  assert.ok(result.errors.some((error) => error.includes("must be a string")));
+  const publish = await publishInvestigationCandidates({
+    workspaceRoot: 1
+  });
+  assert.ok(publish.errors.length > 0);
+  const discard = await discardInvestigationCandidate({
+    workspaceRoot: 1
+  });
+  assert.ok(discard.errors.length > 0);
+});
+
+test("full validation warns only for direct predecessors outside Git HEAD", async () => {
+  await withTempRoot("unrecorded-predecessor", async (root) => {
+    await writeCollection(root, [
+      { id: "recorded", formedAt: "2026-08-28T10:00:00+00:00" }
+    ]);
+    initializeGit(root);
+    await writeCollection(root, [
+      { id: "recorded", formedAt: "2026-08-28T10:00:00+00:00" },
+      {
+        id: "first-unrecorded",
+        formedAt: "2026-08-28T11:00:00+00:00",
+        relations: [{ target: "recorded", type: "补充" }]
+      },
+      {
+        id: "second-unrecorded",
+        formedAt: "2026-08-28T12:00:00+00:00",
+        relations: [{ target: "first-unrecorded", type: "修正" }]
+      },
+      {
+        id: "source",
+        formedAt: "2026-08-28T13:00:00+00:00",
+        relations: [{ target: "second-unrecorded", type: "复查" }]
+      }
+    ]);
+
+    const result = await validateInvestigationReports({ workspaceRoot: root });
+
+    assert.deepEqual(result.errors, []);
+    assert.deepEqual(result.warnings, [
+      "前序报告 first-unrecorded 尚未进入 Git HEAD，请确认 second-unrecorded 的 修正 关系是否应保留为独立调查演进。",
+      "前序报告 second-unrecorded 尚未进入 Git HEAD，请确认 source 的 复查 关系是否应保留为独立调查演进。"
+    ]);
+    assert.ok(
+      !result.warnings.includes(
+        "前序报告 first-unrecorded 尚未进入 Git HEAD，请确认 source 的 复查 关系是否应保留为独立调查演进。"
+      )
+    );
+    assert.ok(
+      !result.warnings.includes(
+        "前序报告 recorded 尚未进入 Git HEAD，请确认 first-unrecorded 的 补充 关系是否应保留为独立调查演进。"
+      )
+    );
+  });
+});
+
+test("full validation skips unrecorded predecessor warnings without Git HEAD", async () => {
+  await withTempRoot("no-git-head", async (root) => {
+    await writeCollection(root, [
+      { id: "predecessor", formedAt: "2026-08-28T10:00:00+00:00" },
+      {
+        id: "source",
+        formedAt: "2026-08-28T11:00:00+00:00",
+        relations: [{ target: "predecessor", type: "补充" }]
+      }
+    ]);
+
+    const result = await validateInvestigationReports({ workspaceRoot: root });
+
+    assert.deepEqual(result.errors, []);
+    assert.deepEqual(result.warnings, []);
+    git(root, ["init", "--quiet"]);
+    const unbornHeadResult = await validateInvestigationReports({
+      workspaceRoot: root
+    });
+    assert.deepEqual(unbornHeadResult.errors, []);
+    assert.deepEqual(unbornHeadResult.warnings, []);
+    git(root, ["symbolic-ref", "HEAD", "refs/heads/broken"]);
+    await fs.writeFile(
+      `${root}/.git/refs/heads/broken`,
+      "not-an-object\n",
+      "utf8"
+    );
+    const brokenHeadResult = await validateInvestigationReports({
+      workspaceRoot: root
+    });
+    assert.deepEqual(brokenHeadResult.errors, []);
+    assert.equal(brokenHeadResult.warnings.length, 1);
+    assert.match(
+      brokenHeadResult.warnings[0] ?? "",
+      /investigation-report\.history-check-unavailable/u
+    );
+    assert.doesNotMatch(
+      brokenHeadResult.warnings[0] ?? "",
+      /error: \[operation-failed\]/u
+    );
+    assert.equal(
+      (brokenHeadResult.warnings[0] ?? "").match(/detail: /gu)?.length ?? 0,
+      1
+    );
+  });
+});
+
+function git(root: string, args: readonly string[]): string {
+  return execFileSync("git", ["-C", root, ...args], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+}
+
+function initializeGit(root: string): void {
+  git(root, ["init", "--quiet"]);
+  git(root, ["config", "user.email", "test@example.invalid"]);
+  git(root, ["config", "user.name", "Test"]);
+  git(root, ["add", "."]);
+  git(root, ["commit", "--quiet", "-m", "initial"]);
+}

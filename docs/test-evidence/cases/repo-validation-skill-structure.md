@@ -1,7 +1,7 @@
 ### Case REPO-VALIDATION-SKILL-STRUCTURE-001: 结构校验独立拒绝非法 skill 元数据
 
 Tests:
-- `test:2ab24da769692ef1834dcfab09ce76bd9d67f11e35c5ad43290d6d38ec73c1cc`
+- `test:e62b877f7e9d7868aaa8896dd358e4ad8edefecfb6c185828459b02c41f13735`
 
 Tags:
 - `repository-tooling`

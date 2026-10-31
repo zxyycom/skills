@@ -1,7 +1,7 @@
 ### Case DECISION-REALLOCATION-GRAPH-001: 重划分量保留角色并隔离断连图
 
 Tests:
-- `test:951702ee100305bc22e0d99c16521df98c9963fe192f7dd4e89771d0296a0b2c`
+- `test:9776f8131a068e6292964a97b6b4e8523acbab50d71657804d0c29212b454671`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-FINAL-001: discard removes a final report and confirmed owner resources
 
 Tests:
-- `test:91612836abcf0db85d60318b2dc9a64d453b899e07ae469c83e0e2b45b5f4dce`
+- `test:1c5ecd840d37fda63aaab098a2f188145151cea5cabcdb6ef1992b597324cda7`
 
 Tags:
 - `investigation-report`

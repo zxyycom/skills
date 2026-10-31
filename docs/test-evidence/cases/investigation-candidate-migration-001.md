@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-MIGRATION-001: 允许跨日与 legacy 同名，不隐式迁移
 
 Tests:
-- `test:7f29569df5eb9b94c0b0cb8e47d0ea5de14fac96c0eb792ceb287c925483f4d8`
+- `test:3d2f0232e4d609c165c6cc13e43da9a54ace13249a44748306dc782703645548`
 
 Tags:
 - `investigation-report`

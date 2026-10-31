@@ -1,9 +1,9 @@
 ### Case VERSION-CONTROL-CONTENT-PAYLOAD-FAILURE-001: 所选payload各阶段读取失败阻断
 
 Tests:
-- `test:4480822c5bc40bd0d96175542abfc3c3d741136ac990c70ed1a8436527b2a105`
-- `test:469ffde31f2085248c060d07039767f2269f8ee73e8c332ef8ccee91c2fb09ca`
-- `test:8497897c7be0e2bdd1d71c76ad91d6a71dbc75e85bcea5a26cc147c8f6280596`
+- `test:8024ef232c700d4b3849330f3cd7f3cd5047ef5faf0d0ae22ac863e30630e1e7`
+- `test:81ff24ea594d59a5d13dba856f60a31990ceefbcae86d6db49c64367a7899dd3`
+- `test:e9f25eef015b6c6fbfc790a93ed3e6db741fbf0c57853715fe06d77a95d4ec7b`
 
 Tags:
 - `version-control`

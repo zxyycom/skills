@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-PUBLIC-OPTIONS-001: public APIs diagnose malformed runtime options without throwing
 
 Tests:
-- `test:66943ec9108b5d14c1b201631c4f2fcdb2df7a02bcbc2e55cb5d98ad75e7e15d`
+- `test:f4d061dc60c125c53a6eb54c78e964ff36c357439b78504266ea7a5b55842d08`
 
 Tags:
 - `investigation-report`

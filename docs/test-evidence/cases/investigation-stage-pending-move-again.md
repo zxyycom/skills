@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-PENDING-MOVE-AGAIN-001: 保留失去索引定位的旧 pending 路径
 
 Tests:
-- `test:b6e74c3345386fb270eb6a743cfe27cd804cc9b2a0dd923a0c2472245ca61da6`
+- `test:8d3f59924916decc498fb86bd6d6d83e513484b8eddf26ae08ca18e258887392`
 
 Tags:
 - `investigation-report`

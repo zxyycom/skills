@@ -1,10 +1,10 @@
 ### Case INVESTIGATION-STAGE-UNREFERENCED-SYMLINK-001: 零引用完整所选树拒绝初始符号链接
 
 Tests:
-- `test:326e692a0a6bc445193ecd944b51cbb41257ae341c4b265a4f3a8734210a3acd`
-- `test:dace1cc8f773ea34e669dd1eac8967b61a2defcb61175b0c3113d4617a6a2fa9`
-- `test:e38d6bd0d1cc585b50e98cf3d1473385e39cade2aab6e30aac05514a3836ed69`
-- `test:f0059ec0cadbbc1fa7d6180f18372f51a30b6ad7e7c1ad90110c91265a711c38`
+- `test:584d1df868f427f8ed01541594c006cceccfae0e5f88be47b2dc581ac79cabff`
+- `test:74eb02b382410407bd70ffe2ddb4c10620dac50619fb33dcc67666d3fea9d9d0`
+- `test:cc28d39fceb2958e44dee93ad0395d04d1f545d2ae0739b96dc45ff2a2deec26`
+- `test:e122dc20807941187a560fdc4f136f4521527bf3795527a0f61c8654c2efdc6f`
 
 Tags:
 - `investigation-report`

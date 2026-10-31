@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-011: Score 完整校验
 
 Tests:
-- `test:82c3343eec77b5beed70daaa81dc573e76fa8f3450baf506afed3a5b43b4abd5`
+- `test:0c8cda9534292ec9329c5d3fa76114d62941c9a4fa66de8044fd71f247e8b5d0`
 
 Tags:
 - `lightweight-judgment`

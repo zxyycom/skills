@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DIRECTORY-PATH-001: validation enforces investigation directory path rules
 
 Tests:
-- `test:5db9a9d57de2022814d8c7c82946b4827dcbef3da64ed57d6e527e0bbd4d2c74`
+- `test:de858f2cb40a66b86024f0596ce2edee981950c4740c1020db1d25229ea3557c`
 
 Tags:
 - `investigation-report`

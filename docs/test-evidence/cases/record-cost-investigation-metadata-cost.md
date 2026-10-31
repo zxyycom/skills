@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-017: 调查元数据无需高亮范围匹配
 
 Tests:
-- `test:b11040aa68e04ec6972d3063eaee800a947b5ed73fb26af0b80a7fcb37e81257`
+- `test:5f4ae171d7f05749fdedc7fc31b60ca97cf27d0163819e63a6504f782176fd05`
 
 Tags:
 - `record-cost`

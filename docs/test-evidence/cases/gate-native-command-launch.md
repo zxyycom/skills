@@ -1,9 +1,9 @@
 ### Case GATE-NATIVE-COMMAND-LAUNCH-001: Gate 通过受控命令边界调用本机工具
 
 Tests:
-- `test:3f5a6dea9f83b8c7c8d539a49f24c8418c6b5cb1795ba195cfc846c1ae8311d7`
-- `test:cf4d3ad4e72eb86b5daea72670d6f78f1676f30cabeb93e136f4dd7e77efc1ea`
-- `test:f2d0b6d0a1e66b34ac4a7b5e1d4a6634af9e9c7b77a3f8ca7ce3460d568b6d9f`
+- `test:036a2631215fc2b04a5e4fc46ed8bc85109450e1fb78f8b375033cd42e9f0137`
+- `test:3c9e799da9ce0da7861f192981f3dd7e6e7da5a26840daa2f10ac52b05fb66bc`
+- `test:83db6bfe74d5fdbc7d5993f058daa1e2ad9ebaa9cd7b748e95745045466ff228`
 
 Tags:
 - `repository-tooling`

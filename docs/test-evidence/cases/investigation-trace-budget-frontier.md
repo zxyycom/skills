@@ -1,7 +1,7 @@
 ### Case IR-TRACE-FRONTIER-001: 已接纳事件仍出现在后续预算 frontier
 
 Tests:
-- `test:607fbca58ca4ca94a9c428d5ef9c4ac5ad3598fa87d9b128e155a415976dbc65`
+- `test:f031d1e8f39771f55e931d5c6e0d2fb110a20e3d5753e747dcaa892a94994650`
 
 Tags:
 - `performance`

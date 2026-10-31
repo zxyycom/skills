@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RELATION-SUMMARY-API-001: candidate API normalizes optional relation summaries and rejects invalid values
 
 Tests:
-- `test:044b635c739c034a3daab619b793d948d9869d4e80fc1278a09d11c7cf697303`
+- `test:072e89bc7bd138c72551b95e677bb41fc9c00f42d8a237e4aa4776d36dc81c43`
 
 Tags:
 - `investigation-report`

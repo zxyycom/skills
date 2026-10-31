@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-EXACT-RANK-001: 十进制分位 rank 边界
 
 Tests:
-- `test:ebb9be3644835556cccc16b8dfbf4d658cc546a3b682a8fe9fdfa2e09ab1060e`
+- `test:38f3dbaa2e19685878089083ce77bb8923322951d83cebc58e182bda58fbb74d`
 
 Tags:
 - `lightweight-judgment`

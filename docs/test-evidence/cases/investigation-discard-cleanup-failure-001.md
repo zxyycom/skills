@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-CLEANUP-FAILURE-001: discard reports a committed result when safe tombstone cleanup cannot finish
 
 Tests:
-- `test:ee8574b95b33b5ca84081c99ff2b01182f73f59b4f21bfbe9538085695c04075`
+- `test:c06d7e3aa8b4986000e7e1771859fdcd14af1067bab25696eca389ec25c7bd7e`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-SEARCH-SCOPE-001: search 排除非正式文件并拒绝缺失索引
 
 Tests:
-- `test:db93bed253bdccff83ac136808c35d706d742454c3c98e4059a9820308c0ac2d`
+- `test:09e6e3b3d93625852dee08d7f3b3602d85a138628bd41f610a6e56c2e127743e`
 
 Tags:
 - `investigation-report`

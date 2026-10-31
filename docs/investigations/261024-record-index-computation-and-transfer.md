@@ -59,7 +59,7 @@ wall 覆盖新进程启动至退出，CPU 为 wait4 user+system，RSS 为该口�
 
 ### 采用判断
 
-**采用局部原地冻结：本次 JSON 解码与固定 schema 完整拥有 envelope 对象图，可以省去重复 JSON 复检与复制。**实现限于 [snapshot-parser.ts](../../tools/index-runtime/src/snapshot-parser.ts)，保留严格 schema、领域归一化、外部 parser 返回值的复制隔离及全部阶段保护。
+**采用局部原地冻结：本次 JSON 解码与固定 schema 完整拥有 envelope 对象图，可以省去重复 JSON 复检与复制。**实现限于 [snapshot-parser.ts](../../tools/index-runtime/src/snapshot/snapshot-parser.ts)，保留严格 schema、领域归一化、外部 parser 返回值的复制隔离及全部阶段保护。
 
 采用依据是已验证的所有权和较小维护面。原型与落地版完整 CLI 均未一致加速：落地版 IR selected 三对 wall 上升，DR stage 两对变慢，IR stage 三对 RSS 上升。局部省工与端到端性能分别成立，不能互相替代。
 

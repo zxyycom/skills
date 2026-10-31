@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-CANDIDATE-001: 候选删除的明确范围与历史确认
 
 Tests:
-- `test:fbd72ac7901f2d74403e378964af263e9ba92b245cc0288e58a6ea64a7d07aa9`
+- `test:77772d8c81aafe29a1e06d173e3231e598db080dd236e47328714ab5718c202b`
 
 Tags:
 - `investigation-report`

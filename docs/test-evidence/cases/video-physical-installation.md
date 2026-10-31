@@ -1,8 +1,8 @@
 ### Case VIDEO-PHYSICAL-INSTALLATION-001: 物理安装位置决定资源与包外边界
 
 Tests:
-- `test:3d4dc064bd1e9feb4ecfc5908133df5fc637ba7a2cc6bba472bb8702cb42f773`
-- `test:fe309d1f3ce4f16ca785c58161947f7748ac9a375bd268d3c4ecdcc7c8a40506`
+- `test:0f00b21280f1c8d811252bf7c4c46007c84b3928313d63c1c8b7d9a5b803136d`
+- `test:a74fd2bfcebf4a5f64a60ffcedc05cfabf502e983910ff8b223954041b15a322`
 
 Tags:
 - `video-understanding`

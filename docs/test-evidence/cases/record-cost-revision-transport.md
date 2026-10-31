@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-026: 精确路径传输分批
 
 Tests:
-- `test:e2660258f0b3e7ee37fdd498978c06dd4effee3833504d98de5f9d429dc7b78d`
+- `test:f2cfc11bdccf3c470aa2d123df49984f2db14f4d97f38ccee8d1822b318f12fd`
 
 Tags:
 - `record-cost`

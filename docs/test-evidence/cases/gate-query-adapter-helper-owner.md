@@ -1,7 +1,7 @@
 ### Case GATE-QUERY-ADAPTER-HELPER-OWNER-001: 共同查询适配 helper 不扩散无关检查
 
 Tests:
-- `test:c83f882451ce8a8e2b0ee8debc2b1fa2dbdbb53d9535a7631029e9ff31160d07`
+- `test:a693bfe0f02c8f123bf8b265120dc195659a55255862d7da777b2271ee466654`
 
 Tags:
 - `repository-tooling`

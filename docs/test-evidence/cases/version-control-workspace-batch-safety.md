@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-WORKSPACE-BATCH-002: 批量读取拒绝不安全类型策略与 pending
 
 Tests:
-- `test:a0b459f1152e2cb2ab987830cb4ea6bca29302e92edc5626f878316bd685ee52`
+- `test:570c6f93aa8457f54a17f2dfd426d1340b46e16f82d1596a406120736c01fd6c`
 
 Tags:
 - `version-control`

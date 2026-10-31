@@ -1,7 +1,7 @@
 ### Case DECISION-MEMBERSHIP-SOURCE-FACTS-001: 同阶段扫描沿用成员发现的字节与身份
 
 Tests:
-- `test:1cadee8d4f7c99b1fb889fee0ba37c5c3520ffc0ffcd3c362691737cfe0f6259`
+- `test:5bf4b7198e61ab917daa96b6320a010b75aa5de9fd1c6a075552c8440fe2ecdd`
 
 Tags:
 - `decision-records`

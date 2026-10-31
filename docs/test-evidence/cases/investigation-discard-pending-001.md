@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-PENDING-001: discard preserves existing Git pending content
 
 Tests:
-- `test:82c56335e805599bfb47d7b791521f20f73041717ccbe93a1167b626c11f433f`
+- `test:883f47cd956c878af11a07424d0d5fb6107bc6f3c74d33be75455a90def990f3`
 
 Tags:
 - `investigation-report`

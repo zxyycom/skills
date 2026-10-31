@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-LIFECYCLE-REFRESH-001: Plan 直接从当前 HEAD 刷新基线
 
 Tests:
-- `test:7a47d133a8d2e5b540c798e40c908a5f9c4a5b025f8ecd553721069c4e197c68`
+- `test:fa0dc819d2734176172465d8ff3b995d7986466494358d71a089d10d39285514`
 
 Tags:
 - `change-plan`

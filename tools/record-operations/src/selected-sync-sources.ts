@@ -10,7 +10,7 @@ import {
   readRecordFileSnapshot,
   sameRecordFile,
   type RecordFileSnapshot
-} from "./transaction-snapshot.ts";
+} from "./transactions/transaction-snapshot.ts";
 
 export type SelectedRecordSource = Readonly<{
   id: string;

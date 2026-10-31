@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-INIT-007: initializer keeps a prelude newline before an indented following table on remove
 
 Tests:
-- `test:377197b5b7baa97b6cd57b035149a3e3c95413d3f4dd3787acd78262b40074e7`
+- `test:014355a3c6db4e9a2ed71257b072dea845c005e414b858edf6fcab9ac3b370c3`
 
 Tags:
 - `mcpshell-workspace-bridge`

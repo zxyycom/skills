@@ -1,7 +1,7 @@
 ### Case DECISION-REALLOCATION-CLOSURE-001: Evolve 要求重划分量的完整后继集合
 
 Tests:
-- `test:89a6aafebddb4323e28dc06711553b96bc8fe3cecb37b18771cf7a8399d3f0f2`
+- `test:8a05ce72ab31ca432d5d89b4ddd7afaae990301b9c1f7b4d76c3719787ec3f39`
 
 Tags:
 - `decision-records`

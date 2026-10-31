@@ -1,7 +1,7 @@
 ### Case DECISION-NEW-ACTUAL-READBACK-001: 候选创建按实际字节验收结果
 
 Tests:
-- `test:9bffb1d8cfd8551aee402c5963f5e9703b636ee468e49db2ea954a8ef93d8fa0`
+- `test:77bed498540dc3712b2ab744fdda4b07e38b89a617db43b1a3d89f1e4082d0f1`
 
 Tags:
 - `decision-records`

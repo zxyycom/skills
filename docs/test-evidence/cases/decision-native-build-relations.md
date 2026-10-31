@@ -1,7 +1,7 @@
 ### Case DECISION-NATIVE-BUILD-RELATIONS-001: 原生构建后验证完整领域关系图
 
 Tests:
-- `test:4d86d2c5118095357576e5a5a3ec1a7627aa9e55daa990220d85670c2dabe0a8`
+- `test:7f8de6b4921f9dd955de05d988a37bba4bf9a2c2be56635d977a23f7b9a68ed9`
 
 Tags:
 - `decision-records`

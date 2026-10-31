@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-SELECTED-RESOURCE-FRESH-001: 局部资源必需性与来源fresh
 
 Tests:
-- `test:a4d7fcbde932e6af94dfb9a89e9b4fb64b59cee1c72bed5968c157a64e78f7fa`
+- `test:8f2aff7414229ccc1cb90e13660db21fdb418de9575f71b483440cf16b44c0c9`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-FINALIZE-006: Finalize 预演在删除前重验 target、成员与 HEAD
 
 Tests:
-- `test:1ea60b64e4ca0b1ecbd689d13be87fb2efe1bf0506fad6ba9ab135e1af4784e0`
+- `test:4e10ef76f06a71f42ac282b8627ecf6234a69cb75525f5977396b1427f089132`
 
 Tags:
 - `change-plan`

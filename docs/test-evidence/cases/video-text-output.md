@@ -1,7 +1,7 @@
 ### Case VIDEO-TEXT-OUTPUT-001: 公共文本保留 Unicode 并转义控制字符
 
 Tests:
-- `test:89740d62e3ee98972c62ba137822e91b2fc9ebc49631227f16794153f230b710`
+- `test:8670a4027a90f0fc62efecd60ce33cb49daf34642f2f946ad7475c575514043e`
 
 Tags:
 - `video-understanding`

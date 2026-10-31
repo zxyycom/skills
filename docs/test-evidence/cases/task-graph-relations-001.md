@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-RELATIONS-001: 写入自动维护对称边并拒绝继承后冲突关系
 
 Tests:
-- `test:b8822c83216bcb52c7f3cfb6e3637d445137d095a14e152b6ea7e93e9e59e381`
+- `test:27b61b73482dce6a2298bccfa5608e6949a18dd871d2e1f250e2c1b5738c08f8`
 
 Tags:
 - `task-graph`

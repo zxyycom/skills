@@ -1,7 +1,7 @@
 ### Case WRITE-CANONICAL-CASE-011: 摘要碰撞不得合并不同字节
 
 Tests:
-- `test:7403e4f18afe2adc16a745c6e614c9e7f7f6f7e2add40a60a957383d65f3327d`
+- `test:0e941dcea270b21b61b7d88e38e06d18597ccb3e21e3d943a2f8cb4b90364d09`
 
 Tags:
 - `write-canonical`

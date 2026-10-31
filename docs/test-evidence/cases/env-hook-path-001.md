@@ -1,7 +1,7 @@
 ### Case ENV-HOOK-PATH-001: Hook setup 拒绝非普通文件
 
 Tests:
-- `test:e42099933ec19646b80eeb1e64090145ab28697132cbb8387d42340b4dc7415d`
+- `test:285fe8a5777d36e99b7c892eec85685cbf9b5387f1998b35f6dcc3c403febfc4`
 
 Tags:
 - `repository-tooling`

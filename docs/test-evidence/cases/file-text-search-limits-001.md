@@ -1,7 +1,7 @@
 ### Case FILE-TEXT-SEARCH-LIMITS-001: 文件搜索报告每类输出截断
 
 Tests:
-- `test:a9479af78e65c0ad73b7fb8b5763190501e7f3dee836d7cd8717b601a1d3d7cb`
+- `test:3eb294ca6ec9c7e79d37733b30cbf7adcf01dfdbcbbb02a5fcb283d95b0fa450`
 
 Tags:
 - `index-runtime`

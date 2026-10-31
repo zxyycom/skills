@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LEASE-DURATION-001: lease 时长使用闭区间边界
 
 Tests:
-- `test:3a0c19089bda176fea348b4c099f74cfe28b8a4d2145ad09c1af3876818757b5`
+- `test:a8e2ab5503b5729370f2bdbd4dc92dff7ccffa1828c8512519c20003a06357cc`
 
 Tags:
 - `task-graph`

@@ -1,7 +1,7 @@
 ### Case DECISION-RELATION-GRAPH-DUPLICATE-001: 共享关系图报告重复 source-target 边
 
 Tests:
-- `test:9d63c569c71661d30454d86f8d103446a55e610e2d11465a01d34f31f4fe57d4`
+- `test:b699d151f3ddb47675c389720eb6fbe8708bf8e80925be743cd00d045d2d5b41`
 
 Tags:
 - `decision-records`

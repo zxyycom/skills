@@ -1,7 +1,7 @@
 ### Case GATE-CLI-PATH-NORMALIZATION-001: Gate 采集与执行共享实际规范化的 PATH
 
 Tests:
-- `test:e0a367f64f9ddcdae87162252879a29f53d721a9c5b1ab97ce6cd10a7985e1c4`
+- `test:63bc9f30f49cde8a443997d56cc9f26714543d0aee9505672358eac6e11bc262`
 
 Tags:
 - `repository-tooling`

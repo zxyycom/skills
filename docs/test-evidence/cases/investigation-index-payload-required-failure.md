@@ -1,8 +1,8 @@
 ### Case IR-INDEX-PAYLOAD-REQUIRED-FAILURE-001: index必需payload准备与写前失败
 
 Tests:
-- `test:16797b2dd8d9f604b0faf9ed9cc91b7a162c9e6ab0ab0ea0e7642b07571b0de0`
-- `test:5f1c7c4a245b1b68addf5bfcccb763283fbbe2f51f48ad876f2568f2f37f522f`
+- `test:e40c4c17a8a7708835163a870f4570cd849e8f9c7d50580fdbbec0283c1c0f3a`
+- `test:f063e4f5f5ad81b46fdf0b6053e2c1be9af105ac97a805dc611dbb0a9326fe65`
 
 Tags:
 - `investigation-report`

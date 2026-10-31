@@ -1,7 +1,7 @@
 ### Case DECISION-BATCH-FRESH-001: 来源阶段变化不复用旧身份定位
 
 Tests:
-- `test:a6282d8bd38d3b7b3eb938fd3b6fe0f66b211b158b6bbef4559f44aad1f39987`
+- `test:e7290f3d3da8056e023f8cdeeb84fab5cba90395f11c161614f59d7e667cb2da`
 
 Tags:
 - `source-validation`

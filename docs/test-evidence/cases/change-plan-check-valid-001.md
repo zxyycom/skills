@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-CHECK-VALID-001: 有效 Plan 通过检查
 
 Tests:
-- `test:706c6be9e9fad74e52e2fb5b6c356789f8c53d41027bb00c55a04f1e5a7b7a58`
+- `test:90c0f805bdf8f5ed9020dd0dbca544f4168b7fe65311c63a3da0dc5f2eaaaefd`
 
 Tags:
 - `change-plan`

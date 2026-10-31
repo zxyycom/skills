@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-FORMAL-INDEX-PRESERVATION-001: 候选改名删除保持正式索引与未选候选
 
 Tests:
-- `test:13efd23a1fe6a3d2f158b90919e9726c1ca3fb2390efe66678e1f9e283f1ec09`
+- `test:014060b4dc094c98d7e1d700a1a1b5428288cfee3971f94d20fc291fc5265635`
 
 Tags:
 - `decision-records`

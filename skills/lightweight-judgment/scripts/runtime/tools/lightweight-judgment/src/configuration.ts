@@ -10,13 +10,13 @@
 import path from "node:path";
 import * as v from "valibot";
 import { fail, JudgmentFailure } from "./failure.ts";
-import { parseJson, hasOnlyFields } from "./json.ts";
-import { defaultModel } from "./request.ts";
+import { parseJson, hasOnlyFields } from "./protocol/json.ts";
+import { defaultModel } from "./protocol/request.ts";
 import {
   adapters,
   validateAdapterModel,
   type Adapter
-} from "./adapter-contract.ts";
+} from "./adapters/adapter-contract.ts";
 
 const defaultEndpoint = "https://openrouter.ai/api/v1/systemone";
 

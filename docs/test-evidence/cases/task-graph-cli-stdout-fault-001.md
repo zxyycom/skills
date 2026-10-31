@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-STDOUT-FAULT-001: Process CLI 的 stdout fault 只进入 stderr
 
 Tests:
-- `test:265cfedbf2c59b9c8f43237f7b2a00b9952c7e0bdb06b0e354155135f354db78`
+- `test:d1c548aabe94bbade50b38a772728fbd473ae05611109a632e943e10da2a600b`
 
 Tags:
 - `task-graph`

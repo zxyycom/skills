@@ -1,7 +1,7 @@
 ### Case DECISION-SOURCE-RAW-BOUNDARY-001: 原始 Markdown 验证不接纳外部解析捷径
 
 Tests:
-- `test:3cc12324727e5e184a3fb53dfcaa969b8a090df79bc0e999371b083e58fa3f4e`
+- `test:73a5a02cd9a1cd5532bb123c55963b2e83826d38c85726bf27b8f56cd47c26d9`
 
 Tags:
 - `decision-records`

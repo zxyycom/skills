@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-EMPTY-RECORD-001: 物化空 State 与 Source Revision Record
 
 Tests:
-- `test:5457ca94334a2af73d67383d8ded4f2aeef1a8be10ed5b68a9b4f963c8b841ab`
+- `test:491bdb264cb2e2257d1fea5ebf42796c78a02e536bd253e3cbe983e9ac7f6ff6`
 
 Tags:
 - `index-runtime`

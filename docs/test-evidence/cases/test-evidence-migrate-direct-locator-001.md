@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-MIGRATE-DIRECT-LOCATOR-001: 迁移拒绝非项目相对 direct locator
 
 Tests:
-- `test:ac379544c2ebaf27ea96850069a5473410e283e02eba63d869b3ab7c409a9ed9`
+- `test:f36e111be4d59f00c7124429b6a1d513e719dbfae57312f5dbd8a844f3d7a4cd`
 
 Tags:
 - `repository-tooling`

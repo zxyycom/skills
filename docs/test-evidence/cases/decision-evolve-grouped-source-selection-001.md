@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-GROUPED-SOURCE-SELECTION-001: Evolve 收敛并核对分组 source 与摘要目标
 
 Tests:
-- `test:9f49ebdddb1527f9aa4b49c96d3f6c03922ec10c394fbd847380bac8670ff1db`
+- `test:3cc820992ec137ad936a1474b0692741946802daa8301a4ef63ccedb9ab84b76`
 
 Tags:
 - `decision-records`

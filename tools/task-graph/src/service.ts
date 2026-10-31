@@ -11,9 +11,9 @@ import {
   renewTaskLease,
   retryTask
 } from "./engine.ts";
-import { projectTaskGraph } from "./graph.ts";
-import { stageSelectedTaskIndex } from "./staging.ts";
-import { TaskGraphStore, type TaskGraphStoreOptions } from "./store.ts";
+import { projectTaskGraph } from "./graph/graph.ts";
+import { stageSelectedTaskIndex } from "./staging/staging.ts";
+import { TaskGraphStore, type TaskGraphStoreOptions } from "./store/store.ts";
 import type {
   CancelTaskOptions,
   ClaimTaskOptions,

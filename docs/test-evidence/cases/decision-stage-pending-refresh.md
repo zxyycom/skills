@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-PENDING-REFRESH-001: 连续暂存与重选刷新保留未选版本
 
 Tests:
-- `test:5e79a527cd7ed428352c98468a2e4ae9a7832028fa5603a9998f564db1f2bb1d`
+- `test:b4cc64824d0cde03748148e98c7778142cd2149b59ba9ff55c747cdefd55b8c9`
 
 Tags:
 - `decision-records`

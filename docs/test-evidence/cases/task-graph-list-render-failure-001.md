@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LIST-RENDER-FAILURE-001: Task-list failure 使用排序后的文本协议
 
 Tests:
-- `test:caa9c957bf0b813d113b16c3246a7ee2f430993a7a0c3e4c707798620df33b10`
+- `test:f229fe292d2589da03a8b63dc27567bcbc98f7ae97e540747d44cf651b784460`
 
 Tags:
 - `task-graph`

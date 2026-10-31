@@ -1,8 +1,8 @@
 ### Case RECORD-STAGE-TARGET-BYTE-REBUILD-001: 实际字节改变时重建确定性target
 
 Tests:
-- `test:0abb0949eb56cc9d97305194e9cb17eed5e2ff691571f70f53e61e40d4da7a61`
-- `test:3fff421fdf07bf62874d191d9a60117633e92189a945f098921152f8c54dbb53`
+- `test:35099efe9c5d1a0762bb4d99a2ae2fc0d4813478fe337785b346eb7e1d74775b`
+- `test:8233bb261406e0d3351a12cf69b7f0bd20d06d2691f8ccf4d687c64d6b27d3a2`
 
 Tags:
 - `index-runtime`

@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-EVOLVE-RECORDED-FLAG-001: Evolve 的已记录删除参数必须配合 discard
 
 Tests:
-- `test:d5ef9a281795bc2bcd958332d826946c0cd987e50a620e0351482f6e4b33995b`
+- `test:dc79cb328bd4d8b3b22384f3275da57542abfef945d3c3dbaa5410c7b4d84418`
 
 Tags:
 - `decision-records`

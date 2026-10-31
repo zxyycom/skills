@@ -1,7 +1,7 @@
 ### Case DECISION-NATIVE-BUILD-VALIDATION-001: 原生构建失败保持严格验收与诊断优先序
 
 Tests:
-- `test:73e8a59b0be63cfb10de30a52e7d0eb0bdaa1b4593fc87f93a336c6aca056ac6`
+- `test:cf2d5808d152aeb6123da065f62f5fc9a64429909400e62a46b38f0250da2f10`
 
 Tags:
 - `decision-records`

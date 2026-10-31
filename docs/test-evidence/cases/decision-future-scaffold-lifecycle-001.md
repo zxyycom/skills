@@ -1,7 +1,7 @@
 ### Case DECISION-FUTURE-SCAFFOLD-LIFECYCLE-001: 未来关系不抹去候选结构而发布仍验闭合
 
 Tests:
-- `test:6f32984a04f4a02598326225f003e0309c4c46a836420165c81d92e357e9f59d`
+- `test:a0f502134fb1ef4dbe05f290a0b02ddd9573309a977020e29bb323bccd5412bf`
 
 Tags:
 - `decision-records`

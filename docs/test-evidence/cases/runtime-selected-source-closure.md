@@ -1,7 +1,7 @@
 ### Case RUNTIME-SELECTED-SOURCE-CLOSURE-001: 源码事实只读真实传递闭包并拒绝越域复用
 
 Tests:
-- `test:fd446e0ad6a51d74b288893d196f17579c6f2746b03af0fdd2320e7e4d025dee`
+- `test:b9a69276a3c042180a8a4967e0ebc8559df76202ff72174930f1b1687eee23b2`
 
 Tags:
 - `repository-tooling`

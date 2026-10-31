@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-FRESHNESS-002: 保持绑定快照稳定并由 runtime 刷新旧索引
 
 Tests:
-- `test:c47f156c7019e5b5c4e379dc562129a95429a753580ada37acdca064e3487055`
+- `test:575978298d0a9a49c9b9d14d290fb2e8e478335f35dfe98879d4347ab5091963`
 
 Tags:
 - `index-runtime`

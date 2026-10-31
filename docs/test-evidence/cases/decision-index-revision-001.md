@@ -1,7 +1,7 @@
 ### Case DECISION-INDEX-REVISION-001: 索引 revision 跟踪标签和 sourcePath
 
 Tests:
-- `test:69f7831fdbc2064240858c952253393e653b0fa450cfeb8f368ca699519406e4`
+- `test:3598fbcab3c521a280ff716c30720f5ae71928df69d416afb45ee3f1508db12a`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-USAGE-001: Usage failure 使用 JSON 协议
 
 Tests:
-- `test:3517e0a9ee6ce5ad036011de1a6fedf2edd88044bcaa8381f5469fb1326f1de0`
+- `test:7ebbc47e666b7ae949c74a401a3f02367f5da31cd52d6aaf483d03a76033e9f9`
 
 Tags:
 - `task-graph`

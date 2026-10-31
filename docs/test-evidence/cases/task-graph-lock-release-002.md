@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LOCK-RELEASE-002: lock release 失败时已提交 mutation 返回未知结果
 
 Tests:
-- `test:b3b97c86b3283843522ac28d0e725c66da624e5988d32ee78a72192d54b986e7`
+- `test:9192b0407f57b610e830d77197801942f2467590a48e2794512fd9f3ad743671`
 
 Tags:
 - `task-graph`

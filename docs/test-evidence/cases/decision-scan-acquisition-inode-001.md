@@ -1,7 +1,7 @@
 ### Case DECISION-SCAN-ACQUISITION-INODE-001: 首次采集中拒绝同字节inode替换
 
 Tests:
-- `test:2f46b0123ccafb11913315f9214152758c40b66525caab5ef2339cc53a3a215d`
+- `test:0855dafad6ae658b9ee6a08890d0673d2d1dc67674ae0815e4f9660f85e140c5`
 
 Tags:
 - `decision-records`

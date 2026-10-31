@@ -1,0 +1,229 @@
+/*
+ * Synced TypeScript runtime; repository maintenance edits tools/shared/src/version-control/git/revision/git-numstat.ts.
+ * Installed skill copies may be edited directly; updates overwrite matching files.
+ * Repository: https://github.com/zxyycom/skills
+ * Source path: tools/shared/src/version-control/git/revision/git-numstat.ts
+ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/shared/src/version-control/git/revision/git-numstat.ts
+ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/change-plan
+ * Rebuild: bun run sync:change-plan-cli
+ */
+import { VersionControlError } from "../../errors.ts";
+import { normalizeRepositoryPath } from "../../repository-path.ts";
+import type {
+  RevisionId,
+  VersionControlPathChange,
+  VersionControlRevisionChange
+} from "../../types.ts";
+
+const objectIdPattern = /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/u;
+const lineCountPattern = /^(?:0|[1-9][0-9]*)$/u;
+
+type RevisionHeader = Readonly<{
+  parents: readonly RevisionId[];
+  revision: RevisionId;
+}>;
+
+type RevisionBuilder = {
+  changes: VersionControlPathChange[];
+  revision: RevisionId;
+};
+
+type RevisionParseResult = {
+  expectedParent: RevisionId;
+  expectingChangeSeparator: boolean;
+  expectingHeader: boolean;
+  revisions: RevisionBuilder[];
+};
+
+export function parseGitFirstParentRevisionChanges(
+  output: string,
+  from: RevisionId,
+  to: RevisionId
+): readonly VersionControlRevisionChange[] | null {
+  if (from === to) {
+    if (output.length !== 0) {
+      throw parseError();
+    }
+    return [];
+  }
+  if (output.length === 0) {
+    return null;
+  }
+  if (output[0] !== "\0" || !output.endsWith("\0")) {
+    throw parseError();
+  }
+
+  const tokens = output.split("\0");
+  if (tokens.shift() !== "" || tokens.pop() !== "") {
+    throw parseError();
+  }
+
+  const parsed = parseRevisionTokens(tokens, from);
+  if (parsed === null || parsed.expectedParent !== to) {
+    return null;
+  }
+  validateRevisionParseResult(parsed);
+  normalizeRevisionChanges(parsed.revisions);
+  return parsed.revisions;
+}
+
+function parseRevisionTokens(
+  tokens: readonly string[],
+  from: RevisionId
+): RevisionParseResult | null {
+  const revisions: RevisionBuilder[] = [];
+  let current: RevisionBuilder | null = null;
+  let expectingHeader = true;
+  let expectingChangeSeparator = false;
+  let expectedParent = from;
+
+  for (const token of tokens) {
+    if (expectingHeader) {
+      const header = parseExpectedRevisionHeader(token);
+      if (header.parents[0] !== expectedParent) {
+        return null;
+      }
+      current = { changes: [], revision: header.revision };
+      revisions.push(current);
+      expectedParent = header.revision;
+      expectingHeader = false;
+      expectingChangeSeparator = true;
+      continue;
+    }
+
+    if (expectingChangeSeparator) {
+      assertChangeSeparator(token);
+      expectingChangeSeparator = false;
+      continue;
+    }
+
+    if (token.length === 0) {
+      current = null;
+      expectingHeader = true;
+      continue;
+    }
+    appendRevisionChange(current, token);
+  }
+
+  return {
+    expectedParent,
+    expectingChangeSeparator,
+    expectingHeader,
+    revisions
+  };
+}
+
+function parseExpectedRevisionHeader(token: string): RevisionHeader {
+  if (token.length === 0) throw parseError();
+  return parseRevisionHeader(token);
+}
+
+function assertChangeSeparator(token: string): void {
+  if (token !== "") throw parseError();
+}
+
+function appendRevisionChange(
+  current: RevisionBuilder | null,
+  token: string
+): void {
+  if (current === null) throw parseError();
+  const record =
+    current.changes.length === 0 ? removeFirstChangePrefix(token) : token;
+  current.changes.push(parseNumstatRecord(record));
+}
+
+function validateRevisionParseResult(result: RevisionParseResult): void {
+  if (
+    result.expectingHeader ||
+    result.expectingChangeSeparator ||
+    result.revisions.length === 0
+  ) {
+    throw parseError();
+  }
+}
+
+function normalizeRevisionChanges(revisions: readonly RevisionBuilder[]): void {
+  for (const revision of revisions) {
+    const seenPaths = new Set<string>();
+    revision.changes.sort((left, right) => left.path.localeCompare(right.path));
+    for (const change of revision.changes) {
+      if (seenPaths.has(change.path)) {
+        throw parseError();
+      }
+      seenPaths.add(change.path);
+    }
+  }
+}
+
+function parseRevisionHeader(token: string): RevisionHeader {
+  const separatorIndex = token.indexOf("\t");
+  if (separatorIndex === -1 || token.indexOf("\t", separatorIndex + 1) !== -1) {
+    throw parseError();
+  }
+  const revision = token.slice(0, separatorIndex);
+  const parentText = token.slice(separatorIndex + 1);
+  const parents = parentText.length === 0 ? [] : parentText.split(" ");
+  if (
+    !objectIdPattern.test(revision) ||
+    parents.some((parent) => !objectIdPattern.test(parent)) ||
+    new Set(parents).size !== parents.length
+  ) {
+    throw parseError();
+  }
+  return { parents, revision };
+}
+
+function removeFirstChangePrefix(token: string): string {
+  if (!token.startsWith("\n")) {
+    throw parseError();
+  }
+  return token.slice(1);
+}
+
+function parseNumstatRecord(record: string): VersionControlPathChange {
+  const firstTab = record.indexOf("\t");
+  const secondTab = record.indexOf("\t", firstTab + 1);
+  if (firstTab <= 0 || secondTab <= firstTab + 1) {
+    throw parseError();
+  }
+
+  const addedText = record.slice(0, firstTab);
+  const deletedText = record.slice(firstTab + 1, secondTab);
+  let path: string;
+  try {
+    path = normalizeRepositoryPath(record.slice(secondTab + 1));
+  } catch {
+    throw parseError();
+  }
+  if (addedText === "-" || deletedText === "-") {
+    if (addedText !== "-" || deletedText !== "-") {
+      throw parseError();
+    }
+    return { addedLineCount: null, deletedLineCount: null, path };
+  }
+
+  return {
+    addedLineCount: parseLineCount(addedText),
+    deletedLineCount: parseLineCount(deletedText),
+    path
+  };
+}
+
+function parseLineCount(value: string): number {
+  if (!lineCountPattern.test(value)) {
+    throw parseError();
+  }
+  const count = Number(value);
+  if (!Number.isSafeInteger(count)) {
+    throw parseError();
+  }
+  return count;
+}
+
+function parseError(): VersionControlError {
+  return new VersionControlError({
+    causeCategory: "unknown",
+    code: "operation-failed",
+    operation: "parse first-parent revision changes"
+  });
+}

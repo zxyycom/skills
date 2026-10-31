@@ -1,8 +1,8 @@
 ### Case VIDEO-CONFIGURATION-PRECEDENCE-001: 位置配置按字段继承且媒体缺省延迟解析
 
 Tests:
-- `test:efc94176d75db53aa799838a5c44ef3ee23684c1e8acc1feaf10037c97f9c7c4`
-- `test:f8e8b8fe418fcb74a97a62f81c3ec99321eadafd72bd9405e327de235e4b1703`
+- `test:342f9a3611acd480e80105b44c1b7218cac027bdfbceac823515298df94e0134`
+- `test:f5fa4c9f251649ac22d1847aa7a05da7cc4459e55436df515d1d361339dc9576`
 
 Tags:
 - `video-understanding`

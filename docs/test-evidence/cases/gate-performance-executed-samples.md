@@ -1,7 +1,7 @@
 ### Case GATE-PERFORMANCE-EXECUTED-SAMPLES-001: 原生未执行值不稀释实际测量
 
 Tests:
-- `test:de669802e4fa514f09e8a4a9a27c8836076aa0344fdb6f48371dca96f866309c`
+- `test:832ef0c22df3f85811f36b66f4db89abab664ef081ff346b74eb90f33f00e336`
 
 Tags:
 - `performance`

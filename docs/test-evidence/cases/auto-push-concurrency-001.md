@@ -1,7 +1,7 @@
 ### Case AUTO-PUSH-CONCURRENCY-001: 并发调用共享同一小时窗口
 
 Tests:
-- `test:d63a88da82a3d1b3dcd9d318db1d7595cd30f0e62907b65fde77e2407f2a53a8`
+- `test:0eb540e515c515a207ef31c0ddbe0d9c35bb5d35e493d43a4fc136f9a6f79c5c`
 
 Tags:
 - `repository-tooling`

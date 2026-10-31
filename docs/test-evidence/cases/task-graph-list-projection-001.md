@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LIST-PROJECTION-001: List projection 保留完整图语义与实际 task ID
 
 Tests:
-- `test:5200f7fddde806e7bf871e611cc37992f42c6f3a026c102c27089f8e351c22c3`
+- `test:87f3b29f152a3700724ca48159d6ca289216ac2b7ff77f97ae3b649a4441deb3`
 
 Tags:
 - `task-graph`

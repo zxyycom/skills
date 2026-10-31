@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-SYNC-MODE-001: 无副作用地拒绝非法同步模式
 
 Tests:
-- `test:7cf489ab0d5e8f6b0ce277d6ce71a1bf524bf4fc384cde7a393ad7ece56b3539`
+- `test:1afabcb4f32193a71b024a818a8af09e8dd12982211a0238a5f12a1cf897eba7`
 
 Tags:
 - `index-runtime`

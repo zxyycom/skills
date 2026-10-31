@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-GROUP-001: 原型标签分组与费用隔离
 
 Tests:
-- `test:b1e7bad601b3fb61677ebf0fa699303d19936860d52266316d97f7dd095e2386`
+- `test:f994aaf5168a944a1af6dc4b56d848d897b902d9aab4fa88abf998a9d0855481`
 
 Tags:
 - `lightweight-judgment`

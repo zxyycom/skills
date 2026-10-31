@@ -8,7 +8,7 @@ import {
   semanticGateChecks,
   type SemanticGateCheck
 } from "./checks/semantic.ts";
-import type { GateToolId } from "./impact-tools.ts";
+import type { GateToolId } from "./impact/impact-tools.ts";
 
 /** Undefined selects the complete provider; an empty set has no consumer. */
 export function resolveSelectedRuntimeSkills(

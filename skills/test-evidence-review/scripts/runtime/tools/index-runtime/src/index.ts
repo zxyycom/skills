@@ -7,7 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/test-evidence-review
  * Rebuild: bun run sync:test-evidence-cli
  */
-export { sameStateSourceRevision } from "./canonicalization.ts";
+export { sameStateSourceRevision } from "./protocol/canonicalization.ts";
 export {
   buildStateIndex,
   canonicalizeStateIndex,
@@ -16,8 +16,8 @@ export {
   parseStateIndex,
   queryFieldDefinitionsOf,
   serializeStateIndex
-} from "./snapshot.ts";
-export { findStateIndexEntry, queryStateIndex } from "./query.ts";
+} from "./snapshot/snapshot.ts";
+export { findStateIndexEntry, queryStateIndex } from "./query/query.ts";
 export {
   createStateIndexReader,
   createStateIndexRuntime,
@@ -32,18 +32,18 @@ export {
   loadStateIndex,
   loadStateIndexReader,
   syncStateIndex
-} from "./storage.ts";
+} from "./storage/storage.ts";
 export {
   stageSelectedIndexEntries,
   type StateIndexEntrySelectionResolver
-} from "./staging.ts";
+} from "./staging/staging.ts";
 export {
   sameStateIndexCollectionMetadata,
   validateStateIndexSelectedIds,
   type StateIndexSelectedIdsResult
-} from "./selection.ts";
-export { hasEntry, selectTargetSnapshot } from "./staging-selection.ts";
-export { buildStateIndexFromSnapshot } from "./snapshot-builder.ts";
+} from "./staging/selection.ts";
+export { hasEntry, selectTargetSnapshot } from "./staging/staging-selection.ts";
+export { buildStateIndexFromSnapshot } from "./snapshot/snapshot-builder.ts";
 export type {
   JsonObject,
   JsonPrimitive,
@@ -84,7 +84,7 @@ export type {
   StateSnapshot,
   StateSourceRevision
 } from "./types.ts";
-export { isJsonObject, isJsonValue } from "./json.ts";
+export { isJsonObject, isJsonValue } from "./protocol/json.ts";
 export {
   createStateIndexSchema,
   createStateSourceRevisionSchema,

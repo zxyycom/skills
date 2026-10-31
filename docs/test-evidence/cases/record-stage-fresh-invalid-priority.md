@@ -1,8 +1,8 @@
 ### Case RECORD-STAGE-FRESH-INVALID-PRIORITY-001: fresh非法输入保留解析错误优先级
 
 Tests:
-- `test:348104d59908e7e2b739a3f71f2ef1e964e755c90920310ce49dc58158bc5db0`
-- `test:6d353ffa2ba171d6e3bbdb3a7d06379430bdc0c33a4d07e8467ba5f226e7296d`
+- `test:a9baa4ea2452048052099dc2116b9fbda82bf82dc3404e75a550207dac642a09`
+- `test:fceb27714eef11d79160285eedeadcfa2e56e198a47eb5507e16b7332eb4317a`
 
 Tags:
 - `index-runtime`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-RESOURCE-DRIFT-001: discard 发布前复核 owner 资源成员漂移
 
 Tests:
-- `test:0e5b71c36a9689f7b5ba93cbb9b69659c88fd4eeea3147308ea5a0200a5c2545`
+- `test:072c3239701301aff7dafeb17be1e3cd0f9e4f078c97daafe58889672e01b984`
 
 Tags:
 - `investigation-report`

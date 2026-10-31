@@ -90,7 +90,7 @@ YAML 的 job 依赖约束发布；远端合并保护以本节生效核对为准�
 ### 发布职责与输入
 
 1. workflow YAML 只承接触发条件、权限、job 依赖和运行时准备，不实现发布事务。
-2. `scripts/publish-skills.ts` 是薄 CLI 入口，`scripts/lib/publish-skills.ts` 是唯一发布实现 owner；实现内部按命名单元处理输入、资产、Git/`gh` 边界、GitHub 响应和发布顺序。
+2. `scripts/publish-skills.ts` 是薄 CLI 入口，[发布实现](../scripts/lib/publishing/publish-skills.ts)是唯一发布事务 owner，承接输入、资产、Git/`gh` 边界、GitHub 响应和发布顺序。
 3. 发布 job 从仓库根目录调用 `bun run publish:skills -- <rolling|snapshot>`。CLI 从 `dist/` 读取 zip 与 manifest，并要求 `GH_TOKEN`、`GITHUB_SHA` 和 `PACKAGE_HASH`；输入或资产无效时，在执行 Git 或 GitHub 命令前失败。
 
 ### 发布触发与结果

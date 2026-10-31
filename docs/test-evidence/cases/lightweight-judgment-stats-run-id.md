@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-RUN-ID-001: CLI 与存储批次 ID 边界
 
 Tests:
-- `test:cf70f3495118e55a643f89bf11f23ae4764754018f36caf0e23780bcc49f9872`
+- `test:b86359a964aa55690b7b404eaa9022ddd2809cc8a3736239f7c818f4ee13f3e5`
 
 Tags:
 - `lightweight-judgment`

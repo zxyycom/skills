@@ -3,9 +3,9 @@ import { resources } from "./public-cli.ts";
 import { spyOn } from "bun:test";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import * as mediaRuntime from "../../src/media-runtime.ts";
-import { parseOptions, type PrepareOptions } from "../../src/arguments.ts";
-import { parseSegments, type Segment } from "../../src/evidence.ts";
+import * as mediaRuntime from "../../src/media/media-runtime.ts";
+import { parseOptions, type PrepareOptions } from "../../src/cli/arguments.ts";
+import { parseSegments, type Segment } from "../../src/evidence/evidence.ts";
 import { execute } from "../../src/video.ts";
 import { failure } from "../../src/failure.ts";
 

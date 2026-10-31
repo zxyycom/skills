@@ -9,11 +9,11 @@ import {
   type LocalRuntime
 } from "./configuration.ts";
 import { JudgmentFailure, normalizeFailure } from "./failure.ts";
-import { type JsonValue } from "./json.ts";
-import { CallLog, type CallCompletion } from "./call-log.ts";
+import { type JsonValue } from "./protocol/json.ts";
+import { CallLog, type CallCompletion } from "./logging/call-log.ts";
 import { localMetadata } from "./local-metadata.ts";
-import { parseStatisticsOptions } from "./stats-options.ts";
-import { statistics, type StatisticsResult } from "./statistics.ts";
+import { parseStatisticsOptions } from "./statistics/stats-options.ts";
+import { statistics, type StatisticsResult } from "./statistics/statistics.ts";
 import { loadInput } from "./input.ts";
 import {
   parseArguments,
@@ -27,14 +27,14 @@ import {
   type InvocationState,
   type CliOutcome
 } from "./output.ts";
-import { validateRequest } from "./request.ts";
+import { validateRequest } from "./protocol/request.ts";
 import {
   adapterContract,
   validateAdapterModel,
   type AdapterContract
-} from "./adapter-contract.ts";
-import { prepareRequest } from "./adapter-request.ts";
-import { sendRequest, type Fetch } from "./transport.ts";
+} from "./adapters/adapter-contract.ts";
+import { prepareRequest } from "./adapters/adapter-request.ts";
+import { sendRequest, type Fetch } from "./adapters/transport.ts";
 
 export type { CliOutcome } from "./output.ts";
 

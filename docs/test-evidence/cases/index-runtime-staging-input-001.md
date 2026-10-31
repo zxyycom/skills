@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-STAGING-INPUT-001: 注入仓储前稳定拒绝非法暂存输入
 
 Tests:
-- `test:f04d27036b95e5e56785c4ff6aabadfe21bc7d19477511c00f7dbd01c9339fb4`
+- `test:953b86eb6f21271ab2e2d5dcfe7899e470adfa077b12e80b8755c152f3a39c5c`
 
 Tags:
 - `index-runtime`

@@ -1,7 +1,7 @@
 ### Case DECISION-ACTIVATION-ARCHIVE-001: 发布候选建立创建身份并拒绝重复发布
 
 Tests:
-- `test:907fd9549d02fab81ad4aa0b37c827ffb13eecce302ae02cbe0a61f3e9c1c774`
+- `test:aaa870024a3e9f90e7ae3c68dde7d4f5b0fec72b19fc7943f7e2c7fb92559731`
 
 Tags:
 - `decision-records`

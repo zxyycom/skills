@@ -6,7 +6,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/task-graph
  * Rebuild: bun run sync:task-graph-cli
  */
-import type { TaskGraphCliOptions } from "./cli-contract.mjs";
-export type { TaskGraphCliOptions } from "./cli-contract.mjs";
+import type { TaskGraphCliOptions } from "./cli/cli-contract.mjs";
+export type { TaskGraphCliOptions } from "./cli/cli-contract.mjs";
 export declare function runTaskGraphCli(argv?: readonly string[], options?: TaskGraphCliOptions): Promise<number>;
 export * from "./index.mjs";

@@ -1,7 +1,7 @@
 ### Case DECISION-BATCH-SELECTOR-001: 批量定位保留完整 ID 优先与名字歧义
 
 Tests:
-- `test:a3eb896be3167c7bcd968a6149e8548f2f413c56b8e1438b45db1722bb5d7350`
+- `test:ab50486a21910217bb7be9ce9c02fcd139dc82815565d4b35f6e6eb14e8dc0ef`
 
 Tags:
 - `selector`

@@ -9,8 +9,8 @@
  */
 import { access, mkdir, realpath } from "node:fs/promises";
 import path from "node:path";
-import type { LocatedOptions, Options } from "./arguments.ts";
-import { digest } from "./evidence.ts";
+import type { LocatedOptions, Options } from "./cli/arguments.ts";
+import { digest } from "./evidence/evidence.ts";
 import { boundaryFailure, errorCode, failure } from "./failure.ts";
 import { assertOutsideSkill, type VideoResources } from "./resources.ts";
 

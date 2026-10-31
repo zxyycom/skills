@@ -1,8 +1,8 @@
 ### Case RECORD-SEARCH-OUTPUT-001: CLI 从查询结果输出六行摘要
 
 Tests:
-- `test:1b90dec979a5e7d1af9bb37170149aeee3a324c9b3bbc07b61c1c7a2bcf0c75f`
-- `test:7bc66f5fdb7005180189e7d1613c095729ec3db8a53d3472c899332f0de8f02b`
+- `test:41f067dd01910b80fb692907f6aae06a98eb125bb7a06464bbba3c1528c0164f`
+- `test:aa1bb88a21c3c2ec4fd9b50466c0283c535735558f5a6c92caa220068933b9b6`
 
 Tags:
 - `record-search`

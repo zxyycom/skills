@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-REPOSITORY-SCAN-SCOPE-001: 仓库扫描不越过活动真实目录边界
 
 Tests:
-- `test:7664b53d8711ea1584f86806fd5f310149164a45e3a457c0b8fbb62421f1288d`
+- `test:cc8007e5f9c6419e3bf8ef6bbb0d3bdd3e5503e9c9746fd6b6285b06a41093ef`
 
 Tags:
 - `change-plan`

@@ -1,7 +1,7 @@
 ### Case DECISION-SPLIT-SINGLE-SUCCESSOR-001: Evolve 拒绝单后继拆分
 
 Tests:
-- `test:e04f768491c8ba7236aa1d23523a9e5ebb3060fbd10fa7c0c3a03619fd346752`
+- `test:2d717d9654a4abe4a3ec0770b1edf707f6b7fbfab902f5f02ce365e9326677fa`
 
 Tags:
 - `decision-records`

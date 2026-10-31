@@ -72,7 +72,7 @@ narrow 保留全 P 成员与 OID CAS、原有五轮 P、全部索引解析／图
 
 这里的完整 payload 校验指 Git blob 的读取／传输完整性及实际内容指纹保护，不是解析未选 P Markdown 的领域语义，不证明全集正文健康；本轮也没有证明独立重算所有 Git 对象的加密 SHA／OID 一致性。narrow 移除的是非 index 对象在这些读取边界上的验收，不能泛化为所有损坏类型均被当前实现独立识别。
 
-五轮分别为 `readDomainPending`、initial phase、独立写前 phase、锁内 CAS、写后验证。相关 owner 位于 [暂存准备](../../tools/investigation-report/src/staging-pending.ts)、[领域阶段编排](../../tools/investigation-report/src/staging-domain.ts)、[成员获取](../../tools/investigation-report/src/staging-domain-membership.ts)及[共享 pending snapshot／patch](../../tools/shared/src/version-control/pending-snapshot.ts)；blob 选择与完整读取由 [pending 内容](../../tools/shared/src/version-control/git-pending-snapshot-content.ts)和 [batch reader](../../tools/shared/src/version-control/git-blob-batch.ts)承接。
+五轮分别为 `readDomainPending`、initial phase、独立写前 phase、锁内 CAS、写后验证。相关 owner 位于 [暂存准备](../../tools/investigation-report/src/staging/staging-pending.ts)、[领域阶段编排](../../tools/investigation-report/src/staging/domain/staging-domain.ts)、[成员获取](../../tools/investigation-report/src/staging/domain/staging-domain-membership.ts)及[共享 pending snapshot／patch](../../tools/shared/src/version-control/pending-snapshot.ts)；blob 选择与完整读取由 [pending 内容](../../tools/shared/src/version-control/git/pending/git-pending-snapshot-content.ts)和 [batch reader](../../tools/shared/src/version-control/git/git-blob-batch.ts)承接。
 
 clean probe 三次累计 wall 中位：`readGitBlobSelections` **49→2503ms**，其 Node CPU **47→1910ms**。当前三处 `readPendingSnapshot` 的各自三次 wall 中位数约为523／545／520ms；锁内 prepare约566ms、写后约536ms，后两项含各自 blob 获取，不能再把内层时间加进去。
 
@@ -88,7 +88,7 @@ clean probe 三次累计 wall 中位：`readGitBlobSelections` **49→2503ms**�
 
 旧 parse 是 H、W；当前为 W、H、P、独立复读 W。当前 stage graph 是 W、H、P、target，独立复读 W 仅用基础索引校验。graph 的观测增量为数十毫秒，不是数秒回退的主导；它嵌套于 parse／build，不能与父层重复计入。
 
-[verifyDomainIndex](../../tools/investigation-report/src/staging-domain-context.ts) 重新取得 W 索引并与准备快照规范化比较，clean wall约433ms、Node CPU约501ms，包含一次 parse及两次serialize。额外 P 解析、W独立复核和三方／合成图校验承担当前保证；不能直接删除。当前 index 分支跳过工作区正文与资源来源读取，未发现意外扩大到 W 全文的路径。
+[verifyDomainIndex](../../tools/investigation-report/src/staging/domain/staging-domain-context.ts) 重新取得 W 索引并与准备快照规范化比较，clean wall约433ms、Node CPU约501ms，包含一次 parse及两次serialize。额外 P 解析、W独立复核和三方／合成图校验承担当前保证；不能直接删除。当前 index 分支跳过工作区正文与资源来源读取，未发现意外扩大到 W 全文的路径。
 
 merge 复用初次 P 作为准备事实。额外计数 probe 确认完整 P **5→4**、readPendingSnapshot **3→2**；parse仍4、stage graph仍4、serialize仍3，独立 W 复核、锁内 CAS、写后验证各1保持。准确干预还省去 initial phase 的纯集合构造、同快照比较和无消费者的所选 P 字节保留，**不是严格纯单函数收益**。
 

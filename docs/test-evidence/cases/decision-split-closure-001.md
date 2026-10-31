@@ -1,7 +1,7 @@
 ### Case DECISION-SPLIT-CLOSURE-001: 严格关系检查拒绝开放拆分
 
 Tests:
-- `test:55986a2ea4b974da83458c0e9fad766308618529f66e2fd84b3d97f303d8c9f0`
+- `test:28b6bea5e4620950575efc0c04be0901008e2def6781eaa3f903885d6a5f7334`
 
 Tags:
 - `decision-records`

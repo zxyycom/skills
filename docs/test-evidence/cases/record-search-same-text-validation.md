@@ -1,7 +1,7 @@
 ### Case RECORD-SEARCH-SAME-TEXT-VALIDATION-001: 记录检索在匹配前核对同份文本
 
 Tests:
-- `test:734e6bcac5d45c70863b715129ea824661438c746ee82d6ec85c1c480fede6ba`
+- `test:aca9859df6f20ca961e56f71aab8b6da8f24bf3da16d5e9a06b5f34fa0c71151`
 
 Tags:
 - `record-search`

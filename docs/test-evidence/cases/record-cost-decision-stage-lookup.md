@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-011: 暂存 basename 选择
 
 Tests:
-- `test:be5a78cdbe90b6677119e7d00c03dd51a4a3e6a2f1779a8624abd0366e70279c`
+- `test:861a97b6aa03282da536b686f48460d71c2798fb4bdd18204c7c808af37e50e6`
 
 Tags:
 - `record-cost`

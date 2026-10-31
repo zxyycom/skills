@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-DISTRIBUTION-IMPORT-001: Node 导入不输出 CLI 文本或创建工具 home
 
 Tests:
-- `test:1ba5c204dde11245a176f012dcf53b4abc194c9de218f245a9ca676fe3077552`
+- `test:0d46f7a0449023f0c9ac30fd8244b12382d2a256cffead47fe77cf805e45088c`
 
 Tags:
 - `task-graph`

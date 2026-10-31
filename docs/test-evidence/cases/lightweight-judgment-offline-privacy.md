@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-004: 离线与凭据读取边界
 
 Tests:
-- `test:5971c8fed013b751a1071e98e00a5a9d635ffa697043a899b5eba1cda04c57db`
+- `test:b736fd15d09affe5ba2b2be6dda72223725f8ef21481d13e36927bacd6931618`
 
 Tags:
 - `lightweight-judgment`

@@ -8,7 +8,7 @@
  * Rebuild: bun run sync:change-plan-cli
  */
 import type { ChangePlanCheckResult } from "./types.ts";
-import type { ChangeDeletionOutcome } from "./change-deletion-types.ts";
+import type { ChangeDeletionOutcome } from "./deletion/change-deletion-types.ts";
 
 export type ChangePlanFinalizeResult = Readonly<{
   changed: boolean;

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-BUNDLED-PARITY-001: CLI exposes only report-level commands and rejects old topic options
 
 Tests:
-- `test:4ea0c366fb1f33d0d7d2161e0caf20bb01323ceef5a254ed0ab8f57f31760a05`
+- `test:e1aa9062a509a9dea911c9ce62ca8aef60b232a38155876a29e1d7fe42de7f98`
 
 Tags:
 - `investigation-report`

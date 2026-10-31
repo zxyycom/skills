@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-LIFECYCLE-STRICT-METADATA-001: Plan 拒绝非规范 metadata 且不改写目标
 
 Tests:
-- `test:be28fdc2144d4cb500cfb0778538595193b7aca71a747b27b2054ca5fae13bd6`
+- `test:343f252ddb2fb9424e7a991b02c1164c7c039247b22504ba482e15d2c463a876`
 
 Tags:
 - `change-plan`

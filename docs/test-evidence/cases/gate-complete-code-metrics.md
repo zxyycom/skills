@@ -1,7 +1,7 @@
 ### Case GATE-COMPLETE-CODE-METRICS-001: 完整模式保留全量维护代码与跨领域阻断
 
 Tests:
-- `test:e717a2dff2796c1b4787d7f7192078674a838f35878b78b62071f31cd58bb597`
+- `test:dbbae5c63eb9d0f46000db3ad9c894d9aaad4a329986cc35a951550dbee30ca4`
 
 Tags:
 - `repository-tooling`

@@ -1,13 +1,15 @@
 ### Case GENERATED-FILE-DECLARATION-CLEANUP-001: 声明树清理只移除已验证的过期文件
 
 Tests:
-- `test:e4a7ca0f9372d6584df5e2f2c8f9e26c866e6c3d15472d19cb391fed8689b373`
+- `test:741ea6d49049b8402eb8de2b1faf41b04ba874d734c5e5cfb30618701eaa8118`
+- `test:eaa4ca0e26f8515f59e76638cf881944bef92207f4c33ecb3d5f914f99d7b4ed`
 
 Tags:
 - `repository-tooling`
 
 Contract:
-- 生成声明树只能清理不在当前闭包中、直接普通且带本生成器 header 的 `.d.mts` 文件；其他成员必须保留、报告手动处置并使构建失败。
+- 清理对象为当前声明闭包之外、带本生成器 header 的普通 `.d.mts` 文件及由清理而变空的受管子目录。未受管成员保持原样，由 `hasUnsupportedEntries` 标记并交给构建适配器阻断同步。
 
 Proves:
-- check 报告可验证 stale 声明与不受支持成员；write 只删除 stale 声明，保留当前声明、手写声明、目录和符号链接，同时维持失败状态。
+- check 保留直属及嵌套过期声明；write 删除已验证的过期声明及清空的受管子目录，保留当前声明与未知成员，并返回不支持成员标记。
+- 混合子目录中的手写声明、未知空目录和目录链接保持原样；链接指向的外部声明字节不变。

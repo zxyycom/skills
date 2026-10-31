@@ -7,11 +7,11 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/novel-cards
  * Rebuild: bun run sync:novel-cards-cli
  */
-import { compareIndexText } from "./ordering.ts";
+import { compareIndexText } from "./protocol/ordering.ts";
 import {
   validateDescriptorKeys,
   validateQuerySource
-} from "./query-source-validation.ts";
+} from "./query/query-source-validation.ts";
 import { isStateIndexKeyName, isStateIndexNamespace } from "./schemas.ts";
 import type {
   JsonObject,

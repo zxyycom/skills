@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-BLOCKER-PRIORITY-001: succeeded、failed 与 running 投影的 blockers 为空且没有下一动作
 
 Tests:
-- `test:ef75dcc8dddfe34dbe6520561c283300610858415513f0604081b72ead2c9260`
+- `test:972641c446cde594cb9b9fa67fd4cf7caef0b3d1d89ffcc4ca34f4447d5f5aff`
 
 Tags:
 - `task-graph`

@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-TEMPORAL-SORT-001: 跨时区偏移按时间点排序
 
 Tests:
-- `test:09754a498668d5217a9553af886536139b3e488c44eeea6f96c51ec2b7f8b008`
+- `test:b5b63667339f373d63b5377e9294e1ffd6f8b6308c008306263bc73fd94d8e19`
 
 Tags:
 - `index-runtime`

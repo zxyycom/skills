@@ -4,9 +4,9 @@ import {
   readFileDigest,
   readSourceStamp,
   type Evidence
-} from "../../src/evidence.ts";
-import { freshEvidence, publishEvidence } from "../../src/store.ts";
-import { materialFields } from "../../src/material.ts";
+} from "../../src/evidence/evidence.ts";
+import { freshEvidence, publishEvidence } from "../../src/store/store.ts";
+import { materialFields } from "../../src/evidence/material.ts";
 
 export function readyText(index: Evidence) {
   const material = index.materials[0];

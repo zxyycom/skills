@@ -1,4 +1,4 @@
-import { createCliProgram } from "../../src/cli-args.ts";
+import { createCliProgram } from "../../src/cli/arguments/cli-args.ts";
 import { listSnapshotEntries, listProjection } from "./domain-support.ts";
 import type { DecisionListStatus } from "../../src/types.ts";
 import { assert, currentDecisionId, test } from "./support.ts";

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-SELECTED-EXECUTABLES-001: 暂存修改与新增可执行资源
 
 Tests:
-- `test:ec7d3e2c6edec0891c6dc237b94ed35c69c54bed277b7e03346c2a3500a86dec`
+- `test:3b1d68fbd0efde62df13356969f8c06eacefe6092eac97edea7da67fdb7c767e`
 
 Tags:
 - `investigation-report`

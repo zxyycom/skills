@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RENAME-FRESH-AGGREGATION-001: 共同安全验收保留更名有序错误聚合
 
 Tests:
-- `test:c0af09f80a17555e4b60f6c62bace9eaae1f51a4102f1ff44a455eedad302081`
+- `test:619a240393a11efa60101f52cf8e04b89794e72331b961a9a6da7ed218e23de1`
 
 Tags:
 - `investigation-report`

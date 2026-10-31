@@ -1,7 +1,7 @@
 ### Case WRITE-CANONICAL-CASE-002: 进程信号失败后等待关闭
 
 Tests:
-- `test:d66c1394569f7607dbc59436563027691e8381728d37b19316f289fd69a45019`
+- `test:757785140627af4c9721c7132588cd8a755d71f5938c1de87956f5184891ae8a`
 
 Tags:
 - `write-canonical`

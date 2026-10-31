@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-LIST-FACETS-001: Investigation list facets 对完整 snapshot 确定聚合
 
 Tests:
-- `test:0602785487542ec4679e253b3314ad10c1d0bed1c712f114d86b9641edc30df2`
+- `test:37d340026e24d9d48cc5a4bfa2a8c581c0445deebf2c443252be3b26dbc81473`
 
 Tags:
 - `investigation-report`

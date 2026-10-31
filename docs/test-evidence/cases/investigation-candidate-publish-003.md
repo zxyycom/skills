@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-PUBLISH-003: 索引发布失败时恢复候选正文并保留资源
 
 Tests:
-- `test:960481bd5e12f5b66c26133222698e0761f77b577b3f1f0d9f74f03ed7bbebaf`
+- `test:c6f88350a235ac357e20bc2a15103db47cb14b017793968615356b753122204d`
 
 Tags:
 - `investigation-report`

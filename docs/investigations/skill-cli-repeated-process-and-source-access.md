@@ -66,27 +66,27 @@ Change Plan 已在单次集合查询内共享仓库、HEAD 与基线历史。用
 
 ### 候选列表：立方级正文读取
 
-[候选列表](../../tools/investigation-report/src/candidate-access.ts)逐条读取候选；[资源准备](../../tools/investigation-report/src/candidate-document.ts)每条重建完整 authoring references，并执行直接资源与全资源验证。[引用构建](../../tools/investigation-report/src/candidate-resource-references.ts)逐候选调用[身份定位](../../tools/investigation-report/src/candidate-path.ts)，后者又逐文件读取 frontmatter 查找 ID，形成表中的立方级读取链。每条带资源候选还两次发现仓库、两次读取同一全资源清单。
+[候选列表](../../tools/investigation-report/src/candidates/candidate-access.ts)逐条读取候选；[资源准备](../../tools/investigation-report/src/candidates/candidate-document.ts)每条重建完整 authoring references，并执行直接资源与全资源验证。[引用构建](../../tools/investigation-report/src/candidates/candidate-resource-references.ts)逐候选调用[身份定位](../../tools/investigation-report/src/candidates/candidate-path.ts)，后者又逐文件读取 frontmatter 查找 ID，形成表中的立方级读取链。每条带资源候选还两次发现仓库、两次读取同一全资源清单。
 
 建议优先在一次集合操作内共享 ID 到路径、已解析候选、authoring references 和资源成员；只减少 Git 次数仍会留下正文扫描瓶颈。
 
 ### 局部检查：重复资源根发现
 
-[局部检查](../../tools/investigation-report/src/validation-check-flow.ts)为每个报告独立准备[资源根](../../tools/investigation-report/src/resource-root.ts)，带资源的 N 条报告因此启动 2N 次 Git。建议共享资源成员发现，逐报告验证直接链接，并保持局部检查范围。
+[局部检查](../../tools/investigation-report/src/records/validation/validation-check-flow.ts)为每个报告独立准备[资源根](../../tools/investigation-report/src/resources/resource-root.ts)，带资源的 N 条报告因此启动 2N 次 Git。建议共享资源成员发现，逐报告验证直接链接，并保持局部检查范围。
 
 ### Investigation 暂存：逐 owner、逐文件查询
 
-[写入准备](../../tools/investigation-report/src/staging-domain-writes.ts)逐 owner 列举 workspace/HEAD 资源，逐文件读取有效表示，并在写前重做来源核对。[工作区文件表示](../../tools/shared/src/version-control/git-workspace-file.ts)每次读取都查询 `core.fileMode`：20 条样本的 214 次 Git 中有 80 次配置查询；`core.fileMode=false` 还增加逐文件 pending 表示查询，总计 294 次。
+[写入准备](../../tools/investigation-report/src/staging/domain/staging-domain-writes.ts)逐 owner 列举 workspace/HEAD 资源，逐文件读取有效表示，并在写前重做来源核对。[工作区文件表示](../../tools/shared/src/version-control/git/workspace/git-workspace-file.ts)每次读取都查询 `core.fileMode`：20 条样本的 214 次 Git 中有 80 次配置查询；`core.fileMode=false` 还增加逐文件 pending 表示查询，总计 294 次。
 
 建议在准备和写前复核两个阶段分别批量获取资源、配置与 pending 表示，保留阶段间重新读取。
 
 ### Decision 暂存：平方级来源扫描
 
-[所选来源验证](../../tools/decision-records/src/decision-stage-sources.ts)为每个选择项重新扫描全部 Decision 文件，核对身份与重复来源，形成表中的平方级读取。Git 次数保持 15，HEAD blob 已通过 `cat-file --batch` 读取。建议在每个验证阶段合并批次成员与重复身份检查。
+[所选来源验证](../../tools/decision-records/src/staging/decision-stage-sources.ts)为每个选择项重新扫描全部 Decision 文件，核对身份与重复来源，形成表中的平方级读取。Git 次数保持 15，HEAD blob 已通过 `cat-file --batch` 读取。建议在每个验证阶段合并批次成员与重复身份检查。
 
 ### 历史读取：固定重复与空路径范围
 
-[共享历史读取](../../tools/shared/src/version-control/git-revision.ts)重复解析 revision、列举 tree，增加固定成本。Investigation [前序历史提示](../../tools/investigation-report/src/validation-history.ts)在没有关系时仍读 HEAD；HEAD 没有报告时，空 `sourcePaths` 被 API 解释为全仓库范围。“一个无关系工作区报告、HEAD 只有无关 notes 文件”的对照确实执行了无 pathspec 的 `ls-tree` 和 `cat-file --batch`。
+[共享历史读取](../../tools/shared/src/version-control/git/revision/git-revision.ts)重复解析 revision、列举 tree，增加固定成本。Investigation [前序历史提示](../../tools/investigation-report/src/records/validation/validation-history.ts)在没有关系时仍读 HEAD；HEAD 没有报告时，空 `sourcePaths` 被 API 解释为全仓库范围。“一个无关系工作区报告、HEAD 只有无关 notes 文件”的对照确实执行了无 pathspec 的 `ls-tree` 和 `cat-file --batch`。
 
 建议先明确无目标、空路径集合的处理，再复用已解析 revision；API 的空范围与空结果应分别表达。
 

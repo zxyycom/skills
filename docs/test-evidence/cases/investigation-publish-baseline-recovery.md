@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-PUBLISH-BASELINE-RECOVERY-001: 发布基线异常需显式恢复
 
 Tests:
-- `test:9b9fcf3acf5252abe4afc91c18f75c8722b27acf00ef86a4aeaa9e7ff7a239f4`
+- `test:5b9461dad48e99e5cf7f2828977890eeeebe5e24dcdebff890331dbd7c645690`
 
 Tags:
 - `investigation-report`

@@ -1,9 +1,9 @@
 ### Case RECORD-SET-RELATIONS-CLI-CLASSIFICATION-001: 两域 set-relations 对输入形态错误保持一致分类
 
 Tests:
-- `test:3d1d9dc401a0040c24b77db88ec1c5791d603225cfaef4d50bb8da160103dc5b`
-- `test:d83ccdd15a3155755438c7005f07a2044704426075efae54f12f38cf2e462263`
-- `test:ff900cc3d159664915ae6557b4147436a7988ae54cc9bb0087bddf28eeffb1f5`
+- `test:15ac9156e01214648d39296b1d8e631ab6abb2df16dfd58ea07aa4449145087c`
+- `test:aeb4e6871c4523cbbb97f1b60129e316336738a39182b550e6b99ad8a5405964`
+- `test:ba80654ae249ab8bf038ae420a27a4247ca5159c63cdd4c3afb11f198b5c8715`
 
 Tags:
 - `decision-records`

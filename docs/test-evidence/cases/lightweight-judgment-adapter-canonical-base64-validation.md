@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-ADAPTER-014: Base64 字母表与规范 padding
 
 Tests:
-- `test:40493d93c30332a5bb68a64cab89a15740c3df10d5274fb5c36fb62585c6e643`
+- `test:7a0f9092ea78e7caeb6fe5a2102dcfb3cdd0caea38f3bdd31572e9f5d3cc3d2f`
 
 Tags:
 - `lightweight-judgment`

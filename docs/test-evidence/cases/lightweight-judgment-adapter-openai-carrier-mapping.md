@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-ADAPTER-002: JEV 载体编译与结构保真
 
 Tests:
-- `test:2b2831ad651f6275c6d51403c5caa6231e9d8410f923e08d10f6e91f9f82c5c6`
+- `test:ee225bb0fb067b399ca34d8680e2c6eb7ff0694315229ed4029e2f5be08acd6c`
 
 Tags:
 - `lightweight-judgment`

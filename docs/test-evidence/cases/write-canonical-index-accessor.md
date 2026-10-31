@@ -1,7 +1,7 @@
 ### Case WRITE-CANONICAL-CASE-013: 访问器排序定义保留动态语义
 
 Tests:
-- `test:1879d96bd93668bcb43876829d47c9c758d9d28aa4758b7db332b2bae2898ef6`
+- `test:240a9ec9ba0f794294cec808693e2d1942acec823238bfd27fa389e1689dd505`
 
 Tags:
 - `write-canonical`

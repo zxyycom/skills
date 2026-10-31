@@ -1,8 +1,8 @@
 ### Case GATE-ENVIRONMENT-CHECK-001: Gate 通过有界环境命令保护全部生产结果
 
 Tests:
-- `test:3804b050acba9d365fb880865affdd2abb321f045171f5680bf86a9f6a0c8683`
-- `test:42afd55bfddd9b4ecaf64fc99f245fad0c409b63aaf7faf73e9d8e9233c235a1`
+- `test:c02ca06bc8ec1eef299bad54c0368e5dfeb0faa24d890c5670b7f6faf7dbfaf2`
+- `test:de5c55d425045eecb823a94dc851acdc2a84d241ed114ec7c908c0b19ae52464`
 
 Tags:
 - `repository-tooling`

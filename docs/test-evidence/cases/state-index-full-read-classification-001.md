@@ -1,7 +1,7 @@
 ### Case STATE-INDEX-FULL-READ-CLASSIFICATION-001: 完整索引采集保留机械错误类别
 
 Tests:
-- `test:c06445d1a68929139af19a0704adb8d57d8fcb9ad47212ced0063498503ed4dd`
+- `test:19ea9b0c1f2d4fa4411e88ef6d27801de96f7848b7709ed2601e565286797378`
 
 Tags:
 - `index-runtime`

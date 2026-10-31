@@ -1,7 +1,7 @@
 ### Case GATE-SELECTED-VERSION-CONTROL-001: 版本控制领域实际阻断所拥有产品源码超限
 
 Tests:
-- `test:765fbb52bec39582dd601775fbe86898e5317db883a328e6eb552c9f9ddb6b5f`
+- `test:1fb5227eebff43dbc36a963b235941e00adb8cf3313c02003c721e340f712617`
 
 Tags:
 - `repository-tooling`

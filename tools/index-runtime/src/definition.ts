@@ -1,8 +1,8 @@
-import { compareIndexText } from "./ordering.ts";
+import { compareIndexText } from "./protocol/ordering.ts";
 import {
   validateDescriptorKeys,
   validateQuerySource
-} from "./query-source-validation.ts";
+} from "./query/query-source-validation.ts";
 import { isStateIndexKeyName, isStateIndexNamespace } from "./schemas.ts";
 import type {
   JsonObject,

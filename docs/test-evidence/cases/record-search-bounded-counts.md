@@ -1,9 +1,9 @@
 ### Case RECORD-SEARCH-COUNTS-001: 首个隐藏命中的早停与末文件精确计数
 
 Tests:
-- `test:25f5df931fece097fa7868ae2065d79488b572ffab6d89ee5273d2c1f4c37af5`
-- `test:479c30f2fb4505acb4f5805296ea70f61c6ff138f5d77ec0746beccd5aa2f9ae`
-- `test:e4e9c6523d9342f587f0e0759bd4db193377d407dd571c3bdde7ff34511c571a`
+- `test:240bb720033ffe3ca825886da9faf5c2fbfa402bc9081312c1ddd74e6150c5ca`
+- `test:294fed3855691a8716fac409407131237b339431050e748f86e84c7074a16ac2`
+- `test:d4eb50672e28dd8dadf11cbd06cb2fe40befeb32a6869840177e907732ae832c`
 
 Tags:
 - `record-search`

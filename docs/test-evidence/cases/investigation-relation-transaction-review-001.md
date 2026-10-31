@@ -1,8 +1,8 @@
 ### Case INVESTIGATION-RELATION-TRANSACTION-REVIEW-001: set-relations 核对区分关系变化并按来源渲染
 
 Tests:
-- `test:57ee9935cf1851475156f3bd986226773f98b9a7625169229ac94aadb3acaab3`
-- `test:ce9588f50ae79028ad3ac59b3fd1882a3ac5ef409ba3c26b0f0209a8ac38bce6`
+- `test:058886be28dbb495f3f80fb4ff94bfa81c528affb48a7b3f0dc5968152bae043`
+- `test:4edef2d704068749c786d2a6c39e5be5a3a73c2844b990db536877b7b4d75525`
 
 Tags:
 - `investigation-report`

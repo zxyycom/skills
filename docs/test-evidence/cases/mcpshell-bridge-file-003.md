@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-FILE-003: workspace put binds its final commit to the verified parent during a symlink swap
 
 Tests:
-- `test:db1e378c3b996fab3e2970b769933189a6c56dd5bab34d3b0352cf1bb036bf30`
+- `test:5aefaf32e3d6fda3f3b7df9638ed9aeb6109b048b1c891b7109022c535389008`
 
 Tags:
 - `mcpshell-workspace-bridge`

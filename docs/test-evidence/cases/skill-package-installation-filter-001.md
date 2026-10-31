@@ -1,7 +1,7 @@
 ### Case SKILL-PACKAGE-INSTALLATION-FILTER-001: 强制暂存的安装状态不能进入 skill 制品
 
 Tests:
-- `test:f387fc599bf26cb89900724e596ba261c4a2aa145a2fade35c4e2664b0956a62`
+- `test:964f30627ffc5b473c5eabc3641d0d8f1496e2cb5a66dbb43ed7499a9c6e375d`
 
 Tags:
 - `repository-tooling`

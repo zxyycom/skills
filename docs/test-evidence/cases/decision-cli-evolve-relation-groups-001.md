@@ -1,8 +1,8 @@
 ### Case DECISION-CLI-EVOLVE-RELATION-GROUPS-001: Evolve 在写入前拒绝不完整或混用的关系分组
 
 Tests:
-- `test:a0afbe1d4e683619ea665f1f4dd78d0b94ea229be8d1810ea5b9e922fb75f51e`
-- `test:bf1b5166177bf9babf6fd696fedbb503a8063ad7b3fdf62741ff258a2c6cffdf`
+- `test:1da6056637ae606c119a8d762b9d5ab72d58105342440a2298c70ce33161ad9a`
+- `test:bb887beba6fb5eeaf43c0eb591879f6714f232968f9e166c044182026b84a0a7`
 
 Tags:
 - `decision-records`

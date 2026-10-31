@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-PROCESS-PROTOCOL-001: Process CLI 保持已选择的 stdout 协议与退出状态
 
 Tests:
-- `test:d6f2e20ee2db39abc536fe4a4b4f2aada3ad600e023aea46de4e87a82ce5b876`
+- `test:13657ca61b5de59f7f7425a17c4e84bdab31533275e3d6b3c376f1aa1efbc7a2`
 
 Tags:
 - `task-graph`

@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-BAD-PENDING-001: 索引与全集暂存拒绝坏或删除的pending索引
 
 Tests:
-- `test:f92a0c5b0d3e17dd1b574b83ebca9e5083ce099a482bf1717b95c636b50d9612`
+- `test:fc26bcde334c9e6892a7296fde3751f8f8ff296ac4a9c5234cc829dcf05119ac`
 
 Tags:
 - `decision-records`

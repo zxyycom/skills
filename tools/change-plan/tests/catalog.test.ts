@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { checkChangePlanCollection, listChangePlans } from "../src/catalog.ts";
-import { checkChangePlanDirectory } from "../src/check.ts";
+import { checkChangePlanDirectory } from "../src/checks/check.ts";
 import {
   git,
   tracedQuery,

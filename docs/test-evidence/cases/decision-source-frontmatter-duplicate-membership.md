@@ -1,7 +1,7 @@
 ### Case DECISION-SOURCE-DUPLICATE-MEMBERSHIP-001: 无效记录仍参与声明身份重复检测
 
 Tests:
-- `test:962d328aa0e7158cf7d366df6d3f06fb23b5477ace25c8445d72a4f51cff9f92`
+- `test:4751e987bce126afe88813abb0fcafaef36efe57bac9dab5270bb73944d05c13`
 
 Tags:
 - `decision-records`

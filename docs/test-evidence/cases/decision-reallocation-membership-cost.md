@@ -1,7 +1,7 @@
 ### Case DECISION-REALLOCATION-COST-001: 重划闭包查较小集合
 
 Tests:
-- `test:6a8fcee7592785ab32d4a110feb85fe2d60cc5b7c074934fcbc72f33a616864e`
+- `test:d0ac0344584b432dc948c59eb6f6f60722f9992f9285a6cc50444805897db490`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case RECORD-TRANSACTION-CANDIDATE-COMMIT-001: 候选保留动作提交点而不制造正式索引
 
 Tests:
-- `test:52e55a24d51558948958730b2c3ca2fcc3b51c125fc05b0dd099cabac7596e1e`
+- `test:990d73f1b62c5bddaaaa08a67c5dfc34389c554946d44444c5ca3a0e39f262ee`
 
 Tags:
 - `decision-records`

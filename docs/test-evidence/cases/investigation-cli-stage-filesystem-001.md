@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-STAGE-FILESYSTEM-001: CLI stage renders filesystem diagnostics structurally
 
 Tests:
-- `test:f8acb4f3dfe09790891b0f3521cc95341647e794bc63742599d9af4af2496f55`
+- `test:76ee5ef6bea320ac97db245576dcff7fddb4f8495ad76ee0a556c6abb7adcdec`
 
 Tags:
 - `investigation-report`

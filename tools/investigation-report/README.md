@@ -20,7 +20,7 @@
 
 ### 关系图上下文
 
-单次操作内，每份不可变投影由独立的内部 [`InvestigationRelationContext`](src/relation-context.ts) 绑定条目和惰性关系图：
+单次操作内，每份不可变投影由独立的内部 [`InvestigationRelationContext`](./src/relations/relation-context.ts) 绑定条目和惰性关系图：
 
 - **按需复用**：首次实际访问图时构建正反向邻接和 ID 映射，后续图操作共用同一引用；无关系条件的 `list` 和 metadata 搜索不构图。
 - **顺序责任**：构图保留投影边序，证据、诊断与 `trace` 各自在输出时确定顺序。

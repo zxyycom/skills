@@ -1,7 +1,7 @@
 ### Case DECISION-SOURCE-BYTE-BINDING-001: 同阶段扫描绑定原始字节与身份正文
 
 Tests:
-- `test:620b212d14f99325db40c77cc7203b2db4354e54a257d7fb3fceab10b0803c62`
+- `test:75ff60024e5bd15a0ca1b33fee2d85df3f82ece0b2572b505acda3aa4e8403c3`
 
 Tags:
 - `decision-records`

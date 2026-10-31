@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RENAME-REPORT-TARGET-DRIFT-001: 回滚不删除外部改写的新报告路径
 
 Tests:
-- `test:948860a2d63369edf8495d79a1fa34f1fd1c664a93d0eb8fa30a374108b20557`
+- `test:82084a387f0cc6f870dc35b129d7a00d757dd8395c0567f085319474040c8cc4`
 
 Tags:
 - `investigation-report`

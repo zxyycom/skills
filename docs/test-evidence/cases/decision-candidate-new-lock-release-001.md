@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-NEW-LOCK-RELEASE-001: New 在锁清理失败后保留已创建 scaffold
 
 Tests:
-- `test:2512d5aa0d1d239acdf5b10c644017b7703c8261623a7dc9e2d4fa7096ede98b`
+- `test:bf0f352ee53c808b42464c65072698ca40ab4566b73ef3506df01bc8ff441fff`
 
 Tags:
 - `decision-records`

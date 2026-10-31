@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CONCURRENCY-001: 原生短锁串行化同 revision 并发 mutation
 
 Tests:
-- `test:5ed2a2a6a71cf8fccc57a89422c8d360a186f871e6d547db9cedf284bf79e99a`
+- `test:671af89c481c4cdc499df9b2538f4c1530e1b3b418f9b084eedfe8ca36338193`
 
 Tags:
 - `task-graph`

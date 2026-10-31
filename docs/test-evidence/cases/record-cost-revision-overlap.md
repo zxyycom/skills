@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-001: 精确目录与子路径
 
 Tests:
-- `test:038587a8442972668f804793378f20cdc17f021c00139b4e247f97e4813122f9`
+- `test:415af075bc9206a7aa0650c8bf511fbce424ca45fd908b2ec51ff0707ccf789e`
 
 Tags:
 - `record-cost`

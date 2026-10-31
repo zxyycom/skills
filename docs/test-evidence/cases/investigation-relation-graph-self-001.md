@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RELATION-GRAPH-SELF-001: relation graph rejects a self target
 
 Tests:
-- `test:2c98e69d5ba46e7e75f2dd9f1be84b97dc330171dfeb57df096683e29247e155`
+- `test:248ccd6348ca32137b5564106918b0d81f2455926985338e0b52c378a5dc6058`
 
 Tags:
 - `investigation-report`

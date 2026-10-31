@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-SOURCE-SNAPSHOT-001: 报告畸形源快照
 
 Tests:
-- `test:9fa369278473263e199327d2ded22c466fe0d7cf8576ea7fb82358ce6cbfff97`
+- `test:4d3d5b1e410d397b0b278e91af02259fc2aec341b7bb39e1b101d47b276d7971`
 
 Tags:
 - `index-runtime`

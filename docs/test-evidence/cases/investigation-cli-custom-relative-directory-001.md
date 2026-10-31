@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-CUSTOM-RELATIVE-DIRECTORY-001: 跨工作区使用工作区内相对调查目录
 
 Tests:
-- `test:550fca6010283f444baa42f76b3ef72856452c4f7dc719f2ed8bc2959dcc6cf2`
+- `test:a3f02c42e94cd967e4181afe5442c36af05d992c36e656f0576ce80975e5e978`
 
 Tags:
 - `investigation-report`

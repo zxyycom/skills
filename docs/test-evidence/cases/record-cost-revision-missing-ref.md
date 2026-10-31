@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-019: 固定版本解析失败
 
 Tests:
-- `test:bc3aef8ccb2949c64c98421202dddc485ce59d9efe8a9e8e004a813d208a1836`
+- `test:d1af088e387127d4a07ef3bc053e37f0c546422ca04721ce716cb486ddb27431`
 
 Tags:
 - `record-cost`

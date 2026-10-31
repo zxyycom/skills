@@ -1,7 +1,7 @@
 ### Case RECORD-READER-INSTALLATION-001: Node独立源码闭包使用本地worker
 
 Tests:
-- `test:f16af0ed3c061f868a38eb111f47ec131aaec21978ffe2f2586adae137a42026`
+- `test:f25d5787291aa1dd1a41468e572409368f7670e7032eb7f56116bc01523ceefc`
 
 Tags:
 - `record-operations`

@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-CONSTRUCTION-001: Service 构造 failure 保持全局 JSON 协议
 
 Tests:
-- `test:0f714370a684f2b35e122f30da0d92752201aa38c77a4126ff00259c2c367a1e`
+- `test:410d90d98ce5a263a9abe2f94b19e9fba9afdfc52a064d3131b5d050e5d82c70`
 
 Tags:
 - `task-graph`

@@ -1,7 +1,7 @@
 ### Case DECISION-INDEX-PUBLISHED-INVALID-BODY-001: 发布查询不以坏当前正文替换持久投影
 
 Tests:
-- `test:ec8d99d675e791e1bbda8cacd26022feb53e9436e1750489d6b7b693f43ec628`
+- `test:13aaf38bffc5e35b4d41de64bfd25131ad8486ac89a6d1b3b9ff122bd390badd`
 
 Tags:
 - `decision-records`

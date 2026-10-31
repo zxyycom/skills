@@ -1,7 +1,7 @@
 ### Case GATE-SELECTED-CODE-EXCLUSION-ISOLATION-001: 单域负模式不吞掉其他域的显式包含
 
 Tests:
-- `test:6b98a44e40ba66d74e891756e4754b5641b490d4c9ac2059504ed2a6057ce621`
+- `test:e74bf08a6f2bb9b4e26d088b3bd9ead2f1464d11eadee5cabf0b224f2c93e685`
 
 Tags:
 - `repository-tooling`

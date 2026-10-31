@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-PATH-QUERY-DUPLICATE-001: 跨批合并保留批内重复
 
 Tests:
-- `test:d832b08605780c7a1c8ff6d0c5a8aacff775d9e008a4515b92081bfe339515e4`
+- `test:65561ef74b1be87032b7b6fa66edced30ec61d989170ba1a0f4b76e1346af698`
 
 Tags:
 - `version-control`

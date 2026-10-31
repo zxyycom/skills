@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-FINGERPRINT-DEMAND-001: 普通读取不计算未消费的指纹
 
 Tests:
-- `test:43fb3c9b9aafcb790ae48f08ec5750b4e086609175614f458fec8896fb96242b`
+- `test:e3007a700d92393cf075b3bd0427bc35443d3dddfdef4f8f715eef448f69f0e1`
 
 Tags:
 - `version-control`

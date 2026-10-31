@@ -1,7 +1,7 @@
 ### Case GATE-MARKDOWN-PROOF-ROUTING-001: Markdown 内容证明的路由
 
 Tests:
-- `test:84555fa6a82b58ee090ae8f73fb00d27587f31ddc580b5af2b5c84d7d933aa08`
+- `test:eca9192ebe1480ac5b88b3da0d2a034c0a40301cb69909a7c6025d0a9dd4f293`
 
 Tags:
 - `repository-tooling`

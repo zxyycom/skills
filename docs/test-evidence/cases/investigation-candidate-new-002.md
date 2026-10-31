@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-NEW-002: new rejects conflicting or unsafe candidate identities without overwriting
 
 Tests:
-- `test:60b5eeed7f7bbf65d681b44c7b22ae58244df8efaa83a573d40e207122dddf86`
+- `test:1a04b1c713fdce596dc5a27dbd51af011f935c908bad7a492249282ba79932ef`
 
 Tags:
 - `investigation-report`

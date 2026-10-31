@@ -1,7 +1,7 @@
 ### Case GATE-DOMAIN-AGGREGATE-OWNER-001: 领域聚合入口只归实际 catalog consumer
 
 Tests:
-- `test:3954d4bd3b6397f86c22a8e4ac62378aea6cb119757420669112760ddd14e03e`
+- `test:6f117a688fb1f52f3cd133196affbb666ced2671930e539f2ce65ec18be781af`
 
 Tags:
 - `repository-tooling`

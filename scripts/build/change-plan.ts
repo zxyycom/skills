@@ -1,11 +1,11 @@
-import type { SourceRuntimeFacts } from "../lib/source-runtime.ts";
-import type { GeneratedFileMode } from "../lib/generated-file.ts";
-import { nativeCliEntry } from "../lib/native-cli-entry.ts";
+import type { SourceRuntimeFacts } from "../lib/generation/runtime/source-runtime.ts";
+import type { GeneratedFileMode } from "../lib/generation/generated-file.ts";
+import { nativeCliEntry } from "../lib/generation/native-cli-entry.ts";
 import {
   buildSkillRuntimeArtifacts,
   syncSkillRuntimeArtifacts,
   runRuntimeAdapter
-} from "../lib/skill-runtime.ts";
+} from "../lib/generation/runtime/skill-runtime.ts";
 export async function syncRuntime(
   mode: GeneratedFileMode,
   facts?: SourceRuntimeFacts

@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLUTION-RELATIONS-001: 候选关系接受前瞻校验但不进入正式关系图
 
 Tests:
-- `test:ce1fd8f221065f3fd64cb13d0547c967044afc53576fda5af89b7023f281f030`
+- `test:6a8199252172232e18d2f8a43a60e9d243f034b099c07a7dd0bd296b15aeaed9`
 
 Tags:
 - `decision-records`

@@ -1,0 +1,88 @@
+/*
+ * Synced TypeScript runtime; repository maintenance edits tools/decision-records/src/relations/transactions/decision-relation-transaction-types.ts.
+ * Installed skill copies may be edited directly; updates overwrite matching files.
+ * Repository: https://github.com/zxyycom/skills
+ * Source path: tools/decision-records/src/relations/transactions/decision-relation-transaction-types.ts
+ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/decision-records/src/relations/transactions/decision-relation-transaction-types.ts
+ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
+ * Rebuild: bun run sync:decision-records-cli
+ */
+import type {
+  DecisionApplicationAttention,
+  DecisionApplicationFailure
+} from "../../application-result.ts";
+import type { DiscardableDecisionRecord } from "../../lifecycle/decision-discard.ts";
+import type { DecisionFileChange } from "../../transactions/decision-transaction.ts";
+import type {
+  DecisionAlignment,
+  DecisionCandidateRecord,
+  DecisionId,
+  DecisionRelation,
+  DecisionRelationOverride,
+  DecisionSuccessor,
+  EstablishedDecisionRecord
+} from "../../types.ts";
+
+export type PreparedSuccessorFields = {
+  alignment: DecisionAlignment;
+  finalRelations: DecisionRelation[];
+  sourceRelations: DecisionRelation[];
+};
+
+export type PreparedSuccessor =
+  | (PreparedSuccessorFields & {
+      candidate: true;
+      record: DecisionCandidateRecord;
+    })
+  | (PreparedSuccessorFields & {
+      candidate: false;
+      record: EstablishedDecisionRecord;
+    });
+
+export type DecisionRelationReview = Readonly<{
+  phase: "preflight" | "committed";
+  sources: readonly DecisionRelationReviewSource[];
+}>;
+
+export type DecisionRelationReviewSource = Readonly<{
+  action: "establish" | "replace" | "unchanged";
+  after: readonly DecisionRelation[];
+  before: readonly DecisionRelation[];
+  sourceId: DecisionId;
+}>;
+
+export type DecisionRelationGraphPlan = {
+  archivedPredecessors: EstablishedDecisionRecord[];
+  discardedRecord: DiscardableDecisionRecord | null;
+  successors: PreparedSuccessor[];
+};
+
+export type DecisionRelationTransactionPreparation =
+  | DecisionApplicationAttention
+  | DecisionApplicationFailure
+  | {
+      archivedPredecessors: EstablishedDecisionRecord[];
+      changes: DecisionFileChange[];
+      discardedRecord: DiscardableDecisionRecord | null;
+      relationReview: DecisionRelationReview;
+      status: "ok";
+      successors: PreparedSuccessor[];
+    };
+
+export type DecisionRelationTransactionRequest =
+  | {
+      discardId: DecisionId | null;
+      deleteRecorded: boolean;
+      kind: "evolve";
+      keepUnrecordedHistory: boolean;
+      relationOverride: DecisionRelationOverride;
+      successors: readonly DecisionSuccessor[];
+    }
+  | {
+      discardId: DecisionId;
+      deleteRecorded: boolean;
+      kind: "discard";
+      keepUnrecordedHistory: false;
+      relationOverride: { kind: "source" };
+      successors: readonly [];
+    };

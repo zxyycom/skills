@@ -1,7 +1,7 @@
 ### Case DECISION-LIFECYCLE-MOVE-001: 归档与重新激活保持 Markdown 语义
 
 Tests:
-- `test:ad7c38b2d81e6d91d583ef8b1246800b622364d24b38ad93d74b4845d0f0ea54`
+- `test:d4954219cc45f3fed87a169b3bee53e8fc13961781cd3a62894fe1bed9f4670d`
 
 Tags:
 - `decision-records`

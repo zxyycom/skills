@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-020: 搜索来源安全
 
 Tests:
-- `test:bdec4a3f75ba8bc1aa76b75bfc8c32644de69573d28b1c49c5ece1418210f433`
+- `test:a7ee2a8a7461b0f52042c9145b3b5615f8d544f5b4f1f941acd61ccf86f8dc5f`
 
 Tags:
 - `record-cost`

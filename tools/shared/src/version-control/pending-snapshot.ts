@@ -3,27 +3,27 @@ import {
   materializedFiles,
   payloadFingerprints,
   sameFingerprints
-} from "./git-pending-snapshot-content.ts";
+} from "./git/pending/git-pending-snapshot-content.ts";
 import {
   extendsPendingSnapshotIdentity,
   samePendingSnapshotIdentities,
   type SnapshotIdentity
 } from "./pending-snapshot-proof.ts";
 import { sameBytes } from "../node/bytes.ts";
-import type { GitRepositoryContext } from "./git-context.ts";
+import type { GitRepositoryContext } from "./git/git-context.ts";
 import {
   fileKindForGitMode,
   operationError,
   type GitIndexEntry
-} from "./git-core.ts";
-import { gitContextForRepository } from "./git-repository.ts";
-import { runPendingReplacement } from "./git-pending-replacement.ts";
+} from "./git/git-core.ts";
+import { gitContextForRepository } from "./git/git-repository.ts";
+import { runPendingReplacement } from "./git/pending/git-pending-replacement.ts";
 import {
   createPendingEntries,
   listPendingEntries,
   validatePendingEntries,
   writePendingEntries
-} from "./git-pending.ts";
+} from "./git/pending/git-pending.ts";
 import {
   type NormalizedPendingReplacementFile,
   normalizePendingReplacement,
@@ -31,7 +31,7 @@ import {
   pendingReplacementError,
   sameGitIndexEntries,
   sameVersionControlFiles
-} from "./git-pending-values.ts";
+} from "./git/pending/git-pending-values.ts";
 import {
   normalizeRepositoryPath,
   normalizeRepositoryPaths

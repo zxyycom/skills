@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-SELECTED-OLD-OWNER-FRESH-001: fresh重新验证旧owner缺失
 
 Tests:
-- `test:f70194b9b519a44ff3482d1b6a43498cf373139dca7dc2e4e8c4b1ad5d0ca6e1`
+- `test:4d18364ffbd488278a240d0efefe6ac41009efed6ace318971761ae946a9fb90`
 
 Tags:
 - `investigation-report`

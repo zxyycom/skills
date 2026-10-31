@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-ADAPTER-008: Box 与结构化等级响应
 
 Tests:
-- `test:b3b9635fb4788bacade618d6df4f5f5fda7bfa994ab8d85d0f9dfe37d3ee99ff`
+- `test:3d3e46b5307eb3969fe8224ef58a4dad1066a8e8106d41055407ace3cb7ff988`
 
 Tags:
 - `lightweight-judgment`

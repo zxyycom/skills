@@ -1,7 +1,7 @@
 ### Case GATE-SELECTED-CODE-OWNERSHIP-001: 领域指标只选择当前维护代码而不吸收证明依赖
 
 Tests:
-- `test:b38b8963002a3d712e72b68cf934870915e3d8673167ef8359f4d50427bfd1b5`
+- `test:ba0c8fae59e1b17daa110e6c77b5c035a7878f01d2312e0ee4e8de465c3129e4`
 
 Tags:
 - `repository-tooling`

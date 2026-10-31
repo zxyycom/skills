@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-SOURCE-REVISION-INTEGRITY-001: 拒绝非法或不完整的 Source Revision
 
 Tests:
-- `test:8e1079e861f18ad9373b92de05d2981143969183bc80dcf3eeae62261550665e`
+- `test:c31bb21950d9042bf0afac7466970ca00ede59ea0a67b2f7857fbc634e3169eb`
 
 Tags:
 - `index-runtime`

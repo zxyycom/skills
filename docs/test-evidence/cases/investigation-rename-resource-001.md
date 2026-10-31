@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RENAME-RESOURCE-001: 不安全 owner tree 阻断 rename
 
 Tests:
-- `test:60d5da421f65b4904b7bf24263e8eb8bff42cc76942c682c22fe50ad7321de09`
+- `test:c69a2eed4f644c86e2beb155b7ff63bcaf786d55cbf7e1a516745776ee15925d`
 
 Tags:
 - `investigation-report`

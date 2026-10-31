@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-RELATIONS-001: CLI set-relations prints a human-readable result and rejects JSON output
 
 Tests:
-- `test:76ef62a3584c3b166dd16a95c5097a0cbab6840fdce7d2f34e786ad6cb8c0ffe`
+- `test:0070619f7e8f9c36e2719c2e5655858675b5dd976b151845ad84162c4bc9165a`
 
 Tags:
 - `investigation-report`

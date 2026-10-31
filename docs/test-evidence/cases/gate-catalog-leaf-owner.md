@@ -1,7 +1,7 @@
 ### Case GATE-CATALOG-LEAF-OWNER-001: catalog 保留 leaf 身份而不消费无关 helper
 
 Tests:
-- `test:cdde777d6a51183f67281f703752ce50ba81bc3cab2947d7e4413a30572f779d`
+- `test:4b86c593833386ee6b3cd158474f3350ceb81dd3a459af715c8772a5da6d417c`
 
 Tags:
 - `repository-tooling`

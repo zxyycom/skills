@@ -1,7 +1,7 @@
 ### Case DECISION-TRANSACTION-WRITE-RECOVERY-001: 决策事务在写失败后恢复全部 Markdown 与索引
 
 Tests:
-- `test:ea888e9c75255ce6e4eba3251c9ce40a9518e0e732c7f67b392d3a42a893ad21`
+- `test:42af1b4e578717fe95a415df22ca827ef639ce4533dead39849b23efd8199617`
 
 Tags:
 - `decision-records`

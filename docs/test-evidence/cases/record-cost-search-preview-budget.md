@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-022: 有界预览范围
 
 Tests:
-- `test:8a0546cc61b27d7efccba3c846e689c82453790c99c893bb906a2f8a284262d7`
+- `test:14b55047509f421c8e1e111de1d847403373a08f68e40bbefd33aeab0c22d4cb`
 
 Tags:
 - `record-cost`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RELATION-FILTER-002: list and search combine direct relation selectors with existing query boundaries
 
 Tests:
-- `test:2649633d1aaffdaf4ab289c41d42452bc3c15447006c8c1a6fa401f309a05adf`
+- `test:2c9f69027bcc55c5794f82b5940d7f50b96b26343e0434f529498257d64c5708`
 
 Tags:
 - `investigation-report`

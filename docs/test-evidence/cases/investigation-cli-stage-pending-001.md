@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-STAGE-PENDING-001: CLI stage --scope index preserves pending transaction facts
 
 Tests:
-- `test:45522b4aab7a62caee3478dffb81bcc0ae9b92a26925a8f240f174ca8f0d244b`
+- `test:f9b7e8ed96730e0ea527ad0a8a0efa7ecafacd29fcbecca7e9ff2eed0e00a350`
 
 Tags:
 - `investigation-report`

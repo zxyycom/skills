@@ -9,10 +9,10 @@
  */
 import { normalizeFailure } from "./failure.ts";
 import type { ApiKey } from "./configuration.ts";
-import { stringifyJson, type JsonValue } from "./json.ts";
-import type { PersistenceMeta } from "./call-log.ts";
-import type { AdapterContract } from "./adapter-contract.ts";
-import type { NormalizedResponse } from "./adapter-response.ts";
+import { stringifyJson, type JsonValue } from "./protocol/json.ts";
+import type { PersistenceMeta } from "./logging/call-log.ts";
+import type { AdapterContract } from "./adapters/adapter-contract.ts";
+import type { NormalizedResponse } from "./adapters/adapter-response.ts";
 
 export type CliOutcome = Readonly<{
   exitCode: 0 | 2 | 3 | 4;

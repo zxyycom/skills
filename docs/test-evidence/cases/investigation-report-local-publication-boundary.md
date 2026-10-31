@@ -1,10 +1,10 @@
 ### Case INVESTIGATION-LOCAL-PUBLICATION-BOUNDARY-001: 普通局部维护按发布索引与实际写集验收
 
 Tests:
-- `test:1757ccaf9229d517d2d249ae9e066f93f81161d41e7e16d60156424d4a7fa6b8`
-- `test:8da594cd4915e475580687ce65fa8d5bdaf1635fe9c9a94d7f8efbbb350b57c8`
-- `test:c7287da16fbdd9848837888954102bf24a0b35fa353f4037c20c426fda7fe1d1`
-- `test:f76139d51ad15f852dbc31bdbfa79faec18e72dba0af8a51a4aacc7cf19c956c`
+- `test:38a2f437e1b6732889f9a594ae0b79504a79104f6ae0c9c9d56cddb369493fb0`
+- `test:85b420b1ed250a1b42610ddf6eeb516ae846fe59b1311a7d68d6d0f64dc434a0`
+- `test:87d3875d89be050ef98ce3a1b5e55ec83cf7c2f215b22158b37be6834291e042`
+- `test:bf40fc1ad51c4cca62fb08495bff21d9620e925d8c3bc22474a5e48ff4b5b87b`
 
 Tags:
 - `investigation-report`

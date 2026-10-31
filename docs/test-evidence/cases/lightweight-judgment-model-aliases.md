@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-014: 官方模型标识原样传递
 
 Tests:
-- `test:63d63d4fbb241f66f549af1260b44ed0ee8cfd87eff9d44657f70852dd1e2b2e`
+- `test:276efd9c1f44bc165df22baa46f7fdcc2336f9ab3c5dd6b6d4563d90ce02f4e5`
 
 Tags:
 - `lightweight-judgment`

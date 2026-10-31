@@ -1,7 +1,7 @@
 ### Case GATE-MARKDOWN-LINT-001: Markdown 门禁只启用六项批准规则并限制维护范围
 
 Tests:
-- `test:dc0260c357d7a91064efb5f301ae0ef4bd7fa04ac2918d84e5b204e07d48da79`
+- `test:98b628bcf9bf3ae33eb3e449b6d0cce53baf180ac07ccd35779127a17c38a12e`
 
 Tags:
 - `repository-tooling`

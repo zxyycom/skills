@@ -1,7 +1,7 @@
 ### Case DECISION-LAYOUT-VALID-001: 扫描器接受根目录和归档布局
 
 Tests:
-- `test:97c10e4ea00acc962f1c6ca800dfd15739d05896cebe0642c61281beb56deaf2`
+- `test:30473b507c00f29363fd5f0338d49a10cf65bb058f4faecbfe029a5a43eabed2`
 
 Tags:
 - `decision-records`

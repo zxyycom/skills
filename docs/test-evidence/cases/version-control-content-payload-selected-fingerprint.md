@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-CONTENT-PAYLOAD-FINGERPRINT-001: 选中实际payload指纹独立于OID
 
 Tests:
-- `test:5d9367fe9e350d8241dab079f2d00f11e00642db4287741826e0c00df114c8fa`
+- `test:1bd5275949f2be1e2547831064ef07f6209e1a07becd36eeab5aa0fc20553a6c`
 
 Tags:
 - `version-control`

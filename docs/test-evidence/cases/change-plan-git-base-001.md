@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-GIT-BASE-001: Git 距离拒绝缺失与非第一父基线
 
 Tests:
-- `test:05939c9a5012b02ce9a9f8c08b01ef8dfc0d36b9df553e7e1e813caa16c84750`
+- `test:786481751fb884876277d8e49cd6fb92b7eca0d9099c80d48d6f5850756b2243`
 
 Tags:
 - `change-plan`

@@ -1,7 +1,7 @@
 ### Case DECISION-TRANSACTION-CLEANUP-003: 已回滚事务在锁清理失败时保留 rolled-back
 
 Tests:
-- `test:2abbdb43061992427b5c74f23ea41aa1edbdaab3e8a3312c90123063c02dcfbf`
+- `test:32b55917ffa63acc14197457e77b71dfecc5b540951cd84f599aeba67df1ff7f`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case DECISION-BODY-UNSUPPORTED-001: 决策正文字段不归一化任意相似符号
 
 Tests:
-- `test:7f499f62ebd3fe52b87f010981430d27065432e96f973843b9941c061231e4c4`
+- `test:863d1baa84883612f61c8175e801220c8f50e526d102a262f6fd683f858b52b0`
 
 Tags:
 - `decision-records`

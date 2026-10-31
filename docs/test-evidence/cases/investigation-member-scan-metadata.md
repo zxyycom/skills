@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-MEMBER-SCAN-METADATA-001: 成员采集保持完整有序元数据且不读正文
 
 Tests:
-- `test:15925cd6babc004edcfe1b196a7927c9e07c052f24f7492205ebb996e4dbf4ca`
+- `test:0bda1a96738f81afeaf2931c8b0eabe8cf6a973b4561c0e2fd1281448786af62`
 
 Tags:
 - `investigation-report`

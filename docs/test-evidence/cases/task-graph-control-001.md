@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CONTROL-001: 本地 queued 成为 control 来源，同时祖先依赖仍产生 blocker
 
 Tests:
-- `test:05ca83c24c792f63e85ade54cc8db2fcf8e76c1c95b4453dd2208fdef14bb0e7`
+- `test:f1b6af2099f15901a3649500bc0494f72290e6d5c7eb0029566678d06515ef60`
 
 Tags:
 - `task-graph`

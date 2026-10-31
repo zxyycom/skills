@@ -1,7 +1,7 @@
 ### Case UPDATER-SELECTED-CLI-ISOLATION-001: 真实生成 CLI 隔离无关损坏但阻断所选漂移
 
 Tests:
-- `test:1a1f243474e04020631f8cb4c41c5ada3fe8bc7bad6bce06f4e65a29751bc152`
+- `test:c2b40f31f990befc50faa5901b4d811e977d93f5262d524221f2b6aaba90b342`
 
 Tags:
 - `repository-tooling`

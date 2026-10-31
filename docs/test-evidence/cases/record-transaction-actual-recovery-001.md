@@ -1,7 +1,7 @@
 ### Case RECORD-TRANSACTION-ACTUAL-RECOVERY-001: 共同事务只恢复真实写集
 
 Tests:
-- `test:5c78eae3a3483ab7a121ef14f788b2b5e39ed62e883f700a0cb83eaf4eb526b3`
+- `test:9fefafee23b1a42ba2b10bd825a266baed87e920bfc797709905a794a3621bd4`
 
 Tags:
 - `decision-records`

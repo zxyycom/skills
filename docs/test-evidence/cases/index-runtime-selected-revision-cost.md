@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-SELECTED-COST-001: revision 不同时跳过 state 比较
 
 Tests:
-- `test:a552d7367c16102d745e4d2fd0177daaec54ff9be8173fc41da6d76a3771e6e1`
+- `test:f4f4dff8a0cfb169131723bdb3bf2e3c4c72c795191f3b5dc1eb0c82c7debe35`
 
 Tags:
 - `index-runtime`

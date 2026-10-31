@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-MARKDOWN-SEMANTICS-001: Markdown 语义内容忽略注释并统一换行
 
 Tests:
-- `test:1008233f5e4942f0fdda49ef4955d05f4324bcae22dfc21aebeca92ec1f1d376`
+- `test:3999e62f48c466ed7c1b55f535457d550c9e0430cb42e9b4da6a3258d189739e`
 
 Tags:
 - `change-plan`

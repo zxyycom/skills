@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-EMPTY-COLLECTION-001: full validation rejects an empty report collection
 
 Tests:
-- `test:f0a944f6d5c8d3e5c9c8e281f14d2f444c37c3bf6132eca031ffc9ecf6b7e169`
+- `test:bcc2e9dc5195ee05f415ca79a69d2784ed51ea234c39b5bce746918397ce8167`
 
 Tags:
 - `investigation-report`

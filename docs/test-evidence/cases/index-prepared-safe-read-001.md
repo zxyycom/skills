@@ -1,7 +1,7 @@
 ### Case INDEX-PREPARED-SAFE-READ-001: baseline 读取拒绝 inode 与父路径替换
 
 Tests:
-- `test:41a9367b0f016df39c5f336dbfc1f51680f29f227705b7b158601c23cfd261eb`
+- `test:6080fe4aacb1782a4010d0416b2156b733c61cf9e708b0cdec096367021db0b0`
 
 Tags:
 - `index-runtime`

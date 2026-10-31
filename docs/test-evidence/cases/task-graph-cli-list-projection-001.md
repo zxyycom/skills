@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-LIST-PROJECTION-001: Task list JSON 等于程序化完整 projection
 
 Tests:
-- `test:2c46dd34f44ae85d085db644b52cdff9df5fc3eeae9fd534b548b8f741cb7592`
+- `test:178184ea6e95b0211416f7932188c471e560fb6725942a5531feb33148d29467`
 
 Tags:
 - `task-graph`

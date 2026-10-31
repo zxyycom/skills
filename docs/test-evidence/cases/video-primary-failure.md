@@ -1,9 +1,9 @@
 ### Case VIDEO-PRIMARY-FAILURE-001: 附属日志失败不覆盖主操作结论
 
 Tests:
-- `test:5ccc94a6692389565c2a6611c4c0471def40c4679c2f26a3e61fa4c02a1a7dd6`
-- `test:70366ff4de065425ec030fe54218476ac7acbfb415e0c29c85457782a27db550`
-- `test:b6de2723ce99e606ec3d1935a5ba5d2820c2b24c99f6c69d4943173d3c87b1b5`
+- `test:56b1f8eef6cc96fa766a9bcd9e084dbec4d3a7ce71088677c09993e0e38ac25d`
+- `test:c4c25fc702e43dd730ce1c416e16ee62e353d4688f1db8910df5f994faf77583`
+- `test:db23139ede807ce917d14fab16539c3c6bf9c388163b992dc75df887fd846927`
 
 Tags:
 - `video-understanding`

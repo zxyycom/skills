@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-NULL-TAGS-001: 当前记录缺标签与原型隔离
 
 Tests:
-- `test:6c177d58e388169aae7a59cb3127434c0bfee658f8e531941ef467a2d30bc968`
+- `test:e8c0d2c6dc54fc72fa2ba63bdd4e77e06605526860eaf9d7b4fe242dd0c1738a`
 
 Tags:
 - `lightweight-judgment`

@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-GC-001: 批量 task removal 在全部门禁通过后一次提交
 
 Tests:
-- `test:e146c9bcb0e2714272f44bfb0516c389d7a32c0114a6873896e03f2ae68da19e`
+- `test:71ae9f808c0bfa23cbfc22deb41588815b64a3763a96b6a35fa5b074a3f8cc5e`
 
 Tags:
 - `task-graph`

@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-PREVIEW-RECOVERY-001: 决策全量预演恢复边界与严格检查分离
 
 Tests:
-- `test:6ecf7793f5761f855ee45ce5ebad4a534f2ae43bfee75a794c4bccbcc2391ead`
+- `test:8346d9340820bdeef7e806ab79c63d896136f1e074cad82ac66786db1c78e161`
 
 Tags:
 - `decision-records`

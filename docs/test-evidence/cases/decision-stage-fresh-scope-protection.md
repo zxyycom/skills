@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-FRESH-SCOPE-PROTECTION-001: all scope 独立写前重读并保护 pending
 
 Tests:
-- `test:9d7437df8123231f3379ea4bf590d487f70ff9bf18efac8b98e76fda66a73811`
+- `test:81d3bd01ae315fabdb7ac0b38c17441fbf783f462c7a20cc4d907f0439624698`
 
 Tags:
 - `decision-records`

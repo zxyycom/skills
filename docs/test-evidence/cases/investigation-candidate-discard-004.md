@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-DISCARD-004: 正式删除不审计未选候选引用
 
 Tests:
-- `test:7330e5a411d3fc13861c2a7815dc55cdb74af7d390465796dcec592f5e558479`
+- `test:6704f980a81e6b024efc0cd44b5f231a6d620e1a0ba149ca89105ca3abe0f99d`
 
 Tags:
 - `investigation-report`

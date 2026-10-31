@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-LITERAL-RESOURCE-MEMBER-001: 完整资源树保留普通未引用文件名
 
 Tests:
-- `test:7af9be8be35d639448c64acb3675d7130ce4a08ea01451158bcb940b35d5e655`
+- `test:5acd86bd0bdc73a4512a5d2b87f19217bdaf5c49f5148d0e6b44eb52d6e325bc`
 
 Tags:
 - `investigation-report`

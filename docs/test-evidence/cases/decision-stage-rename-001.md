@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-RENAME-001: Stage 以一个 ID 表达语义 sourcePath 改名
 
 Tests:
-- `test:8ef500ca2017ade0687e496b0a4a5fe268f83ac048a11013b6b0fd30ccab0ee1`
+- `test:f4aa931aec0f374db27eb28c43d85af552245453662ed3d5dd5b406eb1d5289e`
 
 Tags:
 - `decision-records`

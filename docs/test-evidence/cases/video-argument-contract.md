@@ -1,7 +1,7 @@
 ### Case VIDEO-ARGUMENT-CONTRACT-001: 命令参数按适用域严格解析
 
 Tests:
-- `test:471968dd0a303b89d3eec570de1ec9d16f85107faeef75c0a8f39085bf8f60bf`
+- `test:0aa540344f9b0289527f71892240718a2a86b99ec37709062867faba3d85cba2`
 
 Tags:
 - `video-understanding`

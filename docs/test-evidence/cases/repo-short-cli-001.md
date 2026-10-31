@@ -1,7 +1,7 @@
 ### Case REPO-SHORT-CLI-001: 仓库短命令通过参数分隔启动所属 CLI
 
 Tests:
-- `test:5bf4726a85764f1b6d3d4c999709e59ccbc2ae6a230a6ddb608bfd6da83478bd`
+- `test:11f2cc9c85ec84c65b0bdb8d03173cb2268202cbf6243f984512d877ff13ebe4`
 
 Tags:
 - `repository-tooling`

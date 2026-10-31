@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-REPOSITORY-SCAN-READ-FAILURE-001: 无法安全检查 Change 根时阻断
 
 Tests:
-- `test:19a7e54c4899392a415e90a774b47bae96256a1de185ab95919d4fb30d9e41bb`
+- `test:50afbc7de0e39727b76160915003580c3aab0fa90cddcd0b326834a068cd82b5`
 
 Tags:
 - `change-plan`

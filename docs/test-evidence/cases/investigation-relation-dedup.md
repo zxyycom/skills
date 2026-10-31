@@ -1,9 +1,9 @@
 ### Case INVESTIGATION-RELATION-DEDUP-001: 关系证据按三元组去重并保留首次投影
 
 Tests:
-- `test:8f596e1b735ece3e54a51cf5b66e9632d1ac073295e1c25cba940bd3f93cf2ff`
-- `test:a01c02ea94dcd668f3bda224ed352215f50fd979dd89dea6affcf7a0c59f07ec`
-- `test:d199bba1ea029785c99f28137fdf9db601761d8756611715208b9827c2e687b3`
+- `test:2101a81365eb1154ff265c5079a31b14f8c3d2a27ba75782191f1940febe83a5`
+- `test:5682309bb9b079e812b126804313f39462349a9c446dfa46501ac600f415f96f`
+- `test:6065c3f18f80ed7deed8ef3b9f0261af5794f04859940f0a89338b066b0b95e3`
 
 Tags:
 - `investigation-report`

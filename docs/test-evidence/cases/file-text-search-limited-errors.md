@@ -1,7 +1,7 @@
 ### Case FILE-TEXT-SEARCH-LIMITED-ERRORS-001: 有界命中范围保留取消和异常
 
 Tests:
-- `test:a491c2a762a70b6de407a902dd2bde02c6fe038c4659f039e22bb0954c38fe30`
+- `test:83952eb7769df4acf466553c59a2baf905c58a684c5d742cce6d5d43e5ce6847`
 
 Tags:
 - `file-text-search`

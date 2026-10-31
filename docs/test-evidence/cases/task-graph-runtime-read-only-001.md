@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-RUNTIME-READ-ONLY-001: 领域只读命令不依赖 native runtime
 
 Tests:
-- `test:c710cd0a23a23c62c059b5cc531d0b1dd87a9b83861aa59d9f6f58a6362539f6`
+- `test:38e183c4d4bf98ae9159536210da1c7fe08f44c1aa161ed1c5a9ed034d8440df`
 
 Tags:
 - `task-graph`

@@ -1,10 +1,10 @@
-import type { SourceRuntimeFacts } from "../lib/source-runtime.ts";
-import type { GeneratedFileMode } from "../lib/generated-file.ts";
+import type { SourceRuntimeFacts } from "../lib/generation/runtime/source-runtime.ts";
+import type { GeneratedFileMode } from "../lib/generation/generated-file.ts";
 import {
   buildSkillRuntimeArtifacts,
   syncSkillRuntimeArtifacts,
   runRuntimeAdapter
-} from "../lib/skill-runtime.ts";
+} from "../lib/generation/runtime/skill-runtime.ts";
 
 const sourcePath = "tools/video-understanding/src/cli-entry.ts";
 const runtimePath = `./runtime/${sourcePath}`;

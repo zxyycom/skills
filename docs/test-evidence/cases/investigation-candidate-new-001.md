@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-NEW-001: new creates an isolated canonical candidate scaffold
 
 Tests:
-- `test:4a6e6d1cb607d4f87b7ff06d1d9a7731eead30bc46603beafada3296ed5b43e2`
+- `test:25df2ef098f3b8f8c86e5a80dc4171562c11e89e2b9cd658c8b55acdfa308aac`
 
 Tags:
 - `investigation-report`

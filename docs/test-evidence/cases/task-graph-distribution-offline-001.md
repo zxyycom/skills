@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-DISTRIBUTION-OFFLINE-001: 生成 CLI 从隔离 runtime 离线 mutation
 
 Tests:
-- `test:0aaaf27f693e181c0ba66d877c8d22881f5609c356868711fe3e1edce3c6cfb7`
+- `test:f2501c7a770bf97a2f2d2e4cb64626218f24b9be2a7840038ee230a9744d7114`
 
 Tags:
 - `task-graph`

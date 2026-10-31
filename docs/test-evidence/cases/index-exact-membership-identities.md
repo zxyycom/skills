@@ -1,7 +1,7 @@
 ### Case INDEX-EXACT-IDENTITIES-001: 精确匹配保留标量身份与空量词
 
 Tests:
-- `test:235c615563cb41782b10a3017ae0a1efdb7cd1b2c7758cc05462fc1046925eb3`
+- `test:e9f9106ef6a8d0e66a9cc3a1cd2c984df191903b5d7f32faf6ad8abb4671a301`
 
 Tags:
 - `performance`

@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-024: 决策元数据无需高亮范围匹配
 
 Tests:
-- `test:de5af59b22722c748fc9fcc039f32ff4b8e7bcd42c4d3976efcbef14d317b215`
+- `test:40aa722b58ae3bd1c60c0e6f33b7f6e51a7277662290ada93b51db2b71b41cc1`
 
 Tags:
 - `record-cost`

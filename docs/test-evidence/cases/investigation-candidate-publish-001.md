@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-PUBLISH-001: publish preflight establishes only explicit candidates
 
 Tests:
-- `test:feeb582c6979ca58d007352c46f8a097ae479f4dac8aafe0370d94442b4b700f`
+- `test:09395035ed972524e20ae15e827cfef99c285ca026a2bba466dddab1b3a1616f`
 
 Tags:
 - `investigation-report`

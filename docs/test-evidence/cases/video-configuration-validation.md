@@ -1,8 +1,8 @@
 ### Case VIDEO-CONFIGURATION-VALIDATION-001: 所有已读取配置严格校验
 
 Tests:
-- `test:212ad707393dadc49ab18680fe65897a5c7f774874eeeb802cbe8b86052ff7c1`
-- `test:a758ad1c30a0c75cd4acbb57b5babf2e00c731290a6d421c0ea6da9cf34ecd51`
+- `test:8a99ad4687292d9c22794e386a7f669b2a0b6ec23be6f479b6bc34d63944c314`
+- `test:bd2a641a525c260aa85c92dbb6a98088dc99ef78d55d71909f02fbebadf90da5`
 
 Tags:
 - `video-understanding`

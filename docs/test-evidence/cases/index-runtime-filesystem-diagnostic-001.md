@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-FILESYSTEM-DIAGNOSTIC-001: 安全报告 source 与 storage 文件系统失败
 
 Tests:
-- `test:f53131ca9f98b0ac2895649581523085b7f9935311addb3417ec69289a143bcc`
+- `test:f34f38fae862af29d9efd857d7f0d7e070b4245e483e9dce39e038d20579056f`
 
 Tags:
 - `index-runtime`

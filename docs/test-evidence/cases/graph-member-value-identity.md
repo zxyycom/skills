@@ -1,7 +1,7 @@
 ### Case GRAPH-MEMBER-IDENTITY-001: 按成员值和 kind 合并并保留直接目标并集
 
 Tests:
-- `test:a74ea26e7d40c76c1128c488ecad8dbbaa66beeebc7b7633e954fb7b688f8703`
+- `test:1fa7956ce4029cbd59e2a8eb894a8bf2be016d1564e9a179bba950186473b639`
 
 Tags:
 - `relation-graph`

@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-021: 调查元数据跨字段匹配
 
 Tests:
-- `test:c8d1ffbdf48c6f6a2bd5ebbd2c432eb61d2e6cd932b29c1906b0e71108203ce4`
+- `test:3807b9bfd5869d05ae2cffa582681baf2efda20d335299d4b169426430d8598a`
 
 Tags:
 - `record-cost`

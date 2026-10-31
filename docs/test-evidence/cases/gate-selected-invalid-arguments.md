@@ -1,7 +1,7 @@
 ### Case GATE-SELECTED-INVALID-ARGUMENTS-001: 非法选组在 Gate 副作用之前拒绝
 
 Tests:
-- `test:c30bca7c211f3a76a1c009fda79c24149a8c4513043a340bc4c1e7a3b466ca9c`
+- `test:639349ca4bf87aa7fccea522b42a7f3bf60bc3cccbcf4b4214476eea00c3f22a`
 
 Tags:
 - `repository-tooling`

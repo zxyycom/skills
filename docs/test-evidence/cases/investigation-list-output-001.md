@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-LIST-OUTPUT-001: Investigation list 返回 facets 并分层渲染近期窗口
 
 Tests:
-- `test:9c5802a66bc659ebcf985c6195ba4103400148f7f77da79464929b8e8efe328c`
+- `test:d24e344bd896faf091db4c0b8bc9a52e1e5a90cd303538f77f44ffe4e743b275`
 
 Tags:
 - `investigation-report`

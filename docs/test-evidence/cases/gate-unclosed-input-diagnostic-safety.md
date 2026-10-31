@@ -1,7 +1,7 @@
 ### Case GATE-UNCLOSED-INPUT-DIAGNOSTIC-SAFETY-001: 未闭合路径诊断保持安全有界并如实计数
 
 Tests:
-- `test:917e1d64162c6d5e852f5cb5d5084a7fe1ac54ff9afdb0bfd6953b940b55250d`
+- `test:6ae3e8797b6883d0fe8090bd0c3701af5d30d0311fc5c4b085c9bf16a7754f3a`
 
 Tags:
 - `repository-tooling`

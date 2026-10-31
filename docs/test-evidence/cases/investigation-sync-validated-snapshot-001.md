@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001: full synchronization rejects an empty report collection
 
 Tests:
-- `test:d2837eba9617d67ffe50d7e5d785505331ad4452b3d9382be638bdc736334fd7`
+- `test:5b8c93bcf4f602244b902cbd0f04a809d7f9fa70efa4dc91a46839bd78a4aee9`
 
 Tags:
 - `investigation-report`

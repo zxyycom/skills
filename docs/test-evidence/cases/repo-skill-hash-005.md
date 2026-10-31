@@ -1,7 +1,7 @@
 ### Case REPO-SKILL-HASH-005: Version check stops reading after the first ordinary change
 
 Tests:
-- `test:4f6a0c3e78649d01691a97d99eb3d04386f48948603a409a6f0fff185f8c5912`
+- `test:0122bb2ce7a344912fc2803d5e9020f33d51866eeddcf65b690c1b7148ca8daf`
 
 Tags:
 - `repository-tooling`

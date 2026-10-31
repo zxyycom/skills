@@ -1,7 +1,7 @@
 ### Case GATE-SELECTED-ACTIVATION-001: 原生调度只执行必要集及所选能力依赖闭包
 
 Tests:
-- `test:a7a38da8ba3bdbf0b40ec72fc813d730962178b1729dfb0b6f8e63b750465e6f`
+- `test:6c0a0d661d04681a410d5e4e4b1eddeecb63a6e0dd743e5d2e18357e1f5d0351`
 
 Tags:
 - `repository-tooling`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-SOURCE-PATH-ADD-001: 按索引位置暂存新增报告并按 ID 收集资源
 
 Tests:
-- `test:b176d50808c037beb1b1df13d97ebf36cdf15c1900c2570141d774e7ad4559ce`
+- `test:f71a966b90e78aefe8de2907d60269643c64536c1d45d8ad8237e97fbb755e81`
 
 Tags:
 - `investigation-report`

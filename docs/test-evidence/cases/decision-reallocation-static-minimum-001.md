@@ -1,7 +1,7 @@
 ### Case DECISION-REALLOCATION-STATIC-MINIMUM-001: 严格关系检查拒绝规模不足的重划分量
 
 Tests:
-- `test:739d76994518093f88b30840efebde88ef23630e1eae1b55dd2b2d44bf5ce3ed`
+- `test:677a88d3a5c24c4912d9a01ecdeff27e1e17558b9c3ad3ace87c0f7746879417`
 
 Tags:
 - `decision-records`

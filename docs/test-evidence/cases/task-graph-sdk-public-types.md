@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-SDK-PUBLIC-TYPES-001: 公开声明支持真实类型消费者而隐藏私有能力
 
 Tests:
-- `test:cde71e33c8ea0892fe1e58d5a31370a9a655e18db34e3c3b1e2472f8b49821da`
+- `test:ada7b7d06ea91b6f938cab7c2885b81568c63ddfd5ad65ba5329164dab31e744`
 
 Tags:
 - `task-graph`

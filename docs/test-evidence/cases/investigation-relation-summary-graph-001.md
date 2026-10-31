@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RELATION-SUMMARY-GRAPH-001: relation summaries do not change graph identity or validation
 
 Tests:
-- `test:dcc44c2f0adf463f4c623cffae01fc917dc281624849ed5c1a50166acc34d4d5`
+- `test:9fd812dc79e633942d3db4566ec1b2ce889c76afbd36b7da370456ceea43be6e`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-CLI-001: CLI 只公开 active finalize 命令面
 
 Tests:
-- `test:491993076f96085dd74d3770adf2730af4610920832dc455e5eb805a8941faeb`
+- `test:458d80a7e2ba4214a5a1d813db8d1b7ae0673715fa998c3e6974e64b4a678903`
 
 Tags:
 - `change-plan`

@@ -1,7 +1,7 @@
 ### Case SKILL-RELEASE-PUBLISH-002: 快照发布创建一次并复用相同资产
 
 Tests:
-- `test:c2023152e6870699163d4756775326d768f755b0fbc2ccc76c2add3f071f7407`
+- `test:f3d2bd5af92db93b89451cc003997e8da0600e7345eaf612665b91612859dd12`
 
 Tags:
 - `repository-tooling`

@@ -1,8 +1,8 @@
 ### Case IR-STAGE-WORKSPACE-GRAPH-FAILURE-001: 按阶段保留发布图失败分类
 
 Tests:
-- `test:2529c8b9dbe2d2b4dfb0adfaf35b8d976cc13dd18ae90eb48a270bcac56b398c`
-- `test:dd5476463d902194962cc4bbd1b038d551748518dbf85c251c85350604043f2a`
+- `test:5b4bee1e6a75170794b2295163477e3a767b0b4109ad9a368cd00572982c6c3b`
+- `test:6a2b05d9a373c208ea03f103bd3aeb7dea06678c62f959fa01b975a4745aaf45`
 
 Tags:
 - `investigation-report`

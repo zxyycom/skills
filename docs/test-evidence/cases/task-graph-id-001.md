@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-ID-001: 扩展 task ID 保持规范，失败批次不消耗编号
 
 Tests:
-- `test:65f2aedd1501e2682f30bae96c18a69d4b4909bc486881f0f342f0560f2cd0c9`
+- `test:1595d5871d9065eb28be35f2db68db58671e1db74055c532f18227a44f376f88`
 
 Tags:
 - `task-graph`

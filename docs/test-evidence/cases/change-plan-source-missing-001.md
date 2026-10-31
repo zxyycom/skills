@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-SOURCE-MISSING-001: 缺失依赖启动失败不隐式安装
 
 Tests:
-- `test:0d7d1cb2665b521850085c8494ab145d0c58de3bda627229b9c4058923b27971`
+- `test:e2c712a05ffe8e56fb37f1cc9d804db79331bc1e8dec7f0c4c605b7232780c28`
 
 Tags:
 - `change-plan`

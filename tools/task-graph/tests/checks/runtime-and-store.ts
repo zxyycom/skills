@@ -1,2 +1,2 @@
-await import("../runtime.test.ts");
-await import("../store.test.ts");
+await import("../store/runtime.test.ts");
+await import("../store/store.test.ts");

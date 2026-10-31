@@ -1,7 +1,7 @@
 ### Case GATE-UNCLOSED-INPUT-DIAGNOSTICS-001: CLI 定位未闭合输入但不改变执行与证明语义
 
 Tests:
-- `test:c29f4b34cdf30b5f22085aecfaf688556ad6e23d471b35f08b49963924173dce`
+- `test:e1d3b71e79a72e3d4121307e613c45289fe513cd30dfe536804eb8cbff4db214`
 
 Tags:
 - `repository-tooling`

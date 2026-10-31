@@ -1,8 +1,8 @@
 ### Case VIDEO-UNAVAILABLE-PROJECTION-001: 局部不可用不传播过期正文或静默换源
 
 Tests:
-- `test:841799d4be33ece0ee4488769c7c12f6f73374ff3c11530b68a278f62cbda3cf`
-- `test:c828e35ec938cf070b2cc68a406c39ef2f4c9898480790eda689d65c6f88c800`
+- `test:73e9e41e8a87855f7f839e6ecdda5aac19dc5ecf59dfd06d40f621eb3865ddec`
+- `test:75089620d5048a213fdd89c2db1e8d2026a36445bab63271da22ec071b34971d`
 
 Tags:
 - `video-understanding`

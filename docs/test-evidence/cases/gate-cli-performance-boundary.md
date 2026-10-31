@@ -1,7 +1,7 @@
 ### Case GATE-CLI-PERFORMANCE-BOUNDARY-001: CLI 只对 quick 应用入口至报告收尾的预算
 
 Tests:
-- `test:876d8e5e162b6461bc8aeeb1cb8ed8d26035ccd69a7404985c45b27a79900741`
+- `test:5b012b92a1b3938b3cbbaf1c9618fb88b6095d61500fac1825e21fcae38fa8ad`
 
 Tags:
 - `performance`

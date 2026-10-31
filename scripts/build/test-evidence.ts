@@ -1,11 +1,11 @@
-import type { SourceRuntimeFacts } from "../lib/source-runtime.ts";
-import { nativeCliEntry } from "../lib/native-cli-entry.ts";
+import type { SourceRuntimeFacts } from "../lib/generation/runtime/source-runtime.ts";
+import { nativeCliEntry } from "../lib/generation/native-cli-entry.ts";
 import {
   buildSkillRuntimeArtifacts,
   syncSkillRuntimeArtifacts,
   runRuntimeAdapter
-} from "../lib/skill-runtime.ts";
-import type { GeneratedFileMode } from "../lib/generated-file.ts";
+} from "../lib/generation/runtime/skill-runtime.ts";
+import type { GeneratedFileMode } from "../lib/generation/generated-file.ts";
 import path from "node:path";
 import { toJsonSchema } from "@valibot/to-json-schema";
 import { compile } from "json-schema-to-typescript";
@@ -13,7 +13,7 @@ import {
   buildGeneratedDeclaration,
   buildGeneratedFileHeader,
   type GeneratedArtifact
-} from "../lib/generated-file.ts";
+} from "../lib/generation/generated-file.ts";
 import { githubRepository, rootDir } from "../lib/project.ts";
 import {
   snapshotSchema,

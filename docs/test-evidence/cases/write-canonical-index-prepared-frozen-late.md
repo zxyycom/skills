@@ -1,7 +1,7 @@
 ### Case WRITE-CANONICAL-CASE-009: 准备后定义变化被拒绝
 
 Tests:
-- `test:efa3abdc89053d33c4fccbc02b3580a9c8b7e755ce223a26eeb718183cbac35f`
+- `test:4435984af3c73c2585464f1a43ded2cb5dce53674fbc7b421a15f892c03a09a1`
 
 Tags:
 - `write-canonical`

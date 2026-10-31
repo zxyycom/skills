@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-INIT-010: initializer rejects another owned identity until it is removed
 
 Tests:
-- `test:60604662f50e3e01417f894207d39faa382b3464bc1d56fb7932b9f70561198c`
+- `test:6e5df0c27803efd0ce0289405d7e0ae07eb440f5741f1a279f68fc0314bee69f`
 
 Tags:
 - `mcpshell-workspace-bridge`

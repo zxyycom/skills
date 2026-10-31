@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-001: 严格 JSON 与精度边界
 
 Tests:
-- `test:6c1100db53f2276cf40ec0993255fbfe6acf177343dcaefa2feb3ef1d04b8647`
+- `test:5205640aa39e400506d50d3e1e98b8be726e51e2a93602dad53351cc71102d60`
 
 Tags:
 - `lightweight-judgment`

@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-INIT-005: initializer rejects an inline-comment table header without changing TOML
 
 Tests:
-- `test:c242c58d3cb2526f97008a7009c798473d867fd95441409254a3df37fb5a48c5`
+- `test:a01a5a9d74efed4fd8af5be24cec5803481710193db5f120042a76f7d39f1d95`
 
 Tags:
 - `mcpshell-workspace-bridge`

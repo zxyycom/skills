@@ -7,4 +7,4 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
-export { openGitVersionControl } from "./git-repository.ts";
+export { openGitVersionControl } from "./git/git-repository.ts";

@@ -1,7 +1,7 @@
 ### Case DECISION-RENAME-CHANGED-BATCH-001: 大量真实更名写集与保护采用同一批量验收
 
 Tests:
-- `test:64f5cc876b9c2a65dc35ed79c068821dc24bd53a770735797663cbb03fe8afbf`
+- `test:ed4cb00ba42cbaab48c92305db1fa84eb04b859c5b4f725a596661f82a365d0c`
 
 Tags:
 - `decision-records`

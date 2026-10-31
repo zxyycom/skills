@@ -4,7 +4,7 @@ import path from "node:path";
 import test from "node:test";
 import { syncTestEvidenceIndex } from "../../tools/test-evidence/src/cli.ts";
 import { checkRepositoryTestEvidence } from "./check.ts";
-import { createRepositoryTestEvidenceSnapshot } from "./snapshot.ts";
+import { createRepositoryTestEvidenceSnapshot } from "./snapshot/snapshot.ts";
 import { withSnapshotFixture } from "./test-fixture.ts";
 
 test("registration identities retain a direct file and full test name", async () => {

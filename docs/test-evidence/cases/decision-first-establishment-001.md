@@ -1,7 +1,7 @@
 ### Case DECISION-FIRST-ESTABLISHMENT-001: 首次建立创建根目录 Decision ID 与定义十一索引
 
 Tests:
-- `test:66d243c300a0246a0b24ab60b006e3fd5b67896a226468e81be219d935c31e08`
+- `test:0647a9b39a51149b1f547e294d2ea78ac5cad9a94a862283efc1bbb920a885e2`
 
 Tags:
 - `decision-records`

@@ -6,7 +6,7 @@
 
 ### 当前事实
 
-- [`tools/task-graph/src/service.ts`](../../tools/task-graph/src/service.ts) 已承接索引读写、查询、apply、lease 与终态操作；它调用 [`engine.ts`](../../tools/task-graph/src/engine.ts)、[`graph.ts`](../../tools/task-graph/src/graph.ts)、[`staging.ts`](../../tools/task-graph/src/staging.ts) 和 store，成功时返回结构化 `ServiceResult`。
+- [`tools/task-graph/src/service.ts`](../../tools/task-graph/src/service.ts) 已承接索引读写、查询、apply、lease 与终态操作；它调用 [`engine.ts`](../../tools/task-graph/src/engine.ts)、[`graph.ts`](../../tools/task-graph/src/graph/graph.ts)、[`staging.ts`](../../tools/task-graph/src/staging/staging.ts) 和 store，成功时返回结构化 `ServiceResult`。
 - [`tools/task-graph/src/cli.ts`](../../tools/task-graph/src/cli.ts) 当前完成 argv 解析、runtime gate、Service dispatch、`TaskGraphError` envelope、JSON serializer 和两个专用 renderer；CLI 领域命令没有通过子进程或 JSON round trip 调用 Service。
 - [`tools/task-graph/src/index.ts`](../../tools/task-graph/src/index.ts) 当前导出 Service、领域纯操作、projection、错误、类型与 parse/serialize 能力；`cli.ts` 在文件末尾 `export * from "./index.ts"`，所以源码和生成声明仍以 CLI 入口拥有这组导出。
 - [`scripts/build/task-graph.ts`](../../scripts/build/task-graph.ts) 以 `cli.ts` 为 TS 分发入口和声明根，生成公开入口及可达运行时模块，并保留编译器发出的声明闭包；公开入口的导出由适配器与测试核对。

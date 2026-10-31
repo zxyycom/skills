@@ -1,7 +1,7 @@
 ### Case SKILL-RELEASE-PUBLISH-006: 滚动发布跳过已同步资产
 
 Tests:
-- `test:5f219882a0163762f1121430eb49e460a370629c51a21f741214ee65297d5058`
+- `test:d8e862050e52815e215d8c54fe19775e1ae6cf86fbf1d002e1b06ff875ebcda4`
 
 Tags:
 - `repository-tooling`

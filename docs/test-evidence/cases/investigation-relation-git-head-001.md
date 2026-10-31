@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RELATION-GIT-HEAD-001: 全量检查仅提示尚未进入 Git HEAD 的直接前序
 
 Tests:
-- `test:6dde42925601d2cab5e8acd11e3dfb6f741af99bf423ab3ae8ab7836fb8a7abd`
+- `test:23f5d1a320741f3b7d9093c065e08866b6c8d9a3c18ab926acc79882425d11ba`
 
 Tags:
 - `investigation-report`

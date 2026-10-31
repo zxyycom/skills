@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RENAME-OWNER-SOURCE-001: source owner 终检后的新成员不被递归删除
 
 Tests:
-- `test:e06ddbbdcc5efdd7f6ac6d4415ef35185923709fb859ee0a62830dc77e9fe638`
+- `test:1d382382b77e9aec632b868b4552bf976a837092c7ddfd6bd2bad0062b4e39d8`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case GATE-MARKDOWN-PROOF-EXCLUSIONS-001: Markdown 内容证明的原生排除
 
 Tests:
-- `test:2f0f0cf2b04cca359dd906317c6f04fa79e2092c529ef1cbc3c30da5f3275e8d`
+- `test:5bba4c7a3b80169186e8b9ea6cc229c056f5b630fa0556ba83f605e05531775c`
 
 Tags:
 - `repository-tooling`

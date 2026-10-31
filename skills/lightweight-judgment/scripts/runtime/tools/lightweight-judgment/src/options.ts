@@ -9,7 +9,7 @@
  */
 import { parseArgs } from "node:util";
 import { fail } from "./failure.ts";
-import { statisticsFlags } from "./stats-options.ts";
+import { statisticsFlags } from "./statistics/stats-options.ts";
 
 export type ParsedArguments = Readonly<{
   values: Readonly<Record<string, unknown>>;

@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-013: 独立分发与导入
 
 Tests:
-- `test:530e57a75aff4773c3151f245c6e522d969970159649614aad342ab445839ebe`
+- `test:4eb8442737dedf1b2a82aaff7ef9adac9dd5bc3aca4ad3665b6289f8bb96907f`
 
 Tags:
 - `lightweight-judgment`

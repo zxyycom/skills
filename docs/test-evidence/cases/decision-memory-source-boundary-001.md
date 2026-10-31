@@ -1,7 +1,7 @@
 ### Case DECISION-MEMORY-SOURCE-BOUNDARY-001: 内存决策源在派生前验证身份与路径
 
 Tests:
-- `test:4e27a43c810065bb59f933b83859cf6d24c2a19e6906c27b5fd806459d291c17`
+- `test:fe7f571d865e4bcd8d26016d50788f43b26c5ddb71bb4d5198d8c264362ab064`
 
 Tags:
 - `decision-records`

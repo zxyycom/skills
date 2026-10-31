@@ -1,8 +1,8 @@
 ### Case GATE-SCRIPT-ADAPTER-001: 项目命令配置与直接重跑 argv 保持明确边界
 
 Tests:
-- `test:4650cb30529e64c99c1d7b59b265057fd337ce7569c9b743fc71bed3b80a83cc`
-- `test:c4c1c485929e0bfb0946f8a1ba1fc9749417ae77cd4c5ebe1f462a37e94e8d1e`
+- `test:9529e14512893972e4458d422aec6da67916f618df53ac97969587dafa6c247e`
+- `test:f0695c8222a376aa1edd36578404ad42cabc1c0cea2fe1bbb64f8f5383490824`
 
 Tags:
 - `repository-tooling`

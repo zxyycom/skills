@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-PUBLISH-CLEANUP-001: publish 提交后锁清理失败不返回成功核对
 
 Tests:
-- `test:5612e9c1ecb0a757ecde7624a3d8da3c245a650f866deea9658d7e2c4be26096`
+- `test:6daa6d870fe6a94ec972c04d6b1ec181e90ba355230e303c52068d1e0ca326f4`
 
 Tags:
 - `investigation-report`

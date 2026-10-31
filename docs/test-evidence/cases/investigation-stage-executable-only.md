@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-EXECUTABLE-ONLY-001: 仅执行位变化参与暂存结果
 
 Tests:
-- `test:3091d0101f771e557f4851e8a7e1fc9c6f6f9c19745d582b6172176af8fd411b`
+- `test:8b2ecd385dbf799cd8f026f8b5fd8f5a04c377d37a5bcf3afe09c04e3e15fbc0`
 
 Tags:
 - `investigation-report`

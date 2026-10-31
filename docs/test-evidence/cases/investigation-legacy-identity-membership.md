@@ -1,9 +1,9 @@
 ### Case INVESTIGATION-LEGACY-IDENTITY-001: legacy 身份只按索引自有成员定位
 
 Tests:
-- `test:19cadd404cf31c4d32e34517246796dcdee6c569b4d2cdaad8c92de0c6538d12`
-- `test:58d1e977c66b0e70adcc820cb7155a5a81739e8432c703d87e347a0700a4faaf`
-- `test:9266655bfbf40d4eb8608c51749663cefeb83a2d74f6ce48ff15ee0d9ccb1742`
+- `test:3440d1d65229fa845099ca3c24335fbab34e570e9675bee5ea7c8764dc01bb5e`
+- `test:59f63ce8ece87507f1674fdafebaeff5100613683a3b35a9c08f9baf09ce76a5`
+- `test:d8f38b211fbb0a29e1938fa0aa78d8922a3aeedbdd686c680f9f1e4b7d1a6c72`
 
 Tags:
 - `investigation-report`

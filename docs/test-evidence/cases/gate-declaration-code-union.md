@@ -1,7 +1,7 @@
 ### Case GATE-DECLARATION-CODE-UNION-001: 声明领域不扩大联合选择的维护代码指标
 
 Tests:
-- `test:f40396c841afc001428e98b6f2d728ea6b2941373014a4add23b6f542762043a`
+- `test:ab8609914ccb13e6db201d1763484e4affcd2a8f262840c3aad15ea6f6876f99`
 
 Tags:
 - `repository-tooling`

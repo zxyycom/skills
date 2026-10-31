@@ -1,7 +1,7 @@
 ### Case AUTO-PUSH-BRANCH-001: 自动推送只接受 Main 提交
 
 Tests:
-- `test:8d3d0aec8606fb14381d6f777227039e71a286554b301c577c267a134e37d4b5`
+- `test:50e0567b0497b818e9cda97c04dd2bcc95422b880ec86014f009687227092edf`
 
 Tags:
 - `repository-tooling`

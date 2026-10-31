@@ -1,7 +1,7 @@
 ### Case GATE-FUNCTION-LIMIT-POLICY-001: 自动化与测试函数限额独立配置
 
 Tests:
-- `test:485514687b0eb2457322bf2c0fb8060cc80b92ae413007926a574d2142f079e2`
+- `test:76054778e7df8602df77390a87c93aa112d4532cbe20fe4d148368c43c84dc59`
 
 Tags:
 - `repository-tooling`

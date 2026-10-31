@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-CASE-001: attached resource links reject path casing mismatches
 
 Tests:
-- `test:277b2d0caac5a767c00e783d8d33320d5ee8d8d570bdbfd45f93412a0fa5da64`
+- `test:1eafea7de77be02feecf7a176dbc751d283c2b281a94788e3b67ce02525bc5ee`
 
 Tags:
 - `investigation-report`

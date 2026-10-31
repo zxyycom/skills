@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-INDEX-QUERY-001: List 按近期时间与 ID tie-break 排序并组合 AND tags
 
 Tests:
-- `test:dcb4f23f6e92ea055ce7b8d2b0ca897f63d83c39a4d222853d927a26e585316a`
+- `test:983c40e1ba7119f4e2a9345e566710ccdc6525c8f0d0bad53da78a6a94ce9b54`
 
 Tags:
 - `investigation-report`

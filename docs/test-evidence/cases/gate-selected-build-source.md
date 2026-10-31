@@ -1,7 +1,7 @@
 ### Case GATE-SELECTED-BUILD-SOURCE-001: 构建脚本源码进入指标并按自动化参数阈值阻断
 
 Tests:
-- `test:b4354681637699c9f8644289c0d181c9b7ec28a5686efc20c0aac5c6bd919b33`
+- `test:995d7c829789f9aebcb82c78f95460d564c6601b2d091ac8d5513ec5c5b7fb21`
 
 Tags:
 - `repository-tooling`

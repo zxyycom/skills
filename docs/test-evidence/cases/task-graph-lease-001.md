@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LEASE-001: 续期与过期写入遵守 lease 有效期
 
 Tests:
-- `test:82af19bdc6cc31c52ad1875ecb00d6d469be1de8cc6c1692a76a50c7e6ae8115`
+- `test:ac09486f5cfaf8c672bff47022dd45a7cd629b887bc0681d185a67f55072610a`
 
 Tags:
 - `task-graph`

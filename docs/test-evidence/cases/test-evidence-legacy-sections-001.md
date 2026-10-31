@@ -1,8 +1,8 @@
 ### Case TEST-EVIDENCE-LEGACY-SECTIONS-001: 旧账本段落解析保留列表语义并拒绝无效声明
 
 Tests:
-- `test:68b11626563f38e43335d74d14f6c4b6e0f9c66ce3b01199716e4bc1d984355e`
-- `test:ef2faa4dd69bdfa2b06b8c59ab94e4f7990b0a7a928032048d25b02bb046e21a`
+- `test:1929882320e2f5a33500ec1abdc4cd946d31cfc42eac0d24ac83f6bf1dac44a5`
+- `test:47607a73caa991292fd46c5e320581a807b0d38e92273c20dcdf85fb57ad541b`
 
 Tags:
 - `repository-tooling`

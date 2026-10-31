@@ -1,8 +1,8 @@
 ### Case FILE-TEXT-SEARCH-UNICODE-001: 文件搜索规范化 Unicode 并保留原始坐标
 
 Tests:
-- `test:4d4514ca0c1099e9c3e23addf36e3119f1f42e5a1c4ba8757cba8b3c0c0ceadc`
-- `test:a7af4124f5961a44b43b3495cfb1b479989b7d144b478d27eed1874f3a796c8e`
+- `test:5f8a32f3a6c5aa848ed35d0caa24b976c5ff526d088b3cde093bf497de64337f`
+- `test:fbff1dd95980e7514a24caca6e59980eb47b52500723836016fd819e7cf39835`
 
 Tags:
 - `index-runtime`

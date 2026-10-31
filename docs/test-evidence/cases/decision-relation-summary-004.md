@@ -1,7 +1,7 @@
 ### Case DECISION-RELATION-SUMMARY-004: Candidate API normalizes direct relation summaries
 
 Tests:
-- `test:a1136073231a39a6259306ef6fce051f812761629140b1757510e21675ffe38e`
+- `test:b4d24240d7f2842cf349ea8fbe9cad2404ba7d6ed9b19e245c4edd2f26d14352`
 
 Tags:
 - `decision-records`

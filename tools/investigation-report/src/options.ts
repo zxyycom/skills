@@ -18,8 +18,8 @@ import {
   type InvestigationReportShowOptions,
   type InvestigationReportTraceOptions
 } from "./types.ts";
-import { normalizeInvestigationIdInput } from "./report-path.ts";
-import { normalizeInvestigationRelationSummary } from "./relation-summary.ts";
+import { normalizeInvestigationIdInput } from "./collection/report-path.ts";
+import { normalizeInvestigationRelationSummary } from "./relations/relation-summary.ts";
 
 const requiredStringSchema = v.string("must be a string");
 const optionalStringSchema = v.optional(v.string("must be a string"));

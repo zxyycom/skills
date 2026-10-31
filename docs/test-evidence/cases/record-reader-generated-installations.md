@@ -1,7 +1,7 @@
 ### Case RECORD-READER-DISTRIBUTION-001: 两个skill生成分发包含可执行worker闭包
 
 Tests:
-- `test:0ab119f1fcd45f5de7d040811ec68d59818cd4344d3f44d6cd1351117fe02c3a`
+- `test:1c0301cb5a41fdb436da05d3aabe20e54ccdb071ba9c19d26bdbb05b758eface`
 
 Tags:
 - `record-operations`

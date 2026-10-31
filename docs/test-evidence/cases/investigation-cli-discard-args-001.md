@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-DISCARD-ARGS-001: CLI discard rejects malformed investigation IDs as argument errors
 
 Tests:
-- `test:f7c8b35350bdd32d081381e1760a02a2f23da0f0279bc1e804abf58fb08209df`
+- `test:1f816f4f7028bc188a905be8bb4ca56c34bd1690b8876dcb94e003c20da506d3`
 
 Tags:
 - `investigation-report`

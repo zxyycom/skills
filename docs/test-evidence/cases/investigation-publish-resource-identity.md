@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-PUBLISH-RESOURCE-IDENTITY-001: 发布前拒绝资源 inode 漂移
 
 Tests:
-- `test:763dc1ad5f6a205784e517fbff963f77b5eda48105b100606d376d14a67be72b`
+- `test:bbe939c902ffdd07a00a331148578833b7b0af16e4d9edd8a019fef996e106c8`
 
 Tags:
 - `investigation-report`

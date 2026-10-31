@@ -1,9 +1,9 @@
 ### Case INVESTIGATION-RELATION-GRAPH-TRACE-001: Investigation Trace 选择确定的受限关系切片
 
 Tests:
-- `test:0c00a2ec0fd7ebedc23244e3f4d8594b547144cf3a5e104b9e3d1f1b002ba907`
-- `test:b991286662d32937dc0356b3ad1463f714042d022f0abb0c41f443adfa7d94c7`
-- `test:d2b19d91cd532538bfee7d4123c87d980eac1ecced9f58479c4d541d9a3fd280`
+- `test:0986f9eaba0888845955837bf097d00c9fb40955e5e676587047fa6da3c6ac42`
+- `test:8d2a2f958b392bf72edd8ae2c91fc37e72c044874672a617b47e8fd31cb89941`
+- `test:a043608195e6b7d156792da94950d85fba258e17c3f892fd243667177f0ba02a`
 
 Tags:
 - `investigation-report`

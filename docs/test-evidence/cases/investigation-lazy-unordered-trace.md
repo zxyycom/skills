@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-LAZY-TRACE-001: 乱序构图保持追踪事件与预算选择
 
 Tests:
-- `test:0bf2bbe332bda9792f6a60a72fea0e53fd54594114d3bfcbc8ad8b8f20cd41de`
+- `test:7bbb915a0ae4d6ab8ece56755bacf497d1bdab3ee40ffbb35829ed834170f91f`
 
 Tags:
 - `investigation-report`

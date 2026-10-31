@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-LOG-JOURNAL-RECOVERY-001: WAL 切换等待后继续
 
 Tests:
-- `test:49ef595cf16ada73f2cf198b9e7a820a94312a9c5a6e663d746164f38df04fe8`
+- `test:f9441ae9229f128c49b202d090ea3a3bdd2555ca352eadbc31b943c4d7db4a68`
 
 Tags:
 - `lightweight-judgment`

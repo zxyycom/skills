@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-GIT-BOUNDARY-001: mutation 不接管 Git 生命周期或 ignore 策略
 
 Tests:
-- `test:be62b7072301fdb5845269c87ec4f42cac86cadadaeb3aa325d3a3d0cdcf715e`
+- `test:d25266a94bff1831d797f772adf1ef6c0483e44f3ede7430b063a95abf590f42`
 
 Tags:
 - `task-graph`

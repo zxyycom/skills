@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-PENDING-ONLY-CANCEL-001: 撤销仅 pending 存在的新增
 
 Tests:
-- `test:79a4e8f2ece6238109fc07378eb9c226ca067f5817281b34c478521bedf0a037`
+- `test:d7c86bc56766b380a53f36e139c78e27b7973eff665f1796fd8f04d7a858b2a0`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-SERIALIZATION-001: 规范文本按键排序，往返解析不丢失事实且 entry 不重复保存 ID
 
 Tests:
-- `test:49321e5b3d3bab35d9543860bff6a479c47dc73109cda8e128825cf1553a1bc3`
+- `test:b3a08383fde9a9db239717d88f18b7ac24a33af74f757a76b309f2d43294e2cf`
 
 Tags:
 - `task-graph`

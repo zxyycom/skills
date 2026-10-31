@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-SCOPE-INDEX-001: stage --scope index writes only the derived index projection
 
 Tests:
-- `test:dca3fbd723a76c5f76404de687ea00ed30673148c224a57535df8b257684c1ee`
+- `test:1223577c6a08dbc18f78c7193aedb47c209f96125d3ba92e3f050b980d3bc8e9`
 
 Tags:
 - `decision-records`

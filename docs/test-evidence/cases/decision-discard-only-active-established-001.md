@@ -1,7 +1,7 @@
 ### Case DECISION-DISCARD-ONLY-ACTIVE-ESTABLISHED-001: Discard 删除唯一 active 已建立决策并保留合法空索引
 
 Tests:
-- `test:e5b2b306e151e87840252e57f3177eb564f0093de01a7de475671fb341f55ff5`
+- `test:dd3cf7ad06070dee7da0f806c892a653c607b4e0cd5ae025a1ce985b5e7acea8`
 
 Tags:
 - `decision-records`

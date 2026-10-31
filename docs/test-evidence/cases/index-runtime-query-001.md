@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-QUERY-001: 过滤决策状态并按稳定标识查找
 
 Tests:
-- `test:4b6d314f96708e9e1d2923acdc989d77eda16987b9d3e0fa8221813e17169760`
+- `test:94e8eb424da43ac77eee68e229ad2f42357df2813d7bc029f9996ba9a69cd795`
 
 Tags:
 - `index-runtime`

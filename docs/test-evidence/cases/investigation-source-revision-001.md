@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-SOURCE-REVISION-001: source revisions fingerprint report Markdown
 
 Tests:
-- `test:587ee52fdef52546aa190814c662fc9adc401dbdca1a44778cf53e5a2ea674ae`
+- `test:7f70d3c93e758d2f9f04276344a4ac829e23c8b7ef3a3c088ac05f9ff4dce2d8`
 
 Tags:
 - `investigation-report`

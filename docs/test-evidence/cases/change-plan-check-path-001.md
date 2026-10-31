@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-CHECK-PATH-001: 检查报告 change 目录路径问题
 
 Tests:
-- `test:2bf6ceebbd10ea5eac09ade7e536ac794d691770c80c502a0969e3837eb13851`
+- `test:a501c61b3f54eb0cdbf888f73fcd0cc25054bdda55f2cdeb7860fc23e75b5bab`
 
 Tags:
 - `change-plan`

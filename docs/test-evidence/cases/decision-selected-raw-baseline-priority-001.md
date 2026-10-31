@@ -1,7 +1,7 @@
 ### Case DECISION-SELECTED-RAW-BASELINE-PRIORITY-001: Selected sync 对已采集坏基线保留原始selector优先级
 
 Tests:
-- `test:ee837dad655732d9bb5938297d4d1d75c3d041339f6d6eeaa8e4dc53d06fa115`
+- `test:7cb18a2d5d19e4fdaada20ac2a3c36ffcca6ef3ece94a9dd082624a8247d7714`
 
 Tags:
 - `decision-records`

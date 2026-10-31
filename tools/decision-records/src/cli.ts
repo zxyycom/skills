@@ -7,17 +7,20 @@ import {
   decisionFailure,
   decisionFileSystemErrorText
 } from "./application-result.ts";
-import { createCliProgram } from "./cli-args.ts";
-import { printDecisionFailure } from "./cli-output.ts";
+import { createCliProgram } from "./cli/arguments/cli-args.ts";
+import { printDecisionFailure } from "./cli/output/cli-output.ts";
 import {
   processDecisionRecordsCliIo,
   type DecisionRecordsCliIo
-} from "./cli-io.ts";
-import { isQueryCliArgs, runQueryCommand } from "./cli-query-commands.ts";
-import { runMutationCommand } from "./cli-mutation-commands.ts";
-import type { CliArgs } from "./cli-args.ts";
-import { renameDecisionRecord } from "./decision-rename.ts";
-import { scanDecisionRecords } from "./scan.ts";
+} from "./cli/cli-io.ts";
+import {
+  isQueryCliArgs,
+  runQueryCommand
+} from "./cli/commands/cli-query-commands.ts";
+import { runMutationCommand } from "./cli/commands/cli-mutation-commands.ts";
+import type { CliArgs } from "./cli/arguments/cli-args.ts";
+import { renameDecisionRecord } from "./rename/decision-rename.ts";
+import { scanDecisionRecords } from "./scan/scan.ts";
 import { validateDecisionRecords } from "./index.ts";
 
 async function runCommand(
@@ -108,7 +111,7 @@ export type {
   DecisionRenameOptions,
   DecisionRenamePlan,
   DecisionRenameResult
-} from "./decision-rename.ts";
+} from "./rename/decision-rename.ts";
 
 if (isMainModule(import.meta.url)) {
   process.exitCode = await runDecisionRecordsCli();

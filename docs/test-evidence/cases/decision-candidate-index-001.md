@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-INDEX-001: 丢弃唯一候选不创建索引
 
 Tests:
-- `test:9406398c6739ce7155e3f95de13c9015bbf890131c012bca644ae7abc145c5ce`
+- `test:a3ea8c9a3a7aac6f09d16bd8afe837d722ffea6b49966ec20bec1c787b5c5ef0`
 
 Tags:
 - `decision-records`

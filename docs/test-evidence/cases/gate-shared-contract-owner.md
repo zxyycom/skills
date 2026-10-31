@@ -1,7 +1,7 @@
 ### Case GATE-SHARED-CONTRACT-OWNER-001: 共同 reader 与事务拥有独立测试消费
 
 Tests:
-- `test:3404f5173ca786c82ec0a8f88953d0ae7567890724a6b2d3f9d04aef97b6a363`
+- `test:785ffaafc5c1b4333c7101bae11c66d758910c14c0fdfdd3c56353d1c4035cff`
 
 Tags:
 - `repository-tooling`

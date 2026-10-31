@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import { parseArgs } from "node:util";
-import { prepareSkillPackageRelease } from "./lib/skill-package-release.ts";
+import { prepareSkillPackageRelease } from "./lib/skill-package/skill-package-release.ts";
 import { rootDir } from "./lib/project.ts";
 
 const { values: options } = parseArgs({

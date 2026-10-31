@@ -1,7 +1,7 @@
 ### Case GATE-QUICK-RECEIPT-ISOLATION-001: quick 不准备工作区或发布完整证明
 
 Tests:
-- `test:acdc5c9dcaafe0de269eedb91a3d6ada3af455fb8ffe24c4942d299edeac03ce`
+- `test:269843753f2c9a414c23e88ac3118450d769413f9d15395d8f745337f67aa9c3`
 
 Tags:
 - `repository-tooling`

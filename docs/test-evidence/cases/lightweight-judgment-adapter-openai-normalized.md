@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-ADAPTER-003: 原生结果与统一结果分离
 
 Tests:
-- `test:72154e44277f82278d1a5cbba20b4d040d9d59826ae264cec46378439bf831c2`
+- `test:4f892cd495831124e330ec850feca25560397918aad309499535b084ebcf3a13`
 
 Tags:
 - `lightweight-judgment`

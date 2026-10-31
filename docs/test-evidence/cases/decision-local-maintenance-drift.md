@@ -1,7 +1,7 @@
 ### Case DECISION-LOCAL-MAINTENANCE-DRIFT-001: 所选来源漂移使普通维护零写入失败
 
 Tests:
-- `test:f355aaec3218d223f3fc944532ed11434518268f55feef3a4623f71ede0528cd`
+- `test:f732b4f9d7db5003bfd6aba76d29eb86a2fdd68c47b04683f8088ba0564b77cd`
 
 Tags:
 - `decision-records`

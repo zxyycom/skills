@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-INDEX-CHECK-001: index info 报告规范漂移
 
 Tests:
-- `test:40d7533555678c17d477f6cddb50e67b4d94a51a22b4f01beab161c2a78984ac`
+- `test:6c35fdd8b5a07312950759bd394ccb62d874e52602fd5fee8ee3df996978e42b`
 
 Tags:
 - `task-graph`

@@ -1,7 +1,7 @@
 ### Case DR-INDEX-PAYLOAD-PRESERVATION-001: index保持未选部分暂存模式及删除
 
 Tests:
-- `test:f1231064d1918cc52ed66472eb0c146f5d8322134f9ea280c99212613cbc1624`
+- `test:f3f3c3dbea061d514ff52dc38062f3f4e310fb223346143e7f79d9ecafe13dd1`
 
 Tags:
 - `decision-records`

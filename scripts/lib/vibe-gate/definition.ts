@@ -37,10 +37,10 @@ import {
   type ReleasePacker,
   type ReleasePreparer
 } from "./checks/release.ts";
-import type { GateScope } from "./profiles.ts";
-import { gateToolInputs, type GateToolId } from "./impact-tools.ts";
+import type { GateScope } from "./selection/profiles.ts";
+import { gateToolInputs, type GateToolId } from "./impact/impact-tools.ts";
 import { resolveSelectedRuntimeSkills } from "./runtime-prerequisites.ts";
-import { validateBaseGateImpactContracts } from "./impact.ts";
+import { validateBaseGateImpactContracts } from "./impact/impact.ts";
 
 export type GateDefinitionDependencies = Readonly<{
   activeToolIds?: readonly string[];

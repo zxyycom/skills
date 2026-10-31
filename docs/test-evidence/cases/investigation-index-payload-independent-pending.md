@@ -1,10 +1,10 @@
 ### Case IR-INDEX-PAYLOAD-PENDING-RECHECK-001: index独立写前复核全域pending身份
 
 Tests:
-- `test:6aa47b02711708feac81e96ba4ec767f3125b7db11009be25d3cbff56a44ca0f`
-- `test:6ae766a9c17110f13e4a38d2be04ef12fd3acb85b2075bd05b1fb9c029f06e44`
-- `test:7e8b02954cb4dcf3f9227112c0018622abab26a5cbf938244fd7700d01596c32`
-- `test:849d4dd3156b774b9883cbe5495cfe70183fc73ff292e74e6946cf179c07dccd`
+- `test:09ce4ebd776b1367c3c7b102094775e68c886be424a008cabb70a55835ec2df0`
+- `test:4e833c7700b63929d2e28a185da71890859fd0b17856999c4e79803e2f9e3322`
+- `test:c1ca733c0b182b91d5e854eab695ce817e57ffb1af07f1b39ba10fd25cb7dbbc`
+- `test:de670c6fce59b392012efad14bcccc0ca00a6a4d0a9bf243287e79c690219864`
 
 Tags:
 - `investigation-report`

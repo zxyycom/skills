@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-LOG-UPGRADE-ENCODING-001: 请求回填的编码前置
 
 Tests:
-- `test:9421968fe852f6799b7af1adae2957a823c74587011e37c5ed0e23fd66fe6250`
+- `test:68298e55a18e0d6d9c8aa18edda4d9255169da2a02dcaebd2dad22f0afd81693`
 
 Tags:
 - `lightweight-judgment`

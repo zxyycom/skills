@@ -1,7 +1,7 @@
 ### Case GATE-SCOPE-DISCOVERY-001: 能力发现不启动 Gate
 
 Tests:
-- `test:6dad05d98036f0823267457890ec83e290470789fa0b81bec65a77538649f8a7`
+- `test:0f73dbbf34972dc50b55f20c4ae93fcad074cec5b0b004176f51747268512ac5`
 
 Tags:
 - `repository-tooling`

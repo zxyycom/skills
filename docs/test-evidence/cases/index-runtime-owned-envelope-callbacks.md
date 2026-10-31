@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-ENVELOPE-CALLBACKS-001: 领域 parser 只接收递归冻结的 envelope 输入
 
 Tests:
-- `test:eaccb31619b49ae922282b6751f1634866885989bc30af5f0623c77b7720962d`
+- `test:5bbc13f4f816ef88241d738f2daf37bdc413161f85bb70ee38b3dc1eb2278244`
 
 Tags:
 - `index-runtime`

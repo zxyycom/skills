@@ -1,7 +1,7 @@
 ### Case DECISION-INDEX-PURPOSE-001: 目的元数据不可省略
 
 Tests:
-- `test:0a2b3b2157d59b82e99c615fd9a593c9c140ed3c13d0d23620bc0f31b0bc8e50`
+- `test:e4aa7e57f47a08aca15dd855c773dc7effa52f1b2d487e350cf35a8d96102080`
 
 Tags:
 - `decision-records`

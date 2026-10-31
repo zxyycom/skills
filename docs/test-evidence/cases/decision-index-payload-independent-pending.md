@@ -1,10 +1,10 @@
 ### Case DR-INDEX-PAYLOAD-PENDING-RECHECK-001: index独立复核全域pending身份
 
 Tests:
-- `test:4a36fb057611a09a38165e36b4723555c775105bf3c4cc944585304e03c0a47b`
-- `test:a3b23bc06eb4cc7fadb6f1ca82fe8522bc58b2e13d9750278f937c2db18bd930`
-- `test:b168c02bd9a299e202d80fefbc5cada26321348f1782cbdbe5bb8c18a8f94349`
-- `test:d4c8ff3e02c8f507ac0dfcbec26af36cf58d0f2cf9c0c6f82ff72bc0e0b61da5`
+- `test:04fbbd064bee14970ed623e332db0b9c1e474980a2ef73f2ab39462948df2087`
+- `test:b1f86d146db9f4f9c04dffad7b38db16f3c9af7a6e5d6d1d9ebdda7b6298fad5`
+- `test:b9e18f91fe182b6365b7c6279b123022fb849a2bdbb1228d9d62c0e6c21994bf`
+- `test:f71936204902af53e820112449714eabe92c1e1001470024567c70d65d797e31`
 
 Tags:
 - `decision-records`

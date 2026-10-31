@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-INIT-011: initializer previews and applies the same update actions
 
 Tests:
-- `test:2d9a172d8fd19988b5771f1fa4c14fd50bdf0ee9a86367e0a16277a9e9c30953`
+- `test:b49701f3a640201b53ff4747b65e37e5168066df29f8deaa06a18138bfd7d38e`
 
 Tags:
 - `mcpshell-workspace-bridge`

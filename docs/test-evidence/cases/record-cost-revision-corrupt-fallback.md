@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-002: 损坏对象按需失败
 
 Tests:
-- `test:19d41c676b87a7ca0492dc39ff98e6b106b6ab3697e1eac531fbaae743cb1aac`
+- `test:2847de5eca2b142ac288a0252e6eb11e3e2e890158cca5f0b3494330f728f46e`
 
 Tags:
 - `record-cost`

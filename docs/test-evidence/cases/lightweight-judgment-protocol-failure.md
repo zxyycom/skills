@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-008: 协议异常不修复
 
 Tests:
-- `test:c2938588cf257072360d3bdcf1278d9ed392c09659104ca864888ecded5dd9fc`
+- `test:846c730133d6da6ef48842f216788dae57cb1bee218e06ddcbccfe7f8ce66784`
 
 Tags:
 - `lightweight-judgment`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-GIT-VISIBILITY-001: report resource link changes stale the current index
 
 Tests:
-- `test:694972a408148dae367d25d7371b7137dcb876da30bcd60e9bb8f6af042b3ca0`
+- `test:ca02d8e6297e2631b002c5641800a4cb05c26ac0c77254686f628dd8f988f046`
 
 Tags:
 - `investigation-report`

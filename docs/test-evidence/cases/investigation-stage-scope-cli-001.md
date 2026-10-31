@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-SCOPE-CLI-001: CLI stage exposes the scope contract and rejects an invalid scope
 
 Tests:
-- `test:3cd22fb651541beae981d49dc0c38d932e8347285fcc542b88abbdc457db4937`
+- `test:0accbb5ff76a1166e3c41ade178d8b77a374dde26c2c4d5d9d75453c13441292`
 
 Tags:
 - `investigation-report`

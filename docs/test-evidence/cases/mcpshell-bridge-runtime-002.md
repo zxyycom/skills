@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-RUNTIME-002: workspace caps captured output and cleans an output-limited get receive
 
 Tests:
-- `test:75aaf7ce3ce7b72f1c1f638c711e8e500ea502bfe7a8922c1b164002382cb91e`
+- `test:3f480a70c399ce57ab41daf531571034092e7c47ed9aa8ba03b39c6b05e6e488`
 
 Tags:
 - `mcpshell-workspace-bridge`

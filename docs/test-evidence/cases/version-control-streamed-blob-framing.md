@@ -1,10 +1,10 @@
 ### Case VERSION-CONTROL-STREAMED-BLOB-FRAMING-001: 流式blob协议完整验证与预算
 
 Tests:
-- `test:37a3bbfcc621309f0007e5f121e0d6794cee77072be620d518eaaa29a54f21a0`
-- `test:3dbe0d787ec29cc3533262038dd07a5e16e6904a79ae90562fef103088dc7850`
-- `test:44832b7ff3b8e8ff6ec3a792eeead1c6724e951fb7dd5577442b3ff6195eab23`
-- `test:b19d94f9d05c6c4e3db8d4cb8113babfa69249603bf71d13b2355027320acd65`
+- `test:12dd73f39418f96b4ac6b7cb246a1fb3ef875eebb4b7e0cef67c493fe27eb6c4`
+- `test:44dc5af453a380c36b6b5efe52ec42aa4eb63cb614d3013dfb6a807637fc3dad`
+- `test:77bf7fb1bc2562662f5528d5beaef0f082919395679b1981cd64ddd532f7d5c8`
+- `test:c4cd0d6985092af7d060a58666b16a79f3de9453d7a78845059d500597a7fb1d`
 
 Tags:
 - `version-control`

@@ -1,7 +1,7 @@
 ### Case RECORD-STAGE-ALL-SELECTED-PAYLOAD-001: all 暂存只读取所选 payload 并保持未选身份
 
 Tests:
-- `test:56d773fbb5113f8e11cf103bfbc3d382860ad9bbd6a1835e5f15df6d1de0441f`
+- `test:6add6af302a0691455169fbb82b9820e7557db43b2833cb0de1e135074cf8f14`
 
 Tags:
 - `index-runtime`

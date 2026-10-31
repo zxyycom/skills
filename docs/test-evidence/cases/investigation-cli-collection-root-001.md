@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-COLLECTION-ROOT-001: 集合目录误传 --root 时给出恢复形态
 
 Tests:
-- `test:41eb956540294b8cd0b406989c5bb50834a37485b537235deef6e2de3317f336`
+- `test:683579009313c01f369b19a00afe018e28b331309649f0a6f9714b9fdd650218`
 
 Tags:
 - `investigation-report`

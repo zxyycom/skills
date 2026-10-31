@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-INTEGRATION-002: MCPShell calls all four generated operations over localhost OpenSSH into an isolated target workspace
 
 Tests:
-- `test:b878a9c81a12219a8cb9edca0949f648586ca6afa5ffd4e2bb70de07fca71f64`
+- `test:8fd85b2c1dd43b29ac1abd9cd760edb9b4713febe4e9166ceec303c87c763084`
 
 Tags:
 - `mcpshell-workspace-bridge`

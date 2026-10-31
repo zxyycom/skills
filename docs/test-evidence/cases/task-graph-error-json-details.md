@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-ERROR-JSON-DETAILS-001: 错误详情保留 JSON 布尔值
 
 Tests:
-- `test:1c0dadd6cdb74511c7f493f8c85ff005eddd28b1448daddbd28d7bee66f7ccba`
+- `test:f2a4e52c4e80d8c3ba24da0d291d155b00e2eb650bced522aa29cc3fafecfdd0`
 
 Tags:
 - `task-graph`

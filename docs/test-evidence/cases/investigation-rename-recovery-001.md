@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RENAME-RECOVERY-001: rename 拒绝来源漂移并在索引失败后恢复
 
 Tests:
-- `test:b31900ec41ed6f7a8770af0f6412d9eddaf07eb0553ac9526f5c995e16865568`
+- `test:452639817daa1a39675988363b76ed957ac38efd1517b4a734dd688b2d783b80`
 
 Tags:
 - `investigation-report`

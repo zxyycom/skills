@@ -1,8 +1,8 @@
 ### Case DECISION-ESTABLISHED-ALIGNMENT-001: 已建立记录要求明确对齐状态
 
 Tests:
-- `test:63837722c63d669adb21e8e110ea9639f8dd161bc7ea7b9f9fdaac55674fef39`
-- `test:be5e28b920325ad9d45e7e75e6fec4d6466fb700cb0bde5d1aafaf5c6b2c4078`
+- `test:e7e8b21d1b3201c18ce9be8d468150cae928e6407dfe21cfe8a2676cdc9e7e5c`
+- `test:f170cc3c6998073079ae0ce4a90ca9812723b30b9178b72501a41888dc905471`
 
 Tags:
 - `decision-records`

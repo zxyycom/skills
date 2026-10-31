@@ -1,9 +1,9 @@
 ### Case DR-LOCAL-PUBLISHED-BOUNDARIES-001: 实际改写者保留来源漂移保护
 
 Tests:
-- `test:49d20586f694da8548606795f8dc905e9ecdccf9a59d493a46766f2773de971f`
-- `test:5274198dc0b35bf7edbdef0c7a0d8d874caec90288d47b85b68402b55519bab8`
-- `test:6fc326b26ddadc5dcc5d938f7bdadc6d03a768870e19003ad68a2c6f96cb9dfb`
+- `test:225007b1eb0107b2284bb20b171ce24e7248fbfda0495598f8e44bac821317ce`
+- `test:5a042b818757ccd6275c74dea3c2b4b9abe53f191267fdebfda85dbae6537fc8`
+- `test:c54c24c76bdc4b57d7cd6f953eea985ebf0043b3a0039ed2318fe33522ffded9`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case GATE-MARKDOWN-PROOF-RENAME-001: Markdown 内容证明的重命名与后缀
 
 Tests:
-- `test:825354c7b95fa8d74d18c5cbd0b88625ec4f821d08bd00574b5167a6f9e9423c`
+- `test:ba838b756b7c4db91f5f934d14b63ac77e79f7d8d58f21b88b4bb58efe7bedbd`
 
 Tags:
 - `repository-tooling`

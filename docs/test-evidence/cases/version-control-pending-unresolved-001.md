@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-PENDING-UNRESOLVED-001: 未设期望的未解决 Pending 替换映射为替换失败
 
 Tests:
-- `test:c5d50d71ed382394aa96dc0ff47c8264851771b23e62dec5aa1dc5bd738b0a02`
+- `test:8ac1848311076aab63ce7ca13e1e3de2285f4a16e1bdff066b2454757eef917e`
 
 Tags:
 - `version-control`

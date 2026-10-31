@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-EVOLVE-HELP-001: Evolve 帮助公开后继与完整关系选择
 
 Tests:
-- `test:044b684972d3aaa2bab5803cd4187e180a79bde08a7a41b08ce4730896448678`
+- `test:f88abdb59e3bac33c3dba67d8b087d5e0997c1aa4370c4fdddcc3811ba3ba223`
 
 Tags:
 - `decision-records`

@@ -1,4 +1,7 @@
-import { isDecisionId, isDecisionSourcePath } from "./decision-path.ts";
+import {
+  isDecisionId,
+  isDecisionSourcePath
+} from "./collection/decision-path.ts";
 
 export const decisionRelationTypes = [
   "修订",

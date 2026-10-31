@@ -1,7 +1,7 @@
 ### Case GATE-RECORD-OPERATIONS-INPUTS-001: 共同记录操作变更激活真实消费者
 
 Tests:
-- `test:ffb34341894dd0fd382e8a8349a66f0486840849e3a731173214f7fcdb725f77`
+- `test:a2b8b48ed468c87ced7dd59c5c674601c723ec2e168b4e736d082350ac72acb3`
 
 Tags:
 - `vibe-gate`

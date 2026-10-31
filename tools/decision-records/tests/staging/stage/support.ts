@@ -1,0 +1,174 @@
+import { withGitFixtureWorkspace } from "../../support/support-git-fixture.ts";
+import { syncDecisionIndex } from "../../../src/index/decision-state-index.ts";
+import {
+  a,
+  fixture,
+  formal,
+  sync
+} from "../../support/support-local-contracts.ts";
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import process from "node:process";
+import test from "node:test";
+import {
+  archivedDecisionId,
+  archivedSourcePath,
+  candidateDecisionBody,
+  commitWorkspace,
+  currentDecisionId,
+  currentSourcePath,
+  decisionFilePath,
+  withTemporaryWorkspace,
+  initializeGitRepository,
+  runGit,
+  runSourceCli,
+  writeDecision
+} from "../../support/support.ts";
+
+export {
+  archivedDecisionId,
+  archivedSourcePath,
+  assert,
+  candidateDecisionBody,
+  commitWorkspace,
+  currentDecisionId,
+  currentSourcePath,
+  decisionFilePath,
+  execFileSync,
+  fs,
+  initializeGitRepository,
+  os,
+  path,
+  process,
+  runGit,
+  runSourceCli,
+  test,
+  withGitFixtureWorkspace,
+  withTemporaryWorkspace,
+  writeDecision
+};
+
+export function parseJsonObject(text: string): Record<string, unknown> {
+  const value: unknown = JSON.parse(text);
+  assert.ok(
+    value !== null && typeof value === "object" && !Array.isArray(value)
+  );
+  return Object.fromEntries(Object.entries(value));
+}
+
+export function jsonObjectMember(
+  value: Record<string, unknown>,
+  key: string
+): Record<string, unknown> {
+  const member = value[key];
+  assert.ok(
+    member !== null && typeof member === "object" && !Array.isArray(member)
+  );
+  return Object.fromEntries(Object.entries(member));
+}
+
+export async function prepareUpdatedSelectedStageIndex(
+  root: string
+): Promise<void> {
+  await fixture(root, true);
+  await formal(root, a, "Updated selected");
+  await sync(root);
+}
+
+export async function createStageScaleFixture(
+  workspaceRoot: string,
+  decisionCount: number
+): Promise<string[]> {
+  const decisionIds = Array.from(
+    { length: decisionCount },
+    (_, index) => `use-scale-${String(index).padStart(3, "0")}`
+  );
+  await Promise.all(
+    decisionIds.map(async (decisionId, index) => {
+      await writeDecision(
+        workspaceRoot,
+        decisionId,
+        candidateDecisionBody({ title: `规模化决策 ${index}` })
+          .replace("status: candidate", "status: active")
+          .replace("alignment: null", "alignment: aligned")
+          .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
+      );
+    })
+  );
+  return decisionIds;
+}
+
+export async function countGitInvocations<T>(
+  operation: () => Promise<T>
+): Promise<{ callCount: number; result: T }> {
+  const wrapperDirectory = await fs.mkdtemp(
+    path.join(os.tmpdir(), "decision-stage-git-")
+  );
+  const wrapperPath = path.join(wrapperDirectory, "git");
+  const countPath = path.join(wrapperDirectory, "calls.log");
+  const gitExecutable = execFileSync("sh", ["-c", "command -v git"], {
+    encoding: "utf8"
+  }).trim();
+  const previousPath = process.env.PATH;
+  const previousCountPath = process.env.DECISION_STAGE_GIT_COUNT_PATH;
+  const previousGitExecutable = process.env.DECISION_STAGE_REAL_GIT;
+  await fs.writeFile(
+    wrapperPath,
+    "#!/bin/sh\n" +
+      'printf "1\\n" >> "$DECISION_STAGE_GIT_COUNT_PATH" || exit 1\n' +
+      'exec "$DECISION_STAGE_REAL_GIT" "$@"\n',
+    "utf8"
+  );
+  await fs.chmod(wrapperPath, 0o755);
+  process.env.DECISION_STAGE_GIT_COUNT_PATH = countPath;
+  process.env.DECISION_STAGE_REAL_GIT = gitExecutable;
+  process.env.PATH = `${wrapperDirectory}${path.delimiter}${previousPath ?? ""}`;
+  try {
+    const result = await operation();
+    let calls = "";
+    try {
+      calls = await fs.readFile(countPath, "utf8");
+    } catch (error) {
+      if (
+        !(error instanceof Error && "code" in error && error.code === "ENOENT")
+      ) {
+        throw error;
+      }
+    }
+    return {
+      callCount:
+        calls.trim().length === 0 ? 0 : calls.trim().split("\n").length,
+      result
+    };
+  } finally {
+    if (previousPath === undefined) {
+      delete process.env.PATH;
+    } else {
+      process.env.PATH = previousPath;
+    }
+    if (previousCountPath === undefined) {
+      delete process.env.DECISION_STAGE_GIT_COUNT_PATH;
+    } else {
+      process.env.DECISION_STAGE_GIT_COUNT_PATH = previousCountPath;
+    }
+    if (previousGitExecutable === undefined) {
+      delete process.env.DECISION_STAGE_REAL_GIT;
+    } else {
+      process.env.DECISION_STAGE_REAL_GIT = previousGitExecutable;
+    }
+    await fs.rm(wrapperDirectory, { force: true, recursive: true });
+  }
+}
+
+export async function syncDecisionIndexBeforeStage(
+  workspaceRoot: string
+): Promise<void> {
+  const synced = await syncDecisionIndex({
+    decisionsDirectory: path.join(workspaceRoot, "docs/decisions"),
+    mode: "write"
+  });
+  assert.equal(synced.status, "ok", JSON.stringify(synced));
+}

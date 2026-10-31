@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-DISTRIBUTION-PACKAGE-001: skill 树不携带原生运行时或安装产物
 
 Tests:
-- `test:275e8b42f6151a762a0ec9f64af64d4b1d0b7c42f604467e5a6b874ddae8c2af`
+- `test:20cf60fc6f42a218007559eddee013091ed2a62cdd777b71c792efc493196482`
 
 Tags:
 - `task-graph`

@@ -1,7 +1,7 @@
 ### Case VIDEO-EXPLICIT-ADOPTION-001: 多来源采用与历史版本必须明确
 
 Tests:
-- `test:061160873bb8bff9cb2d86eaaf937c4d3f5cd8b872eba77d76e17c6406524f80`
+- `test:723ebd2e1d3d500823f3461c0e505e695010080c3f5d4d1ec064a3b465941239`
 
 Tags:
 - `video-understanding`

@@ -1,7 +1,7 @@
 ### Case DECISION-SELECTED-SYNC-001: 所选 Decision 同步验证必要依赖并发布局部变化
 
 Tests:
-- `test:21096b6d46fc4ff80a8124aa52b786e1a5021d6c4aec916ccf1a93e26f7a2bda`
+- `test:aa72ff1b68eebe74a5fa142714dde891c9ebd3d61915771b135c6aee909f82c7`
 
 Tags:
 - `decision-records`

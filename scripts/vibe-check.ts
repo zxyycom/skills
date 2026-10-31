@@ -10,9 +10,9 @@ import type {
 import { isMainModule } from "../tools/shared/src/node/main-module.ts";
 import { rootDir } from "./lib/project.ts";
 import { gateInputClosureDiagnostic } from "./lib/vibe-gate/diagnostics.ts";
-import { activationFlagForTool } from "./lib/vibe-gate/impact-tools.ts";
-import { gateSelectionScopes } from "./lib/vibe-gate/profiles.ts";
-import { summarizeSelectedGateOutcome } from "./lib/vibe-gate/selection.ts";
+import { activationFlagForTool } from "./lib/vibe-gate/impact/impact-tools.ts";
+import { gateSelectionScopes } from "./lib/vibe-gate/selection/profiles.ts";
+import { summarizeSelectedGateOutcome } from "./lib/vibe-gate/selection/selection.ts";
 import {
   createGateDefinition,
   commandText,
@@ -30,16 +30,16 @@ import {
   gateInvocationOutputControls,
   resolveGateInvocation,
   type GateInvocation
-} from "./vibe-check-invocation.ts";
+} from "./lib/vibe-gate/vibe-check-invocation.ts";
 
 export {
   createGateInvocationDirectory,
   gateInvocationOutputControls,
   resolveGateInvocation
-} from "./vibe-check-invocation.ts";
-export type { GateInvocation } from "./vibe-check-invocation.ts";
+} from "./lib/vibe-gate/vibe-check-invocation.ts";
+export type { GateInvocation } from "./lib/vibe-gate/vibe-check-invocation.ts";
 
-import { reportGatePerformance } from "./lib/vibe-gate/performance-output.ts";
+import { reportGatePerformance } from "./lib/vibe-gate/performance/performance-output.ts";
 import {
   describeActivationPlan,
   describeSelectedGateOutcome,

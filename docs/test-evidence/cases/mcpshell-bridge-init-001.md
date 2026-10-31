@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-INIT-001: initializer previews without writing machine configuration
 
 Tests:
-- `test:79ec2e90ab18ca3df1db9c47a86ccbe563b9c67acd237c72e30e1d51a7c716b0`
+- `test:0d754e11f1d6bc9919f4b0589cb3a619f63d97050c63ec9082e4350d229dbcc8`
 
 Tags:
 - `mcpshell-workspace-bridge`

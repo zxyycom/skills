@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RENAME-FORMAL-001: formal rename 闭合关系资源和索引
 
 Tests:
-- `test:6656cee40310a33f503da260d22cfd38617a5cd0f941816fd0ae78aea76eb9c0`
+- `test:e5124446ed5444ecc9cfa4e67ebc337f4b50a42be68561412266b31b9a7b36fa`
 
 Tags:
 - `investigation-report`

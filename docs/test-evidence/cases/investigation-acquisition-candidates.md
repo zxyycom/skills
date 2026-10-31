@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-ACQUISITION-CANDIDATES-001: 候选共享身份快照并消费索引 owner 声明
 
 Tests:
-- `test:45d8e4860f9d3f7f9ed09d491a2d52102797d1d488595c555289513e6d7ef930`
+- `test:26950670c52793f96a55bfa887f2d076052895b4703203cd2a504b4740afd44e`
 
 Tags:
 - `investigation-report`

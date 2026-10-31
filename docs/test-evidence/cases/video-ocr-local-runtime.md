@@ -1,8 +1,8 @@
 ### Case VIDEO-OCR-LOCAL-RUNTIME-001: OCR workspace 与安装清单在启动前校验
 
 Tests:
-- `test:084913a3f59cbfbaa7c9c87767144055422d126fb0a09a6a46c41c1c16a37fb3`
-- `test:2c563a8bc6c7b2f62757c4e4cde29ee5f6c6625b0d125c21227345d2d039f441`
+- `test:c1cdf004409a9c0a55eab3bf9ca163b4da33a2616e9cb4f7ef4e1a2ce64ff75c`
+- `test:ef6a003a4891c486e9df923bf1d52ed24c25f142c5b79d5d7bdc4fce2d18f35d`
 
 Tags:
 - `video-understanding`

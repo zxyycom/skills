@@ -6,7 +6,7 @@ import { spawnSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 import { zipSync } from "fflate";
 import { pathExists } from "../../shared/src/node/filesystem.ts";
-import { bundleWithBun } from "../../../scripts/lib/generated-file.ts";
+import { bundleWithBun } from "../../../scripts/lib/generation/generated-file.ts";
 import {
   rootDir,
   skillName,

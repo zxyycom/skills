@@ -1,7 +1,7 @@
 ### Case RECORD-SEARCH-BUDGET-001: 恰好满额与未返回记录不制造预览截断
 
 Tests:
-- `test:318be398c9abab77f5b92566dffa8e44da31e23b1dc46429bab9ca1380a960c7`
+- `test:f7c8b5f8816114ee1d041f00d341ead8668df1f62a42c11eb383b27b073dff1d`
 
 Tags:
 - `record-search`

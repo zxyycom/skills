@@ -1,7 +1,7 @@
 ### Case DECISION-FILESYSTEM-QUERY-BODY-001: 查询正文拒绝非普通决策文件
 
 Tests:
-- `test:54faedfc4c394194508a3e3c76007849619b3f95971fae06f864d370363afdb7`
+- `test:351e3f68402a39a97f57999668e6ae4cd97a16cd4d46452ae3702ac5468ef5c7`
 
 Tags:
 - `decision-records`

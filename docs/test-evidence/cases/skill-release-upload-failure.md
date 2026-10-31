@@ -1,7 +1,7 @@
 ### Case SKILL-RELEASE-UPLOAD-FAILURE-001: zip 上传失败停止滚动发布且可重试
 
 Tests:
-- `test:3399d3ff7a08cafbb7a2883ca17733c874d399a277ce245890f5cc79e6eccd30`
+- `test:ffc82afa9b4a07b9f456268db1a0b55c284fae9c03dceca0cb275be69b232c42`
 
 Tags:
 - `repository-tooling`

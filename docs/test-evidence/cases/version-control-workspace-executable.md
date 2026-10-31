@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-WORKSPACE-EXECUTABLE-001: 工作区执行位读取尊重 Git 策略
 
 Tests:
-- `test:4fa7dd02ce53d878d3ddd513dc22edb1a11f2a5f2d2b7e0ffc39c18f43b53ea5`
+- `test:c8cae03e58683d68f38050731ecc4fc42bbf0018671bdc0fbc6b94dde9c39988`
 
 Tags:
 - `version-control`

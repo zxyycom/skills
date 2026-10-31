@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-016: 网络响应 UTF-8 边界
 
 Tests:
-- `test:08392cbb5344a43c5b899e8b22a6144097d1c7b872be02339858d48b6d116d67`
+- `test:ade78700201fcee7366bd5b1c7d53a79c0f9e7393bfa38fae81d125f7e990eab`
 
 Tags:
 - `lightweight-judgment`

@@ -1,7 +1,7 @@
 ### Case DECISION-TYPE-PATH-001: 稳定 ID、标签与来源路径不变量
 
 Tests:
-- `test:52c0719d298ae111de25af166ba92f9f50bbd68bba9e8f95c3ac71cb9d280e46`
+- `test:23680526b667755ee89f15444ef88deb59392a0976dc9175950e03be0ebfd7d6`
 
 Tags:
 - `decision-records`

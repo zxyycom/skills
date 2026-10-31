@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-INVESTIGATIONS-DIR-BOUNDARY-001: 绝对与越界调查目录按普通参数错误失败
 
 Tests:
-- `test:86b51027ac1a4d1e067afaa48065b343b88a54cbae35d3fd6ff08bb8e18f9fdf`
+- `test:07b6dd110548c7fb9e2e6f196e4131d378d0f3c32395f864ece07ff4a5bd784b`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-PATH-001: attached resource section rejects unsafe local targets
 
 Tests:
-- `test:31d9bb6858273c735a2565a2706d08840de4d25d9575a06b367a96dd36404a66`
+- `test:686d62aba160a23bfc55e20d78f8599edaa85e1390b359da3a1a0119b8caaeaa`
 
 Tags:
 - `investigation-report`

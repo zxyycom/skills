@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-DISCARD-RECORDED-001: Evolve discard 在删除已记录决策前暂停
 
 Tests:
-- `test:9901b3b6971f5dde2bf71ec18714f54cce2e6e919a3126c98d41018f3db8270e`
+- `test:d65d2871a8351a89d63ec44290f5f019c864fd88deb8479397ca47f64ac5c38b`
 
 Tags:
 - `decision-records`

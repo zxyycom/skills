@@ -1,7 +1,7 @@
 ### Case DECISION-TRANSACTION-INDEX-PREFLIGHT-001: 决策事务拒绝并发变化的索引
 
 Tests:
-- `test:ddcd2dcecb0d1a6bfccde46618dab864bdc50511c4f9302293e497cb7bd0db46`
+- `test:9de306fb26883ed18e5173f80f05fe46a29a68cbdc998e520fe6f5ab501ab987`
 
 Tags:
 - `decision-records`

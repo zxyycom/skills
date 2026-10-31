@@ -1,9 +1,9 @@
 ### Case VIDEO-ASR-LANGUAGE-001: 音轨与识别语言来源不混淆
 
 Tests:
-- `test:32d6b765dfaf48d8ace54522f75450f3da68704c0825e60e9057b1aec3e318ee`
-- `test:85be66b514b956d2b7e0ffa02d7c007ef78121353dab568ce35e2ffdd64f44b7`
-- `test:d9cb58d0412d0e2b0c6a74c90c4542356c5abd7b67a803f90ef93a662835dfb1`
+- `test:1c87689e68ed536e95d7056c85a09eea306a66e507dd19fd6421c62dbd7c9d80`
+- `test:582ecc7e40b7aa783835c60e96c031a3b86b9653d48c52fbbf254d791a9abe3d`
+- `test:a292f839829309d5003a7911e31ce0acab88a3e535742d1f70b3926eb993943d`
 
 Tags:
 - `video-understanding`

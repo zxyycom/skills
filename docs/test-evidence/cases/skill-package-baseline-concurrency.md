@@ -1,7 +1,7 @@
 ### Case SKILL-PACKAGE-BASELINE-CONCURRENCY-001: 版本基线独立比较有界并发且保留早停
 
 Tests:
-- `test:731f827e449b2b910fb3345f8d394a97db3ed83c9e95beea2e70d2fb81ea1809`
+- `test:efd27c1a0f4ebe1a4b8bf0dc6157a39f5ad1f4d8e52c55733aac774dca6a43b1`
 
 Tags:
 - `repository-tooling`

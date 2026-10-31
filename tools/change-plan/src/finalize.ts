@@ -1,11 +1,11 @@
 import path from "node:path";
-import { checkChangePlanDirectory } from "./check.ts";
+import { checkChangePlanDirectory } from "./checks/check.ts";
 import {
   ensureChangeTombstoneRoot,
   executePreparedChangeDeletion,
   prepareChangeDeletion,
   type ChangeDeletionPreparation
-} from "./change-deletion.ts";
+} from "./deletion/change-deletion.ts";
 import {
   finalizeFailure,
   finalizeGateError,

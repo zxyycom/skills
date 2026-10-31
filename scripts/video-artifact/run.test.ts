@@ -261,7 +261,7 @@ test(
     await writeFile(skill, local);
     const customized = path.join(
       installed,
-      "scripts/runtime/tools/video-understanding/src/text.ts"
+      "scripts/runtime/tools/video-understanding/src/evidence/text.ts"
     );
     await writeFile(customized, "// local customization must be overwritten\n");
     const extra = path.join(installed, "保留 定制.txt");

@@ -1,8 +1,8 @@
 ### Case TEST-EVIDENCE-PROJECT-MERGE-001: 项目生产器合并共享注册并保留命令本地实体
 
 Tests:
-- `test:20c035ea82add25dd9108c23a90135611baf951019079abaa661dff37fcc6daf`
-- `test:4f023e9c722f25190f0252957f15dc51658fa8eb3ba69e82198ede818e926d0b`
+- `test:7a3e50934d9aa8cc16ffa19922d7a957e41e2593d3f248d09b2185bac9400da3`
+- `test:7d6df3e6c710af0a41c2d432be5342d0b9dceb724c4b87d84f9cf01b5323a53b`
 
 Tags:
 - `repository-tooling`

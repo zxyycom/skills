@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-017: 原型外观键原生保真
 
 Tests:
-- `test:ad3ff2a3a3f6cf9e45ebbf60dff05db123e47b1944dce8e4a6c4b5b3f037a7df`
+- `test:c8e56af37894f189ff8a03f60c8d1f098c4b776386b00f2f57ca3acbcf8bce36`
 
 Tags:
 - `lightweight-judgment`

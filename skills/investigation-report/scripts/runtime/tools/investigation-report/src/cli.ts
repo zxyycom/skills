@@ -16,24 +16,32 @@ import {
   diagnosticFromError,
   renderInvestigationDiagnostic
 } from "./diagnostics.ts";
-import { runCandidates, runShowCandidate } from "./cli-candidates.ts";
-import { runNew, runPublish } from "./cli-candidate-create.ts";
+import {
+  runCandidates,
+  runShowCandidate
+} from "./cli/commands/cli-candidates.ts";
+import { runNew, runPublish } from "./cli/commands/cli-candidate-create.ts";
 import type {
   InvestigationReportCliIo,
   InvestigationReportCliOptions,
   ParsedCli
-} from "./cli-contract.ts";
-import { createInvestigationCliProgram } from "./cli-program.ts";
-import { processInvestigationReportCliIo } from "./cli-io.ts";
-import { runStage } from "./cli-stage-commands.ts";
+} from "./cli/cli-contract.ts";
+import { createInvestigationCliProgram } from "./cli/cli-program.ts";
+import { processInvestigationReportCliIo } from "./cli/cli-io.ts";
+import { runStage } from "./cli/commands/cli-stage-commands.ts";
 import {
   runCheck,
   runDiscard,
   runRename,
   runSync
-} from "./cli-maintenance-commands.ts";
-import { runList, runSearch, runShow, runTrace } from "./cli-query-commands.ts";
-import { runSetRelations } from "./cli-relation-commands.ts";
+} from "./cli/commands/cli-maintenance-commands.ts";
+import {
+  runList,
+  runSearch,
+  runShow,
+  runTrace
+} from "./cli/commands/cli-query-commands.ts";
+import { runSetRelations } from "./cli/commands/cli-relation-commands.ts";
 
 export async function runInvestigationReportCheckCli(
   argv: readonly string[] = process.argv.slice(2),
@@ -93,22 +101,22 @@ export {
   createInvestigationCandidateFromCli,
   listInvestigationCandidates,
   showInvestigationCandidate
-} from "./candidate.ts";
-export { discardInvestigationRecord } from "./discard-entry.ts";
-export { publishInvestigationCandidates } from "./publish.ts";
-export { renameInvestigationRecord } from "./rename.ts";
+} from "./candidates/candidate.ts";
+export { discardInvestigationRecord } from "./discard/discard-entry.ts";
+export { publishInvestigationCandidates } from "./publication/publish.ts";
+export { renameInvestigationRecord } from "./rename/rename.ts";
 export {
   queryInvestigationIndex,
   searchInvestigationReports,
   showInvestigationReport,
   traceInvestigationReports
-} from "./query.ts";
-export { setInvestigationRelations } from "./relation-transaction.ts";
-export { stageInvestigationReports } from "./staging.ts";
+} from "./query/query.ts";
+export { setInvestigationRelations } from "./relations/transactions/relation-transaction.ts";
+export { stageInvestigationReports } from "./staging/staging.ts";
 export {
   synchronizeInvestigationIndex,
   validateInvestigationReports
-} from "./validation.ts";
+} from "./records/validation/validation.ts";
 export type {
   InvestigationCandidate,
   InvestigationCandidateCreateOptions,
@@ -168,7 +176,7 @@ export type {
   InvestigationRenameOptions,
   InvestigationRenamePlan,
   InvestigationRenameResult
-} from "./rename.ts";
+} from "./rename/rename.ts";
 
 if (isMainModule(import.meta.url)) {
   try {

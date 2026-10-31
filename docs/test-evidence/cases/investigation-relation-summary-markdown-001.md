@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RELATION-SUMMARY-MARKDOWN-001: relation summary Markdown accepts only normalized optional short text
 
 Tests:
-- `test:9ca12f2be80bf7436e69344c78282de861343ed53942c69a4ecde33f74f6be58`
+- `test:0493fd24ea2fbf07b9d6ca95acd649a372e20cb847a5c18ff071e0ab612c023a`
 
 Tags:
 - `investigation-report`

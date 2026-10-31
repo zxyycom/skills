@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-EMPTY-INDEX-001: 候选收集不依赖空已发布索引
 
 Tests:
-- `test:b9180a5d6b2bad54e060b9cc2fda7e515597c5bf826eb50341281e394ffd5869`
+- `test:e434ce572487d0f9a7daa1f48940d553b501f18014d72587a4d5d2084c49e2aa`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-RESOURCE-FRESHNESS-001: 删除资源字节保护不被共同正文事实替代
 
 Tests:
-- `test:773269b48798c164fb95fe1be607db42da715ed7f5c3abc99ced61cdc7d748d2`
+- `test:9f0a76ed40579c4b21cc104bde295345565007aecca240ef71a401958af0960b`
 
 Tags:
 - `investigation-report`

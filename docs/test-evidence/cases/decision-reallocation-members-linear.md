@@ -1,7 +1,7 @@
 ### Case DECISION-REALLOCATION-MEMBERS-001: 合法稀疏重划完整直接遍历
 
 Tests:
-- `test:4443b361845e930a4e27234afe65aebf4e7809e6bce7257579db27c65d94a2f5`
+- `test:388620bc52856c56b4c8d70672af708253ca0207e6db5b00896feadb77378d8c`
 
 Tags:
 - `decision-records`

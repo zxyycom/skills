@@ -1,7 +1,7 @@
 ### Case VIDEO-ASR-NATIVE-001: ASR 原生参数与返回协议由媒体边界验证
 
 Tests:
-- `test:2a969a3806b5ff4818ef1648a4764b4f12ea73a64e6fa19ff615163191af709b`
+- `test:ae797dcd7900b94e8a83e0422296ec98fda50556fce47e593f8eb6ceba2f8abc`
 
 Tags:
 - `video-understanding`

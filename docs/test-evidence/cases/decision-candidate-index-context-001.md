@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-INDEX-CONTEXT-001: 候选查询拒绝缺失正式基线并隔离来源漂移
 
 Tests:
-- `test:4aac2fac7fc8f421805cfa29d69d2c83590808b8055f51351bbf2d1fa5185996`
+- `test:cc30d27243c88426fde1a9351d71f717200e1d97da89e4fc61ddd7c51e49c767`
 
 Tags:
 - `decision-records`

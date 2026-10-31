@@ -1,7 +1,7 @@
 ### Case GATE-PERFORMANCE-STRICT-BUDGETS-001: quick 性能预算使用严格小于边界
 
 Tests:
-- `test:1bf6bf0a16785e180d084873ea7434a0d3117cf66802df21e9de63f4bbd6414d`
+- `test:ff5e23cae424b4520161f2526f34a269d059cd16caaddff8bda71de7cc3cd2ca`
 
 Tags:
 - `performance`

@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-DISTRIBUTION-STAGE-001: 分发 CLI 可在无 native runtime 时分段暂存
 
 Tests:
-- `test:8db24b9f97ac5c0a054dbe3dc9b8722670f3f1865e3585cd3abfa6113d802764`
+- `test:5e002d12129577ba1d177c6d2a0c293b979dc3a2820a874a5e7c32c40b57f176`
 
 Tags:
 - `task-graph`

@@ -1,7 +1,7 @@
 ### Case RECORD-READER-ORDER-001: 批量安全读取保留输入顺序与强快照
 
 Tests:
-- `test:92a3430c87be2b06f6810c95bbec4925ce715fa2ffa9459e2c43736c67fa0060`
+- `test:8678ca50a16a9fe3ab7fa330c4848a2386355c14680533d8a53db052f2fa1dc3`
 
 Tags:
 - `record-operations`

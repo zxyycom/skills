@@ -1,7 +1,7 @@
 ### Case DECISION-RENAME-STRICT-SOURCES-001: 真实改名隔离未选正文损坏
 
 Tests:
-- `test:43f065dc70ac9a3dee9168544c3ddae775eea6e8137d7c00976d4347d8e134f1`
+- `test:ba80d9f6f39c534c7d34da6da23fbb318b644f48581dfb2ecb068c258850bab2`
 
 Tags:
 - `decision-records`

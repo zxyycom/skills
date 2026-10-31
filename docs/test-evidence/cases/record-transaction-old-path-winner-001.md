@@ -1,7 +1,7 @@
 ### Case RECORD-TRANSACTION-OLD-PATH-WINNER-001: 共同恢复不覆盖旧位置新建winner
 
 Tests:
-- `test:92eea8a67e26414ffadd01faecce4ba331c76c4665cca2a968cce3cdab5a723e`
+- `test:823769aa1caf30311345011183a8fdfc882e689af13e117885dbdc8c2764bd5f`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case DECISION-ACTIVATE-RELATION-CLEAR-001: Evolve 显式清空候选来源关系
 
 Tests:
-- `test:f1db3429628cc080962d9f7526f58ab0c22b2f88b90867735dd2f0d31ffee4e9`
+- `test:ba2f633bf71c00539290123efeb35cb6bcac3449f64b9b428e37714974a9a203`
 
 Tags:
 - `decision-records`

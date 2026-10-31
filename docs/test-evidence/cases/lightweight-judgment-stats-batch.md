@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-BATCH-001: 明确首条与后续 P50 对照
 
 Tests:
-- `test:8bfade0da7c4597093e0971b7d2ecfd017511e41471dd67dad2b682146045f01`
+- `test:bd8b873325ed62dafff9e97ca726db1b9bdabfaf6daf6e19f4d5d51dbce2b9d2`
 
 Tags:
 - `lightweight-judgment`

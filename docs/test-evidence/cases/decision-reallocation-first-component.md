@@ -1,7 +1,7 @@
 ### Case DECISION-REALLOCATION-CLOSURE-002: 重划闭包保留首分量诊断
 
 Tests:
-- `test:f32b4ba98756b70e99e4984a18e4107e2f69fa5159dde5e8cebc082dd5f63ac6`
+- `test:6d8be1821a002501ebe95154ad541784498b1e8377d59e65671540e84a91ee23`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-INTEGRATION-001: MCPShell stdio exposes the generated fixed-root tools and one read-only shell call
 
 Tests:
-- `test:d789bc1b9d75f7686cdcb7252f66b4637d41b97004c78c0953d032255f6525dc`
+- `test:dd611856e238f7edf1d1040aa07e333c28e69ef574458ef8d3b8172afba94d1d`
 
 Tags:
 - `mcpshell-workspace-bridge`

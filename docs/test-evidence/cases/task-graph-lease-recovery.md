@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LEASE-RECOVERY-001: 过期占有通过显式恢复接管
 
 Tests:
-- `test:21a484de21f65c3f12c39d4fe278d4e486025cd6a9c5da06b8fe31431639c052`
+- `test:67b5d9fbc0d63db38a50756df5f30ea58e40f0be6d23f31f0bb3b1ddb2052d82`
 
 Tags:
 - `task-graph`

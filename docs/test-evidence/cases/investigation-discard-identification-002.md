@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-IDENTIFICATION-002: 同名候选与正式报告要求完整 ID
 
 Tests:
-- `test:9962ea1f8248806c449ff21fba2622ccb23deefdc695fc3bdd5c4f6c20b23156`
+- `test:99208a055efb0b21b1b305ef48f5ef56be33253d8890d807e88a57f088aa6186`
 
 Tags:
 - `investigation-report`

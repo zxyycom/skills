@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-RUNTIME-INFO-001: runtime info 的身份稳定且没有写副作用
 
 Tests:
-- `test:c2cfb53504e59fae5aa81622a76e4708bae5e4784f21741cc896bc0ee4b06bee`
+- `test:47d808427db3933cf76c6fba0e510092b7fd8027cc8789929d55fb6aa10f757c`
 
 Tags:
 - `task-graph`

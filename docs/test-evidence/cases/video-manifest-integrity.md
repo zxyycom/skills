@@ -1,8 +1,8 @@
 ### Case VIDEO-MANIFEST-INTEGRITY-001: 清单身份一致性在全局边界验证
 
 Tests:
-- `test:bf7623c612ba5c3b1809e1986ba9d4858001b8998f96ba4a1677e892c1f60cc8`
-- `test:f7ef9365df0b2961abde2d56cd82ffca911c719958eec990e512f3cefe62167b`
+- `test:4093ec4a5db769e3671a19a06cc9746391e219401cc737b43a2544a095e78cb9`
+- `test:ed36995f81733f07aa0c63dcf671f79ae306d5ffce81c09e847123dc91192e70`
 
 Tags:
 - `video-understanding`

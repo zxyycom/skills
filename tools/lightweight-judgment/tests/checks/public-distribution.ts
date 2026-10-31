@@ -1,3 +1,3 @@
-await import("../distribution.test.ts");
-await import("../adapter-distribution.test.ts");
-await import("../adapter-regressions.test.ts");
+await import("../distribution/distribution.test.ts");
+await import("../adapters/adapter-distribution.test.ts");
+await import("../adapters/adapter-regressions.test.ts");

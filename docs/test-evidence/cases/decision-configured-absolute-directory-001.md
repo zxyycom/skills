@@ -1,7 +1,7 @@
 ### Case DECISION-CONFIGURED-ABSOLUTE-DIRECTORY-001: 绝对决策目录按普通定位错误失败
 
 Tests:
-- `test:bc03c608e275550398e2ddaa578dd49376547e6b8b8c94146e095f7cc2058d21`
+- `test:923d7de9aea5c4618165e491e79fb4c45763386e470127fe361781fb6877c2fd`
 
 Tags:
 - `decision-records`

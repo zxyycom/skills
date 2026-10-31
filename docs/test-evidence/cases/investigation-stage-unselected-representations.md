@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-UNSELECTED-REPRESENTATIONS-001: 保留未选可执行资源与链接快照
 
 Tests:
-- `test:6680ae5d0e74ecd879c1cee82b5617a1040e302110d7a2b03fe178c1d0f6a237`
+- `test:ea2aaa6a9b11c5686dfb5ed0a84ac8c196d8788d380df06fbf7c423d6cb3902d`
 
 Tags:
 - `investigation-report`

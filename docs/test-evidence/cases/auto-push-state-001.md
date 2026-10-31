@@ -1,7 +1,7 @@
 ### Case AUTO-PUSH-STATE-001: 无效节流状态阻止自动推送
 
 Tests:
-- `test:a687871d298df96f6913bbd32fb45b378d3c3af63e0dda5c3cbb199a904f6961`
+- `test:f30d4e6741381776717dd19df79f7b1b19af65f4c7182ff547a092ad43f72068`
 
 Tags:
 - `repository-tooling`

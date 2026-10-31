@@ -1,7 +1,7 @@
 ### Case IR-INDEX-PAYLOAD-WORKSPACE-RECHECK-001: index独立写前重读工作区索引
 
 Tests:
-- `test:afcb713e95c7d33613aa7f6771a6ae407ddfc8cba950a420117234ea2d9d63ae`
+- `test:4cc33c6c2056edf26dcb69588f92639912daeae7f92f80074f63a9a35793cc83`
 
 Tags:
 - `investigation-report`

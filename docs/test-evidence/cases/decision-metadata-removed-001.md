@@ -1,7 +1,7 @@
 ### Case DECISION-METADATA-REMOVED-001: 拒绝移除领域字段与未知 frontmatter
 
 Tests:
-- `test:a853b9be856099b1b312526c72db31e2bd205e4a720dbe76a83a9245deedd794`
+- `test:a4a63d5c9856851f5e8345eca6943d59f284d0fc1b915885eb2881b2dbac014f`
 
 Tags:
 - `decision-records`

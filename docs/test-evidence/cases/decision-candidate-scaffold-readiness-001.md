@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-SCAFFOLD-READINESS-001: 合法 candidate scaffold 在正文 ready 前仍可发现
 
 Tests:
-- `test:a13c0ff27e008a9a222144b76f0122f7b0207b1e7a1a8d792a8bc348aa45a2d9`
+- `test:19bf75fe88392e554608e4943e26870fa6fc1a8acfd1fd722f6b2f3f1f83b77f`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-SYNC-SOURCE-DRIFT-001: 同步保留结束来源复核
 
 Tests:
-- `test:dcb93a5292937f33cf4480f2a900361b1d47cb5fef93ef2abb971a284cb17937`
+- `test:a9593738400cfe8bf26a441a4b6f734a50a9a75286ce5e1b51ba8b5b0b4890c4`
 
 Tags:
 - `investigation-report`

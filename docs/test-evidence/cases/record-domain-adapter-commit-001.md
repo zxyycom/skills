@@ -1,8 +1,8 @@
 ### Case RECORD-DOMAIN-ADAPTER-COMMIT-001: 两域真实适配器执行同一提交后拒绝契约
 
 Tests:
-- `test:1dfe413eec257e15a3490701af370c900fdb24f5ad910e0d425fb73f005c2805`
-- `test:e97d969fc13fd805c22681dc764cc7e04bfd337100906ea44f0eb92388fe5688`
+- `test:aba644c3c6e06c4c4368c6930168fa76a14a6be836455a22fdcda63c9c2e8901`
+- `test:d5ed84db445e1aa409cd87cdc1bf2154427f48a96777b77de3cd160c0f38da70`
 
 Tags:
 - `decision-records`

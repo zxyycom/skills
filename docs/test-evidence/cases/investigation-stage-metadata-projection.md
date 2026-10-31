@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-METADATA-PROJECTION-001: 索引暂存严格核对关系和最终投影
 
 Tests:
-- `test:1043afb4daa774cf07917305b9fb7824e0f1b8651f9d001c301e934d46328763`
+- `test:67751d220d26ccf89e5c4fa2622399f535be2661d79bc495bd60f8bbdd687c72`
 
 Tags:
 - `investigation-report`

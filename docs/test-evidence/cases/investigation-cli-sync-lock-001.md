@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-SYNC-LOCK-001: CLI sync-index preserves collection lock diagnostics
 
 Tests:
-- `test:2d847ecce3f004e9c8404db3316268d5ce7d9656526b6dd59d9ef1c9e5d68cbd`
+- `test:6b990413d458087cba9e9df56a73aafb13399bd3d9aff76dff9bbb0ad351b64d`
 
 Tags:
 - `investigation-report`

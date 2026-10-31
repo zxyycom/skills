@@ -1,5 +1,5 @@
 import path from "node:path";
-import { checkChangePlanDirectoryForPlan } from "./check.ts";
+import { checkChangePlanDirectoryForPlan } from "./checks/check.ts";
 import { readCurrentHeadCommit } from "./git-distance.ts";
 import { writeChangePlanMetadata } from "./metadata.ts";
 import type {

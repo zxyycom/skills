@@ -1,7 +1,7 @@
 ### Case DECISION-RENAME-PATH-001: 冲突 name 路径回退完整 ID basename
 
 Tests:
-- `test:5541d066bf88e805aa2850a8473d8a520cdabac6154d71940414162667dfd684`
+- `test:b0e4d4083f09b80629bd98ec15bb31eb844942fe4c7e20de7ef2b53b0c709c13`
 
 Tags:
 - `decision-records`

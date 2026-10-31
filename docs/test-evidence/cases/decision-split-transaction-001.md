@@ -1,7 +1,7 @@
 ### Case DECISION-SPLIT-TRANSACTION-001: Evolve 闭合拆分并独立对齐后继
 
 Tests:
-- `test:bc8e0f9b9bf19c0e25259bab2af03067eb90dc7408e77d29d01926cf8bb41182`
+- `test:a63a5dd91a6c958ca5e2507fa0240d15eaa6df169e7cec83e80badbb8c320adf`
 
 Tags:
 - `decision-records`

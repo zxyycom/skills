@@ -1,7 +1,7 @@
 ### Case REPO-VALIDATION-LINK-SCOPE-001: 结构校验不承担 skill 链接检查
 
 Tests:
-- `test:262ae03e69c6582b0c60f1bd9a8e7fdd8b43a49e2668b6aff57414cd8e721198`
+- `test:15e17f77eb5210667527cfb46d31cadaa262cc0103f537de61fbe8980c617af9`
 
 Tags:
 - `repository-tooling`

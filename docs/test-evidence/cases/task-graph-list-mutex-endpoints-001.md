@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LIST-MUTEX-ENDPOINTS-001: Run mutex 使用实际 endpoint ID 与所在 track label
 
 Tests:
-- `test:f9b998a5739e30ee4a1365b1caeca2758da00d09102a4939389fc4495a1e6531`
+- `test:11a9eac5f19544114ebe005f3fe6473cb35393b723a51406e68e9a9a35b306d3`
 
 Tags:
 - `task-graph`

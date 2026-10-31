@@ -1,7 +1,7 @@
 ### Case DECISION-RELATION-SUMMARY-003: New binds a summary after selector resolution
 
 Tests:
-- `test:480ebc4eea4130db87e156f314df5222869ae793a6795842030c4341b09c20a7`
+- `test:1a51b82d696e81aba4bc53a7b46dc45ba06c1a77b70f56ce2e865692df3f2517`
 
 Tags:
 - `decision-records`

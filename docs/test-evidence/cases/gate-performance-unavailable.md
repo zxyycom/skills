@@ -1,7 +1,7 @@
 ### Case GATE-PERFORMANCE-UNAVAILABLE-001: 强制预算不把缺失测量补成零
 
 Tests:
-- `test:9e483652be7fb504aa4195707c7a1486b34d9cbd44c6d7060a421ab8f57ce876`
+- `test:8a91395061ff8354b31297d76d8cf92b9330283e3abf6dd3a268e29596e3c123`
 
 Tags:
 - `performance`

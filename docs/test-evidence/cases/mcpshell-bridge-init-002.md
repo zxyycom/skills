@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-INIT-002: initializer applies idempotently and preserves unrelated TOML bytes
 
 Tests:
-- `test:15001b3d187d5456cc73a0a964999f94046a12884f4ad22ca58896062b2a7931`
+- `test:9d4b1c0e3d9441eff35b0046dccfe5a40f0ad24f65cc069da3a20c2c9e368778`
 
 Tags:
 - `mcpshell-workspace-bridge`

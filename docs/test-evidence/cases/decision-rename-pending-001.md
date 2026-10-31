@@ -1,7 +1,7 @@
 ### Case DECISION-RENAME-PENDING-001: rename 不遗留旧 ID 的 pending stage 快照
 
 Tests:
-- `test:6993300587357a8555cc6020529ede264eef974868123ef13cf4bbdbe12268d7`
+- `test:58de84302154189d9b261528c630c0953a07910df1a8eff2471ae62b22c03c18`
 
 Tags:
 - `decision-records`

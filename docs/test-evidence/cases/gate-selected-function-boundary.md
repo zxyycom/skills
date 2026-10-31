@@ -1,7 +1,7 @@
 ### Case GATE-SELECTED-FUNCTION-BOUNDARY-001: 原生函数指标仅阻断所选领域的超限实现
 
 Tests:
-- `test:567b5f39960107608e7ddece7063ae2744e04d8e26b6d434a025c50979fc9328`
+- `test:755210d3b59fe90c70b82bbe1138f73be452d480f4e2d7e1e12822eaccccce39`
 
 Tags:
 - `repository-tooling`

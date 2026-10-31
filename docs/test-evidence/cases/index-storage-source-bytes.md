@@ -1,7 +1,7 @@
 ### Case INDEX-STORAGE-SOURCE-BYTES-001: 内部source保留原始字节且旧text语义不变
 
 Tests:
-- `test:70b7a47cb4d5513196bf065c3874ee2ddc0a715cf6943387dc0e7db1c302d146`
+- `test:11b63eff8238fba9adb6b38c9ed6dd1fb65eeea43282d909764420a13a5e2ab8`
 
 Tags:
 - `index-runtime`

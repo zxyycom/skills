@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-028: 固定 HEAD 读取
 
 Tests:
-- `test:f47dcd497690374e2c3803c60a79a6bf150c8ce0073aacd6e5b0d903f6af6d51`
+- `test:46b374d786df155885bbab6f8205b46e66f2af8a4fcc11bc4b24e9e8860ecdda`
 
 Tags:
 - `record-cost`

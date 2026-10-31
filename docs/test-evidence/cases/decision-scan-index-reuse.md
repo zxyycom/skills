@@ -1,10 +1,10 @@
 ### Case DECISION-SCAN-INDEX-REUSE-001: 全量只读检查验首次采集并保留公共旧 scan 的独立验收
 
 Tests:
-- `test:319a51ceaba1128757be601acfabb1ca52f37eddc8e75b3b3ebaec6bffeea77c`
-- `test:3e07cb23ec0b546f187d25ad0d951b9420abdc3f1fe46183c6f030ce3dca6a71`
-- `test:55f02e74fefca13418ac704c03965cf8da8f810aaffa3f596b43f50f964d066e`
-- `test:becfd5c1b1a6cf6eff5c562c480afcee4d2f12cef1b577602f16717a7588247d`
+- `test:3d60a64188c1bcd06642e31a071accd7797eb61b9540187156605c4587f7deb6`
+- `test:53a47ff159d909f08ea196d6610a32de3ccd1d05b84e98d098f251f95303d54e`
+- `test:6f0095546ba5f63d3a0a244aebe3969dfa3ff2c108fa9aecf7087c2bc0603c93`
+- `test:fc9af7aa2790589c80fe9c0d4d27a83639900a8f09a07d33f7d0338ac45099c3`
 
 Tags:
 - `decision-records`

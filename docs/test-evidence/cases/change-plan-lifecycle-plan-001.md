@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-LIFECYCLE-PLAN-001: Plan 支持确认 Draft 与重确认已有进度的 Plan
 
 Tests:
-- `test:794cc065515f7d44a20a0e8d9f070f053e894218d1c161f37eca21f0acc7a62f`
+- `test:f9cd4e279fd9a8fe28a2940050cfb38fbd011bd029e7a021b0e25bad454b4dc6`
 
 Tags:
 - `change-plan`

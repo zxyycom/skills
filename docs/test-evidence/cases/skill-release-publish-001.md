@@ -1,7 +1,7 @@
 ### Case SKILL-RELEASE-PUBLISH-001: 滚动发布按可恢复顺序同步资产
 
 Tests:
-- `test:26b3788da2f43f753d98b0dc8daad2e851945e3344c5e09240d3c2a55bfd3653`
+- `test:556cf281bfe45b5614c73731b59efb57c1849b552810290fb55f6e2da9fab240`
 
 Tags:
 - `repository-tooling`

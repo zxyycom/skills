@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-DATABASE-001: 缺失外来未知与变形库拒绝
 
 Tests:
-- `test:dfb899a4f6dffff8d9f4272f9b310ca091ee57d250e2294bbd56e15d8a0df0ff`
+- `test:1da6b7ef3f3457f95ad72ab9204d4e668bb70264c81f18a53f648c83f494d602`
 
 Tags:
 - `lightweight-judgment`

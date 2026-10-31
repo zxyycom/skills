@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-REFERENCE-001: resource links require literal current relative targets
 
 Tests:
-- `test:afe0b9b877b6db2fff9a22b192472e98f9e50d87aa3fb25336bc64e913056647`
+- `test:84d74730591b0626f58b21e461b8037a6f17c00cdf53ba14e1551f610f42603c`
 
 Tags:
 - `investigation-report`

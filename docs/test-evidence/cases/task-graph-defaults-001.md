@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-DEFAULTS-001: 顶层默认为 candidate，子任务默认为 inherit，execution 为 idle/attempt 0
 
 Tests:
-- `test:2c60f1b7a99c36a291630c5c90222091e40407c34a2c66fbc2a2149725215304`
+- `test:356f309bd85c19af1dfd2729c08467d94438aa8552b857ab49145182910c0d04`
 
 Tags:
 - `task-graph`

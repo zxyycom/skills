@@ -1,7 +1,7 @@
 ### Case WRITE-CANONICAL-CASE-001: Git 启动失败保持 pending
 
 Tests:
-- `test:df56e3952e77db00d3b79f987560fdb0e5a405950cf780782cd12e9b7fdfeec4`
+- `test:be96d3ed4cb5fec30216be0097cc2ce43ccbed013307ef1a4d9b2eba0e0a7410`
 
 Tags:
 - `write-canonical`

@@ -61,7 +61,7 @@ export {
   prepareGateActivation,
   publishGateReceipts,
   validateBaseGateImpactContracts
-} from "./vibe-gate/impact.ts";
+} from "./vibe-gate/impact/impact.ts";
 export type {
   GateToolId,
   GateToolSubscription,
@@ -72,4 +72,4 @@ export type {
   GateReceiptPublication,
   GateWorkspaceFile,
   GateWorkspaceSnapshot
-} from "./vibe-gate/impact.ts";
+} from "./vibe-gate/impact/impact.ts";

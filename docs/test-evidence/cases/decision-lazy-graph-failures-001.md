@@ -1,7 +1,7 @@
 ### Case DECISION-LAZY-GRAPH-FAILURES-001: 图复用保持选项与完整关系错误优先级
 
 Tests:
-- `test:0ceda6feee972a3c10a87e328faacca804cfde064a8832df9706fe2a497c7bc5`
+- `test:d7a1e25eace2128b978ebc30a3e7aef976938cf745a98dbaa4aab5f58c5ecb9e`
 
 Tags:
 - `decision-records`

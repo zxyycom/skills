@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-PROJECTION-001: report-owned resources validate exact links and permit shared references
 
 Tests:
-- `test:a2335e3a94ad9eef6847fd8ed5f6996a89c1f29410ba8f87cbdd975137703369`
+- `test:fabd7e7c055d13ac9d4425b94d956810f264b6969dae6a65e2ec52f237538a6a`
 
 Tags:
 - `investigation-report`

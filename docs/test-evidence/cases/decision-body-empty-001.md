@@ -1,7 +1,7 @@
 ### Case DECISION-BODY-EMPTY-001: 决策正文字段值必须同行非空
 
 Tests:
-- `test:c4235a12ddb89d56780cfea587ef58e47afa3272048a20141cf4f336a034c409`
+- `test:010f6cddda1669168c07efd411a38bdc41dc8d48729a6801ff2b810dc07b3e89`
 
 Tags:
 - `decision-records`

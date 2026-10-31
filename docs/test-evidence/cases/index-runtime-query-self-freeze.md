@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-QUERY-TRUST-005: 自冻结动态值不能沿用旧校验
 
 Tests:
-- `test:4d0ccd970307078183b298c2570ccfadc5002b6e9cb2cf2dfd4e8c1b394c9616`
+- `test:55604344d4a7c6a3887365d63c440fe96be15416f9364d329ea835c52c1aebd8`
 
 Tags:
 - `index-runtime`

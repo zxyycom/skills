@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001: Evolve CLI 拒绝重复关系覆盖目标
 
 Tests:
-- `test:faae2abef15fdacea69d8f18a3b051d7768fd8c88a5871510ee498b0bd9c8d11`
+- `test:64290b7bbf28bf8315b51eae578d5b28b786378e575afe11d940f0395919e11a`
 
 Tags:
 - `decision-records`

@@ -1,8 +1,8 @@
 ### Case RECORD-SELECTED-BASELINE-PRIORITY-001: 严格 baseline 与 selector 的失败阶段保持
 
 Tests:
-- `test:702ce60a95f4e9051c1f4b54e044e1e2c628fa32df87a9d84d64b960a1e7ab11`
-- `test:f75f0f77a67f63d7f0b267ec487e4ca600b2c1a2edb68b69fc76c214d1b08ad7`
+- `test:e2f537955f5a4c7ed72b32ccda11ab5b547f4071992fea2887dcb3a39191d344`
+- `test:fe8b3d3fe922b8f0a48047fa82011594f5692091140286ded314ede04bf57d88`
 
 Tags:
 - `decision-records`

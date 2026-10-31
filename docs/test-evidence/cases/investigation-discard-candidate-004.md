@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-CANDIDATE-004: 候选删除在 tombstone 提交后报告待清理
 
 Tests:
-- `test:831fef3f3b9f13ee7653774d0690c56d7dbaee13043811829414938804b42b74`
+- `test:6467802d24a68628a32d4ca8a7c54d6b1d00b743720cbbe5782c9e29d722f143`
 
 Tags:
 - `investigation-report`

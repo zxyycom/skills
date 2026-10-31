@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-METADATA-SYMLINK-001: Metadata 边界拒绝符号链接
 
 Tests:
-- `test:6c1c2e24122cf30c77a4dddf86e50c7494b312769a67578f9dd2b3cad5241c33`
+- `test:650540e2b337149af91053e529dca92895a373fa32e5a31fa30f5ecdb298a92a`
 
 Tags:
 - `change-plan`

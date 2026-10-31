@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-WORKSPACE-BATCH-001: 批量工作区读取共享一次新鲜表示依据
 
 Tests:
-- `test:4fc62965353a5f2eeb8a312f2cca36ef283505248d9813cad79a428cab83589f`
+- `test:2fcefd70b1f2cb6c7ae517a1e8108da8b9f644937eb69b10045e7c57fe8db449`
 
 Tags:
 - `version-control`

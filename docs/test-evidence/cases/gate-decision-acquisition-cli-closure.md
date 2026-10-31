@@ -1,7 +1,7 @@
 ### Case GATE-DECISION-ACQUISITION-CLI-CLOSURE-001: 当前 record consumer 包含来源 CLI 闭包
 
 Tests:
-- `test:2d54e5150ae5e7c7b9c0283ebcd856b1bdd199f582184093d77c19f92a94b9ea`
+- `test:c074737f7a2237fae9e3021b21c9965a95127c2b147b032f57f033a77aea9c2f`
 
 Tags:
 - `repository-tooling`

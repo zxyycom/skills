@@ -1,7 +1,7 @@
 ### Case GATE-SELECTED-RECEIPT-ISOLATION-001: selected 成败不冒发完整证明且不套用 quick 预算
 
 Tests:
-- `test:f02ed52fa21ecca5ae307b641b42cb26bf214f8a3049d2639bbe849db5efe4a5`
+- `test:1d86b3520de25ac0f79efc517aa5b4216b49ef52852eda375879c094421f01bd`
 
 Tags:
 - `repository-tooling`

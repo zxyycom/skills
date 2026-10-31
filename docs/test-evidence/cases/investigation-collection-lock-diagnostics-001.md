@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-COLLECTION-LOCK-DIAGNOSTICS-001: collection mutation lock distinguishes busy access and release failures
 
 Tests:
-- `test:002b5f2ca3e96ba5e977bc057d34cd71dcdeae0a4ddd6d0845aa65ee34d0ee48`
+- `test:278894ed26152e2480a4a90603498dd69e08fd2078744b9cef7f556a9a4cba6d`
 
 Tags:
 - `investigation-report`

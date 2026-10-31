@@ -1,7 +1,7 @@
 ### Case DECISION-GENERATED-SCHEMA-001: 生成决策 Schema 与运行时索引 Schema 一致
 
 Tests:
-- `test:5bc4234a324997f7237cd336c7b493724159a76a9aadd6f16a2c0670b174cb4c`
+- `test:81dee7360836cfb49ad3fca65ffd2f0d7d2c353f3194152a91032debd5efc0c3`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-030: 普通 trace 邻接读取
 
 Tests:
-- `test:ff39a61941fb73d9ac5e7de37d54ada703f5a787a57bdc24c94873a4ebc0fb34`
+- `test:656ff8fb1c33f08b7ff6ab6fcfe6352903c2f7d70a2ab1655ba73e82ab809eac`
 
 Tags:
 - `record-cost`

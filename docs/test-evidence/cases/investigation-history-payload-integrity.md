@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-HISTORY-PAYLOAD-INTEGRITY-001: 无关历史 blob 损坏不阻断所选前序
 
 Tests:
-- `test:82e2d8144d6fb0d951715e8032b53113dcf4b1158c90331c86190f817ba45be0`
+- `test:f467bc04e6f2b72ecdc1c3480d17d6639837fff2fce43283fee1cfb6bdc64b4c`
 
 Tags:
 - `investigation-report`

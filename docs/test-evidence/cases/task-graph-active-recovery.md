@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-ACTIVE-RECOVERY-001: 未到期 lease 不可被恢复替换
 
 Tests:
-- `test:34174629b1c6427b37b20fe1b3823d11c0961d657c57cc8b733141e94597f684`
+- `test:5f6a0e06f6240c6640f033fa4cee0658d1b211a163f071aed5ef638363953663`
 
 Tags:
 - `task-graph`

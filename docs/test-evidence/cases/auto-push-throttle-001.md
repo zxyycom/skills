@@ -1,7 +1,7 @@
 ### Case AUTO-PUSH-THROTTLE-001: Main 自动推送按小时节流
 
 Tests:
-- `test:fa8a5825df205d4cac5abb7d6621832090c2364c5f9693f4792c0d6343512aa0`
+- `test:72d870386ecdc2a700e10d4e52f01e9df1b4d534ccc6f555654af684181de9c2`
 
 Tags:
 - `repository-tooling`

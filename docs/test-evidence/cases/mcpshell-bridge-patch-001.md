@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-PATCH-001: workspace apply patch creates, updates, deletes, and atomically rejects a later invalid hunk
 
 Tests:
-- `test:9562b0bb0113c5556fbcccd9d863d6b603f7528e79bd1e5957396ff80ffd79a0`
+- `test:d72e56f7420c3015ad63606966910ac325d46938e3b2a7df20488ec406b159b7`
 
 Tags:
 - `mcpshell-workspace-bridge`

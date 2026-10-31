@@ -1,7 +1,7 @@
 ### Case WRITE-CANONICAL-CASE-004: 按字节合并对象写入并保留表示
 
 Tests:
-- `test:bbca60e944b036eb497bcdc607c2f72c283565db7b5b9f6cd05e8f79bbdf906c`
+- `test:82e63d067fd5d09fee4a756dd04bfee5895159e0b4044e4ff5f33bac8bc8aacd`
 
 Tags:
 - `write-canonical`

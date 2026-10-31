@@ -6,9 +6,9 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
-import { type DecisionRecordsCliIo } from "./cli-io.mjs";
-import { renameDecisionRecord } from "./decision-rename.mjs";
-import { scanDecisionRecords } from "./scan.mjs";
+import { type DecisionRecordsCliIo } from "./cli/cli-io.mjs";
+import { renameDecisionRecord } from "./rename/decision-rename.mjs";
+import { scanDecisionRecords } from "./scan/scan.mjs";
 import { validateDecisionRecords } from "./index.mjs";
 export type DecisionRecordsCliOptions = {
     cwd?: string;
@@ -17,4 +17,4 @@ export type DecisionRecordsCliOptions = {
 export declare function runDecisionRecordsCli(argv?: readonly string[], options?: DecisionRecordsCliOptions): Promise<number>;
 export { renameDecisionRecord, scanDecisionRecords, validateDecisionRecords };
 export type { DecisionAlignment, DecisionCandidateDocument, DecisionDocument, DecisionId, DecisionIndex, DecisionIndexEntry, DecisionIndexMetadata, DecisionIndexState, DecisionListAlignment, DecisionListFacets, DecisionListMonthFacet, DecisionListStatus, DecisionListTagFacet, DecisionListTimeFacets, DecisionMetadata, DecisionProjection, DecisionRecord, DecisionRecordSource, DecisionRelation, DecisionRelationOverride, DecisionRelationType, DecisionScan, DecisionScanOptions, DecisionSuccessor, DecisionTags, DecisionStatus, DecisionSourceRevision, DecisionSourcePath, DecisionTag, EstablishedDecisionStatus, DecisionValidationResult } from "./types.mjs";
-export type { DecisionRenameOptions, DecisionRenamePlan, DecisionRenameResult } from "./decision-rename.mjs";
+export type { DecisionRenameOptions, DecisionRenamePlan, DecisionRenameResult } from "./rename/decision-rename.mjs";

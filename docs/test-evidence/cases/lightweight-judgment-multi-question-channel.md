@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-006: 多题与默认通道
 
 Tests:
-- `test:cb20a70b12d266f9e7733714d093bac400f78036c575826345093f7ff082153d`
+- `test:59f02a549c107199d211dd11369db7bb7ded82bad4bc6671236123d86582e150`
 
 Tags:
 - `lightweight-judgment`

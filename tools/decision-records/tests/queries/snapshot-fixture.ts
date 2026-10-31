@@ -1,10 +1,10 @@
-import { buildDecisionStateSnapshotFromSources } from "../../src/decision-state-index.ts";
-import type { IndexedDecisionState } from "../../src/decision-query-contract.ts";
+import { buildDecisionStateSnapshotFromSources } from "../../src/index/decision-state-index.ts";
+import type { IndexedDecisionState } from "../../src/query/decision-query-contract.ts";
 import {
   archivedDecisionId,
   currentDecisionId,
   candidateDecisionBody
-} from "../support-record-fixture.ts";
+} from "../support/support-record-fixture.ts";
 export async function listStateSnapshot(
   extra: readonly { id: string; text: string }[] = []
 ) {

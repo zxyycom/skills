@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-SPLIT-001: discard rejects a removal that breaks split relation closure
 
 Tests:
-- `test:fcfd2dade266c95d524b5590c10d123b7292996c756592552b05e9780919ad76`
+- `test:a995ab2772dae0229ed6eeffd30efad8f19ad814181a60e3952e2e215e9b5abe`
 
 Tags:
 - `investigation-report`

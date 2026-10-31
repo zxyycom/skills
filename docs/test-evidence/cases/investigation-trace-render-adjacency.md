@@ -1,7 +1,7 @@
 ### Case IR-TRACE-RENDER-001: 终端输出保留稳定邻接顺序与摘要
 
 Tests:
-- `test:03064e080717d9e3d7afe72c868544ccfb40d0c4d7254e4deedbdc8f5b2ab272`
+- `test:39e4edfa1f85da5c37d021d2b132e0a5b9151ad1795f5a64d6c296168156a6fa`
 
 Tags:
 - `performance`

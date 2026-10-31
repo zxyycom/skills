@@ -1,7 +1,7 @@
 ### Case GATE-SELECTED-PROVIDER-RERUN-001: 窄生成失败提示保留实际重跑参数
 
 Tests:
-- `test:08939cff61addddff82e810263c6fda4000ab2fd7a84b0a6a619518032e8af0a`
+- `test:4131161c4bb67977f0aa4cc77bab5bb8f6e246ebcc76c15bf450359b10240048`
 
 Tags:
 - `repository-tooling`

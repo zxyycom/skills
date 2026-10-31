@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-SCHEMA-001: index info 保留未知 schema 诊断
 
 Tests:
-- `test:ad91c2689ca9b03b27fd59b75c68f7fd1436b04a379703aa3904e6352997b81a`
+- `test:9c11856d2442bb7fa283e2716c673e5420511d610fd2aeaab153ab011d01d5c5`
 
 Tags:
 - `task-graph`

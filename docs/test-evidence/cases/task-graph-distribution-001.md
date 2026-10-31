@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-DISTRIBUTION-001: 分发运行 API 与版本符合源码
 
 Tests:
-- `test:0bebe9087059f724355b3fe04631234d6359417d752862f47d8efad46b444aa6`
+- `test:4f962b831f0a46fba0c24aa7a0869350fcf6009f2a12e395f56b8bbb3ae9f959`
 
 Tags:
 - `task-graph`

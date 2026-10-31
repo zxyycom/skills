@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-018: 响应 own key 不得被清洗
 
 Tests:
-- `test:c30ea4ef997832adbb0d3ca0752ff36a405b7c0e1235b2aede5c1d9923cbf64f`
+- `test:bff2fc072c4435612c4df92bbe8b20c1f61b83b21092df9a7d1d735531f51ac8`
 
 Tags:
 - `lightweight-judgment`

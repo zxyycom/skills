@@ -1,7 +1,7 @@
 import {
   prepareStateIndexFromSnapshot,
   syncStateIndexPrepared
-} from "../../index-runtime/src/prepared.ts";
+} from "../../index-runtime/src/prepared/prepared.ts";
 import type {
   JsonObject,
   StateIndexContext,

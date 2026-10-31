@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-023: 默认关闭与离线不建库
 
 Tests:
-- `test:6486b0bf7e87d60d88dcdcc6034f6b9be657824dc47fc9175833279705c755bb`
+- `test:8413c1a91e70e614a283d6870918f63df6ff5fa49db4567d75a2d69067b0c526`
 
 Tags:
 - `lightweight-judgment`

@@ -1,7 +1,7 @@
 ### Case STATE-INDEX-FULL-READ-SAFETY-001: 完整索引同步安全采集持久文件
 
 Tests:
-- `test:261f41bed93bc5f19772857bdbbd6a475f7ea6e39dfb8e29020fd8d24eda22d6`
+- `test:f02208ccd53a59b855e591b03472b00d7d550971d8f2a6b214173712d56d8bfc`
 
 Tags:
 - `index-runtime`

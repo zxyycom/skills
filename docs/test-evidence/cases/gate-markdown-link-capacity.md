@@ -1,7 +1,7 @@
 ### Case GATE-MARKDOWN-CAPACITY-001: 完整链接容量与失败边界
 
 Tests:
-- `test:91ca8cc85e63f782c0a5afa494478d561ce567c20b82992f61bd9a344817549c`
+- `test:60bddbced988ef0814c76f437580c607fad01f0dae40341cc0be45a4eb1562e3`
 
 Tags:
 - `gate`

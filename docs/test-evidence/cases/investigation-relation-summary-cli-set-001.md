@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RELATION-SUMMARY-CLI-SET-001: CLI set-relations scopes summaries to complete source groups
 
 Tests:
-- `test:39399e59d2479ad9aaac511d6594a56fa5bec98a990d8e1c727f493f2fba4f46`
+- `test:2a756993b1801102f3be27aab569ebc932a55f7471f7da31024c2d1f5c7ad56f`
 
 Tags:
 - `investigation-report`

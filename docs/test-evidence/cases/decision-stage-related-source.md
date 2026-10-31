@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-RELATED-SOURCE-001: Stage 使用索引关系依赖而不验收未选正文
 
 Tests:
-- `test:62f5dc51b0f2861bcfd59ae627fa8d5677680a71104360d273f20e69d303715f`
+- `test:c38b8a834a4b91164b69267a6f0e5c398c7d685f42c0a1377c008a494c82addf`
 
 Tags:
 - `decision-records`

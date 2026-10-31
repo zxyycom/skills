@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-GENERATED-ARTIFACTS-001: 生成运行时可直接导入且来源信息可移植
 
 Tests:
-- `test:b2cfbe2a1a8acf794de0330234c3e16e810daefdc1c44d90dd6dcb9da8af3a15`
+- `test:ea7799afdbb94b792b21070d6f8912fa41e4193cdc0249eb5183c899a3f727ba`
 
 Tags:
 - `change-plan`

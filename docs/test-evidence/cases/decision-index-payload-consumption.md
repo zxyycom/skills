@@ -1,7 +1,7 @@
 ### Case DR-INDEX-PAYLOAD-CONSUMPTION-001: Stage 各 scope 仅读取所选 pending payload
 
 Tests:
-- `test:63ee8ed60a6c5d6ecf517fdfe7563b67be8bf64caf9040cb947ccd61ae3f1f40`
+- `test:eba0a5f812a08381f8ea7de02242888760a50895f5efcb500f0dfb261d8fce45`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-PREVIEW-RECOVERY-001: 调查全量预演恢复边界与严格检查分离
 
 Tests:
-- `test:dc53e06649d4109fbeb8ca40840b9ef034378d43618f7a8730df7e273445e86a`
+- `test:7c63ee178f219ff75f11e8616a03221ce11280c727862b1552861b176b4b7062`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case DECISION-DISCARD-RECORDED-ATTENTION-001: Discard 在删除已记录决策前暂停
 
 Tests:
-- `test:710742cbec1527ed1c0a111f4533b07ae3b2084d9d63aec876aac63abc6014ff`
+- `test:a08a706128f7592582c033785b28adde562a3582e5154cf6a7d7c76680871d6a`
 
 Tags:
 - `decision-records`

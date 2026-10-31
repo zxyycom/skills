@@ -1,8 +1,8 @@
 ### Case INVESTIGATION-RELATION-FILTER-EVIDENCE-001: 关系筛选投影完整匹配边并按预算展示
 
 Tests:
-- `test:5f2b0ec8ab35626f8a98b93c1d0f0aca18af63ae06201fa0a9e021859001f7e9`
-- `test:91c67475f7cc124d5affcb0205796b357c7153c94600d955289fafb1c12846f7`
+- `test:b29eaec67c6326df6e43be857b61fd113d68bac27d9d7e650da8a1a38994d99d`
+- `test:ba9548856333813eef2d10a85c4c6771939c293ab930a5ab5d3074b7df1f3b02`
 
 Tags:
 - `investigation-report`

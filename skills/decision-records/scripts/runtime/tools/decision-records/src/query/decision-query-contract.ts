@@ -1,0 +1,300 @@
+/*
+ * Synced TypeScript runtime; repository maintenance edits tools/decision-records/src/query/decision-query-contract.ts.
+ * Installed skill copies may be edited directly; updates overwrite matching files.
+ * Repository: https://github.com/zxyycom/skills
+ * Source path: tools/decision-records/src/query/decision-query-contract.ts
+ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/decision-records/src/query/decision-query-contract.ts
+ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
+ * Rebuild: bun run sync:decision-records-cli
+ */
+import type {
+  RecordSearchInfo,
+  RecordSearchSource
+} from "../../../shared/src/file-text-search/record-search-info.ts";
+import type {
+  FileTextSearchMode,
+  FileTextSearchPreview,
+  FileTextSearchTruncation
+} from "../../../shared/src/file-text-search/index.ts";
+import type { DecisionApplicationFailure } from "../application-result.ts";
+import type { DecisionLocation } from "./decision-query-context.ts";
+import type {
+  RelationGraphTraceBlockedEvent,
+  RelationGraphTraceFrontier
+} from "../../../shared/src/graph/relations.ts";
+import type { DecisionRelationEdge } from "../relations/relation-graph.ts";
+import type {
+  DecisionAlignment,
+  DecisionId,
+  DecisionIndexEntry,
+  DecisionListAlignment,
+  DecisionListFacets,
+  DecisionListStatus,
+  DecisionProjection,
+  DecisionRelationType,
+  DecisionSourcePath,
+  DecisionTag,
+  DecisionTraceDirection,
+  DecisionValidationResult,
+  EstablishedDecisionStatus
+} from "../types.ts";
+
+export type { DecisionLocation } from "./decision-query-context.ts";
+
+export type DecisionListAppliedFilters = Readonly<{
+  alignment: DecisionListAlignment;
+  createdAtFrom?: string;
+  createdAtTo?: string;
+  direction?: DecisionTraceDirection;
+  relatedTo?: string;
+  relationType?: DecisionRelationType;
+  status: DecisionListStatus;
+  tags: readonly DecisionTag[];
+}>;
+
+export type DecisionQueryRequest =
+  | { command: "candidates" | "check"; location: DecisionLocation }
+  | {
+      alignment: DecisionListAlignment;
+      command: "list";
+      createdAtFrom?: string;
+      createdAtTo?: string;
+      direction?: DecisionTraceDirection;
+      limit: number;
+      location: DecisionLocation;
+      offset: number;
+      relatedTo?: string;
+      relationType?: DecisionRelationType;
+      status: DecisionListStatus;
+      tags: readonly DecisionTag[];
+    }
+  | {
+      alignment: DecisionListAlignment;
+      command: "search";
+      direction?: DecisionTraceDirection;
+      in?: "content" | "metadata";
+      /** metadata 返回窗口；content 保持固定返回预算。 */
+      limit?: number;
+      location: DecisionLocation;
+      match: FileTextSearchMode;
+      relatedTo?: string;
+      relationType?: DecisionRelationType;
+      status: DecisionListStatus;
+      tags: readonly DecisionTag[];
+      text: string;
+    }
+  | {
+      command: "show-candidate";
+      decisionId: string;
+      location: DecisionLocation;
+    }
+  | { command: "show"; decisionId: string; location: DecisionLocation }
+  | {
+      command: "sync-index";
+      location: DecisionLocation;
+      preflight: boolean;
+      selectors?: readonly string[];
+    }
+  | {
+      command: "trace";
+      decisionId: string;
+      direction?: DecisionTraceDirection;
+      location: DecisionLocation;
+      maxDepth?: number | null;
+      maxRecords?: number;
+    };
+
+type QuerySuccessBase = { status: "ok"; warnings: string[] };
+
+export type IndexedDecisionRecord = {
+  alignment: DecisionAlignment;
+  createdAt: string;
+  decisionId: DecisionId;
+  projection: DecisionProjection;
+  sourcePath: DecisionSourcePath;
+  status: EstablishedDecisionStatus;
+  tags: DecisionTag[];
+};
+
+export type DecisionFilterRelation = Readonly<{
+  sourceId: DecisionId;
+  summary?: string;
+  target: DecisionId;
+  type: DecisionRelationType;
+}>;
+
+export type DecisionRelationFilterContext = Readonly<{
+  filterRelations?: readonly DecisionFilterRelation[];
+}>;
+
+export type DecisionFilteredRecord = IndexedDecisionRecord &
+  DecisionRelationFilterContext;
+
+export type CandidateDecisionRecord = {
+  alignment: null;
+  bodyReady: boolean;
+  createdAt: null;
+  decisionId: DecisionId;
+  projection: DecisionProjection;
+  sourcePath: DecisionSourcePath;
+  scaffoldValid: true;
+  status: "candidate";
+  tags: DecisionTag[];
+};
+
+export type DecisionContentSearchRecord = DecisionFilteredRecord & {
+  previews: readonly FileTextSearchPreview[];
+};
+
+export const decisionMetadataSearchFields = [
+  "id",
+  "name",
+  "title",
+  "purpose",
+  "background",
+  "decision",
+  "tags"
+] as const;
+export const decisionMetadataSearchDefaultLimit = 100;
+export type DecisionMetadataSearchField =
+  (typeof decisionMetadataSearchFields)[number];
+export type DecisionMetadataMatchedRelation = Readonly<{
+  summary: string;
+  target: DecisionId;
+  type: DecisionRelationEdge["type"];
+}>;
+export type DecisionMetadataSearchRecord = DecisionFilteredRecord & {
+  matchedFields: readonly DecisionMetadataSearchField[];
+  matchedRelations: readonly DecisionMetadataMatchedRelation[];
+};
+
+export type DecisionSearchFilters = Omit<
+  DecisionListAppliedFilters,
+  "createdAtFrom" | "createdAtTo"
+>;
+export const decisionPublishedSnapshotSource = {
+  kind: "published-index",
+  currentness: "unchecked",
+  fallback: false
+} as const;
+export type DecisionPublishedSnapshotSource =
+  typeof decisionPublishedSnapshotSource;
+
+export type DecisionSearchInfo = RecordSearchInfo<DecisionSearchFilters>;
+
+export type DecisionSearchSnapshot = {
+  source: RecordSearchSource;
+  entries: readonly IndexedDecisionRecord[];
+  sourcePathToRecord: ReadonlyMap<DecisionSourcePath, IndexedDecisionRecord>;
+  warnings: string[];
+};
+
+export type DecisionTraceEntry = Readonly<{
+  title: string;
+  status: EstablishedDecisionStatus;
+  alignment: DecisionAlignment;
+  createdAt: string;
+  purpose: string;
+  background: string;
+  decision: string;
+  tags: readonly DecisionTag[];
+  relations: readonly DecisionProjection["relations"][number][];
+}>;
+
+export type DecisionTraceSuccess = Readonly<{
+  status: "ok";
+  anchorId: DecisionId;
+  source: DecisionPublishedSnapshotSource;
+  direction: DecisionTraceDirection;
+  limits: Readonly<{
+    depth: number | "all";
+    maxRecords: number;
+  }>;
+  coverage: Readonly<{
+    complete: boolean;
+    stoppedBy: readonly ("depth" | "max-records")[];
+  }>;
+  traceIds: readonly DecisionId[];
+  contextIds: readonly DecisionId[];
+  frontier: readonly RelationGraphTraceFrontier<DecisionId>[];
+  blockedEvent?: RelationGraphTraceBlockedEvent<DecisionId>;
+  entries: Readonly<Record<string, DecisionTraceEntry>>;
+}>;
+
+export type DecisionQuerySuccess =
+  | (QuerySuccessBase & {
+      command: "candidates";
+      records: CandidateDecisionRecord[];
+    })
+  | (QuerySuccessBase & {
+      command: "check";
+      summary: Pick<
+        DecisionValidationResult,
+        | "activeCount"
+        | "activationCandidateCount"
+        | "bodyReadyCandidateCount"
+        | "alignedCount"
+        | "archivedCount"
+        | "decisionCount"
+        | "scaffoldCandidateCount"
+        | "unalignedCount"
+      >;
+    })
+  | (QuerySuccessBase & {
+      appliedFilters: DecisionListAppliedFilters;
+      command: "list";
+      source: DecisionPublishedSnapshotSource;
+      facets: DecisionListFacets;
+      limit: number;
+      offset: number;
+      records: DecisionFilteredRecord[];
+      total: number;
+    })
+  | (QuerySuccessBase & {
+      command: "search";
+      searchInfo: DecisionSearchInfo;
+      in: "content";
+      records: DecisionContentSearchRecord[];
+      truncation: FileTextSearchTruncation;
+    })
+  | (QuerySuccessBase & {
+      command: "search";
+      searchInfo: DecisionSearchInfo;
+      in: "metadata";
+      records: DecisionMetadataSearchRecord[];
+    })
+  | (QuerySuccessBase & {
+      body: string;
+      command: "show-candidate";
+      record: CandidateDecisionRecord;
+    })
+  | (QuerySuccessBase & {
+      body: string;
+      command: "show";
+      record: IndexedDecisionRecord;
+    })
+  | (QuerySuccessBase & {
+      changedIds: string[];
+      command: "sync-index";
+      coverage?: Readonly<{
+        source: "published-index+selected-current-sources";
+        currentness: "selected-and-dependencies";
+        checkedIds: readonly string[];
+      }>;
+      indexRelativePath: string;
+      scope: "all" | "selected";
+      selectedIds: string[];
+      selectors: string[];
+      state: "current" | "unchanged" | "previewed" | "written";
+      unactivatedPaths: string[];
+    })
+  | (QuerySuccessBase & {
+      command: "trace";
+    } & Omit<DecisionTraceSuccess, "status">);
+
+export type DecisionQueryResult =
+  | DecisionApplicationFailure
+  | DecisionQuerySuccess;
+export type IndexedDecisionState = Pick<DecisionIndexEntry, "state"> & {
+  id: string;
+};

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-DOMAIN-PRESERVE-STAGED-DELETION-001: stage --scope domain keeps unrelated staged deletions when staging another report
 
 Tests:
-- `test:a78fdb40b8415d94bae08543fe3d4a39a7e71db9135a93004dfbec346f5cb56b`
+- `test:d89f8c88666a1266ab975ece86836beb7fb80304afddfb79ab7e0793bee86881`
 
 Tags:
 - `investigation-report`

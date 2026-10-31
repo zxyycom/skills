@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-METADATA-COMPATIBILITY-001: 暂存拒绝不兼容集合revision
 
 Tests:
-- `test:549e816b970d635859bb890a1a85b6758c1cbf84249a087fb3304b0d06675a6c`
+- `test:a868d80666de8d87dcc49a8ce889e37b2efda85050e658072810bb6bb464fcc4`
 
 Tags:
 - `decision-records`

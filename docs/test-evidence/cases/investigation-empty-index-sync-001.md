@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-EMPTY-INDEX-SYNC-001: sync-index accepts an existing empty index but not a new empty collection
 
 Tests:
-- `test:3f2a2bb71bdf8cc12f9eec4f879ff3fddc7b8ef03b4cedf803a9c44e81acbc40`
+- `test:ee7b94be8ad9b11939d45521b7b09e4c66ffebfc678d101dc6953499dcf39516`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case DECISION-BOOTSTRAP-PUBLICATION-FACT-001: 首次发布保留已实际提交事实
 
 Tests:
-- `test:c24bbfb8f01b144ae9a5921eae643673abca2fcbf0b6db7ec1516b22148142c3`
+- `test:df2780d1084bebae5a26cf28955a9dba8dea8e215fec71336de8d798451fbf92`
 
 Tags:
 - `decision-records`

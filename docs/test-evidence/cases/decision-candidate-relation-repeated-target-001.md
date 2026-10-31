@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-RELATION-REPEATED-TARGET-001: 候选关系校验拒绝重复目标
 
 Tests:
-- `test:fc0b885a48b853bb641eb5d2b86b475583d121e1fe245c55ad78faeaf9dc1263`
+- `test:c0dea0def8e053d7046f4a45e9c20f8475f074b458dbfaab784a0278055742bb`
 
 Tags:
 - `decision-records`

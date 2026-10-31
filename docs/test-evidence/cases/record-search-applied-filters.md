@@ -1,8 +1,8 @@
 ### Case RECORD-SEARCH-FILTERS-001: 元信息回显已解析的实际筛选
 
 Tests:
-- `test:5cb10aa2be91ed0d03dd68dbdd5c6227b6b4ad5292f30384ed7f5d049c2b63a3`
-- `test:6e4762ab466c143ca3990eebda895b69a370b6e0c909c897c93f45ca54192dcd`
+- `test:2347375183d480217e9d4b5d2444564a967d12b7b1bb1d365887d04553cedb39`
+- `test:3c5fa2d08614b3268f7b34fbae6f1c2c093f5d252d9a7b9d0ea1d3912addada5`
 
 Tags:
 - `record-search`

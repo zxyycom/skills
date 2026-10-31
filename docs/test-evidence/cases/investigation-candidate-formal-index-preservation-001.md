@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-FORMAL-INDEX-PRESERVATION-001: 调查候选更名与删除不改正式索引
 
 Tests:
-- `test:f108b29c48950314d0a9d4c50c4c1bfcf78249ddf8dfc513c84d29bdc52f3d1a`
+- `test:0c439d1902004e3491d32623d180c4841e313c94295c960ea4e5f2e7c577c8b7`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-021: 显式自定义调用连接
 
 Tests:
-- `test:63d934bb5b8461e44d3021d0012e0c7ca246148556ef022699ddf06bb6f8d418`
+- `test:92b094903339dbdaedd0fbb785427ef056a5a8aaf7df3af0f2e8892ee173f8a2`
 
 Tags:
 - `lightweight-judgment`

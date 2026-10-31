@@ -1,7 +1,7 @@
 ### Case SKILL-PACKAGE-HASH-007: 版本门禁保留已捕获的 pending 快照
 
 Tests:
-- `test:51a03d279f3dad9fc6bcef8286bd9e37117c5b73d72678c0af3a09b1cf6b52be`
+- `test:fffd574a9937dc01ec5227f64eae50589ec4d1f27f48771307f287e276c31bac`
 
 Tags:
 - `repository-tooling`

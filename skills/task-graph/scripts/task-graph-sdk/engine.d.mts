@@ -6,8 +6,8 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/task-graph
  * Rebuild: bun run sync:task-graph-cli
  */
-export type { IndexMutation } from "./engine-content.mjs";
-export { applyTaskGraphOperations } from "./engine-apply.mjs";
-export { claimTask } from "./engine-claim.mjs";
-export { cancelTask, completeTask, failTask, releaseTask, renewTaskLease, retryTask } from "./engine-lifecycle.mjs";
-export { removeTasks } from "./engine-removal.mjs";
+export type { IndexMutation } from "./engine/engine-content.mjs";
+export { applyTaskGraphOperations } from "./engine/engine-apply.mjs";
+export { claimTask } from "./engine/engine-claim.mjs";
+export { cancelTask, completeTask, failTask, releaseTask, renewTaskLease, retryTask } from "./engine/engine-lifecycle.mjs";
+export { removeTasks } from "./engine/engine-removal.mjs";

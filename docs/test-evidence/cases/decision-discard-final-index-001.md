@@ -1,7 +1,7 @@
 ### Case DECISION-DISCARD-FINAL-INDEX-001: 删除末条保留合法空索引
 
 Tests:
-- `test:39de13f9c45412aa6d11d51948fb1c32706392ecfc3ac8904e87434b80403c95`
+- `test:6f6ec493e75b239ab87675189ffd77044b1c5c0fec41ab1c67ef3a2d6aa2e5c9`
 
 Tags:
 - `decision-records`

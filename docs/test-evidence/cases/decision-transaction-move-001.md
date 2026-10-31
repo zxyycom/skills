@@ -1,7 +1,7 @@
 ### Case DECISION-TRANSACTION-MOVE-001: 移动事务在索引发布前失败后恢复
 
 Tests:
-- `test:7f3364b8eb3fbbf6f87f66f248cb6ffd9f75cf4208e09a7b20fab1a1244c46bc`
+- `test:a39c80f8a969f27ee3057826cfb520e3e9113fe711df1a0bae5af45960634316`
 
 Tags:
 - `decision-records`

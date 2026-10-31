@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-PROJECT-REGISTRATION-GUARD-001: 项目生产器拒绝不完整或不支持的注册
 
 Tests:
-- `test:b96d4ac40d90e5ad7f22d8c823946b03044e244a50384ccdc1baa7fd448c7f08`
+- `test:c0a27d26b3d214324678c2e6d23f957559cddad8264d5c1ce63da1180174098a`
 
 Tags:
 - `repository-tooling`

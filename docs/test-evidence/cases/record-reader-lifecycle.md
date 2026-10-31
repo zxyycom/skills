@@ -1,7 +1,7 @@
 ### Case RECORD-READER-LIFECYCLE-001: 取消和消费失败收束worker
 
 Tests:
-- `test:c9ca47720fe930d5bf380479add0a5294234023e9b2b2878b591a47e69759296`
+- `test:779c42bb8cb0246c2e27a652e5abfb3d8112a0dfbed4fdfa8dae5ef6ee500112`
 
 Tags:
 - `record-operations`

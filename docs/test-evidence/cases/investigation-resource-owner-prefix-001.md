@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-OWNER-PREFIX-001: resource references use report IDs rather than topic paths or report indexes
 
 Tests:
-- `test:d5ae377faf8d4c12bd2006afe9a5c2f8806a4227077d58b76f62f5cba917841b`
+- `test:6a5b0bb59de52d61a6e42130095b01d8d596a271a29f1fab47c88735bc3017f4`
 
 Tags:
 - `investigation-report`

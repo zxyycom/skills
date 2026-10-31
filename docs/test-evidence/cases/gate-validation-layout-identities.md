@@ -1,7 +1,7 @@
 ### Case GATE-LAYOUT-IDENTITIES-001: 目录身份覆盖布局新增删除重命名与类型变化
 
 Tests:
-- `test:6cb99e3c6561f8d297608b07d030acc6d9fd93d57f33b8cfe0230712f1695325`
+- `test:9a8ea1a0073c817fb7225348745edd63be4ead493d02415ab8d7c81d8992b41e`
 
 Tags:
 - `repository-tooling`

@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-LOG-UPGRADE-ROLLBACK-001: 迁移身份检查与失败回滚
 
 Tests:
-- `test:3908440312f04cb8e5399f2959950a341670a9f35e1301418a03f002ea852c5c`
+- `test:2b1bb4f1f0ba245ea21d42a97d1d49134f36d315560212bc74d390e75aecf84c`
 
 Tags:
 - `lightweight-judgment`

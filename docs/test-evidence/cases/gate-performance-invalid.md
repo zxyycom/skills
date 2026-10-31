@@ -1,7 +1,7 @@
 ### Case GATE-PERFORMANCE-INVALID-001: 非法测量以有界 JSON 安全报告阻断
 
 Tests:
-- `test:0093e150c8742c03676aff5ff04996ce4396ef1f1e4121a5fd10bca71eaa37fa`
+- `test:9e11aafd85ffc5e66e04b9719ceb41a93fc1e3357bd52ac59d260d91b119cc1d`
 
 Tags:
 - `performance`

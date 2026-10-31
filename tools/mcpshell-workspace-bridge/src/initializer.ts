@@ -4,17 +4,17 @@ import {
   isMainModule,
   skillDirectoryFromScriptUrl
 } from "./shared.ts";
-import { runInitializer } from "./initializer-run.ts";
-import { readCliRequest } from "./initializer-cli.ts";
-export { runInitializer } from "./initializer-run.ts";
-export { readCliRequest } from "./initializer-cli.ts";
+import { runInitializer } from "./initializer/initializer-run.ts";
+import { readCliRequest } from "./initializer/initializer-cli.ts";
+export { runInitializer } from "./initializer/initializer-run.ts";
+export { readCliRequest } from "./initializer/initializer-cli.ts";
 export type {
   InitializerAction,
   InitializerCommand,
   InitializerPaths,
   InitializerRequest,
   InitializerResult
-} from "./initializer-contract.ts";
+} from "./initializer/initializer-contract.ts";
 
 export async function runInitializerCli(
   scriptUrl: string = import.meta.url

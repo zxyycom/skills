@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-LAZY-FALLBACK-001: 正文搜索复用投影关系图
 
 Tests:
-- `test:7270df03fdfeded7fce3734a34244f3b4318ab4094c038093533f628e4acca8f`
+- `test:f30e68b61a63d54e527108088ce7fd1a1ba3e628e3a9fd9a1f3f240cce7e6b8b`
 
 Tags:
 - `investigation-report`

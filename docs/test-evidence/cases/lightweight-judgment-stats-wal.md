@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-WAL-001: 活跃 WAL 与一致快照
 
 Tests:
-- `test:28d53357b59cc72378a0dfbfdbb893048a3bd1b9dfa3c70d87f0125eaff22900`
+- `test:74380e4520d77f0e695315301dc1d70580a53b6aaf606b0ee768e5a860f46ff8`
 
 Tags:
 - `lightweight-judgment`

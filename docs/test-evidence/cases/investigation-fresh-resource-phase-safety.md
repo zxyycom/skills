@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-FRESH-RESOURCE-PHASE-001: 共同新鲜资源验收绑定根并保持独立生命周期检查
 
 Tests:
-- `test:4f595580471abb67df14e3abed8b824aa2ed2c48b0023380e05a38916fc5e3ed`
+- `test:0fdd4fa464ac0932b6532f89e0b9427fc4db84dfe56dd7367d6bc59e46b59f4b`
 
 Tags:
 - `investigation-report`

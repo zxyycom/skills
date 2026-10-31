@@ -1,7 +1,7 @@
 ### Case SKILL-PACKAGE-HASH-005: 将损坏基线 skill blob 报告为操作失败
 
 Tests:
-- `test:6af8382d97cf4fa1045ca7f3ff3f9f90ce69ceb22a1149e5d5de1c9b800adaa3`
+- `test:f32870c74c88b1d796a914623c6ecbadb24e381777242e6659a0d45f3ad23ab1`
 
 Tags:
 - `repository-tooling`

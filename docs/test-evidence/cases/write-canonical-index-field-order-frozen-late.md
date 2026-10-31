@@ -1,7 +1,7 @@
 ### Case WRITE-CANONICAL-CASE-010: 构建后冻结仍按当前顺序序列化
 
 Tests:
-- `test:fbe0eba3a9a16ffe1c4388748ad44cc0a304e5b31212ff18ff6989397eec0e39`
+- `test:c0453234435abded06110cabeb32877d32cbcbeb640961ff569e5d7895c4edcb`
 
 Tags:
 - `write-canonical`

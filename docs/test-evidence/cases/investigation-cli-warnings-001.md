@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-WARNINGS-001: CLI show requires one Investigation ID
 
 Tests:
-- `test:85dca3710ebfbbbccbf8e20c93b7ce2aa474ce198adcf6947540c29103b0b1f4`
+- `test:499d65aed3abe151be5962079d91fa50f1cb728dfb38b30a569e70a794a2d9d6`
 
 Tags:
 - `investigation-report`

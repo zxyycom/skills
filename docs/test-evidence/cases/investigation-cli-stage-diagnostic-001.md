@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-STAGE-DIAGNOSTIC-001: CLI stage preserves version-control diagnostic facts
 
 Tests:
-- `test:bb9c5998e4f22f451d05ce2d44e385f9cf72ad7d1edd80137b2b959d2194fe22`
+- `test:38b11f82c8bcbc4a0cc0d0a6634ff27e7e1a2637286bb989fed105826be70128`
 
 Tags:
 - `investigation-report`

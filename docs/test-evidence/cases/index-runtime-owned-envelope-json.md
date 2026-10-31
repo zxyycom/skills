@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-ENVELOPE-JSON-001: 冻结 envelope 保留完整 JSON 与 own 特殊键
 
 Tests:
-- `test:2c97e521f5ffb442c65eaa305eacd3078bd9ba3e4f66234c27c223cc980defa2`
+- `test:6ad705446ce6c51244555bd30025458ef8c424b6f383c753b67363a613a8c06f`
 
 Tags:
 - `index-runtime`

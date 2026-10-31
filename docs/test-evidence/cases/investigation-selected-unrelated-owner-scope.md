@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-SELECTED-UNRELATED-OWNER-SCOPE-001: 旧owner核对不扩大为全库资源审计
 
 Tests:
-- `test:5f91260b8d8950edfaf8f5b44eef9c6bb8b529cfd321d96088bff7c2bb1fac98`
+- `test:c3afa005fd3d82230c2ff7b4e9209ebbde46b4a76ff6dba02a003febee12a665`
 
 Tags:
 - `investigation-report`

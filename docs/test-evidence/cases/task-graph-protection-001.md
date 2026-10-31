@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-PROTECTION-001: 影响受保护任务依赖或 children 的编辑以 STATE_CONFLICT 拒绝
 
 Tests:
-- `test:819ca7911ccd8c5cac9ccd3e8271da014946420e0270fa646c401ba1d5321f49`
+- `test:8a5a86dc64adda332da5be127faf756421a15c92c75e9162d9c97a994427df2e`
 
 Tags:
 - `task-graph`

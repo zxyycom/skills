@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-METRICS-001: 分位数缺失与桶边界
 
 Tests:
-- `test:73041b282bf95a8cd516d3acc02779614a7dec9c135941bc8ad7791139d3449e`
+- `test:e67540ed165d14e1aee23b0fb42c8f8d9d5ea4cd286513ad1315173ba3d0d1fb`
 
 Tags:
 - `lightweight-judgment`

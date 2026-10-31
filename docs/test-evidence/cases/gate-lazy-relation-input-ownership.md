@@ -1,7 +1,7 @@
 ### Case GATE-LAZY-RELATION-INPUT-OWNERSHIP-001: 延迟关系输入沿实际消费者进入既有能力闭包
 
 Tests:
-- `test:b13f67230283c33eb5ed71939e5087bce7d5052ef207090f9fe18cdb9b43f2d6`
+- `test:e75fc60c04528d1278fb69a026b8d3076fe549a399331ff3180094f3f76a5b54`
 
 Tags:
 - `repository-tooling`

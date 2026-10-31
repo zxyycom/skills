@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-DOMAIN-CLI-001: CLI stage --scope domain stages report Markdown and owner resources without the index
 
 Tests:
-- `test:7d84cea62e39d295025da3e34200f7731fec8a03efc00751086782a0a0aefdfc`
+- `test:0b9af8406f11b196833c368834a7484da7faa71d6db99c3060d07d3086798d6a`
 
 Tags:
 - `investigation-report`

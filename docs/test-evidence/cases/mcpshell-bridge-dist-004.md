@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-DIST-004: generated runtime renders missing and malformed configuration as JSON envelopes
 
 Tests:
-- `test:52153956c3d1351f925e0564218ff9a778133ec26ebfad3250fe637c3dc10b79`
+- `test:05138e8064ec5edb2c99de05e4b21e8f737efbb5d94e07f9d62b82d13e3d9c66`
 
 Tags:
 - `mcpshell-workspace-bridge`

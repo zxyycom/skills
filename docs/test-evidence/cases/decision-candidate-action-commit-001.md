@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-ACTION-COMMIT-001: 候选改名删除不制造正式索引
 
 Tests:
-- `test:0634a761e022efa12998f8e1b09d3f712a9931f311f2f58612bab837452f2ead`
+- `test:f1009061130bb438d6fc79f558b3e2673fa23e34b97c49f405eec1d13e3ac50b`
 
 Tags:
 - `decision-records`

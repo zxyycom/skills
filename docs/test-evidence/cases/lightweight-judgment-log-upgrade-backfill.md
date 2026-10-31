@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-LOG-UPGRADE-BACKFILL-001: 逐字段回填与缺失语义
 
 Tests:
-- `test:a2ae6a70b701a265f82007a44c1b6b7c2844e0cc171c195e071cbb3c0136c458`
+- `test:b269a3d251efbaf837d4c28a0461c5e2861c306ad9d482268c3ab657bda518c2`
 
 Tags:
 - `lightweight-judgment`

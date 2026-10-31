@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-LOCAL-RELATION-DEPENDENCIES-001: 关系闭合只消费发布图与所选来源
 
 Tests:
-- `test:744fbe3b2806a63e6adc3bd9e3bc0283004bee11f713a517a5515698427d2428`
+- `test:a62b202641920e96ecb07a7e1db6076e4c0677f7a0b1ccee78b5a1c67e6225ef`
 
 Tags:
 - `investigation-report`

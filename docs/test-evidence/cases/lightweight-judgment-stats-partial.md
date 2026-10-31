@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-STATS-PARTIAL-001: 缺失未完成与被筛掉首条
 
 Tests:
-- `test:d1b09ad83e4b6c4b918faee491e8887fe3a44e24c4f9e59593f4bb6288af19dd`
+- `test:b4e8327e37e830e46db4eb7275df7b6ca193d3c5eb762069434157be3731ad62`
 
 Tags:
 - `lightweight-judgment`

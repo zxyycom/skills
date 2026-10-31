@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-WORKSPACE-PHASE-BASIS-001: 显式阶段依据不削弱默认表示新鲜度
 
 Tests:
-- `test:15d8870e3b69a3479d57cfa8deeef70e5b8da5befcabf76dd5edb459fe5738c9`
+- `test:7aa24f6b191c15c4a52578e4811fcf7169760ec909588fbee16c2f978ee5c6e9`
 
 Tags:
 - `version-control`

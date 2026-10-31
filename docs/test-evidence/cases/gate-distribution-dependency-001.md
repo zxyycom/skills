@@ -1,7 +1,7 @@
 ### Case GATE-DISTRIBUTION-DEPENDENCY-001: 公开分发 consumer 声明统一当前生成前置
 
 Tests:
-- `test:8e920fe8f88eb19722fc115d8a63991e4ec60085181bc6e2ddefe6f91c953385`
+- `test:02055d79f6bcee7539c24ff4eff2d086a6112798761ed071aa0cf03286513dba`
 
 Tags:
 - `repository-tooling`

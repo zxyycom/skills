@@ -1,7 +1,7 @@
 ### Case DECISION-RENAME-RELATIONS-001: Rename 改写正式引用并保留未选候选关系
 
 Tests:
-- `test:1a4ea9f2586a4ee97914187413336a1a20783c27acc751619d09bafbb875df9d`
+- `test:088d93901e5ba489d70688ef8f767371f2985c8d698f835957a2d025f63b10d9`
 
 Tags:
 - `decision-records`

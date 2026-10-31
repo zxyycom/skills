@@ -1,7 +1,7 @@
 ### Case DECISION-COLLECTION-LOCK-DIAGNOSTIC-001: 集合锁只把已存在的锁报告为 busy
 
 Tests:
-- `test:eae4c8b47f6f9b0216892611edfceb20ee4d88a5b40269476da5b50b49be0d0e`
+- `test:65ec4ba04e2a39a51b136782e5cb2efae8903bedb5d7388fe6286c60fef16cf2`
 
 Tags:
 - `decision-records`

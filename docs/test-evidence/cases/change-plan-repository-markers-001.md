@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-REPOSITORY-MARKERS-001: 拒绝不同表示的仓库入口
 
 Tests:
-- `test:640d5fea1744bf52a7c91c7ea210dbbd76fcacdc610843faa15a48f39d8c71ed`
+- `test:f1c2d569434ffa4f0eaf509675cf99aa0bd0c2bbed51b13539af846d1646394b`
 
 Tags:
 - `change-plan`

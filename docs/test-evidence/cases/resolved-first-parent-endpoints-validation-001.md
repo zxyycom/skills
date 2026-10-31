@@ -1,7 +1,7 @@
 ### Case RESOLVED-FIRST-PARENT-ENDPOINTS-VALIDATION-001: 已解析历史入口拒绝非提交 ID
 
 Tests:
-- `test:7526a3564691ccc3213440f3da5b3a8bf7ff62f146db745d49732fb3917444eb`
+- `test:e26613086fc9c7f8b454d877116eb8ff09a7047a9412cb9e1d66643bfce67e5c`
 
 Tags:
 - `git-integration`

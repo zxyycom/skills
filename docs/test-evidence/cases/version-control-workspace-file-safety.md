@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-WORKSPACE-FILE-SAFETY-001: 工作区文件读取安全失败不降级
 
 Tests:
-- `test:4ca882c16324d23ccdc11ff6aecb29d313600b10b9c25d2205422d5ede572875`
+- `test:6cf2b493d7ffbfdc039e3644cd6238ab05efe641ebee61bf18b3b71a885e8892`
 
 Tags:
 - `version-control`

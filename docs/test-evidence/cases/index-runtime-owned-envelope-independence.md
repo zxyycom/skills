@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-ENVELOPE-INDEPENDENCE-001: 独立解析不共享 envelope 或复用旧输入
 
 Tests:
-- `test:5784dd533af75b02e69242239c241215b682841fb6ca40ccfd51e5c4e0d0411f`
+- `test:2aaa888e9a7f3146ea34a1108d03b8a682d706fa76d74af66fac3df0e1358248`
 
 Tags:
 - `index-runtime`

@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-ADAPTER-013: 大图 Base64 的独立 Node 校验
 
 Tests:
-- `test:c16b5bcc847f5966749c1a1b98aedce5f730432726d4fff2ee5e2e7f095aab3b`
+- `test:60e0805bded28ac82dfc4c0a8ccdafa23ab60788b9eb9c331e75136312f408e2`
 
 Tags:
 - `lightweight-judgment`

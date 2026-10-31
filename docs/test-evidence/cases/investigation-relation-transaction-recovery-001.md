@@ -1,8 +1,8 @@
 ### Case INVESTIGATION-RELATION-TRANSACTION-RECOVERY-001: set-relations 发布失败恢复字节且不返回成功核对
 
 Tests:
-- `test:55ca6b496b5adedb70690820901bcaac6c6ddaa8f968dfed2379a407120bb99e`
-- `test:77d271fb36e327f10edf15977c20fed2641a4fe136d9c611d07ce735e625def1`
+- `test:7d7496410b47daa2ec1f441a097c0b4e44e91bed2ca3906c37903b4b30516e42`
+- `test:f65bd97b9024c17e6d25849a89970188d05fa9a2cc0f096236ce779602cd345b`
 
 Tags:
 - `investigation-report`

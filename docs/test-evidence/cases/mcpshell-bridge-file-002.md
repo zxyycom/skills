@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-FILE-002: workspace file transfer respects replace, rejects escapes, and cleans failed receives
 
 Tests:
-- `test:58701d2b1c86fb88752aee08d01807d22334c89c8d88d2d777dcded54c5b4057`
+- `test:7771985c0115a3cbd502e15994b3b88947dca77d7aa71998d88f0c3452ac3993`
 
 Tags:
 - `mcpshell-workspace-bridge`

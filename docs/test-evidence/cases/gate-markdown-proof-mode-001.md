@@ -1,7 +1,7 @@
 ### Case GATE-MARKDOWN-PROOF-MODE-001: Markdown 内容证明的权限身份
 
 Tests:
-- `test:3043e2681c4840260f091ee6cc2e33c1b0a07c305bebc0700467827bd9f7d50e`
+- `test:c0cc96b6f0420546d82c61624cb1230a81e2341502eb32f5c2ceff2543f6fb8e`
 
 Tags:
 - `repository-tooling`

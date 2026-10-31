@@ -1,7 +1,7 @@
 ### Case DECISION-INDEX-ALIGNMENT-WRITE-GUARD-001: 非法对齐值不能进入索引
 
 Tests:
-- `test:3eb58968e223b5442fd81087427261ffa3d1da3c98751e5873fba6237da0a3e5`
+- `test:c0f2dfe73273abfef5a5820abe6a6b160bcc74f6461bdb6144311f873bf0e8c8`
 
 Tags:
 - `decision-records`

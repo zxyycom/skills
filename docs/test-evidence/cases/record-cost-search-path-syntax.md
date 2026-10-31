@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-012: 搜索路径语法与范围
 
 Tests:
-- `test:88c4be55b2fda1b05e982a54ec29d3c5cc51b5670f4865c870f16bf40baa9a2b`
+- `test:126a6f2f6b85b16fcccbc475ec561d7b3594fab1c41532c0f6dbadf8e754f547`
 
 Tags:
 - `record-cost`

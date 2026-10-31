@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-PROJECT-INVOCATION-FACTS-001: 项目快照每次调用重新捕获共享导入事实
 
 Tests:
-- `test:28b73863befa754133e2be17b3c415ef200a954a166e7da2a9167c34fb6f1083`
+- `test:ed74c102f41fd4c16c5cb7676e1d9142b25e620027aab2a381a850d183e608e2`
 
 Tags:
 - `repository-tooling`

@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-DISCARD-SOURCE-EMPTY-001: Evolve discard 接受来源为空的最终关系
 
 Tests:
-- `test:b92b974d04348b5a4f2657373f788aceb5390963529b10731d8bc421e3757619`
+- `test:cf199beb47b15e0c523864903cebdb103449715d0fd2cf12bcacead20508704d`
 
 Tags:
 - `decision-records`

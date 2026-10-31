@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-MOVE-001: 选择同一 ID 的当前 sourcePath 并构建移动投影
 
 Tests:
-- `test:d6c5b6a134f6e486713495e46865c80ad6cd1234061a752a98a0f4860d7f1030`
+- `test:dd8896eb5edc8bb84cb0eba2accf6b4b4b405b9fcf2e8e0e6b018c2d58968e96`
 
 Tags:
 - `decision-records`

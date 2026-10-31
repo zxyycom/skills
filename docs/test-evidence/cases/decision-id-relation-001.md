@@ -1,7 +1,7 @@
 ### Case DECISION-ID-RELATION-001: 关系跨根目录和归档解析
 
 Tests:
-- `test:b6ec8a1db70f0ddbc211e0fe0e245af219bedeb236e6feff6af700ab1f0486ef`
+- `test:f4d1c48ac3f4267f9242e4c986f56b66304f426bbd14a383bee847ef013f277b`
 
 Tags:
 - `decision-records`

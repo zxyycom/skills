@@ -1,7 +1,7 @@
 ### Case GATE-MARKDOWN-PROOF-CONFIGURATION-001: Markdown 内容证明的配置闭包
 
 Tests:
-- `test:cf4d28b796814ada098f5b36310e91c7c40d1a0e93e048842d2ff63630913aff`
+- `test:fc433c2bf40c2d9437fa398696e02b433461418a9f81e15c9c1d263dc4c67af5`
 
 Tags:
 - `repository-tooling`

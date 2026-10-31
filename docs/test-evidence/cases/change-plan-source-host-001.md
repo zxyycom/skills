@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-SOURCE-HOST-001: 无本地安装目录时可复用不同兼容版本的宿主依赖
 
 Tests:
-- `test:a9bc50adfaec61f8f14c84d48ee88834c1044cdd33c33b5b7a79fc5909ae23f0`
+- `test:a345c46529074ffa5e2542ee724f7281a5cc836ae84099c9787077b0198e4bc3`
 
 Tags:
 - `change-plan`

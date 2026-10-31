@@ -1,7 +1,7 @@
 ### Case DECISION-LIST-FACETS-001: Decision list facets 对完整 snapshot 确定聚合
 
 Tests:
-- `test:a376247ad2779485fb5cb185bcac27934667d142fcda86f7d975c359b461b793`
+- `test:fa3b5f6e897804d4c3bb804e8b8091a78c5e8d55def86fc2cb868ae82595d9a1`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case WRITE-CANONICAL-CASE-005: 对象去重限于单次操作
 
 Tests:
-- `test:c2cdd48576366c850acac7112ffd8f6052c1d411b3a7fcf776303ee5c01a9361`
+- `test:baa000ec6bd3c7ac144af7bcce21703cfc88f2f87b50cdfa4e923ce583a32589`
 
 Tags:
 - `write-canonical`

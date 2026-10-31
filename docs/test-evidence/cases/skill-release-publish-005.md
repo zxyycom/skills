@@ -1,7 +1,7 @@
 ### Case SKILL-RELEASE-PUBLISH-005: 滚动发布可从缺失状态创建
 
 Tests:
-- `test:0ef5aa9359f887cc846604ed145a5f8f4c5721e40771fd152524135e2b8d3de2`
+- `test:93301c66f5fd8230e9e63862a481435551d7cb90739f9bd3e8d25cb458c7fb41`
 
 Tags:
 - `repository-tooling`

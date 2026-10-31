@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-SOURCE-PATH-MOVE-001: 同一报告移动位置时同时暂存旧路径删除与新路径新增
 
 Tests:
-- `test:b0d558deb5cf8ac67b946dee9ada6aac3c7a6fe8d2bc1e6fc630898a4658097a`
+- `test:584123487a402ef0827b0283408a891a6a9bc5122249b9b82378481bd1b6a8fe`
 
 Tags:
 - `investigation-report`

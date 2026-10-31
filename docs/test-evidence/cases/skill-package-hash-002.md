@@ -1,7 +1,7 @@
 ### Case SKILL-PACKAGE-HASH-002: 报告缺失或畸形的 skill 版本基线
 
 Tests:
-- `test:90be4e3dfb97626af82b75228d66fa4e71255ddf40204666bbb059a499e6ee04`
+- `test:5d15ba980e28924d8f5ba425fbc89cd789df0e3e6fd504558ec3db5d8e731794`
 
 Tags:
 - `repository-tooling`

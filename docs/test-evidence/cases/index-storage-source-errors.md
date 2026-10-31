@@ -1,8 +1,8 @@
 ### Case INDEX-STORAGE-SOURCE-ERRORS-001: 内部source与普通text保持失败诊断
 
 Tests:
-- `test:aabded5cc5248e8ac84cd9e62970f43667a2c2713232f8d15b2812d3c2aaf5e9`
-- `test:babe9ec1375c8b103cde00d78ab3a33b7b114cda47a3ca2db8ec2d05aca45179`
+- `test:4c99613c3714fe32e1f70bf6cbc615c13da6271d8dba027be0db2780b16faa67`
+- `test:bfc2554d06fc14a684fcbe55ee41037b7ab8cb43b483007944c50318564e6ad3`
 
 Tags:
 - `index-runtime`

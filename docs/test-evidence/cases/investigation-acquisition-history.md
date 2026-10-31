@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-ACQUISITION-HISTORY-001: 关系历史只取得必要 Git 证据
 
 Tests:
-- `test:f4cb7f0fb8d51e9a3fc8dbe015dc329a4181a9865e49cfa7fd7576fe8c3cf366`
+- `test:a60cadd504c0fcc4cee3e12da4dfb53c7472a67fe083be3aeda5da2db16d76ff`
 
 Tags:
 - `investigation-report`

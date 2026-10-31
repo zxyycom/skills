@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-HELP-WITHOUT-COLLECTION-001: help 渲染不读取集合状态
 
 Tests:
-- `test:f2c0e5d7d3ac7ba27c26d069bd3603bb0cc01bbc3373c6a10705fec6b8cd8842`
+- `test:d0bf6f8e79a19d027840b0839b4b7ea4a42c42ba35da8522bc44e1b6a9120a1d`
 
 Tags:
 - `investigation-report`

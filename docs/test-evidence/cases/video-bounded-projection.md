@@ -1,8 +1,8 @@
 ### Case VIDEO-BOUNDED-PROJECTION-001: 读取投影有界且保留依据
 
 Tests:
-- `test:26a3bf0055725eeb8452cbc4a83a9ada5ca9b28b1be6ce2cdc46e432dc73ab82`
-- `test:9d187f294674e654addc6b9c0cb4564584b1be456443bae3ef70e47c855e4cf9`
+- `test:9e2e484d5dcd5480ea1777cebc2243190da51e86d3483d4410022ba35fd3f81a`
+- `test:bf47de9c89432da15cc88014de3418c8b1b5d6512aa382c759f19a42c1a0d57c`
 
 Tags:
 - `video-understanding`

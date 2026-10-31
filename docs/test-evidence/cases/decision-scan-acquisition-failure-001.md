@@ -1,7 +1,7 @@
 ### Case DECISION-SCAN-ACQUISITION-FAILURE-001: 首次采集失败不进行隐式重读
 
 Tests:
-- `test:865a2885036fed1c6a33c837a7208efa287539480e9119b1778be7f651da3d3c`
+- `test:ae7b543e0bf8cc6a41fc5035e842b7f803567d7d59dc6017267b823ca4f4ca24`
 
 Tags:
 - `decision-records`

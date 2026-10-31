@@ -29,7 +29,7 @@
 
 同调用、同阶段的准备结果绑定 definition、来源身份、原始字节和已完成的严格证明，直接交给消费者。领域图证明与原生索引构建证明分别交接。
 
-严格事务的强来源 snapshot 同时保存 canonical 路径、文件身份、mode、完整父链和该次安全采集的实际 bytes；正文由这些 bytes 严格 UTF-8 解码。消费时绑定真实事务命名空间的 root、path 及预期 bytes/text，不能将较窄根下的父链改锚为另一事务根的证明。根选择由领域适配源码承接，采集与绑定入口见 [`transaction-snapshot.ts`](src/transaction-snapshot.ts)。
+严格事务的强来源 snapshot 同时保存 canonical 路径、文件身份、mode、完整父链和该次安全采集的实际 bytes；正文由这些 bytes 严格 UTF-8 解码。消费时绑定真实事务命名空间的 root、path 及预期 bytes/text，不能将较窄根下的父链改锚为另一事务根的证明。根选择由领域适配源码承接，采集与绑定入口见 [`transaction-snapshot.ts`](./src/transactions/transaction-snapshot.ts)。
 
 领域可在同一次 prepare 或 postverify 内复用本阶段已采集且正文未变的解析文档；正文改变则重新解析，最终组合领域图与预期索引仍须验收。普通维护以合法发布索引、所选来源及实际改写集合为边界：纯索引依赖不补读正文，未选来源当前性不在证明范围内。进入 fresh 或写后验收阶段时，旧结果仅作比较依据，本阶段重新取得适用的局部来源、安全路径与索引事实；实际写集仍独立回读验收。原生索引 fresh、事务 fresh 和 postverify 各自履行采集义务；内部证明不扩展默认非 strict 路径、公开 SDK 或持久格式。
 

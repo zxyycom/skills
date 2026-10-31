@@ -1,7 +1,7 @@
 ### Case ENV-METRICS-PREREQUISITES-001: 环境精确诊断 SCC 且不自动安装
 
 Tests:
-- `test:ad7e09e7bb92a614e4c01e8e8e8f208aa0a3f768d609aca008916583dacefbee`
+- `test:161cc89f82e70a17ed18452bf20b8eee9e61b6fe1727b44ed1af6c4ba4ac1849`
 
 Tags:
 - `repository-tooling`

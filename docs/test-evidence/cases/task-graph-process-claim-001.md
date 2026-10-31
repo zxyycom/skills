@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-PROCESS-CLAIM-001: 独立 Node CLI 排斥 claim 只有一个赢家
 
 Tests:
-- `test:a76a6ca0ae9b83c4278e23d8bea464f94b2f7d5e0df716fc56e4523ca55a409f`
+- `test:584dbf495e27725c65128f322b9b7751d3c947912cae3a70daf077366d9beae2`
 
 Tags:
 - `task-graph`

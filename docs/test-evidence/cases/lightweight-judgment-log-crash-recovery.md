@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-CLI-030: 强制终止后的记录恢复
 
 Tests:
-- `test:d095df0dd4f9a186d8f1abdc14b48c511079921a5b7080f09c1452a6f45b2bbf`
+- `test:3b3fd0e4471a777608031ca62f152b9ec0997d32622bbc7b2ea800a23e4a698e`
 
 Tags:
 - `lightweight-judgment`

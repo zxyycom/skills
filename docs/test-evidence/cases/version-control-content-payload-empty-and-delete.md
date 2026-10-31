@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-CONTENT-PAYLOAD-EMPTY-001: 空范围与选择路径生命周期
 
 Tests:
-- `test:30e9ea569940793387e9976b23a301986bdc3fa5ec9ef097914ba5dbfbe9f964`
+- `test:b1fae54a0fada9e34cd556e15c86b07b28dc0020730fe4133d7f76b4bc17fd57`
 
 Tags:
 - `version-control`

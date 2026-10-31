@@ -18,7 +18,7 @@ import {
   listChangePlans,
   showChangePlanDirectory
 } from "./catalog.ts";
-import { checkChangePlanDirectory } from "./check.ts";
+import { checkChangePlanDirectory } from "./checks/check.ts";
 import { planChangePlanDirectory } from "./lifecycle.ts";
 import { runFinalize } from "./cli-finalize.ts";
 import {

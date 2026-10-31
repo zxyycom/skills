@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-SELECTED-MEMBER-TYPE-001: Stage 拒绝指向决策根外的选择 symlink 且不写入 pending
 
 Tests:
-- `test:9c285809cd386615a001a1671b9138fae4838e75bf8bfb9891dbf328e78bdd61`
+- `test:946f14db4e885cd73f5d348e563d3ab4f6254e8c63319b8d10a534d6462b2a17`
 
 Tags:
 - `decision-records`

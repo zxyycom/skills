@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-PREVIEW-RECOVERY-001: 完整同步预演允许恢复索引且不落盘
 
 Tests:
-- `test:425e72ea25d7752176cc29b2a6b2a14423220622b56c82d91ba61e2f61e5e91b`
+- `test:fe0e80d3ac8998e82001c85611939046fcfaab472f11b246ca0eaa126c5e8580`
 
 Tags:
 - `index-runtime`

@@ -1,7 +1,7 @@
 ### Case DECISION-SEARCH-MODES-001: Decision search 以三种模式检索完整 Markdown
 
 Tests:
-- `test:4905ed2f8b5f5d3de1ea2083370ed962da78bf5ed56690bdab6c18975ca21179`
+- `test:4a4af5f498ba682c867aaea4e95f7e2081a8fcb8095d39575ff4fb85f227fc03`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-PATH-001: 路径失败映射 JSON 退出码一
 
 Tests:
-- `test:4ffa68ba8f380643a83d7ae522ef98b9966104f0ad9c3e4eb153868e38a71747`
+- `test:4c6bc675b4b7256148202a62f730ebe6fa83361bcaee5281fa32fd735d14deed`
 
 Tags:
 - `task-graph`

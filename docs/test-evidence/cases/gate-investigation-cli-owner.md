@@ -1,7 +1,7 @@
 ### Case GATE-INVESTIGATION-CLI-OWNER-001: IR CLI 场景归真实 CLI consumer
 
 Tests:
-- `test:24b18f552fb3dfb3b388a93ef38bc9ffe934fe66bc0fa105e39e3c570375306e`
+- `test:18ef9c17c16d092dec76c82b3f609a32c26a128f6d5a3836d2f61cbfd89170a1`
 
 Tags:
 - `repository-tooling`

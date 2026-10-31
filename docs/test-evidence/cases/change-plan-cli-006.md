@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-CLI-006: 单目录命令支持项目约定的自定义 Change 根
 
 Tests:
-- `test:a6ac0439a33a1bbc5625ebe7dfa70e7b16f617b3fe2bfff5c54c687343b92742`
+- `test:c55fa4a43785dd170a10da7c6f0c5edf0190b80cfcd74c48d3a2b3fcfaddbd12`
 
 Tags:
 - `change-plan`

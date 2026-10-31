@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-QUERY-VALIDATION-001: 拒绝未知模式不匹配及多值排序键
 
 Tests:
-- `test:c53a3c598e53d352e8e15574947fb01e1e1020ebf2607cf843f4e272ecc6fef6`
+- `test:3abb1bc7410aa735993e29202768786d0ada67e51d0ec21b8136d478e5adeba9`
 
 Tags:
 - `index-runtime`

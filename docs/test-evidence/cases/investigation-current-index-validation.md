@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CURRENT-INDEX-VALIDATION-001: Current 加载保留完整领域校验
 
 Tests:
-- `test:82bb4b2cf1ae5df2d7dd58a1526cefa9d6cace3f37af29362397a5340aa5b160`
+- `test:aa3bfc7429a5c645e190731c106f77442abb99d9542dc7b27a9d45f0720f6a7a`
 
 Tags:
 - `investigation-report`

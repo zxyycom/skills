@@ -1,7 +1,7 @@
 ### Case GATE-SELECTED-CODE-UNION-001: 多领域指标范围取维护代码并集
 
 Tests:
-- `test:c2c56c7e6058f45b105023be4b816de4f8ddf40f5144e1e3361239328686ccec`
+- `test:019f0ba5d4c26255b5ede2b71f18ef9eee152f158335fe3b6df70216337bc420`
 
 Tags:
 - `repository-tooling`

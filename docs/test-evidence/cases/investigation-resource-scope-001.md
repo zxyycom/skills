@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-SCOPE-001: scoped resource checks do not claim global unreferenced resource proof
 
 Tests:
-- `test:86b15fd70e3afd90ef838cb4dbd16dcd6fcfacab88e97aaf1eb29b6d526aa48d`
+- `test:daca6a5451eb7ef2d2c915f09737d6e636afc495015fc4827088c1ce355f1343`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case RECORD-NATIVE-CREATION-HANDLE-PROOF-001: 原生创建的权限验收与恢复绑定实际写入句柄
 
 Tests:
-- `test:6d203be36d4399854c3eb2e1a96845a148461293b66ad3e52f4983e4f37874d6`
+- `test:96355eb7d809545ed966901cbfacf42ba707a30129f45adf9dca48c37865a53a`
 
 Tags:
 - `record-operations`

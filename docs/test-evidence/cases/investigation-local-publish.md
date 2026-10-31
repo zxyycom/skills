@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-LOCAL-PUBLISH-001: 发布沿用未选来源的发布投影
 
 Tests:
-- `test:84025c5acbc9d833665f5857600dc35ef21df8164bccd4b3b36600e723101c02`
+- `test:b0121425b9cc047a4bbeb1e8c9af0f46b5c00b7463184b0fe9de310835e1260b`
 
 Tags:
 - `investigation-report`

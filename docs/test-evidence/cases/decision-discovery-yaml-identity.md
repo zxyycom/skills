@@ -1,7 +1,7 @@
 ### Case DECISION-DISCOVERY-YAML-IDENTITY-001: 来源发现从同份 YAML 取得身份与候选状态
 
 Tests:
-- `test:453dcdc8a6cf1b7640176c4c5998c5ef1df99707eb6e27f5d9dcd32536e14120`
+- `test:e2923b535cc1117a14895d843e0c016fcda22ed7c982ce095e858b705f0e8783`
 
 Tags:
 - `decision-records`

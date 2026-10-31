@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-ALL-LOCATOR-EXTENSION-DRIFT-001: all 暂存拒绝 locator 到扩展捕获之间的 pending 漂移
 
 Tests:
-- `test:eb71b1906bfd499b13f6e78d1b7f452f3c19408b88eee08b1f3a65dce60dfac8`
+- `test:8727b2bdf19c8a9fff19e4321f32f72b666c189b0fe17fdd36cde9ab1c79982c`
 
 Tags:
 - `decision-records`

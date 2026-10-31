@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-OWNER-001: owner report must directly reference its own resource
 
 Tests:
-- `test:e96b0bc400bdf15b6a15f7788b04d5dc4cb0bbef472b69ca92f03a5ae486a400`
+- `test:6c83d704efa88becc0629a3e75baae4d8a7080de122373f1e6608caca216dfd3`
 
 Tags:
 - `investigation-report`

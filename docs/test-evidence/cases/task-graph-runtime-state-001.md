@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-RUNTIME-STATE-001: missing 与 incompatible runtime 不被自动修复
 
 Tests:
-- `test:653c3e884fca7748f8fe2da6eba308511dda337dd7d36498ed76901b2fffab1d`
+- `test:8866d97486672f613a13d762e6c8152537c1b4a08dde5ce3c0984b29bee26cbc`
 
 Tags:
 - `task-graph`

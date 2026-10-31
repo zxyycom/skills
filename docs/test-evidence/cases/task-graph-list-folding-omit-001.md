@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LIST-FOLDING-OMIT-001: 可从全量数据恢复的 blocker 不重复显示
 
 Tests:
-- `test:4137229cb762b3324d430be1926eaf4ed7027d0d15ef93d03a9c327cc4b5cd82`
+- `test:769f3b8286c8255f6aeee6b97a6711ef6633b6b3e1af46edf71f53a51595f002`
 
 Tags:
 - `task-graph`

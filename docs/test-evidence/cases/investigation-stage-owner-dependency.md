@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-OWNER-DEPENDENCY-001: 正式 owner 是索引声明依赖而非正文输入
 
 Tests:
-- `test:d7fee0968ff0a494baef605008f929cd9ede86c19fb3d95f411c5a8fef151d6f`
+- `test:aa8eae848907f9a121812ec75f79a392237cb129eb21e12f54bb61d7121d4d73`
 
 Tags:
 - `investigation-report`

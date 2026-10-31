@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-LIFECYCLE-VC-001: Plan 缺少 HEAD 时不写 metadata
 
 Tests:
-- `test:d0a54b132f0bc4e955030f53baa67e58fa0e44292a7fcf3c9320c75dbe75d7c8`
+- `test:09aea1ef1061a6a9c0224b8d747f8f9af8454cdd4019ce04063afd41a02d71b7`
 
 Tags:
 - `change-plan`

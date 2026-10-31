@@ -1,7 +1,7 @@
 ### Case ENV-BUN-RUNTIME-001: 环境复用可运行的 Bun 而不限制版本
 
 Tests:
-- `test:c8d706cc2bf35caa909556317bbd2220a849971f2b150f516d4e10b63f3d57f8`
+- `test:53bc57bdb36c9940276283fbf172bcce2dac008582d65c46c29c35ab7d94e448`
 
 Tags:
 - `repository-tooling`

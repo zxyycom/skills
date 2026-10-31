@@ -1,7 +1,7 @@
 ### Case DECISION-LIFECYCLE-ARCHIVED-DISCARD-001: 丢弃归档记录删除路径与索引身份
 
 Tests:
-- `test:e3c77a459f8892bd40cfc35b0436d5543e6906ba9881c7eb95c4548cb19ae6f3`
+- `test:2dac2ba45be515fd63d31c13502e3de6117a2af7f47da0acf7417023ef03a7ab`
 
 Tags:
 - `decision-records`

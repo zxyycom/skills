@@ -1,7 +1,7 @@
 ### Case GATE-ENVIRONMENT-VALIDATOR-OWNER-001: 环境结构回归拥有源码 validator 输入
 
 Tests:
-- `test:575a36febefc92d0fb9d6b4c7616481e3d541c28aa8d26a6aa97db29cc1c4523`
+- `test:2cd18932228800cd6049166fc9a9b28a791ca7315b7b21c40fe4a1cafe18374e`
 
 Tags:
 - `repository-tooling`

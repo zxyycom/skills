@@ -4,7 +4,7 @@ import {
   packSkillPackageSnapshot,
   prepareSkillPackageRelease,
   type PreparedSkillPackageRelease
-} from "../../skill-package-release.ts";
+} from "../../skill-package/skill-package-release.ts";
 import {
   gateCheckDeclaration,
   type GateCheckConfiguration,

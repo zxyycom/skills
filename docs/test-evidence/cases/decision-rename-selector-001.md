@@ -1,7 +1,7 @@
 ### Case DECISION-RENAME-SELECTOR-001: dated source 精确选择且 name 歧义拒绝猜测
 
 Tests:
-- `test:ce5a875400a32e5069cd98d31d1ed98f641d28e1e58727e6ab645b8ab051b1d3`
+- `test:89fdfaf0e7635ac1da079565e6e7c6520b9d57b0facce4d4b48de7c1d8030560`
 
 Tags:
 - `decision-records`

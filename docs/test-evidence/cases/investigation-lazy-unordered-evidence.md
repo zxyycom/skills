@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-LAZY-EVIDENCE-001: 乱序构图保持关系证据顺序
 
 Tests:
-- `test:028439ff5b1cae6b3b7d0c2eeec9849d724e83026cec4b03f3ce50c0516a66ee`
+- `test:afbdda94ef2785cb1fa769979ad107c5b9ae44439ac84a9a566e82ddf0d7fe51`
 
 Tags:
 - `investigation-report`

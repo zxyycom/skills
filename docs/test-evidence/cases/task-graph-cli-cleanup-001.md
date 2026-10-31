@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-CLEANUP-001: CLI help 提供任务移除入口并拒绝 scope 命令
 
 Tests:
-- `test:5e7c0ed60613ba35c65748a1e5b2a9c4afafd244f31c4c701978541b4f4e8ec3`
+- `test:8000be371ad5e7ae96247e074e4590d5ba3bee034b31c577127036d3b26a90e8`
 
 Tags:
 - `task-graph`

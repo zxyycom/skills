@@ -1,7 +1,7 @@
 ### Case RECORD-READER-SAFETY-001: 批量读取拒绝不安全路径和非法编码
 
 Tests:
-- `test:62f676ad990290523fbc9a6f0d44209960581b87dcf9c0926a1c7c5e7f400119`
+- `test:189476500d9dbc00cc1f25e8c0efa3aee8618b233597efbef5a7f9e81f07c1e5`
 
 Tags:
 - `record-operations`

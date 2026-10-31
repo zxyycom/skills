@@ -1,7 +1,7 @@
 ### Case DECISION-LIFECYCLE-ARCHIVE-RECOVERY-001: 归档与再启用保留创建身份
 
 Tests:
-- `test:4ee58a8599dbe20b59a7912395b9a236bab85e6430e936019a5ca6d421f879a5`
+- `test:bec72ca5163aa1c73e59abc1d3d77761064a7861c2f807a07f5a6ea22bc65c4f`
 
 Tags:
 - `decision-records`

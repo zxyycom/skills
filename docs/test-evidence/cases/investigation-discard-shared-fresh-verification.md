@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-SHARED-FRESH-001: 删除的领域新鲜来源与共同保护共享安全观察
 
 Tests:
-- `test:9e2289a84b80066019d1858a3e649b04a1ec9e85418f8bfe8c83fb1d1e650b1b`
+- `test:d04a4e215717861cf7df5f17e172f630d12b1c881e2445c431b748ce2440b328`
 
 Tags:
 - `investigation-report`

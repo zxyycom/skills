@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-ANCESTOR-LINEAGE-001: 深链祖先返回完整近优先序列
 
 Tests:
-- `test:4b4b27a02a78e47e4f984022c1f345e3e28e94bb7d4b3940500bdd10f7e8b5b4`
+- `test:2ee1bc117e7275c0e73d45df3532d3092214fba132ce35a6be30a94b63860988`
 
 Tags:
 - `task-graph`

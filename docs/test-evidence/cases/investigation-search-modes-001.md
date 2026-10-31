@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-SEARCH-MODES-001: search 以匹配模式和结构筛选检索正式 Markdown
 
 Tests:
-- `test:456600c4ded1c12714e05fddd23c4b1e3078b6c0bbf015bf108f6029e5c70e62`
+- `test:626e4c5f7cc89ad6b8340dba7f22c98d80e6b8961ad49db5c0b91159d8d4f218`
 
 Tags:
 - `investigation-report`

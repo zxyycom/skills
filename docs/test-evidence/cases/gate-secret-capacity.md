@@ -1,7 +1,7 @@
 ### Case GATE-SECRET-CAPACITY-001: 项目密钥检测固定容量政策并扫描代表选集
 
 Tests:
-- `test:91bb565b8c277e409f2c37b0ef1e58194324618e68a70e9ef43a40f5e019b4b9`
+- `test:803576b4b574eae843ee3b9d357ad1f354f1ab4476c085d3b13194016930a2ee`
 
 Tags:
 - `repository-tooling`

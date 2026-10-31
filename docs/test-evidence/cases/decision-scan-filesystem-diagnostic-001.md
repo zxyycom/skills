@@ -1,7 +1,7 @@
 ### Case DECISION-SCAN-FILESYSTEM-DIAGNOSTIC-001: 扫描访问拒绝按稳定诊断输出并净化 detail
 
 Tests:
-- `test:8540cb4dc025f7d40bd653258e221fe0a2031c1241f23b54622db8be1f5f0bfb`
+- `test:2e473e9950238e7e83d149b38dcad43c3473bf1f43bf1c6f5c6461d906a7a1b0`
 
 Tags:
 - `decision-records`

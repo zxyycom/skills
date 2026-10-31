@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RESOURCE-MISSING-001: referenced missing resources are errors and unreferenced visible resources are warnings
 
 Tests:
-- `test:3c0cf52aeeaa07025a3629b2d1b7dda52f142835aed19797f1b7eddcb48017a0`
+- `test:b2b51994d24d9f1db29280c7307b73726d680f30214daa84222af1741382b1bc`
 
 Tags:
 - `investigation-report`

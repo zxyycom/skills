@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RENAME-CANDIDATE-001: candidate rename preflight 保持零写入
 
 Tests:
-- `test:fcd2be825d51546d9cd128366b8034da1d1badbec0d0e3880eddfadcc12d118f`
+- `test:7ca0488b532b534b78f5087237e8f5ef0c74ebede0421d33583595dda3a8b975`
 
 Tags:
 - `investigation-report`

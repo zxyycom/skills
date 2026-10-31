@@ -1,7 +1,7 @@
 ### Case FILE-TEXT-SEARCH-LIMITED-RANGES-001: 有界范围保留匹配与合并语义
 
 Tests:
-- `test:11ac3cc920b7f1f7c6f9a4d2a3c13d26e259bada96120a580e43a7ef64ff69bc`
+- `test:b13d32dd18f927bc895314d2d248699f10887d8787901614a8422045c0835950`
 
 Tags:
 - `file-text-search`

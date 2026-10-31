@@ -1,7 +1,7 @@
 ### Case RESOLVED-FIRST-PARENT-ENDPOINTS-REUSE-001: 已解析提交范围不重复解析端点
 
 Tests:
-- `test:e498c09f4a8800d1901ee20917f3a95f59caec051823a4fd3ef749af47a0c712`
+- `test:4605bb8c933a91f9d21c15079dc4a34e32835132ef7960b01636f80dd06119ed`
 
 Tags:
 - `git-integration`

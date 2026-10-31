@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-016: 候选资源归属
 
 Tests:
-- `test:a81116de8fb58b64961ff12c17a7b99068e4229c9d07e84a9e19a90ecb8e9836`
+- `test:a5aac7983d96584e83ad11995ae2f669dad24d0bf85984564bb6c581d67993f6`
 
 Tags:
 - `record-cost`

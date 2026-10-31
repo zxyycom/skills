@@ -1,7 +1,7 @@
 ### Case GATE-GENERATED-INPUTS-001: 生成原语测试保留完整局部模块闭包
 
 Tests:
-- `test:e12dca21c0e6320282da2510b9a2b6646ee08017f6f79c080df0d84385c5eb75`
+- `test:591bd1fdc31db746763b68a45019697948509a45ecbfca46a74e3f3f3be0d240`
 
 Tags:
 - `repository-tooling`

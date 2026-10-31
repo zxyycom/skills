@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-SERIALIZATION-001: 序列化保留 definition-owned state 字段顺序
 
 Tests:
-- `test:3d3be087e5265e20985aec8cd761dbbf065b5fb90d499ba0f4d254ad4ccda372`
+- `test:a703794753db2c5082141eda78ecd997576bcf5d99c69a10826317b69b82693a`
 
 Tags:
 - `index-runtime`

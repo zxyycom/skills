@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-MISSING-COMMAND-001: 缺少命令时渲染顶层帮助并按参数错误结束
 
 Tests:
-- `test:792f73cfca5ff75f5281707bae9e6be88d5391578c5b6550dd6c61f07adb463c`
+- `test:46e464867a83fe10d7b139d792a7a2bf5bface05afd1db7bc463938d3e04d56b`
 
 Tags:
 - `decision-records`

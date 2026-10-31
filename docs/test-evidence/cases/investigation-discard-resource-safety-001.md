@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-RESOURCE-SAFETY-001: discard rejects unsafe owner resource members without deleting the report
 
 Tests:
-- `test:b8d1ec9207e71766dbc383bc2913c3f2df97c4a6484c3cd8053cc7e94bf8a371`
+- `test:401d7b4472e675004ec7812c21dd51cea543b9d1cde884eb16189ef242653219`
 
 Tags:
 - `investigation-report`

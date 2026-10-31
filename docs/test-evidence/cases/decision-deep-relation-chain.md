@@ -1,7 +1,7 @@
 ### Case DECISION-DEEP-RELATION-CHAIN-001: 决策图合法深链与晚期环
 
 Tests:
-- `test:0f0088836a46d7c205f867496ebe72d7f3383e854738ba59309ea2740ddfc511`
+- `test:739e8f8c45f85d7a5c3bf3dbfecd9df4547d6e8ce8d3fb6796b5fdec2bb000e7`
 
 Tags:
 - `decision-records`

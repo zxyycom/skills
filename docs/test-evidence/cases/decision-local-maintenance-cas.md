@@ -1,7 +1,7 @@
 ### Case DECISION-LOCAL-MAINTENANCE-CAS-001: 局部准备之后仍保护并发来源字节
 
 Tests:
-- `test:08ddc9de8a1686bc5380ca408085f8a47b5211dbb752505787743c6715492a99`
+- `test:8e7eb94c398751d531d7d9e2b40ffd48b523f9ab59e43952e4894b7bdfde9a14`
 
 Tags:
 - `decision-records`

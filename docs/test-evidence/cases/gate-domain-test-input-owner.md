@@ -1,7 +1,7 @@
 ### Case GATE-DOMAIN-TEST-INPUT-OWNER-001: 领域输入矩阵归属实际 consumer
 
 Tests:
-- `test:1618a0cec8c2565b6e10267c73f6617f5ce1da3a151923a7acb19c8ee382ce39`
+- `test:32548290c1511228774ee8f37435b7b582a2ca1bb17d3e66179a1626fbea31ee`
 
 Tags:
 - `repository-tooling`

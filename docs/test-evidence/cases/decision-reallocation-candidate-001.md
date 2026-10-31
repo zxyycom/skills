@@ -1,7 +1,7 @@
 ### Case DECISION-REALLOCATION-CANDIDATE-001: 候选重划关系保持前瞻性
 
 Tests:
-- `test:39c873e856c2855da6ab1574a75ba1e7b32379efec6a7aa787b28367acded8cc`
+- `test:e16c5df993c07ada4df97bcf023444e9437ba8537f300d87cb0b95354931dd9f`
 
 Tags:
 - `decision-records`

@@ -24,18 +24,18 @@ import {
   investigationAuthoringDocumentExclusions,
   markdownSourcePatterns,
   maintainedMarkdownFiles
-} from "../impact-paths.ts";
+} from "../impact/impact-paths.ts";
 import {
   gateMetricToolIds,
   markdownLintToolSubscription
-} from "../impact-tools.ts";
-import { selectGateCodeAreas } from "../code-selection.ts";
+} from "../impact/impact-tools.ts";
+import { selectGateCodeAreas } from "../selection/code-selection.ts";
 import { maintainedProjectFiles } from "../project-files.ts";
 export {
   historicalContentExclusions,
   investigationAuthoringDocumentExclusions,
   maintainedMarkdownFiles
-} from "../impact-paths.ts";
+} from "../impact/impact-paths.ts";
 
 const projectExclusions = [...historicalContentExclusions] as const;
 

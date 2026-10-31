@@ -1,7 +1,7 @@
 ### Case RECORD-READER-PARENTS-001: 同步读取拒绝父目录身份替换
 
 Tests:
-- `test:83496af3e7a4196c13881ab36eb430769690883cbc0ae9ebfd17f3c0c4ce7c24`
+- `test:9a1449f03cbdd1848ff7e2de15a1bdef4111b8b39689ce2419a719f0a9c052d1`
 
 Tags:
 - `record-operations`

@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-STAGE-EMPTY-HEAD-001: HEAD 无索引时从空基线暂存新索引
 
 Tests:
-- `test:6eca20a8cbb4496ecff30ba24ac0233d5c1483280b1bac639eff52994c568ecb`
+- `test:5c926c3da876f00f882c6af9c9d0f0008ac5bd547648753edd7848084da273c5`
 
 Tags:
 - `task-graph`

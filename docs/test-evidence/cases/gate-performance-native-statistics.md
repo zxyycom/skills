@@ -1,7 +1,7 @@
 ### Case GATE-PERFORMANCE-NATIVE-STATISTICS-001: 当前执行样本按 nearest-rank 计算 P90
 
 Tests:
-- `test:de12118876b9aa66bbdbed0f4c877d1ff09c9b3c89f30d535d501d15a5761f31`
+- `test:450d53571d1ba9229deda46cf4a1f6b6620a461d31319688fdadf08fcd71b786`
 
 Tags:
 - `performance`

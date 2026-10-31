@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-RELATION-SELF-001: 候选关系校验拒绝自引用
 
 Tests:
-- `test:d30b8ab5d83626839ecab0c5d4c4e4bb32b828753365bf853a450756fe3b7c8b`
+- `test:22b275edc0abb13faef5e18188f0572669f1230ddea420452b40bca33c7c1f29`
 
 Tags:
 - `decision-records`

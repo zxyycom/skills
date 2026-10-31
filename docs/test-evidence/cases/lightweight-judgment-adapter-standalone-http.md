@@ -1,7 +1,7 @@
 ### Case LIGHTWEIGHT-JUDGMENT-ADAPTER-011: 独立 Node 原生协议传输
 
 Tests:
-- `test:08b45cc5e0ed339411e2db3ab0d6761a57cc82fef4c6bc4508213c679c3d170f`
+- `test:9785c1f6acf6ce475fc61cd906d488b38b362e05e7fbe8ef75f9694355f040b8`
 
 Tags:
 - `lightweight-judgment`

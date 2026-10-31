@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-008: 决策名称关系查找
 
 Tests:
-- `test:f0f86231b721b55cae369922b3eebfb4146001fb52688b55e5d7b57fbeaf091b`
+- `test:c49651d74fc613d097780ffd14188ecd419158c05b39344568279efaf631a2f7`
 
 Tags:
 - `record-cost`

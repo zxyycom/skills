@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-PENDING-PAYLOAD-EXPANSION-BOUNDARY-001: 同阶段 payload 扩展保留选择与缺失事实
 
 Tests:
-- `test:63256c8b83423f896bb9074d0c618fc8a0b6e8369055ea4d4dc5f8dc44778c17`
+- `test:2f9eb4105def3330cb489f35eedc47aad4beb6e910666255fe05853aa7efd1f4`
 
 Tags:
 - `version-control`

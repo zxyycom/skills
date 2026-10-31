@@ -1,7 +1,7 @@
 ### Case DECISION-STATIC-MERGE-MINIMUM-001: 严格关系检查拒绝前序不足的纯归并
 
 Tests:
-- `test:200be5e5f8144725e030034dc2c913317672baea9285bfad1855ec4e5c0ee211`
+- `test:39a7e2f93b4eed57e0863673d7233df5a74f23b24fa1f260f01023b74e91e43a`
 
 Tags:
 - `decision-records`

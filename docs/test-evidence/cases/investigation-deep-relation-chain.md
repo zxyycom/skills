@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DEEP-RELATION-CHAIN-001: 调查图合法深链与晚期环
 
 Tests:
-- `test:b99c67814ae3fb3f94fc173ef72b0ae1d83de6e5ba86e3fd47c24127db2a8a4c`
+- `test:7f30fe24cd69b724b9e9405eace1346b0ca6770f8b7984547f9a22203911b4ad`
 
 Tags:
 - `investigation-report`

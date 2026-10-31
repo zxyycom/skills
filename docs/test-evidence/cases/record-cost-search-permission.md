@@ -1,7 +1,7 @@
 ### Case RECORD-COST-CASE-014: 搜索权限访问边界
 
 Tests:
-- `test:a3ef3497e67762ed159f9ad84166b796df20826823fcb0d09b5c8453ee81a3d1`
+- `test:ad768b2a987a3b5f194e11a1524d048ecb600af16d9325d9bec0e242c9bf3a36`
 
 Tags:
 - `record-cost`

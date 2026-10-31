@@ -1,7 +1,7 @@
 ### Case GATE-MARKDOWN-PROOF-DELETION-001: Markdown 内容证明的删除集合
 
 Tests:
-- `test:a642ea32c81afc610acc631103fce892fe82e9835a35a295823a022499ae4cb3`
+- `test:28a2bbccf129b1b57a4708ad7b3c2dfa58ec91a54807c3921ba4c75ac2d375ac`
 
 Tags:
 - `repository-tooling`
