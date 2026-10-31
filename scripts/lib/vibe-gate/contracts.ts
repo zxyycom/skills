@@ -10,6 +10,7 @@ import {
 } from "./profiles.ts";
 import {
   activationFlagForTool,
+  type GateToolId,
   type GateToolSubscription
 } from "./impact-tools.ts";
 
@@ -45,6 +46,7 @@ export type GateCheckConfiguration = Readonly<{
   environmentPrerequisite?: boolean;
   incremental?: boolean;
   scope?: GateScope;
+  selectionScopes?: readonly GateToolId[];
   generationSkillNames?: readonly string[];
   release?: boolean;
 }>;

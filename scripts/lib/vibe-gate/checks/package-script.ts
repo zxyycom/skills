@@ -5,7 +5,7 @@ import {
   projectActivationCondition,
   type GateCheckConfiguration
 } from "../contracts.ts";
-import type { GateToolSubscription } from "../impact-tools.ts";
+import { gateCodeToolIds, type GateToolSubscription } from "../impact-tools.ts";
 import { gateCommandPolicy } from "../command-runner.ts";
 
 export const compatibilityTestPackageScripts = [
@@ -62,7 +62,7 @@ export const packageScriptToolSubscriptions = {
   "test:skill-release-publisher": ["skill-release-publisher"],
   typecheck: ["typescript-program"],
   lint: ["typescript-program"],
-  validate: ["repository-validation"],
+  validate: ["repository-validation", "skill-validator"],
   "check:investigations": [
     "investigation-record",
     "investigation-query",
@@ -141,7 +141,12 @@ export function createPackageScriptCheck(
       externalProcessClaim,
       packageScriptDependencies[script],
       projectActivationCondition(
-        packageScriptToolSubscriptions[script],
+        configuration.scope === "selected" &&
+          (script === "typecheck" ||
+            script === "lint" ||
+            script === "format:check")
+          ? gateCodeToolIds
+          : packageScriptToolSubscriptions[script],
         configuration
       )
     ),

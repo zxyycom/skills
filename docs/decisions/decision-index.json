@@ -162,6 +162,7 @@
       "261027-layer-maintenance-docs-by-abstraction": "sha256:a2a2b44693c9130623c694a3f130dcdb7e3ad215ea43a0b052f2ca9c5fc2618a",
       "261027-prefer-explicit-local-gate-scopes": "sha256:83e1bb06bfc3dea05e861a52867893e9a39cf9c4aa21f79e4f00ad47e7f76688",
       "261027-remove-openspec-skills": "sha256:a9e822ad13475b138a4639f19e7a57db6a7a7b38fca77d84d53d3295d15fee25",
+      "261031-unify-gate-domain-scope-declarations": "sha256:d0f42bda0fb174534ea1e50afcfdc65fff5947b1f098e72dd18a7805a2782ead",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -3775,6 +3776,24 @@
           "summary": "退出四阶段能力，停止维护其专属CLI路由"
         }
       ]
+    },
+    "261031-unify-gate-domain-scope-declarations": {
+      "name": "unify-gate-domain-scope-declarations",
+      "sourcePath": "261031-unify-gate-domain-scope-declarations.md",
+      "title": "统一领域声明的检查输入与维护代码投影",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-31T07:44:32Z",
+      "purpose": "让显式领域验证的检查选择和代码扫描共享范围来源，避免无关代码扫描与路径声明分叉。",
+      "background": "检查订阅已有领域输入，但指标仍全仓运行；混合共同输入与领域文件会扩大局部代码范围。",
+      "decision": "领域表区分文件范围与额外输入，检查沿用订阅，文件和函数指标使用所选领域维护代码投影。",
+      "tags": [
+        "project-tooling",
+        "responsibility-boundaries",
+        "validation-boundaries",
+        "vibe-gate"
+      ],
+      "relations": []
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",

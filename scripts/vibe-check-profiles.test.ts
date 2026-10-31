@@ -50,11 +50,7 @@ test("quick Definition retains the catalog while always enabling its necessary c
     "json-validation",
     "json-schema-validation",
     "markdown-link-validation",
-    "markdown-lint",
-    "script:typecheck",
-    "script:lint",
-    "script:format:check",
-    "script:validate"
+    "markdown-lint"
   ];
   assert.deepEqual([...quickGateCheckIds].sort(), expectedQuickIds.toSorted());
   for (const [index, check] of quick.checks.entries()) {

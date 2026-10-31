@@ -1,6 +1,6 @@
 import { commonGateInputPatterns } from "./impact-paths.ts";
 
-const codeInputs = [...commonGateInputPatterns, "scripts/**", "tools/**"];
+const codeFiles = ["scripts/**", "tools/**"];
 // Runtime capabilities do not absorb unrelated maintenance scripts or tests.
 // Build/copy consumers declare their additional script inputs explicitly.
 const domainRuntimeInputs = [
@@ -10,8 +10,7 @@ const domainRuntimeInputs = [
   "tools/shared/tests/{git-fixture,distribution-fixture}.ts",
   "tools/shared/tests/fixtures/**"
 ];
-const generatedFileInputs = [
-  ...commonGateInputPatterns,
+const generatedFileFiles = [
   "scripts/lib/{generated-file,generated-file-header,generated-typescript-declarations,source-map,source-runtime,source-runtime-facts,source-runtime-sync,unsupported-optional-package}.ts",
   "scripts/lib/generated-file.test.ts"
 ];
@@ -31,49 +30,31 @@ const repositoryValidationInputs = [
 ];
 const recordOperationInputs = ["tools/record-operations/src/**"];
 const decisionRecordInputs = [
-  ...recordOperationInputs,
   "tools/decision-records/src/{application-result,index,list-facets,markdown,projection,record,relation-*,scan*,types,decision-{history-{baseline,sources},index-*,location,metadata*,path,record-lookup,source-{revision,dependencies,path-safety},state-*,timestamp,trace-admission,validation}}.ts",
   "tools/decision-records/src/decision-query-context.ts",
   "tools/decision-records/src/decision-strict-preparation.ts"
 ];
 const decisionQueryInputs = [
-  ...recordOperationInputs,
   "tools/decision-records/src/decision-query*.ts",
   "tools/decision-records/src/decision-selected-sync.ts"
 ];
 const decisionMaintenanceInputs = [
-  ...recordOperationInputs,
   "tools/decision-records/src/decision-{candidate*,collection*,discard*,lifecycle*,maintenance*,rename*,relation-*,strict-preparation,transaction*}.ts",
   "tools/decision-records/src/decision-source-membership.ts"
 ];
-const decisionStageInputs = [
-  ...recordOperationInputs,
-  "tools/decision-records/src/decision-stage*.ts"
-];
-const decisionCliInputs = [
-  ...recordOperationInputs,
-  "tools/decision-records/src/cli*.ts"
-];
+const decisionStageInputs = ["tools/decision-records/src/decision-stage*.ts"];
+const decisionCliInputs = ["tools/decision-records/src/cli*.ts"];
 const investigationRecordInputs = [
-  ...recordOperationInputs,
   "tools/investigation-report/src/{cli-io,collection-mutation-lock,diagnostics,investigation-*,markdown*,options,relation-context,relation-summary,relation-validation,report*,resource*,timestamp,types,validation*}.ts"
 ];
 const investigationQueryInputs = [
-  ...recordOperationInputs,
   "tools/investigation-report/src/{index-staleness,list-*,query*,selected-sync,trace-output}.ts"
 ];
 const investigationMaintenanceInputs = [
-  ...recordOperationInputs,
   "tools/investigation-report/src/{candidate*,discard*,local-publication,publish*,relation-review*,relation-transaction*,rename*,strict-preparation,transaction-files}.ts"
 ];
-const investigationStageInputs = [
-  ...recordOperationInputs,
-  "tools/investigation-report/src/staging*.ts"
-];
-const investigationCliInputs = [
-  ...recordOperationInputs,
-  "tools/investigation-report/src/cli*.ts"
-];
+const investigationStageInputs = ["tools/investigation-report/src/staging*.ts"];
+const investigationCliInputs = ["tools/investigation-report/src/cli*.ts"];
 const decisionTestSupportInputs = [
   "tools/decision-records/tests/{support,support-record-fixture,support-git-fixture,domain-fixture}.ts",
   "tools/decision-records/tests/fixtures/**",
@@ -176,236 +157,265 @@ const searchOutputInputs = [
 
 export const markdownLintToolSubscription = ["markdown-content"] as const;
 
-// Each entry owns one reviewed input capability. Check subscriptions are declared
-// by the semantic/package catalog and native declarations, not inferred from
-// Check names or path proximity.
-export const gateToolInputs = {
-  // The snapshot unions these configuration inputs with the exact native
-  // maintainedMarkdownFiles collection, preserving its default excludes.
-  "markdown-content": commonGateInputPatterns,
-  "repository-material": ["**"],
-  "repository-code": codeInputs,
-  // TypeScript follows imports beyond the root include patterns. Type-aware
-  // lint conservatively shares this closure; its native backend does not expose
-  // a complete program-read trace in the installed package.
-  "typescript-program": [
-    ...codeInputs,
+export type GateToolScope = Readonly<{
+  files: readonly string[];
+  additionalInputs: readonly string[];
+}>;
+
+function toolScope(
+  files: readonly string[],
+  additionalInputs: readonly string[] = commonGateInputPatterns
+): GateToolScope {
+  return { files, additionalInputs };
+}
+
+const recordRuntimeInputs = [...domainRuntimeInputs, ...recordOperationInputs];
+
+// files is the shared domain boundary. Additional inputs keep command/receipt
+// dependencies complete without turning them into locally selected metric files.
+export const gateToolScopes = {
+  // The snapshot additionally supplies the native maintainedMarkdownFiles set.
+  "markdown-content": toolScope([]),
+  "repository-material": toolScope(
+    ["docs/**", "skills/**", "changes/**"],
+    ["**"]
+  ),
+  "repository-code": toolScope(codeFiles),
+  "typescript-program": toolScope([
+    ...codeFiles,
     "skills/**/*.{ts,mts}",
     "skills/**/package.json"
-  ],
-  "gate-tests": [
-    ...commonGateInputPatterns,
-    "scripts/**",
-    "tools/*/tests/**/*.test.ts",
-    "tools/*/tests/{run,checks/*}.ts",
-    "tools/shared/tests/git-fixture.ts",
-    "tools/shared/tests/fixtures/**"
-  ],
-  environment: [
-    ...commonGateInputPatterns,
-    "scripts/**",
-    "tools/skill-validator/src/validation.ts",
-    "tools/shared/tests/git-fixture.ts",
-    "tools/shared/tests/fixtures/**"
-  ],
-  "generated-artifacts": [...codeInputs, "skills/**"],
-  "skill-updater": [
-    ...generatedFileInputs,
-    "tools/skill-updater/**",
-    "skills/ai-ready-docs/**"
-  ],
-  "index-runtime": [...commonGateInputPatterns, "tools/index-runtime/**"],
-  "relation-graph": [...commonGateInputPatterns, "tools/shared/src/graph/**"],
-  "relation-graph-tests": [
-    ...commonGateInputPatterns,
+  ]),
+  "gate-tests": toolScope(
+    [
+      "scripts/vibe-check*.ts",
+      "scripts/lib/vibe-gate.ts",
+      "scripts/lib/vibe-gate/**"
+    ],
+    [
+      ...commonGateInputPatterns,
+      "scripts/**",
+      "tools/*/tests/**/*.test.ts",
+      "tools/*/tests/{run,checks/*}.ts",
+      "tools/shared/tests/git-fixture.ts",
+      "tools/shared/tests/fixtures/**"
+    ]
+  ),
+  environment: toolScope(
+    [
+      "scripts/environment*.{js,ts}",
+      "scripts/auto-push*.ts",
+      "scripts/setup-*.js",
+      "scripts/validators/project-config*.ts"
+    ],
+    [
+      ...commonGateInputPatterns,
+      "scripts/**",
+      "tools/skill-validator/src/validation.ts",
+      "tools/shared/tests/git-fixture.ts",
+      "tools/shared/tests/fixtures/**"
+    ]
+  ),
+  "generated-artifacts": toolScope([...codeFiles, "skills/**"]),
+  "skill-updater": toolScope(
+    ["tools/skill-updater/**", "skills/ai-ready-docs/**"],
+    [...commonGateInputPatterns, ...generatedFileFiles]
+  ),
+  "index-runtime": toolScope(["tools/index-runtime/**"]),
+  "relation-graph": toolScope(["tools/shared/src/graph/**"]),
+  "relation-graph-tests": toolScope([
     "tools/shared/tests/{relation-*,trace-*,lazy-relation-graph}.test.ts"
-  ],
-  "file-text-search": [
-    ...commonGateInputPatterns,
+  ]),
+  "file-text-search": toolScope([
     "tools/shared/src/file-text-search/**",
     "skills/{decision-records,investigation-report}/scripts/runtime/tools/shared/src/file-text-search/**",
     "!tools/shared/src/file-text-search/record-search-output.ts",
     "!skills/{decision-records,investigation-report}/scripts/runtime/tools/shared/src/file-text-search/record-search-output.ts"
-  ],
-  "file-text-search-tests": [
-    ...commonGateInputPatterns,
+  ]),
+  "file-text-search-tests": toolScope([
     "tools/shared/tests/{file-text-search*,record-text-search*}.ts"
-  ],
-  "version-control": [
-    ...commonGateInputPatterns,
+  ]),
+  "version-control": toolScope([
     "tools/shared/tests/{version-control*,git-fixture}.ts",
     "tools/shared/tests/fixtures/**"
-  ],
-  "skill-package-hash": [
-    ...commonGateInputPatterns,
-    "scripts/lib/skill-package*.ts",
-    "tools/shared/tests/git-fixture.ts",
-    "tools/shared/tests/fixtures/**"
-  ],
-  "skill-release-publisher": [
-    ...commonGateInputPatterns,
+  ]),
+  "skill-package-hash": toolScope(
+    ["scripts/lib/skill-package*.ts"],
+    [
+      ...commonGateInputPatterns,
+      "tools/shared/tests/git-fixture.ts",
+      "tools/shared/tests/fixtures/**"
+    ]
+  ),
+  "skill-release-publisher": toolScope([
     "scripts/publish-skills{,.test}.ts",
     "scripts/lib/publish-skills*.ts"
-  ],
-  "repository-validation": repositoryValidationInputs,
-  "generated-file": generatedFileInputs,
-  "change-plan": [
-    ...domainRuntimeInputs,
-    "tools/change-plan/**",
-    "skills/change-plan/**",
-    "changes/**"
-  ],
-  "record-search-output": [...domainRuntimeInputs, ...searchOutputInputs],
-  "record-operations": [...domainRuntimeInputs, ...recordOperationInputs],
-  "record-operations-tests": [
-    ...commonGateInputPatterns,
+  ]),
+  "repository-validation": toolScope(
+    [
+      "scripts/validate.ts",
+      "scripts/validators/project-config.ts",
+      "scripts/lib/validation.ts",
+      "skills/*/SKILL.md"
+    ],
+    repositoryValidationInputs
+  ),
+  "generated-file": toolScope(generatedFileFiles),
+  "change-plan": toolScope(
+    ["tools/change-plan/**", "skills/change-plan/**", "changes/**"],
+    domainRuntimeInputs
+  ),
+  "record-search-output": toolScope(searchOutputInputs, domainRuntimeInputs),
+  "record-operations": toolScope(recordOperationInputs, domainRuntimeInputs),
+  "record-operations-tests": toolScope([
     "tools/record-operations/tests/{transaction.test,transaction-contract,transaction-creation-contract,transaction-fixture,transaction-verification-contract,reader-batch.test,reader-snapshot.test,reader-worker-runtime.test,reader-fixture,source-acquisition.test,run}.ts",
     "tools/record-operations/tests/checks/*.ts"
-  ],
-  "record-reader-distribution": [
-    ...commonGateInputPatterns,
+  ]),
+  "record-reader-distribution": toolScope([
     "skills/{decision-records,investigation-report}/scripts/**"
-  ],
-  "decision-record": [...domainRuntimeInputs, ...decisionRecordInputs],
-  "decision-query": [...domainRuntimeInputs, ...decisionQueryInputs],
-  "decision-maintenance": [
-    ...domainRuntimeInputs,
-    ...decisionMaintenanceInputs
-  ],
-  "decision-stage": [...domainRuntimeInputs, ...decisionStageInputs],
-  "decision-cli": [...domainRuntimeInputs, ...decisionCliInputs],
-  "decision-test-catalog": [
-    ...commonGateInputPatterns,
-    "tools/decision-records/tests/run.ts"
-  ],
-  "decision-record-tests": [
-    ...commonGateInputPatterns,
-    ...decisionRecordTestInputs
-  ],
-  "decision-query-tests": [
-    ...commonGateInputPatterns,
-    ...decisionQueryTestInputs
-  ],
-  "decision-maintenance-tests": [
-    ...commonGateInputPatterns,
-    ...decisionMaintenanceTestInputs
-  ],
-  "decision-stage-tests": [
-    ...commonGateInputPatterns,
-    ...decisionStageTestInputs
-  ],
-  "decision-cli-tests": [...commonGateInputPatterns, ...decisionCliTestInputs],
-  "investigation-record-tests": [
-    ...commonGateInputPatterns,
-    ...investigationRecordTestInputs
-  ],
-  "investigation-query-tests": [
-    ...commonGateInputPatterns,
-    ...investigationQueryTestInputs
-  ],
-  "investigation-maintenance-tests": [
-    ...commonGateInputPatterns,
-    ...investigationMaintenanceTestInputs
-  ],
-  "investigation-stage-tests": [
-    ...commonGateInputPatterns,
-    ...investigationStageTestInputs
-  ],
-  "investigation-cli-tests": [
-    ...commonGateInputPatterns,
-    ...investigationCliTestInputs
-  ],
-  "decision-distribution-tests": [
-    ...commonGateInputPatterns,
+  ]),
+  "decision-record": toolScope(decisionRecordInputs, recordRuntimeInputs),
+  "decision-query": toolScope(decisionQueryInputs, recordRuntimeInputs),
+  "decision-maintenance": toolScope(
+    decisionMaintenanceInputs,
+    recordRuntimeInputs
+  ),
+  "decision-stage": toolScope(decisionStageInputs, recordRuntimeInputs),
+  "decision-cli": toolScope(decisionCliInputs, recordRuntimeInputs),
+  "decision-test-catalog": toolScope(["tools/decision-records/tests/run.ts"]),
+  "decision-record-tests": toolScope(decisionRecordTestInputs),
+  "decision-query-tests": toolScope(decisionQueryTestInputs),
+  "decision-maintenance-tests": toolScope(decisionMaintenanceTestInputs),
+  "decision-stage-tests": toolScope(decisionStageTestInputs),
+  "decision-cli-tests": toolScope(decisionCliTestInputs),
+  "investigation-record-tests": toolScope(investigationRecordTestInputs),
+  "investigation-query-tests": toolScope(investigationQueryTestInputs),
+  "investigation-maintenance-tests": toolScope(
+    investigationMaintenanceTestInputs
+  ),
+  "investigation-stage-tests": toolScope(investigationStageTestInputs),
+  "investigation-cli-tests": toolScope(investigationCliTestInputs),
+  "decision-distribution-tests": toolScope([
     ...decisionTestSupportInputs,
     "tools/decision-records/tests/{generated-artifacts,search-info,cli-node-protocol,cli-query-parity,cli-reallocation}.test.ts",
     "tools/decision-records/tests/reallocation-fixture.ts",
     "tools/decision-records/tests/queries/domain-support.ts",
     "tools/decision-records/tests/checks/public-distribution.ts"
-  ],
-  "decision-distribution": [
-    ...domainRuntimeInputs,
-    "tools/decision-records/api/**",
-    "skills/decision-records/**",
-    "!skills/decision-records/scripts/runtime/tools/shared/src/file-text-search/record-search-output.ts"
-  ],
-  "decision-collection": [...domainRuntimeInputs, "docs/decisions/**"],
-  "investigation-record": [
-    ...domainRuntimeInputs,
-    ...investigationRecordInputs
-  ],
-  "investigation-query": [...domainRuntimeInputs, ...investigationQueryInputs],
-  "investigation-maintenance": [
-    ...domainRuntimeInputs,
-    ...investigationMaintenanceInputs
-  ],
-  "investigation-stage": [...domainRuntimeInputs, ...investigationStageInputs],
-  "investigation-cli": [...domainRuntimeInputs, ...investigationCliInputs],
-  "investigation-test-catalog": [
-    ...commonGateInputPatterns,
+  ]),
+  "decision-distribution": toolScope(
+    [
+      "tools/decision-records/api/**",
+      "skills/decision-records/**",
+      "!skills/decision-records/scripts/runtime/tools/shared/src/file-text-search/record-search-output.ts"
+    ],
+    domainRuntimeInputs
+  ),
+  "decision-collection": toolScope(["docs/decisions/**"], domainRuntimeInputs),
+  "investigation-record": toolScope(
+    investigationRecordInputs,
+    recordRuntimeInputs
+  ),
+  "investigation-query": toolScope(
+    investigationQueryInputs,
+    recordRuntimeInputs
+  ),
+  "investigation-maintenance": toolScope(
+    investigationMaintenanceInputs,
+    recordRuntimeInputs
+  ),
+  "investigation-stage": toolScope(
+    investigationStageInputs,
+    recordRuntimeInputs
+  ),
+  "investigation-cli": toolScope(investigationCliInputs, recordRuntimeInputs),
+  "investigation-test-catalog": toolScope([
     "tools/investigation-report/tests/run.ts"
-  ],
-  "investigation-distribution": [
-    ...domainRuntimeInputs,
-    "tools/investigation-report/api/**",
-    "skills/investigation-report/**",
-    "!skills/investigation-report/scripts/runtime/tools/shared/src/file-text-search/record-search-output.ts"
-  ],
-  "investigation-collection": [
-    ...domainRuntimeInputs,
-    "docs/investigations/**"
-  ],
-  "test-evidence-project": [
-    ...commonGateInputPatterns,
-    "scripts/test-evidence/**"
-  ],
-  "test-evidence": [
-    ...domainRuntimeInputs,
-    "tools/test-evidence/**",
-    "skills/test-evidence-review/**",
-    "docs/test-evidence/**",
-    "tools/shared/src/file-text-search/**",
-    "!tools/shared/src/file-text-search/record-search-output.ts"
-  ],
-  "task-graph": [
-    ...domainRuntimeInputs,
-    "scripts/{build,lib}/**",
-    "tools/task-graph/**",
-    "skills/task-graph/**",
-    "docs/task-graph/**"
-  ],
-  "novel-cards": [
-    ...domainRuntimeInputs,
-    "tools/novel-cards/**",
-    "skills/novel-cards/**"
-  ],
-  "lightweight-judgment": [
-    ...domainRuntimeInputs,
-    "tools/lightweight-judgment/**",
-    "skills/lightweight-judgment/**"
-  ],
-  "video-understanding": [
-    ...commonGateInputPatterns,
+  ]),
+  "investigation-distribution": toolScope(
+    [
+      "tools/investigation-report/api/**",
+      "skills/investigation-report/**",
+      "!skills/investigation-report/scripts/runtime/tools/shared/src/file-text-search/record-search-output.ts"
+    ],
+    domainRuntimeInputs
+  ),
+  "investigation-collection": toolScope(
+    ["docs/investigations/**"],
+    domainRuntimeInputs
+  ),
+  "test-evidence-project": toolScope(["scripts/test-evidence/**"]),
+  "test-evidence": toolScope(
+    [
+      "tools/test-evidence/**",
+      "skills/test-evidence-review/**",
+      "docs/test-evidence/**"
+    ],
+    [
+      ...domainRuntimeInputs,
+      "tools/shared/src/file-text-search/**",
+      "!tools/shared/src/file-text-search/record-search-output.ts"
+    ]
+  ),
+  "task-graph": toolScope(
+    ["tools/task-graph/**", "skills/task-graph/**", "docs/task-graph/**"],
+    [...domainRuntimeInputs, "scripts/{build,lib}/**"]
+  ),
+  "novel-cards": toolScope(
+    ["tools/novel-cards/**", "skills/novel-cards/**"],
+    domainRuntimeInputs
+  ),
+  "lightweight-judgment": toolScope(
+    ["tools/lightweight-judgment/**", "skills/lightweight-judgment/**"],
+    domainRuntimeInputs
+  ),
+  "video-understanding": toolScope([
     "scripts/accept-video-windows.ts",
     "scripts/video-artifact/**",
     "tools/video-understanding/**",
     "skills/video-understanding/**"
-  ],
-  mcpshell: [
-    ...domainRuntimeInputs,
-    "tools/mcpshell-workspace-bridge/**",
-    "skills/mcpshell-workspace-tools/**"
-  ],
-  "skill-validator": [
-    ...domainRuntimeInputs,
-    "tools/skill-validator/**",
-    "skills/skill-maintainer/**",
-    "skills/**/SKILL.md"
-  ]
-} as const satisfies Readonly<Record<string, readonly string[]>>;
+  ]),
+  mcpshell: toolScope(
+    [
+      "tools/mcpshell-workspace-bridge/**",
+      "skills/mcpshell-workspace-tools/**"
+    ],
+    domainRuntimeInputs
+  ),
+  "skill-validator": toolScope(
+    [
+      "tools/skill-validator/**",
+      "skills/skill-maintainer/**",
+      "skills/**/SKILL.md"
+    ],
+    domainRuntimeInputs
+  )
+} as const satisfies Readonly<Record<string, GateToolScope>>;
 
-export type GateToolId = keyof typeof gateToolInputs;
+export type GateToolId = keyof typeof gateToolScopes;
 export type GateToolSubscription = readonly [GateToolId, ...GateToolId[]];
+
+// This is a derived compatibility view for complete-input fingerprints, not a
+// second scope table. All path ownership stays in gateToolScopes.
+export const gateToolInputs = Object.fromEntries<readonly string[]>(
+  Object.entries(gateToolScopes).map(([id, scope]) => [
+    id,
+    [...scope.additionalInputs, ...scope.files]
+  ])
+) as Readonly<Record<GateToolId, readonly string[]>>;
+
+export const gateCodeToolIds: GateToolSubscription = [
+  "repository-code",
+  ...Object.entries(gateToolScopes)
+    .filter(
+      ([id, { files }]) =>
+        id !== "repository-code" && files.some(isGateCodePattern)
+    )
+    .map(([id]) => id as GateToolId)
+];
+
+export function isGateCodePattern(pattern: string): boolean {
+  return pattern.startsWith("scripts/") || pattern.startsWith("tools/");
+}
 
 export function activationFlagForTool(toolId: string): string {
   return `gate-tool:${toolId}`;

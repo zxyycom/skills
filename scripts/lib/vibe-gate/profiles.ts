@@ -29,11 +29,7 @@ export const quickGateCheckIds = [
   "json-validation",
   "json-schema-validation",
   "markdown-link-validation",
-  "markdown-lint",
-  "script:typecheck",
-  "script:lint",
-  "script:format:check",
-  "script:validate"
+  "markdown-lint"
 ] as const;
 
 export function isQuickGateCheck(checkId: string): boolean {

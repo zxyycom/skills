@@ -25,7 +25,11 @@ import {
   markdownSourcePatterns,
   maintainedMarkdownFiles
 } from "../impact-paths.ts";
-import { markdownLintToolSubscription } from "../impact-tools.ts";
+import {
+  gateCodeToolIds,
+  markdownLintToolSubscription
+} from "../impact-tools.ts";
+import { selectGateCodeAreas } from "../code-selection.ts";
 export {
   historicalContentExclusions,
   investigationAuthoringDocumentExclusions,
@@ -127,6 +131,10 @@ export function createVibeNativeChecks(
   const codeActivation =
     configuration.scope === "selected"
       ? projectActivationCondition(["repository-code"], configuration)
+      : undefined;
+  const metricActivation =
+    configuration.scope === "selected"
+      ? projectActivationCondition(gateCodeToolIds, configuration)
       : undefined;
   return [
     duplicateDetection({
@@ -245,14 +253,17 @@ export function createVibeNativeChecks(
         configuration,
         repositoryProcessClaims,
         [],
-        codeActivation
+        metricActivation
       ),
-      codeAreas: {
-        maintained: {
-          files: maintainedCodeFiles,
-          findingPolicy: "blocking"
-        }
-      },
+      codeAreas: selectGateCodeAreas(
+        {
+          maintained: {
+            files: maintainedCodeFiles,
+            findingPolicy: "blocking"
+          }
+        },
+        configuration
+      ),
       findingPolicy: "blocking",
       findingWaivers: []
     }),
@@ -262,58 +273,61 @@ export function createVibeNativeChecks(
         configuration,
         repositoryScanClaim,
         [],
-        codeActivation
+        metricActivation
       ),
-      codeAreas: {
-        product: {
-          files: productCodeFiles,
-          findingPolicy: "blocking",
-          limits: {
-            codeLines: {
-              lowComplexityAllowance: {
-                cyclomaticComplexityBelow: 5,
-                maximum: 120
+      codeAreas: selectGateCodeAreas(
+        {
+          product: {
+            files: productCodeFiles,
+            findingPolicy: "blocking",
+            limits: {
+              codeLines: {
+                lowComplexityAllowance: {
+                  cyclomaticComplexityBelow: 5,
+                  maximum: 120
+                },
+                maximum: 45
               },
-              maximum: 45
-            },
-            cyclomaticComplexity: { maximum: 10 },
-            nestingDepth: { maximum: 5 },
-            parameters: { maximum: 5 }
+              cyclomaticComplexity: { maximum: 10 },
+              nestingDepth: { maximum: 5 },
+              parameters: { maximum: 5 }
+            }
+          },
+          automation: {
+            files: automationCodeFiles,
+            findingPolicy: "blocking",
+            limits: {
+              codeLines: {
+                lowComplexityAllowance: {
+                  cyclomaticComplexityBelow: 7,
+                  maximum: 220
+                },
+                maximum: 80
+              },
+              cyclomaticComplexity: { maximum: 16 },
+              nestingDepth: { maximum: 8 },
+              parameters: { maximum: 7 }
+            }
+          },
+          tests: {
+            files: testCodeFiles,
+            findingPolicy: "blocking",
+            limits: {
+              codeLines: {
+                lowComplexityAllowance: {
+                  cyclomaticComplexityBelow: 8,
+                  maximum: 250
+                },
+                maximum: 100
+              },
+              cyclomaticComplexity: { maximum: 20 },
+              nestingDepth: { maximum: 10 },
+              parameters: { maximum: 8 }
+            }
           }
         },
-        automation: {
-          files: automationCodeFiles,
-          findingPolicy: "blocking",
-          limits: {
-            codeLines: {
-              lowComplexityAllowance: {
-                cyclomaticComplexityBelow: 7,
-                maximum: 220
-              },
-              maximum: 80
-            },
-            cyclomaticComplexity: { maximum: 16 },
-            nestingDepth: { maximum: 8 },
-            parameters: { maximum: 7 }
-          }
-        },
-        tests: {
-          files: testCodeFiles,
-          findingPolicy: "blocking",
-          limits: {
-            codeLines: {
-              lowComplexityAllowance: {
-                cyclomaticComplexityBelow: 8,
-                maximum: 250
-              },
-              maximum: 100
-            },
-            cyclomaticComplexity: { maximum: 20 },
-            nestingDepth: { maximum: 10 },
-            parameters: { maximum: 8 }
-          }
-        }
-      },
+        configuration
+      ),
       findingPolicy: "blocking",
       findingWaivers: []
     })

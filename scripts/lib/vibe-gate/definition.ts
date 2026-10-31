@@ -108,6 +108,9 @@ function resolveGateCheckConfiguration(
   return {
     environmentPrerequisite: true,
     ...(dependencies.scope === undefined ? {} : { scope: dependencies.scope }),
+    ...(dependencies.scope === "selected"
+      ? { selectionScopes: dependencies.selectionScopes }
+      : {}),
     incremental: validateIncrementalSelection(dependencies.activeToolIds),
     ...(generationSkillNames === undefined ? {} : { generationSkillNames }),
     release

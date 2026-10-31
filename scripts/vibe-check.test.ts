@@ -10,6 +10,7 @@ import "./vibe-check-command-runner.test.ts";
 import "./vibe-check-metrics.test.ts";
 import "./vibe-check-native-selection.test.ts";
 import "./vibe-check-native-policy.test.ts";
+import "./vibe-check-scoped-code.test.ts";
 import "./vibe-check-markdown-capacity.test.ts";
 import "./vibe-check-package-adapter.test.ts";
 import "./vibe-check-proof-mode.test.ts";

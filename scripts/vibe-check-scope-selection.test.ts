@@ -17,22 +17,31 @@ const necessaryIds = [
   "json-validation",
   "json-schema-validation",
   "markdown-link-validation",
-  "markdown-lint",
+  "markdown-lint"
+];
+const codeQualityIds = [
+  "file-metrics",
+  "function-metrics",
   "script:typecheck",
   "script:lint",
-  "script:format:check",
-  "script:validate"
+  "script:format:check"
 ];
 
 test("selected scopes execute only the necessary set subscriptions and dependency closure", async () => {
   const scenarios: readonly Readonly<{
     scopes: readonly GateToolId[];
     additional: readonly string[];
+    hasCode?: boolean;
   }>[] = [
-    { scopes: ["gate-tests"], additional: ["script:test:check"] },
+    {
+      scopes: ["gate-tests"],
+      additional: ["script:test:check"],
+      hasCode: true
+    },
     {
       scopes: ["decision-stage-tests"],
-      additional: ["test:decision-records:pending-stage"]
+      additional: ["test:decision-records:pending-stage"],
+      hasCode: true
     },
     {
       scopes: ["mcpshell"],
@@ -41,7 +50,8 @@ test("selected scopes execute only the necessary set subscriptions and dependenc
         "test:mcpshell:initializer",
         "test:mcpshell:runtime",
         "test:mcpshell:public-distribution"
-      ]
+      ],
+      hasCode: true
     },
     {
       scopes: ["mcpshell", "gate-tests", "mcpshell"],
@@ -51,20 +61,45 @@ test("selected scopes execute only the necessary set subscriptions and dependenc
         "test:mcpshell:initializer",
         "test:mcpshell:runtime",
         "test:mcpshell:public-distribution"
-      ]
+      ],
+      hasCode: true
     },
     {
       scopes: ["repository-code"],
-      additional: ["duplicate-detection", "file-metrics", "function-metrics"]
+      additional: ["duplicate-detection"],
+      hasCode: true
+    },
+    {
+      scopes: ["decision-collection"],
+      additional: ["script:check:decisions"]
+    },
+    {
+      scopes: ["repository-validation"],
+      additional: ["script:validate"],
+      hasCode: true
+    },
+    {
+      scopes: ["skill-validator"],
+      additional: [
+        "script:validate",
+        "script:test:skill-validator",
+        "script:check:skill-updaters"
+      ],
+      hasCode: true
     }
   ];
   await withTemporaryDirectory("gate-selected-closure-", async (directory) => {
     for (const [index, scenario] of scenarios.entries()) {
       const executed: string[] = [];
-      const expected = [...necessaryIds, ...scenario.additional].sort();
+      const expected = [
+        ...necessaryIds,
+        ...(scenario.hasCode ? codeQualityIds : []),
+        ...scenario.additional
+      ].sort();
       const outputDirectory = path.join(directory, String(index));
       const scopes = [...new Set(scenario.scopes)];
       const information: string[] = [];
+      const errors: string[] = [];
       assert.equal(
         await runVibeCheck(
           scenario.scopes.flatMap((scope) => ["--scope", scope]),
@@ -91,10 +126,20 @@ test("selected scopes execute only the necessary set subscriptions and dependenc
                 definition.checks.map(({ checkId }) => checkId),
                 gateCheckIds()
               );
+              for (const script of ["typecheck", "lint", "format:check"]) {
+                const check = definition.checks.find(
+                  ({ checkId }) => checkId === `script:${script}`
+                );
+                assert.ok(check?.options && typeof check.options === "object");
+                assert.deepEqual(Reflect.get(check.options, "arguments"), [
+                  "run",
+                  script
+                ]);
+              }
               return observeGateActivation(definition, executed);
             },
             reportInfo: (message) => information.push(message),
-            reportError: () => undefined,
+            reportError: (message) => errors.push(message),
             async runProject(definition, controls) {
               assert.deepEqual(
                 controls.flags,
@@ -120,7 +165,7 @@ test("selected scopes execute only the necessary set subscriptions and dependenc
           }
         ),
         0,
-        scopes.join(",")
+        `${scopes.join(",")}: ${errors.join("\n")}`
       );
       assert.deepEqual(executed.toSorted(), expected);
       const summary = v.parse(
@@ -154,7 +199,9 @@ test("selected scopes execute only the necessary set subscriptions and dependenc
       assert.deepEqual(summary.selection.executedCheckIds.toSorted(), expected);
       assert.deepEqual(
         summary.selection.dependencyCheckIds,
-        scopes.includes("mcpshell") ? ["script:check:skill-updaters"] : []
+        scopes.includes("mcpshell") || scopes.includes("skill-validator")
+          ? ["script:check:skill-updaters"]
+          : []
       );
       assert.ok(information.join("\n").includes("selected"));
       await assert.rejects(

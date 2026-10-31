@@ -420,11 +420,12 @@
       "FILE-TEXT-SEARCH-UNICODE-RANGE-001": "sha256:d7b1d476a2fe864ca543f15c6cf2e444d7f003bc96c9a05cfb3da3144a8911b6",
       "GATE-CATALOG-LEAF-OWNER-001": "sha256:3d1155bb5619f9b9ff93e8f5f7c7a378307cbb052263e5189c39c08f52ccd6bd",
       "GATE-CLI-PATH-NORMALIZATION-001": "sha256:5ea1d7d270f8514f9109784d2b2e9262b3ee4a3d18a9be02604244d4c5689f46",
-      "GATE-CLI-PERFORMANCE-BOUNDARY-001": "sha256:49ac7d35609608aac89fadffc560a98663bbd7f9ac8cdf98015e6064ea0d3826",
+      "GATE-CLI-PERFORMANCE-BOUNDARY-001": "sha256:1bb4a45d8f90ad3b7b62c8c1ec370467c3eed37b5039a24a7af9f76a4a7591ee",
       "GATE-CLI-PERFORMANCE-WRITE-FAILURE-001": "sha256:092e04ffb3923598cbf2aaaa3a1b5f709ba561717794c4ed6913ab06b55e9596",
       "GATE-CLI-RESULT-001": "sha256:105c42c9b2fec5cd45d839805a30078af35db78eaef48432e45296293ef10cc6",
+      "GATE-COMPLETE-CODE-METRICS-001": "sha256:11b6f5652555c2ca5895d68ef8d5b0ba7c249ee3e5b7fcbe9f9fdf6d69ed43d6",
       "GATE-DECISION-ACQUISITION-CLI-CLOSURE-001": "sha256:cc4fe6cfd64fc3159fd26b90280761452bad187555fa03fb0617af985a2c0654",
-      "GATE-DEFINITION-CATALOG-001": "sha256:5773cd8801546e3ffd303f85823f50dff6c170d52aa428cbea703b2e12740311",
+      "GATE-DEFINITION-CATALOG-001": "sha256:2cee31a05c501519008a7d82174f7e4e8c6ba4f2f5f3677e660adc78536e24ee",
       "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:840553137473ceae45cb978aadc8f5631a73b768df520bcd332e0a61f513739d",
       "GATE-DOMAIN-AGGREGATE-OWNER-001": "sha256:a65eadd4bdd2ece954da4fc85478701f70e580010ad1cc7697aba3ee1d082c24",
       "GATE-DOMAIN-TEST-INPUT-OWNER-001": "sha256:9f90cbb32d9a1caf3aef8609a59437146e71bdcf6bd88cb1b7a481b6fc17b343",
@@ -479,9 +480,13 @@
       "GATE-SCOPE-DISCOVERY-001": "sha256:3056dc90e55fef3ddf157baad5f70bcef9bda3dc1e6dbf53c346f7e611207a69",
       "GATE-SCRIPT-ADAPTER-001": "sha256:33ea16ddf3cd3dcf6484bf87e9abe1274a70fa80414078969f61797f7cbe7673",
       "GATE-SECRET-CAPACITY-001": "sha256:5c4916bed31ff55675eb31dbb8857396ca9072f1146f94ef89a21bfee2ff5d2d",
-      "GATE-SELECTED-ACTIVATION-001": "sha256:3479b862819e6432433604cb44a0c97b231d755e90cf6db772a231cf8c9a35a9",
+      "GATE-SELECTED-ACTIVATION-001": "sha256:d684f5669a19fc2d53b5ecc1c9f40dcc74e526144c36ba39ef8155899fc95dc1",
       "GATE-SELECTED-ARGUMENTS-001": "sha256:d866378ce6ff6abcb3479854bf8052b0f4db3068661e62c25b26fbebb464024b",
       "GATE-SELECTED-CI-FULL-001": "sha256:73e1d09a90ab6b707a44b492bdf36d9fecf4afe487b3c96004c0c8b3f0049c40",
+      "GATE-SELECTED-CODE-EXCLUSION-ISOLATION-001": "sha256:dadc61453e1569f1951ab6c0ddc254ef450b08155fb8bfd944ea646d8c34bc2c",
+      "GATE-SELECTED-CODE-OWNERSHIP-001": "sha256:19625d4f92a9ae838d38a5e24a94d3199e4f908bcb534b90bd903c200baf09c5",
+      "GATE-SELECTED-CODE-UNION-001": "sha256:8bead568fd023a0668a31103b35f69d1c4a888b6497d1971b05c5bb5419aa61d",
+      "GATE-SELECTED-FUNCTION-BOUNDARY-001": "sha256:7a033097a773fba08c801d2992da6b14c697ef9a77de95db5caf65fa84fe392a",
       "GATE-SELECTED-GENERATION-SKILLS-001": "sha256:33dcbe7a7c1df135e82664536e06019502a3f3a33fbfdf1c54440b6f613fe8c6",
       "GATE-SELECTED-INVALID-ARGUMENTS-001": "sha256:982a580232a3035bfb880da29fc04c08e74e56eef4a1a1eb887a21a5c0ead224",
       "GATE-SELECTED-PROVIDER-ARGV-001": "sha256:964fdee571c27dbe3371683c4bbebc844a780be2962505e4bc964f0582579cd0",
@@ -5773,6 +5778,16 @@
         "test:e064c4ca690efe319b015f374992d4002a50d8abfea9ee2d77b1f81418d46316"
       ]
     },
+    "GATE-COMPLETE-CODE-METRICS-001": {
+      "title": "完整模式保留全量维护代码与跨领域阻断",
+      "sourcePath": "cases/gate-complete-code-metrics.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:e717a2dff2796c1b4787d7f7192078674a838f35878b78b62071f31cd58bb597"
+      ]
+    },
     "GATE-DECISION-ACQUISITION-CLI-CLOSURE-001": {
       "title": "当前 record consumer 包含来源 CLI 闭包",
       "sourcePath": "cases/gate-decision-acquisition-cli-closure.md",
@@ -6398,6 +6413,46 @@
       ],
       "testIds": [
         "test:63799e6458099e20143f17fbf1c490bdb5ff12aa53f6b9ad37f727360064c4ee"
+      ]
+    },
+    "GATE-SELECTED-CODE-EXCLUSION-ISOLATION-001": {
+      "title": "单域负模式不吞掉其他域的显式包含",
+      "sourcePath": "cases/gate-selected-code-exclusion-isolation.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:6b98a44e40ba66d74e891756e4754b5641b490d4c9ac2059504ed2a6057ce621"
+      ]
+    },
+    "GATE-SELECTED-CODE-OWNERSHIP-001": {
+      "title": "领域指标只选择当前维护代码而不吸收证明依赖",
+      "sourcePath": "cases/gate-selected-code-ownership.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:b38b8963002a3d712e72b68cf934870915e3d8673167ef8359f4d50427bfd1b5"
+      ]
+    },
+    "GATE-SELECTED-CODE-UNION-001": {
+      "title": "多领域指标范围取维护代码并集",
+      "sourcePath": "cases/gate-selected-code-union.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:c2c56c7e6058f45b105023be4b816de4f8ddf40f5144e1e3361239328686ccec"
+      ]
+    },
+    "GATE-SELECTED-FUNCTION-BOUNDARY-001": {
+      "title": "原生函数指标仅阻断所选领域的超限实现",
+      "sourcePath": "cases/gate-selected-function-boundary.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:567b5f39960107608e7ddece7063ae2744e04d8e26b6d434a025c50979fc9328"
       ]
     },
     "GATE-SELECTED-GENERATION-SKILLS-001": {

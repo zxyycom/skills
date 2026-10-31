@@ -31,15 +31,17 @@ Gate 最多并行 4 项，外部进程容量为 3、仓库扫描容量为 2；re
 
 ## 原生材料范围与质量政策
 
-八项原生 Check 的项目配置由 `checks/native.ts` 维护，使用完整 patterns 和原生默认排除。代码类检查读取磁盘中 `scripts/`、`tools/` 的 JavaScript/TypeScript；`docs/investigations/_resources/**` 作为非当前维护材料排除。JSON 与 Markdown 链接显式选择 JSON/Markdown 扩展名，并同时排除调查 `_candidate.*` 作者工作台；格式判断由对应原生 Check 完成。
+八项原生 Check 的项目配置由 `checks/native.ts` 维护，保留原生默认排除。维护代码是磁盘中 `scripts/`、`tools/` 的 JavaScript/TypeScript：selected 的文件/函数指标使用所选领域 `files` 的维护代码投影，quick 不选择代码指标；changed、full、CI 和 release 保留完整维护代码范围。领域文件声明及投影由[编写契约](gate-check-authoring.md#领域范围与检查订阅)维护，不另建指标路径表。各领域分别应用自身包含与排除，再将结果取并集；一个领域的排除不能抵消另一个领域的包含。领域 `additionalInputs`、共同配置及共享输入只影响真实检查输入闭包，不自动扩大指标领域。
+
+其余原生材料范围不随显式领域收窄。`docs/investigations/_resources/**` 作为非当前维护材料排除。JSON 与 Markdown 链接显式选择 JSON/Markdown 扩展名，并同时排除调查 `_candidate.*` 作者工作台；格式判断由对应原生 Check 完成。
 
 | 检查 | 当前范围与结算 |
 | --- | --- |
-| 重复检测 | 维护代码；不少于 150 tokens 的重复片段形成 blocking finding。原生 fragments cache 位于 `.log/vibe-check/cache/duplicate-fragments/`，本次仍按当前配置结算。 |
+| 重复检测 | 保持 `repository-code` 订阅与完整维护代码范围，不因显式选择任意代码领域自动启动或裁剪，保留跨领域比较责任；不少于 150 tokens 的重复片段形成 blocking finding。原生 fragments cache 位于 `.log/vibe-check/cache/duplicate-fragments/`，本次仍按当前配置结算。 |
 | 密钥检测 | 维护文本型扩展名、Git 属性/忽略文件与 hooks；5,120 文件、单文件 1 MiB、64 MiB 总量上限，高置信 PEM private-key finding、coverage gap 或 unavailable 阻断。 |
 | JSON / Schema | JSON 检查维护材料；Schema 显式选择 Task Graph/Test Evidence 的两项 schema 和两项 binding，以配置为 schema 身份，使用 offline registry/catalog。 |
 | Markdown 链接 | 当前维护材料的直接 target、anchor、目录和 symlink 由本次验证承担；root-external 使用 report 边界。有限预算覆盖完整维护范围：单文件 1 MiB、10,000 个语义 occurrence、4,096 次直接端点逻辑校验（含 memo 命中，不是唯一 target 数）。parse-facts cache 位于 `.log/vibe-check/cache/markdown-parse-facts/`，命中仍重新验证目标并结算。 |
 | Markdown 内容 | `**/*.[mM][dD]` 与 `**/*.[mM][aA][rR][kK][dD][oO][wW][nN]`，另排除调查资源、调查 `_candidate.*`、`skills/**/references/upstream/**` 和 `skills/**/reference-original.md`。blocking 六规则：`no-reversed-links`、`no-missing-space-atx`、`no-empty-links`、`no-alt-text`、`reference-links-images`、`table-column-count`；仅自动 changed 完整输入精确命中成功 receipt 时可省略；执行时可复用 `.log/vibe-check/cache/markdown-lint-facts/` 的逐文件计算事实，仍按完整当前范围和规则结算。链接/锚点由独立 Check 每轮验证。 |
-| 文件/函数指标 | 全部使用 blocking policy。文件指标使用 PATH SCC 4.0.0，函数指标使用随包 TypeScript analyzer；finding 进入本次 `machine/records.ndjson`。 |
+| 文件/函数指标 | 按本节所述执行范围选择维护代码，全部使用 blocking policy。文件指标使用 PATH SCC 4.0.0，函数指标使用随包 TypeScript analyzer；finding 进入本次 `machine/records.ndjson`。 |
 
 函数普通上限依次为 NLOC、CCN、nesting depth、参数数：产品源码 `45/10/5/5`，自动化脚本 `80/16/8/7`，测试 `100/20/10/8`。低复杂度 NLOC allowance 分别为 CCN 严格低于 `5/7/8` 时允许到 `120/220/250`。每条阻断信号都须验收前处置，仍按[编码规范](coding-style.md#6-保持局部可推理并按责任组织代码)复核真实责任，不以放宽阈值或批量 waiver 替代整改。finding 数量与耗时是测量，不是固定 catalog 边界。

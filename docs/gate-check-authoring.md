@@ -11,7 +11,7 @@
 1. 明确证明契约、直接失败 owner、完整实际输入、稳定重跑命令、成功前置与执行范围归属。
 2. 按下表选择原生、语义命令、包脚本、自定义或 release DAG Check。
 3. 在直接 owner 模块构造 Check，由完整 Definition 组合；身份、依赖、flags 与资源直接进入原生构造器。
-4. 可复用 Check 声明能力订阅，核对能力输入 patterns；同步 catalog fixture、受影响项目测试与 Test Evidence Case/index。
+4. 维护统一领域声明和 Check 的实际订阅，分别核对领域文件、额外输入及维护代码投影；同步 catalog fixture、受影响项目测试与 Test Evidence Case/index。
 5. 按[验证与交付](#验证与交付)运行直接入口、Gate 接入测试和适用门禁，分别报告实际结果与未验证边界。
 
 | 实施前要明确的输入 | 完成标准 |
@@ -63,7 +63,7 @@
 ### 身份、构造与结果
 
 1. `checkId` 是稳定 machine 身份，显示名、顺序、耗时和资源变化不改语义身份。语义 Check 用 `test:<owner>:<contract>`，包脚本由适配器派生 `script:<package-script>`；`displayName` 用简短英文描述对象。
-2. 每次 invocation 保留相同完整 ID 集合。显式能力 scope、自动 changed 输入证明和成功前置通过原生条件与 flags 选择，不动态删除成员。能力分组复用 `impact-tools.ts` 及 Check 的实际订阅；新 Check 须声明其真实能力与前置，不能把显式组自动扩散为所有受变更影响的组。新增 quick eligible 项改变基线责任和性能预算，应显式复核并测试；新增公开 tag 需要独立产品契约设计。
+2. 每次 invocation 保留相同完整 ID 集合。显式能力 scope、自动 changed 输入证明和成功前置通过原生条件与 flags 选择，不动态删除成员。能力分组复用下方统一领域声明及 Check 的实际订阅；新 Check 须声明其真实能力与前置，不能把显式组自动扩散为所有受变更影响的组。新增 quick eligible 项改变基线责任和性能预算，应显式复核并测试；新增公开 tag 需要独立产品契约设计。
 3. 普通命令通过现有语义或包脚本适配器构造独立 `commandCheck`，复用共享命令政策、环境前置及资源声明。argv 保持参数数组；cwd、继承环境、transcript、限额与失败重跑按[运行时 owner](gate-policy.md#调度与命令执行)维护。
 4. 自定义 Check 使用 `execute` 运行并决定终态；需要验证或准备本项 options 时增加 `prepare`。第一业务参数是 options，需要框架字段时通过 `defineContextCallback` 声明第二参数的 context；不依赖未声明字段。
 5. `passed` 表示契约成立，`failed` 表示违反规则，带稳定 reason code 的 `unavailable` 表示无法形成可信结论，`not-applicable` 表示本次不适用。passed/failed 的 data 为 object；Records 只作补充事实。可等待 I/O 与子进程协作响应取消，不遗留未等待工作。
@@ -81,14 +81,27 @@
 
 自动 changed 模式的语义命令、包脚本和 Markdown 内容 Check 由 `impact-catalog.ts` 完整覆盖；只有已评审完整输入闭包才允许复用 receipt。quick/显式 scope 不进行这项全域采集或证明复用。各模式的适用范围与发布权限按[运行时 owner](gate-policy.md#项目输入与成功证明)维护。
 
-1. 在 `impact-tools.ts` 按独立源码职责维护能力 ID 与实际读取的 patterns，并纳入共同输入；共享运行时、build adapters、fixtures、内部 ignored 文件、生成物、TS/MTS、manifest/lock 和配置均按真实消费纳入。flag 由 ID 派生，无须另列。声明时区分：
-   - 同一能力可有多个消费者；源码与其分发副本属于同一能力时共同声明。
-   - 公共运行时与独立测试分别声明能力；每个 Check 订阅实际测试、fixtures/helpers 和传递运行闭包。共同输入承接实际公共加载与配置，额外复制/构建输入归实际 consumer。
-   - 区分目录/文件身份与字节消费；现有模型能表达时按事实建模，不能无损表达时保守保留字节。catalog 仍需覆盖 leaf 存在、可访问与删除，裁剪未读 helper 内容不等于去掉 leaf 输入。
+1. 先按[领域范围与检查订阅](#领域范围与检查订阅)维护领域声明，使用 `gateToolInputs` 的完整输入投影，不另写输入路径表。共享运行时、build adapters、fixtures、内部 ignored 文件、生成物、TS/MTS、manifest/lock 和配置均按真实消费纳入。区分目录/文件身份与字节消费；现有模型能表达时按事实建模，不能无损表达时保守保留字节。catalog 仍需覆盖 leaf 存在、可访问与删除，裁剪未读 helper 内容不等于去掉 leaf 输入。
 2. 在语义 Check、包脚本或原生 lint 的对应订阅声明中显式订阅所需能力；能力选择与 `dependsOn` 的成功前置分别声明。新读取域不在现有采集范围时，同步 `impact-paths.ts` 的磁盘目录/配置及已知 owner 判定，覆盖 Git ignore 下仍被命令读取的材料。
 3. Check 读取新外部工具或环境时，核对 `impact-toolchain.ts`。必要 probe 失败扩大执行；基础环境 Check 只承接既定 Git/Node/Bun/pnpm/SCC 政策，业务测试前置不自动扩成全 Gate 环境要求。
-4. 跨 owner import、构建/测试入口或动态读取来源变化时，同步复核 consumer 的订阅及能力 patterns，纳入传递闭包。consumer 自身源码变化会使当轮执行，但只有声明完整，才会覆盖新依赖后续单独变化；闭包无法确认时使用较宽输入或保持保守执行。两领域未归属文件检查是遗漏提示，不能代替依赖审查。
+4. 跨 owner import、构建/测试入口或动态读取来源变化时，同步复核 consumer 的订阅及领域额外输入，纳入传递闭包。consumer 自身源码变化会使当轮执行，但只有声明完整，才会覆盖新依赖后续单独变化；闭包无法确认时使用较宽输入或保持保守执行。两领域未归属文件检查是遗漏提示，不能代替依赖审查。
 5. 输入含义变化时按范围更新全局 `gateImpactContractVersion` 或逐 Check `version`。新增/收窄模式应验证受影响与不受影响场景、删除/重命名、ignored 输入、未知/symlink/错误、共享 flag 扩散、成功前置带入和起止漂移；带入项必须如实执行并通过后才可发布证明。receipt 复用条件与完整事务由[输入证明 owner](gate-policy.md#项目输入与成功证明)承接。
+
+### 领域范围与检查订阅
+
+`scripts/lib/vibe-gate/impact-tools.ts` 的 `gateToolScopes` 是能力 ID、领域文件范围与额外检查输入的唯一声明。每个条目包含：
+
+| 字段或投影 | 责任 |
+| --- | --- |
+| `files` | 领域自身文件的包含/排除 patterns；维护代码投影只从此字段取得。源码及其分发副本属于同一能力时，在这里共同声明。 |
+| `additionalInputs` | 该领域检查实际读取、但不属于其文件范围的传递依赖，例如共同运行时、构建适配或 fixture。它扩大检查输入闭包，不扩大该领域的代码扫描范围。 |
+| `gateToolInputs` | 从同一声明派生的完整检查输入投影，包含领域文件、额外输入与适用共同输入，供 changed 输入证明使用；不是另一份手工维护的领域路径表。 |
+
+公共运行时与独立测试各自声明能力，Check 继续在语义、包脚本或原生声明中订阅实际能力；flag 由能力 ID 派生。`dependsOn` 仍独立表达必须真实通过的成功前置，额外输入或共同配置不自动形成 Check 订阅或新增显式 scope。
+
+多个领域各自按原生 patterns 顺序应用包含与排除，再取文件集合的并集；后续正 pattern 可以重新包含本领域先前排除的文件，不能把各组 patterns 直接拼接为一个全局排除列表。文件指标和函数指标共用所选领域的维护代码投影：`files` 中以 `scripts/` 或 `tools/` 起始的正 patterns 定义维护代码候选，再按现有 JavaScript/TypeScript 选择投影；其他 patterns 承接领域材料或生成副本。`additionalInputs`、共享配置以及被前置带入的 Check 输入不自动成为指标领域。重复检测保留 `repository-code` 订阅及完整维护代码范围，不使用该投影。代码质量命令的完整实际输入和不同执行模式的材料范围仍按[执行范围](gate-execution.md#catalog-与选择)及[原生政策](gate-policy.md#原生材料范围与质量政策)保持。
+
+调整领域声明时，应验证领域内/外材料、纯文档领域、共享输入、多个 scope 交叉包含与排除，以及 selected 与完整模式的差异。保留已有公开 scope ID、Check ID、阻断阈值和环境前置；新增领域或改变这些长期边界时，另按对应 owner 复核。
 
 ## 按类型接入
 
