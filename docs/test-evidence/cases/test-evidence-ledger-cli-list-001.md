@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-LEDGER-CLI-LIST-001: Node CLI list 组合筛选并返回有效 JSON
 
 Tests:
-- `test:c903506fc68935cecd1eb13f216a5583b328ff46c3d48757d0e5541ccb13fb4e`
+- `test:cc32f7acee11c637e394edf39ba0a40f79f26130c2930009e7d64cd1f60cd2ac`
 
 Tags:
 - `test-evidence`

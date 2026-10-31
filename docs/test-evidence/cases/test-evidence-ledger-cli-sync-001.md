@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-LEDGER-CLI-SYNC-001: 分发 Sync CLI 只在显式 write 时创建索引
 
 Tests:
-- `test:84f7c555eb35f98488b6e67f8af3a0d4f6b536335662132f3591dc397488610d`
+- `test:14a525a443ad001cb73c8b35b2a038de4c67bd6194c160581fbb54afbfc86a8c`
 
 Tags:
 - `test-evidence`

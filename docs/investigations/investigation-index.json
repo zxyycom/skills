@@ -1138,6 +1138,20 @@
       ],
       "title": "剩余集合成本候选的合法可达性与安全优化边界"
     },
+    "261031-gate-domain-scope-quality-audit": {
+      "formedAt": "2026-10-31T07:56:52Z",
+      "name": "gate-domain-scope-quality-audit",
+      "question": "提交 e34493de 后，显式领域和完整门禁是否仍有可复现的误阻断、指标漏检或验收稳定性问题？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "261031-gate-domain-scope-quality-audit.md",
+      "tags": [
+        "gate-quality",
+        "project-tooling",
+        "validation-boundaries"
+      ],
+      "title": "统一领域范围后的门禁质量复核"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -1848,6 +1862,7 @@
       "261028-git-stdin-error-lock-lifecycle": "sha256:68d33cbbf0d7376ef566fa1155291edce2a55e55d5997ea74df1bfb245ab163d",
       "261028-investigation-v87-windows-head-predecessor-cost": "sha256:af90a277b436af9c26ccd77c183665275780cc78a088f0135dc41abb8917610b",
       "261028-record-cost-reachability-boundaries": "sha256:b4e86e4f03808bfd98f5e66d9a96954dccf836e47f1cf6ba638f6ffab7b19b0c",
+      "261031-gate-domain-scope-quality-audit": "sha256:94a030a2de9740ba1a63ba0e8bd07b775fd54fcd58ed48471def5251709ce98e",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

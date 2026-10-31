@@ -10,4 +10,4 @@ Contract:
 - Case 查询与显式索引同步只依赖固定 Case 协议，不要求项目 `package.json`、项目配置或实体快照。
 
 Proves:
-- fixture 缺少这三类文件时，显式 sync 仍能写入索引，随后 Node CLI list 返回两个 Case 的有效查询结果。
+- fixture 缺少这三类文件时，公开 sync API 的显式 write 仍能写入索引，随后真实 Node CLI list 返回两个 Case 的有效查询结果。
