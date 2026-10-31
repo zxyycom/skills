@@ -158,15 +158,21 @@ const searchOutputInputs = [
 export const markdownLintToolSubscription = ["markdown-content"] as const;
 
 export type GateToolScope = Readonly<{
+  kind: "code" | "declarations" | "material";
   files: readonly string[];
   additionalInputs: readonly string[];
 }>;
 
 function toolScope(
   files: readonly string[],
-  additionalInputs: readonly string[] = commonGateInputPatterns
+  additionalInputs: readonly string[] = commonGateInputPatterns,
+  kind: GateToolScope["kind"] = "code"
 ): GateToolScope {
-  return { files, additionalInputs };
+  if (kind === "code" && !files.some(isGateCodePattern))
+    throw new Error(
+      "Code scopes must declare maintained scripts/tools patterns"
+    );
+  return { kind, files, additionalInputs };
 }
 
 const recordRuntimeInputs = [...domainRuntimeInputs, ...recordOperationInputs];
@@ -175,10 +181,11 @@ const recordRuntimeInputs = [...domainRuntimeInputs, ...recordOperationInputs];
 // dependencies complete without turning them into locally selected metric files.
 export const gateToolScopes = {
   // The snapshot additionally supplies the native maintainedMarkdownFiles set.
-  "markdown-content": toolScope([]),
+  "markdown-content": toolScope([], commonGateInputPatterns, "material"),
   "repository-material": toolScope(
     ["docs/**", "skills/**", "changes/**"],
-    ["**"]
+    ["**"],
+    "material"
   ),
   "repository-code": toolScope(codeFiles),
   "typescript-program": toolScope([
@@ -236,6 +243,7 @@ export const gateToolScopes = {
     "tools/shared/tests/{file-text-search*,record-text-search*}.ts"
   ]),
   "version-control": toolScope([
+    "tools/shared/src/version-control/**",
     "tools/shared/tests/{version-control*,git-fixture}.ts",
     "tools/shared/tests/fixtures/**"
   ]),
@@ -271,9 +279,11 @@ export const gateToolScopes = {
     "tools/record-operations/tests/{transaction.test,transaction-contract,transaction-creation-contract,transaction-fixture,transaction-verification-contract,reader-batch.test,reader-snapshot.test,reader-worker-runtime.test,reader-fixture,source-acquisition.test,run}.ts",
     "tools/record-operations/tests/checks/*.ts"
   ]),
-  "record-reader-distribution": toolScope([
-    "skills/{decision-records,investigation-report}/scripts/**"
-  ]),
+  "record-reader-distribution": toolScope(
+    ["skills/{decision-records,investigation-report}/scripts/**"],
+    commonGateInputPatterns,
+    "material"
+  ),
   "decision-record": toolScope(decisionRecordInputs, recordRuntimeInputs),
   "decision-query": toolScope(decisionQueryInputs, recordRuntimeInputs),
   "decision-maintenance": toolScope(
@@ -308,9 +318,14 @@ export const gateToolScopes = {
       "skills/decision-records/**",
       "!skills/decision-records/scripts/runtime/tools/shared/src/file-text-search/record-search-output.ts"
     ],
-    domainRuntimeInputs
+    domainRuntimeInputs,
+    "declarations"
   ),
-  "decision-collection": toolScope(["docs/decisions/**"], domainRuntimeInputs),
+  "decision-collection": toolScope(
+    ["docs/decisions/**"],
+    domainRuntimeInputs,
+    "material"
+  ),
   "investigation-record": toolScope(
     investigationRecordInputs,
     recordRuntimeInputs
@@ -337,11 +352,13 @@ export const gateToolScopes = {
       "skills/investigation-report/**",
       "!skills/investigation-report/scripts/runtime/tools/shared/src/file-text-search/record-search-output.ts"
     ],
-    domainRuntimeInputs
+    domainRuntimeInputs,
+    "declarations"
   ),
   "investigation-collection": toolScope(
     ["docs/investigations/**"],
-    domainRuntimeInputs
+    domainRuntimeInputs,
+    "material"
   ),
   "test-evidence-project": toolScope(["scripts/test-evidence/**"]),
   "test-evidence": toolScope(
@@ -406,10 +423,14 @@ export const gateToolInputs = Object.fromEntries<readonly string[]>(
 export const gateCodeToolIds: GateToolSubscription = [
   "repository-code",
   ...Object.entries(gateToolScopes)
-    .filter(
-      ([id, { files }]) =>
-        id !== "repository-code" && files.some(isGateCodePattern)
-    )
+    .filter(([id, { kind }]) => id !== "repository-code" && kind !== "material")
+    .map(([id]) => id as GateToolId)
+];
+
+export const gateMetricToolIds: GateToolSubscription = [
+  "repository-code",
+  ...Object.entries(gateToolScopes)
+    .filter(([id, { kind }]) => id !== "repository-code" && kind === "code")
     .map(([id]) => id as GateToolId)
 ];
 

@@ -93,15 +93,26 @@
 
 | 字段或投影 | 责任 |
 | --- | --- |
-| `files` | 领域自身文件的包含/排除 patterns；维护代码投影只从此字段取得。源码及其分发副本属于同一能力时，在这里共同声明。 |
+| `kind` | owner 显式声明的质量类别：`code`、`declarations` 或 `material`；决定显式选组自动带入的通用质量检查，不从 patterns 或当前磁盘文件推断。 |
+| `files` | 领域自身文件的包含/排除 patterns；维护代码投影只从此字段取得。源码及其分发副本属于同一能力时，在这里共同声明，不能把领域源码仅放入额外依赖。 |
 | `additionalInputs` | 该领域检查实际读取、但不属于其文件范围的传递依赖，例如共同运行时、构建适配或 fixture。它扩大检查输入闭包，不扩大该领域的代码扫描范围。 |
 | `gateToolInputs` | 从同一声明派生的完整检查输入投影，包含领域文件、额外输入与适用共同输入，供 changed 输入证明使用；不是另一份手工维护的领域路径表。 |
 
 公共运行时与独立测试各自声明能力，Check 继续在语义、包脚本或原生声明中订阅实际能力；flag 由能力 ID 派生。`dependsOn` 仍独立表达必须真实通过的成功前置，额外输入或共同配置不自动形成 Check 订阅或新增显式 scope。
 
-多个领域各自按原生 patterns 顺序应用包含与排除，再取文件集合的并集；后续正 pattern 可以重新包含本领域先前排除的文件，不能把各组 patterns 直接拼接为一个全局排除列表。文件指标和函数指标共用所选领域的维护代码投影：`files` 中以 `scripts/` 或 `tools/` 起始的正 patterns 定义维护代码候选，再按现有 JavaScript/TypeScript 选择投影；其他 patterns 承接领域材料或生成副本。`additionalInputs`、共享配置以及被前置带入的 Check 输入不自动成为指标领域。重复检测保留 `repository-code` 订阅及完整维护代码范围，不使用该投影。代码质量命令的完整实际输入和不同执行模式的材料范围仍按[执行范围](gate-execution.md#catalog-与选择)及[原生政策](gate-policy.md#原生材料范围与质量政策)保持。
+显式选组的类别契约如下；类别不改变领域 Check 的真实输入、订阅或成功前置：
 
-调整领域声明时，应验证领域内/外材料、纯文档领域、共享输入、多个 scope 交叉包含与排除，以及 selected 与完整模式的差异。保留已有公开 scope ID、Check ID、阻断阈值和环境前置；新增领域或改变这些长期边界时，另按对应 owner 复核。
+| `kind` | 领域责任与自动带入的质量检查 |
+| --- | --- |
+| `code` | 维护实现或测试代码；带入 `file-metrics`、`function-metrics` 和完整现有输入上的 `typecheck`、`lint`、`format:check`。 |
+| `declarations` | 维护声明或其分发边界；只带入上述三个质量命令，不启动代码指标。当前 `decision-distribution` 与 `investigation-distribution` 属于此类。 |
+| `material` | 维护非代码材料；只按领域订阅与成功前置选择，不自动带入通用代码质量检查。 |
+
+类别由长期责任决定，不因文件当前存在、缺失或为空而改变。`code` 的 `files` 必须声明以 `scripts/` 或 `tools/` 起始的正 pattern，缺失时构造失败；声明存在但已选中的指标材料意外为空时仍严格失败，不能把空选集改判为声明/材料域、跳过或通过。领域自身源码必须进入 `files`；例如 `version-control` 同时拥有 `tools/shared/src/version-control/**` 及其测试，而其他真实共享依赖仍保留在 `additionalInputs`，不能通过删除依赖闭包实现扫描收窄。
+
+多个领域各自按原生 patterns 顺序应用包含与排除，再取文件集合的并集；后续正 pattern 可以重新包含本领域先前排除的文件，不能把各组 patterns 直接拼接为一个全局排除列表。文件指标和函数指标只投影所选 `code` 领域：`files` 中以 `scripts/` 或 `tools/` 起始的正 patterns 定义维护代码候选，再与现有 JavaScript/TypeScript 维护代码 selection 相交；路径前缀只负责这一步投影，不负责类别判定。其他 patterns 承接领域材料或生成副本。投影保留原 selection 的文件政策开关及排除保护，精确要求见[原生政策](gate-policy.md#原生材料范围与质量政策)。`additionalInputs`、共享配置以及被前置带入的 Check 输入不自动成为指标领域。重复检测保留 `repository-code` 订阅及完整维护代码范围，不使用该投影。代码质量命令的完整实际输入和不同执行模式的材料范围仍按[执行范围](gate-execution.md#catalog-与选择)及原生政策保持。
+
+调整领域声明时，应验证三种类别、代码选集意外为空、领域内/外材料、共享输入、多个 scope 交叉包含与排除，以及 selected 与完整模式的差异。保留已有公开 scope ID、Check ID、阻断阈值和环境前置；新增领域或改变这些长期边界时，另按对应 owner 复核。
 
 ## 按类型接入
 

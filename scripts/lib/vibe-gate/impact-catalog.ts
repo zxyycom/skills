@@ -21,7 +21,7 @@ import {
 import type { GateWorkspaceSnapshot } from "./impact-snapshot.ts";
 import { compareText, sha256 } from "./impact-values.ts";
 
-export const gateImpactContractVersion = "project-tool-receipts-v8";
+export const gateImpactContractVersion = "project-tool-receipts-v9";
 
 export type GateCheckImpactContract = Readonly<{
   checkId: string;

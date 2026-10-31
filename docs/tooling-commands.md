@@ -20,14 +20,14 @@
 | `bun run setup-hooks` | 配置当前 worktree 的 `core.hooksPath`，并在 POSIX 文件系统恢复 hook 可执行权限 |
 | `bun run setup-repository` | 配置当前 worktree hook，并确认当前项目的主 worktree 可作为默认 task-graph root |
 | `bun run check [--diagnostic-log]` | 默认 quick：执行 [Catalog 与选择](gate-execution.md#catalog-与选择)列出的六项公共基线，强制快速性能预算；不采集全局指纹或读写 receipt，不代替代码质量与领域校验。 |
-| `bun run check -- --scope <capability> [--scope <capability> ...]` | 公共基线加显式领域检查、代码质量检查及必要依赖；多领域独立求文件集合后取并集，重复去重。用 `bun run check -- --list-scopes` 查询实际能力名。按当前任务影响选择，不随其他工作区改动扩张。 |
+| `bun run check -- --scope <capability> [--scope <capability> ...]` | 公共基线加显式领域检查、按领域 `kind` 带入的质量检查及必要依赖；多领域独立求文件集合后取并集，重复去重。用 `bun run check -- --list-scopes` 查询实际能力名。按当前任务影响选择，不随其他工作区改动扩张。 |
 | `bun run check:changed`（或 `bun run all`） | changed：自动判断完整 base 范围的变更相关验收，使用精确 receipt 与成功发布事务；用于影响范围不明或需要工作区整体兜底时。 |
 | `bun run check --scope full` | 实际执行全部 66 项 base，不复用或发布 receipt；CI 的任意 base scope 均提升到 full。 |
 | `bun run check --tag release [--baseline-ref <ref>] [--cold] [--diagnostic-log]` | 运行完整 69 项 release Gate，不采集、读取或发布项目 receipt；环境前置通过后实际执行普通检查，再完成版本授权与打包。省略基线时使用 `HEAD`，CI 使用事件基线；`--cold` 明确表达全执行意图。 |
 
 `typecheck` 从根 `tsconfig.json` 的 include 开始检查，并沿 import 检查传递可达的 skill TS/MTS 与声明；涉及模块解析的 skill manifest 也属于输入。它证明当前 TypeScript program 类型有效，源码与生成物一致性由统一生成检查另证。type-aware `lint` 同样保守纳入该程序输入；`format` 保持自身独立范围。
 
-显式选择代码领域会运行完整现有输入上的 `typecheck`、`lint` 与 `format:check`，并将原生文件/函数指标收窄到所选领域的维护代码投影。重复检测仍由 `repository-code` 订阅选中并读取完整维护代码。`validate` 通过 `repository-validation` 或 `skill-validator` scope 选中；上述四个命令均不属于默认 quick。基础环境前置仍按[环境自举](tooling-environment.md#环境自举)执行，不因 quick 不运行指标而免除 SCC 要求。
+显式选择 `kind: code` 领域会运行完整现有输入上的 `typecheck`、`lint` 与 `format:check`，并将原生文件/函数指标收窄到所选代码领域的维护代码投影；`declarations` 领域只带入三个质量命令，不启动指标；`material` 领域只选择其领域检查及必要前置。类别由 owner [显式声明](gate-check-authoring.md#领域范围与检查订阅)，不由当前磁盘是否存在代码判断。重复检测仍由 `repository-code` 订阅选中并读取完整维护代码。`validate` 通过 `repository-validation` 或 `skill-validator` scope 选中；上述四个命令均不属于默认 quick。基础环境前置仍按[环境自举](tooling-environment.md#环境自举)执行，不因 quick 不运行指标而免除 SCC 要求。
 
 根 `tsconfig.json` 启用编译器原生 incremental，build info 位于 `.log/vibe-check/cache/typecheck/tsconfig.tsbuildinfo`。命令仍为 `tsgo --noEmit`，每次调用都按当前完整 include 与质量选项结算诊断；编译事实可丢弃并重建，不作为项目成功 receipt 或缩小检查范围的依据。
 

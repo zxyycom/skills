@@ -17,7 +17,7 @@ bun run check -- --scope gate-tests
 bun run check -- --scope mcpshell --scope generated-file
 ```
 
-`scope` 决定执行范围；能力组是 `--list-scopes` 返回的订阅名，可重复传入并合并去重。同一份领域声明同时提供检查输入与维护代码范围：领域检查按实际订阅选择，文件/函数指标按所选领域的维护代码投影选择材料。检查仍读取自身契约要求的真实输入，包括共享代码和全仓材料；检查输入闭包不自动成为指标范围。
+`scope` 决定执行范围；能力组是 `--list-scopes` 返回的订阅名，可重复传入并合并去重。同一份领域声明同时提供质量类别、检查输入与维护代码范围：领域检查按实际订阅选择，文件/函数指标只按所选 `code` 领域的维护代码投影选择材料。检查仍读取自身契约要求的真实输入，包括共享代码和全仓材料；检查输入闭包不自动成为指标范围。
 
 ### Catalog 与选择
 
@@ -30,14 +30,14 @@ CLI 使用以下执行范围；所有范围保持同一完整 Definition，实�
 | 范围 | 证明责任与执行选择 |
 | --- | --- |
 | quick（默认） | 执行六项公共基线：`gate-environment`、`secret-detection`、`json-validation`、`json-schema-validation`、`markdown-link-validation`、`markdown-lint`。不预采集全工作区指纹或使用项目 receipt。 |
-| selected（显式能力组） | quick 基线，加上所选能力订阅的 Check、代码质量检查及其传递成功前置；合并去重。文件/函数指标只读取所选领域的维护代码投影。直接执行，不采集全域指纹或读取/发布项目 receipt；其他工作区变更不自动增加组。 |
+| selected（显式能力组） | quick 基线，加上所选能力订阅的 Check、按显式 `kind` 带入的质量检查及其传递成功前置；合并去重。文件/函数指标只读取所选 `code` 领域的维护代码投影。直接执行，不采集全域指纹或读取/发布项目 receipt；其他工作区变更不自动增加组。 |
 | changed | 完整 base 的变更相关验收。环境与除 Markdown 内容外的七项原生材料每轮结算；57 项项目命令与 Markdown 内容共 58 项按完整输入证明、共享工具 flag 与成功前置选择。 |
 | full / CI base | 全部 66 项 base 实际执行，不使用 receipt；CI 将 quick/selected/changed 提升到 full，显式组不缩小 CI。 |
 | release | 全部 66 项 base 与 3 项发布事务实际执行，不使用 receipt；版本授权与打包消费同一快照。 |
 
 各 Check 独立验收；精确命令由失败重跑提示和 catalog 提供。显式选择以任务责任为依据，自动 changed 则根据共享输入变化带入其他订阅者；成功前置均须实际通过。局部成功只证明所选范围，未运行或复用与本轮实际通过分别报告。
 
-所选代码领域必跑 `file-metrics`、`function-metrics`、`script:typecheck`、`script:lint` 与 `script:format:check` 五项代码质量检查；后三个命令仍检查现有完整 TypeScript program 或维护代码集，不按领域裁剪其实际输入。`script:validate` 不属于 quick，通过 `repository-validation` 或 `skill-validator` 领域选中。各领域先独立应用自身文件包含与排除，再对所选结果取并集；同一文件被一个领域排除但被另一个选中领域包含时，仍进入指标扫描。重复检测保留既有 `repository-code` 订阅与完整维护代码范围，不随任意代码领域自动启动或裁剪。维护代码投影及完整模式的原生范围由[原生材料质量政策](gate-policy.md#原生材料范围与质量政策)承接；取舍见[统一领域声明](decisions/261031-unify-gate-domain-scope-declarations.md)。
+领域 `kind` 由 owner 在统一声明中显式指定，不依据路径或磁盘存在性猜测。所选 `code` 领域必跑 `file-metrics`、`function-metrics`、`script:typecheck`、`script:lint` 与 `script:format:check` 五项；`declarations` 只带入后三项，不启动指标；`material` 不自动带入通用代码质量检查。三个质量命令仍检查现有完整 TypeScript program 或维护代码集，不按领域裁剪其实际输入。类别与投影契约见[领域声明](gate-check-authoring.md#领域范围与检查订阅)。`script:validate` 不属于 quick，通过 `repository-validation` 或 `skill-validator` 领域选中。各 `code` 领域先独立应用自身文件包含与排除，再对所选结果取并集；同一文件被一个领域排除但被另一个选中领域包含时，仍进入指标扫描。代码指标意外空选集仍阻断，不降级为不适用。重复检测保留既有 `repository-code` 订阅与完整维护代码范围，不随任意代码领域自动启动或裁剪。维护代码投影及完整模式的原生范围由[原生材料质量政策](gate-policy.md#原生材料范围与质量政策)承接；共享范围的取舍见[统一领域声明](decisions/261031-unify-gate-domain-scope-declarations.md)。
 
 CLI 只有 Run `completed`、严格有效 aggregate `passed`，且[适用性能政策](#性能报告与快速预算)通过才退出 0。有效集合中的 failed、unavailable 或意外 not-applicable 均阻断；rejection、取消、配置、planning、execution 或原生 output 失败在所有范围均退出 1。quick/selected 不发布成功证明；changed 的发布前提见[项目输入与成功证明](#项目输入与成功证明)。
 

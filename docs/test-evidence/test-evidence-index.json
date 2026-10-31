@@ -425,13 +425,16 @@
       "GATE-CLI-RESULT-001": "sha256:105c42c9b2fec5cd45d839805a30078af35db78eaef48432e45296293ef10cc6",
       "GATE-COMPLETE-CODE-METRICS-001": "sha256:11b6f5652555c2ca5895d68ef8d5b0ba7c249ee3e5b7fcbe9f9fdf6d69ed43d6",
       "GATE-DECISION-ACQUISITION-CLI-CLOSURE-001": "sha256:cc4fe6cfd64fc3159fd26b90280761452bad187555fa03fb0617af985a2c0654",
+      "GATE-DECLARATION-CODE-UNION-001": "sha256:21cb8e15a21ce563ccd10ce938655f1425519a5ed2916b3f71fffe00c37e6e44",
+      "GATE-DECLARATION-QUALITY-001": "sha256:8852506aece60cd12f7fb3d053bd0695ed5a173504b2a96a3ffe925f938c1689",
       "GATE-DEFINITION-CATALOG-001": "sha256:2cee31a05c501519008a7d82174f7e4e8c6ba4f2f5f3677e660adc78536e24ee",
       "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:840553137473ceae45cb978aadc8f5631a73b768df520bcd332e0a61f513739d",
       "GATE-DOMAIN-AGGREGATE-OWNER-001": "sha256:a65eadd4bdd2ece954da4fc85478701f70e580010ad1cc7697aba3ee1d082c24",
       "GATE-DOMAIN-TEST-INPUT-OWNER-001": "sha256:9f90cbb32d9a1caf3aef8609a59437146e71bdcf6bd88cb1b7a481b6fc17b343",
+      "GATE-EMPTY-CODE-METRICS-001": "sha256:011ffb3d90feb24f411fbe092d2e662a4ce57ade51bcfda1dd7f08c6ac709eb4",
       "GATE-ENVIRONMENT-CHECK-001": "sha256:b5aceb7fad1f9abe3665810c4efe0fc7a576d242b302542429b9de640fae5ebf",
       "GATE-ENVIRONMENT-VALIDATOR-OWNER-001": "sha256:01b6cc8abd9853057a467a82271492f9ad8892fc34a5a6b04b37ada63df911e1",
-      "GATE-FILE-SELECTION-001": "sha256:51cf9d2d007ddd27b9d8ecf7727614f6c5751d7f87e7a7a07cc172176458f4fd",
+      "GATE-FILE-SELECTION-001": "sha256:09805ad58c842641daf5eddba75c344b94878e9b6672cdc5a62b371333a7ab82",
       "GATE-FUNCTION-LIMIT-POLICY-001": "sha256:9c19e9c3a23dea46d9d7ce728ca5fc2c6700b9d74da34438301f8788c489c5bd",
       "GATE-GENERATED-INPUTS-001": "sha256:c6345a171d8ef7233a28a0c341560c0e22614507d3fec4d071113780bda0ea69",
       "GATE-GENERATED-TYPE-INPUTS-001": "sha256:93cb7cbfa8eba96469033ab3f9b6c5903cdac62082a88c9686c5f85afaca0bb1",
@@ -460,6 +463,8 @@
       "GATE-MARKDOWN-PROOF-ROUTING-001": "sha256:fa35a1ede3f185fc7293320f1bd35f78c7a8c7d44e2c297d66cf6fe13786d639",
       "GATE-METRICS-BLOCKING-001": "sha256:5546bd4a7c5ff16cde55072822d38c73b06a6dcf50298a0d5bbee7aa9e0b380a",
       "GATE-NARROW-PUBLICATION-001": "sha256:9b1a885feb71db99753fbeac953410dce6f4c1eae64cf770c51c599c877ad935",
+      "GATE-NATIVE-BUILD-CODE-001": "sha256:46b7ed083147591d2bd67d047614ede53ab5ca5df7b7daaa7055e9627d941f64",
+      "GATE-NATIVE-BUILD-MATERIALS-001": "sha256:b6c5921410a159063be804c35a35a23f15c31db6d83a12332b1e2076d63dbb18",
       "GATE-NATIVE-COMMAND-LAUNCH-001": "sha256:462f00e38d6913483e9a096e7fc4dda34c12c92038c3ac60da55c594983a44f7",
       "GATE-NATIVE-DURATION-BUDGET-001": "sha256:654b98f021bf1a28c65a95882740dcbf891ba6fb5ef340056dfb59ba72a2f14f",
       "GATE-PERFORMANCE-EXECUTED-SAMPLES-001": "sha256:a5b224a2fa57fa2b4c69592e9762ae46de758f18bd9f370cbd13cf0063e2177e",
@@ -482,6 +487,7 @@
       "GATE-SECRET-CAPACITY-001": "sha256:5c4916bed31ff55675eb31dbb8857396ca9072f1146f94ef89a21bfee2ff5d2d",
       "GATE-SELECTED-ACTIVATION-001": "sha256:d684f5669a19fc2d53b5ecc1c9f40dcc74e526144c36ba39ef8155899fc95dc1",
       "GATE-SELECTED-ARGUMENTS-001": "sha256:d866378ce6ff6abcb3479854bf8052b0f4db3068661e62c25b26fbebb464024b",
+      "GATE-SELECTED-BUILD-SOURCE-001": "sha256:3e558bd4d925ff993ba697749c3161a578ae730d1050a8e55ba43f6bc5f5ccfa",
       "GATE-SELECTED-CI-FULL-001": "sha256:73e1d09a90ab6b707a44b492bdf36d9fecf4afe487b3c96004c0c8b3f0049c40",
       "GATE-SELECTED-CODE-EXCLUSION-ISOLATION-001": "sha256:dadc61453e1569f1951ab6c0ddc254ef450b08155fb8bfd944ea646d8c34bc2c",
       "GATE-SELECTED-CODE-OWNERSHIP-001": "sha256:19625d4f92a9ae838d38a5e24a94d3199e4f908bcb534b90bd903c200baf09c5",
@@ -492,6 +498,7 @@
       "GATE-SELECTED-PROVIDER-ARGV-001": "sha256:964fdee571c27dbe3371683c4bbebc844a780be2962505e4bc964f0582579cd0",
       "GATE-SELECTED-PROVIDER-RERUN-001": "sha256:25660ef38a3580c2a5db91225df17621ff1f39730684936021ba25290f99a036",
       "GATE-SELECTED-RECEIPT-ISOLATION-001": "sha256:713b458a89f454e95c13896138b1ffce49d6d93c939ca07fe340234b5d14d4dd",
+      "GATE-SELECTED-VERSION-CONTROL-001": "sha256:3143228c4a7f92bce202edd1402e98eec067799641541f03c18e05ac4ae7915b",
       "GATE-SEMANTIC-IMPORT-SYNTAX-001": "sha256:a08845fb625494a78b933233f361abe7bb7207a3af797f846479882096660abf",
       "GATE-SHARED-CONTRACT-OWNER-001": "sha256:2ffc0d120b98ce2a31ef024ff0a4df3d63dea35e6844e9cfb6c7f009e60ccece",
       "GATE-SNAPSHOT-FALLBACK-DIAGNOSTIC-SAFETY-001": "sha256:be494c2e1e9b950189cdaf0300b5ad72d184a54080f8dfeab6df8bda52a33530",
@@ -5798,6 +5805,26 @@
         "test:2d54e5150ae5e7c7b9c0283ebcd856b1bdd199f582184093d77c19f92a94b9ea"
       ]
     },
+    "GATE-DECLARATION-CODE-UNION-001": {
+      "title": "声明领域不扩大联合选择的维护代码指标",
+      "sourcePath": "cases/gate-declaration-code-union.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:f40396c841afc001428e98b6f2d728ea6b2941373014a4add23b6f542762043a"
+      ]
+    },
+    "GATE-DECLARATION-QUALITY-001": {
+      "title": "声明分发域启动三项质量命令而不启动空指标",
+      "sourcePath": "cases/gate-declaration-quality.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:e6fe6a30d0b5af823db51baf2eced63eac93f3474fc045b3d62cb77bce7fa558"
+      ]
+    },
     "GATE-DEFINITION-CATALOG-001": {
       "title": "Gate 完整 Definition 声明项目选择、前置和资源配置",
       "sourcePath": "cases/gate-definition-catalog-001.md",
@@ -5841,6 +5868,16 @@
       ],
       "testIds": [
         "test:1618a0cec8c2565b6e10267c73f6617f5ce1da3a151923a7acb19c8ee382ce39"
+      ]
+    },
+    "GATE-EMPTY-CODE-METRICS-001": {
+      "title": "预期代码领域的空输入不伪装为通过或 flag 禁用",
+      "sourcePath": "cases/gate-empty-code-metrics.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:b1c62300db68959ea1011a85f06fb08d3b4db12d8df69132ac9b4c19f38cadca"
       ]
     },
     "GATE-ENVIRONMENT-CHECK-001": {
@@ -6174,6 +6211,26 @@
         "test:1cf6a6d1a2b3d78d750d66998182ecc96562de7344646166c002f202b09a6ab2"
       ]
     },
+    "GATE-NATIVE-BUILD-CODE-001": {
+      "title": "三类原生代码 Check 共用精确的构建源码例外",
+      "sourcePath": "cases/gate-native-build-code.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:8a19afafb1c5b75e480e6913bc4a57e20ad0a59696ee8bafa0bbe388dc547b4d"
+      ]
+    },
+    "GATE-NATIVE-BUILD-MATERIALS-001": {
+      "title": "JSON Markdown 与密钥材料沿用同一构建源码策略",
+      "sourcePath": "cases/gate-native-build-materials.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:5555ec1d2d9c4d9ea2593e65531bc95d57a3a9572cae70762ee20ece456ae644"
+      ]
+    },
     "GATE-NATIVE-COMMAND-LAUNCH-001": {
       "title": "Gate 通过受控命令边界调用本机工具",
       "sourcePath": "cases/gate-native-command-launch.md",
@@ -6405,6 +6462,16 @@
         "test:b58980379a243e5da2ff5382e5b97c74ce3861893f9ea926836623485da30af9"
       ]
     },
+    "GATE-SELECTED-BUILD-SOURCE-001": {
+      "title": "构建脚本源码进入指标并按自动化参数阈值阻断",
+      "sourcePath": "cases/gate-selected-build-source.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:b4354681637699c9f8644289c0d181c9b7ec28a5686efc20c0aac5c6bd919b33"
+      ]
+    },
     "GATE-SELECTED-CI-FULL-001": {
       "title": "CI 不被显式选组缩窄",
       "sourcePath": "cases/gate-selected-ci-full.md",
@@ -6503,6 +6570,16 @@
       ],
       "testIds": [
         "test:f02ed52fa21ecca5ae307b641b42cb26bf214f8a3049d2639bbe849db5efe4a5"
+      ]
+    },
+    "GATE-SELECTED-VERSION-CONTROL-001": {
+      "title": "版本控制领域实际阻断所拥有产品源码超限",
+      "sourcePath": "cases/gate-selected-version-control.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:765fbb52bec39582dd601775fbe86898e5317db883a328e6eb552c9f9ddb6b5f"
       ]
     },
     "GATE-SEMANTIC-IMPORT-SYNTAX-001": {

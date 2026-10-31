@@ -10,7 +10,8 @@ export function selectGateCodeAreas<const Area extends CodeArea>(
 ): Readonly<Record<string, Omit<Area, "files"> & CodeArea>> {
   if (configuration.scope !== "selected") return areas;
   const entries = [...new Set(configuration.selectionScopes)].flatMap((id) => {
-    const { files } = gateToolScopes[id];
+    const { files, kind } = gateToolScopes[id];
+    if (kind !== "code") return [];
     return files.flatMap((pattern, index) => {
       if (!isGateCodePattern(pattern)) return [];
       // Native lists are ordered: a later positive can re-include a path. Each
@@ -25,6 +26,7 @@ export function selectGateCodeAreas<const Area extends CodeArea>(
             {
               ...area,
               files: {
+                ...area.files,
                 patterns: [
                   ...area.files.patterns,
                   // Excluding the complement intersects the role with one domain

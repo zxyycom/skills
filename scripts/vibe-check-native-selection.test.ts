@@ -93,7 +93,7 @@ test("native file selections exclude historical content and authoring candidates
     assert.equal(
       optionsRecord(area.files, `missing files for ${areaId}`)
         .useDefaultExcludes,
-      true
+      false
     );
     const exclusions = stringArray(
       optionsRecord(area.files, `missing files for ${areaId}`).patterns
@@ -143,7 +143,7 @@ test("native file selections exclude historical content and authoring candidates
       .files,
     "missing secret files"
   );
-  assert.equal(secretFiles.useDefaultExcludes, true);
+  assert.equal(secretFiles.useDefaultExcludes, false);
   assert.ok(stringArray(secretFiles.patterns)?.includes(".githooks/*"));
   const markdownOptions = optionsRecord(
     optionsById.get("markdown-link-validation"),

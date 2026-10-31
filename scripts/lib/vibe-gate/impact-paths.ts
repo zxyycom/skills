@@ -1,3 +1,5 @@
+import { maintainedProjectFiles } from "./project-files.ts";
+
 export const historicalContentExclusions = [
   "docs/investigations/_resources/**"
 ] as const;
@@ -10,17 +12,15 @@ export const markdownSourcePatterns = [
   "**/*.[mM][dD]",
   "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"
 ] as const;
-export const maintainedMarkdownFiles = {
-  patterns: [
-    ...markdownSourcePatterns,
-    ...[
-      ...historicalContentExclusions,
-      ...investigationAuthoringDocumentExclusions,
-      "skills/**/references/upstream/**",
-      "skills/**/reference-original.md"
-    ].map((pattern) => `!${pattern}`)
-  ]
-} as const;
+export const maintainedMarkdownFiles = maintainedProjectFiles([
+  ...markdownSourcePatterns,
+  ...[
+    ...historicalContentExclusions,
+    ...investigationAuthoringDocumentExclusions,
+    "skills/**/references/upstream/**",
+    "skills/**/reference-original.md"
+  ].map((pattern) => `!${pattern}`)
+]);
 
 /** Disk inputs read by project commands, including ignored fixtures and generated files. */
 export const gateInputDirectories = [

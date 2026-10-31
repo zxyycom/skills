@@ -26,10 +26,11 @@ import {
   maintainedMarkdownFiles
 } from "../impact-paths.ts";
 import {
-  gateCodeToolIds,
+  gateMetricToolIds,
   markdownLintToolSubscription
 } from "../impact-tools.ts";
 import { selectGateCodeAreas } from "../code-selection.ts";
+import { maintainedProjectFiles } from "../project-files.ts";
 export {
   historicalContentExclusions,
   investigationAuthoringDocumentExclusions,
@@ -38,56 +39,44 @@ export {
 
 const projectExclusions = [...historicalContentExclusions] as const;
 
-export const maintainedCodeFiles = {
-  patterns: [
-    "scripts/**/*.{js,ts}",
-    "tools/**/*.{js,ts}",
-    ...projectExclusions.map((pattern) => `!${pattern}`)
-  ]
-} as const;
-export const productCodeFiles = {
-  patterns: [
-    "tools/**/*.{js,ts}",
-    "!tools/**/tests/**",
-    "!tools/**/*.test.{js,ts}",
-    ...projectExclusions.map((pattern) => `!${pattern}`)
-  ]
-} as const;
-export const testCodeFiles = {
-  patterns: [
-    "scripts/**/*.test.{js,ts}",
-    "tools/**/tests/**/*.{js,ts}",
-    "tools/**/*.test.{js,ts}",
-    ...projectExclusions.map((pattern) => `!${pattern}`)
-  ]
-} as const;
-export const automationCodeFiles = {
-  patterns: [
-    "scripts/**/*.{js,ts}",
-    "!scripts/**/*.test.{js,ts}",
-    ...projectExclusions.map((pattern) => `!${pattern}`)
-  ]
-} as const;
+export const maintainedCodeFiles = maintainedProjectFiles([
+  "scripts/**/*.{js,ts}",
+  "tools/**/*.{js,ts}",
+  ...projectExclusions.map((pattern) => `!${pattern}`)
+]);
+export const productCodeFiles = maintainedProjectFiles([
+  "tools/**/*.{js,ts}",
+  "!tools/**/tests/**",
+  "!tools/**/*.test.{js,ts}",
+  ...projectExclusions.map((pattern) => `!${pattern}`)
+]);
+export const testCodeFiles = maintainedProjectFiles([
+  "scripts/**/*.test.{js,ts}",
+  "tools/**/tests/**/*.{js,ts}",
+  "tools/**/*.test.{js,ts}",
+  ...projectExclusions.map((pattern) => `!${pattern}`)
+]);
+export const automationCodeFiles = maintainedProjectFiles([
+  "scripts/**/*.{js,ts}",
+  "!scripts/**/*.test.{js,ts}",
+  ...projectExclusions.map((pattern) => `!${pattern}`)
+]);
 const maintainedDocumentExclusions = [
   ...projectExclusions,
   ...investigationAuthoringDocumentExclusions
 ].map((pattern) => `!${pattern}`);
-export const maintainedDocumentFiles = {
-  patterns: [
-    "**/*.json",
-    ...markdownSourcePatterns,
-    ...maintainedDocumentExclusions
-  ]
-} as const;
-export const maintainedSecretFiles = {
-  patterns: [
-    "**/*.{code-workspace,example,html,js,json,jsonl,md,mjs,mts,rules,toml,ts,txt,yaml,yml}",
-    "**/.gitattributes",
-    "**/.gitignore",
-    ".githooks/*",
-    ...projectExclusions.map((pattern) => `!${pattern}`)
-  ]
-} as const;
+export const maintainedDocumentFiles = maintainedProjectFiles([
+  "**/*.json",
+  ...markdownSourcePatterns,
+  ...maintainedDocumentExclusions
+]);
+export const maintainedSecretFiles = maintainedProjectFiles([
+  "**/*.{code-workspace,example,html,js,json,jsonl,md,mjs,mts,rules,toml,ts,txt,yaml,yml}",
+  "**/.gitattributes",
+  "**/.gitignore",
+  ".githooks/*",
+  ...projectExclusions.map((pattern) => `!${pattern}`)
+]);
 
 const schemas = [
   {
@@ -134,7 +123,7 @@ export function createVibeNativeChecks(
       : undefined;
   const metricActivation =
     configuration.scope === "selected"
-      ? projectActivationCondition(gateCodeToolIds, configuration)
+      ? projectActivationCondition(gateMetricToolIds, configuration)
       : undefined;
   return [
     duplicateDetection({
@@ -177,7 +166,10 @@ export function createVibeNativeChecks(
         configuration,
         repositoryScanClaim
       ),
-      files: { patterns: ["**/*.json", ...maintainedDocumentExclusions] },
+      files: maintainedProjectFiles([
+        "**/*.json",
+        ...maintainedDocumentExclusions
+      ]),
       maximumBytes: 2_097_152
     }),
     jsonSchemaValidation({
@@ -187,13 +179,11 @@ export function createVibeNativeChecks(
         repositoryScanClaim
       ),
       bindings,
-      files: {
-        patterns: [
-          ...schemas.map(({ path }) => path),
-          ...bindings.map(({ instancePath }) => instancePath),
-          ...projectExclusions.map((pattern) => `!${pattern}`)
-        ]
-      },
+      files: maintainedProjectFiles([
+        ...schemas.map(({ path }) => path),
+        ...bindings.map(({ instancePath }) => instancePath),
+        ...projectExclusions.map((pattern) => `!${pattern}`)
+      ]),
       maximumBytes: 2_097_152,
       schemaIdentity: { mode: "configuration-authoritative" },
       schemas
@@ -211,9 +201,10 @@ export function createVibeNativeChecks(
         ),
         enabled: true
       },
-      files: {
-        patterns: [...markdownSourcePatterns, ...maintainedDocumentExclusions]
-      },
+      files: maintainedProjectFiles([
+        ...markdownSourcePatterns,
+        ...maintainedDocumentExclusions
+      ]),
       limits: {
         maxMarkdownBytes: 1_048_576,
         maxOccurrences: 10_000,

@@ -31,7 +31,11 @@ Gate 最多并行 4 项，外部进程容量为 3、仓库扫描容量为 2；re
 
 ## 原生材料范围与质量政策
 
-八项原生 Check 的项目配置由 `checks/native.ts` 维护，保留原生默认排除。维护代码是磁盘中 `scripts/`、`tools/` 的 JavaScript/TypeScript：selected 的文件/函数指标使用所选领域 `files` 的维护代码投影，quick 不选择代码指标；changed、full、CI 和 release 保留完整维护代码范围。领域文件声明及投影由[编写契约](gate-check-authoring.md#领域范围与检查订阅)维护，不另建指标路径表。各领域分别应用自身包含与排除，再将结果取并集；一个领域的排除不能抵消另一个领域的包含。领域 `additionalInputs`、共同配置及共享输入只影响真实检查输入闭包，不自动扩大指标领域。
+八项原生 Check 的项目配置由 `checks/native.ts` 维护，全部维护材料 selection 共用项目文件政策。上游固定默认排除中的 `**/build/**` 会排除本仓库真正的 `scripts/build/` 构建适配源码，且后置正 pattern 无法穿透该默认层。因此项目显式设置 `useDefaultExcludes: false`，在 selection 中重建上游完整默认排除，只豁免根 `scripts/build/` 这一维护目录；其内材料仍须满足各 Check 的扩展名、角色与业务排除规则。这不是全局允许 build 或生成物参与扫描。
+
+项目政策继续排除上游默认覆盖的 VCS/产品状态、依赖、缓存、覆盖率、日志、临时目录、虚拟环境、构建/生成产物和 `*.generated.*`。其中 build 例外必须有精确边界：根 `build/`、`tools/**/build/`、`scripts/` 其他位置的嵌套 `build/`，以及 `scripts/build/` 内再嵌套的 `build/` 仍被排除；`scripts/build/` 内的 `node_modules/`、`.log/`、`dist/`、`generated/` 等也不能借此进入范围。依赖升级或适配变化时对照上游完整默认集合验收，不能只重建当前想到的少数目录。代码、重复、密钥、JSON、Schema、Markdown 链接与 Markdown 内容 selection 使用同一保护；保留各自既有阈值、规则和历史材料边界。
+
+维护代码是该政策下磁盘中 `scripts/`、`tools/` 的 JavaScript/TypeScript，包括 `scripts/build/` 的真实维护源码：selected 的文件/函数指标只使用所选 `kind: code` 领域 `files` 的维护代码投影，quick 不选择代码指标；changed、full、CI 和 release 使用完整维护代码范围，同样不得漏掉构建适配源码。领域文件声明及投影由[编写契约](gate-check-authoring.md#领域范围与检查订阅)维护，不另建指标路径表。投影必须保留原 selection 的 `useDefaultExcludes` 值及完整项目排除，不能只复制 patterns 而让上游默认层重新隐藏构建源码。各领域分别应用自身包含与排除，再将结果取并集；一个领域的排除不能抵消另一个领域的包含。领域 `additionalInputs`、共同配置及共享输入只影响真实检查输入闭包，不自动扩大指标领域。
 
 其余原生材料范围不随显式领域收窄。`docs/investigations/_resources/**` 作为非当前维护材料排除。JSON 与 Markdown 链接显式选择 JSON/Markdown 扩展名，并同时排除调查 `_candidate.*` 作者工作台；格式判断由对应原生 Check 完成。
 

@@ -1,7 +1,11 @@
 import type { RunResult } from "@zxyycom/vibe-check";
 import { baseGateImpactContracts } from "./impact-catalog.ts";
 import { vibeNativeCheckIds } from "./checks/native.ts";
-import { gateCodeToolIds, type GateToolId } from "./impact-tools.ts";
+import {
+  gateCodeToolIds,
+  gateMetricToolIds,
+  type GateToolId
+} from "./impact-tools.ts";
 import { isQuickGateCheck } from "./profiles.ts";
 
 export type GateSelectedOutcome = Readonly<{
@@ -29,13 +33,15 @@ export function summarizeSelectedGateOutcome(
   }
   if (requestedScopes.some((scope) => gateCodeToolIds.includes(scope))) {
     for (const checkId of [
-      "file-metrics",
-      "function-metrics",
       "script:typecheck",
       "script:lint",
       "script:format:check"
     ])
       directCheckIds.add(checkId);
+  }
+  if (requestedScopes.some((scope) => gateMetricToolIds.includes(scope))) {
+    directCheckIds.add("file-metrics");
+    directCheckIds.add("function-metrics");
   }
   const eligibleCheckIds = result.snapshot.checks
     .filter(
