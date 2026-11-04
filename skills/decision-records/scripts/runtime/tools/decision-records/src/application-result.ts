@@ -7,6 +7,10 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import type {
+  RecordDiagnosticCause,
+  RecordDiagnosticSource
+} from "../../record-operations/src/history-index.ts";
 import {
   VersionControlError,
   type VersionControlErrorCauseCategory
@@ -27,6 +31,8 @@ export type DecisionDiagnosticCauseCategory =
   | "not-found";
 
 export type DecisionDiagnostic = Readonly<{
+  causes?: readonly RecordDiagnosticCause[];
+  source?: RecordDiagnosticSource;
   causeCategory?: DecisionDiagnosticCauseCategory;
   code: string;
   detail?: string | null;

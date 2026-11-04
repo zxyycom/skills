@@ -40,9 +40,15 @@ export function historicalInvestigationDiagnostic(
   );
   return genericInvestigationDiagnostic({
     ...historyDiagnosticIdentity,
-    recovery: incompatible
-      ? "verify tool/index version and namespace compatibility and follow the supported migration procedure, then rerun the full check before relying on predecessor warnings"
-      : "validate the current index and selected sources against trusted reports and commit any verified repair to restore the Git HEAD baseline, then rerun the full check before relying on predecessor warnings",
+    recovery: causes.some(
+      (cause) =>
+        cause.versionControl !== undefined ||
+        cause.code === "record-operations.history-index-read-failed"
+    )
+      ? "inspect and resolve the reported version-control or filesystem access failure, then rerun the full check before relying on predecessor warnings"
+      : incompatible
+        ? "verify tool/index version and namespace compatibility and follow the supported migration procedure, then rerun the full check before relying on predecessor warnings"
+        : "validate the current index and selected sources against trusted reports and commit any verified repair to restore the Git HEAD baseline, then rerun the full check before relying on predecessor warnings",
     source,
     target: source.path,
     causes

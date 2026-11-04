@@ -1166,6 +1166,26 @@
       ],
       "title": "调查历史索引损坏的诊断丢失与工作区修复边界"
     },
+    "261104-shared-historical-index-boundaries": {
+      "formedAt": "2026-11-04T10:28:14Z",
+      "name": "shared-historical-index-boundaries",
+      "question": "两域固定历史索引的不变量与诊断应如何共同维护？",
+      "relations": [
+        {
+          "summary": "跨域复查历史读取和诊断边界",
+          "target": "261104-investigate-head-index-diagnostic-loss",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "261104-shared-historical-index-boundaries.md",
+      "tags": [
+        "decision-records",
+        "git-integration",
+        "investigation-report"
+      ],
+      "title": "复查两域历史索引读取和诊断边界"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -1878,6 +1898,7 @@
       "261028-record-cost-reachability-boundaries": "sha256:b4e86e4f03808bfd98f5e66d9a96954dccf836e47f1cf6ba638f6ffab7b19b0c",
       "261031-gate-domain-scope-quality-audit": "sha256:94a030a2de9740ba1a63ba0e8bd07b775fd54fcd58ed48471def5251709ce98e",
       "261104-investigate-head-index-diagnostic-loss": "sha256:d7ce6b0df8b181942fe657ec41e40598c9f0885657252b025ae978959b536f41",
+      "261104-shared-historical-index-boundaries": "sha256:6663bf842e586584760a9da2dcc096c3af19e6e24d417da182ad44cd4c95c978",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:512b8f0c5b6466034d7d851032bf41af7413a227bdd19c62959fc2ad343d495c",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

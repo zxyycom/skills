@@ -1,3 +1,9 @@
+import {
+  readHistoricalIndex,
+  historicalIndexErrorCause,
+  type RecordDiagnosticCause,
+  type RecordDiagnosticSource
+} from "../../../../record-operations/src/history-index.ts";
 import type { VersionControlRepository } from "../../../../shared/src/version-control/index.ts";
 import {
   parseDecisionIndex,
@@ -21,33 +27,61 @@ export async function readDecisionHistoryIndex(
 ): Promise<DecisionIndex | null> {
   const prefix = directoryScope.length === 0 ? "" : directoryScope + "/";
   const indexPath = prefix + decisionIndexFileName;
-  const indexFile = await repository.readRevisionFile(revision, indexPath);
-  if (indexFile === null) {
-    const paths = await revisionDecisionSourcePaths(
+  const result = await readHistoricalIndex({
+    repository,
+    revision,
+    path: indexPath,
+    parse: parseDecisionIndex
+  });
+  if (result.status === "missing")
+    return await verifyMissingDecisionHistoryIndex(
       repository,
-      revision,
-      directoryScope
+      directoryScope,
+      result.source
     );
-    if (paths.length > 0)
-      throw new DecisionHistoryEvidenceError(
-        "Git HEAD Decision index is missing; explicitly recover the historical baseline before changing recorded history."
-      );
-    return null;
-  }
-  if (indexFile.kind !== "regular")
-    throw new DecisionHistoryEvidenceError(
-      "Git HEAD Decision index must be regular: " + indexPath
-    );
-  const parsed = parseDecisionIndex(
-    new TextDecoder("utf-8", { fatal: true }).decode(indexFile.data),
-    "Git HEAD " + indexPath
-  );
-  if (parsed.status === "error")
+  if (result.status === "invalid")
     throw new DecisionHistoryEvidenceError(
       "Git HEAD Decision index is invalid: " +
-        parsed.diagnostics.map((item) => item.message).join("; ")
+        result.causes.map((item) => item.detail).join("; "),
+      result.source,
+      result.causes
     );
-  return parsed.value;
+  return result.value;
+}
+
+/** A missing index is an empty history only after the revision namespace is proved empty. */
+async function verifyMissingDecisionHistoryIndex(
+  repository: VersionControlRepository,
+  directoryScope: string,
+  source: RecordDiagnosticSource
+): Promise<null> {
+  let paths: string[];
+  try {
+    paths = await revisionDecisionSourcePaths(
+      repository,
+      source.revision,
+      directoryScope
+    );
+  } catch (error) {
+    throw new DecisionHistoryEvidenceError(
+      "Git HEAD Decision index absence could not be verified against historical sources.",
+      source,
+      [historicalIndexErrorCause(error, source.path)]
+    );
+  }
+  if (paths.length > 0)
+    throw new DecisionHistoryEvidenceError(
+      "Git HEAD Decision index is missing; explicitly recover the historical baseline before changing recorded history.",
+      source,
+      [
+        {
+          code: "decision-records.history-index-missing",
+          detail: "historical Decision index is missing for existing decisions",
+          path: source.path
+        }
+      ]
+    );
+  return null;
 }
 
 export function historySourcePaths(
@@ -151,4 +185,16 @@ export function verifyPublishedHistoryIds(
   }
 }
 
-export class DecisionHistoryEvidenceError extends Error {}
+export class DecisionHistoryEvidenceError extends Error {
+  readonly source?: RecordDiagnosticSource;
+  readonly causes?: readonly RecordDiagnosticCause[];
+  constructor(
+    message: string,
+    source?: RecordDiagnosticSource,
+    causes?: readonly RecordDiagnosticCause[]
+  ) {
+    super(message);
+    if (source !== undefined) this.source = source;
+    if (causes !== undefined) this.causes = causes;
+  }
+}

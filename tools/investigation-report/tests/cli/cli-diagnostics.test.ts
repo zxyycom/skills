@@ -1,3 +1,4 @@
+import { historicalInvestigationDiagnostic } from "../../src/records/validation/validation-history-diagnostics.ts";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
@@ -85,6 +86,47 @@ test("diagnostic rendering preserves location while bounding and scrubbing each 
   assert.doesNotMatch(output, /state-index\.cause-3|state-index\.cause-4/u);
   assert.match(output, /omittedCauses: 2/u);
   assert.doesNotMatch(output, new RegExp(token, "u"));
+  const locator = "/" + "long/".repeat(130) + "x\nY\rZ\u001b";
+  const warning = renderInvestigationDiagnostic(
+    historicalInvestigationDiagnostic(source, [
+      {
+        code: "operation-failed",
+        detail: "failed",
+        path: locator,
+        versionControl: {
+          causeCategory: "access-denied",
+          operation: `read\n${token}`,
+          target: locator,
+          detail: `independent ${token}\r\u001b detail`
+        },
+        filesystem: {
+          causeCategory: "access-denied",
+          operation: "stat",
+          target: locator,
+          detail: "filesystem evidence"
+        }
+      }
+    ])
+  )
+    .map((line) => line.trimStart())
+    .join("; ");
+  assert.ok(
+    warning.includes(
+      `versionControl.target: "${JSON.stringify(locator).slice(1, -1)}"`
+    )
+  );
+  assert.ok(
+    warning.includes(`path: "${JSON.stringify(locator).slice(1, -1)}"`)
+  );
+  assert.match(warning, /versionControl\.causeCategory: access-denied/u);
+  assert.match(warning, /versionControl\.operation: read \[redacted\]/u);
+  assert.match(
+    warning,
+    /versionControl\.detail: independent \[redacted\].*detail/u
+  );
+  assert.match(warning, /filesystem\.detail: filesystem evidence/u);
+  assert.ok(!warning.includes(token));
+  assert.ok(!warning.includes(String.fromCharCode(27)));
   const details = lines.filter((line) =>
     line.trimStart().startsWith("detail:")
   );
@@ -93,4 +135,28 @@ test("diagnostic rendering preserves location while bounding and scrubbing each 
     assert.ok(detail.trimStart().slice("detail: ".length).length <= 500);
     assert.match(detail, /\[redacted\]/u);
   }
+});
+
+test("diagnostic locators escape controls without losing path identity", () => {
+  const lines = renderInvestigationDiagnostic({
+    code: "investigation-report.history-check-unavailable",
+    reason: "invalid\u001b[31m\nforged",
+    recovery: "inspect",
+    source: {
+      kind: "git-revision",
+      path: "inv\nFORGED/index",
+      revision: "abc"
+    },
+    target: "inv\nFORGED/index"
+  });
+  assert.match(lines[0]!, /inv\\nFORGED\/index/u);
+  assert.ok(lines.some((line) => line.includes('path: "inv\\nFORGED/index"')));
+  assert.ok(
+    lines.every((line) =>
+      Array.from(line).every((character) => {
+        const code = character.codePointAt(0)!;
+        return code >= 32 && (code < 127 || code > 159);
+      })
+    )
+  );
 });

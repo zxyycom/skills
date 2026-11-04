@@ -7,6 +7,11 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import {
+  renderRecordDiagnosticCauses,
+  safeDiagnosticLocator,
+  safeDiagnosticText
+} from "../../../../record-operations/src/diagnostic-text.ts";
 import type {
   DecisionApplicationAttention,
   DecisionApplicationFailure,
@@ -49,21 +54,50 @@ function printDiagnostic(
   io: DecisionRecordsCliIo
 ): void {
   writeCliLine(io.stderr, "- code: " + diagnostic.code);
-  writeCliLine(io.stderr, "  object: " + diagnostic.target);
-  writeCliLine(io.stderr, "  reason: " + diagnostic.reason);
+  writeCliLine(
+    io.stderr,
+    "  object: " + safeDiagnosticLocator(diagnostic.target)
+  );
+  writeCliLine(io.stderr, "  reason: " + safeDiagnosticText(diagnostic.reason));
+  printHistoricalDiagnosticEvidence(diagnostic, io);
   if (diagnostic.causeCategory !== undefined) {
     writeCliLine(io.stderr, "  causeCategory: " + diagnostic.causeCategory);
   }
   if (diagnostic.detail !== undefined && diagnostic.detail !== null) {
-    writeCliLine(io.stderr, "  detail: " + diagnostic.detail);
+    writeCliLine(
+      io.stderr,
+      "  detail: " + safeDiagnosticText(diagnostic.detail)
+    );
   }
   if (diagnostic.scope !== undefined) {
-    writeCliLine(io.stderr, "  scope: " + diagnostic.scope);
+    writeCliLine(
+      io.stderr,
+      "  scope: " + safeDiagnosticLocator(diagnostic.scope)
+    );
   }
   if (diagnostic.outcome !== undefined) {
     writeCliLine(io.stderr, "  outcome: " + diagnostic.outcome);
   }
-  writeCliLine(io.stderr, "  next: " + diagnostic.recovery);
+  writeCliLine(io.stderr, "  next: " + safeDiagnosticText(diagnostic.recovery));
+}
+
+function printHistoricalDiagnosticEvidence(
+  diagnostic: DecisionDiagnostic,
+  io: DecisionRecordsCliIo
+): void {
+  if (diagnostic.source !== undefined) {
+    writeCliLine(io.stderr, "  source: " + diagnostic.source.kind);
+    writeCliLine(
+      io.stderr,
+      "  revision: " + safeDiagnosticLocator(diagnostic.source.revision)
+    );
+    writeCliLine(
+      io.stderr,
+      "  path: " + `"${safeDiagnosticLocator(diagnostic.source.path)}"`
+    );
+  }
+  for (const line of renderRecordDiagnosticCauses(diagnostic.causes ?? []))
+    writeCliLine(io.stderr, line);
 }
 
 type PrintableDecisionQuerySuccess = Exclude<

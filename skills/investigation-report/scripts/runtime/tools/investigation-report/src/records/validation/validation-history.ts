@@ -17,6 +17,10 @@ import {
   type RevisionId
 } from "../../../../shared/src/version-control/index.ts";
 import {
+  historicalIndexErrorCause,
+  readHistoricalIndex
+} from "../../../../record-operations/src/history-index.ts";
+import {
   expectationOf,
   parseStateIndex
 } from "../../../../index-runtime/src/index.ts";
@@ -132,41 +136,43 @@ async function readHeadInvestigationIndex(
     directoryScope.length === 0
       ? investigationIndexFileName
       : `${directoryScope}/${investigationIndexFileName}`;
-  const context: InvestigationDiagnosticSource = {
-    kind: "git-revision",
+  const definition = createInvestigationStateIndexDefinition();
+  const result = await readHistoricalIndex({
+    repository,
+    revision,
     path: indexPath,
-    revision
-  };
-  const source = await repository.readRevisionFile(revision, indexPath);
-  if (source === null)
+    parse: (text, sourcePath) =>
+      parseStateIndex({
+        definition,
+        expectation: expectationOf(definition),
+        sourcePath,
+        text
+      })
+  });
+  if (result.status === "missing")
     return await missingHistoricalInvestigationIndex(
       { repository, revision, directoryScope },
-      context
+      result.source
     );
-  if (source.kind !== "regular" && source.kind !== "executable")
-    return err(
-      historicalInvestigationDiagnostic(context, [
-        {
-          code: "investigation-report.history-index-type-invalid",
-          detail: "historical investigation index must be an ordinary file"
-        }
-      ])
-    );
-  return parseHistoricalInvestigationIndex(
-    Buffer.from(source.data).toString("utf8"),
-    context
-  );
+  if (result.status === "invalid")
+    return err(historicalInvestigationDiagnostic(result.source, result.causes));
+  return ok(result.value);
 }
 
 async function missingHistoricalInvestigationIndex(
   { repository, revision, directoryScope }: HeadInvestigationContext,
   source: InvestigationDiagnosticSource
 ): Promise<Result<null, InvestigationDiagnostic>> {
-  const paths = await headFormalSourcePaths(
-    repository,
-    revision,
-    directoryScope
-  );
+  let paths: string[];
+  try {
+    paths = await headFormalSourcePaths(repository, revision, directoryScope);
+  } catch (error) {
+    return err(
+      historicalInvestigationDiagnostic(source, [
+        historicalIndexErrorCause(error, source.path)
+      ])
+    );
+  }
   return paths.length === 0
     ? ok(null)
     : err(
@@ -178,31 +184,6 @@ async function missingHistoricalInvestigationIndex(
           }
         ])
       );
-}
-
-function parseHistoricalInvestigationIndex(
-  text: string,
-  context: InvestigationDiagnosticSource
-): Result<PublishedInvestigationIndex, InvestigationDiagnostic> {
-  const definition = createInvestigationStateIndexDefinition();
-  const loaded = parseStateIndex({
-    definition,
-    expectation: expectationOf(definition),
-    sourcePath: context.path,
-    text
-  });
-  if (loaded.status === "error")
-    return err(
-      historicalInvestigationDiagnostic(
-        context,
-        loaded.diagnostics.map(({ code, message, stateId }) => ({
-          code,
-          detail: message,
-          ...(stateId === null ? {} : { stateId })
-        }))
-      )
-    );
-  return ok(loaded.value);
 }
 
 type HeadInvestigationContext = Readonly<{

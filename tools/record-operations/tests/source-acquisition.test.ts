@@ -162,3 +162,99 @@ test("Record source reads reject same-inode parent replacement and in-read byte 
     }
   }
 });
+
+test("historical index reader preserves fixed revision facts and rejects unsafe representations", async () => {
+  const { readHistoricalIndex } = await import("../src/history-index.ts");
+  const parse = (text: string, sourcePath: string) =>
+    text === "ok"
+      ? { status: "ok" as const, value: text, diagnostics: [] }
+      : {
+          status: "error" as const,
+          value: null,
+          diagnostics: [
+            {
+              code: "test.invalid",
+              message: "bad",
+              path: sourcePath,
+              stateId: "id"
+            }
+          ]
+        };
+  for (const [kind, bytes, expected] of [
+    ["regular", Buffer.from("ok"), "ok"],
+    ["executable", Buffer.from("ok"), "ok"],
+    [
+      "symlink",
+      Buffer.from("ok"),
+      "record-operations.history-index-type-invalid"
+    ],
+    [
+      "regular",
+      Buffer.from([0xff]),
+      "record-operations.history-index-utf8-invalid"
+    ],
+    ["regular", Buffer.from("bad"), "test.invalid"]
+  ] as const) {
+    const result = await readHistoricalIndex({
+      repository: {
+        readRevisionFile: async () => ({ path: "index", kind, data: bytes })
+      },
+      revision: "revision",
+      path: "index",
+      parse
+    });
+    assert.deepEqual(result.source, {
+      kind: "git-revision",
+      path: "index",
+      revision: "revision"
+    });
+    if (expected === "ok") assert.equal(result.status, "ok");
+    else {
+      assert.equal(result.status, "invalid");
+      if (result.status === "invalid") {
+        assert.equal(result.causes[0]?.code, expected);
+        assert.equal(result.causes[0]?.path, "index");
+        if (expected === "test.invalid") {
+          assert.equal(result.causes[0]?.detail, "bad");
+          assert.equal(result.causes[0]?.stateId, "id");
+        }
+      }
+    }
+  }
+  const missing = await readHistoricalIndex({
+    repository: { readRevisionFile: async () => null },
+    revision: "revision",
+    path: "index",
+    parse
+  });
+  assert.equal(missing.status, "missing");
+  const { VersionControlError } =
+    await import("../../shared/src/version-control/index.ts");
+  const failure = await readHistoricalIndex({
+    repository: {
+      readRevisionFile: async () => {
+        throw new VersionControlError({
+          code: "operation-failed",
+          causeCategory: "access-denied",
+          operation: "read revision",
+          target: "index",
+          detail: "denied"
+        });
+      }
+    },
+    revision: "revision",
+    path: "index",
+    parse
+  });
+  assert.equal(failure.status, "invalid");
+  if (failure.status === "invalid") {
+    assert.equal(failure.causes[0]?.code, "operation-failed");
+    assert.deepEqual(failure.causes[0]?.versionControl, {
+      causeCategory: "access-denied",
+      operation: "read revision",
+      target: "index",
+      detail: "denied"
+    });
+    assert.equal(failure.source.revision, "revision");
+  }
+});

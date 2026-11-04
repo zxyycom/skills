@@ -1073,6 +1073,7 @@
       "RECORD-COST-CASE-029": "sha256:be4114824ec32e13dbe21acf1af972bb6ad3b52e31f4d9cffb9823cbb6fdd2ee",
       "RECORD-COST-CASE-030": "sha256:1606630d08867d5a381af091ebdfe613d204a491fbf45a956b31c27f15e2f977",
       "RECORD-DOMAIN-ADAPTER-COMMIT-001": "sha256:2d1aa8ad2665039608935fd2ae17dfef848e51cf518f6fee33a3c78eb4190fb2",
+      "RECORD-HISTORY-INDEX-001": "sha256:006e8f94d3f243af8b419838f727647e7d986280549d859b5048967678e3bad9",
       "RECORD-NATIVE-CREATION-HANDLE-PROOF-001": "sha256:c5a9a4df4191ba5e41ebb4c3ba86bc8b4a788b70015c3f68e883861780e67ef7",
       "RECORD-NATIVE-CREATION-MODES-001": "sha256:9d072c05d7e5574991c15b9c00c9c4e2b3777d19d0e5a9148f6387fd51416efe",
       "RECORD-PHASE-TEXT-SAFETY-001": "sha256:3eb4827c817a9d9647e4445e513cc8eeaeef299f214f1ce5d2feb55ef53d701d",
@@ -12453,6 +12454,25 @@
       "testIds": [
         "test:aba644c3c6e06c4c4368c6930168fa76a14a6be836455a22fdcda63c9c2e8901",
         "test:d5ed84db445e1aa409cd87cdc1bf2154427f48a96777b77de3cd160c0f38da70"
+      ]
+    },
+    "RECORD-HISTORY-INDEX-001": {
+      "title": "固定历史索引读取与诊断边界",
+      "sourcePath": "cases/record-historical-index-boundaries.md",
+      "tags": [
+        "decision-records",
+        "git-integration",
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:393250bece1580bf1da5ceda67009edfd2d7a92dc1204aa771670b8a3de91a52",
+        "test:7dd03f6fa48093513f55c3df602a2498442d609b5f64dbbe1e1d8b0e2741e0f7",
+        "test:9ace52dfc5ac275f17cf72384990f07a92ec72898cd627b5e0d8925d27a2f227",
+        "test:da32ef3c32f27532fea0a92de6d55e10abbabc8ac5fd943e47f2faac6b1bc485",
+        "test:e9a149dd7ec4da92b507d7cb07756b46bdd707f8110b6ba0749411eb08062042",
+        "test:ea734e35bc050365bb34cc748aa5718fb1371c0631a16511b75aa36342a3ab28",
+        "test:ec70383b9f245cbf83e25832b9ac4e210ce30f9176219d8b04032afdd660f942",
+        "test:fcdfff98ac8fcf956a13700b405433974a05c34b4e8a7a96418b886b0ca09175"
       ]
     },
     "RECORD-NATIVE-CREATION-HANDLE-PROOF-001": {

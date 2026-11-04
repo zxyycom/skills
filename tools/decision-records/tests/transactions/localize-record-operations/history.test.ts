@@ -1,3 +1,13 @@
+import { printDecisionFailure } from "../../../src/cli/output/cli-output.ts";
+import { decisionFailure } from "../../../src/application-result.ts";
+import {
+  readDecisionHistoryIndex,
+  DecisionHistoryEvidenceError
+} from "../../../src/records/history/decision-history-sources.ts";
+import {
+  openVersionControl,
+  VersionControlError
+} from "../../../../shared/src/version-control/index.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -52,6 +62,36 @@ test("Decision history gates diagnose a missing historical index instead of scan
     assert.match(result.stderr, /Git HEAD Decision index is missing/);
     assert.deepEqual(await fs.readFile(decisionFilePath(root, a)), source);
     assert.deepEqual(await fs.readFile(indexPath(root)), index);
+    const repository = await openVersionControl(root);
+    const revision = (await repository.getCurrentRevision())!;
+    const failure = new VersionControlError({
+      code: "operation-failed",
+      causeCategory: "access-denied",
+      operation: "enumerate",
+      target: "scope",
+      detail: "denied"
+    });
+    await assert.rejects(
+      readDecisionHistoryIndex(
+        {
+          ...repository,
+          readRevisionFile: async () => null,
+          listRevisionFiles: async () => {
+            throw failure;
+          }
+        },
+        revision,
+        "docs/decisions"
+      ),
+      (error: unknown) => {
+        assert.ok(error instanceof DecisionHistoryEvidenceError);
+        assert.equal(error.source?.revision, revision);
+        assert.equal(error.source?.path, "docs/decisions/decision-index.json");
+        assert.equal(error.causes?.[0]?.code, "operation-failed");
+        assert.equal(error.causes?.[0]?.versionControl?.detail, "denied");
+        return true;
+      }
+    );
   });
 });
 test("Decision evolution checks recorded archived override targets without reading their workspace bodies", async () => {
@@ -123,4 +163,92 @@ test("Decision multi-selected history rejects identities swapped between their i
       assert.equal(runGit(root, ["write-tree"]), pending);
     }
   );
+});
+
+test("Decision historical executable index is accepted without changing its mode", async () => {
+  await withTemporaryWorkspace("history-executable-index", async (root) => {
+    await fixture(root, true);
+    runGit(root, [
+      "update-index",
+      "--chmod=+x",
+      "docs/decisions/decision-index.json"
+    ]);
+    runGit(root, ["commit", "-m", "executable historical index"]);
+    const result = await runSourceCli(["archive", a, "--root", root]);
+    assert.equal(result.exitCode, 0, result.stderr);
+    assert.match(
+      runGit(root, ["ls-tree", "HEAD", "docs/decisions/decision-index.json"]),
+      /^100755 /u
+    );
+  });
+});
+
+test("Decision invalid historical index blocks writes and reports its revision until committed repair", async () => {
+  await withTemporaryWorkspace("history-invalid-index", async (root) => {
+    await fixture(root, true);
+    const index = await fs.readFile(indexPath(root));
+    const source = await fs.readFile(decisionFilePath(root, a));
+    await fs.writeFile(indexPath(root), Buffer.from("{invalid"));
+    runGit(root, ["add", "docs/decisions/decision-index.json"]);
+    runGit(root, ["commit", "-m", "invalid historical index"]);
+    const revision = runGit(root, ["rev-parse", "HEAD"]).trim();
+    await fs.writeFile(indexPath(root), index);
+    const pending = runGit(root, ["write-tree"]);
+    const result = await runSourceCli(["archive", a, "--root", root]);
+    assert.equal(result.exitCode, 1);
+    assert.match(result.stderr, /state-index\.json-invalid/u);
+    const lines: string[] = [];
+    const locator = "/" + "long/".repeat(130) + "x\nY\rZ\u001b";
+    const secret = `ghp_${"x".repeat(36)}`;
+    printDecisionFailure(
+      decisionFailure([
+        {
+          code: "history",
+          target: "history",
+          reason: "unavailable",
+          recovery: "retry",
+          causes: [
+            {
+              code: "operation-failed",
+              detail: "failed",
+              path: locator,
+              versionControl: {
+                causeCategory: "access-denied",
+                operation: `read\n${secret}`,
+                target: locator,
+                detail: `independent ${secret}\r\u001b detail`
+              }
+            }
+          ]
+        }
+      ]),
+      { stdout: () => {}, stderr: (line) => lines.push(line) }
+    );
+    const output = lines.join("");
+    assert.ok(
+      output.includes(
+        `versionControl.target: "${JSON.stringify(locator).slice(1, -1)}"`
+      )
+    );
+    assert.ok(
+      output.includes(`path: "${JSON.stringify(locator).slice(1, -1)}"`)
+    );
+    assert.match(output, /versionControl\.causeCategory: access-denied/u);
+    assert.match(output, /versionControl\.operation: read \[redacted\]/u);
+    assert.match(
+      output,
+      /versionControl\.detail: independent \[redacted\].*detail/u
+    );
+    assert.ok(!output.includes(secret));
+    assert.ok(!output.includes(String.fromCharCode(27)));
+
+    assert.ok(result.stderr.includes(revision));
+    assert.deepEqual(await fs.readFile(indexPath(root)), index);
+    assert.deepEqual(await fs.readFile(decisionFilePath(root, a)), source);
+    assert.equal(runGit(root, ["write-tree"]), pending);
+    runGit(root, ["add", "docs/decisions/decision-index.json"]);
+    runGit(root, ["commit", "-m", "repair historical index"]);
+    const repaired = await runSourceCli(["archive", a, "--root", root]);
+    assert.equal(repaired.exitCode, 0, repaired.stderr);
+  });
 });

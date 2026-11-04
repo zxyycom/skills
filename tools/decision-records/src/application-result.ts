@@ -1,3 +1,7 @@
+import type {
+  RecordDiagnosticCause,
+  RecordDiagnosticSource
+} from "../../record-operations/src/history-index.ts";
 import {
   VersionControlError,
   type VersionControlErrorCauseCategory
@@ -18,6 +22,8 @@ export type DecisionDiagnosticCauseCategory =
   | "not-found";
 
 export type DecisionDiagnostic = Readonly<{
+  causes?: readonly RecordDiagnosticCause[];
+  source?: RecordDiagnosticSource;
   causeCategory?: DecisionDiagnosticCauseCategory;
   code: string;
   detail?: string | null;

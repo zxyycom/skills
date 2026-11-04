@@ -144,7 +144,7 @@
       "261022-scope-record-index-payload-validation": "sha256:15a8b3bfb68b1506decaf895dea6b8a9c9604b63f55e31fe7c3d1fe83b4de664",
       "261022-separate-quick-gate-from-complete-validation": "sha256:870daa955a75a674c0b43e766708e7072be194527249b977f1175374b35bc13d",
       "261022-separate-record-local-operations-from-collection-audits": "sha256:5b78b1072903759b5e1160e3c4fc7f59b12984704568b47a18fdde794e6ff952",
-      "261024-bound-record-operations-to-published-facts": "sha256:0b2816d33c81b7e861d69e2b2c0507037b22e0655012bac50c3d186fc220b9f4",
+      "261024-bound-record-operations-to-published-facts": "sha256:da6d2a5481375372ef3c784b5610ce37ee41e722d83ba24c0a9853469770dd17",
       "261024-bound-selected-record-sync-currentness": "sha256:a596c6c1a8820189c71cddf0fb539c49a8d319997bfd33366e0df5712c1fa13f",
       "261024-keep-video-configuration-outside-installation": "sha256:3630e8154c3dff9de110ccbd27d2d3a8697b51bd83e78f8edeead6c7180cdf87",
       "261024-require-windows-video-acceptance-for-aggregate-release": "sha256:9832687f36388a19f952df866a5bf22cabc8e8bc3991354c6a7723787661b852",

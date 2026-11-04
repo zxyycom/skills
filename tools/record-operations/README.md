@@ -93,3 +93,7 @@ worker 从同一 skill 安装内的 URL 启动，分发包含其模块闭包，�
 ## 分发与验证
 
 各领域同步器独立复制源码闭包。改动按消费关系同步生成、运行原生测试并维护 Case，最终运行完整变更门禁；命令见[项目工具链](../../docs/tooling.md#工具维护命令)。
+
+## 固定 revision 历史索引
+
+`src/history-index.ts` 以同一个固定 revision 读取索引：物理缺失、普通 blob 的严格 UTF-8 与索引解析结果分别返回；regular 和 executable 均为普通 blob，symlink 被拒绝。失败保留 revision、路径和完整解析或读取原因。领域证明缺失是否对应首次空集合，并决定历史身份、恢复和 warning／阻断语义。共同诊断文本规则将定位字段的控制字符转义保留可回查性，自由文本逐字段净化限长；保留各域结果外形与 errors/warnings 字符串出口，DR 诊断可附带 source 和 causes。

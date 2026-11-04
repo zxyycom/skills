@@ -1,4 +1,13 @@
 import {
+  renderRecordDiagnosticCauses,
+  safeDiagnosticLocator,
+  safeDiagnosticText
+} from "../../record-operations/src/diagnostic-text.ts";
+import type {
+  RecordDiagnosticCause,
+  RecordDiagnosticSource
+} from "../../record-operations/src/history-index.ts";
+import {
   VersionControlError,
   type VersionControlErrorCauseCategory
 } from "../../shared/src/version-control/index.ts";
@@ -16,17 +25,9 @@ export type InvestigationMutationDiagnostic = Readonly<{
   scope: string;
 }>;
 
-export type InvestigationDiagnosticSource = Readonly<{
-  kind: "git-revision";
-  path: string;
-  revision: string;
-}>;
+export type InvestigationDiagnosticSource = RecordDiagnosticSource;
 
-export type InvestigationDiagnosticCause = Readonly<{
-  code: string;
-  detail: string;
-  stateId?: string;
-}>;
+export type InvestigationDiagnosticCause = RecordDiagnosticCause;
 
 /** Command-lifetime facts shared by operation adapters and CLI rendering. */
 export type InvestigationDiagnostic = Readonly<{
@@ -154,56 +155,39 @@ export function renderInvestigationDiagnostic(
   diagnostic: InvestigationDiagnostic
 ): string[] {
   return [
-    `[${diagnostic.code}] ${diagnostic.target}`,
+    `[${safeDiagnosticLocator(diagnostic.code)}] ${safeDiagnosticLocator(diagnostic.target)}`,
     `  reason: ${sanitizeInvestigationDiagnosticText(diagnostic.reason)}`,
     `  next: ${sanitizeInvestigationDiagnosticText(diagnostic.recovery)}`,
     ...(diagnostic.source === undefined
       ? []
       : [
           `  source: ${diagnostic.source.kind}`,
-          `  revision: ${diagnostic.source.revision}`,
-          `  path: ${JSON.stringify(diagnostic.source.path)}`
+          `  revision: ${safeDiagnosticLocator(diagnostic.source.revision)}`,
+          `  path: ${`"${safeDiagnosticLocator(diagnostic.source.path)}"`}`
         ]),
     ...(diagnostic.causeCategory === undefined
       ? []
       : [`  causeCategory: ${diagnostic.causeCategory}`]),
     ...(diagnostic.operation === undefined || diagnostic.operation === null
       ? []
-      : [`  operation: ${diagnostic.operation}`]),
+      : [`  operation: ${safeDiagnosticText(diagnostic.operation)}`]),
     ...(diagnostic.detail === undefined || diagnostic.detail === null
       ? []
       : [
           `  detail: ${sanitizeInvestigationDiagnosticText(diagnostic.detail)}`
         ]),
-    ...renderDiagnosticCauses(diagnostic.causes ?? []),
+    ...renderRecordDiagnosticCauses(diagnostic.causes ?? []),
     ...(diagnostic.mutation === undefined
       ? []
       : [
-          `  scope: ${diagnostic.mutation.scope}`,
+          `  scope: ${safeDiagnosticLocator(diagnostic.mutation.scope)}`,
           `  outcome: ${diagnostic.mutation.outcome}`
         ])
   ];
 }
 
-function renderDiagnosticCauses(
-  causes: readonly InvestigationDiagnosticCause[]
-): string[] {
-  const maximumShownCauses = 3;
-  return [
-    ...causes
-      .slice(0, maximumShownCauses)
-      .flatMap((cause) => [
-        `  cause: [${cause.code}]${cause.stateId === undefined ? "" : ` ${JSON.stringify(cause.stateId)}`}`,
-        `    detail: ${sanitizeInvestigationDiagnosticText(cause.detail)}`
-      ]),
-    ...(causes.length <= maximumShownCauses
-      ? []
-      : [`  omittedCauses: ${causes.length - maximumShownCauses}`])
-  ];
-}
-
 export function sanitizeInvestigationDiagnosticText(value: unknown): string {
-  return operationErrorDetail(value) ?? "unavailable error detail";
+  return safeDiagnosticText(value);
 }
 
 function fileSystemCauseCategory(

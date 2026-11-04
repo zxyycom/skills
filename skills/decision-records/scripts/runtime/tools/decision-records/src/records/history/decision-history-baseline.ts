@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import { safeDiagnosticText } from "../../../../record-operations/src/diagnostic-text.ts";
 import {
   readDecisionHistoryIndex,
   historySourcePaths,
@@ -249,12 +250,29 @@ function baselineFailure(error: unknown): DecisionApplicationFailure {
     return decisionFailure([
       decisionDiagnostic({
         code: "decision-records.history-baseline-invalid",
-        reason: error.message,
+        reason: safeDiagnosticText(error.message),
+        ...(error.source === undefined ? {} : { source: error.source }),
+        ...(error.causes === undefined ? {} : { causes: error.causes }),
         outcome: "no-change",
         scope: "Decision Markdown files and derived decision index",
         target: "Decision history baseline",
-        recovery:
-          "Restore a trusted historical index and its selected source identities before retrying; do not infer recorded history by scanning unrelated blobs."
+        recovery: error.causes?.some(
+          (cause) =>
+            cause.versionControl !== undefined ||
+            cause.code === "record-operations.history-index-read-failed"
+        )
+          ? "Inspect and resolve the reported version-control or filesystem access failure before retrying."
+          : error.causes?.some((cause) =>
+                [
+                  "state-index.schema-version-unsupported",
+                  "state-index.definition-version-mismatch",
+                  "state-index.namespace-mismatch",
+                  "state-index.definition-mismatch",
+                  "state-index.definition-invalid"
+                ].includes(cause.code)
+              )
+            ? "Verify tool and index compatibility and follow the supported migration procedure before retrying."
+            : "Restore a trusted historical index and its selected source identities before retrying; do not infer recorded history by scanning unrelated blobs."
       })
     ]);
   return decisionVersionControlFailure(

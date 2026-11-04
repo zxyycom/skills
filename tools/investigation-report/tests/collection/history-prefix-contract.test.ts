@@ -24,7 +24,7 @@ async function warnings(root: string): Promise<string[]> {
   );
 }
 
-for (const failure of ["json", "definition"]) {
+for (const failure of ["json", "definition", "utf8"]) {
   test(`history invalid ${failure} index reports HEAD diagnostics until a repair is committed`, async () => {
     await withTempRoot("history-invalid-index", async (root) => {
       await writeCollection(root, [
@@ -44,7 +44,16 @@ for (const failure of ["json", "definition"]) {
               /"definitionVersion": \d+/u,
               '"definitionVersion": 999'
             );
-      await fs.writeFile(indexFile, invalid);
+      await fs.writeFile(
+        indexFile,
+        failure === "utf8"
+          ? Buffer.concat([
+              Buffer.from(healthy.slice(0, 10)),
+              Buffer.from([0xff]),
+              Buffer.from(healthy.slice(11))
+            ])
+          : invalid
+      );
       git(root, ["add", indexPath]);
       git(root, ["commit", "--quiet", "-m", "invalid historical index"]);
       const revision = git(root, ["rev-parse", "HEAD"]).trim();
@@ -60,11 +69,13 @@ for (const failure of ["json", "definition"]) {
         warning,
         failure === "json"
           ? /cause: \[state-index\.json-invalid\]; detail: \S/u
-          : /\[state-index\.definition-version-mismatch\].*expected definition version.*found 999/u
+          : failure === "utf8"
+            ? /record-operations\.history-index-utf8-invalid/u
+            : /\[state-index\.definition-version-mismatch\].*expected definition version.*found 999/u
       );
       assert.match(
         warning,
-        failure === "json"
+        failure !== "definition"
           ? /next:.*commit.*HEAD baseline/u
           : /next:.*compatibility.*migration/u
       );
@@ -178,3 +189,95 @@ for (const failure of ["corrupt"]) {
     });
   });
 }
+
+test("history CLI escapes control characters in the historical target path", async () => {
+  const { spawnSync } = await import("node:child_process");
+  await withTempRoot("history-control-path", async (root) => {
+    await writeCollection(root, [
+      { id: "base" },
+      { id: "next", relations: [{ type: "补充", target: "base" }] }
+    ]);
+    const directory = "inv\nFORGED\u001b";
+    await fs.rename(investigationRoot(root), path.join(root, directory));
+    initializeGit(root);
+    const index = path.join(root, directory, "investigation-index.json");
+    const healthy = await fs.readFile(index);
+    await fs.writeFile(index, "{broken");
+    git(root, ["add", `${directory}/investigation-index.json`]);
+    git(root, ["commit", "--quiet", "-m", "broken historical index"]);
+    await fs.writeFile(index, healthy);
+    const cli = spawnSync(
+      "node",
+      [
+        path.resolve("tools/investigation-report/src/cli.ts"),
+        "check",
+        "--root",
+        root,
+        "--investigations-dir",
+        directory
+      ],
+      { encoding: "utf8" }
+    );
+    assert.equal(cli.status, 0, cli.stderr);
+    assert.match(cli.stderr, /history-check-unavailable/u);
+    assert.match(cli.stderr, /inv\\nFORGED\\u001b/u);
+    assert.ok(!cli.stderr.includes("\nFORGED"));
+    assert.ok(!cli.stderr.includes(String.fromCharCode(27)));
+  });
+});
+
+test(
+  "history warning preserves revision and system evidence when missing-index enumeration fails",
+  { skip: process.platform === "win32" },
+  async () => {
+    const { execFileSync, spawnSync } = await import("node:child_process");
+    await withTempRoot("history-missing-enumeration", async (root) => {
+      await writeCollection(root, [
+        { id: "base" },
+        { id: "next", relations: [{ type: "补充", target: "base" }] }
+      ]);
+      initializeGit(root);
+      const indexPath = "docs/investigations/investigation-index.json";
+      git(root, ["rm", "--cached", indexPath]);
+      git(root, ["commit", "--quiet", "-m", "missing index"]);
+      const revision = git(root, ["rev-parse", "HEAD"]).trim();
+      const realGit = execFileSync("which", ["git"], {
+        encoding: "utf8"
+      }).trim();
+      const bin = path.join(root, "bin");
+      await fs.mkdir(bin);
+      await fs.writeFile(
+        path.join(bin, "git"),
+        `#!/bin/sh\ncase " $* " in *" ls-tree "*" --name-only "*) echo 'enumeration denied' >&2; exit 1;; esac\nexec ${JSON.stringify(realGit)} "$@"\n`,
+        { mode: 0o755 }
+      );
+      const cli = spawnSync(
+        "node",
+        [
+          path.resolve("tools/investigation-report/src/cli.ts"),
+          "check",
+          "--root",
+          root
+        ],
+        {
+          encoding: "utf8",
+          env: { ...process.env, PATH: bin + path.delimiter + process.env.PATH }
+        }
+      );
+      assert.equal(cli.status, 0, cli.stderr);
+      assert.match(cli.stderr, /history-check-unavailable/u);
+      assert.ok(cli.stderr.includes(`revision: ${revision}`));
+      assert.ok(cli.stderr.includes(`path: "${indexPath}"`));
+      assert.match(cli.stderr, /cause: \[operation-failed\]/u);
+      assert.match(
+        cli.stderr,
+        /versionControl\.causeCategory: command-failed/u
+      );
+      assert.match(
+        cli.stderr,
+        /versionControl\.operation: list files in the revision snapshot/u
+      );
+      assert.match(cli.stderr, /versionControl\.detail:.*enumeration denied/u);
+    });
+  }
+);
