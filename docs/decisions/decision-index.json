@@ -165,6 +165,7 @@
       "261031-declare-gate-domain-quality-kinds": "sha256:bbe3c52915b5288385a4877126a6f8ce6e209eb51e75b8683d837287862c27a7",
       "261031-preserve-native-file-guards-with-build-source-exception": "sha256:8bdbc64a6a8fb3a1c9ffa4c7b68322d0194c4f27fe33650b5345319227f06176",
       "261031-unify-gate-domain-scope-declarations": "sha256:d0f42bda0fb174534ea1e50afcfdc65fff5947b1f098e72dd18a7805a2782ead",
+      "261104-bounded-test-design-feedback": "sha256:326a97d3e8503030fe09b4a3aea37b667599dfe78e03897e1d1fdb5316d4f7fe",
       "261104-select-test-automation-before-implementation": "sha256:7898cd190565070a15e762968c1f08ca58cf7d9b109f4e119a506f25c7421bc6",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
@@ -3831,6 +3832,22 @@
         "responsibility-boundaries",
         "validation-boundaries",
         "vibe-gate"
+      ],
+      "relations": []
+    },
+    "261104-bounded-test-design-feedback": {
+      "name": "bounded-test-design-feedback",
+      "sourcePath": "261104-bounded-test-design-feedback.md",
+      "title": "测试设计按需反馈实现并重新裁定受影响测试",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-11-04T14:37:53Z",
+      "purpose": "让测试与实现相互反馈，以整体成本控制风险，而非固定实现后只修补测试。",
+      "background": "测试困难可能暴露职责问题，设计调整又可能改变契约、风险和旧测试价值，单向流程不能表达这些变化。",
+      "decision": "test-design 按需提出有界设计反馈，比较实现与测试的整体得失，变化后重新裁定受影响测试。",
+      "tags": [
+        "test-design",
+        "testing-strategy"
       ],
       "relations": []
     },
