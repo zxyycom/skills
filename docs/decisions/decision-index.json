@@ -165,6 +165,7 @@
       "261031-declare-gate-domain-quality-kinds": "sha256:bbe3c52915b5288385a4877126a6f8ce6e209eb51e75b8683d837287862c27a7",
       "261031-preserve-native-file-guards-with-build-source-exception": "sha256:8bdbc64a6a8fb3a1c9ffa4c7b68322d0194c4f27fe33650b5345319227f06176",
       "261031-unify-gate-domain-scope-declarations": "sha256:d0f42bda0fb174534ea1e50afcfdc65fff5947b1f098e72dd18a7805a2782ead",
+      "261104-select-test-automation-before-implementation": "sha256:7898cd190565070a15e762968c1f08ca58cf7d9b109f4e119a506f25c7421bc6",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -3830,6 +3831,22 @@
         "responsibility-boundaries",
         "validation-boundaries",
         "vibe-gate"
+      ],
+      "relations": []
+    },
+    "261104-select-test-automation-before-implementation": {
+      "name": "select-test-automation-before-implementation",
+      "sourcePath": "261104-select-test-automation-before-implementation.md",
+      "title": "先裁定自动化投入再设计与修复测试",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-11-04T08:02:25Z",
+      "purpose": "让测试设计先选择值得承担的自动化保护，再为入选目标投入实现和维护成本。",
+      "background": "以既有测试为起点的质量审查容易默认修好保留，而关键契约也可能不值得承担自动化成本。",
+      "decision": "test-design 先按保护收益与总成本裁定投入、不自动化或未决，仅为投入成立的目标设计和修复测试。",
+      "tags": [
+        "test-design",
+        "testing-strategy"
       ],
       "relations": []
     },
