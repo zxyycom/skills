@@ -11,4 +11,4 @@ Contract:
 
 Proves:
 - 非 Git 和尚未形成 HEAD 时不产生前序 warning。
-- 损坏的 HEAD 保持 check 成功，但返回包含 `history-check-unavailable` 的可行动 warning，且版本控制 detail 只保留一次，不再嵌入原始 Error message。
+- 损坏的 HEAD 保持 check 成功，但返回包含 `history-check-unavailable` 的可行动 warning；恢复指引说明版本控制失败，且版本控制 detail 只保留一次，不再嵌入原始 Error message。

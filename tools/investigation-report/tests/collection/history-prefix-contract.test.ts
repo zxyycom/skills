@@ -24,6 +24,59 @@ async function warnings(root: string): Promise<string[]> {
   );
 }
 
+for (const failure of ["json", "definition"]) {
+  test(`history invalid ${failure} index reports HEAD diagnostics until a repair is committed`, async () => {
+    await withTempRoot("history-invalid-index", async (root) => {
+      await writeCollection(root, [
+        { id: "base" },
+        { id: "next", relations: [{ type: "补充", target: "base" }] }
+      ]);
+      initializeGit(root);
+      assert.deepEqual(await warnings(root), []);
+
+      const indexPath = "docs/investigations/investigation-index.json";
+      const indexFile = path.join(root, indexPath);
+      const healthy = await fs.readFile(indexFile, "utf8");
+      const invalid =
+        failure === "json"
+          ? healthy.trimEnd().slice(0, -1)
+          : healthy.replace(
+              /"definitionVersion": \d+/u,
+              '"definitionVersion": 999'
+            );
+      await fs.writeFile(indexFile, invalid);
+      git(root, ["add", indexPath]);
+      git(root, ["commit", "--quiet", "-m", "invalid historical index"]);
+      const revision = git(root, ["rev-parse", "HEAD"]).trim();
+      await fs.writeFile(indexFile, healthy);
+
+      const result = await warnings(root);
+      assert.equal(result.length, 1);
+      const warning = result[0]!;
+      assert.match(warning, /investigation-report\.history-check-unavailable/u);
+      assert.ok(warning.includes(`revision: ${revision}`));
+      assert.ok(warning.includes(`path: ${JSON.stringify(indexPath)}`));
+      assert.match(
+        warning,
+        failure === "json"
+          ? /cause: \[state-index\.json-invalid\]; detail: \S/u
+          : /\[state-index\.definition-version-mismatch\].*expected definition version.*found 999/u
+      );
+      assert.match(
+        warning,
+        failure === "json"
+          ? /next:.*commit.*HEAD baseline/u
+          : /next:.*compatibility.*migration/u
+      );
+      assert.doesNotMatch(warning, /前序报告 base 尚未进入/u);
+
+      git(root, ["add", indexPath]);
+      git(root, ["commit", "--quiet", "-m", "repair historical index"]);
+      assert.deepEqual(await warnings(root), []);
+    });
+  });
+}
+
 for (const newline of ["lf", "crlf", "cr"]) {
   test(`history identity accepts ${newline} first-three-line source prefixes`, () => {
     const separator =

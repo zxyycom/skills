@@ -674,6 +674,8 @@
       "INVESTIGATION-CURRENT-INDEX-VALIDATION-001": "sha256:5564e0b9a527755dfcbdc4b3a9bbbe2d8253b8d7106bc1e1fe391cfc0290e66c",
       "INVESTIGATION-DATED-SELECTOR-001": "sha256:a27f4acc8814e21eeae5030f613b694a538e56cdac90d5e2aa952ef70d5180f2",
       "INVESTIGATION-DEEP-RELATION-CHAIN-001": "sha256:77ae1bbdd8089d9a70ab503073db437a0b7a542d258283666a97c2d75c6e7d5d",
+      "INVESTIGATION-DIAGNOSTIC-CONTEXT-001": "sha256:845460205024a5ab8358c66b3817c4161dd8f15b445a24b4b02e4bfa12e65153",
+      "INVESTIGATION-DIAGNOSTIC-RENDERING-001": "sha256:aca3222f70ff0599cb96c0deebb2132e37609c337aed3c67b0d56ad349e07458",
       "INVESTIGATION-DIAGNOSTIC-SANITIZATION-001": "sha256:580eea2132912517a841ef70104690a197a9b1f2e55734ae007670d1fe4afb65",
       "INVESTIGATION-DIRECTORY-PATH-001": "sha256:2b521418b8cfe258cfbd2e5f6de6ff9e2026cb7e6f68b2aefc50d397f071b6e8",
       "INVESTIGATION-DIRECTORY-PHASE-SAFETY-001": "sha256:61879d18a04c5a69887a30198ff8241f9548dea6a034e7e58c35175d4a809389",
@@ -704,6 +706,7 @@
       "INVESTIGATION-EXECUTION-PREPARATION-LOCK-001": "sha256:c3c7dbfb339018bf38fe87f6157a7552b57c0999cc336b0a5a78873eef8fe95c",
       "INVESTIGATION-FRESH-RESOURCE-PHASE-001": "sha256:bff649b98237607252f117595e954ead2fcb506b99965583de3b14e76386185a",
       "INVESTIGATION-GENERATED-METADATA-002": "sha256:ad742cdfd86d20b303d55645290259b01e65b7dfc8cc2cdcd33822c570530812",
+      "INVESTIGATION-HISTORY-INDEX-DIAGNOSTICS-001": "sha256:4b7abdfc9895560f03a43dbe49966b7eb5e3055d655a95d00ce45fed98639564",
       "INVESTIGATION-HISTORY-PATH-QUERY-BATCHING-001": "sha256:751d25c390ca29b50daa985978debd0d6fb184713771c2ca51071692678fadc4",
       "INVESTIGATION-HISTORY-PAYLOAD-INTEGRITY-001": "sha256:d3952c9c2d218f979382cf2776895eecc36bb5ef473874b98098feca85c0bdc6",
       "INVESTIGATION-HISTORY-PREFIX-PRESENCE-001": "sha256:821fcadaadf6dc1230ee124dccf6dba16b0bb7c956e62801746f31fb3c3aa247",
@@ -745,7 +748,7 @@
       "INVESTIGATION-RELATION-FILTER-002": "sha256:69f59e5a1d7431280001dc1be752781cf583b73b30c464c5e22f7db4debe78ca",
       "INVESTIGATION-RELATION-FILTER-EVIDENCE-001": "sha256:7a6507c24abdad6c2b68c17f3528b26c639a65ed212190d89b1c9752f8e66f1c",
       "INVESTIGATION-RELATION-GIT-HEAD-001": "sha256:aefa76b7a4fa952a4bd59f78a39089709156b65c39b21e3ec58e918f7b02c0bb",
-      "INVESTIGATION-RELATION-GIT-HEAD-002": "sha256:6d1e7beadd2c8a0b80c998a47fbce0c1d72da5bd9109882b75bab3c7c7d0c2ba",
+      "INVESTIGATION-RELATION-GIT-HEAD-002": "sha256:f8cf71e9b52ce0c0c7b0a6b3109339425a82e74b357bde77366c2e8b1730abde",
       "INVESTIGATION-RELATION-GRAPH-SELF-001": "sha256:2006ff27412d85548c4fe63c6986ab4a7cf8d17386b16d72942aff856328d684",
       "INVESTIGATION-RELATION-GRAPH-SHAPES-001": "sha256:a444d047f7aa019fd7ca6f42deae8de2675ade33ab8b4232fbfb38432a947608",
       "INVESTIGATION-RELATION-GRAPH-TIME-001": "sha256:8f1cab26fffe206dc8423de85f06fd7e8f4f947decd09152f2f2dd802812cd52",
@@ -8367,6 +8370,26 @@
         "test:7f30fe24cd69b724b9e9405eace1346b0ca6770f8b7984547f9a22203911b4ad"
       ]
     },
+    "INVESTIGATION-DIAGNOSTIC-CONTEXT-001": {
+      "title": "共同诊断适配器保留相同历史来源",
+      "sourcePath": "cases/investigation-diagnostic-context.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:5299eaa3239d31662424cc2423a3a6d44552ef474ea7ca00f4fc0258d1c097dc"
+      ]
+    },
+    "INVESTIGATION-DIAGNOSTIC-RENDERING-001": {
+      "title": "共同渲染隔离历史定位与受限错误详情",
+      "sourcePath": "cases/investigation-diagnostic-rendering.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:22be93b0f07aedf95a16824797aa89d43db0740d0e4a3491b64541573e9ca3ba"
+      ]
+    },
     "INVESTIGATION-DIAGNOSTIC-SANITIZATION-001": {
       "title": "investigation diagnostics sanitize external failure details",
       "sourcePath": "cases/investigation-diagnostic-sanitization-001.md",
@@ -8681,6 +8704,18 @@
       ],
       "testIds": [
         "test:20bf26bd92c838824a17132e7f47733a76f0122a22a9f949461736e726dad556"
+      ]
+    },
+    "INVESTIGATION-HISTORY-INDEX-DIAGNOSTICS-001": {
+      "title": "历史索引错误可定位且修复须进入新 HEAD",
+      "sourcePath": "cases/investigation-history-index-diagnostics.md",
+      "tags": [
+        "git-integration",
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:4bd890a8686bfaddff24a441d253be888764580eda885f96f8a79f81fee75593",
+        "test:5a3c601118ab30cdd0eb98d37deafbd02a8eef6dcbf2f64b293485d5cf819a97"
       ]
     },
     "INVESTIGATION-HISTORY-PATH-QUERY-BATCHING-001": {

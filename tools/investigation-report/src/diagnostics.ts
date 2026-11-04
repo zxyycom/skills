@@ -16,12 +16,21 @@ export type InvestigationMutationDiagnostic = Readonly<{
   scope: string;
 }>;
 
-/**
- * The small, command-lifetime diagnostic contract owned by Investigation
- * Report. It deliberately does not retain an Error or introduce a shared
- * renderer registry: callers need only stable facts for the final CLI line.
- */
+export type InvestigationDiagnosticSource = Readonly<{
+  kind: "git-revision";
+  path: string;
+  revision: string;
+}>;
+
+export type InvestigationDiagnosticCause = Readonly<{
+  code: string;
+  detail: string;
+  stateId?: string;
+}>;
+
+/** Command-lifetime facts shared by operation adapters and CLI rendering. */
 export type InvestigationDiagnostic = Readonly<{
+  causes?: readonly InvestigationDiagnosticCause[];
   causeCategory?:
     | VersionControlErrorCauseCategory
     | "access-denied"
@@ -33,125 +42,111 @@ export type InvestigationDiagnostic = Readonly<{
   operation?: string | null;
   reason: string;
   recovery: string;
+  source?: InvestigationDiagnosticSource;
   target: string;
 }>;
 
+type InvestigationDiagnosticContext = Pick<
+  InvestigationDiagnostic,
+  "code" | "mutation" | "reason" | "recovery" | "source" | "target"
+>;
+
+type InvestigationIndexDiagnosticContext = Pick<
+  InvestigationDiagnosticContext,
+  "mutation" | "recovery" | "source" | "target"
+>;
+
 export function diagnosticFromError(
-  options: Readonly<{
-    code: string;
-    error: unknown;
-    mutation?: InvestigationMutationDiagnostic;
-    reason: string;
-    recovery: string;
-    target: string;
-  }>
+  options: InvestigationDiagnosticContext & Readonly<{ error: unknown }>
 ): InvestigationDiagnostic {
+  const context = genericInvestigationDiagnostic(options);
   if (options.error instanceof VersionControlError) {
     return {
+      ...context,
       causeCategory: options.error.causeCategory,
-      code: options.code,
       detail: options.error.detail,
-      ...(options.mutation === undefined ? {} : { mutation: options.mutation }),
-      operation: options.error.operation,
-      reason: options.reason,
-      recovery: options.recovery,
-      target: options.target
+      operation: options.error.operation
     };
   }
   const causeCategory = fileSystemCauseCategory(options.error);
   return {
+    ...context,
     ...(causeCategory === null ? {} : { causeCategory }),
-    code: options.code,
-    detail: errorDetail(options.error),
-    ...(options.mutation === undefined ? {} : { mutation: options.mutation }),
-    reason: options.reason,
-    recovery: options.recovery,
-    target: options.target
+    detail: operationErrorDetail(options.error)
   };
 }
 
 export function genericInvestigationDiagnostic(
-  options: Readonly<{
-    code: string;
-    mutation?: InvestigationMutationDiagnostic;
-    reason: string;
-    recovery: string;
-    target: string;
-  }>
+  options: InvestigationDiagnosticContext &
+    Pick<InvestigationDiagnostic, "causes">
 ): InvestigationDiagnostic {
   return {
+    ...(options.causes === undefined ? {} : { causes: options.causes }),
     code: options.code,
     ...(options.mutation === undefined ? {} : { mutation: options.mutation }),
     reason: options.reason,
     recovery: options.recovery,
+    ...(options.source === undefined ? {} : { source: options.source }),
     target: options.target
   };
 }
 
 export function diagnosticFromStateIndexDiagnostic(
   diagnostic: StateIndexDiagnostic,
-  options: Readonly<{
-    mutation?: InvestigationMutationDiagnostic;
-    recovery: string;
-    target: string;
-  }>
+  options: InvestigationIndexDiagnosticContext
 ): InvestigationDiagnostic {
   const boundary = diagnostic.filesystem ?? diagnostic.versionControl;
-  return boundary === undefined
-    ? internalStateIndexDiagnostic(diagnostic, options)
-    : boundaryStateIndexDiagnostic(diagnostic, boundary, options);
+  const facts =
+    boundary === undefined
+      ? internalStateIndexDiagnosticFacts(diagnostic)
+      : boundaryStateIndexDiagnosticFacts(diagnostic, boundary);
+  return {
+    ...genericInvestigationDiagnostic({
+      ...options,
+      code: diagnostic.code,
+      reason: facts.reason,
+      target: boundary?.target ?? diagnostic.path ?? options.target
+    }),
+    ...facts
+  };
 }
+
+type StateIndexDiagnosticFacts = Pick<
+  InvestigationDiagnostic,
+  "causeCategory" | "detail" | "operation" | "reason"
+>;
 
 type StateIndexBoundaryDiagnostic = Readonly<{
   causeCategory: InvestigationDiagnostic["causeCategory"];
   detail: string | null;
   operation: string | null;
-  target?: string | null;
 }>;
 
-function boundaryStateIndexDiagnostic(
+function boundaryStateIndexDiagnosticFacts(
   diagnostic: StateIndexDiagnostic,
-  boundary: StateIndexBoundaryDiagnostic,
-  options: Readonly<{
-    mutation?: InvestigationMutationDiagnostic;
-    recovery: string;
-    target: string;
-  }>
-): InvestigationDiagnostic {
+  boundary: StateIndexBoundaryDiagnostic
+): StateIndexDiagnosticFacts {
   return {
     ...(boundary.causeCategory === undefined
       ? {}
       : { causeCategory: boundary.causeCategory }),
-    code: diagnostic.code,
     detail: boundary.detail,
-    ...(options.mutation === undefined ? {} : { mutation: options.mutation }),
     operation: boundary.operation,
-    reason: sanitizeInvestigationDiagnosticText(diagnostic.message),
-    recovery: options.recovery,
-    target: boundary.target ?? diagnostic.path ?? options.target
+    reason: sanitizeInvestigationDiagnosticText(diagnostic.message)
   };
 }
 
-function internalStateIndexDiagnostic(
-  diagnostic: StateIndexDiagnostic,
-  options: Readonly<{
-    mutation?: InvestigationMutationDiagnostic;
-    recovery: string;
-    target: string;
-  }>
-): InvestigationDiagnostic {
+function internalStateIndexDiagnosticFacts(
+  diagnostic: StateIndexDiagnostic
+): StateIndexDiagnosticFacts {
   const systemFailure = isStateIndexSystemFailure(diagnostic.code);
   const detail = sanitizeInvestigationDiagnosticText(diagnostic.message);
   return {
     ...(systemFailure ? { causeCategory: "unknown" as const } : {}),
-    code: diagnostic.code,
     ...(systemFailure
       ? { detail, operation: stateIndexOperation(diagnostic.code) }
       : {}),
-    ...(options.mutation === undefined ? {} : { mutation: options.mutation }),
-    reason: systemFailure ? stateIndexReason(diagnostic.code) : detail,
-    recovery: options.recovery,
-    target: diagnostic.path ?? options.target
+    reason: systemFailure ? stateIndexReason(diagnostic.code) : detail
   };
 }
 
@@ -162,6 +157,13 @@ export function renderInvestigationDiagnostic(
     `[${diagnostic.code}] ${diagnostic.target}`,
     `  reason: ${sanitizeInvestigationDiagnosticText(diagnostic.reason)}`,
     `  next: ${sanitizeInvestigationDiagnosticText(diagnostic.recovery)}`,
+    ...(diagnostic.source === undefined
+      ? []
+      : [
+          `  source: ${diagnostic.source.kind}`,
+          `  revision: ${diagnostic.source.revision}`,
+          `  path: ${JSON.stringify(diagnostic.source.path)}`
+        ]),
     ...(diagnostic.causeCategory === undefined
       ? []
       : [`  causeCategory: ${diagnostic.causeCategory}`]),
@@ -173,12 +175,30 @@ export function renderInvestigationDiagnostic(
       : [
           `  detail: ${sanitizeInvestigationDiagnosticText(diagnostic.detail)}`
         ]),
+    ...renderDiagnosticCauses(diagnostic.causes ?? []),
     ...(diagnostic.mutation === undefined
       ? []
       : [
           `  scope: ${diagnostic.mutation.scope}`,
           `  outcome: ${diagnostic.mutation.outcome}`
         ])
+  ];
+}
+
+function renderDiagnosticCauses(
+  causes: readonly InvestigationDiagnosticCause[]
+): string[] {
+  const maximumShownCauses = 3;
+  return [
+    ...causes
+      .slice(0, maximumShownCauses)
+      .flatMap((cause) => [
+        `  cause: [${cause.code}]${cause.stateId === undefined ? "" : ` ${JSON.stringify(cause.stateId)}`}`,
+        `    detail: ${sanitizeInvestigationDiagnosticText(cause.detail)}`
+      ]),
+    ...(causes.length <= maximumShownCauses
+      ? []
+      : [`  omittedCauses: ${causes.length - maximumShownCauses}`])
   ];
 }
 
@@ -195,10 +215,6 @@ function fileSystemCauseCategory(
       : undefined;
   if (code === "EACCES" || code === "EPERM") return "access-denied";
   return code === undefined ? null : "unknown";
-}
-
-function errorDetail(error: unknown): string | null {
-  return operationErrorDetail(error);
 }
 
 function isStateIndexSystemFailure(code: string): boolean {

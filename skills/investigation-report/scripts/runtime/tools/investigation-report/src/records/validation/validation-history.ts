@@ -8,7 +8,7 @@
  * Rebuild: bun run sync:investigation-report-check
  */
 import path from "node:path";
-import { operationErrorDetail } from "../../../../shared/src/version-control/error-detail.ts";
+import { err, ok, type Result } from "neverthrow";
 import {
   openVersionControl,
   repositoryRelativePathFromFileSystemPath,
@@ -28,6 +28,15 @@ import { investigationIdFromMarkdown } from "../markdown.ts";
 import { isInvestigationSourcePath } from "../../collection/report-path.ts";
 import type { PublishedInvestigationIndex } from "../../publication/preparation/published-preparation.ts";
 import type { InvestigationIndexState } from "../../types.ts";
+import {
+  renderInvestigationDiagnostic,
+  type InvestigationDiagnostic,
+  type InvestigationDiagnosticSource
+} from "../../diagnostics.ts";
+import {
+  historicalInvestigationDiagnostic,
+  historicalInvestigationErrorDiagnostic
+} from "./validation-history-diagnostics.ts";
 
 export async function unrecordedPredecessorWarnings(
   investigationsDirectory: string,
@@ -41,7 +50,12 @@ export async function unrecordedPredecessorWarnings(
     investigationsDirectory,
     new Set(directPredecessors.map(({ relation }) => relation.target))
   );
-  if (recorded.status === "unavailable") return [recorded.warning];
+  if (recorded.status === "unavailable")
+    return [
+      renderInvestigationDiagnostic(recorded.diagnostic)
+        .map((line) => line.trimStart())
+        .join("; ")
+    ];
   if (recorded.status === "no-head") return [];
   return uniqueSorted(
     directPredecessors
@@ -53,14 +67,14 @@ export async function unrecordedPredecessorWarnings(
   );
 }
 
+type RecordedInvestigationIds =
+  | Readonly<{ ids: ReadonlySet<string>; status: "available" }>
+  | Readonly<{ status: "unavailable"; diagnostic: InvestigationDiagnostic }>;
+
 async function recordedInvestigationIdsAtHead(
   investigationsDirectory: string,
   ids: Iterable<string>
-): Promise<
-  | { ids: Set<string>; status: "available" }
-  | { status: "no-head" }
-  | { status: "unavailable"; warning: string }
-> {
+): Promise<RecordedInvestigationIds | Readonly<{ status: "no-head" }>> {
   try {
     const repository = await openVersionControl(investigationsDirectory);
     const revision = await repository.getCurrentRevision();
@@ -72,66 +86,123 @@ async function recordedInvestigationIdsAtHead(
             repository.rootDirectory,
             investigationsDirectory
           );
-    const index = await readHeadInvestigationIndex(
-      repository,
-      revision,
-      directoryScope
+    return await recordedInvestigationIdsAtRevision(
+      { repository, revision, directoryScope },
+      ids
     );
-    const recorded =
-      index === null
-        ? new Set<string>()
-        : await readRecordedPredecessors(
-            { repository, revision, directoryScope },
-            index,
-            ids
-          );
-    return { ids: recorded, status: "available" };
   } catch (error) {
     if (error instanceof VersionControlError && error.code === "not-repository")
       return { status: "no-head" };
     return {
       status: "unavailable",
-      warning: historyCheckUnavailableWarning(investigationsDirectory, error)
+      diagnostic: historicalInvestigationErrorDiagnostic(
+        error,
+        investigationsDirectory
+      )
     };
   }
+}
+
+async function recordedInvestigationIdsAtRevision(
+  context: HeadInvestigationContext,
+  ids: Iterable<string>
+): Promise<RecordedInvestigationIds> {
+  const index = await readHeadInvestigationIndex(
+    context.repository,
+    context.revision,
+    context.directoryScope
+  );
+  if (index.isErr()) return { status: "unavailable", diagnostic: index.error };
+  if (index.value === null)
+    return { ids: new Set<string>(), status: "available" };
+  const recorded = await readRecordedPredecessors(context, index.value, ids);
+  return recorded.isErr()
+    ? { status: "unavailable", diagnostic: recorded.error }
+    : { ids: recorded.value, status: "available" };
 }
 
 async function readHeadInvestigationIndex(
   repository: VersionControlRepository,
   revision: RevisionId,
   directoryScope: string
-): Promise<PublishedInvestigationIndex | null> {
+): Promise<
+  Result<PublishedInvestigationIndex | null, InvestigationDiagnostic>
+> {
   const indexPath =
     directoryScope.length === 0
       ? investigationIndexFileName
       : `${directoryScope}/${investigationIndexFileName}`;
+  const context: InvestigationDiagnosticSource = {
+    kind: "git-revision",
+    path: indexPath,
+    revision
+  };
   const source = await repository.readRevisionFile(revision, indexPath);
-  if (source === null) {
-    const paths = await headFormalSourcePaths(
-      repository,
-      revision,
-      directoryScope
+  if (source === null)
+    return await missingHistoricalInvestigationIndex(
+      { repository, revision, directoryScope },
+      context
     );
-    if (paths.length > 0)
-      throw new Error(
-        "historical investigation index is missing for existing reports; recover the historical baseline before relying on predecessor warnings"
-      );
-    return null;
-  }
   if (source.kind !== "regular" && source.kind !== "executable")
-    throw new Error("historical investigation index must be an ordinary file");
+    return err(
+      historicalInvestigationDiagnostic(context, [
+        {
+          code: "investigation-report.history-index-type-invalid",
+          detail: "historical investigation index must be an ordinary file"
+        }
+      ])
+    );
+  return parseHistoricalInvestigationIndex(
+    Buffer.from(source.data).toString("utf8"),
+    context
+  );
+}
+
+async function missingHistoricalInvestigationIndex(
+  { repository, revision, directoryScope }: HeadInvestigationContext,
+  source: InvestigationDiagnosticSource
+): Promise<Result<null, InvestigationDiagnostic>> {
+  const paths = await headFormalSourcePaths(
+    repository,
+    revision,
+    directoryScope
+  );
+  return paths.length === 0
+    ? ok(null)
+    : err(
+        historicalInvestigationDiagnostic(source, [
+          {
+            code: "investigation-report.history-index-missing",
+            detail:
+              "historical investigation index is missing for existing reports"
+          }
+        ])
+      );
+}
+
+function parseHistoricalInvestigationIndex(
+  text: string,
+  context: InvestigationDiagnosticSource
+): Result<PublishedInvestigationIndex, InvestigationDiagnostic> {
   const definition = createInvestigationStateIndexDefinition();
   const loaded = parseStateIndex({
     definition,
     expectation: expectationOf(definition),
-    sourcePath: indexPath,
-    text: Buffer.from(source.data).toString("utf8")
+    sourcePath: context.path,
+    text
   });
   if (loaded.status === "error")
-    throw new Error(
-      "historical investigation index is invalid; recover the historical baseline"
+    return err(
+      historicalInvestigationDiagnostic(
+        context,
+        loaded.diagnostics.map(({ code, message, stateId }) => ({
+          code,
+          detail: message,
+          ...(stateId === null ? {} : { stateId })
+        }))
+      )
     );
-  return loaded.value;
+  return ok(loaded.value);
 }
 
 type HeadInvestigationContext = Readonly<{
@@ -144,7 +215,7 @@ async function readRecordedPredecessors(
   { repository, revision, directoryScope }: HeadInvestigationContext,
   index: PublishedInvestigationIndex,
   ids: Iterable<string>
-): Promise<Set<string>> {
+): Promise<Result<ReadonlySet<string>, InvestigationDiagnostic>> {
   const selected = [...new Set(ids)].flatMap((id) => {
     const state = index.entries[id];
     if (state === undefined) return [];
@@ -166,7 +237,7 @@ async function readRecordedPredecessors(
           selected.map(({ target }) => target)
         );
   const recorded = new Set<string>();
-  for (const [offset, { id }] of selected.entries()) {
+  for (const [offset, { id, target }] of selected.entries()) {
     const file = await reads[offset]!();
     if (
       file === null ||
@@ -174,37 +245,22 @@ async function readRecordedPredecessors(
       investigationIdFromMarkdown(Buffer.from(file.data).toString("utf8")) !==
         id
     )
-      throw new Error(
-        "historical selected Investigation identity is unavailable: " + id
+      return err(
+        historicalInvestigationDiagnostic(
+          { kind: "git-revision", path: target, revision },
+          [
+            {
+              code: "investigation-report.history-identity-unavailable",
+              detail:
+                "historical selected Investigation identity is unavailable",
+              stateId: id
+            }
+          ]
+        )
       );
     recorded.add(id);
   }
-  return recorded;
-}
-
-function historyCheckUnavailableWarning(
-  investigationsDirectory: string,
-  error: unknown
-): string {
-  const fields =
-    error instanceof VersionControlError
-      ? [
-          `causeCategory: ${error.causeCategory}`,
-          ...(error.operation === null
-            ? []
-            : [`operation: ${error.operation}`]),
-          ...(error.detail === null ? [] : [`detail: ${error.detail}`])
-        ]
-      : operationErrorDetail(error) === null
-        ? []
-        : [`detail: ${operationErrorDetail(error)}`];
-  return [
-    "[investigation-report.history-check-unavailable]",
-    `target: ${investigationsDirectory}`,
-    "reason: the Git HEAD predecessor check could not be completed",
-    "next: restore version-control access, then rerun the full check before relying on predecessor warnings",
-    ...fields
-  ].join("; ");
+  return ok(recorded);
 }
 function uniqueSorted(values: readonly string[]): string[] {
   return [...new Set(values)].sort((left, right) =>

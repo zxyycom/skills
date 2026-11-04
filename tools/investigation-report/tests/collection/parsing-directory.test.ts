@@ -298,6 +298,7 @@ test("full validation skips unrecorded predecessor warnings without Git HEAD", a
     });
     assert.deepEqual(brokenHeadResult.errors, []);
     assert.equal(brokenHeadResult.warnings.length, 1);
+    assert.match(brokenHeadResult.warnings[0]!, /next:.*version-control/u);
     assert.match(
       brokenHeadResult.warnings[0] ?? "",
       /investigation-report\.history-check-unavailable/u

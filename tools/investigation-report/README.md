@@ -8,11 +8,28 @@
 | --- | --- |
 | 报告模型、格式、关系、资源 | [领域契约](../../skills/investigation-report/references/investigation-report-contract.md)对应章节 |
 | 命令前提、影响、结果或失败行为 | [CLI 操作契约](../../skills/investigation-report/references/cli-operations.md)对应章节及实际 help |
+| 诊断适配与输出 | 下方[诊断输出](#诊断输出)及所改操作的公开契约 |
 | 查询、搜索或 trace 实现 | 下方查询投影与搜索协议；公开 API 声明由源码及生成 `.d.mts` 承接 |
 | 写入、同步或暂存实现 | 下方写入与阶段事实，以及公开操作对应章节 |
 | 构建、分发或验证入口 | [项目工具链](../../docs/tooling.md#工具维护命令)、[编码规范](../../docs/coding-style.md)；测试改动按 [Test Evidence Review](../../skills/test-evidence-review/SKILL.md) |
 
 源码在本目录，构建适配在 `scripts/build/investigation-report.ts`，生成 CLI、声明与 Schema 分发到 `skills/investigation-report/`。本 README 维护实现约束，不进入 skill 包。索引精确持久结构仍由生成 Schema 承接，操作语义只在 skill 对应 owner 维护。
+
+## 诊断输出
+
+`src/diagnostics.ts` 统一维护调用期的 `InvestigationDiagnostic`、适配器与 renderer。`code`、`reason`、`recovery`、`target` 为必需字段；系统分类与操作信息依据实际证据附加，写入结果由 `mutation.scope/outcome` 表达。
+
+| 输入 | 适配入口 |
+| --- | --- |
+| 已知领域问题 | `genericInvestigationDiagnostic` |
+| 系统或未预期异常 | `diagnosticFromError` |
+| Index Runtime 诊断 | `diagnosticFromStateIndexDiagnostic` |
+
+固定历史来源由 `source.kind`、`source.path`、`source.revision` 成组保存；多个原因由 `causes` 保存 code、detail 和可用的 stateId。历史读取以 `Result<值, InvestigationDiagnostic>` 交接，恢复建议由历史诊断适配选择，操作与恢复语义见[HEAD 历史基线](../../skills/investigation-report/references/maintenance-recovery.md#head-历史基线)。
+
+结构化诊断在文本结果边界交给 `renderInvestigationDiagnostic`：自由文本逐字段净化、限长，来源定位独立展示，path 与 stateId 作 JSON 转义；原因展示受限时注明省略数量。公开 `warnings: string[]` 在该边界生成；仅含 `errors` 字符串的失败由 CLI fallback 适配后使用同一 renderer。
+
+新增诊断沿上述类型与入口接入。类型检查约束字段完整性，契约测试验证适配保真与输出策略，领域契约定义错误含义和恢复动作。
 
 ## 查询投影
 
@@ -84,8 +101,6 @@ content 使用严格发布索引选择范围，仅在有关系条件时验完整
 删除通过同文件系统 tombstone 保存恢复范围；提交后只精确清理本事务成员，不递归删除未知字节。rename 新目标独占创建，资源复制后核对类型、权限、大小、内容，旧成员再次确认未变后逐个清理。资源移动与恢复必须服从共同操作的实际写集归属及 CAS 保护。
 
 调用者的提交结果与对账动作分别见[操作结果](../../skills/investigation-report/references/cli-operations.md#结果与恢复)和[恢复规则](../../skills/investigation-report/references/maintenance-recovery.md#中断写入)。
-
-诊断有可靠系统证据时才增加净化的 category、operation 和 target；权限或工具故障不映射为无条件重试。即时输出不保存日志、遥测或 receipt。只对真实 mutation 声明 scope/outcome。
 
 统一 discard 在单一集合锁内用发布身份与候选有限枚举分类目标，并只采集所选正式来源；公开候选/正式 SDK 入口各自取得锁。rename 的显式 preflight 在锁外完整准备，正式执行在轻量入口核对后锁内准备；fresh、写后与恢复各取本阶段事实。
 

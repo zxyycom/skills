@@ -1152,6 +1152,20 @@
       ],
       "title": "统一领域范围后的门禁质量复核"
     },
+    "261104-investigate-head-index-diagnostic-loss": {
+      "formedAt": "2026-11-04T07:47:38Z",
+      "name": "investigate-head-index-diagnostic-loss",
+      "question": "HEAD 调查索引损坏时为何只报通用错误，工作区索引恢复后为何仍有历史 warning，应如何定位和恢复？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "261104-investigate-head-index-diagnostic-loss.md",
+      "tags": [
+        "git-integration",
+        "investigation-report",
+        "root-cause-analysis"
+      ],
+      "title": "调查历史索引损坏的诊断丢失与工作区修复边界"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -1863,6 +1877,7 @@
       "261028-investigation-v87-windows-head-predecessor-cost": "sha256:21125e7e3230c3345b04499b7b80809fe7f6c7271ae1035a46f31552efa15b4e",
       "261028-record-cost-reachability-boundaries": "sha256:b4e86e4f03808bfd98f5e66d9a96954dccf836e47f1cf6ba638f6ffab7b19b0c",
       "261031-gate-domain-scope-quality-audit": "sha256:94a030a2de9740ba1a63ba0e8bd07b775fd54fcd58ed48471def5251709ce98e",
+      "261104-investigate-head-index-diagnostic-loss": "sha256:d7ce6b0df8b181942fe657ec41e40598c9f0885657252b025ae978959b536f41",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:512b8f0c5b6466034d7d851032bf41af7413a227bdd19c62959fc2ad343d495c",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

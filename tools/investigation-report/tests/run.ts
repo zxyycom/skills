@@ -4,6 +4,7 @@ await import("./candidates/candidate-read-context.test.ts");
 await import("./cli/cli-generated.test.ts");
 await import("./cli/cli-location-contract.test.ts");
 await import("./cli/cli-index.test.ts");
+await import("./cli/cli-diagnostics.test.ts");
 await import("./cli/staging/cli-stage.test.ts");
 await import("./discard/discard.test.ts");
 await import("./query/index/index-query.test.ts");
