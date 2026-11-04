@@ -86,6 +86,23 @@ test("diagnostic rendering preserves location while bounding and scrubbing each 
   assert.doesNotMatch(output, /state-index\.cause-3|state-index\.cause-4/u);
   assert.match(output, /omittedCauses: 2/u);
   assert.doesNotMatch(output, new RegExp(token, "u"));
+  const details = lines.filter((line) =>
+    line.trimStart().startsWith("detail:")
+  );
+  assert.equal(details.length, 3);
+  for (const detail of details) {
+    assert.ok(detail.trimStart().slice("detail: ".length).length <= 500);
+    assert.match(detail, /\[redacted\]/u);
+  }
+});
+
+test("historical diagnostic renders independent system evidence safely", () => {
+  const source: InvestigationDiagnosticSource = {
+    kind: "git-revision",
+    revision: "b".repeat(40),
+    path: "index"
+  };
+  const token = `ghp_${"x".repeat(36)}`;
   const locator = "/" + "long/".repeat(130) + "x\nY\rZ\u001b";
   const warning = renderInvestigationDiagnostic(
     historicalInvestigationDiagnostic(source, [
@@ -127,14 +144,6 @@ test("diagnostic rendering preserves location while bounding and scrubbing each 
   assert.match(warning, /filesystem\.detail: filesystem evidence/u);
   assert.ok(!warning.includes(token));
   assert.ok(!warning.includes(String.fromCharCode(27)));
-  const details = lines.filter((line) =>
-    line.trimStart().startsWith("detail:")
-  );
-  assert.equal(details.length, 3);
-  for (const detail of details) {
-    assert.ok(detail.trimStart().slice("detail: ".length).length <= 500);
-    assert.match(detail, /\[redacted\]/u);
-  }
 });
 
 test("diagnostic locators escape controls without losing path identity", () => {

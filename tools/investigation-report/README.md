@@ -27,7 +27,7 @@
 
 固定历史来源由 `source.kind`、`source.path`、`source.revision` 成组保存；多个原因由 `causes` 保存 code、detail 和可用的 stateId。历史读取以 `Result<值, InvestigationDiagnostic>` 交接，恢复建议由历史诊断适配选择，操作与恢复语义见[HEAD 历史基线](../../skills/investigation-report/references/maintenance-recovery.md#head-历史基线)。
 
-结构化诊断在文本结果边界交给 `renderInvestigationDiagnostic`：自由文本逐字段净化、限长，来源定位独立展示，path 与 stateId 作 JSON 转义；原因展示受限时注明省略数量。公开 `warnings: string[]` 在该边界生成；仅含 `errors` 字符串的失败由 CLI fallback 适配后使用同一 renderer。
+结构化诊断在文本结果边界交给 `renderInvestigationDiagnostic`；共同定位、净化及原因展示规则见[固定 revision 历史索引](../record-operations/README.md#固定-revision-历史索引)。公开 `warnings: string[]` 在该边界生成；仅含 `errors` 字符串的失败由 CLI fallback 适配后使用同一 renderer。
 
 新增诊断沿上述类型与入口接入。类型检查约束字段完整性，契约测试验证适配保真与输出策略，领域契约定义错误含义和恢复动作。
 

@@ -1,3 +1,4 @@
+import { classifyHistoricalIndexCauses } from "../../../../record-operations/src/history-index.ts";
 import { safeDiagnosticText } from "../../../../record-operations/src/diagnostic-text.ts";
 import {
   readDecisionHistoryIndex,
@@ -237,7 +238,8 @@ function toRepositoryPath(filePath: string): string {
 }
 
 function baselineFailure(error: unknown): DecisionApplicationFailure {
-  if (error instanceof DecisionHistoryEvidenceError)
+  if (error instanceof DecisionHistoryEvidenceError) {
+    const category = classifyHistoricalIndexCauses(error.causes ?? []);
     return decisionFailure([
       decisionDiagnostic({
         code: "decision-records.history-baseline-invalid",
@@ -247,25 +249,15 @@ function baselineFailure(error: unknown): DecisionApplicationFailure {
         outcome: "no-change",
         scope: "Decision Markdown files and derived decision index",
         target: "Decision history baseline",
-        recovery: error.causes?.some(
-          (cause) =>
-            cause.versionControl !== undefined ||
-            cause.code === "record-operations.history-index-read-failed"
-        )
-          ? "Inspect and resolve the reported version-control or filesystem access failure before retrying."
-          : error.causes?.some((cause) =>
-                [
-                  "state-index.schema-version-unsupported",
-                  "state-index.definition-version-mismatch",
-                  "state-index.namespace-mismatch",
-                  "state-index.definition-mismatch",
-                  "state-index.definition-invalid"
-                ].includes(cause.code)
-              )
-            ? "Verify tool and index compatibility and follow the supported migration procedure before retrying."
-            : "Restore a trusted historical index and its selected source identities before retrying; do not infer recorded history by scanning unrelated blobs."
+        recovery:
+          category === "system"
+            ? "Inspect and resolve the reported version-control or filesystem access failure before retrying."
+            : category === "incompatible"
+              ? "Verify tool and index compatibility and follow the supported migration procedure before retrying."
+              : "Restore a trusted historical index and its selected source identities before retrying; do not infer recorded history by scanning unrelated blobs."
       })
     ]);
+  }
   return decisionVersionControlFailure(
     {
       action: "inspect Git HEAD before changing decision history",

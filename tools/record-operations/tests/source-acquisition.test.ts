@@ -258,3 +258,67 @@ test("historical index reader preserves fixed revision facts and rejects unsafe 
     assert.equal(failure.source.revision, "revision");
   }
 });
+
+test("historical cause classification prioritizes system evidence and recognizes compatibility failures", async () => {
+  const { classifyHistoricalIndexCauses } =
+    await import("../src/history-index.ts");
+  const compatibilityCodes = [
+    "state-index.schema-version-unsupported",
+    "state-index.definition-version-mismatch",
+    "state-index.namespace-mismatch",
+    "state-index.definition-mismatch",
+    "state-index.definition-invalid"
+  ];
+  for (const code of compatibilityCodes) {
+    assert.equal(
+      classifyHistoricalIndexCauses([{ code, detail: "incompatible" }]),
+      "incompatible"
+    );
+  }
+  assert.equal(
+    classifyHistoricalIndexCauses([
+      { code: "state-index.json-invalid", detail: "invalid" }
+    ]),
+    "invalid"
+  );
+  assert.equal(
+    classifyHistoricalIndexCauses([
+      { code: compatibilityCodes[0]!, detail: "incompatible" },
+      {
+        code: "record-operations.history-index-read-failed",
+        detail: "unavailable"
+      }
+    ]),
+    "system"
+  );
+  assert.equal(
+    classifyHistoricalIndexCauses([
+      {
+        code: "operation-failed",
+        detail: "unavailable",
+        versionControl: {
+          causeCategory: "access-denied",
+          operation: null,
+          target: null,
+          detail: null
+        }
+      }
+    ]),
+    "system"
+  );
+  assert.equal(
+    classifyHistoricalIndexCauses([
+      {
+        code: "fs-error",
+        detail: "denied",
+        filesystem: {
+          causeCategory: "access-denied",
+          operation: "read",
+          target: null,
+          detail: null
+        }
+      }
+    ]),
+    "system"
+  );
+});

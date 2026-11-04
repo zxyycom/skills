@@ -138,3 +138,29 @@ export function historicalIndexErrorCause(
     ...(boundary === undefined ? {} : { versionControl: boundary })
   };
 }
+
+/** Classify common evidence; domains decide the recovery action and outcome. */
+export function classifyHistoricalIndexCauses(
+  causes: readonly RecordDiagnosticCause[]
+): "system" | "incompatible" | "invalid" {
+  if (
+    causes.some(
+      (cause) =>
+        cause.versionControl !== undefined ||
+        cause.filesystem !== undefined ||
+        cause.code === "record-operations.history-index-read-failed"
+    )
+  )
+    return "system";
+  if (causes.some((cause) => incompatibleIndexCodes.has(cause.code)))
+    return "incompatible";
+  return "invalid";
+}
+
+const incompatibleIndexCodes: ReadonlySet<string> = new Set([
+  "state-index.schema-version-unsupported",
+  "state-index.definition-version-mismatch",
+  "state-index.namespace-mismatch",
+  "state-index.definition-mismatch",
+  "state-index.definition-invalid"
+]);

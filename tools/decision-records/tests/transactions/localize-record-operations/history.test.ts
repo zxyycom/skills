@@ -62,6 +62,11 @@ test("Decision history gates diagnose a missing historical index instead of scan
     assert.match(result.stderr, /Git HEAD Decision index is missing/);
     assert.deepEqual(await fs.readFile(decisionFilePath(root, a)), source);
     assert.deepEqual(await fs.readFile(indexPath(root)), index);
+  });
+});
+test("Decision missing historical index preserves enumeration failure facts", async () => {
+  await withTemporaryWorkspace("history-enumeration-failure", async (root) => {
+    await fixture(root, true);
     const repository = await openVersionControl(root);
     const revision = (await repository.getCurrentRevision())!;
     const failure = new VersionControlError({
@@ -197,50 +202,6 @@ test("Decision invalid historical index blocks writes and reports its revision u
     const result = await runSourceCli(["archive", a, "--root", root]);
     assert.equal(result.exitCode, 1);
     assert.match(result.stderr, /state-index\.json-invalid/u);
-    const lines: string[] = [];
-    const locator = "/" + "long/".repeat(130) + "x\nY\rZ\u001b";
-    const secret = `ghp_${"x".repeat(36)}`;
-    printDecisionFailure(
-      decisionFailure([
-        {
-          code: "history",
-          target: "history",
-          reason: "unavailable",
-          recovery: "retry",
-          causes: [
-            {
-              code: "operation-failed",
-              detail: "failed",
-              path: locator,
-              versionControl: {
-                causeCategory: "access-denied",
-                operation: `read\n${secret}`,
-                target: locator,
-                detail: `independent ${secret}\r\u001b detail`
-              }
-            }
-          ]
-        }
-      ]),
-      { stdout: () => {}, stderr: (line) => lines.push(line) }
-    );
-    const output = lines.join("");
-    assert.ok(
-      output.includes(
-        `versionControl.target: "${JSON.stringify(locator).slice(1, -1)}"`
-      )
-    );
-    assert.ok(
-      output.includes(`path: "${JSON.stringify(locator).slice(1, -1)}"`)
-    );
-    assert.match(output, /versionControl\.causeCategory: access-denied/u);
-    assert.match(output, /versionControl\.operation: read \[redacted\]/u);
-    assert.match(
-      output,
-      /versionControl\.detail: independent \[redacted\].*detail/u
-    );
-    assert.ok(!output.includes(secret));
-    assert.ok(!output.includes(String.fromCharCode(27)));
 
     assert.ok(result.stderr.includes(revision));
     assert.deepEqual(await fs.readFile(indexPath(root)), index);
@@ -251,4 +212,49 @@ test("Decision invalid historical index blocks writes and reports its revision u
     const repaired = await runSourceCli(["archive", a, "--root", root]);
     assert.equal(repaired.exitCode, 0, repaired.stderr);
   });
+});
+
+test("Decision diagnostic output preserves and sanitizes system evidence", () => {
+  const lines: string[] = [];
+  const locator = "/" + "long/".repeat(130) + "x\nY\rZ\u001b";
+  const secret = `ghp_${"x".repeat(36)}`;
+  printDecisionFailure(
+    decisionFailure([
+      {
+        code: "history",
+        target: "history",
+        reason: "unavailable",
+        recovery: "retry",
+        causes: [
+          {
+            code: "operation-failed",
+            detail: "failed",
+            path: locator,
+            versionControl: {
+              causeCategory: "access-denied",
+              operation: `read\n${secret}`,
+              target: locator,
+              detail: `independent ${secret}\r\u001b detail`
+            }
+          }
+        ]
+      }
+    ]),
+    { stdout: () => {}, stderr: (line) => lines.push(line) }
+  );
+  const output = lines.join("");
+  assert.ok(
+    output.includes(
+      `versionControl.target: "${JSON.stringify(locator).slice(1, -1)}"`
+    )
+  );
+  assert.ok(output.includes(`path: "${JSON.stringify(locator).slice(1, -1)}"`));
+  assert.match(output, /versionControl\.causeCategory: access-denied/u);
+  assert.match(output, /versionControl\.operation: read \[redacted\]/u);
+  assert.match(
+    output,
+    /versionControl\.detail: independent \[redacted\].*detail/u
+  );
+  assert.ok(!output.includes(secret));
+  assert.ok(!output.includes(String.fromCharCode(27)));
 });

@@ -1,3 +1,4 @@
+import { classifyHistoricalIndexCauses } from "../../../../record-operations/src/history-index.ts";
 import {
   diagnosticFromError,
   genericInvestigationDiagnostic,
@@ -14,32 +15,19 @@ const historyDiagnosticIdentity: Pick<
   reason: "the Git HEAD predecessor check could not be completed"
 };
 
-const incompatibleIndexCodes: ReadonlySet<string> = new Set([
-  "state-index.schema-version-unsupported",
-  "state-index.definition-version-mismatch",
-  "state-index.namespace-mismatch",
-  "state-index.definition-mismatch",
-  "state-index.definition-invalid"
-]);
-
 export function historicalInvestigationDiagnostic(
   source: InvestigationDiagnosticSource,
   causes: readonly InvestigationDiagnosticCause[]
 ): InvestigationDiagnostic {
-  const incompatible = causes.some((cause) =>
-    incompatibleIndexCodes.has(cause.code)
-  );
+  const category = classifyHistoricalIndexCauses(causes);
   return genericInvestigationDiagnostic({
     ...historyDiagnosticIdentity,
-    recovery: causes.some(
-      (cause) =>
-        cause.versionControl !== undefined ||
-        cause.code === "record-operations.history-index-read-failed"
-    )
-      ? "inspect and resolve the reported version-control or filesystem access failure, then rerun the full check before relying on predecessor warnings"
-      : incompatible
-        ? "verify tool/index version and namespace compatibility and follow the supported migration procedure, then rerun the full check before relying on predecessor warnings"
-        : "validate the current index and selected sources against trusted reports and commit any verified repair to restore the Git HEAD baseline, then rerun the full check before relying on predecessor warnings",
+    recovery:
+      category === "system"
+        ? "inspect and resolve the reported version-control or filesystem access failure, then rerun the full check before relying on predecessor warnings"
+        : category === "incompatible"
+          ? "verify tool/index version and namespace compatibility and follow the supported migration procedure, then rerun the full check before relying on predecessor warnings"
+          : "validate the current index and selected sources against trusted reports and commit any verified repair to restore the Git HEAD baseline, then rerun the full check before relying on predecessor warnings",
     source,
     target: source.path,
     causes
