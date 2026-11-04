@@ -4,7 +4,7 @@
 
 ## 权威 Vibe 门禁
 
-`check`、显式能力 scope、`check:changed`、`all` 与 release 共用同一权威 Gate。日常使用 quick 基线，按任务实际责任追加能力组；changed/all 供影响不明或全工作区验收时兜底。根开发依赖与锁文件固定 `@zxyycom/vibe-check@0.0.4`，`pnpm-workspace.yaml` 保留其精确 release-age 例外。
+`check`、显式能力 scope、`check:changed`、`all` 与 release 共用同一权威 Gate。日常使用 quick 基线，按任务实际责任追加能力组；changed/all 供影响不明或全工作区验收时兜底。根开发依赖与锁文件固定 `@zxyycom/vibe-check@0.0.5`，`pnpm-workspace.yaml` 保留其精确 release-age 例外。
 
 验证职责、证明与复用条件见[验证模型](validation-model.md)；新增、修改或移除 Check 时读 [Gate Check 编写与接入](gate-check-authoring.md)。以下记录公开选择、质量政策与运行边界。
 
