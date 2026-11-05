@@ -166,7 +166,8 @@
       "261031-preserve-native-file-guards-with-build-source-exception": "sha256:8bdbc64a6a8fb3a1c9ffa4c7b68322d0194c4f27fe33650b5345319227f06176",
       "261031-unify-gate-domain-scope-declarations": "sha256:d0f42bda0fb174534ea1e50afcfdc65fff5947b1f098e72dd18a7805a2782ead",
       "261104-bounded-test-design-feedback": "sha256:326a97d3e8503030fe09b4a3aea37b667599dfe78e03897e1d1fdb5316d4f7fe",
-      "261104-select-test-automation-before-implementation": "sha256:7898cd190565070a15e762968c1f08ca58cf7d9b109f4e119a506f25c7421bc6",
+      "261104-select-test-automation-before-implementation": "sha256:f1d40d2338881327e3169a0f0aa4e8073381cf38312f808751d1b72566d28f42",
+      "261105-admit-test-candidates-by-proof": "sha256:42864d45a05cf71444143dc637ac27c5e6ab97805acb1180c77ade16ee364515",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -3853,9 +3854,9 @@
     },
     "261104-select-test-automation-before-implementation": {
       "name": "select-test-automation-before-implementation",
-      "sourcePath": "261104-select-test-automation-before-implementation.md",
+      "sourcePath": "archive/261104-select-test-automation-before-implementation.md",
       "title": "先裁定自动化投入再设计与修复测试",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-11-04T08:02:25Z",
       "purpose": "让测试设计先选择值得承担的自动化保护，再为入选目标投入实现和维护成本。",
@@ -3866,6 +3867,28 @@
         "testing-strategy"
       ],
       "relations": []
+    },
+    "261105-admit-test-candidates-by-proof": {
+      "name": "admit-test-candidates-by-proof",
+      "sourcePath": "261105-admit-test-candidates-by-proof.md",
+      "title": "以候选测试举证准入决定建立与保留",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-11-05T02:33:15Z",
+      "purpose": "只建立和保留有效、值得保护且当前形态与开销必要的测试，让未举证候选直接退出。",
+      "background": "先批准保护目标再设计测试容易产生必须维持保护的承诺，使未举证的存量形态被修复或等待替代。",
+      "decision": "新增与存量候选共同通过有效性、保护价值和形态开销三项准入，未通过者不默认修复或保留。",
+      "tags": [
+        "test-design",
+        "testing-strategy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "261104-select-test-automation-before-implementation",
+          "summary": "将目标先入选改为具体候选三项举证准入"
+        }
+      ]
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",

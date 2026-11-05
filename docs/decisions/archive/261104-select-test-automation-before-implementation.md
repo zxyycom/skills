@@ -1,7 +1,7 @@
 ---
 title: 先裁定自动化投入再设计与修复测试
 id: 261104-select-test-automation-before-implementation
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-11-04T08:02:25Z
 purpose: 让测试设计先选择值得承担的自动化保护，再为入选目标投入实现和维护成本。
