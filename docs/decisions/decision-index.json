@@ -168,6 +168,7 @@
       "261104-bounded-test-design-feedback": "sha256:326a97d3e8503030fe09b4a3aea37b667599dfe78e03897e1d1fdb5316d4f7fe",
       "261104-select-test-automation-before-implementation": "sha256:f1d40d2338881327e3169a0f0aa4e8073381cf38312f808751d1b72566d28f42",
       "261105-admit-test-candidates-by-proof": "sha256:42864d45a05cf71444143dc637ac27c5e6ab97805acb1180c77ade16ee364515",
+      "261105-route-test-design-and-existing-review": "sha256:fa048f539b7b543bb0489bc1fee0e0afe8082a7b9626fbe704a66084a508d4eb",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -3889,6 +3890,22 @@
           "summary": "将目标先入选改为具体候选三项举证准入"
         }
       ]
+    },
+    "261105-route-test-design-and-existing-review": {
+      "name": "route-test-design-and-existing-review",
+      "sourcePath": "261105-route-test-design-and-existing-review.md",
+      "title": "测试设计与存量审查共用原则并采用独立流程",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-11-05T06:30:27Z",
+      "purpose": "保持测试设计轻量，并让存量审查对全部保留项提供可核对的准入结论。",
+      "background": "设计与全量存量审查的输入和完成边界不同，统一流程容易使盘点负担外溢或以问题清单默认批准剩余项。",
+      "decision": "test-design 共用三项准入原则，按意图选择设计或存量审查 SOP；审查正向建立保留集合并全量对账。",
+      "tags": [
+        "test-design",
+        "testing-strategy"
+      ],
+      "relations": []
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",
