@@ -1,0 +1,133 @@
+{
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "version": "0.1.0",
+  "rustSha256": "863e91862111f68e7a54505d14369a8d2afcdb2f37aac371f0a0f5099676e788",
+  "copies": {
+    "/tmp/decision-records-rust-target/release/decision-records-rust-experiment": "863e91862111f68e7a54505d14369a8d2afcdb2f37aac371f0a0f5099676e788",
+    "/tmp/dr-final-smoke.VkD8w1/installed": "863e91862111f68e7a54505d14369a8d2afcdb2f37aac371f0a0f5099676e788"
+  },
+  "installedPackageFiles": {
+    "node_modules/.package-lock.json": "ede2b3ac4eda7d67d20313205a0f044cfecea1add6b02f5fa7af5426cae83e4c",
+    "node_modules/dr-experiment/cli.cjs": "15fa2cdfcf22b2444fb94ce7fd5b63b90c0be07f38d15dc1d2d114fdd133cfb3",
+    "node_modules/dr-experiment/package.json": "cdf9f839082a419d845f59e98aef44248d08c3a29b9f4f39e75fb3101e4dce3c",
+    "node_modules/dr-experiment-linux-x64/decision-records": "863e91862111f68e7a54505d14369a8d2afcdb2f37aac371f0a0f5099676e788",
+    "node_modules/dr-experiment-linux-x64/package.json": "df7b435d91c301a791041e2bc891cfdbf92e07d0ac2321bd9d8f92d2b4d8915c"
+  },
+  "cases": {
+    "list": {
+      "direct": {
+        "exit": 0,
+        "stdout": {
+          "sha256": "98a6670ef1523691527d70d232d6975abd853d2b7d540926326c640c2eb61ce1",
+          "bytes": 1332
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "npm": {
+        "exit": 0,
+        "stdout": {
+          "sha256": "98a6670ef1523691527d70d232d6975abd853d2b7d540926326c640c2eb61ce1",
+          "bytes": 1332
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "local": {
+        "exit": 0,
+        "stdout": {
+          "sha256": "98a6670ef1523691527d70d232d6975abd853d2b7d540926326c640c2eb61ce1",
+          "bytes": 1332
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    },
+    "trace": {
+      "direct": {
+        "exit": 0,
+        "stdout": {
+          "sha256": "06cb27b552c3fce66ba6711b9c9558a4e4f03b62e2c7db8ed5193726e6f59fb9",
+          "bytes": 1228
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "npm": {
+        "exit": 0,
+        "stdout": {
+          "sha256": "06cb27b552c3fce66ba6711b9c9558a4e4f03b62e2c7db8ed5193726e6f59fb9",
+          "bytes": 1228
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "local": {
+        "exit": 0,
+        "stdout": {
+          "sha256": "06cb27b552c3fce66ba6711b9c9558a4e4f03b62e2c7db8ed5193726e6f59fb9",
+          "bytes": 1228
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    },
+    "invalid": {
+      "direct": {
+        "exit": 1,
+        "stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "sha256": "eb0a1f86d8c17d2a7c18dddbe605c90d8f3628c72039aa3f918c734023ecf099",
+          "bytes": 61
+        }
+      },
+      "npm": {
+        "exit": 1,
+        "stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "sha256": "eb0a1f86d8c17d2a7c18dddbe605c90d8f3628c72039aa3f918c734023ecf099",
+          "bytes": 61
+        }
+      },
+      "local": {
+        "exit": 1,
+        "stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "sha256": "eb0a1f86d8c17d2a7c18dddbe605c90d8f3628c72039aa3f918c734023ecf099",
+          "bytes": 61
+        }
+      }
+    }
+  },
+  "singleInstallTiming": {
+    "npm-install.time": "+ npm install --prefix /tmp/dr-final-smoke.VkD8w1 --cache /tmp/dr-final-smoke.VkD8w1/cache --offline --ignore-scripts --no-audit --no-fund /tmp/dr-final-smoke.VkD8w1/tars/dr-experiment-0.1.0.tgz /tmp/dr-final-smoke.VkD8w1/tars/dr-experiment-linux-x64-0.1.0.tgz\nreal 0.457\nuser 0.349\nsys 0.152\n",
+    "local-install.time": "+ python3 /workspace/skills/tools/decision-records/experiments/rust-native-cli/delivery/install.py --source /tmp/dr-final-smoke.VkD8w1/build/artifact --version 0.1.0 --sha256 863e91862111f68e7a54505d14369a8d2afcdb2f37aac371f0a0f5099676e788 --output /tmp/dr-final-smoke.VkD8w1/installed\nreal 0.054\nuser 0.037\nsys 0.015\n"
+  },
+  "runScript": "#!/bin/bash\nset -euxo pipefail\nP=/workspace/skills/tools/decision-records/experiments/rust-native-cli/delivery\nB=/tmp/decision-records-rust-target/release/decision-records-rust-experiment\nD=$PWD\nVERSION=0.1.0\nEXPECTED=863e91862111f68e7a54505d14369a8d2afcdb2f37aac371f0a0f5099676e788\ntest \"$(sha256sum \"$B\" | cut -d ' ' -f 1)\" = \"$EXPECTED\"\ntest \"$(realpath .)\" = \"$(realpath \"$D\")\"\ntest -f \"$D/package.json\"\nmkdir \"$D/tars\"\npython3 \"$P/build.py\" --binary \"$B\" --version \"$VERSION\" --output \"$D/build\"\ntest \"$(sha256sum \"$D/build/artifact/decision-records\" | cut -d ' ' -f 1)\" = \"$EXPECTED\"\nnpm pack --prefix \"$D\" --cache \"$D/cache\" --offline --ignore-scripts --pack-destination \"$D/tars\" \"$D/build/platform\" \"$D/build/wrapper\"\nTIMEFORMAT=$'real %R\\nuser %U\\nsys %S'\n{ time npm install --prefix \"$D\" --cache \"$D/cache\" --offline --ignore-scripts --no-audit --no-fund \"$D\"/tars/*.tgz; } 2> \"$D/npm-install.time\"\n{ time python3 \"$P/install.py\" --source \"$D/build/artifact\" --version \"$VERSION\" --sha256 \"$EXPECTED\" --output \"$D/installed\"; } 2> \"$D/local-install.time\"\nsha256sum \"$D/build/artifact/decision-records\" \"$D/node_modules/dr-experiment-linux-x64/decision-records\" \"$D/installed\" > \"$D/hashes.txt\"\nfor test in list trace invalid; do\n  case $test in\n    list) args=(list --limit 1 --root /workspace/skills);;\n    trace) args=(trace 261105-route-test-design-and-existing-review --json --root /workspace/skills);;\n    invalid) args=(definitely-invalid);;\n  esac\n  for variant in direct npm local; do\n    case $variant in\n      direct) executable=\"$D/build/artifact/decision-records\";;\n      npm) executable=\"$D/node_modules/.bin/dr-experiment\";;\n      local) executable=\"$D/installed\";;\n    esac\n    set +e\n    \"$executable\" \"${args[@]}\" > \"$D/$test-$variant.stdout\" 2> \"$D/$test-$variant.stderr\"\n    code=$?\n    set -e\n    printf '%s\\n' \"$code\" > \"$D/$test-$variant.exit\"\n  done\n  for variant in npm local; do\n    cmp \"$D/$test-direct.stdout\" \"$D/$test-$variant.stdout\"\n    cmp \"$D/$test-direct.stderr\" \"$D/$test-$variant.stderr\"\n    cmp \"$D/$test-direct.exit\" \"$D/$test-$variant.exit\"\n  done\n  if test \"$test\" = invalid; then test \"$(cat \"$D/$test-direct.exit\")\" -ne 0; else test \"$(cat \"$D/$test-direct.exit\")\" -eq 0; fi\ndone\n",
+  "runLog": "+ P=/workspace/skills/tools/decision-records/experiments/rust-native-cli/delivery\n+ B=/tmp/decision-records-rust-target/release/decision-records-rust-experiment\n+ D=/tmp/dr-final-smoke.VkD8w1\n+ VERSION=0.1.0\n+ EXPECTED=863e91862111f68e7a54505d14369a8d2afcdb2f37aac371f0a0f5099676e788\n++ sha256sum /tmp/decision-records-rust-target/release/decision-records-rust-experiment\n++ cut -d ' ' -f 1\n+ test 863e91862111f68e7a54505d14369a8d2afcdb2f37aac371f0a0f5099676e788 = 863e91862111f68e7a54505d14369a8d2afcdb2f37aac371f0a0f5099676e788\n++ realpath .\n++ realpath /tmp/dr-final-smoke.VkD8w1\n+ test /tmp/dr-final-smoke.VkD8w1 = /tmp/dr-final-smoke.VkD8w1\n+ test -f /tmp/dr-final-smoke.VkD8w1/package.json\n+ mkdir /tmp/dr-final-smoke.VkD8w1/tars\n+ python3 /workspace/skills/tools/decision-records/experiments/rust-native-cli/delivery/build.py --binary /tmp/decision-records-rust-target/release/decision-records-rust-experiment --version 0.1.0 --output /tmp/dr-final-smoke.VkD8w1/build\n{\"version\": \"0.1.0\", \"platform\": \"linux\", \"arch\": \"x64\", \"binary\": \"decision-records\", \"sha256\": \"863e91862111f68e7a54505d14369a8d2afcdb2f37aac371f0a0f5099676e788\"}\n++ sha256sum /tmp/dr-final-smoke.VkD8w1/build/artifact/decision-records\n++ cut -d ' ' -f 1\n+ test 863e91862111f68e7a54505d14369a8d2afcdb2f37aac371f0a0f5099676e788 = 863e91862111f68e7a54505d14369a8d2afcdb2f37aac371f0a0f5099676e788\n+ npm pack --prefix /tmp/dr-final-smoke.VkD8w1 --cache /tmp/dr-final-smoke.VkD8w1/cache --offline --ignore-scripts --pack-destination /tmp/dr-final-smoke.VkD8w1/tars /tmp/dr-final-smoke.VkD8w1/build/platform /tmp/dr-final-smoke.VkD8w1/build/wrapper\nnpm notice\nnpm notice 📦  dr-experiment-linux-x64@0.1.0\nnpm notice Tarball Contents\nnpm notice 1.8MB decision-records\nnpm notice 115B package.json\nnpm notice Tarball Details\nnpm notice name: dr-experiment-linux-x64\nnpm notice version: 0.1.0\nnpm notice filename: dr-experiment-linux-x64-0.1.0.tgz\nnpm notice package size: 724.9 kB\nnpm notice unpacked size: 1.8 MB\nnpm notice shasum: cc517a000fa79c764f17180875e48e37cd168632\nnpm notice integrity: sha512-1xZm0OBP95Y4l[...]Aq1hNACBzQyhw==\nnpm notice total files: 2\nnpm notice\ndr-experiment-linux-x64-0.1.0.tgz\nnpm notice 📦  dr-experiment@0.1.0\nnpm notice 1.5kB cli.cjs\nnpm notice 163B package.json\nnpm notice name: dr-experiment\nnpm notice filename: dr-experiment-0.1.0.tgz\nnpm notice package size: 881 B\nnpm notice unpacked size: 1.7 kB\nnpm notice shasum: bbcc47704537e189ea29be5e397915ca12df3fd7\nnpm notice integrity: sha512-BR7/bl24rwqz6[...]BIUx+cYvOaMpw==\ndr-experiment-0.1.0.tgz\n+ TIMEFORMAT=$'real %R\\nuser %U\\nsys %S'\n\nadded 2 packages in 373ms\n/tmp/dr-final-smoke.VkD8w1/installed\n+ sha256sum /tmp/dr-final-smoke.VkD8w1/build/artifact/decision-records /tmp/dr-final-smoke.VkD8w1/node_modules/dr-experiment-linux-x64/decision-records /tmp/dr-final-smoke.VkD8w1/installed\n+ for test in list trace invalid\n+ case $test in\n+ args=(list --limit 1 --root /workspace/skills)\n+ for variant in direct npm local\n+ case $variant in\n+ executable=/tmp/dr-final-smoke.VkD8w1/build/artifact/decision-records\n+ set +e\n+ /tmp/dr-final-smoke.VkD8w1/build/artifact/decision-records list --limit 1 --root /workspace/skills\n+ code=0\n+ set -e\n+ printf '%s\\n' 0\n+ for variant in direct npm local\n+ case $variant in\n+ executable=/tmp/dr-final-smoke.VkD8w1/node_modules/.bin/dr-experiment\n+ set +e\n+ /tmp/dr-final-smoke.VkD8w1/node_modules/.bin/dr-experiment list --limit 1 --root /workspace/skills\n+ code=0\n+ set -e\n+ printf '%s\\n' 0\n+ for variant in direct npm local\n+ case $variant in\n+ executable=/tmp/dr-final-smoke.VkD8w1/installed\n+ set +e\n+ /tmp/dr-final-smoke.VkD8w1/installed list --limit 1 --root /workspace/skills\n+ code=0\n+ set -e\n+ printf '%s\\n' 0\n+ for variant in npm local\n+ cmp /tmp/dr-final-smoke.VkD8w1/list-direct.stdout /tmp/dr-final-smoke.VkD8w1/list-npm.stdout\n+ cmp /tmp/dr-final-smoke.VkD8w1/list-direct.stderr /tmp/dr-final-smoke.VkD8w1/list-npm.stderr\n+ cmp /tmp/dr-final-smoke.VkD8w1/list-direct.exit /tmp/dr-final-smoke.VkD8w1/list-npm.exit\n+ for variant in npm local\n+ cmp /tmp/dr-final-smoke.VkD8w1/list-direct.stdout /tmp/dr-final-smoke.VkD8w1/list-local.stdout\n+ cmp /tmp/dr-final-smoke.VkD8w1/list-direct.stderr /tmp/dr-final-smoke.VkD8w1/list-local.stderr\n+ cmp /tmp/dr-final-smoke.VkD8w1/list-direct.exit /tmp/dr-final-smoke.VkD8w1/list-local.exit\n+ test list = invalid\n++ cat /tmp/dr-final-smoke.VkD8w1/list-direct.exit\n+ test 0 -eq 0\n+ for test in list trace invalid\n+ case $test in\n+ args=(trace 261105-route-test-design-and-existing-review --json --root /workspace/skills)\n+ for variant in direct npm local\n+ case $variant in\n+ executable=/tmp/dr-final-smoke.VkD8w1/build/artifact/decision-records\n+ set +e\n+ /tmp/dr-final-smoke.VkD8w1/build/artifact/decision-records trace 261105-route-test-design-and-existing-review --json --root /workspace/skills\n+ code=0\n+ set -e\n+ printf '%s\\n' 0\n+ for variant in direct npm local\n+ case $variant in\n+ executable=/tmp/dr-final-smoke.VkD8w1/node_modules/.bin/dr-experiment\n+ set +e\n+ /tmp/dr-final-smoke.VkD8w1/node_modules/.bin/dr-experiment trace 261105-route-test-design-and-existing-review --json --root /workspace/skills\n+ code=0\n+ set -e\n+ printf '%s\\n' 0\n+ for variant in direct npm local\n+ case $variant in\n+ executable=/tmp/dr-final-smoke.VkD8w1/installed\n+ set +e\n+ /tmp/dr-final-smoke.VkD8w1/installed trace 261105-route-test-design-and-existing-review --json --root /workspace/skills\n+ code=0\n+ set -e\n+ printf '%s\\n' 0\n+ for variant in npm local\n+ cmp /tmp/dr-final-smoke.VkD8w1/trace-direct.stdout /tmp/dr-final-smoke.VkD8w1/trace-npm.stdout\n+ cmp /tmp/dr-final-smoke.VkD8w1/trace-direct.stderr /tmp/dr-final-smoke.VkD8w1/trace-npm.stderr\n+ cmp /tmp/dr-final-smoke.VkD8w1/trace-direct.exit /tmp/dr-final-smoke.VkD8w1/trace-npm.exit\n+ for variant in npm local\n+ cmp /tmp/dr-final-smoke.VkD8w1/trace-direct.stdout /tmp/dr-final-smoke.VkD8w1/trace-local.stdout\n+ cmp /tmp/dr-final-smoke.VkD8w1/trace-direct.stderr /tmp/dr-final-smoke.VkD8w1/trace-local.stderr\n+ cmp /tmp/dr-final-smoke.VkD8w1/trace-direct.exit /tmp/dr-final-smoke.VkD8w1/trace-local.exit\n+ test trace = invalid\n++ cat /tmp/dr-final-smoke.VkD8w1/trace-direct.exit\n+ test 0 -eq 0\n+ for test in list trace invalid\n+ case $test in\n+ args=(definitely-invalid)\n+ for variant in direct npm local\n+ case $variant in\n+ executable=/tmp/dr-final-smoke.VkD8w1/build/artifact/decision-records\n+ set +e\n+ /tmp/dr-final-smoke.VkD8w1/build/artifact/decision-records definitely-invalid\n+ code=1\n+ set -e\n+ printf '%s\\n' 1\n+ for variant in direct npm local\n+ case $variant in\n+ executable=/tmp/dr-final-smoke.VkD8w1/node_modules/.bin/dr-experiment\n+ set +e\n+ /tmp/dr-final-smoke.VkD8w1/node_modules/.bin/dr-experiment definitely-invalid\n+ code=1\n+ set -e\n+ printf '%s\\n' 1\n+ for variant in direct npm local\n+ case $variant in\n+ executable=/tmp/dr-final-smoke.VkD8w1/installed\n+ set +e\n+ /tmp/dr-final-smoke.VkD8w1/installed definitely-invalid\n+ code=1\n+ set -e\n+ printf '%s\\n' 1\n+ for variant in npm local\n+ cmp /tmp/dr-final-smoke.VkD8w1/invalid-direct.stdout /tmp/dr-final-smoke.VkD8w1/invalid-npm.stdout\n+ cmp /tmp/dr-final-smoke.VkD8w1/invalid-direct.stderr /tmp/dr-final-smoke.VkD8w1/invalid-npm.stderr\n+ cmp /tmp/dr-final-smoke.VkD8w1/invalid-direct.exit /tmp/dr-final-smoke.VkD8w1/invalid-npm.exit\n+ for variant in npm local\n+ cmp /tmp/dr-final-smoke.VkD8w1/invalid-direct.stdout /tmp/dr-final-smoke.VkD8w1/invalid-local.stdout\n+ cmp /tmp/dr-final-smoke.VkD8w1/invalid-direct.stderr /tmp/dr-final-smoke.VkD8w1/invalid-local.stderr\n+ cmp /tmp/dr-final-smoke.VkD8w1/invalid-direct.exit /tmp/dr-final-smoke.VkD8w1/invalid-local.exit\n+ test invalid = invalid\n++ cat /tmp/dr-final-smoke.VkD8w1/invalid-direct.exit\n+ test 1 -ne 0\n",
+  "limits": [
+    "Single installation timings are not latency distributions.",
+    "Installed tree fingerprints were recorded after the measurements; the driver itself pins the launcher, not the entire installed tree."
+  ]
+}

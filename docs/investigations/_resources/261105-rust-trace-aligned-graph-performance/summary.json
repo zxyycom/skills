@@ -1,0 +1,535 @@
+{
+  "wall": {
+    "samples": 360,
+    "warmups": 30,
+    "startUtc": "2026-11-05T08:33:20.932909+00:00",
+    "endUtc": "2026-11-05T08:35:36.588204+00:00",
+    "cases": {
+      "fan16-small": {
+        "node": {
+          "elapsedMsMedian": 885.378,
+          "elapsedMsRange": [
+            726.939,
+            1215.413
+          ]
+        },
+        "old": {
+          "elapsedMsMedian": 34.481,
+          "elapsedMsRange": [
+            25.945,
+            42.806
+          ]
+        },
+        "new": {
+          "elapsedMsMedian": 33.346,
+          "elapsedMsRange": [
+            26.385,
+            55.452
+          ]
+        }
+      },
+      "fan16-full": {
+        "node": {
+          "elapsedMsMedian": 945.901,
+          "elapsedMsRange": [
+            791.165,
+            1197.965
+          ]
+        },
+        "old": {
+          "elapsedMsMedian": 33.508,
+          "elapsedMsRange": [
+            28.697,
+            45.771
+          ]
+        },
+        "new": {
+          "elapsedMsMedian": 32.148,
+          "elapsedMsRange": [
+            27.326,
+            41.199
+          ]
+        }
+      },
+      "fan512-small": {
+        "node": {
+          "elapsedMsMedian": 940.744,
+          "elapsedMsRange": [
+            758.069,
+            1536.912
+          ]
+        },
+        "old": {
+          "elapsedMsMedian": 36.503,
+          "elapsedMsRange": [
+            29.565,
+            40.907
+          ]
+        },
+        "new": {
+          "elapsedMsMedian": 35.809,
+          "elapsedMsRange": [
+            25.78,
+            47.843
+          ]
+        }
+      },
+      "fan512-full": {
+        "node": {
+          "elapsedMsMedian": 919.824,
+          "elapsedMsRange": [
+            805.718,
+            1288.135
+          ]
+        },
+        "old": {
+          "elapsedMsMedian": 40.04,
+          "elapsedMsRange": [
+            34.973,
+            46.598
+          ]
+        },
+        "new": {
+          "elapsedMsMedian": 39.421,
+          "elapsedMsRange": [
+            34.176,
+            55.598
+          ]
+        }
+      },
+      "fan8192-small": {
+        "node": {
+          "elapsedMsMedian": 1031.682,
+          "elapsedMsRange": [
+            847.186,
+            1537.826
+          ]
+        },
+        "old": {
+          "elapsedMsMedian": 203.722,
+          "elapsedMsRange": [
+            190.202,
+            349.328
+          ]
+        },
+        "new": {
+          "elapsedMsMedian": 50.665,
+          "elapsedMsRange": [
+            45.771,
+            68.741
+          ]
+        }
+      },
+      "fan8192-full": {
+        "node": {
+          "elapsedMsMedian": 1018.189,
+          "elapsedMsRange": [
+            850.607,
+            1702.682
+          ]
+        },
+        "old": {
+          "elapsedMsMedian": 264.623,
+          "elapsedMsRange": [
+            239.009,
+            404.421
+          ]
+        },
+        "new": {
+          "elapsedMsMedian": 130.109,
+          "elapsedMsRange": [
+            100.984,
+            268.091
+          ]
+        }
+      },
+      "chain": {
+        "node": {
+          "elapsedMsMedian": 880.487,
+          "elapsedMsRange": [
+            771.651,
+            1485.811
+          ]
+        },
+        "old": {
+          "elapsedMsMedian": 38.015,
+          "elapsedMsRange": [
+            27.295,
+            46.537
+          ]
+        },
+        "new": {
+          "elapsedMsMedian": 36.068,
+          "elapsedMsRange": [
+            25.856,
+            49.086
+          ]
+        }
+      },
+      "wide": {
+        "node": {
+          "elapsedMsMedian": 908.166,
+          "elapsedMsRange": [
+            756.943,
+            1284.329
+          ]
+        },
+        "old": {
+          "elapsedMsMedian": 33.437,
+          "elapsedMsRange": [
+            27.318,
+            41.812
+          ]
+        },
+        "new": {
+          "elapsedMsMedian": 34.749,
+          "elapsedMsRange": [
+            28.989,
+            43.207
+          ]
+        }
+      },
+      "reallocation-small": {
+        "node": {
+          "elapsedMsMedian": 396.71,
+          "elapsedMsRange": [
+            303.439,
+            688.095
+          ]
+        },
+        "old": {
+          "elapsedMsMedian": 1.89,
+          "elapsedMsRange": [
+            1.573,
+            2.571
+          ]
+        },
+        "new": {
+          "elapsedMsMedian": 2.051,
+          "elapsedMsRange": [
+            1.778,
+            2.721
+          ]
+        }
+      },
+      "reallocation-full": {
+        "node": {
+          "elapsedMsMedian": 384.116,
+          "elapsedMsRange": [
+            294.201,
+            848.43
+          ]
+        },
+        "old": {
+          "elapsedMsMedian": 1.967,
+          "elapsedMsRange": [
+            1.539,
+            3.017
+          ]
+        },
+        "new": {
+          "elapsedMsMedian": 2.002,
+          "elapsedMsRange": [
+            1.382,
+            2.572
+          ]
+        }
+      }
+    }
+  },
+  "resources": {
+    "samples": 216,
+    "warmups": 18,
+    "startUtc": "2026-11-05T08:35:38.155338+00:00",
+    "endUtc": "2026-11-05T08:37:36.006287+00:00",
+    "cases": {
+      "fan16-small": {
+        "node": {
+          "elapsedMsMedian": 1262.509,
+          "elapsedMsRange": [
+            841.452,
+            1627.327
+          ],
+          "childCpuMsMedian": 1861.421,
+          "childPeakRssKiBMedian": 215302.0,
+          "wrapperCpuMsMedian": 1.394
+        },
+        "old": {
+          "elapsedMsMedian": 43.791,
+          "elapsedMsRange": [
+            30.361,
+            61.366
+          ],
+          "childCpuMsMedian": 40.038,
+          "childPeakRssKiBMedian": 18440.0,
+          "wrapperCpuMsMedian": 1.419
+        },
+        "new": {
+          "elapsedMsMedian": 42.52,
+          "elapsedMsRange": [
+            30.657,
+            69.344
+          ],
+          "childCpuMsMedian": 37.789,
+          "childPeakRssKiBMedian": 18384.0,
+          "wrapperCpuMsMedian": 1.287
+        }
+      },
+      "fan16-full": {
+        "node": {
+          "elapsedMsMedian": 1197.859,
+          "elapsedMsRange": [
+            783.101,
+            4132.876
+          ],
+          "childCpuMsMedian": 1780.488,
+          "childPeakRssKiBMedian": 216684.0,
+          "wrapperCpuMsMedian": 1.351
+        },
+        "old": {
+          "elapsedMsMedian": 44.343,
+          "elapsedMsRange": [
+            27.656,
+            126.994
+          ],
+          "childCpuMsMedian": 40.12,
+          "childPeakRssKiBMedian": 18548.0,
+          "wrapperCpuMsMedian": 1.287
+        },
+        "new": {
+          "elapsedMsMedian": 45.266,
+          "elapsedMsRange": [
+            28.039,
+            94.282
+          ],
+          "childCpuMsMedian": 41.608,
+          "childPeakRssKiBMedian": 18416.0,
+          "wrapperCpuMsMedian": 1.379
+        }
+      },
+      "fan8192-small": {
+        "node": {
+          "elapsedMsMedian": 1309.898,
+          "elapsedMsRange": [
+            882.073,
+            4130.974
+          ],
+          "childCpuMsMedian": 2001.6,
+          "childPeakRssKiBMedian": 217900.0,
+          "wrapperCpuMsMedian": 1.388
+        },
+        "old": {
+          "elapsedMsMedian": 276.23,
+          "elapsedMsRange": [
+            183.914,
+            1008.486
+          ],
+          "childCpuMsMedian": 269.543,
+          "childPeakRssKiBMedian": 24814.0,
+          "wrapperCpuMsMedian": 1.543
+        },
+        "new": {
+          "elapsedMsMedian": 66.1,
+          "elapsedMsRange": [
+            45.902,
+            170.639
+          ],
+          "childCpuMsMedian": 60.587,
+          "childPeakRssKiBMedian": 24736.0,
+          "wrapperCpuMsMedian": 1.56
+        }
+      },
+      "fan8192-full": {
+        "node": {
+          "elapsedMsMedian": 1430.431,
+          "elapsedMsRange": [
+            990.971,
+            2542.704
+          ],
+          "childCpuMsMedian": 2136.102,
+          "childPeakRssKiBMedian": 237784.0,
+          "wrapperCpuMsMedian": 1.485
+        },
+        "old": {
+          "elapsedMsMedian": 341.495,
+          "elapsedMsRange": [
+            269.123,
+            520.08
+          ],
+          "childCpuMsMedian": 327.847,
+          "childPeakRssKiBMedian": 59112.0,
+          "wrapperCpuMsMedian": 1.562
+        },
+        "new": {
+          "elapsedMsMedian": 149.768,
+          "elapsedMsRange": [
+            108.323,
+            294.842
+          ],
+          "childCpuMsMedian": 136.81,
+          "childPeakRssKiBMedian": 59114.0,
+          "wrapperCpuMsMedian": 1.496
+        }
+      },
+      "chain": {
+        "node": {
+          "elapsedMsMedian": 1274.533,
+          "elapsedMsRange": [
+            828.607,
+            1896.177
+          ],
+          "childCpuMsMedian": 1902.709,
+          "childPeakRssKiBMedian": 211148.0,
+          "wrapperCpuMsMedian": 1.353
+        },
+        "old": {
+          "elapsedMsMedian": 49.104,
+          "elapsedMsRange": [
+            32.503,
+            82.817
+          ],
+          "childCpuMsMedian": 41.679,
+          "childPeakRssKiBMedian": 19568.0,
+          "wrapperCpuMsMedian": 1.369
+        },
+        "new": {
+          "elapsedMsMedian": 51.078,
+          "elapsedMsRange": [
+            32.785,
+            73.188
+          ],
+          "childCpuMsMedian": 46.867,
+          "childPeakRssKiBMedian": 19568.0,
+          "wrapperCpuMsMedian": 1.47
+        }
+      },
+      "reallocation-full": {
+        "node": {
+          "elapsedMsMedian": 538.694,
+          "elapsedMsRange": [
+            352.001,
+            908.035
+          ],
+          "childCpuMsMedian": 832.254,
+          "childPeakRssKiBMedian": 113804.0,
+          "wrapperCpuMsMedian": 1.527
+        },
+        "old": {
+          "elapsedMsMedian": 4.108,
+          "elapsedMsRange": [
+            2.425,
+            36.522
+          ],
+          "childCpuMsMedian": 0.0,
+          "childPeakRssKiBMedian": 3214.0,
+          "wrapperCpuMsMedian": 1.381
+        },
+        "new": {
+          "elapsedMsMedian": 4.722,
+          "elapsedMsRange": [
+            2.668,
+            6.451
+          ],
+          "childCpuMsMedian": 0.049,
+          "childPeakRssKiBMedian": 3302.0,
+          "wrapperCpuMsMedian": 1.51
+        }
+      }
+    }
+  },
+  "host": {
+    "samples": 108,
+    "warmups": 9,
+    "startUtc": "2026-11-05T08:37:38.847620+00:00",
+    "endUtc": "2026-11-05T08:38:04.495777+00:00",
+    "cases": {
+      "fan16-small": {
+        "node": {
+          "elapsedMsMedian": 422.577,
+          "elapsedMsRange": [
+            356.72,
+            674.26
+          ],
+          "hostCpuMsMedian": 485.38,
+          "hostLifetimePeakRssKiBMedian": 388324.0
+        },
+        "old": {
+          "elapsedMsMedian": 44.549,
+          "elapsedMsRange": [
+            37.771,
+            59.721
+          ],
+          "hostCpuMsMedian": 4.584,
+          "hostLifetimePeakRssKiBMedian": 388324.0
+        },
+        "new": {
+          "elapsedMsMedian": 43.412,
+          "elapsedMsRange": [
+            32.959,
+            75.404
+          ],
+          "hostCpuMsMedian": 4.76,
+          "hostLifetimePeakRssKiBMedian": 388324.0
+        }
+      },
+      "fan8192-small": {
+        "node": {
+          "elapsedMsMedian": 542.497,
+          "elapsedMsRange": [
+            420.548,
+            1193.278
+          ],
+          "hostCpuMsMedian": 654.476,
+          "hostLifetimePeakRssKiBMedian": 399588.0
+        },
+        "old": {
+          "elapsedMsMedian": 246.743,
+          "elapsedMsRange": [
+            198.022,
+            559.122
+          ],
+          "hostCpuMsMedian": 5.578,
+          "hostLifetimePeakRssKiBMedian": 399588.0
+        },
+        "new": {
+          "elapsedMsMedian": 64.979,
+          "elapsedMsRange": [
+            52.928,
+            145.701
+          ],
+          "hostCpuMsMedian": 4.883,
+          "hostLifetimePeakRssKiBMedian": 399588.0
+        }
+      },
+      "reallocation-full": {
+        "node": {
+          "elapsedMsMedian": 4.059,
+          "elapsedMsRange": [
+            2.793,
+            6.009
+          ],
+          "hostCpuMsMedian": 4.96,
+          "hostLifetimePeakRssKiBMedian": 399588.0
+        },
+        "old": {
+          "elapsedMsMedian": 7.899,
+          "elapsedMsRange": [
+            4.701,
+            11.59
+          ],
+          "hostCpuMsMedian": 4.763,
+          "hostLifetimePeakRssKiBMedian": 399588.0
+        },
+        "new": {
+          "elapsedMsMedian": 9.097,
+          "elapsedMsRange": [
+            5.095,
+            13.002
+          ],
+          "hostCpuMsMedian": 5.229,
+          "hostLifetimePeakRssKiBMedian": 399588.0
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "chain": [
+    {
+      "command": [
+        "node",
+        "/workspace/skills/skills/decision-records/scripts/decision-records.ts",
+        "sync-index",
+        "--root",
+        "/tmp/decision-graph-bench.BdVHab/fixtures/chain"
+      ],
+      "exit": 0,
+      "stdout": "Rebuilt docs/decisions/decision-index.json from decision Markdown files.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/skills/skills/decision-records/scripts/decision-records.ts",
+        "check",
+        "--root",
+        "/tmp/decision-graph-bench.BdVHab/fixtures/chain"
+      ],
+      "exit": 0,
+      "stdout": "Decision records check passed (8193 decisions, 7921 active, 7921 aligned, 0 unaligned, 272 archived, 0 candidate scaffolds, 0 body-ready candidates).\n",
+      "stderr": ""
+    }
+  ],
+  "fan16": [
+    {
+      "command": [
+        "node",
+        "/workspace/skills/skills/decision-records/scripts/decision-records.ts",
+        "sync-index",
+        "--root",
+        "/tmp/decision-graph-bench.BdVHab/fixtures/fan16"
+      ],
+      "exit": 0,
+      "stdout": "Rebuilt docs/decisions/decision-index.json from decision Markdown files.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/skills/skills/decision-records/scripts/decision-records.ts",
+        "check",
+        "--root",
+        "/tmp/decision-graph-bench.BdVHab/fixtures/fan16"
+      ],
+      "exit": 0,
+      "stdout": "Decision records check passed (8193 decisions, 8192 active, 8192 aligned, 0 unaligned, 1 archived, 0 candidate scaffolds, 0 body-ready candidates).\n",
+      "stderr": ""
+    }
+  ],
+  "fan512": [
+    {
+      "command": [
+        "node",
+        "/workspace/skills/skills/decision-records/scripts/decision-records.ts",
+        "sync-index",
+        "--root",
+        "/tmp/decision-graph-bench.BdVHab/fixtures/fan512"
+      ],
+      "exit": 0,
+      "stdout": "Rebuilt docs/decisions/decision-index.json from decision Markdown files.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/skills/skills/decision-records/scripts/decision-records.ts",
+        "check",
+        "--root",
+        "/tmp/decision-graph-bench.BdVHab/fixtures/fan512"
+      ],
+      "exit": 0,
+      "stdout": "Decision records check passed (8193 decisions, 8192 active, 8192 aligned, 0 unaligned, 1 archived, 0 candidate scaffolds, 0 body-ready candidates).\n",
+      "stderr": ""
+    }
+  ],
+  "fan8192": [
+    {
+      "command": [
+        "node",
+        "/workspace/skills/skills/decision-records/scripts/decision-records.ts",
+        "sync-index",
+        "--root",
+        "/tmp/decision-graph-bench.BdVHab/fixtures/fan8192"
+      ],
+      "exit": 0,
+      "stdout": "Rebuilt docs/decisions/decision-index.json from decision Markdown files.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/skills/skills/decision-records/scripts/decision-records.ts",
+        "check",
+        "--root",
+        "/tmp/decision-graph-bench.BdVHab/fixtures/fan8192"
+      ],
+      "exit": 0,
+      "stdout": "Decision records check passed (8193 decisions, 8192 active, 8192 aligned, 0 unaligned, 1 archived, 0 candidate scaffolds, 0 body-ready candidates).\n",
+      "stderr": ""
+    }
+  ],
+  "reallocation": [
+    {
+      "command": [
+        "node",
+        "/workspace/skills/skills/decision-records/scripts/decision-records.ts",
+        "sync-index",
+        "--root",
+        "/tmp/decision-graph-bench.BdVHab/fixtures/reallocation"
+      ],
+      "exit": 0,
+      "stdout": "Rebuilt docs/decisions/decision-index.json from decision Markdown files.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/skills/skills/decision-records/scripts/decision-records.ts",
+        "check",
+        "--root",
+        "/tmp/decision-graph-bench.BdVHab/fixtures/reallocation"
+      ],
+      "exit": 0,
+      "stdout": "Decision records check passed (4 decisions, 2 active, 2 aligned, 0 unaligned, 2 archived, 0 candidate scaffolds, 0 body-ready candidates).\n",
+      "stderr": ""
+    }
+  ],
+  "wide": [
+    {
+      "command": [
+        "node",
+        "/workspace/skills/skills/decision-records/scripts/decision-records.ts",
+        "sync-index",
+        "--root",
+        "/tmp/decision-graph-bench.BdVHab/fixtures/wide"
+      ],
+      "exit": 0,
+      "stdout": "Rebuilt docs/decisions/decision-index.json from decision Markdown files.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/skills/skills/decision-records/scripts/decision-records.ts",
+        "check",
+        "--root",
+        "/tmp/decision-graph-bench.BdVHab/fixtures/wide"
+      ],
+      "exit": 0,
+      "stdout": "Decision records check passed (8193 decisions, 8176 active, 8176 aligned, 0 unaligned, 17 archived, 0 candidate scaffolds, 0 body-ready candidates).\n",
+      "stderr": ""
+    }
+  ]
+}

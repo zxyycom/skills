@@ -1,0 +1,29 @@
+UTC
+2026-11-05T08:18:47Z
+tool versions
+v26.8.2
+rustc 1.98.1 (48a229cea 2026-09-01)
+cargo 1.98.1 (797e8a9bc 2026-08-05)
+Python 3.14.7
+relevant source SHA-256
+7cf3649284e5ef2dbfb064cc4cdd27f033da0ce45c5071bd4e0e7a4c112b7638  tools/decision-records/experiments/rust-native-cli/Cargo.toml
+51edc22ce37a50b43641f1c4a5db079a208db2c6abb6c5683a94ddd69e4d2c71  tools/decision-records/experiments/rust-native-cli/Cargo.lock
+5e79eb5afc0a8f8639e5e30f2ea7d81ee6d15b028dacc32459c975aada55f31c  tools/decision-records/experiments/rust-native-cli/src/content_search.rs
+d7a71f453161a83a266028fb6371132c2deab3abddfe10c6f201502bb5f4e7ca  tools/decision-records/experiments/rust-native-cli/src/graph.rs
+27bb664c925611f2007a86e9837af4519c3af10e542b024e659f517934350476  tools/decision-records/experiments/rust-native-cli/src/index.rs
+10b180cf0155713b8c5d7ff865a81c70d8ca9071bce1264058c89dae90f59ad1  tools/decision-records/experiments/rust-native-cli/src/lib.rs
+c0139a36bd9eea3e512c788751620519cd875e0f529b2de6aa1f2814e20895fb  tools/decision-records/experiments/rust-native-cli/src/list.rs
+66857a7c9ea6ff4ba43e54c4e8317ed23dfc26328e2b96165afce15a820fed48  tools/decision-records/experiments/rust-native-cli/src/main.rs
+964f3165d78e7038391375e921c8b680ca787e4e690b5ed98b4b45ce7b0c1255  tools/decision-records/experiments/rust-native-cli/src/metadata_search.rs
+80fbcb5b33ea3614a65fe52bd6a7b77db271f74a9f258cdfdae5530cde04cfca  tools/decision-records/experiments/rust-native-cli/src/relation_filter.rs
+053eb9b99e6d9eb2c0e7f2ad6c9542f85a7da7dd4bf6844b58c8b76e833a32af  tools/decision-records/experiments/rust-native-cli/src/source.rs
+594bb0dee37310122e6da333220ef021c4db45c80ec7ace6331d31833e0c38fb  tools/decision-records/experiments/rust-native-cli/src/text_search.rs
+77594e8d1a6053d6df904f991918a5e1238443d8857a65d5d35dc0960e551ac7  tools/decision-records/experiments/rust-native-cli/src/trace.rs
+aee21bf94df506bc8ae354a7a1d912ac894b4bed2657f3fd7efd8fe7f62bd8ac  tools/decision-records/src/records/decision-trace-admission.ts
+e3da350f34f7fb2d6c27db2d87516c3f7066c2745117d68e62ff04bc4353e12f  tools/shared/src/graph/trace-ordering.ts
+b476c87c635b810ad4d89cf9ae7d54c29539713420c645965873516b8b1a3a7b  tools/shared/src/graph/relations.ts
+45e390de58f55dc9dccf6bd2d95dbf1d32de322131d4c044fcb71d58dba6ad48  tools/decision-records/src/relations/relation-graph.ts
+9e8497d04cefbf4061d3cfb876ff1d81d16b44020ba6b0d2792d24227647de3d  tools/decision-records/src/relations/relation-reallocation.ts
+05f32df02e636813423536152eb42542777a5d375dc63171911249a40f8b0869  /tmp/dr-complexity.h0rNPpJj/src/trace.rs
+2fdc0a06a497c3205fc90b07f214ec3126c207ee7c7547142c27b23069553b9f  /tmp/dr-complexity.h0rNPpJj/probe.py
+a0d5789a1dbfb3581ea69dc778256059d9a55c5ad9626c6f79baa4b39f868e7c  /tmp/dr-complexity.h0rNPpJj/target/release/decision-records-rust-experiment

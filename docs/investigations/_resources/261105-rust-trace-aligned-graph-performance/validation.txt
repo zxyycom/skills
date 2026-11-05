@@ -1,0 +1,110 @@
+2026-11-05T08:38:43Z
+v26.8.2
+rustc 1.98.1 (48a229cea 2026-09-01)
+cargo 1.98.1 (797e8a9bc 2026-08-05)
+96c91e795de0834d6c829c011ca4801e8beeecf7c3cc66fa195f480cb0d677dc  /tmp/dr-trace-target.davqi8/release/decision-records-rust-experiment
+
+COMMAND: cargo fmt --manifest-path /workspace/skills/tools/decision-records/experiments/rust-native-cli/Cargo.toml --check
+EXIT: 0
+
+COMMAND: cargo test --offline --locked --manifest-path /workspace/skills/tools/decision-records/experiments/rust-native-cli/Cargo.toml --target-dir /tmp/dr-trace-target.davqi8
+   Compiling decision-records-rust-experiment v0.1.0 (/workspace/skills/tools/decision-records/experiments/rust-native-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.79s
+     Running unittests src/lib.rs (/tmp/dr-trace-target.davqi8/debug/deps/decision_records_rust_experiment-e015f9f10bb1f721)
+
+running 8 tests
+test list::tests::utc_facets_use_instants_not_local_dates ... ok
+test index::tests::rejects_impossible_dates_and_unsafe_paths ... ok
+test index::tests::accepts_valid_published_snapshot_and_rejects_definition_drift ... ok
+test index::tests::rejects_invalid_identity_and_noncanonical_tags ... ok
+test metadata_search::tests::metadata_search_scans_all_records_and_reports_limited_window ... ok
+test source::identity_tests::yaml_identity_accepts_quoted_and_alias_ids_but_rejects_invalid_documents ... ok
+test source::tests::rejects_invalid_utf8_and_oversized_input ... ok
+test source::tests::rejects_symlinks_traversal_and_non_regular_sources ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/tmp/dr-trace-target.davqi8/debug/deps/decision_records_rust_experiment-22434bf6513761b8)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/graph_trace.rs (/tmp/dr-trace-target.davqi8/debug/deps/graph_trace-d3f8039b737ed035)
+
+running 11 tests
+test published_graph_checks_unrelated_invalid_components_and_cycles ... ok
+test merge_successor_promotes_only_direct_member_and_keeps_other_predecessor_context ... ok
+test relation_filter_uses_direction_and_type_and_validates_the_whole_graph ... ok
+test reallocation_trace_closes_context_and_renders_context_edge ... ok
+test selector_prefers_dated_identity_rejects_ambiguous_names_and_checks_unrelated_graph ... ok
+test sequential_reallocations_are_distinct_admission_events ... ok
+test split_merge_and_reallocation_require_complete_valid_shapes ... ok
+test trace_depth_frontier_and_selector_errors_are_explicit ... ok
+test split_trace_closes_context_and_blocks_whole_event_at_budget ... ok
+test ordinary_fan_in_orders_neighbors_before_applying_budget ... ok
+test real_snapshot_trace_matches_node_for_split_reallocation_and_budget ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.47s
+
+     Running tests/text_search.rs (/tmp/dr-trace-target.davqi8/debug/deps/text_search-ee1052ce360657d7)
+
+running 3 tests
+test independent_segments_and_modes ... ok
+test normalization_and_original_utf16_ranges ... ok
+test overlapping_ranges_and_contextual_case ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests decision_records_rust_experiment
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+EXIT: 0
+
+COMMAND: cargo test --offline --locked --manifest-path /workspace/skills/tools/decision-records/experiments/rust-native-cli/Cargo.toml --target-dir /tmp/dr-trace-target.davqi8 -- --list
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.03s
+     Running unittests src/lib.rs (/tmp/dr-trace-target.davqi8/debug/deps/decision_records_rust_experiment-e015f9f10bb1f721)
+index::tests::accepts_valid_published_snapshot_and_rejects_definition_drift: test
+index::tests::rejects_impossible_dates_and_unsafe_paths: test
+index::tests::rejects_invalid_identity_and_noncanonical_tags: test
+list::tests::utc_facets_use_instants_not_local_dates: test
+metadata_search::tests::metadata_search_scans_all_records_and_reports_limited_window: test
+source::identity_tests::yaml_identity_accepts_quoted_and_alias_ids_but_rejects_invalid_documents: test
+source::tests::rejects_invalid_utf8_and_oversized_input: test
+source::tests::rejects_symlinks_traversal_and_non_regular_sources: test
+
+8 tests, 0 benchmarks
+     Running unittests src/main.rs (/tmp/dr-trace-target.davqi8/debug/deps/decision_records_rust_experiment-22434bf6513761b8)
+0 tests, 0 benchmarks
+     Running tests/graph_trace.rs (/tmp/dr-trace-target.davqi8/debug/deps/graph_trace-d3f8039b737ed035)
+merge_successor_promotes_only_direct_member_and_keeps_other_predecessor_context: test
+ordinary_fan_in_orders_neighbors_before_applying_budget: test
+published_graph_checks_unrelated_invalid_components_and_cycles: test
+real_snapshot_trace_matches_node_for_split_reallocation_and_budget: test
+reallocation_trace_closes_context_and_renders_context_edge: test
+relation_filter_uses_direction_and_type_and_validates_the_whole_graph: test
+selector_prefers_dated_identity_rejects_ambiguous_names_and_checks_unrelated_graph: test
+sequential_reallocations_are_distinct_admission_events: test
+split_merge_and_reallocation_require_complete_valid_shapes: test
+split_trace_closes_context_and_blocks_whole_event_at_budget: test
+trace_depth_frontier_and_selector_errors_are_explicit: test
+
+11 tests, 0 benchmarks
+     Running tests/text_search.rs (/tmp/dr-trace-target.davqi8/debug/deps/text_search-ee1052ce360657d7)
+independent_segments_and_modes: test
+normalization_and_original_utf16_ranges: test
+overlapping_ranges_and_contextual_case: test
+
+3 tests, 0 benchmarks
+   Doc-tests decision_records_rust_experiment
+0 tests, 0 benchmarks
+EXIT: 0
+
+COMMAND: cargo clippy --offline --locked --manifest-path /workspace/skills/tools/decision-records/experiments/rust-native-cli/Cargo.toml --target-dir /tmp/dr-trace-target.davqi8 --all-targets -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s
+EXIT: 0
+96c91e795de0834d6c829c011ca4801e8beeecf7c3cc66fa195f480cb0d677dc  /tmp/dr-trace-target.davqi8/release/decision-records-rust-experiment
+FINAL_EXIT: 0

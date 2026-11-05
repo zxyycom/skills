@@ -1,0 +1,133 @@
+{
+  "scope": "专项实验记录，不是正式项目 Case 账本",
+  "nativeNodeCount": 21,
+  "execution": "cargo-validation.txt",
+  "nodes": [
+    {
+      "target": "library",
+      "name": "index::tests::accepts_valid_published_snapshot_and_rejects_definition_drift",
+      "contract": "发布索引须符合结构及固定 definition",
+      "proves": "接受合法快照，拒绝 definition 漂移"
+    },
+    {
+      "target": "library",
+      "name": "index::tests::rejects_impossible_dates_and_unsafe_paths",
+      "contract": "日期必须有效，来源路径保持集合边界",
+      "proves": "拒绝非法日历日期与越界路径"
+    },
+    {
+      "target": "library",
+      "name": "index::tests::rejects_invalid_identity_and_noncanonical_tags",
+      "contract": "身份、生命周期位置和 tags 顺序由索引契约约束",
+      "proves": "拒绝身份／位置不符及非规范 tags"
+    },
+    {
+      "target": "library",
+      "name": "list::tests::utc_facets_use_instants_not_local_dates",
+      "contract": "时间筛选和 facets 使用同一 UTC 时间语义",
+      "proves": "核对时区等值时间与 UTC 日期边界"
+    },
+    {
+      "target": "library",
+      "name": "metadata_search::tests::metadata_search_scans_all_records_and_reports_limited_window",
+      "contract": "metadata 全量计数与返回窗口分别表达",
+      "proves": "核对精确 matched、窗口截断和 warning"
+    },
+    {
+      "target": "library",
+      "name": "source::identity_tests::yaml_identity_accepts_quoted_and_alias_ids_but_rejects_invalid_documents",
+      "contract": "身份来自合法 YAML mapping 的字符串 ID",
+      "proves": "核对 BOM／CRLF、引号、别名及重复键／未知别名／数值 ID"
+    },
+    {
+      "target": "library",
+      "name": "source::tests::rejects_invalid_utf8_and_oversized_input",
+      "contract": "来源严格 UTF-8，单文件字节预算有效",
+      "proves": "拒绝非法 UTF-8，核对字节上限边界"
+    },
+    {
+      "target": "library",
+      "name": "source::tests::rejects_symlinks_traversal_and_non_regular_sources",
+      "contract": "来源为安全集合内的普通文件",
+      "proves": "核对普通文件读取及符号链接、越界、目录拒绝"
+    },
+    {
+      "target": "graph_trace",
+      "name": "merge_successor_promotes_only_direct_member_and_keeps_other_predecessor_context",
+      "contract": "直接遍历成员与补全 context 有别",
+      "proves": "核对纯归并的直接成员和其他前序角色"
+    },
+    {
+      "target": "graph_trace",
+      "name": "published_graph_checks_unrelated_invalid_components_and_cycles",
+      "contract": "关系查询验证完整发布图",
+      "proves": "拒绝无关坏目标、活动目标和环"
+    },
+    {
+      "target": "graph_trace",
+      "name": "real_snapshot_trace_matches_node_for_split_reallocation_and_budget",
+      "contract": "真实快照按同一 trace 契约渲染",
+      "proves": "8 个场景各比较文本／JSON，与 Node 差分一致；非独立 oracle"
+    },
+    {
+      "target": "graph_trace",
+      "name": "reallocation_trace_closes_context_and_renders_context_edge",
+      "contract": "重划补全上下文并保留边信息",
+      "proves": "核对 context 闭合及其边文本"
+    },
+    {
+      "target": "graph_trace",
+      "name": "relation_filter_uses_direction_and_type_and_validates_the_whole_graph",
+      "contract": "关系筛选使用方向与类型并保留全图义务",
+      "proves": "核对筛选、惰性构图及无关坏图拒绝"
+    },
+    {
+      "target": "graph_trace",
+      "name": "selector_prefers_dated_identity_rejects_ambiguous_names_and_checks_unrelated_graph",
+      "contract": "selector 区分标准身份与歧义名称",
+      "proves": "核对身份优先、歧义与全图检查"
+    },
+    {
+      "target": "graph_trace",
+      "name": "sequential_reallocations_are_distinct_admission_events",
+      "contract": "共享成员的连续重划仍是独立事件",
+      "proves": "核对连续事件的独立准入"
+    },
+    {
+      "target": "graph_trace",
+      "name": "split_merge_and_reallocation_require_complete_valid_shapes",
+      "contract": "复杂事件必须满足领域闭合形状",
+      "proves": "核对合法拆分／归并／重划及不完整事件拒绝"
+    },
+    {
+      "target": "graph_trace",
+      "name": "split_trace_closes_context_and_blocks_whole_event_at_budget",
+      "contract": "拆分按完整事件准入并补 context",
+      "proves": "核对 context 闭合和预算整体阻断"
+    },
+    {
+      "target": "graph_trace",
+      "name": "trace_depth_frontier_and_selector_errors_are_explicit",
+      "contract": "trace 显式表达深度与未遍历边界",
+      "proves": "核对 frontier、深度与 selector 错误"
+    },
+    {
+      "target": "text_search",
+      "name": "independent_segments_and_modes",
+      "contract": "all 可跨段，phrase 限同段，any 至少一项",
+      "proves": "核对各匹配模式的分段边界"
+    },
+    {
+      "target": "text_search",
+      "name": "normalization_and_original_utf16_ranges",
+      "contract": "匹配归一化，范围对应原文 UTF-16",
+      "proves": "核对组合字符及非 BMP 的原文位置"
+    },
+    {
+      "target": "text_search",
+      "name": "overlapping_ranges_and_contextual_case",
+      "contract": "重叠范围合并，大小写语义一致",
+      "proves": "核对重叠合并与上下文 sigma"
+    }
+  ]
+}

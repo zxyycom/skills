@@ -1186,6 +1186,123 @@
       ],
       "title": "复查两域历史索引读取和诊断边界"
     },
+    "261105-rust-native-query-performance": {
+      "formedAt": "2026-11-05T07:25:38Z",
+      "name": "rust-native-query-performance",
+      "question": "在相同行为任务下，Rust 原生 CLI 相对现有 Node CLI 和 TS 直接导入的耗时、CPU、内存及安装入口成本变化多少，是否值得继续迁移？",
+      "relations": [],
+      "resourceIds": [
+        "261105-rust-native-query-performance/cargo-validation.txt",
+        "261105-rust-native-query-performance/delivery.json",
+        "261105-rust-native-query-performance/measurements.json",
+        "261105-rust-native-query-performance/native-tests.json",
+        "261105-rust-native-query-performance/provenance.json",
+        "261105-rust-native-query-performance/run.sh",
+        "261105-rust-native-query-performance/validation.json"
+      ],
+      "sourcePath": "261105-rust-native-query-performance.md",
+      "tags": [
+        "decision-records",
+        "native-cli",
+        "performance",
+        "rust"
+      ],
+      "title": "Rust 原生查询 CLI 性能对照"
+    },
+    "261105-rust-query-algorithmic-complexity": {
+      "formedAt": "2026-11-05T08:18:09Z",
+      "name": "rust-query-algorithmic-complexity",
+      "question": "本次 Rust 查询原型是否改变了 TS 的算法或数据结构复杂度，哪些合法负载会放大差异，原有性能比较遗漏了什么？",
+      "relations": [
+        {
+          "summary": "以源码与计数区分整体收益中的算法差异",
+          "target": "261105-rust-native-query-performance",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261105-rust-query-algorithmic-complexity/probe.py",
+        "261105-rust-query-algorithmic-complexity/provenance.txt",
+        "261105-rust-query-algorithmic-complexity/results.jsonl",
+        "261105-rust-query-algorithmic-complexity/trace-count.patch"
+      ],
+      "sourcePath": "261105-rust-query-algorithmic-complexity.md",
+      "tags": [
+        "algorithmic-complexity",
+        "decision-records",
+        "performance",
+        "rust"
+      ],
+      "title": "Rust 与 TS 查询实现的算法复杂度差异"
+    },
+    "261105-rust-query-fixed-cost-and-scale": {
+      "formedAt": "2026-11-05T08:18:11Z",
+      "name": "rust-query-fixed-cost-and-scale",
+      "question": "Rust 每项成本较低是否使既有压测仍被固定开销掩盖，现有数据与交错规模补测能支持什么判断？",
+      "relations": [
+        {
+          "summary": "独立核对固定开销、规模增长与计时边界",
+          "target": "261105-rust-native-query-performance",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261105-rust-query-fixed-cost-and-scale/interleaved-results.jsonl",
+        "261105-rust-query-fixed-cost-and-scale/interleaved-summary.json",
+        "261105-rust-query-fixed-cost-and-scale/interleaved.py",
+        "261105-rust-query-fixed-cost-and-scale/summarize_interleaved.py"
+      ],
+      "sourcePath": "261105-rust-query-fixed-cost-and-scale.md",
+      "tags": [
+        "benchmarking",
+        "decision-records",
+        "performance",
+        "rust"
+      ],
+      "title": "Rust 查询固定成本与压测规模边界"
+    },
+    "261105-rust-trace-aligned-graph-performance": {
+      "formedAt": "2026-11-05T08:27:31Z",
+      "name": "rust-trace-aligned-graph-performance",
+      "question": "移除 Rust trace 平方查重后，在合法高直接度、深链、宽层和复杂事件图上，与旧 Rust 和 TS 相比还剩多少延迟与资源收益？",
+      "relations": [
+        {
+          "summary": "修复已确认查重风险并补充关系图三臂计量",
+          "target": "261105-rust-query-algorithmic-complexity",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261105-rust-trace-aligned-graph-performance/correctness.jsonl",
+        "261105-rust-trace-aligned-graph-performance/evidence.txt",
+        "261105-rust-trace-aligned-graph-performance/fixture-validation.json",
+        "261105-rust-trace-aligned-graph-performance/host.jsonl",
+        "261105-rust-trace-aligned-graph-performance/new-build.txt",
+        "261105-rust-trace-aligned-graph-performance/new-final.err",
+        "261105-rust-trace-aligned-graph-performance/new-probe.patch",
+        "261105-rust-trace-aligned-graph-performance/old-build.txt",
+        "261105-rust-trace-aligned-graph-performance/old-final.err",
+        "261105-rust-trace-aligned-graph-performance/old-final.out",
+        "261105-rust-trace-aligned-graph-performance/old-probe.patch",
+        "261105-rust-trace-aligned-graph-performance/original.sha256",
+        "261105-rust-trace-aligned-graph-performance/probe-output-dedup.json",
+        "261105-rust-trace-aligned-graph-performance/probe.rs",
+        "261105-rust-trace-aligned-graph-performance/resources.jsonl",
+        "261105-rust-trace-aligned-graph-performance/summary.json",
+        "261105-rust-trace-aligned-graph-performance/test.patch",
+        "261105-rust-trace-aligned-graph-performance/trace.patch",
+        "261105-rust-trace-aligned-graph-performance/validation.txt",
+        "261105-rust-trace-aligned-graph-performance/wall.jsonl"
+      ],
+      "sourcePath": "261105-rust-trace-aligned-graph-performance.md",
+      "tags": [
+        "decision-records",
+        "graph",
+        "performance",
+        "rust"
+      ],
+      "title": "Rust trace 查重优化后的关系图性能对照"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -1899,6 +2016,10 @@
       "261031-gate-domain-scope-quality-audit": "sha256:94a030a2de9740ba1a63ba0e8bd07b775fd54fcd58ed48471def5251709ce98e",
       "261104-investigate-head-index-diagnostic-loss": "sha256:d7ce6b0df8b181942fe657ec41e40598c9f0885657252b025ae978959b536f41",
       "261104-shared-historical-index-boundaries": "sha256:ee4183d42ade08db30b899986994851e7fb5371fdb25ba9b54301343d9b85dfe",
+      "261105-rust-native-query-performance": "sha256:527ccbd6d06cb7d0f7af4f896d41121c5a58a24830a2f86ba6ad447c2713f113",
+      "261105-rust-query-algorithmic-complexity": "sha256:4cc79ca0d4e610141c1beda1369ad8f77b6a9b6596b62d613138a5ccaa738de3",
+      "261105-rust-query-fixed-cost-and-scale": "sha256:6ecf09c891f5f1e276fcd8e2494435b854efa13ce6566bc9d3cdf7ea866e372b",
+      "261105-rust-trace-aligned-graph-performance": "sha256:355fa3139a6a4e6aa4ab8bab69df53dc59d9bce1b06a998130f192bb47a619cd",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:512b8f0c5b6466034d7d851032bf41af7413a227bdd19c62959fc2ad343d495c",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

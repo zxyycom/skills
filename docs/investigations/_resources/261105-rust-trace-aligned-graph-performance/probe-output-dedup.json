@@ -1,0 +1,17 @@
+{
+  "old": {
+    "sha256": "6dc52775ee703623f374cc092790ba0d0521b19f9093bc2b8d5be6dbbec40a84",
+    "bytes": 443168,
+    "footer": "finished in 0.05s"
+  },
+  "new": {
+    "sha256": "fdef10d023e4eb1bf1a1eb919330e5d2eaa7e77e0700a0c89345ec744ab5835f",
+    "bytes": 443168,
+    "footer": "finished in 0.21s"
+  },
+  "normalizedExactEqual": true,
+  "normalizedSha256": "07a8ee6e255e049ddb3d938a365580cac6b3150c911477cf37d957961e8d7101",
+  "retained": "old-final.out",
+  "removed": "new-final.out",
+  "difference": "cargo test duration footer only"
+}
