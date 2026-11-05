@@ -1,0 +1,58 @@
+diff --git a/dist/esm/package-checks/markdown-lint/findings-cache.mjs b/dist/esm/package-checks/markdown-lint/findings-cache.mjs
+index e4c7c52ba7bafd42e469974a5011ef8d37f890a1..af82907321e482633e0f54db472550fd3469bde0 100644
+--- a/dist/esm/package-checks/markdown-lint/findings-cache.mjs
++++ b/dist/esm/package-checks/markdown-lint/findings-cache.mjs
+@@ -1,6 +1,6 @@
+ import { createHash } from "node:crypto";
+-import { createRequire } from "node:module";
+-import { snapshotClosedRecord, snapshotExactClosedRecord } from "../../data-boundary/closed-values.mjs";
++import { getVersion } from "markdownlint";
++import { snapshotExactClosedRecord } from "../../data-boundary/closed-values.mjs";
+ import { cacheJsonByKey } from "../../package-tools/cache/cache-json-by-key.mjs";
+ import { lintMarkdownString, supportsMarkdownLintRules, parseMarkdownLintRange } from "./adapter.mjs";
+ import { MARKDOWN_LINT_RULE_NAMES } from "./options.mjs";
+@@ -102,11 +102,8 @@ function isMarkdownLintRuleName(value) {
+ }
+ function installedMarkdownlintVersion() {
+     try {
+-        const packageJson = createRequire(import.meta.url)("markdownlint/package.json");
+-        const metadata = snapshotClosedRecord(packageJson);
+-        return typeof metadata?.version === "string" && metadata.version.length > 0
+-            ? metadata.version
+-            : undefined;
++        const version = getVersion();
++        return typeof version === "string" && version.length > 0 ? version : undefined;
+     }
+     catch {
+         return undefined;
+diff --git a/src/package-checks/markdown-lint/findings-cache.ts b/src/package-checks/markdown-lint/findings-cache.ts
+index 22b6705c919a90008d3ab257add5ed674caeb886..7a49583c62d11f20a0058bf49ffc53ba4d6680af 100644
+--- a/src/package-checks/markdown-lint/findings-cache.ts
++++ b/src/package-checks/markdown-lint/findings-cache.ts
+@@ -1,10 +1,7 @@
+ import { createHash } from "node:crypto";
+-import { createRequire } from "node:module";
++import { getVersion } from "markdownlint";
+ 
+-import {
+-  snapshotClosedRecord,
+-  snapshotExactClosedRecord
+-} from "../../data-boundary/closed-values.ts";
++import { snapshotExactClosedRecord } from "../../data-boundary/closed-values.ts";
+ import { cacheJsonByKey } from "../../package-tools/cache/cache-json-by-key.ts";
+ import {
+   lintMarkdownString,
+@@ -134,11 +131,8 @@ function isMarkdownLintRuleName(value: unknown): value is MarkdownLintRuleName {
+ 
+ function installedMarkdownlintVersion(): string | undefined {
+   try {
+-    const packageJson: unknown = createRequire(import.meta.url)("markdownlint/package.json");
+-    const metadata = snapshotClosedRecord(packageJson);
+-    return typeof metadata?.version === "string" && metadata.version.length > 0
+-      ? metadata.version
+-      : undefined;
++    const version = getVersion();
++    return typeof version === "string" && version.length > 0 ? version : undefined;
+   } catch {
+     return undefined;
+   }

@@ -10,3 +10,5 @@ minimumReleaseAgeExclude:
   - '@typescript/native-preview-win32-x64@7.0.0-dev.20260630.1'
   - '@typescript/native-preview@7.0.0-dev.20260630.1'
   - '@zxyycom/vibe-check@0.0.5'
+patchedDependencies:
+  '@zxyycom/vibe-check@0.0.5': patches/@zxyycom__vibe-check@0.0.5.patch

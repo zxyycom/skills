@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@zxyycom/vibe-check@0.0.5': 2ce7028ae0681f51287cec35b828c73d05a178bbd973ee20f23174a77e883509
+
 importers:
 
   .:
@@ -31,7 +34,7 @@ importers:
         version: 1.7.1(valibot@1.4.2)
       '@zxyycom/vibe-check':
         specifier: 0.0.5
-        version: 0.0.5
+        version: 0.0.5(patch_hash=2ce7028ae0681f51287cec35b828c73d05a178bbd973ee20f23174a77e883509)
       ajv:
         specifier: 8.17.1
         version: 8.17.1
@@ -1527,7 +1530,7 @@ snapshots:
     dependencies:
       valibot: 1.4.2
 
-  '@zxyycom/vibe-check@0.0.5':
+  '@zxyycom/vibe-check@0.0.5(patch_hash=2ce7028ae0681f51287cec35b828c73d05a178bbd973ee20f23174a77e883509)':
     dependencies:
       '@secretlint/core': 13.0.5
       '@secretlint/secretlint-rule-privatekey': 13.0.5
