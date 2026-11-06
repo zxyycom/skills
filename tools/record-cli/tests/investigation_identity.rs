@@ -4,6 +4,33 @@ use record_cli::{
     transaction::{self, RecoveryStatus},
 };
 use std::path::Path;
+fn commit_fixture(root: &Path, raw: &str, target: &str) {
+    std::fs::copy(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures")
+            .join(raw),
+        root.join(target),
+    )
+    .unwrap();
+    let git = |args: &[&str]| {
+        let output = std::process::Command::new("git")
+            .arg("-C")
+            .arg(root)
+            .args(args)
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    };
+    git(&["init", "-q"]);
+    git(&["config", "user.name", "Fixture"]);
+    git(&["config", "user.email", "fixture@example.invalid"]);
+    git(&["add", "--", target]);
+    git(&["commit", "-qm", "fixture"]);
+}
 fn report(id: &str, resource: bool) -> String {
     format!(
         "---\ntitle: \"Example\"\nid: \"{id}\"\nformedAt: \"2026-11-06T12:00:00Z\"\nquestion: \"Question\"\ntags:\n  - \"example\"\nrelations: []\n---\n\n## 形成时背景\n背景\n\n## 调查目的\n目的\n\n## 调查范围与依据\n依据\n\n## 调查结果与边界\n结果\n{}",
@@ -249,31 +276,11 @@ fn git_recorded_candidate_requires_explicit_confirmation() {
     let dir = tempfile::tempdir().unwrap();
     let c = dir.path().join("investigations");
     std::fs::create_dir(&c).unwrap();
-    std::fs::write(c.join("_candidate.old"), report("261106-old", false)).unwrap();
-    let git = |args: &[&str]| {
-        let result = std::process::Command::new("git")
-            .arg("-C")
-            .arg(dir.path())
-            .args(args)
-            .output()
-            .unwrap();
-        assert!(
-            result.status.success(),
-            "{}",
-            String::from_utf8_lossy(&result.stderr)
-        );
-    };
-    git(&["init", "-q"]);
-    git(&["add", "investigations/_candidate.old"]);
-    git(&[
-        "-c",
-        "user.name=Fixture",
-        "-c",
-        "user.email=fixture@example.invalid",
-        "commit",
-        "-qm",
-        "fixture",
-    ]);
+    commit_fixture(
+        dir.path(),
+        "investigation-identity/investigations/candidate.txt",
+        "investigations/_candidate.old",
+    );
     let discard = std::process::Command::new(env!("CARGO_BIN_EXE_investigation-report"))
         .args(["discard", "261106-old", "--root"])
         .arg(dir.path())
@@ -347,31 +354,11 @@ fn malformed_head_index_never_becomes_empty_history() {
     let dir = tempfile::tempdir().unwrap();
     let c = dir.path().join("investigations");
     std::fs::create_dir(&c).unwrap();
-    std::fs::write(c.join("investigation-index.json"), "invalid").unwrap();
-    let git = |args: &[&str]| {
-        let out = std::process::Command::new("git")
-            .arg("-C")
-            .arg(dir.path())
-            .args(args)
-            .output()
-            .unwrap();
-        assert!(
-            out.status.success(),
-            "{}",
-            String::from_utf8_lossy(&out.stderr)
-        );
-    };
-    git(&["init", "-q"]);
-    git(&["add", "investigations/investigation-index.json"]);
-    git(&[
-        "-c",
-        "user.name=Fixture",
-        "-c",
-        "user.email=fixture@example.invalid",
-        "commit",
-        "-qm",
-        "fixture",
-    ]);
+    commit_fixture(
+        dir.path(),
+        "history-invalid/investigations/index.txt",
+        "investigations/investigation-index.json",
+    );
     std::fs::remove_file(c.join("investigation-index.json")).unwrap();
     std::fs::write(c.join("_candidate.old"), report("261106-old", false)).unwrap();
     let out = run(

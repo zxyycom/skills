@@ -19,16 +19,29 @@ fn git(root: &Path, args: &[&str]) -> Vec<u8> {
     );
     output.stdout
 }
-fn fixture() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    let root = dir.path();
+fn commit_fixture(root: &Path) {
     git(root, &["init", "-q"]);
     git(root, &["config", "user.name", "Fixture"]);
     git(root, &["config", "user.email", "fixture@example.invalid"]);
-    fs::write(root.join("selected"), b"head\n").unwrap();
-    fs::write(root.join("unselected"), b"head unrelated\n").unwrap();
-    git(root, &["add", "--", "selected", "unselected"]);
+    git(root, &["add", "--all"]);
     git(root, &["commit", "-qm", "baseline"]);
+}
+fn raw_git_fixture(name: &str) -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/git-stage")
+        .join(name)
+}
+fn raw_document(name: &str) -> PathBuf {
+    raw_git_fixture("documents").join(name)
+}
+fn fixture() -> tempfile::TempDir {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path();
+    let raw = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/git-stage/baseline");
+    for name in ["selected", "unselected"] {
+        fs::copy(raw.join(name), root.join(name)).unwrap();
+    }
+    commit_fixture(root);
     fs::write(root.join("selected"), b"pending\n").unwrap();
     fs::write(root.join("unselected"), b"other pending\n").unwrap();
     git(root, &["add", "--", "selected", "unselected"]);

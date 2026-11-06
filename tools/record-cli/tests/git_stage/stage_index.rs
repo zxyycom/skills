@@ -278,8 +278,8 @@ fn cli_stale_selected_source_reports_identity_path_and_sync_recovery() {
     let root = dir.path();
     fs::create_dir(root.join("records")).unwrap();
     let metadata = format!("sha256:{}", "a".repeat(64));
-    let decision = "---\ntitle: Old title\nid: 240229-record\nstatus: active\nalignment: aligned\ncreatedAt: \"2024-02-29T00:00:00Z\"\npurpose: Purpose text\nbackground: Background text\ndecision: Decision text\ntags: [tag]\nrelations: []\n---\n\n## 目的\n目的\n## 背景\n背景\n## 决策\n- 采用: 选择\n";
-    let report = "---\ntitle: \"Old title\"\nid: \"240229-record\"\nformedAt: \"2024-02-29T00:00:00Z\"\nquestion: \"Question\"\ntags:\n  - \"tag\"\nrelations: []\n---\n\n## 形成时背景\n背景\n## 调查目的\n目的\n## 调查范围与依据\n依据\n## 调查结果与边界\n结果\n";
+    let decision = include_str!("../fixtures/git-stage/documents/decision.md");
+    let report = include_str!("../fixtures/git-stage/documents/report.md");
     for (bin, directory, namespace, index_name, document, state) in [
         (
             env!("CARGO_BIN_EXE_decision-records"),
@@ -317,7 +317,15 @@ fn cli_stale_selected_source_reports_identity_path_and_sync_recovery() {
             serde_json::to_vec(&index).unwrap(),
         )
         .unwrap();
-        fs::write(root.join("records/record.md"), document).unwrap();
+        fs::copy(
+            raw_document(if namespace == "decisions" {
+                "decision.md"
+            } else {
+                "report.md"
+            }),
+            root.join("records/record.md"),
+        )
+        .unwrap();
         git(root, &["add", "--", "records"]);
         git(root, &["commit", "-qm", "record baseline"]);
         fs::write(

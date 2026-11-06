@@ -1,0 +1,21 @@
+---
+title: "Example"
+id: "261106-old"
+formedAt: "2026-11-06T12:00:00Z"
+question: "Question"
+tags:
+  - "example"
+relations: []
+---
+
+## 形成时背景
+背景
+
+## 调查目的
+目的
+
+## 调查范围与依据
+依据
+
+## 调查结果与边界
+结果

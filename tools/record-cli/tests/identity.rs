@@ -12,7 +12,7 @@ fn fixture() -> (tempfile::TempDir, source::Root) {
     let collection = dir.path().join("decisions");
     std::fs::create_dir(&collection).unwrap();
     let id = "261106-original";
-    let text = "---\ntitle: Example # retained comment\nid: 261106-original\nstatus: active\nalignment: unaligned\ncreatedAt: 2026-11-06T12:00:00Z\npurpose: Purpose\nbackground: Background\ndecision: Decision\ntags:\n  - example\nrelations: []\n---\n\n## 目的\nPurpose.\n\n## 背景\nBackground.\n\n## 决策\n- 采用：Decision.\n";
+    let text = include_str!("fixtures/identity/decisions/original.md");
     let state = decision::parse_established(text.as_bytes(), id, "original.md")
         .unwrap()
         .state;
@@ -34,7 +34,12 @@ fn fixture() -> (tempfile::TempDir, source::Root) {
         &Definition,
     )
     .unwrap();
-    std::fs::write(collection.join("original.md"), text).unwrap();
+    std::fs::copy(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/identity/decisions/original.md"),
+        collection.join("original.md"),
+    )
+    .unwrap();
     std::fs::write(
         collection.join("decision-index.json"),
         index::serialize_index(&index, &Definition).unwrap(),
@@ -63,6 +68,19 @@ fn git(path: &std::path::Path, args: &[&str]) {
         "{}",
         String::from_utf8_lossy(&out.stderr)
     );
+}
+fn initialize_git(path: &std::path::Path) {
+    git(path, &["init", "-q"]);
+    git(path, &["config", "user.name", "Fixture"]);
+    git(path, &["config", "user.email", "fixture@example.invalid"]);
+}
+fn commit_baseline(path: &std::path::Path) {
+    git(path, &["add", "decisions"]);
+    git(path, &["commit", "-qm", "baseline"]);
+}
+fn commit_fixture(path: &std::path::Path) {
+    initialize_git(path);
+    commit_baseline(path);
 }
 
 #[path = "identity/candidate.rs"]

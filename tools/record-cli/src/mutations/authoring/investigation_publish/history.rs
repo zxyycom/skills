@@ -154,18 +154,20 @@ mod tests {
                 String::from_utf8_lossy(&output.stderr)
             );
         };
-        git(&["init", "-q"]);
-        std::fs::write(collection.join("investigation-index.json"), "invalid").unwrap();
-        git(&["add", "."]);
-        git(&[
-            "-c",
-            "user.name=Fixture",
-            "-c",
-            "user.email=fixture@example.invalid",
-            "commit",
-            "-qm",
-            "invalid baseline",
-        ]);
+        let initialize_baseline = || {
+            std::fs::copy(
+                std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("tests/fixtures/history-invalid/investigations/index.txt"),
+                collection.join("investigation-index.json"),
+            )
+            .unwrap();
+            git(&["init", "-q"]);
+            git(&["config", "user.name", "Fixture"]);
+            git(&["config", "user.email", "fixture@example.invalid"]);
+            git(&["add", "."]);
+            git(&["commit", "-qm", "invalid baseline"]);
+        };
+        initialize_baseline();
         let root = source::open_root(dir.path()).unwrap();
         let state = InvestigationState {
             formed_at: String::new(),

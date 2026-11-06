@@ -52,20 +52,7 @@ fn decision_formal_rename_noop_date_and_discard() {
 #[test]
 fn decision_recorded_requires_confirmation_and_preserves_git_pending() {
     let (dir, root) = fixture();
-    git(dir.path(), &["init", "-q"]);
-    git(dir.path(), &["add", "decisions"]);
-    git(
-        dir.path(),
-        &[
-            "-c",
-            "user.name=Fixture",
-            "-c",
-            "user.email=fixture@example.invalid",
-            "commit",
-            "-qm",
-            "baseline",
-        ],
-    );
+    commit_fixture(dir.path());
     std::fs::write(dir.path().join("unrelated"), b"pending sentinel").unwrap();
     git(dir.path(), &["add", "unrelated"]);
     let pending_before = std::fs::read(dir.path().join(".git/index")).unwrap();

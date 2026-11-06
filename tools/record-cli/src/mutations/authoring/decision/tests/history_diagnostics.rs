@@ -39,6 +39,18 @@ fn commit(root: &Path) {
         ],
     );
 }
+fn missing_index_baseline(root: &Path, collection: &Path) {
+    std::fs::copy(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/history-invalid/decisions/other.txt"),
+        collection.join("other.md"),
+    )
+    .unwrap();
+    git(root, &["init", "-q"]);
+    git(root, &["config", "user.name", "Fixture"]);
+    git(root, &["config", "user.email", "fixture@example.invalid"]);
+    commit(root);
+}
 
 #[test]
 fn unrecorded_relation_reports_target_reason_and_explicit_confirmation() {
@@ -117,9 +129,7 @@ fn unreadable_historical_baseline_is_not_a_confirmation() {
     let dir = tempfile::tempdir().unwrap();
     let collection = dir.path().join("decisions");
     std::fs::create_dir(&collection).unwrap();
-    git(dir.path(), &["init", "-q"]);
-    std::fs::write(collection.join("other.md"), "historical source").unwrap();
-    commit(dir.path());
+    missing_index_baseline(dir.path(), &collection);
     std::fs::remove_file(collection.join("other.md")).unwrap();
     let root = crate::source::open_root(dir.path()).unwrap();
     publish_old(&root, &collection);

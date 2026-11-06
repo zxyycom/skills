@@ -4,23 +4,21 @@ use super::*;
 fn decision_rename_rejects_collection_pending_and_rechecks_before_write() {
     use record_cli::transaction::TransactionOperation;
     let (dir, root) = fixture();
-    git(dir.path(), &["init", "-q"]);
+    initialize_git(dir.path());
     std::fs::create_dir(dir.path().join("decisions/archive")).unwrap();
-    std::fs::write(dir.path().join("decisions/archive/note.bin"), b"nested").unwrap();
-    std::fs::write(dir.path().join("decisions/archive-a.txt"), b"sibling").unwrap();
-    git(dir.path(), &["add", "decisions"]);
-    git(
-        dir.path(),
-        &[
-            "-c",
-            "user.name=Fixture",
-            "-c",
-            "user.email=fixture@example.invalid",
-            "commit",
-            "-qm",
-            "baseline",
-        ],
-    );
+    let raw = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/identity/pending/decisions");
+    std::fs::copy(
+        raw.join("archive/note.txt"),
+        dir.path().join("decisions/archive/note.bin"),
+    )
+    .unwrap();
+    std::fs::copy(
+        raw.join("archive-a.txt"),
+        dir.path().join("decisions/archive-a.txt"),
+    )
+    .unwrap();
+    commit_baseline(dir.path());
     std::fs::write(dir.path().join("outside.txt"), "outside pending").unwrap();
     git(dir.path(), &["add", "outside.txt"]);
     let mut operation = operation(Action::Rename {
@@ -142,20 +140,7 @@ fn decision_pending_drift_before_write_retains_only_planned_identity() {
         }
     }
     let (dir, root) = fixture();
-    git(dir.path(), &["init", "-q"]);
-    git(dir.path(), &["add", "decisions"]);
-    git(
-        dir.path(),
-        &[
-            "-c",
-            "user.name=Fixture",
-            "-c",
-            "user.email=fixture@example.invalid",
-            "commit",
-            "-qm",
-            "baseline",
-        ],
-    );
+    commit_fixture(dir.path());
     let mut operation = StageBeforeFresh(super::operation(Action::Rename {
         target: "new".into(),
         confirm_recorded: true,

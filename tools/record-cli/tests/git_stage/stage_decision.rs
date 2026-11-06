@@ -47,11 +47,11 @@ fn decision_source_scopes_stage_selected_document_and_preserve_unrelated() {
     ] {
         let dir = fixture();
         let root = dir.path();
-        let old = document("Old title");
+        let old = include_str!("../fixtures/git-stage/documents/decision.md");
         let new = document("New title");
-        let old_index = index("Old title", &old);
+        let old_index = index("Old title", old);
         let new_index = index("New title", &new);
-        fs::write(root.join("record.md"), old.as_bytes()).unwrap();
+        fs::copy(raw_document("decision.md"), root.join("record.md")).unwrap();
         fs::write(root.join("decision-index.json"), &old_index).unwrap();
         git(root, &["add", "--", "record.md", "decision-index.json"]);
         git(root, &["commit", "-qm", "records baseline"]);
@@ -164,10 +164,9 @@ fn decision_all_scope_stages_selected_deletion_without_touching_other_pending() 
     let dir = fixture();
     let root = dir.path();
     let hash = format!("sha256:{}", "a".repeat(64));
-    let doc = "---\ntitle: Old title\nid: 240229-record\nstatus: active\nalignment: aligned\ncreatedAt: \"2024-02-29T00:00:00Z\"\npurpose: Purpose text\nbackground: Background text\ndecision: Decision text\ntags: [tag]\nrelations: []\n---\n\n## 目的\n目的\n## 背景\n背景\n## 决策\n- 采用: 选择\n";
     let old = json!({"schemaVersion":4,"namespace":"decisions","definitionVersion":11,"metadata":{},"sourceRevision":{"metadata":hash,"entries":{"240229-record":hash}},"entries":{"240229-record":{"name":"record","sourcePath":"record.md","title":"Old title","status":"active","alignment":"aligned","createdAt":"2024-02-29T00:00:00Z","purpose":"Purpose text","background":"Background text","decision":"Decision text","tags":["tag"],"relations":[]}}});
     let new = json!({"schemaVersion":4,"namespace":"decisions","definitionVersion":11,"metadata":{},"sourceRevision":{"metadata":hash,"entries":{}},"entries":{}});
-    fs::write(root.join("record.md"), doc).unwrap();
+    fs::copy(raw_document("decision.md"), root.join("record.md")).unwrap();
     fs::write(
         root.join("decision-index.json"),
         serde_json::to_vec(&old).unwrap(),
@@ -242,7 +241,7 @@ fn decision_all_uses_pending_index_to_remove_third_old_location() {
     };
     use serde_json::json;
     use sha2::{Digest, Sha256};
-    let doc = "---\ntitle: Old title\nid: 240229-record\nstatus: active\nalignment: aligned\ncreatedAt: \"2024-02-29T00:00:00Z\"\npurpose: Purpose text\nbackground: Background text\ndecision: Decision text\ntags: [tag]\nrelations: []\n---\n\n## 目的\n目的\n## 背景\n背景\n## 决策\n- 采用: 选择\n";
+    let doc = include_str!("../fixtures/git-stage/documents/decision.md");
     let mut digest = Sha256::new();
     digest.update(b"decision-index-entry-v2\0");
     for s in ["240229-record", "record.md", doc] {
@@ -256,7 +255,7 @@ fn decision_all_uses_pending_index_to_remove_third_old_location() {
     let mut index = json!({"schemaVersion":4,"namespace":"decisions","definitionVersion":11,"metadata":{},"sourceRevision":{"metadata":hash,"entries":{"240229-record":fingerprint}},"entries":{"240229-record":{"name":"record","sourcePath":"record.md","title":"Old title","status":"active","alignment":"aligned","createdAt":"2024-02-29T00:00:00Z","purpose":"Purpose text","background":"Background text","decision":"Decision text","tags":["tag"],"relations":[]}}});
     let dir = fixture();
     let root = dir.path();
-    fs::write(root.join("record.md"), doc).unwrap();
+    fs::copy(raw_document("decision.md"), root.join("record.md")).unwrap();
     fs::write(
         root.join("decision-index.json"),
         serde_json::to_vec(&index).unwrap(),

@@ -32,11 +32,15 @@ fn investigation_source_scopes_stage_when_resource_root_is_proven_absent() {
         let dir = fixture();
         let root = dir.path();
         git(root, &["config", "core.filemode", "false"]);
-        let old = doc("Old title");
+        let old = include_str!("../fixtures/git-stage/documents/report-no-resources.md");
         let new = doc("New title");
-        let old_index = report_index("Old title", &old, &[]);
+        let old_index = report_index("Old title", old, &[]);
         let new_index = report_index("New title", &new, &[]);
-        fs::write(root.join("report.md"), old.as_bytes()).unwrap();
+        fs::copy(
+            raw_document("report-no-resources.md"),
+            root.join("report.md"),
+        )
+        .unwrap();
         fs::write(root.join("investigation-index.json"), &old_index).unwrap();
         git(
             root,
@@ -99,28 +103,26 @@ fn investigation_source_scopes_stage_managed_owner_tree_and_ignore_extras() {
         let dir = fixture();
         let root = dir.path();
         git(root, &["config", "core.filemode", "false"]);
-        let old = doc("Old title");
+        let old = include_str!("../fixtures/git-stage/resources/report.md");
         let new = doc("New title");
         fs::create_dir_all(root.join("_resources/240229-report")).unwrap();
-        fs::write(
-            root.join("_resources/240229-report/file.txt"),
-            b"head file\n",
+        let raw = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/git-stage/resources/_resources/240229-report");
+        for name in ["file.txt", "remove.txt", "revive.txt"] {
+            fs::copy(
+                raw.join(name),
+                root.join("_resources/240229-report").join(name),
+            )
+            .unwrap();
+        }
+        fs::copy(
+            raw_git_fixture("resources/report.md"),
+            root.join("report.md"),
         )
         .unwrap();
-        fs::write(
-            root.join("_resources/240229-report/remove.txt"),
-            b"old extra\n",
-        )
-        .unwrap();
-        fs::write(
-            root.join("_resources/240229-report/revive.txt"),
-            b"revived tracked\n",
-        )
-        .unwrap();
-        fs::write(root.join("report.md"), old.as_bytes()).unwrap();
         fs::write(
             root.join("investigation-index.json"),
-            report_index("Old title", &old, &["240229-report/file.txt"]),
+            report_index("Old title", old, &["240229-report/file.txt"]),
         )
         .unwrap();
         git(

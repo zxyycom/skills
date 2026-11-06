@@ -30,18 +30,23 @@ fn investigation_foreign_resource_requires_pending_match_only_for_all_scope() {
     let dir = fixture();
     let root = dir.path();
     git(root, &["config", "core.filemode", "false"]);
-    let old = doc("Old title");
+    let old = include_str!("../fixtures/git-stage/foreign-resource/report.md");
     let new = doc("New title");
     fs::create_dir_all(root.join("_resources/240229-owner")).unwrap();
-    fs::write(
+    fs::copy(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/git-stage/foreign-resource/_resources/240229-owner/file.txt"),
         root.join("_resources/240229-owner/file.txt"),
-        b"pending owner\n",
     )
     .unwrap();
-    fs::write(root.join("report.md"), old.as_bytes()).unwrap();
+    fs::copy(
+        raw_git_fixture("foreign-resource/report.md"),
+        root.join("report.md"),
+    )
+    .unwrap();
     fs::write(
         root.join("investigation-index.json"),
-        index("Old title", &old),
+        index("Old title", old),
     )
     .unwrap();
     git(
@@ -149,12 +154,21 @@ fn investigation_all_stages_deleted_owner_tree_when_directory_is_missing() {
     let dir = fixture();
     let root = dir.path();
     git(root, &["config", "core.filemode", "false"]);
-    let old = doc(true);
+    let old = include_str!("../fixtures/git-stage/deleted-resource/report.md");
     let new = doc(false);
     fs::create_dir_all(root.join("_resources/240229-report")).unwrap();
-    fs::write(root.join("_resources/240229-report/file.txt"), b"old\n").unwrap();
-    fs::write(root.join("report.md"), old.as_bytes()).unwrap();
-    fs::write(root.join("investigation-index.json"), index(&old, true)).unwrap();
+    fs::copy(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/git-stage/deleted-resource/_resources/240229-report/file.txt"),
+        root.join("_resources/240229-report/file.txt"),
+    )
+    .unwrap();
+    fs::copy(
+        raw_git_fixture("deleted-resource/report.md"),
+        root.join("report.md"),
+    )
+    .unwrap();
+    fs::write(root.join("investigation-index.json"), index(old, true)).unwrap();
     git(
         root,
         &[

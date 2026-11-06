@@ -23,9 +23,6 @@ fn historical_missing_fixture(
 ) -> (tempfile::TempDir, &'static str, serde_json::Value) {
     let dir = tempfile::tempdir().unwrap();
     let root = dir.path();
-    git(root, &["init", "-q"]);
-    git(root, &["config", "user.name", "Fixture"]);
-    git(root, &["config", "user.email", "fixture@example.invalid"]);
     fs::create_dir(root.join("records")).unwrap();
     let historical_name = if domain == "decisions" && candidate {
         "draft.md"
@@ -40,13 +37,15 @@ fn historical_missing_fixture(
         fs::create_dir(root.join("records/archive")).unwrap();
     }
     let historical = if candidate {
-        b"---\nstatus: candidate\n---\n".as_slice()
+        "candidate.txt"
     } else {
-        b"---\nstatus: active\n---\n".as_slice()
+        "formal.txt"
     };
-    fs::write(root.join("records").join(historical_name), historical).unwrap();
-    git(root, &["add", "--", "records"]);
-    git(root, &["commit", "-qm", "historical namespace"]);
+    let raw = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/git-stage/historical")
+        .join(historical);
+    fs::copy(raw, root.join("records").join(historical_name)).unwrap();
+    commit_fixture(root);
     if !candidate {
         let spec = format!("HEAD:records/{historical_name}");
         let oid = String::from_utf8(git(root, &["rev-parse", &spec])).unwrap();
@@ -173,10 +172,8 @@ fn historical_empty_namespace_without_index_allows_selected_index_stage() {
         git(root, &["init", "-q"]);
         git(root, &["config", "user.name", "Fixture"]);
         git(root, &["config", "user.email", "fixture@example.invalid"]);
+        git(root, &["commit", "--allow-empty", "-qm", "empty baseline"]);
         fs::create_dir(root.join("records")).unwrap();
-        fs::write(root.join("records/.keep"), b"empty namespace\n").unwrap();
-        git(root, &["add", "--", "records/.keep"]);
-        git(root, &["commit", "-qm", "empty baseline"]);
         let (name, index) = fixture_index(domain);
         fs::write(
             root.join("records").join(name),
