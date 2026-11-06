@@ -48,7 +48,10 @@ fn require_exact_directory_name(
         .file_name()
         .ok_or_else(|| SourceError::InvalidPath(path.0.clone()))?;
     if !exact_name(parent, name)? {
-        return Err(SourceError::Unsafe(path.0.clone()));
+        return match parent.symlink_metadata(name) {
+            Ok(_) => Err(SourceError::Unsafe(path.0.clone())),
+            Err(error) => Err(error.into()),
+        };
     }
     Ok(())
 }

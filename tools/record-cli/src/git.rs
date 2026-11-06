@@ -178,6 +178,22 @@ fn validate_path(path: &std::path::Path) -> Result<(), GitError> {
     Ok(())
 }
 
+/// Convert a validated local relative path to Git's slash-separated spelling.
+fn git_path(path: &std::path::Path) -> Result<String, GitError> {
+    #[cfg(windows)]
+    crate::source::RelativePath::new(path)
+        .map_err(|_| GitError::InvalidOutput("invalid relative path"))?;
+    let text = path
+        .to_str()
+        .ok_or(GitError::InvalidOutput("non-UTF8 path"))?;
+    #[cfg(windows)]
+    let text = text.replace('\\', "/");
+    #[cfg(not(windows))]
+    let text = text.to_owned();
+    validate_path(std::path::Path::new(&text))?;
+    Ok(text)
+}
+
 pub mod publish;
 
 /// HEAD is unborn only when HEAD is a valid symbolic branch whose ref is
@@ -194,39 +210,18 @@ pub fn probe_head(root: &std::path::Path) -> Result<HeadState, GitError> {
         Err(GitError::Failed { .. }) => {}
         Err(error) => return Err(error),
     }
-    let symbolic = command(&discovered, &["symbolic-ref", "--quiet", "HEAD"], None)?;
-    let symbolic = std::str::from_utf8(&symbolic)
-        .map_err(|_| GitError::InvalidOutput("invalid symbolic HEAD"))?;
+    confirm_unborn(&discovered)
+}
+
+/// Confirm the missing branch and re-read both identities before reporting unborn.
+fn confirm_unborn(root: &std::path::Path) -> Result<HeadState, GitError> {
+    let symbolic = symbolic_head_branch(root)?;
     let branch = symbolic
         .strip_suffix('\n')
-        .ok_or(GitError::InvalidOutput("unterminated symbolic HEAD"))?;
-    if !branch.starts_with("refs/heads/") || branch.contains(['\r', '\n']) {
-        return Err(GitError::InvalidOutput("HEAD does not name a branch"));
-    }
-    command(&discovered, &["check-ref-format", branch], None)?;
-    let ref_absent = || -> Result<bool, GitError> {
-        let status = std::process::Command::new("git")
-            .arg("-C")
-            .arg(&discovered)
-            .args(["show-ref", "--verify", "--quiet", branch])
-            .env("GIT_TERMINAL_PROMPT", "0")
-            .stdin(std::process::Stdio::null())
-            .stdout(std::process::Stdio::null())
-            .stderr(std::process::Stdio::null())
-            .status()
-            .map_err(GitError::Io)?;
-        match status.code() {
-            Some(1) => Ok(true),
-            Some(0) => Ok(false),
-            _ => Err(GitError::Failed {
-                operation: "probe HEAD",
-                stderr: "branch reference check failed".into(),
-            }),
-        }
-    };
-    if ref_absent()? {
-        if command(&discovered, &["symbolic-ref", "--quiet", "HEAD"], None)? != symbolic.as_bytes()
-            || !ref_absent()?
+        .expect("validated symbolic HEAD");
+    if branch_ref_absent(root, branch)? {
+        if command(root, &["symbolic-ref", "--quiet", "HEAD"], None)? != symbolic.as_bytes()
+            || !branch_ref_absent(root, branch)?
         {
             return Err(GitError::InvalidOutput("HEAD changed during probe"));
         }
@@ -236,6 +231,43 @@ pub fn probe_head(root: &std::path::Path) -> Result<HeadState, GitError> {
             operation: "probe HEAD",
             stderr: "HEAD cannot be resolved as an unborn branch".into(),
         })
+    }
+}
+
+/// Read and validate the symbolic branch name before probing its ref.
+fn symbolic_head_branch(root: &std::path::Path) -> Result<String, GitError> {
+    let symbolic = command(root, &["symbolic-ref", "--quiet", "HEAD"], None)?;
+    let symbolic = std::str::from_utf8(&symbolic)
+        .map_err(|_| GitError::InvalidOutput("invalid symbolic HEAD"))?;
+    let branch = symbolic
+        .strip_suffix('\n')
+        .ok_or(GitError::InvalidOutput("unterminated symbolic HEAD"))?;
+    if !branch.starts_with("refs/heads/") || branch.contains(['\r', '\n']) {
+        return Err(GitError::InvalidOutput("HEAD does not name a branch"));
+    }
+    command(root, &["check-ref-format", branch], None)?;
+    Ok(symbolic.to_owned())
+}
+
+/// Distinguish an absent branch from an existing ref or a Git failure.
+fn branch_ref_absent(root: &std::path::Path, branch: &str) -> Result<bool, GitError> {
+    let status = std::process::Command::new("git")
+        .arg("-C")
+        .arg(root)
+        .args(["show-ref", "--verify", "--quiet", branch])
+        .env("GIT_TERMINAL_PROMPT", "0")
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status()
+        .map_err(GitError::Io)?;
+    match status.code() {
+        Some(1) => Ok(true),
+        Some(0) => Ok(false),
+        _ => Err(GitError::Failed {
+            operation: "probe HEAD",
+            stderr: "branch reference check failed".into(),
+        }),
     }
 }
 

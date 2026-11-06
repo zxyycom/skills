@@ -27,3 +27,62 @@ fn pending_record_parses_representation_and_rejects_invalid_identity_or_path() {
         );
     }
 }
+
+#[test]
+fn local_paths_convert_to_git_spelling_without_weakening_raw_output_validation() {
+    let local = PathBuf::from("docs").join("nested").join("record.md");
+    assert_eq!(git_path(&local).unwrap(), "docs/nested/record.md");
+    for invalid in [
+        "",
+        "../record.md",
+        "docs/../record.md",
+        "/absolute",
+        "docs//record.md",
+    ] {
+        assert!(
+            git_path(std::path::Path::new(invalid)).is_err(),
+            "{invalid}"
+        );
+    }
+    assert_raw_git_paths();
+    #[cfg(windows)]
+    for invalid in [
+        r"C:\absolute",
+        r"docs\..\record.md",
+        r"docs\\record.md",
+        r"docs\file:stream",
+        r"docs\NUL",
+        r"docs\con.txt",
+        r"docs\Lpt1.log",
+    ] {
+        assert!(
+            git_path(std::path::Path::new(invalid)).is_err(),
+            "{invalid}"
+        );
+    }
+    #[cfg(not(windows))]
+    {
+        assert!(git_path(std::path::Path::new(r"docs\record.md")).is_err());
+        for valid in [
+            "docs/file:stream",
+            "docs/NUL",
+            "docs/con.txt",
+            "docs/Lpt1.log",
+        ] {
+            assert_eq!(git_path(std::path::Path::new(valid)).unwrap(), valid);
+        }
+    }
+}
+
+/// Raw Git records retain their own POSIX path validation, independent of local paths.
+fn assert_raw_git_paths() {
+    let oid = "a".repeat(40);
+    for name in [r"docs\record.md", r"docs\..\record.md"] {
+        let record = format!("100644 {oid} 0\t{name}");
+        assert!(parse_pending_entry(record.as_bytes()).is_err(), "{name}");
+    }
+    for name in ["docs/file:stream", "docs/NUL", "docs/con.txt"] {
+        let record = format!("100644 {oid} 0\t{name}");
+        assert!(parse_pending_entry(record.as_bytes()).is_ok(), "{name}");
+    }
+}

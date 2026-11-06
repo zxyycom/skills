@@ -3,6 +3,7 @@
 Tests:
 - `test:027fd8bef94fc0895ada14464b6216b75694b73715b77ccf5a9d1097fe260b06`
 - `test:2fbe89e6f5ed90b7e4ec69190bb45a419312d47de71bb5517c459f13df72c42a`
+- `test:37c551cfc0caa26b522ffb65f090df543354e9396ece0a6bab52a9cf012b20e7`
 - `test:3b001110b59165420f1f39026a3fc7ee2fdce321145b6ec95406af3ae97d6379`
 - `test:8a5ce4ac05f54437c0fcb2245935e6dde14026286717e4af63b5955f00432fe9`
 - `test:8c14dab201ab2e7687b94baef85bb4d70543f4b71ad2c7ebeca2d3f007a66e61`
@@ -17,7 +18,8 @@ Tags:
 - `record-rust`
 
 Contract:
-- Git 读取须区分固定历史、工作树和 index，不能隐藏冲突或读取无关对象。
+- Git 读取须区分固定历史、工作树和 index，安全转换本地路径，不能隐藏冲突或读取无关对象。
 
 Proves:
-- 私有 Git 仓库验证 HEAD、pending、路径、unmerged、缺失对象及 Git 不可用的观察。
+- 私有 Git 仓库验证 HEAD、pending、路径、unmerged、缺失对象及 Git 不可用；独立单元输入验证本地路径转 Git 斜杠与原始输出反斜杠拒绝。
+- Windows 本地路径拒绝测试列出的 ADS 与设备名；Unix 本地路径和 Git 原始输出对相应名称的处理按各自输入断言，不泛称覆盖所有保留字符或别名。

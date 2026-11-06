@@ -141,7 +141,7 @@ impl Preparation<'_> {
         let path = self.operation.collection.as_path().join(&self.ids[id].path);
         fail("candidate-unready", id).with_diagnostics(vec![crate::protocol::Diagnostic {
             code: "decision-records.candidate-unready".into(), message: reason.clone(),
-            path: Some(path.to_string_lossy().into_owned()), target: Some(format!("Decision candidate {id}")),
+            path: Some(path.to_string_lossy().replace('\\', "/")), target: Some(format!("Decision candidate {id}")),
             cause_category: Some("validation".into()), operation: Some(if self.operation.publish_only { "publish" } else { "evolve" }.into()),
             detail: None, reason: Some(reason), recovery: Some("Complete the candidate body and correct the reported scaffold errors before retrying.".into()),
         }])

@@ -85,9 +85,7 @@ impl<'a> UpdateBatch<'a> {
         path: &Path,
         target: &'a Option<PendingFile>,
     ) -> Result<(), ReplacementFailure> {
-        let name = path
-            .to_str()
-            .ok_or_else(|| failed(FailureKind::Failed, "invalid path"))?;
+        let name = git_path(path).map_err(operation)?;
         match target {
             Some(file) => {
                 let oid = write_object(
@@ -124,7 +122,7 @@ pub(super) fn validate_targets(
 ) -> Result<BTreeMap<PathBuf, Option<PendingFile>>, ReplacementFailure> {
     let mut targets = BTreeMap::new();
     for update in updates {
-        validate_path(&update.path).map_err(operation)?;
+        git_path(&update.path).map_err(operation)?;
         if !expected.paths.contains(&update.path)
             || targets
                 .insert(update.path.clone(), update.file.clone())

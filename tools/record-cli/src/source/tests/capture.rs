@@ -140,9 +140,18 @@ fn capture_allows_internal_directory_link_but_rejects_escape() {
         panic!("inside missing")
     };
     assert_eq!(snapshot.bytes, b"inside");
-    let ExpectedFile::Present(absolute) =
-        capture(&root, &RelativePath::new("absolute-alias/item.md").unwrap()).unwrap()
-    else {
+    let ExpectedFile::Present(absolute) = capture(
+        &root,
+        &RelativePath::new("absolute-alias/item.md").unwrap(),
+    )
+    .unwrap_or_else(|error| {
+        panic!(
+            "absolute link capture failed: {error:?}; workspace={:?}; root={:?}; target={:?}",
+            workspace.path(),
+            root.path(),
+            std::fs::read_link(workspace.path().join("absolute-alias"))
+        )
+    }) else {
         panic!("absolute internal link missing")
     };
     assert_eq!(absolute.bytes, b"inside");

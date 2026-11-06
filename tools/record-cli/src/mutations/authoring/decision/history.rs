@@ -69,7 +69,8 @@ impl HistoryPreparation<'_> {
                     .collection
                     .as_path()
                     .join(&self.ids[id].path)
-                    .to_string_lossy(),
+                    .to_string_lossy()
+                    .replace('\\', "/"),
             ));
         }
         Ok(())
@@ -144,7 +145,7 @@ fn unrecorded_confirmation(
         let reason = format!("Predecessor decision {id} has not entered Git HEAD; confirm whether this {relation} relation should be preserved as independent decision evolution.");
         crate::protocol::Diagnostic {
             code: "decision-records.unrecorded-history".into(), message: reason.clone(),
-            path: paths.get(&id).map(|path| operation.collection.as_path().join(path).to_string_lossy().into_owned()), target: Some(format!("Decision history for {id}")),
+            path: paths.get(&id).map(|path| operation.collection.as_path().join(path).to_string_lossy().replace('\\', "/")), target: Some(format!("Decision history for {id}")),
             cause_category: Some("confirmation-required".into()), operation: Some(if operation.publish_only { "publish" } else { "evolve" }.into()),
             detail: Some(format!("relation: {relation}")), reason: Some(reason),
             recovery: Some("Re-run with --keep-unrecorded-history only after confirming that the unrecorded history should be preserved.".into()),
@@ -201,7 +202,7 @@ fn history_baseline_failure(
     fail("history", &reason).with_diagnostics(vec![crate::protocol::Diagnostic {
         code: "decision-records.history-baseline-invalid".into(),
         message: reason.clone(),
-        path: source.map(|path| path.to_string_lossy().into_owned()),
+        path: source.map(|path| path.to_string_lossy().replace('\\', "/")),
         target: Some(target),
         cause_category: Some(
             if is_system {
@@ -228,7 +229,7 @@ fn discard_history_failure(
         let reason = error.message.clone();
         error.diagnostics.push(crate::protocol::Diagnostic {
             code: "decision-records.history-baseline-invalid".into(), message: reason.clone(),
-            path: Some(collection.as_path().join(path).to_string_lossy().into_owned()),
+            path: Some(collection.as_path().join(path).to_string_lossy().replace('\\', "/")),
             target: Some(format!("Decision history for {id}")), cause_category: Some("history-unavailable".into()),
             operation: Some("read-history".into()), detail: None, reason: Some(reason),
             recovery: Some("Inspect and restore the selected historical identity and version-control access before retrying.".into()),

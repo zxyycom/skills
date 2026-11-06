@@ -1,7 +1,7 @@
 //! Conditional Git index publication. Stage callers still own source fresh and verification.
 use super::{
-    ContentSnapshot, GitError, PendingEntry, command, command_index, read_selected,
-    read_selected_index, validate_path,
+    ContentSnapshot, GitError, PendingEntry, command, command_index, git_path, read_selected,
+    read_selected_index,
 };
 use std::{
     collections::BTreeMap,

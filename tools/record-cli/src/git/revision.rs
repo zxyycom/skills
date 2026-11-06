@@ -7,16 +7,13 @@ pub fn read_revision_file(
     revision: &str,
     path: &std::path::Path,
 ) -> Result<Option<(u32, Vec<u8>)>, GitError> {
-    validate_path(path)?;
+    let name = git_path(path)?;
     if !valid_oid(revision) {
         return Err(GitError::InvalidOutput("invalid fixed revision"));
     }
-    let name = path
-        .to_str()
-        .ok_or(GitError::InvalidOutput("non-UTF8 path"))?;
     let literal = format!(":(literal){name}");
     let listing = tree_listing(root, revision, &literal)?;
-    let Some((mode, oid)) = selected_tree_record(&listing, name)? else {
+    let Some((mode, oid)) = selected_tree_record(&listing, &name)? else {
         return Ok(None);
     };
     let bytes = read_blob(root, oid)?;
@@ -57,16 +54,13 @@ pub fn list_revision_files(
     if !valid_oid(revision) {
         return Err(GitError::InvalidOutput("invalid fixed revision"));
     }
-    for scope in scopes {
-        validate_path(scope)?;
-    }
     let patterns: Vec<String> = if scopes.is_empty() {
         vec![":(top,literal)".into()]
     } else {
         scopes
             .iter()
-            .map(|path| format!(":(top,literal){}", path.to_string_lossy()))
-            .collect()
+            .map(|path| git_path(path).map(|name| format!(":(top,literal){name}")))
+            .collect::<Result<_, _>>()?
     };
     let mut result = BTreeMap::new();
     for pattern in patterns {

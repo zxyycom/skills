@@ -8,9 +8,6 @@ pub fn list_workspace_files(
     root: &std::path::Path,
     scopes: &[PathBuf],
 ) -> Result<Vec<PathBuf>, GitError> {
-    for scope in scopes {
-        validate_path(scope)?;
-    }
     let prefix = worktree_prefix(root)?;
     let mut result = BTreeSet::new();
     let patterns: Vec<String> = if scopes.is_empty() {
@@ -18,8 +15,8 @@ pub fn list_workspace_files(
     } else {
         scopes
             .iter()
-            .map(|scope| format!(":(top,literal){prefix}{}", scope.to_string_lossy()))
-            .collect()
+            .map(|scope| git_path(scope).map(|name| format!(":(top,literal){prefix}{name}")))
+            .collect::<Result<_, _>>()?
     };
     for pattern in patterns {
         let bytes = command(

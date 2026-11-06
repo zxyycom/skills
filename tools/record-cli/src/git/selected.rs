@@ -44,7 +44,7 @@ pub(super) fn read_selected_index(
     paths.sort();
     paths.dedup();
     for path in &paths {
-        validate_path(path)?;
+        git_path(path)?;
     }
     let membership = read_pending_index(root, index)?;
     let (blobs, fingerprints) = selected_payloads(root, &paths, &membership)?;
