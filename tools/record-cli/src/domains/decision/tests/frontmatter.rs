@@ -115,6 +115,8 @@ fn flow_mapping_accepts_implicit_null_lifecycle_values() {
 fn flow_relations_retain_comments_and_unmodified_members() {
     let input = "---\r\n{title: Decision title, id: 261106-one, status: active, alignment: aligned, createdAt: 2026-11-06T12:00:00Z, purpose: Some purpose, background: Some background, decision: Some decision, tags: [test], relations: [ # before item\r\n {type: 修订, target: old} # after item\r\n ]}\r\n---\r\n\r\n## 目的\r\n";
     let output = super::replace_identity(input.as_bytes(), "261106-one", "old", "new").unwrap();
+    let parsed = parse_frontmatter(output.as_bytes(), "261106-one").unwrap();
+    assert_eq!(parsed.relations[0].target, "new");
     assert!(output.contains("# before item\r\n"));
     assert!(output.contains("# after item\r\n"));
     assert!(output.contains("purpose: Some purpose, background: Some background"));
@@ -127,6 +129,7 @@ fn flow_relations_accept_plain_apostrophe_and_escaped_single_quotes() {
         let input = template.replace("SUMMARY", summary);
         let output = super::replace_identity(input.as_bytes(), "261106-one", "old", "new").unwrap();
         let parsed = parse_frontmatter(output.as_bytes(), "261106-one").unwrap();
+        assert_eq!(parsed.relations[0].target, "new");
         assert_eq!(
             parsed.relations[0].summary.as_deref(),
             Some("user's reason")
@@ -140,7 +143,7 @@ fn flow_relations_and_identity_handle_nested_commas_and_unicode() {
     let parsed = parse_frontmatter(output.as_bytes(), "261106-one").unwrap();
     assert_eq!(parsed.relations[0].target, "new");
     assert!(output.contains("title: \"测试, title\""));
-    assert!(output.contains("summary\":\"reason, yes\""));
+    assert_eq!(parsed.relations[0].summary.as_deref(), Some("reason, yes"));
     let next = super::replace_metadata(
         output.as_bytes(),
         "261106-one",
@@ -152,7 +155,12 @@ fn flow_relations_and_identity_handle_nested_commas_and_unicode() {
         },
     )
     .unwrap();
-    assert!(next.contains("relations: []"));
+    assert!(
+        parse_frontmatter(next.as_bytes(), "261106-one")
+            .unwrap()
+            .relations
+            .is_empty()
+    );
     assert!(next.ends_with("---\n\n## 目的\n"));
 }
 #[test]

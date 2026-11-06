@@ -1,5 +1,5 @@
 //! Bind Git index publication to caller-owned source freshness proofs.
-use super::{FreshnessError, index_scope::IndexStageError};
+use super::{FreshnessError, index_scope::IndexStageError, source_capture::phase_freshness_error};
 use crate::{
     git::{
         self, ContentSnapshot,
@@ -34,9 +34,9 @@ impl SourcePublication<'_> {
             },
         )
         .map_err(IndexStageError::Publication)?;
-        if verify().is_err() {
+        if let Err(error) = verify() {
             if replaced.changed_paths.is_empty() {
-                return Err(IndexStageError::Drift);
+                return Err(phase_freshness_error(error));
             }
             return Err(IndexStageError::CommittedUnverified {
                 changed_paths: replaced.changed_paths,

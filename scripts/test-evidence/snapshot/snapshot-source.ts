@@ -153,12 +153,12 @@ export async function sourceFingerprint(
   if (cargoEnabled) {
     const cargo = await runSnapshotCommand(
       "cargo",
-      ["--version"],
+      ["+1.98.1", "--version"],
       path.join(workspaceRoot, "tools/record-cli")
     );
     const rust = await runSnapshotCommand(
       "rustc",
-      ["-Vv"],
+      ["+1.98.1", "-Vv"],
       path.join(workspaceRoot, "tools/record-cli")
     );
     if (cargo.exitCode !== 0 || rust.exitCode !== 0)

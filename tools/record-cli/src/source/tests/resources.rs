@@ -215,16 +215,10 @@ fn collection_lock_never_removes_replacement() {
     let lock = acquire_collection_lock(&root, &path).unwrap();
     let original = workspace.path().join(".collection.lock");
     let moved = workspace.path().join("original.lock");
-    if std::fs::rename(&original, &moved).is_ok() {
-        std::fs::write(&original, b"rival").unwrap();
-        assert!(lock.release(&root).is_err());
-        assert_eq!(std::fs::read(&original).unwrap(), b"rival");
-    } else {
-        // On platforms that deny moving the open handle, the original lock
-        // remains present and must still be releasable.
-        assert!(original.exists());
-        lock.release(&root).unwrap();
-    }
+    std::fs::rename(&original, &moved).unwrap();
+    std::fs::write(&original, b"rival").unwrap();
+    assert!(lock.release(&root).is_err());
+    assert_eq!(std::fs::read(&original).unwrap(), b"rival");
 }
 #[test]
 fn captures_only_the_selected_owner_tree_with_bytes() {

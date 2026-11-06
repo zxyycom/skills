@@ -180,10 +180,30 @@ test("invalid identity, corruption and unsafe destination fail before writes", a
       ".record-cli-fixture",
       "unrelated"
     ]);
-    await rm(path.join(destination, ".record-cli-fixture"));
+    // Restore a valid source so an integrity error cannot mask a marker failure.
+    await writeFile(path.join(source, first.file), `candidate-${first.role}`);
+    const marker = path.join(destination, ".record-cli-fixture");
+    await writeFile(marker, "not a private fixture\n");
     await assert.rejects(
-      installCandidate({ source, destination, version: "1.0.0" })
+      installCandidate({ source, destination, version: "1.0.0" }),
+      /destination is not a private fixture/
     );
+    assert.deepEqual(await readdir(destination), [
+      ".record-cli-fixture",
+      "unrelated"
+    ]);
+    assert.equal(await readFile(marker, "utf8"), "not a private fixture\n");
+    assert.equal(
+      await readFile(path.join(destination, "unrelated"), "utf8"),
+      "keep"
+    );
+    await rm(marker);
+    await assert.rejects(
+      installCandidate({ source, destination, version: "1.0.0" }),
+      { code: "ENOENT" }
+    );
+    assert.deepEqual(await readdir(destination), ["unrelated"]);
+    await writeFile(marker, "record-cli private fixture\n");
     {
       const link = path.join(root, "link");
       await symlink(destination, link, "dir");

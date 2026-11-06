@@ -207,8 +207,7 @@ impl TransactionOperation<PreparedArchive> for FailArchive {
         self.0.verify_recovered(root, plan)
     }
 }
-#[test]
-fn private_archive_outside_git_and_precommit_recovery() {
+fn archive_fixture() -> (tempfile::TempDir, Root, &'static str, Vec<u8>) {
     let dir = tempfile::tempdir().unwrap();
     let collection = dir.path().join("decisions");
     std::fs::create_dir(&collection).unwrap();
@@ -217,6 +216,12 @@ fn private_archive_outside_git_and_precommit_recovery() {
     std::fs::write(collection.join("one.md"), text).unwrap();
     std::fs::write(collection.join("decision-index.json"), &index_bytes).unwrap();
     let root = crate::source::open_root(dir.path()).unwrap();
+    (dir, root, text, index_bytes)
+}
+#[test]
+fn private_archive_outside_git_and_precommit_recovery() {
+    let (dir, root, text, index_bytes) = archive_fixture();
+    let collection = dir.path().join("decisions");
     let operation = ArchiveOperation {
         collection: RelativePath::new("decisions").unwrap(),
         index_path: RelativePath::new("decisions/decision-index.json").unwrap(),
@@ -274,6 +279,12 @@ fn private_archive_outside_git_and_precommit_recovery() {
         index_bytes
     );
     std::fs::remove_dir(collection.join("archive")).unwrap();
+}
+#[test]
+fn private_archive_checks_unborn_history_and_freshness_before_success() {
+    let (dir, root, _text, _index_bytes) = archive_fixture();
+    let collection = dir.path().join("decisions");
+    let lock = RelativePath::new(".decision-index.json.mutation.lock").unwrap();
     let initialized = std::process::Command::new("git")
         .arg("-C")
         .arg(dir.path())
@@ -281,7 +292,12 @@ fn private_archive_outside_git_and_precommit_recovery() {
         .status()
         .unwrap();
     assert!(initialized.success());
-    let mut operation = failing.0;
+    let mut operation = ArchiveOperation {
+        collection: RelativePath::new("decisions").unwrap(),
+        index_path: RelativePath::new("decisions/decision-index.json").unwrap(),
+        selectors: vec!["one".into()],
+        keep_unrecorded_history: false,
+    };
     let unconfirmed = crate::transaction::run_transaction(&root, &lock, &mut operation);
     assert_eq!(
         unconfirmed.errors[0].code,

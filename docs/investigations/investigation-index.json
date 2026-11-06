@@ -1375,6 +1375,21 @@
       ],
       "title": "Rust 候选事务恢复的父链与目录归属竞态"
     },
+    "261106-rust-verification-error-causes": {
+      "formedAt": "2026-11-06T14:57:42Z",
+      "name": "rust-verification-error-causes",
+      "question": "暂存、提交后验收与恢复复核为何将采集失败误报为漂移，如何保留原因而不改变事务状态？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "261106-rust-verification-error-causes.md",
+      "tags": [
+        "diagnostics",
+        "native-cli",
+        "recovery",
+        "rust"
+      ],
+      "title": "Rust 候选跨阶段验收读取错误的诊断丢失"
+    },
     "261106-rust-windows-native-compatibility": {
       "formedAt": "2026-11-06T12:56:39Z",
       "name": "rust-windows-native-compatibility",
@@ -2110,6 +2125,7 @@
       "261106-record-cli-final-candidate-performance": "sha256:dd8860fba21869f65a67c09aaa123d1c5858683df397d4f0719b6401c224a42c",
       "261106-rust-function-metrics-boundaries": "sha256:e85870944d58186950abe4e47806a302259dd0a5da3838908d9f6443751b3031",
       "261106-rust-transaction-namespace-race": "sha256:3a2f6b27fe32c95d72cc6383bdd102296e7975ef3efbd4723d245aeae1eae88d",
+      "261106-rust-verification-error-causes": "sha256:3a4d1a073c8f1811e33b5a8ee536181362618bb281c29181f5ef2c59b204b95d",
       "261106-rust-windows-native-compatibility": "sha256:e6837963e21bae8298cdd5748c6c8b05e7df0740de9dc27d2a65b7299cf8e573",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:512b8f0c5b6466034d7d851032bf41af7413a227bdd19c62959fc2ad343d495c",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",

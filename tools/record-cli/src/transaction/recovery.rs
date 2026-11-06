@@ -111,7 +111,13 @@ fn verify_original_scope<T>(
                     && actual.parent_paths == before.parent_paths
             }
             (Ok(actual), _) => &actual == expected,
-            _ => false,
+            (Err(error), _) => {
+                errors.push(diagnostic(
+                    "recovery-verification",
+                    format!("{}: {error}", path.as_path().display()),
+                ));
+                continue;
+            }
         };
         if !matches_original {
             errors.push(diagnostic(

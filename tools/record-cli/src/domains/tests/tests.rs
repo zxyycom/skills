@@ -1,13 +1,6 @@
 #[test]
 fn calendar_and_names() {
     assert!(super::valid_timestamp("2024-02-29T23:59:59+23:59"));
-    assert!(
-        time::OffsetDateTime::parse(
-            "2024-02-29T23:59:59+23:59",
-            &time::format_description::well_known::Rfc3339
-        )
-        .is_ok()
-    );
     assert!(!super::valid_timestamp("2023-02-29T23:59:59Z"));
     assert_eq!(super::name_from_id("240229-thing"), "thing");
     assert_eq!(super::name_from_id("230229-thing"), "230229-thing");

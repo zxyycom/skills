@@ -66,5 +66,3 @@ pub(super) fn platform_rename(
     }
     Ok(())
 }
-
-// Construct the aligned, no-replace NT rename request for the held parent.

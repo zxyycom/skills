@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -6,6 +7,7 @@ import test from "node:test";
 import { cargoArtifacts, cargoPackage } from "./snapshot-cargo-messages.ts";
 import { cargoTestNames, collectCargoEntities } from "./snapshot-cargo.ts";
 import { cargoTestCommand } from "./snapshot-commands.ts";
+import { withSnapshotFixture } from "../test-fixture.ts";
 
 test("Cargo native inventory distinguishes targets and includes ignored nodes", async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "cargo evidence "));
@@ -126,3 +128,48 @@ test("Cargo JSON rejects malformed metadata and artifact shapes", () => {
     /duplicate/
   );
 });
+
+test(
+  "source fingerprint probes the pinned Rust toolchain despite an override",
+  { skip: process.platform === "win32" },
+  async () => {
+    await withSnapshotFixture(
+      { "test:record-rust": cargoTestCommand },
+      { "tools/record-cli/Cargo.toml": "# fixture\n" },
+      async (root) => {
+        const bin = path.join(root, "fake-bin");
+        const trace = path.join(root, "toolchain-arguments");
+        await fs.mkdir(bin);
+        for (const name of ["cargo", "rustc"]) {
+          const file = path.join(bin, name);
+          await fs.writeFile(
+            file,
+            `#!/bin/sh\nprintf '%s\\n' '${name}' "$@" >> "$TRACE"\nprintf 'fixture version\\n'\n`
+          );
+          await fs.chmod(file, 0o755);
+        }
+        const sourceModule = new URL("./snapshot-source.ts", import.meta.url)
+          .href;
+        execFileSync(
+          process.execPath,
+          [
+            "-e",
+            `import { sourceFingerprint } from ${JSON.stringify(sourceModule)}; await sourceFingerprint(${JSON.stringify(root)});`
+          ],
+          {
+            env: {
+              ...process.env,
+              PATH: `${bin}${path.delimiter}${process.env.PATH ?? ""}`,
+              TRACE: trace,
+              RUSTUP_TOOLCHAIN: "unexpected-override"
+            }
+          }
+        );
+        assert.deepEqual(
+          (await fs.readFile(trace, "utf8")).trim().split("\n"),
+          ["cargo", "+1.98.1", "--version", "rustc", "+1.98.1", "-Vv"]
+        );
+      }
+    );
+  }
+);

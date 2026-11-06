@@ -183,7 +183,7 @@ fn investigation_formal_resource_missing_fails_then_present_passes() {
     assert!(investigation(&root, "investigations", &[]).is_ok());
 }
 #[test]
-fn decision_candidate_only_check_and_structured_surrogate_rejection() {
+fn decision_candidate_only_check_reports_readiness() {
     let dir = tempfile::tempdir().unwrap();
     let collection = dir.path().join("decisions");
     std::fs::create_dir(&collection).unwrap();
@@ -194,8 +194,13 @@ fn decision_candidate_only_check_and_structured_surrogate_rejection() {
     assert_eq!(result.index_state, "first-candidate-collection");
     assert_eq!(result.candidate_count, 1);
     assert_eq!(result.summary.unwrap().body_ready_candidate_count, 0);
+}
+#[test]
+fn investigation_check_rejects_unpaired_surrogates_in_selected_sources() {
+    let dir = tempfile::tempdir().unwrap();
     let reports = dir.path().join("investigations");
     std::fs::create_dir(&reports).unwrap();
+    let root = source::open_root(dir.path()).unwrap();
     let candidate = "---\ntitle: \"bad \\ud800\"\nid: \"250102-one\"\nformedAt: \"2025-01-02T00:00:00Z\"\nquestion: \"question\"\ntags:\n  - \"tag\"\nrelations: []\n---\n";
     std::fs::write(reports.join("_candidate.250102-one"), candidate).unwrap();
     assert_eq!(

@@ -54,8 +54,13 @@ fn verify_written(root: &Root, journal: &[Entry]) -> Result<(), TxError> {
         let Entry::Written(_, snapshot) = entry else {
             continue;
         };
-        if !matches!(capture(root, &snapshot.path), Ok(ExpectedFile::Present(current)) if current == *snapshot)
-        {
+        let actual = capture(root, &snapshot.path).map_err(|error| {
+            TxError::new(
+                "postverify-source",
+                format!("{}: {error}", snapshot.path.as_path().display()),
+            )
+        })?;
+        if !matches!(actual, ExpectedFile::Present(current) if current == *snapshot) {
             return Err(TxError::new(
                 "postverify-source",
                 format!(
@@ -86,7 +91,13 @@ fn verify_removed<T>(
             .expect("removed source snapshot");
         let valid = match capture_missing(root, path) {
             Ok(proof) => resources.verifies_removed_file(&proof, before),
-            Err(_) => false,
+            Err(crate::source::SourceError::Changed(_)) => false,
+            Err(error) => {
+                return Err(TxError::new(
+                    "postverify-source",
+                    format!("{}: {error}", path.as_path().display()),
+                ));
+            }
         };
         if !valid {
             return Err(TxError::new(
@@ -119,17 +130,28 @@ fn verify_protected<T>(
                 (Some(before), Ok(current)) => {
                     before.extends(&current, &resources.observed_directories())
                 }
-                _ => false,
+                (_, Err(crate::source::SourceError::Changed(_))) | (None, Ok(_)) => false,
+                (_, Err(error)) => {
+                    let message = format!("{}: {error}", path.as_path().display());
+                    return Err(TxError::new("postverify-source", message));
+                }
             }
         } else {
             true
         };
-        if !namespace_matches || !matches!(capture(root, path), Ok(actual) if &actual == expected) {
-            return Err(TxError::new(
-                "postverify-source",
-                format!("protected source changed: {}", path.as_path().display()),
-            ));
+        if namespace_matches {
+            let actual = capture(root, path).map_err(|error| {
+                let message = format!("{}: {error}", path.as_path().display());
+                TxError::new("postverify-source", message)
+            })?;
+            if &actual == expected {
+                continue;
+            }
         }
+        return Err(TxError::new(
+            "postverify-source",
+            format!("protected source changed: {}", path.as_path().display()),
+        ));
     }
     Ok(())
 }

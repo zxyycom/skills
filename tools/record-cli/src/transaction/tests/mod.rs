@@ -11,6 +11,7 @@ use resource_fixtures::*;
 
 mod backups_namespace;
 mod candidate_and_modes;
+mod capture_errors;
 mod freshness;
 mod outcomes;
 mod owner_tree_moves;
