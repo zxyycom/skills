@@ -36,7 +36,13 @@ export interface SubtitleRegistration {
 }
 type PreparedText = TextResult & { warnings: string[] };
 
-function boundSubtitleIntervals({
+interface SubtitleTimeline {
+  readonly transcripts: readonly Readonly<Transcript>[];
+  readonly warnings: readonly string[];
+  readonly payloadFile: string;
+}
+
+function prepareSubtitleTimeline({
   transcripts,
   origin,
   duration,
@@ -46,36 +52,35 @@ function boundSubtitleIntervals({
   origin: TextResult["origin"];
   duration: number;
   material: string;
-}): { transcripts: readonly Readonly<Transcript>[]; warnings: string[] } {
-  const outside = transcripts.filter((cue) => cue.end > duration);
-  const cue = outside[0];
-  if (!cue) return { transcripts, warnings: [] };
+}): SubtitleTimeline {
+  const payloadFile = `segments-${material}.json`;
+  const overrunningCues = transcripts.filter((cue) => cue.end > duration);
+  const [cue] = overrunningCues;
+  if (!cue) return { transcripts, warnings: [], payloadFile };
   const detail = `cue=${cue.id} start=${cue.start} end=${cue.end} duration=${duration} delta=${cue.end - duration}`;
-  // One 20 ms ASR timestamp step plus 5 ms mapping rounding; not an accuracy guarantee.
-  const tolerance = 0.025;
-  if (
-    origin !== "asr" ||
-    outside.length !== 1 ||
-    cue !== transcripts.at(-1) ||
-    cue.start >= duration ||
-    cue.end > duration + tolerance
-  ) {
+  const canNormalizeTail =
+    origin === "asr" &&
+    overrunningCues.length === 1 &&
+    cue === transcripts.at(-1) &&
+    cue.start < duration;
+  if (!canNormalizeTail) {
     throw failure(
       {
         kind: "protocol",
         stage: "verification",
         target: material,
-        reason: `subtitle interval exceeds media duration: ${detail} outsideCount=${outside.length}`
+        reason: `subtitle interval exceeds media duration: ${detail} outsideCount=${overrunningCues.length}`
       },
       "preserve the failed material; inspect the reported cue, raw output and media duration before obtaining a corrected source"
     );
   }
   return {
+    payloadFile,
     transcripts: transcripts.map((entry) =>
       entry === cue ? { ...entry, end: duration } : entry
     ),
     warnings: [
-      `ASR tail end normalized: ${detail} normalizedEnd=${duration} adjustment=${duration - cue.end} tolerance=${tolerance}; raw=raw/audio.json payload=segments-${material}.json`
+      `ASR tail end normalized: ${detail} normalizedEnd=${duration} adjustment=${duration - cue.end}; raw=raw/audio.json payload=${payloadFile}`
     ]
   };
 }
@@ -147,12 +152,11 @@ async function subtitleFiles(
 async function publishSubtitleMaterial(
   context: SubtitleRegistration,
   result: PreparedText,
-  bounded: ReturnType<typeof boundSubtitleIntervals>,
+  timeline: SubtitleTimeline,
   provenance: Provenance
 ): Promise<Material> {
   const { options, operation, state, duration, index } = context;
-  const { transcripts } = bounded;
-  const payloadFile = `segments-${state.fields.id}.json`;
+  const { transcripts, payloadFile } = timeline;
   await writeFile(
     path.join(operation.directory, payloadFile),
     JSON.stringify(transcripts),
@@ -170,7 +174,7 @@ async function publishSubtitleMaterial(
       `${operation.relative}/${payloadFile}`
     ),
     files,
-    warnings: [...result.warnings, ...bounded.warnings]
+    warnings: [...result.warnings, ...timeline.warnings]
   };
   await publishEvidence(options.output, {
     ...index,
@@ -197,7 +201,7 @@ export async function registerSubtitle(
     language: result.origin === "asr" ? result.language : undefined
   });
   const first = Number(nextId(index, "T").slice(1));
-  const bounded = boundSubtitleIntervals({
+  const timeline = prepareSubtitleTimeline({
     transcripts: result.segments.map((cue, number) => ({
       id: stableId("T", first + number),
       ...cue
@@ -206,5 +210,5 @@ export async function registerSubtitle(
     duration,
     material: state.fields.id
   });
-  return publishSubtitleMaterial(context, result, bounded, provenance);
+  return publishSubtitleMaterial(context, result, timeline, provenance);
 }
