@@ -255,6 +255,8 @@ fn cli_unresolved_selector_reports_target_recovery_and_unchanged_pending() {
             assert_eq!(
                 diagnostic["path"],
                 root.join("records/investigation-index.json")
+                    .canonicalize()
+                    .unwrap()
                     .to_string_lossy()
                     .as_ref()
             );
