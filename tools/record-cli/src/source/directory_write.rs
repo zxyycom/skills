@@ -1,7 +1,6 @@
 //! Exclusive directory creation and conditional removal.
 use super::*;
 
-#[cfg(any(unix, windows))]
 pub(super) fn reject_final_link(root: &Root, path: &RelativePath) -> Result<(), SourceError> {
     let resolved = resolve_directory_links(root, path, true)?;
     let directory = cap_std::fs::Dir::from_std_file(root.directory.try_clone()?);
@@ -25,7 +24,6 @@ pub(crate) fn set_mkdir_test_hook(hook: impl FnOnce() + 'static) {
 }
 /// Create one absent directory relative to the held parent without recursively
 /// creating ancestors. Exact mode is observed, never applied to an unproven handle.
-#[cfg(any(unix, windows))]
 pub(crate) fn create_directory_exclusive(
     root: &Root,
     proof: &MissingProof,
@@ -45,7 +43,6 @@ pub(crate) fn create_directory_exclusive(
         create_directory_exclusive_inner(root, proof, mode, || {})
     }
 }
-#[cfg(any(unix, windows))]
 fn create_directory_exclusive_inner<F: FnOnce()>(
     root: &Root,
     proof: &MissingProof,
@@ -77,13 +74,10 @@ fn create_directory_exclusive_inner<F: FnOnce()>(
     observe_created_directory(proof, name, mode)
 }
 // Validate representable directory mode before attempting exclusive mkdir.
-#[cfg(any(unix, windows))]
 fn directory_builder(
     path: &RelativePath,
     mode: CreateMode,
 ) -> Result<cap_std::fs::DirBuilder, SourceError> {
-    #[cfg(windows)]
-    let _ = path;
     let bits = match mode {
         CreateMode::Native(bits) | CreateMode::Exact(bits) => bits,
     };
@@ -98,15 +92,9 @@ fn directory_builder(
         builder.mode(bits);
         builder
     };
-    #[cfg(windows)]
-    let builder = {
-        let _ = bits;
-        cap_std::fs::DirBuilder::new()
-    };
     Ok(builder)
 }
 // A post-mkdir open is only an observation, not proof of ownership.
-#[cfg(any(unix, windows))]
 fn observe_created_directory(
     proof: &MissingProof,
     name: &std::ffi::OsStr,
@@ -127,17 +115,10 @@ fn observe_created_directory(
     {
         return Err(unknown(SourceError::Changed(proof.path.0.clone())));
     }
-    #[cfg(windows)]
-    if let CreateMode::Exact(attributes) = mode
-        && identity.mode != attributes
-    {
-        return Err(unknown(SourceError::Changed(proof.path.0.clone())));
-    }
     Ok(CreatedDirectory { handle, identity })
 }
 /// Conditional directory deletion never recursively removes members. Only an
 /// unchanged, empty, non-link directory can be passed to the actual syscall.
-#[cfg(any(unix, windows))]
 pub(crate) fn remove_empty_directory(
     root: &Root,
     expected: &DirectorySnapshot,
@@ -167,7 +148,6 @@ pub(crate) fn remove_empty_directory(
 }
 
 // A successful remove syscall remains unknown if a name reappears or cannot be checked.
-#[cfg(any(unix, windows))]
 fn confirm_directory_removed(
     capability: &cap_std::fs::Dir,
     resolved: &Path,

@@ -68,8 +68,6 @@ fn prepare_candidate(
     let state = parsed.state;
     #[cfg(unix)]
     let mode = snapshot.identity.mode & 0o7777;
-    #[cfg(not(unix))]
-    let mode = snapshot.identity.mode;
     let formal_write = WriteIntent {
         path: formal_path,
         before: formal_before,

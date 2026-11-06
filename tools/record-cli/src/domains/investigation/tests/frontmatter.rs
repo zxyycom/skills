@@ -20,7 +20,6 @@ fn identity_discovery_ignores_later_invalid_content() {
     assert!(super::parse_frontmatter(partial.as_bytes(), "240229-report").is_err());
 }
 #[test]
-#[cfg(any(unix, windows))]
 fn owner_tree_requires_matching_capture_and_direct_references() {
     use crate::source::{RelativePath, capture_tree, open_root};
     let workspace = tempfile::tempdir().unwrap();

@@ -50,11 +50,6 @@ fn replace_or_edit_source(parent: &std::path::Path, winner: &[u8], edit: &[u8]) 
         std::fs::create_dir(parent.join("old")).unwrap();
         std::fs::write(parent.join("old/winner"), winner).unwrap();
     }
-    #[cfg(windows)]
-    {
-        let _ = winner;
-        std::fs::write(parent.join("old/nested/item"), edit).unwrap();
-    }
 }
 
 #[test]
@@ -158,13 +153,6 @@ fn owner_tree_move_source_changes_at_syscall_are_unknown_and_never_inverted() {
             b"old resource"
         );
     }
-    #[cfg(windows)]
-    {
-        assert_eq!(
-            std::fs::read(dir.path().join("_resources/new/nested/item")).unwrap(),
-            b"rival edit"
-        );
-    }
     assert_eq!(result.recovery_backups.len(), 1);
     assert_eq!(
         std::fs::read(dir.path().join(result.recovery_backups[0].backup.as_path())).unwrap(),
@@ -191,13 +179,6 @@ fn owner_tree_move_notstarted_collision_keeps_backup_if_original_changed() {
         assert_eq!(
             std::fs::read(dir.path().join("_resources/old/winner")).unwrap(),
             b"source winner"
-        );
-    }
-    #[cfg(windows)]
-    {
-        assert_eq!(
-            std::fs::read(dir.path().join("_resources/old/nested/item")).unwrap(),
-            b"source edit"
         );
     }
     assert_eq!(result.recovery_backups.len(), 1);

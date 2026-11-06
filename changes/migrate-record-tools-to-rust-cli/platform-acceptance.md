@@ -1,5 +1,20 @@
 # 原生平台候选验收
 
+## 最新候选：`65c5c49cd7be5084d1b73637c5d1eb21ea8ccbc5`
+
+[运行 42227116549](https://github.com/zxyycom/skills/actions/runs/42227116549) 结果为 **失败**：Ubuntu 原生 job 成功，Windows 原生 job 在 Cargo 测试失败，Windows Case、离线 A/B 和 PE 依赖验收尚未执行。
+
+[Ubuntu job](https://github.com/zxyycom/skills/actions/runs/42227116549/job/127923294356) 在 x64、glibc 2.35、ext4、Rust/Cargo 1.98.1 执行：190 个 library 和 122 个 integration 节点通过、0 失败及 ignored；Node 交付测试 3 项通过，项目测试证据覆盖 2,148 实体通过。私有 A 0.1.0 → B 0.1.1 的真实构建、安装、注入失败回退和更新日志报告通过；[同次 Ubuntu artifact](https://github.com/zxyycom/skills/actions/runs/42227116549/artifacts/13506422049) 的四个资产独立回算长度与 SHA-256 均符合 manifest。
+
+| 候选 | 来源 SHA-256 | DR 资产 SHA-256 | IR 资产 SHA-256 |
+| --- | --- | --- | --- |
+| A | `8868cde7f6aa1592f88c2a59b88e8eaee73e1afbef344cafaab1b006ab0e4aac` | `b715cfb8f66a4d4fbb3eaca3d2f458ed2b796e4e20f76c9a9d39aa2ac5d00bae` | `bfcd8c719c7e0f84e532d4efcb9216cf257ba32f9871da48383de0e594b5b3fc` |
+| B | `7354c7afe38e3a6b82d1f49fb747e9787e2fe77d12c22fea07773f7bee1cb8e7` | `d85be11fe9ebb73e70d9d03b26513654746e43f6d765df730ec00018a14e28c5` | `79004b0f9c8698a87ebefb166c9eb320a2eaee9d52f3b3ba5000cb3c89817705` |
+
+[Windows job](https://github.com/zxyycom/skills/actions/runs/42227116549/job/127923294937) 使用 Windows Server 2022 build 20348、NTFS、Rust/Cargo 1.98.1；library 190/190、git_stage 37/37、identity 15/15、investigation_identity 12/12 通过。`queries` 为 30 通过、1 失败：`candidates::investigation_candidate_referenced_symlink_is_a_resource_issue` 在 `tests/queries/candidates.rs:285` 对 `candidate-resource-read-failed` / `Unsafe` 错误执行 unwrap。该 job 未产生 Windows A/B 制品，不能做 PE import、安装回退或无 VS 运行库结论。
+
+## 先前候选历史
+
 本记录针对候选提交 `be1e9c4053e292a0ea3d0959f275e4cc1295f677` 的 [Record CLI Candidate 运行 42215386882](https://github.com/zxyycom/skills/actions/runs/42215386882)。它不证明其他提交、正式发布、生产 updater 或真实用户安装。下列结果取自同次 job 日志和 workflow artifact；不运行下载的二进制代替原生 runner 验收。
 
 ## Ubuntu 22.04 原生：通过

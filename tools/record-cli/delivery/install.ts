@@ -164,12 +164,11 @@ export async function installCandidate(
           flag: "wx",
           mode: before.mode
         });
-      if (before !== undefined && process.platform !== "win32")
+      if (before !== undefined)
         await chmod(path.join(staging, `${name}.backup`), before.mode);
       await rename(path.join(staging, name), target);
       written.push(name);
-      if (name !== metadata && process.platform !== "win32")
-        await chmod(target, 0o755);
+      if (name !== metadata) await chmod(target, 0o755);
       if (options.failAfter === written.length)
         throw new Error("injected replacement failure");
       if (!(await regularFile(target)).equals(bytes))
@@ -192,7 +191,7 @@ export async function installCandidate(
           (before &&
             restored &&
             (!before.bytes.equals(restored.bytes) ||
-              (process.platform !== "win32" && before.mode !== restored.mode)))
+              before.mode !== restored.mode))
         )
           throw new Error("restore readback mismatch");
       } catch {

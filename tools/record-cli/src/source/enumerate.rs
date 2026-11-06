@@ -210,7 +210,3 @@ pub fn enumerate_directory(
     }
     Ok(second)
 }
-#[cfg(not(any(target_os = "linux", windows)))]
-pub fn enumerate_directory(_: &Root, _: &RelativePath) -> Result<DirectorySnapshot, SourceError> {
-    Err(SourceError::UnsupportedPlatform)
-}

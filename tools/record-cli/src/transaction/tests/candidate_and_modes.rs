@@ -240,15 +240,4 @@ fn resource_directory_mode_mismatch_preserves_old_tree_without_chmod() {
             b"asset"
         );
     }
-    #[cfg(windows)]
-    {
-        assert_eq!(result.status, TxStatus::Ok, "{:?}", result.errors);
-        assert_eq!(
-            crate::source::enumerate_directory(&root, &RelativePath::new("new-assets").unwrap())
-                .unwrap()
-                .identity
-                .mode,
-            expected_mode
-        );
-    }
 }

@@ -29,11 +29,10 @@ async function fixture(): Promise<{
     "record-cli private fixture\n"
   );
   await writeFile(path.join(destination, "unrelated"), "keep");
-  const suffix = process.platform === "win32" ? ".exe" : "";
   const assets = [];
   for (const role of ["decision-records", "investigation-report"] as const) {
     const bytes = Buffer.from(`candidate-${role}`);
-    const file = `${role}${suffix}`;
+    const file = role;
     await writeFile(path.join(source, file), bytes);
     assets.push({ role, file, size: bytes.length, sha256: sha256(bytes) });
   }
@@ -60,19 +59,25 @@ test("strict manifest binds roles, file names, target and digest", () => {
     assets: [
       {
         role: "decision-records",
-        file: `decision-records${process.platform === "win32" ? ".exe" : ""}`,
+        file: "decision-records",
         size: 2,
         sha256: "b".repeat(64)
       },
       {
         role: "investigation-report",
-        file: `investigation-report${process.platform === "win32" ? ".exe" : ""}`,
+        file: "investigation-report",
         size: 3,
         sha256: "c".repeat(64)
       }
     ]
   };
   assert.equal(parseManifest(good).version, "1.2.3");
+  for (const target of [
+    "x86_64-pc-windows-msvc",
+    "aarch64-unknown-linux-gnu",
+    "x86_64-unknown-linux-musl"
+  ])
+    assert.throws(() => parseManifest({ ...good, target }));
   assert.throws(() => parseManifest({ ...good, extra: true }));
   assert.throws(() =>
     parseManifest({ ...good, assets: [good.assets[0], good.assets[0]] })
@@ -156,22 +161,12 @@ test("invalid identity, corruption and unsafe destination fail before writes", a
       ) as unknown
     );
     const manifestPath = path.join(source, "record-cli-candidate.json");
-    const otherTarget =
-      hostTarget() === "x86_64-pc-windows-msvc"
-        ? "x86_64-unknown-linux-gnu"
-        : "x86_64-pc-windows-msvc";
-    // Adapt names to the claimed target so target rejection, not schema rejection, is observed.
-    const otherAssets = manifest.assets.map((item) => ({
-      ...item,
-      file: `${item.role}${otherTarget === "x86_64-pc-windows-msvc" ? ".exe" : ""}`
-    }));
     await writeFile(
       manifestPath,
-      JSON.stringify({ ...manifest, target: otherTarget, assets: otherAssets })
+      JSON.stringify({ ...manifest, target: "x86_64-pc-windows-msvc" })
     );
     await assert.rejects(
-      installCandidate({ source, destination, version: "1.0.0" }),
-      /target mismatch/
+      installCandidate({ source, destination, version: "1.0.0" })
     );
     await writeFile(manifestPath, JSON.stringify(manifest));
     const first = manifest.assets[0];
@@ -189,7 +184,7 @@ test("invalid identity, corruption and unsafe destination fail before writes", a
     await assert.rejects(
       installCandidate({ source, destination, version: "1.0.0" })
     );
-    if (process.platform !== "win32") {
+    {
       const link = path.join(root, "link");
       await symlink(destination, link, "dir");
       await assert.rejects(

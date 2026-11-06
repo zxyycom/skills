@@ -176,8 +176,6 @@ impl WritePreparation<'_> {
         next.entries.insert(id.to_owned(), state_after);
         #[cfg(unix)]
         let mode = file.identity.mode & 0o7777;
-        #[cfg(not(unix))]
-        let mode = file.identity.mode;
         writes.push(WriteIntent {
             path: path(&operation.collection, &target)?,
             before: target_before,

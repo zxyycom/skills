@@ -20,19 +20,6 @@ fn missing_parent_replacement_between_prepare_and_fresh_is_rejected() {
             })
         }
         fn fresh(&mut self, root: &Root, _: &Plan<()>) -> Result<(), TxError> {
-            #[cfg(windows)]
-            {
-                let error =
-                    std::fs::rename(root.path().join("parent"), root.path().join("old-parent"))
-                        .unwrap_err();
-                assert_eq!(error.raw_os_error(), Some(32));
-                assert_eq!(
-                    std::fs::read(root.path().join("parent/sentinel")).unwrap(),
-                    b"keep"
-                );
-                assert!(!root.path().join("old-parent").exists());
-            }
-            #[cfg(not(windows))]
             {
                 std::fs::rename(root.path().join("parent"), root.path().join("old-parent"))
                     .unwrap();
@@ -52,21 +39,6 @@ fn missing_parent_replacement_between_prepare_and_fresh_is_rejected() {
     std::fs::write(dir.path().join("parent/sentinel"), b"keep").unwrap();
     let root = crate::source::open_root(dir.path()).unwrap();
     let result = run_transaction(&root, &RelativePath::new(".lock").unwrap(), &mut SwapParent);
-    #[cfg(windows)]
-    {
-        assert_eq!(result.status, TxStatus::Ok, "{:?}", result.errors);
-        assert!(result.changed && result.committed);
-        assert_eq!(
-            std::fs::read(dir.path().join("parent/item.md")).unwrap(),
-            b"new"
-        );
-        assert_eq!(
-            std::fs::read(dir.path().join("parent/sentinel")).unwrap(),
-            b"keep"
-        );
-        assert!(!dir.path().join("old-parent").exists());
-    }
-    #[cfg(not(windows))]
     {
         assert_eq!(result.status, TxStatus::Error);
         assert_eq!(result.errors[0].code, "source-changed");

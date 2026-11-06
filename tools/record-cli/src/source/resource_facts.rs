@@ -64,7 +64,6 @@ impl ResourceRootFact {
             && self.fact.equivalent(&owner.root_fact)
     }
 }
-#[cfg(any(unix, windows))]
 pub fn capture_resource_root(
     root: &Root,
     path: &RelativePath,
@@ -118,7 +117,6 @@ impl ResourceDirectoryFact {
             && matches!(&self.owner_fact, DirectoryFact::Present { identity, .. } if *identity == selected.owner_identity)
     }
 }
-#[cfg(any(unix, windows))]
 fn resource_directory_fact(root: &Root, path: &RelativePath) -> Result<DirectoryFact, SourceError> {
     let Some(ResourceParent {
         parent,
@@ -138,12 +136,10 @@ fn resource_directory_fact(root: &Root, path: &RelativePath) -> Result<Directory
     Ok(DirectoryFact::Present { identity, parents })
 }
 // Distinguish a missing ancestor from an available parent capability.
-#[cfg(any(unix, windows))]
 struct ResourceParent {
     parent: cap_std::fs::Dir,
     identities: Vec<FileIdentity>,
 }
-#[cfg(any(unix, windows))]
 fn resource_parent(
     root: &Root,
     path: &RelativePath,
@@ -155,7 +151,6 @@ fn resource_parent(
     }
 }
 // Observe a non-link directory through its opened handle.
-#[cfg(any(unix, windows))]
 fn open_resource_directory(
     parent: &cap_std::fs::Dir,
     name: &std::ffi::OsStr,
@@ -175,7 +170,6 @@ fn open_resource_directory(
 }
 /// Capture exactly the configured resource root and one direct owner; neither
 /// the root nor owner may be a symlink or other non-directory member.
-#[cfg(any(unix, windows))]
 pub fn capture_resource_directories(
     root: &Root,
     resource_root: &RelativePath,

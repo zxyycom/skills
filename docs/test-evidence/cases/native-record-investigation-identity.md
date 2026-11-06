@@ -21,4 +21,4 @@ Contract:
 - 调查身份变更须保护引用、历史与资源 owner，并保留未受管对象。
 
 Proves:
-- 私有文件及必要 Git 核对候选、正式引用、资源漂移、共享 owner 和忽略文件；Unix mode/umask 与 Windows 只读属性分别验证。
+- 私有文件及必要 Git 核对候选、正式引用、资源漂移、共享 owner 和忽略文件；验证 Linux mode 和 umask 的适用观察。

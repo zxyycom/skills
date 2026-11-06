@@ -1,6 +1,6 @@
 # 本轮测试设计审查（Change 结束时删除）
 
-范围：`tools/record-cli/tests` 的集成节点及 `delivery.test.ts`，本轮修改的 Cargo 快照、Gate 测试节点；产品模块内联单元测试不在写权限内。以下索引按 Cargo target 和 `module::test` 命名；跨平台条件在节点内部表达，Windows 与 Unix 分别执行真实适用观察。下表的准入不是运行通过或完整 32 命令验收证明。各组成员的精确清单见末节；同组内输入、观察不同之处以各名称和测试体为准。
+范围：`tools/record-cli/tests` 的集成节点及 `delivery.test.ts`，本轮修改的 Cargo 快照、Gate 测试节点；产品模块内联单元测试不在写权限内。以下索引按 Cargo target 和 `module::test` 命名；当前候选仅支持 Linux x86_64 GNU/glibc 2.35；本文件历史审查结果不构成当前平台运行证明。下表的准入不是运行通过或完整 32 命令验收证明。各组成员的精确清单见末节；同组内输入、观察不同之处以各名称和测试体为准。
 
 ## 候选裁决
 
@@ -17,10 +17,10 @@
 | `identity::established` | 正式 rename/discard/noop、日期、引用重写、stale 和 Git 历史不可用；比较记录、索引、Git pending 与错误。用事务直测真实写集和 fresh；历史确认节点保留 Git。 |
 | `identity::candidate` | 草稿操作不得错误写正式索引、未完成正文 no-op、缺失索引 fail closed、旧身份同路径更新及已记录/历史身份确认；有历史前提者保留 Git，其余隔离文件。 |
 | `identity::cli`、`investigation_identity` 的 `cli_rename_preflight_and_execution_are_distinct` | 实际二进制 argv、preview 与执行分离及磁盘变化；不是用事务测试替代进程接线，也不要求同一测试覆盖所有命令。 |
-| `investigation_identity` 其余节点 | 候选 no-op、删除授权、正式引用、共享资源 owner、实际资源漂移、旧 ID、Git 历史索引、ignored 文件；真实文件/索引及必要 Git 可观察，资源迁移节点在 Unix 检查 mode/umask，在 Windows 检查只读属性。 |
+| `investigation_identity` 其余节点 | 候选 no-op、删除授权、正式引用、共享资源 owner、实际资源漂移、旧 ID、Git 历史索引、ignored 文件；真实文件/索引及必要 Git 可观察，资源迁移节点检查 Linux mode/umask。 |
 | `queries::snapshot_queries`、`metadata_search` | 手写 v4 投影的 list 默认过滤/facets、分页、关系事件整体预算、show 当前正文与 stale、metadata 搜索完整计数及匹配证据；期望由领域查询契约明确给出，运行投影/API 而不是扩大为所有真实进程。 |
 | `queries::content_search` | 匹配数/隐藏结果与 coverage、预览 UTF-16 截断保留代理项转义、非法源失败、源 JSON 孤立代理项结构化拒绝和 selector 诊断；后两项用真实二进制验证通道。保留预览中允许的转义与源输入拒绝的不同边界。 |
-| `queries::candidates` | 直接声明身份与 locator、坏 scaffold/重复 ID、丢失依赖、资源引用/owner/ignored/symlink/case；真实临时资源与必要 Git 管理集合。Unix symlink 与 Windows junction 分别验证受引用重解析边界，不相互冒充平台通过。 |
+| `queries::candidates` | 直接声明身份与 locator、坏 scaffold/重复 ID、丢失依赖、资源引用/owner/ignored/symlink/case；真实临时资源与必要 Git 管理集合。Linux symlink 验证受引用链接边界。 |
 | `queries::check` | 两域 CLI 聚合错误、选中范围，以及 DR 来源与索引差异、IR 代理项输入错误；直接解析 stdout 和退出，验证分部结果不冒称全集。 |
 | `git_stage::read_git` | 固定 HEAD、pending/worktree 区分、缺失对象、冲突 stage、路径/仓库安全与外部 Git 不可用；真实 Git index、refs 和对象损坏是不可由文件替身证明的语义。 |
 | `git_stage::publish_git` | 条件发布的旧 pending/worktree 保留、写入删除及 mode、busy/stale、锁所有权、竞争者和 guard abort；真实 Git 锁/index 是责任，不以 mock 替代。 |
@@ -29,7 +29,7 @@
 | `git_stage::stage_investigation_sources`、`stage_investigation_resources` | IR 资源树存在/缺失、受管/ignored、foreign owner、已删树及 pending-only 定位；以真实 Git 状态与文件字节检查，而非字符串路径模拟。 |
 | `git_stage::stage_history` | HEAD 索引缺失时 DR 歧义/正式成员不得冒充空历史；IR 只在可证明为候选时放行；空 namespace 正例；检查拒绝代码、pending 不变，须真实 commit。 |
 | `decision_flow` | flow YAML 发布保留 BOM/CRLF 及未改字节、索引使用实际输出；rename 更新身份并保持其他字段/正文。原来把双引号作为固定格式锁定不符合语义，替代断言接受三种合法常见标量表示。fingerprint 在这里仅证明写后内容接线，不单独证明算法正确。 |
-| `cli_entry` | help 不依赖工作区；参数错分别经两域查询/写入口退出 2 且 stdout 单个 JSON；受控提交失败中预期计划与实际写入区分。真实进程不可由事务函数取代，Unix 文件大小限制和 Windows 共享句柄是不同平台注入。 |
+| `cli_entry` | help 不依赖工作区；参数错分别经两域查询/写入口退出 2 且 stdout 单个 JSON；受控提交失败中预期计划与实际写入区分。真实进程不可由事务函数取代，Linux 文件大小限制注入失败。 |
 | `delivery.test.ts` 三节点 | manifest 身份/schema、字节校验、部分替换回滚与无关文件、破损/越权目标零写；独立 fixture 字节及实际文件比较。stub bytes 仅测安装协议，不证明已安装二进制能启动，该证据由 `verify-real.ts` 承担。 |
 | Cargo snapshot 两个新增节点 | 合法 Cargo 清单同名跨 target / ignored 应可精确选择，坏/重复 listing 应失败。真实临时 Cargo package 是验证 metadata 与原生枚举的最低边界；增强断言完整 target/name/selector 而非仅检查 `--exact`。 |
 | Gate 本轮变更节点（末节列出） | scope/catalog/运行预算的实际选择与汇总、Rust 文件收集与指标、完整 Cargo 命令；独立临时代码触发通过/失败，检查测试子目录使用测试阈值。Cargo 原仅断言最后参数，现补完整 toolchain、manifest、锁、targets 和 ignored，避免错误工作区或 target 假绿。固定 check 数用于本轮汇总对账，增删 catalog 时须同步，不能单靠数量证明选择正确。 |
@@ -40,7 +40,7 @@
 - 列表、事务、Git、CLI 各有不同责任，不把相同输出当重复；未把每个案例都升级成真实 Git。无关生产功能、账本和内联单元测试未在此修改。
 - 此审查形成时只裁决测试节点的准入，不是 P1 的 32 命令参数/成功结果联合验收。联合验收需组合领域/API 规则与事务（含 fresh/postverify/recovery）、必要真实 Git 和源边界测试，以及分别验证 argv、JSON 单对象、退出状态和输出通道的真实二进制调用；共同 error 出口不能替代各命令成功字段和通道。
 - 后续冻结源码的 Linux 联合验收已逐条覆盖 DR 18、IR 14 个命令；字段映射、实际运行证据与平台边界见 [双域 CLI 联合验收](joint-acceptance.md)。该结果与本审查的测试准入是不同证据，不代表穷尽全部参数组合或其他平台通过。
-- 平台实际通过状态以原生对应 runner 为准；本机 Unix 节点、symlink/mode 与 Windows 原生句柄节点不能互证。最终汇总另列实际执行、跳过和平台证据；跨编译不算 Windows 原生测试。
+- 平台实际通过状态以最终冻结后的 Linux 原生 runner 为准；历史平台调查不构成当前验收。
 
 ## 精确候选清单
 
@@ -105,7 +105,7 @@
 
 ## 第二阶段：native 单元节点候选审查
 
-范围为本轮 `tools/record-cli/src` 中所有 `#[test]` 节点（含实际文件/Git 的模块级测试）；下方按源码文件列明当次成员。此处不修改 native 单元，source/transaction 仍由其 owner 并行调整；最终账本以冻结后 runner 快照重采，尤其按 `move_preserves_platform_metadata_and_bytes` 的 Unix umask/mode 与 Windows attributes 分别描述，不把前者记作 Windows 证据。所有组逐成员按实际输入及观察核对，以下是共同三门槛与独有责任；精确成员在紧随的清单中。
+范围为本轮 `tools/record-cli/src` 中所有 `#[test]` 节点（含实际文件/Git 的模块级测试）；下方按源码文件列明当次成员。最终账本以冻结后 runner 快照重采，按 `move_preserves_platform_metadata_and_bytes` 的 Linux umask/mode 描述。所有组逐成员按实际输入及观察核对，以下是共同三门槛与独有责任；精确成员在紧随的清单中。
 
 | 候选组（路径相对 `tools/record-cli/src`） | 准入裁决：有效性、价值与形态 |
 | --- | --- |
@@ -116,10 +116,10 @@
 | `queries/{matcher,preview,relation_filter,facets,trace/tests}` | NFKC 与小写/UTF-16 原始范围、裁剪、同一关系边、时间 facets、事件预算和 frontier；直接常量期望可拦截与消费者不同的错误，纯计算适合低成本单元。preview 输出的孤立项是允许的截断而非允许源数据孤立项。 |
 | `mutations/{candidate,lifecycle,publication,relations,rename,selected_sync}` 及其 tests | 候选路径、生命周期、批量目标、完整替换/清空、rename/noop、选集组合图；显式结果/错误和关系 review，局部纯计划测试与域图验证分开，避免以产品实现重算预期。 |
 | `mutations/{check,decision_history,decision_lifecycle,decision_operation,decision_relations,decision_selected_sync,decision_sync,discard,evolution,full_sync,identity,investigation_operation,investigation_relations,investigation_selected_sync,investigation_sync,authoring/decision}` 下的 tests | 实际选集、资源与图验证、历史确认、preflight/fresh/verify、局部替换、写前回滚/提交后恢复和当前索引；独立 fixture 字节、真实阶段注入与明确 outcome 是证据，单域操作边界保留，不因类似输出与 CLI smoke 相互替代；真实 Git 只用于历史或 visibility。 |
-| `resources/tests.rs`、`source/tests/{capture,resources}.rs` | 受选/未选、严格 UTF-8、路径与 case、预算、缺失父链、root/owner、持有锁、rival 替换；检查真实私有文件/链接、观察字节及错误，不使用 mock 冒充文件身份。Windows/Unix 的条件分支各有明确观察，必须原生执行各自分支。 |
-| `source/directory_move/tests/mod.rs` | tree move 与恢复、目标竞争、syscall 前后未知、父目录替换、平台属性及字节；带时点注入的私有文件系统操作具独立数据安全价值，直接文件测试低于全 CLI。Unix restrictive umask 和 Windows attributes 是不同证明点。 |
+| `resources/tests.rs`、`source/tests/{capture,resources}.rs` | 受选/未选、严格 UTF-8、路径与 case、预算、缺失父链、root/owner、持有锁、rival 替换；检查真实私有文件/链接、观察字节及错误，不使用 mock 冒充文件身份。当前检查 Linux 私有文件系统。 |
+| `source/directory_move/tests/mod.rs` | tree move 与恢复、目标竞争、syscall 前后未知、父目录替换、平台属性及字节；带时点注入的私有文件系统操作具独立数据安全价值，直接文件测试低于全 CLI。Linux restrictive umask 和 mode 是证明点。 |
 | `transaction/tests/{freshness,outcomes}.rs` | prepare/fresh/verify 顺序、no-op、排他创建、提交点前后、计划值与实际 outcome；注入阶段故障并读真实文件/竞争者，承担共享事务责任，不能拿领域 mock 的“成功”替代。 |
-| `transaction/tests/{backups_namespace,candidate_and_modes,parent_guards}.rs` | journal 实际成员、缺失父链、同路径候选提交、mode 不一致与恢复备份；分别观察 winner、backup、unknown、commit 与 verification，真实私有目录及故障时点不可省；Unix mode 与 Windows 属性观察不同。 |
+| `transaction/tests/{backups_namespace,candidate_and_modes,parent_guards}.rs` | journal 实际成员、缺失父链、同路径候选提交、mode 不一致与恢复备份；分别观察 winner、backup、unknown、commit 与 verification，真实私有目录及故障时点不可省；保留 Linux mode 观察。 |
 | `transaction/tests/{owner_tree_moves,owner_tree_races,rename_and_resource_move,resource_recovery}.rs` | 原子目录移动、碰撞、syscall 状态不确定、提交前恢复、提交后不回滚、资源父目录替换及持久备份；对比两侧字节与 outcome，而非仅检查 error。重型 fixture 仅用于事务边界，低层目录单元不取代事务编排。 |
 | `stage/tests.rs` | pending 投影合成的选中增删与未选保留、集合变化和删除索引拒绝；以人工构造的 index 预期检验纯组合；真实 Git 行为由上文 stage 集成组另行验证。 |
 
@@ -127,9 +127,9 @@
 
 - 5 处集成重复是相同测试数据/准备责任：抽取 IR 创建输入、IR stage 手算 index、historical index fixture、空 DR HEAD index fixture、IR 受限搜索准备；未合并独立原生测试或移除独立断言，不用被测函数生成 hash 预期。
 - 已独立复核 safety owner 的 `RecordExitFault`：具名 fixture 仅表示删除原记录之后、索引发布之前的故障；`CopyThenDelete` 保持新写→旧删→索引及 rival 与非 rival 两种结果，`DeleteUnderReplacedParent` 保持旧删→索引和 barrier 后替换父目录。两节点分别以实际字节、恢复状态和竞争者验证独立责任，复用此有限 fixture 比维护两份故障事务成本更低；节点与 Case 意图不因 helper 合并变化。
-- 真实 OS 非 Unicode argv 节点的 exit 2、单 JSON、错误码及无 panic 能区分原先崩溃/空输出；Unix `0xff` 与 Windows 未配对 UTF-16 各自实际分支，Windows 需原生执行。root 已按 architecture 裁定：可识别命令必须保留；该节点覆盖普通 `list`、分离和内联 `--root` 之后的 `list`、以及无法识别命令四种输入。原固定空串断言退出，以保留可识别命令的独立预期替代；CLI 同步后 Linux 4/4、Windows target tests 交叉检查通过，后者不证明原生行为。
+- 真实 OS 非 Unicode argv 节点的 exit 2、单 JSON、错误码及无 panic 能区分原先崩溃/空输出；Linux 使用 `0xff` 非 UTF-8 字节。root 已按 architecture 裁定：可识别命令必须保留；该节点覆盖普通 `list`、分离和内联 `--root` 之后的 `list`、以及无法识别命令四种输入。原固定空串断言退出，以保留可识别命令的独立预期替代；CLI 同步后 Linux 4/4。
 - domain owner 修改 `content_search` 的 `DecisionFilters` / `FormationRange` 构造，实际断言、输入和选择语义未改；定向 31 节点通过，不将类型改造记为额外产品行为证明。
-- 本次定向执行 authoring 13、queries 31、git_stage 35、cli_entry 4 全部通过（Linux）；`cargo test --lib -- --include-ignored` 实际运行 179 个 native 节点、179 通过。repository-code scope 中本切面集成文件的重复/文件/函数 finding 为零，整 scope 仍因其他 owner 的 native 测试重复和生产指标失败。该轮结果不能替代冻结后完整 Gate 或 Windows 原生。
+- 本次定向执行 authoring 13、queries 31、git_stage 35、cli_entry 4 全部通过（Linux）；`cargo test --lib -- --include-ignored` 实际运行 179 个 native 节点、179 通过。repository-code scope 中本切面集成文件的重复/文件/函数 finding 为零，整 scope 仍因其他 owner 的 native 测试重复和生产指标失败。该轮结果不能替代冻结后完整 Gate 。
 
 ### native 节点精确清单（审查时快照）
 
@@ -258,21 +258,16 @@
 - `mutations::authoring::investigation_publish::history::tests::unavailable_head_history_is_a_warning_with_recovery`：真实坏 HEAD index 与 IR 关系输入，观察 warning 指向路径和完整检查，且不错误建议 DR 的 `--keep-unrecorded-history`；历史必须真实 Git，本节点是 IR warning 而不是 DR 阻断重复。
 - `git_stage::stage_index::{cli_unresolved_selector_reports_target_recovery_and_unchanged_pending, cli_stale_selected_source_reports_identity_path_and_sync_recovery}`：两域分别真实运行二进制，检查 target、原因/路径、恢复建议、no-change 及 Git pending 投影；后者手工计算源 fingerprint 后修改正文以确保是 stale 而非空集合。相对于局部解析，它们额外验证 CLI 投影和真实 Git 无写，保留两个不同错误入口。
 - `cli::transaction_output::stage::tests::publication_outcomes_do_not_claim_no_change_after_commit_or_unknown_recovery`：显式注入 recovery unknown、已提交但未验证、已提交待清理三种状态，检查 changed null/true 与 outcome；这是输出映射层可低成本区分的独立责任，真实事务回滚由前述 source/transaction 节点承担。
-- `investigation_identity::cli_resources::cli_owner_move_preserves_resources_and_platform_metadata`：Windows 分支仍先断言只读属性与字节，再对私有 fixture 使用 `SetFileAttributesW` **仅清除 READONLY** 以允许清理；不存在关闭 lint 或修改产品代码。Unix mode/umask 与 Windows 属性为不同证明点。
+- `investigation_identity::cli_resources::cli_owner_move_preserves_resources_and_platform_metadata`：Linux 检查 mode/umask 与资源字节。
 
-最终本轮 Linux 复验：native `--lib -- --include-ignored` 188/188；`investigation_identity` 12/12、`cli_entry` 4/4、`git_stage` 37/37、`identity` 15/15。Windows MSVC target all-target Clippy `-D warnings` 通过，属于交叉检查而非 Windows 原生执行。上述新增节点及分组移动后的真实完整名称须由最终 Cargo 快照和 Case owner 对账。
+最终本轮 Linux 复验：native `--lib -- --include-ignored` 188/188；`investigation_identity` 12/12、`cli_entry` 4/4、`git_stage` 37/37、`identity` 15/15。上述新增节点及分组移动后的真实完整名称须由最终 Cargo 快照和 Case owner 对账。
 
-## 冻结前平台兼容增量复核
+## Linux 目标收窄增量复核
 
-以 `be1e9c4..5fe61474` 中测试及 support diff 为增量；此前全量裁决不因本节重写。以下是静态准入，不是本轮运行结果：
+现行候选仅为 Linux x86_64 GNU/glibc 2.35；Windows 原生兼容尝试及其形成时结论不再作为本 Change 的范围或门槛，历史见 Git。对本次测试 diff 的静态复核：删除的是 Windows 专属 fixture、分支及观察；Linux 的事务、竞争、父链、防覆盖、恢复、权限、Git pending、非法字节 argv 和文本 UTF-16/CRLF 观察未随之删除。原节点名保留；最终 Case 由 owner 按冻结快照及现行证明范围对账。非 Linux GNU x86_64 由编译保护拒绝，不从此推断其他平台支持。
 
-- `transaction::tests` 的 `same_mode_rival_between_recovery_mkdir_and_open_keeps_bytes_in_durable_backup`、`newly_created_namespace_rejects_concurrent_unjournaled_member_after_commit`、`cooperative_transactions_do_not_prepare_at_the_same_time`、`deleted_record_recovery_rejects_replaced_parent_before_creating`、`removed_resource_ancestor_replacement_fails_postverify_without_rollback`、`removed_resource_recovery_rejects_replaced_parent_before_creating`、`deleted_resource_file_recovery_does_not_write_into_replaced_parent`：保留真实事务和文件竞争，以及原结果断言；两侧阶段会合改为 30 秒有界等待，进入阶段失败时保留已完成 worker 的结果或 panic。它限制会合等待，不证明 resume 之后的 `join` 或整个测试全面有界。
-- `missing_parent_replacement_between_prepare_and_fresh_is_rejected`：Unix 实际替换后要求 `source-changed`、不提交并保留原目录哨兵；Windows 要求真实 rename 的 sharing violation 32，随后事务提交新文件并保留哨兵。两者验证不同的文件系统防护机制，Windows 分支不证明替换成功后的拒绝。
-- `git::tests::local_paths_convert_to_git_spelling_without_weakening_raw_output_validation`：手写本地路径与原始 Git index 记录分别检查斜杠转换及反斜杠拒绝；Windows 本地输入额外拒绝列出的 ADS 和设备名，Unix 本地输入及原始 Git 输入保留列出的合法名称。纯解析边界足够，不冒称实际 Git 文件创建或完整平台保留名覆盖。
-- `source::tests::capture::capture_allows_internal_directory_link_but_rejects_escape`：真实私有目录分别检查相对/绝对内部目录链接内容、文件链接和逃逸拒绝；新增上下文只改善失败定位，不改变 oracle。Windows 需要创建符号链接权限。
-- `source::directory_move::tests` 原有九节点保留：实际目录树及 syscall 前后注入覆盖移动、冲突、漂移、恢复和平台元数据；`replaced_parent_and_case_alias_are_rejected` 的父目录替换子观察只在 rename 成功时执行，不能把该子观察的条件未执行当作平台证明。临时 probe 不属于保留测试。
-- `git_stage::stage_index::cli_unresolved_selector_reports_target_recovery_and_unchanged_pending`：真实双域 CLI 与 Git index，IR 诊断路径以既有 fixture 的文件系统 canonicalize 结果作独立预期，并仍比较前后完整 pending；此调整不验证所有路径拼写或替代运行。此前四种非法 OS argv、源 JSON 孤立代理项拒绝与预览允许转义仍按各自入口及前述裁决区分。
+七个事务竞争节点继续使用双向 30 秒会合及实际结果断言；该限制不保证 resume 后的 `join` 全面有界。`source::directory_move::tests::replaced_parent_and_case_alias_are_rejected` 原以 rename 失败静默跳过父目录替换观察，现要求 Linux rename 成功并执行原有拒绝和源树断言，避免假绿。资源链接仍使用真实 Linux symlink；父目录拒绝与恢复不以其他平台结果代替。
 
-未发现需要更改上述测试实现的准入缺口。最终 Case owner 应以冻结快照核对新增 Git 节点及修改节点的实体与平台证明；原生 Windows 运行、最终全量 Gate 和 A/B 结果仍须另行取得，不能由本节静态复核或旧运行结果推导。
+`delivery.test.ts` 的三个节点继续检查 manifest、实际替换与回滚、非法输入零写；manifest 明确拒绝 Windows、Linux ARM64 与 musl 三个不支持目标。fixture bytes 只验证安装协议，真实构建产物的启动由 `verify-real` 证明，不能由 stub 或本审查代替。
 
-后续 `queries::candidates::investigation_candidate_referenced_symlink_is_a_resource_issue` 的 Windows junction fixture 增量复核：路径逐段 native join，在私有 fixture 根用固定相对路径调用 `mklink /J`，失败即报告状态及输出而非跳过；`canonicalize` 将实际链接目标与独立创建的 outside 目录比较，原资源未就绪与禁止遍历链接诊断仍保留。真实 junction 和资源扫描边界不可用纯路径替身替代。此为静态准入；修正后 Windows 原生结果待新 runner，不由 Linux 定向测试或 Windows 交叉检查替代。
+上述为静态裁决；此前本机 Linux 执行不自动证明最终冻结源码。最终 Ubuntu CI、双域联合验收和性能证据仍需另行取得；Case 索引由其 owner 维护。

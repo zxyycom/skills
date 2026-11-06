@@ -310,8 +310,6 @@ fn source_writes(
             };
             #[cfg(unix)]
             let mode = snapshot.identity.mode & 0o7777;
-            #[cfg(not(unix))]
-            let mode = snapshot.identity.mode;
             let Some(target) = target else {
                 unreachable!("target capture was required")
             };

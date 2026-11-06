@@ -1,10 +1,7 @@
 //! Phase-local source capture primitives. These do not yet implement the full
 //! platform safety contract; paths are validated and unsupported cases fail closed.
-#[cfg(any(unix, windows))]
 use std::fs::File;
-#[cfg(any(unix, windows))]
 mod directory_move;
-#[cfg(any(unix, windows))]
 pub(crate) use directory_move::{MoveDirectoryEffect, MovedDirectory, move_directory};
 #[cfg(test)]
 pub(crate) use directory_move::{set_move_after_test_hook, set_move_before_test_hook};
@@ -19,34 +16,12 @@ impl RelativePath {
     pub fn new(path: impl AsRef<Path>) -> Result<Self, SourceError> {
         let path = path.as_ref();
         let normalized = path.to_str().is_some_and(|text| {
-            #[cfg(windows)]
-            let parts = text.split(['/', '\\']);
-            #[cfg(not(windows))]
             let parts = text.split('/');
-            #[cfg(windows)]
-            let characters_safe = !text.contains(':');
-            #[cfg(not(windows))]
             let characters_safe = !text.contains('\\');
             characters_safe
                 && parts.into_iter().all(|part| {
                     if part.is_empty() || part == "." || part == ".." {
                         return false;
-                    }
-                    #[cfg(windows)]
-                    {
-                        let stem = part
-                            .split('.')
-                            .next()
-                            .unwrap_or("")
-                            .trim_end_matches(' ')
-                            .to_ascii_uppercase();
-                        if matches!(stem.as_str(), "CON" | "PRN" | "AUX" | "NUL")
-                            || (stem.len() == 4
-                                && (stem.starts_with("COM") || stem.starts_with("LPT"))
-                                && matches!(stem.as_bytes()[3], b'1'..=b'9'))
-                        {
-                            return false;
-                        }
                     }
                     true
                 })
@@ -76,7 +51,6 @@ impl FileIdentity {
 #[derive(Debug)]
 pub struct Root {
     pub(crate) path: PathBuf,
-    #[cfg(any(unix, windows))]
     directory: File,
     pub(crate) identity: FileIdentity,
 }
@@ -171,7 +145,6 @@ impl ReadLimits {
 }
 
 mod resolve;
-#[cfg(any(unix, windows))]
 use resolve::resolve_directory_links;
 
 #[cfg(unix)]
@@ -191,9 +164,7 @@ fn directory_identity(meta: &std::fs::Metadata) -> FileIdentity {
     result.size = 0;
     result
 }
-#[cfg(not(windows))]
 mod file_capture;
-#[cfg(not(windows))]
 pub use file_capture::{capture, capture_bounded, capture_header, open_root};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -218,16 +189,8 @@ pub struct DirectorySnapshot {
     pub members: Vec<DirectoryMember>,
 }
 
-#[cfg(not(windows))]
 mod enumerate;
-#[cfg(not(windows))]
 pub use enumerate::enumerate_directory;
-
-#[cfg(windows)]
-#[path = "source/windows.rs"]
-mod windows;
-#[cfg(windows)]
-pub use windows::{capture, capture_bounded, capture_header, enumerate_directory, open_root};
 
 /// Identity of the opened object. Compare device/inode only when file contents
 /// may legitimately change while a lock is held.
@@ -235,11 +198,6 @@ pub use windows::{capture, capture_bounded, capture_header, enumerate_directory,
 pub fn identity_from_handle(file: &File) -> Result<FileIdentity, SourceError> {
     Ok(identity(&file.metadata()?))
 }
-#[cfg(windows)]
-pub fn identity_from_handle(file: &File) -> Result<FileIdentity, SourceError> {
-    windows::file_identity(file, false)
-}
-#[cfg(any(unix, windows))]
 pub fn same_file_identity(a: &File, b: &File) -> Result<bool, SourceError> {
     let a = identity_from_handle(a)?;
     let b = identity_from_handle(b)?;
@@ -272,7 +230,6 @@ impl std::fmt::Display for LockError {
     }
 }
 impl std::error::Error for LockError {}
-#[cfg(any(unix, windows))]
 pub fn acquire_collection_lock(
     root: &Root,
     path: &RelativePath,
@@ -300,7 +257,6 @@ pub fn acquire_collection_lock(
         workspace_identity: root.identity.clone(),
     })
 }
-#[cfg(any(unix, windows))]
 impl CollectionLock {
     /// Explicitly release only a still-matching empty lock. A failure preserves
     /// the entry; as with the rest of the transaction, non-cooperative edits do
@@ -332,30 +288,24 @@ mod file_write;
 pub(crate) use file_write::{
     CreateEffect, CreateFailure, CreateMode, CreatedFile, RemoveEffect, RemoveFailure,
 };
-#[cfg(any(unix, windows))]
 pub(crate) use file_write::{
     create_exclusive, finalize_created_mode, open_verified_for_update, remove_if_matches,
 };
 
 mod missing;
 pub use missing::MissingProof;
-#[cfg(any(unix, windows))]
 pub(crate) use missing::capture_missing;
-#[cfg(any(unix, windows))]
 use missing::parent_chain;
 
 mod directory_write;
-#[cfg(any(unix, windows))]
 use directory_write::reject_final_link;
 #[cfg(test)]
 pub(crate) use directory_write::set_mkdir_test_hook;
-#[cfg(any(unix, windows))]
 pub(crate) use directory_write::{
     CreatedDirectory, create_directory_exclusive, remove_empty_directory,
 };
 
 mod exact_name;
-#[cfg(any(unix, windows))]
 use exact_name::has_exact_resource_name;
 mod resource_facts;
 mod selected;

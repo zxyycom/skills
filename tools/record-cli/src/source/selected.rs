@@ -48,7 +48,6 @@ impl SelectedTree {
                 })
     }
 }
-#[cfg(any(unix, windows))]
 fn selected_owner_identity(root: &Root, owner: &RelativePath) -> Result<FileIdentity, SourceError> {
     reject_final_link(root, owner)?;
     let resolved = resolve_directory_links(root, owner, false)?;
@@ -58,7 +57,6 @@ fn selected_owner_identity(root: &Root, owner: &RelativePath) -> Result<FileIden
     identity.size = 0;
     Ok(identity)
 }
-#[cfg(any(unix, windows))]
 fn reject_resource_parent_links(
     root: &Root,
     owner: &RelativePath,
@@ -77,7 +75,6 @@ fn reject_resource_parent_links(
     Ok(())
 }
 // Stop at a missing ancestor; reject links and non-directory parents.
-#[cfg(any(unix, windows))]
 fn resource_parent_is_safe(
     capability: &cap_std::fs::Dir,
     prefix: &Path,
@@ -92,7 +89,6 @@ fn resource_parent_is_safe(
         Err(error) => Err(error.into()),
     }
 }
-#[cfg(any(unix, windows))]
 fn exact_resource_path(
     root: &Root,
     owner: &RelativePath,
@@ -123,7 +119,6 @@ fn exact_resource_path(
 }
 
 // Resolve one exact directory component only after rejecting links and non-directories.
-#[cfg(any(unix, windows))]
 fn open_selected_parent(
     parent: &cap_std::fs::Dir,
     expected: &std::ffi::OsStr,
@@ -139,12 +134,10 @@ fn open_selected_parent(
     Ok(parent.open_dir(expected)?)
 }
 // Selection-scoped name and parent-link observation, rechecked after member reads.
-#[cfg(any(unix, windows))]
 struct SelectedPath {
     path: RelativePath,
     exact: bool,
 }
-#[cfg(any(unix, windows))]
 impl SelectedPath {
     fn observe(
         root: &Root,
@@ -173,7 +166,6 @@ impl SelectedPath {
 /// Capture only selected member paths. An empty selection still verifies the
 /// owner directory. Membership discovery and ignored-path policy belong to Git
 /// and the domain; this method does not claim unselected members are healthy.
-#[cfg(any(unix, windows))]
 pub fn capture_selected_tree(
     root: &Root,
     owner: &RelativePath,
@@ -201,7 +193,6 @@ pub fn capture_selected_tree(
 }
 
 // Capture a selected member between independent namespace observations.
-#[cfg(any(unix, windows))]
 fn capture_selected_member(
     root: &Root,
     owner: &RelativePath,

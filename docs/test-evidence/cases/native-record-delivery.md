@@ -12,4 +12,4 @@ Contract:
 - 离线安装须验证候选 manifest、目标及资产字节，失败时保护无关文件。
 
 Proves:
-- 固定资产 fixture 验证版本与 hash、损坏拒绝、实际替换回退及无关文件；不证明二进制可运行。
+- 固定资产 fixture 验证 Linux GNU x64 目标、拒绝不支持的 Windows、ARM 和 musl 目标、版本与 hash、损坏拒绝、实际替换回退及无关文件；不证明二进制可运行。

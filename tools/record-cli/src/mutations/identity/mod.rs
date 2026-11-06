@@ -55,10 +55,6 @@ fn mode(file: &source::SourceSnapshot) -> u32 {
     {
         file.identity.mode & 0o7777
     }
-    #[cfg(not(unix))]
-    {
-        file.identity.mode
-    }
 }
 
 // The fresh phase independently prepares the same file facts before transaction writes.

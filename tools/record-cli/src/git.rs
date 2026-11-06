@@ -180,15 +180,9 @@ fn validate_path(path: &std::path::Path) -> Result<(), GitError> {
 
 /// Convert a validated local relative path to Git's slash-separated spelling.
 fn git_path(path: &std::path::Path) -> Result<String, GitError> {
-    #[cfg(windows)]
-    crate::source::RelativePath::new(path)
-        .map_err(|_| GitError::InvalidOutput("invalid relative path"))?;
     let text = path
         .to_str()
         .ok_or(GitError::InvalidOutput("non-UTF8 path"))?;
-    #[cfg(windows)]
-    let text = text.replace('\\', "/");
-    #[cfg(not(windows))]
     let text = text.to_owned();
     validate_path(std::path::Path::new(&text))?;
     Ok(text)
@@ -306,12 +300,6 @@ pub fn workspace_file_mode(
             } else {
                 0o100644
             });
-        }
-        #[cfg(not(unix))]
-        {
-            return Err(GitError::InvalidOutput(
-                "executable mode cannot be inferred on this platform",
-            ));
         }
     }
     let mut matches = pending

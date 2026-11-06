@@ -177,13 +177,6 @@ fn cli_owner_move_preserves_resources_and_platform_metadata() {
     ] {
         std::fs::set_permissions(path, std::fs::Permissions::from_mode(mode)).unwrap();
     }
-    #[cfg(windows)]
-    {
-        let file = owner.join("nested/file.txt");
-        let mut permissions = std::fs::metadata(&file).unwrap().permissions();
-        permissions.set_readonly(true);
-        std::fs::set_permissions(file, permissions).unwrap();
-    }
     #[cfg(unix)]
     let output = std::process::Command::new("sh")
         .args([
@@ -196,13 +189,6 @@ fn cli_owner_move_preserves_resources_and_platform_metadata() {
             "new",
             "--root",
         ])
-        .arg(dir.path())
-        .arg("--json")
-        .output()
-        .unwrap();
-    #[cfg(windows)]
-    let output = std::process::Command::new(env!("CARGO_BIN_EXE_investigation-report"))
-        .args(["rename", "261106-old", "new", "--root"])
         .arg(dir.path())
         .arg("--json")
         .output()
@@ -235,25 +221,6 @@ fn cli_owner_move_preserves_resources_and_platform_metadata() {
         b"mode evidence"
     );
     assert!(!owner.exists());
-    #[cfg(windows)]
-    {
-        use std::os::windows::{ffi::OsStrExt, fs::MetadataExt};
-        use windows_sys::Win32::Storage::FileSystem::{
-            FILE_ATTRIBUTE_NORMAL, FILE_ATTRIBUTE_READONLY, SetFileAttributesW,
-        };
-        let file = moved.join("nested/file.txt");
-        let attributes = std::fs::metadata(&file).unwrap().file_attributes();
-        assert_ne!(attributes & FILE_ATTRIBUTE_READONLY, 0);
-        let remaining = attributes & !FILE_ATTRIBUTE_READONLY;
-        let cleaned = if remaining == 0 {
-            FILE_ATTRIBUTE_NORMAL
-        } else {
-            remaining
-        };
-        let path: Vec<u16> = file.as_os_str().encode_wide().chain(Some(0)).collect();
-        // Clear only the read-only attribute on this private fixture file.
-        assert_ne!(unsafe { SetFileAttributesW(path.as_ptr(), cleaned) }, 0);
-    }
     let denied = std::process::Command::new(env!("CARGO_BIN_EXE_investigation-report"))
         .args(["discard", "261106-new", "--root"])
         .arg(dir.path())

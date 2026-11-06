@@ -17,20 +17,6 @@ fn native_join_preserves_workspace_path_contract() {
     assert!(!crate::domains::investigation::valid_resource_id(
         "240101-owner\\file.txt"
     ));
-    #[cfg(windows)]
-    for invalid in [
-        r"C:relative",
-        r"C:\absolute",
-        r"\\server\share\file",
-        r"\\?\C:\file",
-        r"\\.\NUL",
-        r"records\CON.txt",
-        r"records\..\escape",
-        r"records\file:stream",
-    ] {
-        assert!(super::RelativePath::new(invalid).is_err(), "{invalid}");
-    }
-    #[cfg(not(windows))]
     assert!(super::RelativePath::new(r"records\file.md").is_err());
 }
 #[test]
@@ -115,23 +101,6 @@ fn capture_allows_internal_directory_link_but_rejects_escape() {
         .unwrap();
         std::os::unix::fs::symlink("real/item.md", workspace.path().join("file-link.md")).unwrap();
         std::os::unix::fs::symlink(outside.path(), workspace.path().join("escape")).unwrap();
-    }
-    #[cfg(windows)]
-    {
-        std::os::windows::fs::symlink_dir("real", workspace.path().join("alias"))
-            .expect("native symlink test requires symlink permission");
-        std::os::windows::fs::symlink_file(
-            workspace.path().join("real/item.md"),
-            workspace.path().join("file-link.md"),
-        )
-        .expect("native symlink test requires symlink permission");
-        std::os::windows::fs::symlink_dir(
-            workspace.path().join("real"),
-            workspace.path().join("absolute-alias"),
-        )
-        .expect("native symlink test requires symlink permission");
-        std::os::windows::fs::symlink_dir(outside.path(), workspace.path().join("escape"))
-            .expect("native symlink test requires symlink permission");
     }
     let root = open_root(workspace.path()).unwrap();
     let ExpectedFile::Present(snapshot) =
@@ -274,16 +243,8 @@ fn resource_root_and_owner_are_proven_without_following_links() {
     let present = capture_resource_directories(&root, &resources, &owner).unwrap();
     assert!(present.root_exists() && present.owner_exists());
     assert!(!missing.equivalent(&present));
-    #[cfg(windows)]
-    assert!(
-        capture_resource_directories(&root, &RelativePath::new("Resources").unwrap(), &owner)
-            .is_err()
-    );
     #[cfg(unix)]
     std::os::unix::fs::symlink(outside.path(), workspace.path().join("resources/linked")).unwrap();
-    #[cfg(windows)]
-    std::os::windows::fs::symlink_dir(outside.path(), workspace.path().join("resources/linked"))
-        .expect("native symlink test requires symlink permission");
     assert!(matches!(
         capture_resource_directories(&root, &resources, &RelativePath::new("linked").unwrap()),
         Err(SourceError::Symlink(_))

@@ -40,7 +40,7 @@ stage 的历史空基线须有证明：IR 按固定 HEAD 的正式 namespace 路
 
 #### 测试与性能
 
-先确定 Rust 工具链和独立测试 scope，按 Test Design 建立真实错误与行为边界矩阵，再实施 Cargo 原生测试、项目 Case 和 Windows/Linux CI；普通 quick 不新增 Rust 编译器前置，完整源码检查及原生 scope 使用固定 Rust 工具链，现有 CI 可为此补齐环境前置而不改变发布制品选择。测试使用领域 owner 的独立预期、固定私有 fixture、真实 Git 边界和适当的新旧比较，并保持 Cargo 测试的独立性与执行成本可控。性能测量真实单次进程调用及不同规模，报告构图、I/O 和环境边界。
+先确定 Rust 工具链和独立测试 scope，按 Test Design 建立真实错误与行为边界矩阵，再实施 Cargo 原生测试、项目 Case 和 Linux 原生候选 CI；普通 quick 不新增 Rust 编译器前置，完整源码检查及原生 scope 使用固定 Rust 工具链，现有 CI 可为此补齐环境前置而不改变发布制品选择。测试使用领域 owner 的独立预期、固定私有 fixture、真实 Git 边界和适当的新旧比较，并保持 Cargo 测试的独立性与执行成本可控。性能测量真实单次进程调用及不同规模，报告构图、I/O 和环境边界。
 
 ### Resulting Impacts
 
@@ -54,5 +54,5 @@ stage 的历史空基线须有证明：IR 按固定 HEAD 的正式 namespace 路
 
 ## Open Questions
 
-- 工程在 Windows 原生和 Linux 范围内提出并冻结 target、ABI、最低运行环境与可证明的平台安全语义，再按实际环境验证；能力映射、schema 归属、Cargo 证据采集、CI、工具链和制品接线由 Readiness 定稿。
+- 候选 target 和原生验收环境以[验证计划](verification-plan.md)为准；Windows 原生候选延后，不改变现行 TS 的 Windows 支持。
 - 发现真实平台需求缺口、需要改变既有公开结构或语义、持久格式，或扩大授权范围时，提交具体影响与取舍供用户确认；否则按当前边界推进。

@@ -168,15 +168,13 @@ fn replaced_parent_and_case_alias_are_rejected() {
         MoveDirectoryEffect::NotStarted
     );
     std::fs::remove_dir(temp.path().join("resources/NEW")).unwrap();
-    // Some platforms intentionally hold directory handles without delete sharing.
-    if std::fs::rename(temp.path().join("resources"), temp.path().join("displaced")).is_ok() {
-        std::fs::create_dir(temp.path().join("resources")).unwrap();
-        assert_eq!(
-            move_directory(&root, &tree, &proof).unwrap_err().effect,
-            MoveDirectoryEffect::NotStarted
-        );
-        assert!(temp.path().join("displaced/old/nested/file").exists());
-    }
+    std::fs::rename(temp.path().join("resources"), temp.path().join("displaced")).unwrap();
+    std::fs::create_dir(temp.path().join("resources")).unwrap();
+    assert_eq!(
+        move_directory(&root, &tree, &proof).unwrap_err().effect,
+        MoveDirectoryEffect::NotStarted
+    );
+    assert!(temp.path().join("displaced/old/nested/file").exists());
 }
 #[test]
 fn move_preserves_platform_metadata_and_bytes() {
@@ -221,30 +219,6 @@ fn move_preserves_platform_metadata_and_bytes() {
                 .mode()
                 & 0o7777,
             0o751
-        );
-        assert_eq!(
-            std::fs::read(temp.path().join("resources/new/nested/file")).unwrap(),
-            b"bytes\0here"
-        );
-    }
-    #[cfg(windows)]
-    {
-        use std::os::windows::fs::MetadataExt;
-        let (temp, root, old, new) = fixture();
-        let before = std::fs::metadata(temp.path().join("resources/old"))
-            .unwrap()
-            .file_attributes();
-        move_directory(
-            &root,
-            &capture_tree(&root, &old).unwrap(),
-            &capture_missing(&root, &new).unwrap(),
-        )
-        .unwrap();
-        assert_eq!(
-            std::fs::metadata(temp.path().join("resources/new"))
-                .unwrap()
-                .file_attributes(),
-            before
         );
         assert_eq!(
             std::fs::read(temp.path().join("resources/new/nested/file")).unwrap(),
@@ -297,17 +271,6 @@ fn source_name_replaced_at_syscall_is_unknown() {
         );
         assert_eq!(
             std::fs::read(temp.path().join("resources/displaced/nested/file")).unwrap(),
-            b"bytes\0here"
-        );
-    }
-    #[cfg(windows)]
-    {
-        assert_eq!(
-            std::fs::read(temp.path().join("resources/old/winner")).unwrap(),
-            b"winner"
-        );
-        assert_eq!(
-            std::fs::read(temp.path().join("resources/new/nested/file")).unwrap(),
             b"bytes\0here"
         );
     }

@@ -15,7 +15,7 @@ bun run test:record-delivery
 bun run check -- --scope record-rust
 ```
 
-具体命令和选项以二进制 `help <command>` 为入口，`--root` 指向工作区，领域目录选项为工作区相对路径。验证写操作须使用独立私有 fixture 和真实 Git 状态，不以示例目录指向真实记录。`test:record-rust` 运行 Cargo 全 target 测试及 ignored 节点；scope 还包含格式、clippy、离线交付和项目代码质量检查。quick 不要求 Rust 工具链。执行命令不意味着两平台或所有行为已经验收。
+具体命令和选项以二进制 `help <command>` 为入口，`--root` 指向工作区，领域目录选项为工作区相对路径。验证写操作须使用独立私有 fixture 和真实 Git 状态，不以示例目录指向真实记录。`test:record-rust` 运行 Cargo 全 target 测试及 ignored 节点；scope 还包含格式、clippy、离线交付和项目代码质量检查。quick 不要求 Rust 工具链。执行命令不意味着目标平台或所有行为已经验收。
 
 ## 契约与责任
 
@@ -27,4 +27,4 @@ bun run check -- --scope record-rust
 
 ## 交付与验证边界
 
-[离线交付入口](delivery/README.md)只对私有 fixture 构建、安装和恢复；[性能方法](benchmarks/README.md)定义私有数据和新进程测量；制品不提交 Git。冻结的原生验收目标是 Windows 2022 x64 NTFS 和 Ubuntu 22.04 x64 glibc 2.35；Linux 本机结果或 Windows 交叉编译不证明 Windows 原生通过。候选 CI、Case 和性能报告须分别以实际 revision、环境、测试节点与结果为依据。离线结果不证明正式发布、线上更新或真实用户安装；生产切换与发布另需授权。
+[离线交付入口](delivery/README.md)只对私有 fixture 构建、安装和恢复；[性能方法](benchmarks/README.md)定义私有数据和新进程测量；制品不提交 Git。冻结的原生验收目标是 Ubuntu 22.04 x64 glibc 2.35（`x86_64-unknown-linux-gnu`）；Windows 原生候选延后，现行 TypeScript 的 Windows 支持不变。候选 CI、Case 和性能报告须分别以实际 revision、环境、测试节点与结果为依据。离线结果不证明正式发布、线上更新或真实用户安装；生产切换与发布另需授权。

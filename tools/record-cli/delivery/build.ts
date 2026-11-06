@@ -160,13 +160,13 @@ function createManifest(
     assets: [
       {
         role: "decision-records",
-        file: `decision-records${process.platform === "win32" ? ".exe" : ""}`,
+        file: "decision-records",
         size: 1,
         sha256: "0".repeat(64)
       },
       {
         role: "investigation-report",
-        file: `investigation-report${process.platform === "win32" ? ".exe" : ""}`,
+        file: "investigation-report",
         size: 1,
         sha256: "0".repeat(64)
       }

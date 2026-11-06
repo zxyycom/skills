@@ -27,7 +27,7 @@ node tools/record-cli/benchmarks/run.ts <fixture名> dist/<构建名>/assets <�
 
 执行前后守卫 fixture、候选资产及 manifest、两域旧 CLI 的分发脚本树、benchmark 源码、Node 可执行文件、根锁文件和直接依赖入口字节；manifest 另记录隔离源码快照及 Rust/Cargo 信息。依赖入口和锁文件不证明所有传递依赖字节都已锁定，报告须披露。环境记录 OS/kernel、CPU、文件系统、Node、Git HEAD、输入图形及随机种子；manifest 的源码快照哈希比 HEAD 更能标识可能含未提交改动的候选。应另外记录实际采样时段、机器竞争和环境异常。中断或守卫失败的运行不计入通过。
 
-旧 CLI list/search 是文本，候选为 JSON；trace 两边都是 JSON，但排版也可能不同。输出字节数和 renderer 成本须明确披露，不能声称两边输出成本相同或将只读内核当完整 CLI。禁止清空系统缓存：新进程不等于冷文件缓存；不对 CPU、内存或纯 I/O／构图阶段做未经实测的结论。Windows 未实测不得由 Linux 外推。无统一加速 SLA，退化同样报告。
+旧 CLI list/search 是文本，候选为 JSON；trace 两边都是 JSON，但排版也可能不同。输出字节数和 renderer 成本须明确披露，不能声称两边输出成本相同或将只读内核当完整 CLI。禁止清空系统缓存：新进程不等于冷文件缓存；不对 CPU、内存或纯 I/O／构图阶段做未经实测的结论。测量结论仅适用于实际环境，不外推到未测平台。无统一加速 SLA，退化同样报告。
 
 ## 当前准备状态和未覆盖边界
 

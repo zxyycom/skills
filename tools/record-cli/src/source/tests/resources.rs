@@ -75,12 +75,6 @@ fn selected_tree_does_not_inspect_unselected_link() {
         workspace.path().join("owner/ignored-link"),
     )
     .unwrap();
-    #[cfg(windows)]
-    std::os::windows::fs::symlink_file(
-        outside.path().join("outside.txt"),
-        workspace.path().join("owner/ignored-link"),
-    )
-    .expect("native symlink test requires symlink permission");
     let root = open_root(workspace.path()).unwrap();
     let owner = RelativePath::new("owner").unwrap();
     let selected =
@@ -127,8 +121,6 @@ fn exact_mkdir_never_chmods_replacement_observed_after_creation() {
     let proof = capture_missing(&root, &path).unwrap();
     #[cfg(unix)]
     let expected = 0o700;
-    #[cfg(windows)]
-    let expected = 0x10 | 0x2; // directory + hidden; rival is created without hidden.
     let observed = std::rc::Rc::new(std::cell::Cell::new(0u32));
     let hook_observed = observed.clone();
     let location = workspace.path().to_path_buf();
@@ -150,15 +142,6 @@ fn exact_mkdir_never_chmods_replacement_observed_after_creation() {
                     .mode(),
             );
         }
-        #[cfg(windows)]
-        {
-            use std::os::windows::fs::MetadataExt;
-            hook_observed.set(
-                std::fs::metadata(location.join("owner"))
-                    .unwrap()
-                    .file_attributes(),
-            );
-        }
     });
     let result = create_directory_exclusive(&root, &proof, CreateMode::Exact(expected));
     assert_eq!(result.unwrap_err().effect, CreateEffect::Unknown);
@@ -170,16 +153,6 @@ fn exact_mkdir_never_chmods_replacement_observed_after_creation() {
                 .unwrap()
                 .permissions()
                 .mode(),
-            observed.get()
-        );
-    }
-    #[cfg(windows)]
-    {
-        use std::os::windows::fs::MetadataExt;
-        assert_eq!(
-            std::fs::metadata(workspace.path().join("owner"))
-                .unwrap()
-                .file_attributes(),
             observed.get()
         );
     }

@@ -70,7 +70,6 @@ fn readiness_equivalent(a: &SelectedStatMember, b: &SelectedStatMember) -> bool 
         _ => false,
     }
 }
-#[cfg(any(unix, windows))]
 fn stat_selected_once(root: &Root, path: &RelativePath) -> Result<SelectedStatMember, SourceError> {
     let (parent, parents) = match parent_chain(root, path) {
         Ok(result) => result,
@@ -101,7 +100,6 @@ fn stat_selected_once(root: &Root, path: &RelativePath) -> Result<SelectedStatMe
     })
 }
 // Record the resolved parent paths in the same order as their observed identities.
-#[cfg(any(unix, windows))]
 fn resolved_parent_paths(
     root: &Root,
     path: &RelativePath,
@@ -118,7 +116,6 @@ fn resolved_parent_paths(
 }
 /// Inspect selected members with metadata-only handles and twice-observed
 /// identity; unselected members and all file contents remain unread.
-#[cfg(any(unix, windows))]
 pub fn inspect_selected_tree(
     root: &Root,
     owner: &RelativePath,
@@ -146,7 +143,6 @@ pub fn inspect_selected_tree(
 }
 
 // Recheck selected parent spelling and identity around two metadata observations.
-#[cfg(any(unix, windows))]
 fn inspect_member(
     root: &Root,
     owner: &RelativePath,
@@ -190,7 +186,6 @@ fn same_stat_observation(first: &SelectedStatMember, second: &SelectedStatMember
 }
 
 // A metadata-only no-follow handle verifies a selected regular file's actual identity.
-#[cfg(any(unix, windows))]
 fn stat_regular_file(
     parent: &cap_std::fs::Dir,
     name: &std::ffi::OsStr,
@@ -216,12 +211,6 @@ fn stat_regular_file(
     {
         use cap_std::fs::OpenOptionsExt;
         options.custom_flags(libc::O_PATH | libc::O_CLOEXEC);
-    }
-    #[cfg(windows)]
-    {
-        use cap_fs_ext::OpenOptionsExt;
-        use windows_sys::Win32::Storage::FileSystem::FILE_READ_ATTRIBUTES;
-        options.access_mode(FILE_READ_ATTRIBUTES);
     }
     let file = parent.open_with(name, &options)?.into_std();
     if !file.metadata()?.is_file() {

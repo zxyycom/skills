@@ -4,10 +4,10 @@
 
 ## 制品和来源
 
-- 构建两个原生 bin：`decision-records` 和 `investigation-report`；Windows 文件名带 `.exe`。每个目标的候选目录包含两个文件和一份候选 manifest，存放在已忽略的 `dist/` 私有子目录；二进制、Cargo target 和该目录均不入 Git。
+- 构建两个原生 bin：`decision-records` 和 `investigation-report`。每个目标的候选目录包含两个文件和一份候选 manifest，存放在已忽略的 `dist/` 私有子目录；二进制、Cargo target 和该目录均不入 Git。
 - 候选 manifest 是本地实验的严格 JSON：`schemaVersion: 1`、非空产品 `version`、冻结的 `target`、来源 `source` 和恰好两个资产。资产逐项记录固定角色、单段文件名、字节长度与小写 SHA-256；拒绝未知字段、重复角色/文件名、额外资产、非法版本、路径、目标及数值。安装方必须以调用方预期版本和本机目标独立比对，不能仅信任 manifest 自报。manifest 和资产为一组，hash 校验完整字节；hash 防损坏而不是身份认证。
 - Git pending 不包含未纳入 Git 的本地二进制，也不等于构建输入。构建先采集 `tools/record-cli/` 实际构建闭包（包含未提交和未跟踪源码、Cargo manifest/lock、工具链及适用配置；排除 target、delivery 输出与测试无关生成物），拒绝链接、特殊文件和不安全路径，按路径及原始字节计算确定性 SHA-256 并从**同一隔离快照** `--locked` 构建。记录文件清单和摘要、实际 `rustc -Vv`/Cargo 版本、target、构建参数和相关明确配置；构建前后核对快照未变。依赖由锁文件及校验和约束，外部工具链、系统库、环境和编译器本身不是该源码摘要；记录环境并禁止未经记录的 build flags。存在构建脚本、路径依赖或其他超出快照的输入时须纳入闭包或拒绝，不假称可复现。可附 Git HEAD 和 dirty 状态作为线索，不能代替内容身份。
-- 构建完成独立读取两个文件计算长度和 hash；记录实际命令、环境和来源。候选版本不代表 skill 的 `metadata.version`；构建器须在写出 manifest 前真实运行两个原生二进制的 `--version`，逐项核对角色和调用方预期版本（当前由 Cargo package 提供），不以手写版本或 manifest 自报冒充二进制身份。ABI 及冻结环境的 Windows 原生运行另行证明。
+- 构建完成独立读取两个文件计算长度和 hash；记录实际命令、环境和来源。候选版本不代表 skill 的 `metadata.version`；构建器须在写出 manifest 前真实运行两个原生二进制的 `--version`，逐项核对角色和调用方预期版本（当前由 Cargo package 提供），不以手写版本或 manifest 自报冒充二进制身份。ABI 及冻结环境的 Linux 原生运行另行证明。
 
 ## 私有安装与回退
 
@@ -17,10 +17,10 @@
 
 ## 未来接线及旧入口
 
-未来 GitHub 接入须另获授权：在可追溯提交及受控构建环境分别原生构建两目标，发布各自唯一命名资产与绑定版本、target、长度、hash 和来源的描述；消费方使用受信任的 release 身份获取并校验，不能只凭旁路 manifest 的 hash 证明来源。未来与 `skill-release-manifest.json` 的关系由 `tools/skill-package/` owner 决定，不在此复制或扩展现行协议。`pack:skills` 只处理 Git pending 中的 skill 文件；若未来 skill 包要含原生制品，必须明确新的构建输入、hash 和发布快照如何共同固定，不能把忽略的本地二进制当成 pending 输入。候选结果不证明线上资产、签名、updater 或真实用户环境。
+未来 GitHub 接入须另获授权：在可追溯提交及受控构建环境按届时授权的平台原生构建，发布唯一命名资产与绑定版本、target、长度、hash 和来源的描述；消费方使用受信任的 release 身份获取并校验，不能只凭旁路 manifest 的 hash 证明来源。未来与 `skill-release-manifest.json` 的关系由 `tools/skill-package/` owner 决定，不在此复制或扩展现行协议。`pack:skills` 只处理 Git pending 中的 skill 文件；若未来 skill 包要含原生制品，必须明确新的构建输入、hash 和发布快照如何共同固定，不能把忽略的本地二进制当成 pending 输入。候选结果不证明线上资产、签名、updater 或真实用户环境。
 
 现行 updater 只覆盖新包路径、保留其他本地文件，因而切换后旧 TS/MJS 入口不会自动消失。未来迁移须先明确新入口及平台回退、列出具有可验证所有权的旧受管路径、确认用户定制和实际依赖，然后经明确授权执行清理；不删除身份不明文件。更新前保留可恢复的旧文件与入口映射；失败时按实际提交状态恢复并独立验证旧入口可运行，不能将残留入口视为仍受支持。本轮不实施切换、清理或真实安装。
 
 ## 验收交接
 
-构建/安装测试用独立私有 fixture：覆盖正确身份及真实执行、错目标/版本、缺失/重复资产、长度/hash 损坏、路径逃逸与链接、更新及写入中途失败恢复，并核对未相关字节；独立预期不从被测逻辑生成。最小测试节点及 Case 由平台/测试 owner 接入和审查；Linux 本机实测不替代 Windows 原生 CI，也不替代冻结 Windows 候选环境验证。记录具体 revision、输入摘要、目标、工具链、命令、结果及未覆盖项；本设计本身不是执行证据。
+构建/安装测试用独立私有 fixture：覆盖正确身份及真实执行、错目标/版本、缺失/重复资产、长度/hash 损坏、路径逃逸与链接、更新及写入中途失败恢复，并核对未相关字节；独立预期不从被测逻辑生成。最小测试节点及 Case 由平台/测试 owner 接入和审查；本机实测不替代冻结 Linux 原生候选环境的验证。记录具体 revision、输入摘要、目标、工具链、命令、结果及未覆盖项；本设计本身不是执行证据。

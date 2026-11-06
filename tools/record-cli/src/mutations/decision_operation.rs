@@ -196,8 +196,6 @@ fn verify_moving_files(
                 {
                     #[cfg(unix)]
                     let actual_mode = actual.identity.mode & 0o7777;
-                    #[cfg(not(unix))]
-                    let actual_mode = actual.identity.mode;
                     if actual_mode != *expected_mode {
                         return Err(failure("postverify", "created file mode differs"));
                     }

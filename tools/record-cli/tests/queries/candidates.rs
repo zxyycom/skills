@@ -242,37 +242,9 @@ fn investigation_candidate_referenced_symlink_is_a_resource_issue() {
     let owner = dir.join("_resources").join("260101-one");
     fs::create_dir_all(&owner).unwrap();
     let text = "---\ntitle: \"A title\"\nid: \"260101-one\"\nformedAt: \"2026-01-01T00:00:00Z\"\nquestion: \"A question\"\ntags:\n  - \"topic\"\nrelations: []\n---\n\n## 形成时背景\n背景\n\n## 调查目的\n目的\n\n## 调查范围与依据\n范围\n\n## 调查结果与边界\n结果\n\n## 随附资源\n- [证据](./_resources/260101-one/evidence.txt)\n";
-    #[cfg(windows)]
-    let text = text.replace("/evidence.txt)", "/evidence.txt/evidence.txt)");
     fs::write(dir.join("_candidate.260101-one"), text).unwrap();
     #[cfg(unix)]
     std::os::unix::fs::symlink("/etc/passwd", owner.join("evidence.txt")).unwrap();
-    #[cfg(windows)]
-    {
-        // Junctions do not require the symlink privilege on Windows runners.
-        let target = root.path().join("outside");
-        fs::create_dir(&target).unwrap();
-        fs::write(target.join("evidence.txt"), b"outside evidence").unwrap();
-        let link = owner.join("evidence.txt");
-        let output = Command::new("cmd")
-            .current_dir(root.path())
-            .args(["/C", "mklink", "/J"])
-            .arg(link.strip_prefix(root.path()).unwrap())
-            .arg("outside")
-            .output()
-            .unwrap();
-        assert!(
-            output.status.success(),
-            "mklink failed: status={}; stdout={}; stderr={}",
-            output.status,
-            String::from_utf8_lossy(&output.stdout),
-            String::from_utf8_lossy(&output.stderr)
-        );
-        assert_eq!(
-            fs::canonicalize(link).unwrap(),
-            fs::canonicalize(target).unwrap()
-        );
-    }
     assert!(
         Command::new("git")
             .current_dir(root.path())

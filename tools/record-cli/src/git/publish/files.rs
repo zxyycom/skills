@@ -20,11 +20,6 @@ pub(super) fn open_regular(path: &Path) -> Result<(Vec<u8>, File), GitError> {
         use std::os::unix::fs::OpenOptionsExt;
         options.custom_flags(libc::O_NOFOLLOW);
     }
-    #[cfg(windows)]
-    {
-        use std::os::windows::fs::OpenOptionsExt;
-        options.custom_flags(0x0020_0000); // FILE_FLAG_OPEN_REPARSE_POINT
-    }
     let mut file = options.open(path).map_err(GitError::Io)?;
     let metadata = file.metadata().map_err(GitError::Io)?;
     validate_index_metadata(&metadata)?;
@@ -64,13 +59,6 @@ fn validate_index_metadata(metadata: &fs::Metadata) -> Result<(), GitError> {
     if !metadata.is_file() {
         return Err(GitError::InvalidOutput("index is not a regular file"));
     }
-    #[cfg(windows)]
-    {
-        use std::os::windows::fs::MetadataExt;
-        if metadata.file_attributes() & 0x400 != 0 {
-            return Err(GitError::InvalidOutput("index is a reparse point"));
-        }
-    }
     if metadata.len() > MAX_INDEX_BYTES {
         return Err(GitError::InvalidOutput("index exceeds output budget"));
     }
@@ -102,30 +90,6 @@ pub(super) fn same_file(file: &File, path: &Path) -> Result<bool, GitError> {
     Ok(current.file_type().is_file()
         && opened.dev() == current.dev()
         && opened.ino() == current.ino())
-}
-#[cfg(windows)]
-pub(super) fn same_file(file: &File, path: &Path) -> Result<bool, GitError> {
-    use std::os::windows::fs::{MetadataExt, OpenOptionsExt};
-    // Open the reparse point itself, never follow it while checking lock ownership.
-    const FILE_FLAG_OPEN_REPARSE_POINT: u32 = 0x0020_0000;
-    const FILE_ATTRIBUTE_REPARSE_POINT: u32 = 0x0000_0400;
-    let current = OpenOptions::new()
-        .read(true)
-        .custom_flags(FILE_FLAG_OPEN_REPARSE_POINT)
-        .open(path)
-        .map_err(GitError::Io)?;
-    let metadata = current.metadata().map_err(GitError::Io)?;
-    if !metadata.is_file() || metadata.file_attributes() & FILE_ATTRIBUTE_REPARSE_POINT != 0 {
-        return Ok(false);
-    }
-    crate::source::same_file_identity(file, &current)
-        .map_err(|_| GitError::InvalidOutput("cannot compare lock identity"))
-}
-#[cfg(not(any(unix, windows)))]
-pub(super) fn same_file(_file: &File, _path: &Path) -> Result<bool, GitError> {
-    Err(GitError::InvalidOutput(
-        "lock identity unavailable on this platform",
-    ))
 }
 
 /// Write and read back the owned lock before its rename can become a commit.

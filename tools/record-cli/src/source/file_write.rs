@@ -5,7 +5,6 @@ use super::*;
 /// phase snapshot and the identity/bytes of the actual write handle. The caller
 /// must hold the collection lock and still perform independent postverify.
 /// This does not provide atomic isolation from non-cooperating writers.
-#[cfg(any(unix, windows))]
 pub(crate) fn open_verified_for_update(
     root: &Root,
     expected: &SourceSnapshot,
@@ -27,7 +26,6 @@ pub(crate) fn open_verified_for_update(
 }
 
 // Compare the opened handle before and after reading, then restore its write position.
-#[cfg(any(unix, windows))]
 fn verify_update_handle(file: &mut File, expected: &SourceSnapshot) -> Result<(), SourceError> {
     use std::io::{Read, Seek, SeekFrom};
     if identity_from_handle(file)? != expected.identity {
@@ -68,7 +66,6 @@ pub(crate) struct CreatedFile {
 /// Revalidate the root and parent identities, then create exclusively relative
 /// to the retained parent handle. Once created, all failures report Unknown;
 /// the caller owns journaling and independent verification/recovery.
-#[cfg(any(unix, windows))]
 pub(crate) fn create_exclusive(
     root: &Root,
     proof: &MissingProof,
@@ -116,24 +113,17 @@ pub(crate) fn create_exclusive(
 }
 
 // Validate representation and build no-follow exclusive options before the syscall.
-#[cfg(any(unix, windows))]
 fn create_file_options(
     path: &RelativePath,
     mode: CreateMode,
 ) -> Result<cap_std::fs::OpenOptions, SourceError> {
     use cap_fs_ext::{FollowSymlinks, OpenOptionsFollowExt};
-    #[cfg(windows)]
-    let _ = path;
     let requested = match mode {
         CreateMode::Native(bits) | CreateMode::Exact(bits) => bits,
     };
     #[cfg(unix)]
     if requested > 0o7777 {
         return Err(SourceError::Unsafe(path.0.clone()));
-    }
-    #[cfg(windows)]
-    if let CreateMode::Exact(attributes) = mode {
-        windows::validate_exact_attributes(attributes)?;
     }
     let mut options = cap_std::fs::OpenOptions::new();
     options
@@ -146,15 +136,12 @@ fn create_file_options(
         use cap_fs_ext::OpenOptionsExt;
         options.mode(requested);
     }
-    #[cfg(windows)]
-    let _ = requested;
     Ok(options)
 }
 
 /// Apply and verify the final representation on the actual created handle
 /// after bytes have been written. A failure occurs after creation and therefore
 /// must be journaled as an unknown/partially completed write.
-#[cfg(any(unix, windows))]
 pub(crate) fn finalize_created_mode(
     file: &File,
     mode: CreateMode,
@@ -163,10 +150,6 @@ pub(crate) fn finalize_created_mode(
     if let CreateMode::Exact(bits) = mode {
         use std::os::unix::fs::PermissionsExt;
         file.set_permissions(std::fs::Permissions::from_mode(bits))?;
-    }
-    #[cfg(windows)]
-    if let CreateMode::Exact(attributes) = mode {
-        windows::set_exact_attributes(file, attributes)?;
     }
     let identity = identity_from_handle(file)?;
     #[cfg(unix)]
@@ -192,7 +175,6 @@ pub(crate) struct RemoveFailure {
 /// snapshot. Caller must hold the collection lock; independent postverify and
 /// recovery remain transaction responsibilities. As on the existing runtime,
 /// an unrelated non-cooperative editor is not atomically isolated.
-#[cfg(any(unix, windows))]
 pub(crate) fn remove_if_matches(
     root: &Root,
     expected: &SourceSnapshot,

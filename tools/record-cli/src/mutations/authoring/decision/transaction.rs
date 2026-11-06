@@ -71,8 +71,6 @@ fn verify_writes(root: &Root, plan: &Plan<PreparedEvolution>) -> Result<(), TxEr
                 if let Some(WriteMode::Exact(mode)) = write.mode {
                     #[cfg(unix)]
                     let actual_mode = actual.identity.mode & 0o7777;
-                    #[cfg(not(unix))]
-                    let actual_mode = actual.identity.mode;
                     if mode != actual_mode {
                         return Err(fail("postverify", "mode changed"));
                     }

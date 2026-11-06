@@ -12,9 +12,9 @@
 
 ## 工程定稿与证据接入
 
-- **平台**：在 Windows 原生和 Linux 范围内提出并冻结具体 target、ABI、最低运行环境与可证明的安全语义，按实际环境验证。Windows x64（MSVC）和 Linux x64（glibc）可作为候选，未经验证不构成支持承诺；WSL 不证明 Windows 原生。
+- **平台**：本轮冻结 `x86_64-unknown-linux-gnu`，以 Ubuntu 22.04 x64、glibc 2.35 原生环境验收；实际文件系统及安全语义按[验证计划](verification-plan.md)取证。Windows 原生候选延后，现行 TS 的 Windows 支持不变。
 - **架构与协议**：确定源码/crate 归属、跨语言 schema 权威源、输出协议及单次复用边界；fresh 和写后验收必须独立重新采集。[源码与分发 owner](../../docs/tooling-distribution.md)承接跨语言 schema 与打包输入的归属。
-- **测试与性能**：按测试矩阵接入 Cargo 原生测试节点、项目 Case 和 Windows/Linux CI。[现有 CI](../../.github/workflows/package-skills.yml) 的 Windows job 面向视频；[测试快照命令识别](../../scripts/test-evidence/snapshot/snapshot-commands.ts)及[类型](../../scripts/test-evidence/snapshot/snapshot-types.ts)目前列出 Bun/Node，Cargo 证据采集须作为工程工作接入，见[测试维护](../../docs/test-maintenance.md)。旧实验不构成本候选的性能证据。
+- **测试与性能**：按测试矩阵接入 Cargo 原生测试节点、项目 Case 和 Linux 原生候选 CI；Cargo 实体采集规则见[测试维护](../../docs/test-maintenance.md)。现有视频 Windows CI 不属于候选平台范围调整。旧实验不构成本候选的性能证据。
 - **工具链与制品**：确定独立 Rust 构建与测试 scope，隔离现行 quick、生成和发布入口；设计未来 GitHub 资产与 Git pending 打包输入。旧文件覆盖及恢复边界见 [updater 维护](../../tools/skill-updater/README.md)，离线试验不证明线上更新。
 
 工程负责定稿上述事项。发现真实平台需求缺口、需要改变公开结构或语义、持久格式，或扩大授权范围时，提出具体影响与取舍供用户确认。

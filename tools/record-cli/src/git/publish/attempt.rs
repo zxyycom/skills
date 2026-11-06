@@ -23,12 +23,6 @@ impl<'a> PublicationAttempt<'a> {
         expected: &'a ContentSnapshot,
         updates: &[PendingUpdate],
     ) -> Result<Self, ReplacementFailure> {
-        if cfg!(not(any(unix, windows))) {
-            return Err(failed(
-                FailureKind::Failed,
-                "platform lock identity unavailable",
-            ));
-        }
         if root.canonicalize().map_err(operation)? != expected.root {
             return Err(failed(FailureKind::Conflict, "repository root changed"));
         }

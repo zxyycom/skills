@@ -16,4 +16,4 @@ Contract:
 - 同路径候选更新及资源迁移须保留提交事实和适用平台属性。
 
 Proves:
-- 局部事务核对写入、未写、postverify、目录模式与成员漂移；Unix mode/umask 与 Windows 内部 mode 投影分别验证。
+- 局部事务核对写入、未写、postverify、目录模式与成员漂移；验证 Linux mode 和 umask 的适用观察。

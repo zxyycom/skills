@@ -202,25 +202,3 @@ pub fn capture_header(
     }
     Ok(second)
 }
-#[cfg(not(any(unix, windows)))]
-pub fn open_root(_: &Path) -> Result<Root, SourceError> {
-    Err(SourceError::UnsupportedPlatform)
-}
-#[cfg(not(any(unix, windows)))]
-pub fn capture(_: &Root, _: &RelativePath) -> Result<ExpectedFile, SourceError> {
-    Err(SourceError::UnsupportedPlatform)
-}
-#[cfg(not(any(unix, windows)))]
-pub fn capture_header(_: &Root, _: &RelativePath) -> Result<Option<HeaderSnapshot>, SourceError> {
-    Err(SourceError::UnsupportedPlatform)
-}
-
-#[cfg(not(any(unix, windows)))]
-pub fn capture_bounded(
-    _: &Root,
-    _: &RelativePath,
-    _: u64,
-    _: u64,
-) -> Result<ExpectedFile, SourceError> {
-    Err(SourceError::UnsupportedPlatform)
-}

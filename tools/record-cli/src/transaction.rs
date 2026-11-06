@@ -72,10 +72,6 @@ pub fn run_transaction<T, O: TransactionOperation<T>>(
 fn exact_mode(mode: u32) -> u32 {
     mode & 0o7777
 }
-#[cfg(not(unix))]
-fn exact_mode(mode: u32) -> u32 {
-    mode
-}
 fn append_error(diagnostics: &mut Vec<Diagnostic>, error: TxError) {
     if error.diagnostics.is_empty() {
         diagnostics.push(diagnostic(&error.code, error.message));

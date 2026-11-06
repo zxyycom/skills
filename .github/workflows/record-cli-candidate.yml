@@ -11,11 +11,7 @@ permissions:
 
 jobs:
   candidate:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-22.04, windows-2022]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
@@ -33,7 +29,6 @@ jobs:
         working-directory: tools/record-cli
         run: rustup toolchain install 1.98.1 --profile minimal --component rustfmt --component clippy
       - name: Record Linux environment
-        if: runner.os == 'Linux'
         shell: bash
         run: |
           set -euo pipefail
@@ -47,37 +42,11 @@ jobs:
             git --version
             (cd tools/record-cli && rustc -Vv && cargo -V)
           } | tee dist/record-cli-evidence/environment.txt
-      - name: Record Windows environment and require NTFS
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force dist/record-cli-evidence | Out-Null
-          $volume = Get-Volume -DriveLetter (Get-Item $PWD).PSDrive.Name
-          & {
-            "revision=$(git rev-parse HEAD)"
-            git status --short
-            Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion, OsBuildNumber, OsArchitecture | Format-List
-            $volume | Format-List DriveLetter,FileSystem,FileSystemLabel
-            git --version
-            Push-Location tools/record-cli
-            rustc -Vv
-            cargo -V
-            Pop-Location
-          } | Tee-Object -FilePath dist/record-cli-evidence/environment.txt
-          if ($volume.FileSystem -ne 'NTFS') { throw 'Candidate test volume must use NTFS' }
       - name: Rust format
         run: cargo +1.98.1 fmt --manifest-path tools/record-cli/Cargo.toml -- --check
       - name: Rust clippy
         run: cargo +1.98.1 clippy --manifest-path tools/record-cli/Cargo.toml --locked --all-targets -- -D warnings
-      - name: Windows directory move smoke test
-        id: windows_smoke
-        if: runner.os == 'Windows'
-        timeout-minutes: 5
-        env:
-          RUST_BACKTRACE: 1
-        run: cargo +1.98.1 test --manifest-path tools/record-cli/Cargo.toml --locked --lib source::directory_move::tests::moves_complete_tree_and_conditionally_restores_it -- --exact --nocapture
       - name: Rust native tests
-        if: ${{ !cancelled() && (success() || steps.windows_smoke.outcome == 'failure') }}
         timeout-minutes: 15
         env:
           RUST_BACKTRACE: 1
@@ -95,7 +64,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: record-cli-candidate-${{ matrix.os }}
+          name: record-cli-candidate-ubuntu-22.04
           path: |
             dist/record-cli-evidence/
             dist/record-cli-ci-a/source-files.json

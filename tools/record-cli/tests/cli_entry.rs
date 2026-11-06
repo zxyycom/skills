@@ -11,16 +11,6 @@ fn non_unicode_arguments_use_structured_usage_error_when_json_is_requested() {
             std::ffi::OsString::from_vec(b"--root=\xff".to_vec()),
         )
     };
-    #[cfg(windows)]
-    let (invalid, inline_root) = {
-        use std::os::windows::ffi::OsStringExt;
-        let mut inline: Vec<u16> = "--root=".encode_utf16().collect();
-        inline.push(0xd800);
-        (
-            std::ffi::OsString::from_wide(&[0xd800]),
-            std::ffi::OsString::from_wide(&inline),
-        )
-    };
     let cases = [
         (
             vec!["list".into(), "--json".into(), invalid.clone()],
@@ -178,22 +168,6 @@ fn identity_failure_reports_prepared_plan_separately_from_actual_writes() {
             });
         }
     }
-    #[cfg(windows)]
-    let _deny_delete = {
-        use std::os::windows::fs::OpenOptionsExt;
-        let dir = root.path().join("docs/decisions");
-        let source = std::fs::read_dir(&dir)
-            .unwrap()
-            .map(Result::unwrap)
-            .find(|e| e.file_name().to_string_lossy().ends_with("-sample.md"))
-            .unwrap()
-            .path();
-        std::fs::OpenOptions::new()
-            .read(true)
-            .share_mode(0x1 | 0x2)
-            .open(source)
-            .unwrap()
-    };
     let failed = rename.output().unwrap();
     assert_eq!(
         failed.status.code(),

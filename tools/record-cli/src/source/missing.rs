@@ -144,24 +144,6 @@ fn observed_directory(
         .iter()
         .any(|(candidate, id)| candidate == path && id.same_identity_and_mode(actual))
 }
-#[cfg(windows)]
-fn exact_name_or_missing(
-    parent: &cap_std::fs::Dir,
-    name: &std::ffi::OsStr,
-    path: &RelativePath,
-) -> Result<bool, SourceError> {
-    for entry in parent.entries()? {
-        if entry?.file_name() == name {
-            return Ok(true);
-        }
-    }
-    match parent.symlink_metadata(name) {
-        Ok(_) => Err(SourceError::Unsafe(path.0.clone())),
-        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(false),
-        Err(error) => Err(error.into()),
-    }
-}
-#[cfg(any(unix, windows))]
 pub(super) fn parent_chain(
     root: &Root,
     path: &RelativePath,
@@ -176,10 +158,6 @@ pub(super) fn parent_chain(
         let Component::Normal(name) = component else {
             return Err(SourceError::InvalidPath(path.0.clone()));
         };
-        #[cfg(windows)]
-        if !exact_name_or_missing(&parent, name, path)? {
-            return Err(io::Error::from(io::ErrorKind::NotFound).into());
-        }
         prefix.push(name);
         parent = capability.open_dir(&prefix)?;
         let mut identity = identity_from_handle(&parent.try_clone()?.into_std_file())?;
@@ -189,14 +167,12 @@ pub(super) fn parent_chain(
     Ok((parent, identities))
 }
 // One observation retains the nearest existing ancestor and the uncreated suffix.
-#[cfg(any(unix, windows))]
 struct MissingObservation {
     parent: cap_std::fs::Dir,
     identities: Vec<FileIdentity>,
     paths: Vec<RelativePath>,
     remaining: Vec<std::ffi::OsString>,
 }
-#[cfg(any(unix, windows))]
 fn require_missing_name(
     parent: &cap_std::fs::Dir,
     name: &std::ffi::OsStr,
@@ -209,12 +185,10 @@ fn require_missing_name(
     }
 }
 // Capture the identity of an existing ancestor, or identify the first missing one.
-#[cfg(any(unix, windows))]
 struct ObservedParent {
     directory: cap_std::fs::Dir,
     identity: FileIdentity,
 }
-#[cfg(any(unix, windows))]
 fn open_observed_parent(
     capability: &cap_std::fs::Dir,
     prefix: &Path,
@@ -233,7 +207,6 @@ fn open_observed_parent(
 }
 /// Capture a missing path with its nearest existing, held ancestor and the
 /// remaining missing components. No missing ancestor is silently created.
-#[cfg(any(unix, windows))]
 pub(crate) fn capture_missing(
     root: &Root,
     path: &RelativePath,
@@ -252,11 +225,6 @@ pub(crate) fn capture_missing(
         let mut paths = Vec::new();
         let mut first_missing = components.len() - 1;
         for (i, name) in components.iter().enumerate().take(components.len() - 1) {
-            #[cfg(windows)]
-            if !exact_name_or_missing(&parent, name, path)? {
-                first_missing = i;
-                break;
-            }
             prefix.push(name);
             let Some(next) = open_observed_parent(&capability, &prefix)? else {
                 first_missing = i;

@@ -2,7 +2,6 @@
 use super::*;
 
 // Exact spelling is a namespace fact; a case-folded alias is not absence.
-#[cfg(any(unix, windows))]
 pub(super) fn has_exact_resource_name(
     parent: &cap_std::fs::Dir,
     name: &std::ffi::OsStr,
