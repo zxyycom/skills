@@ -25,3 +25,5 @@ import "./scopes/vibe-check-scope-selection.test.ts";
 import "./scopes/vibe-check-runtime-selection.test.ts";
 import "./cli/vibe-check-cli-performance.test.ts";
 import "../../lib/vibe-gate/performance/performance.test.ts";
+
+import "./native/vibe-check-query-result-waiver.test.ts";

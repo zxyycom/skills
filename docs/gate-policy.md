@@ -35,17 +35,19 @@ Gate 最多并行 4 项，外部进程容量为 3、仓库扫描容量为 2；re
 
 项目政策继续排除上游默认覆盖的 VCS/产品状态、依赖、缓存、覆盖率、日志、临时目录、虚拟环境、构建/生成产物和 `*.generated.*`。其中 build 例外必须有精确边界：根 `build/`、`tools/**/build/`、`scripts/` 其他位置的嵌套 `build/`，以及 `scripts/build/` 内再嵌套的 `build/` 仍被排除；`scripts/build/` 内的 `node_modules/`、`.log/`、`dist/`、`generated/` 等也不能借此进入范围。依赖升级或适配变化时对照上游完整默认集合验收，不能只重建当前想到的少数目录。代码、重复、密钥、JSON、Schema、Markdown 链接与 Markdown 内容 selection 使用同一保护；保留各自既有阈值、规则和历史材料边界。
 
-维护代码是该政策下磁盘中 `scripts/`、`tools/` 的 JavaScript/TypeScript，包括 `scripts/build/` 的真实维护源码：selected 的文件/函数指标只使用所选 `kind: code` 领域 `files` 的维护代码投影，quick 不选择代码指标；changed、full、CI 和 release 使用完整维护代码范围，同样不得漏掉构建适配源码。领域文件声明及投影由[编写契约](gate-check-authoring.md#领域范围与检查订阅)维护，不另建指标路径表。投影必须保留原 selection 的 `useDefaultExcludes` 值及完整项目排除，不能只复制 patterns 而让上游默认层重新隐藏构建源码。各领域分别应用自身包含与排除，再将结果取并集；一个领域的排除不能抵消另一个领域的包含。领域 `additionalInputs`、共同配置及共享输入只影响真实检查输入闭包，不自动扩大指标领域。
+维护代码是该政策下磁盘中 `scripts/` 的 JavaScript/TypeScript 与 `tools/` 的 JavaScript/TypeScript/Rust，包括 `scripts/build/` 的真实维护源码：selected 的文件/函数指标只使用所选 `kind: code` 领域 `files` 的维护代码投影，quick 不选择代码指标；changed、full、CI 和 release 使用完整维护代码范围，同样不得漏掉构建适配源码。领域文件声明及投影由[编写契约](gate-check-authoring.md#领域范围与检查订阅)维护，不另建指标路径表。投影必须保留原 selection 的 `useDefaultExcludes` 值及完整项目排除，不能只复制 patterns 而让上游默认层重新隐藏构建源码。各领域分别应用自身包含与排除，再将结果取并集；一个领域的排除不能抵消另一个领域的包含。领域 `additionalInputs`、共同配置及共享输入只影响真实检查输入闭包，不自动扩大指标领域。
 
 其余原生材料范围不随显式领域收窄。`docs/investigations/_resources/**` 作为非当前维护材料排除。JSON 与 Markdown 链接显式选择 JSON/Markdown 扩展名，并同时排除调查 `_candidate.*` 作者工作台；格式判断由对应原生 Check 完成。
 
 | 检查 | 当前范围与结算 |
 | --- | --- |
 | 重复检测 | 保持 `repository-code` 订阅与完整维护代码范围，不因显式选择任意代码领域自动启动或裁剪，保留跨领域比较责任；不少于 150 tokens 的重复片段形成 blocking finding。原生 fragments cache 位于 `.log/vibe-check/cache/duplicate-fragments/`，本次仍按当前配置结算。 |
-| 密钥检测 | 维护文本型扩展名、Git 属性/忽略文件与 hooks；5,120 文件、单文件 1 MiB、64 MiB 总量上限，高置信 PEM private-key finding、coverage gap 或 unavailable 阻断。 |
+| 密钥检测 | 维护文本型扩展名、Git 属性/忽略文件与 hooks；8,192 文件、单文件 1 MiB、64 MiB 总量上限，高置信 PEM private-key finding、coverage gap 或 unavailable 阻断。 |
 | JSON / Schema | JSON 检查维护材料；Schema 显式选择 Task Graph/Test Evidence 的两项 schema 和两项 binding，以配置为 schema 身份，使用 offline registry/catalog。 |
 | Markdown 链接 | 当前维护材料的直接 target、anchor、目录和 symlink 由本次验证承担；root-external 使用 report 边界。有限预算覆盖完整维护范围：单文件 1 MiB、10,000 个语义 occurrence、4,096 次直接端点逻辑校验（含 memo 命中，不是唯一 target 数）。parse-facts cache 位于 `.log/vibe-check/cache/markdown-parse-facts/`，命中仍重新验证目标并结算。 |
 | Markdown 内容 | `**/*.[mM][dD]` 与 `**/*.[mM][aA][rR][kK][dD][oO][wW][nN]`，另排除调查资源、调查 `_candidate.*`、`skills/**/references/upstream/**` 和 `skills/**/reference-original.md`。blocking 六规则：`no-reversed-links`、`no-missing-space-atx`、`no-empty-links`、`no-alt-text`、`reference-links-images`、`table-column-count`；仅自动 changed 完整输入精确命中成功 receipt 时可省略；执行时可复用 `.log/vibe-check/cache/markdown-lint-facts/` 的逐文件计算事实，仍按完整当前范围和规则结算。链接/锚点由独立 Check 每轮验证。 |
-| 文件/函数指标 | 按本节所述执行范围选择维护代码，全部使用 blocking policy。文件指标使用 PATH SCC 4.0.0，函数指标使用随包 TypeScript analyzer；finding 进入本次 `machine/records.ndjson`。 |
+| 文件/函数指标 | 按本节所述执行范围选择维护代码，全部使用 blocking policy。文件指标使用 PATH SCC 4.0.0，函数指标使用随包对应语言 analyzer；finding 进入本次 `machine/records.ndjson`。 |
+
+重复检测对记录 CLI 两域 `QueryResult` 唯一已审阅片段使用原生精确 finding waiver：仅匹配 `tools/record-cli/src/queries/decision.rs:88-112` 与 `tools/record-cli/src/queries/investigation.rs:55-79` 的完整位置组合；保留 Finding 与理由，不降低其他片段阈值。位置变化须重新审阅并更新；此 identity 不包含内容 hash，`unused` 或 `overmatched` 只产生审计记录与 warning，维护者须主动复核，不能视为自动阻断或内容未变的证明。保留独立领域载荷的理由见[决策记录](decisions/261106-retain-domain-query-result-types.md)。
 
 函数普通上限依次为 NLOC、CCN、nesting depth、参数数：产品源码 `45/10/5/5`，自动化脚本 `80/16/8/7`，测试 `100/20/10/8`。低复杂度 NLOC allowance 分别为 CCN 严格低于 `5/7/8` 时允许到 `120/220/250`。每条阻断信号都须验收前处置，仍按[编码规范](coding-style.md#6-保持局部可推理并按责任组织代码)复核真实责任，不以放宽阈值或批量 waiver 替代整改。finding 数量与耗时是测量，不是固定 catalog 边界。

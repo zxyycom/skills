@@ -15,7 +15,9 @@
 
 ## 测试证据账本
 
-本仓库使用固定的 `docs/test-evidence/` 根目录、其中的 `cases/` 单 Case 文件和固定派生索引维护测试账本。账本覆盖 `test:*` 稳定入口保留的全部最小原生测试入口；每个 Case 按同一测试意图承接一个或多个可独立选择、单独报告的最小原生测试节点。框架不限，本仓库当前沿用 `node:test` API 定义节点；普通测试通过 `bun test` 执行，task-graph 原生 lock 集成测试通过其声明支持的 Node.js `--test` 执行。测试文件、package script 和完整检查仍只是聚合容器。
+本仓库使用固定的 `docs/test-evidence/` 根目录、其中的 `cases/` 单 Case 文件和固定派生索引维护测试账本。账本覆盖 `test:*` 稳定入口保留的全部最小原生测试入口；每个 Case 按同一测试意图承接一个或多个可独立选择、单独报告的最小原生测试节点。框架不限：普通 JavaScript/TypeScript 测试沿用 `node:test` API 并通过 `bun test` 执行，task-graph 原生 lock 集成测试与候选交付测试使用 Node.js `--test`；Record Rust 候选使用 Cargo 原生测试节点。测试文件、package script 和完整检查仍只是聚合容器。
+
+Cargo 快照针对 `test:record-rust` 的固定命令，以 metadata 核对 target，再通过各测试二进制 `--list` 枚举原生节点（含 ignored），以 target 和完整测试名区分实体；doc test 不作为该入口的账本实体。缺失 target、空集合或采集失败须失败，平台条件节点只代表本机枚举结果，不代表另一平台的覆盖。
 
 Case 使用 Tests、可选 tags、Contract 与 Proves，由测试改动显式维护。工具不扫描源码、自动登记 Case 或执行测试；核心 `check`、查询和 `sync-index` 只读取 Case 与索引。
 

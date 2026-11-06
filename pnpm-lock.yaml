@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
-  '@zxyycom/vibe-check@0.0.5': 2ce7028ae0681f51287cec35b828c73d05a178bbd973ee20f23174a77e883509
+  '@zxyycom/vibe-check@0.0.5': 00283c70e827b437be52128bbc336343703652c9c61263d724bd2e1b95cddfa6
 
 importers:
 
@@ -34,7 +34,7 @@ importers:
         version: 1.7.1(valibot@1.4.2)
       '@zxyycom/vibe-check':
         specifier: 0.0.5
-        version: 0.0.5(patch_hash=2ce7028ae0681f51287cec35b828c73d05a178bbd973ee20f23174a77e883509)
+        version: 0.0.5(patch_hash=00283c70e827b437be52128bbc336343703652c9c61263d724bd2e1b95cddfa6)
       ajv:
         specifier: 8.17.1
         version: 8.17.1
@@ -1530,7 +1530,7 @@ snapshots:
     dependencies:
       valibot: 1.4.2
 
-  '@zxyycom/vibe-check@0.0.5(patch_hash=2ce7028ae0681f51287cec35b828c73d05a178bbd973ee20f23174a77e883509)':
+  '@zxyycom/vibe-check@0.0.5(patch_hash=00283c70e827b437be52128bbc336343703652c9c61263d724bd2e1b95cddfa6)':
     dependencies:
       '@secretlint/core': 13.0.5
       '@secretlint/secretlint-rule-privatekey': 13.0.5

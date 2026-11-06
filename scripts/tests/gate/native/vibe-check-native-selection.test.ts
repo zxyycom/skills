@@ -88,9 +88,9 @@ test("native file selections exclude historical content and authoring candidates
     }
   }
   for (const [areaId, requiredPatterns] of [
-    ["product", ["tools/**/*.{js,ts}", "!tools/**/tests/**"]],
+    ["product", ["tools/**/*.{js,ts,rs}", "!tools/**/tests/**"]],
     ["automation", ["scripts/**/*.{js,ts}", "!scripts/**/*.test.{js,ts}"]],
-    ["tests", ["scripts/**/*.test.{js,ts}", "tools/**/tests/**/*.{js,ts}"]]
+    ["tests", ["scripts/**/*.test.{js,ts}", "tools/**/tests/**/*.{js,ts,rs}"]]
   ] as const) {
     const area = codeAreaOptions(optionsById, "function-metrics", areaId);
     assert.equal(
@@ -184,7 +184,7 @@ test("project secret detection keeps its limits and scans selected source and ho
     );
     assert.ok(check);
     const options = optionsRecord(check.options, "missing secret options");
-    assert.equal(options.maximumFileCount, 5_120);
+    assert.equal(options.maximumFileCount, 8_192);
     assert.equal(options.maximumFileBytes, 1_048_576);
     assert.equal(options.maximumTotalBytes, 67_108_864);
     assert.deepEqual(options.findingWaivers, []);

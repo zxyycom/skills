@@ -297,6 +297,13 @@ export const gateToolScopes = {
     domainRuntimeInputs
   ),
   "record-search-output": toolScope(searchOutputInputs, domainRuntimeInputs),
+  "record-rust": toolScope(
+    ["tools/record-cli/**"],
+    [
+      ...commonGateInputPatterns,
+      "tools/investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md"
+    ]
+  ),
   "record-operations": toolScope(recordOperationInputs, domainRuntimeInputs),
   "record-operations-tests": toolScope([
     "tools/record-operations/tests/**/{transaction.test,transaction-contract,transaction-creation-contract,transaction-fixture,transaction-verification-contract,reader-batch.test,reader-snapshot.test,reader-worker-runtime.test,reader-fixture,source-acquisition.test,run}.ts",

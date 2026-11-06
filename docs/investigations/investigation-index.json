@@ -1303,6 +1303,35 @@
       ],
       "title": "Rust trace 查重优化后的关系图性能对照"
     },
+    "261106-rust-function-metrics-boundaries": {
+      "formedAt": "2026-11-06T10:23:37Z",
+      "name": "rust-function-metrics-boundaries",
+      "question": "为何合法 Rust 会使函数指标不可用或失真，如何修复并界定验证范围？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "261106-rust-function-metrics-boundaries.md",
+      "tags": [
+        "function-metrics",
+        "gate",
+        "rust"
+      ],
+      "title": "Rust 函数指标的词法与声明边界误判"
+    },
+    "261106-rust-transaction-namespace-race": {
+      "formedAt": "2026-11-06T08:29:57Z",
+      "name": "rust-transaction-namespace-race",
+      "question": "候选原生事务在删除恢复、删除后验收及 mkdir 后竞争中，是否会写入竞争者命名空间或误报完整恢复，如何保全旧资源？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "261106-rust-transaction-namespace-race.md",
+      "tags": [
+        "concurrency",
+        "native-cli",
+        "recovery",
+        "rust"
+      ],
+      "title": "Rust 候选事务恢复的父链与目录归属竞态"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -2020,6 +2049,8 @@
       "261105-rust-query-algorithmic-complexity": "sha256:4cc79ca0d4e610141c1beda1369ad8f77b6a9b6596b62d613138a5ccaa738de3",
       "261105-rust-query-fixed-cost-and-scale": "sha256:6ecf09c891f5f1e276fcd8e2494435b854efa13ce6566bc9d3cdf7ea866e372b",
       "261105-rust-trace-aligned-graph-performance": "sha256:355fa3139a6a4e6aa4ab8bab69df53dc59d9bce1b06a998130f192bb47a619cd",
+      "261106-rust-function-metrics-boundaries": "sha256:e85870944d58186950abe4e47806a302259dd0a5da3838908d9f6443751b3031",
+      "261106-rust-transaction-namespace-race": "sha256:3a2f6b27fe32c95d72cc6383bdd102296e7975ef3efbd4723d245aeae1eae88d",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:512b8f0c5b6466034d7d851032bf41af7413a227bdd19c62959fc2ad343d495c",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

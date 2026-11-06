@@ -22,8 +22,8 @@
 | `bun run check [--diagnostic-log]` | 默认 quick：执行 [Catalog 与选择](gate-execution.md#catalog-与选择)列出的六项公共基线，强制快速性能预算；不采集全局指纹或读写 receipt，不代替代码质量与领域校验。 |
 | `bun run check -- --scope <capability> [--scope <capability> ...]` | 公共基线加显式领域检查、按领域 `kind` 带入的质量检查及必要依赖；多领域独立求文件集合后取并集，重复去重。用 `bun run check -- --list-scopes` 查询实际能力名。按当前任务影响选择，不随其他工作区改动扩张。 |
 | `bun run check:changed`（或 `bun run all`） | changed：自动判断完整 base 范围的变更相关验收，使用精确 receipt 与成功发布事务；用于影响范围不明或需要工作区整体兜底时。 |
-| `bun run check --scope full` | 实际执行全部 66 项 base，不复用或发布 receipt；CI 的任意 base scope 均提升到 full。 |
-| `bun run check --tag release [--baseline-ref <ref>] [--cold] [--diagnostic-log]` | 运行完整 69 项 release Gate，不采集、读取或发布项目 receipt；环境前置通过后实际执行普通检查，再完成版本授权与打包。省略基线时使用 `HEAD`，CI 使用事件基线；`--cold` 明确表达全执行意图。 |
+| `bun run check --scope full` | 实际执行全部 base 检查，不复用或发布 receipt；CI 的任意 base scope 均提升到 full。 |
+| `bun run check --tag release [--baseline-ref <ref>] [--cold] [--diagnostic-log]` | 运行完整 release Gate，不采集、读取或发布项目 receipt；环境前置通过后实际执行普通检查，再完成版本授权与打包。省略基线时使用 `HEAD`，CI 使用事件基线；`--cold` 明确表达全执行意图。 |
 
 `typecheck` 从根 `tsconfig.json` 的 include 开始检查，并沿 import 检查传递可达的 skill TS/MTS 与声明；涉及模块解析的 skill manifest 也属于输入。它证明当前 TypeScript program 类型有效，源码与生成物一致性由统一生成检查另证。type-aware `lint` 同样保守纳入该程序输入；`format` 保持自身独立范围。
 
@@ -78,6 +78,7 @@ task-graph 短命令另外承担项目 root 选择。省略 `--root` 时，它�
 | Decision Records | `test:decision-records-cli` | `sync:decision-records-cli` | `check:decision-records-cli`、`check:decisions` |
 | Skill Validator | `test:skill-validator` | `sync:skill-validator` | `check:skill-validator` |
 | Investigation Report | `test:investigation-report-check` | `sync:investigation-report-check` | `check:investigation-report-check`、`check:investigations` |
+| Record Rust 候选 | `test:record-rust`、`test:record-delivery` | — | `bun run check -- --scope record-rust` |
 | Task Graph | `test:task-graph-cli` | `sync:task-graph-cli` | `check:task-graph-cli`、`check:task-graph-index` |
 | Test Evidence | `test:test-evidence-cli`、`test:test-evidence-project` | `sync:test-evidence-cli`、`sync:test-evidence-catalog` | `check:test-evidence-cli`、`check:test-evidence-catalog` |
 | Skill Updater | `test:skill-updater` | `sync:skill-updaters` | `check:skill-updaters` |

@@ -21,6 +21,7 @@
 | 修改项目级 agent 协作约定 | [AGENTS](../AGENTS.md) | 改变任务路由或内容 owner 时读本文；需要让文档更适合 AI 阅读和使用时读 [AI-Ready Docs](../skills/ai-ready-docs/SKILL.md) |
 | 修改工具源码、项目脚本、校验、打包、CI 或 updater | [项目工具链的源码与依赖边界](tooling-distribution.md#源码与依赖边界)、[编码规范](coding-style.md) | 按[环境自举](tooling-environment.md)、[稳定维护命令](tooling-commands.md)、[源码生成与分发](tooling-distribution.md)及[Gate 执行](gate-execution.md)选择相关 owner；修改 `tools/<tool-name>/` 时补读该目录的局部契约；工具服务特定 skill 时再读其行为 owner；改变通用分发边界时读 [仓库模型](repository-model.md) |
 | 维护视频源码、Windows 开发或验收视频 zip | [视频工具维护](../tools/video-understanding/README.md) | [CI 与发布](tooling-delivery.md#ci-与发布)；实际媒体、网站与 OCR 支持范围由 [Video Understanding](../skills/video-understanding/SKILL.md) 的参考材料承接 |
+| 维护记录工具 Rust 候选 | [Record CLI 候选维护](../tools/record-cli/README.md) | 按涉及领域读取现行 CLI 及共同操作模型；候选交付与验收不替代生产入口 |
 | 修改调查或决策工具的 CLI、SDK 或测试实现 | [调查工具维护](../tools/investigation-report/README.md)、[决策工具维护](../tools/decision-records/README.md)中对应入口 | 所改行为的领域规则与 CLI 操作契约；共同操作的责任与事务模型见 [Record Operations 模型](../tools/record-operations/model.md)；普通报告或决策维护从各自 skill 进入 |
 | 准备或恢复开发环境 | [环境自举](tooling-environment.md) | 日常操作时读[稳定维护命令](tooling-commands.md)；setup 有安装和本地配置副作用 |
 | 查询日常维护命令 | [稳定维护命令](tooling-commands.md) | 具体领域 CLI、生成及交付契约按命令责任补读 |

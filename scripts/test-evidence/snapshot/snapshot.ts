@@ -19,6 +19,7 @@ import {
   selector
 } from "./snapshot-commands.ts";
 import { snapshotFailure } from "./snapshot-files.ts";
+import { collectCargoEntities } from "./snapshot-cargo.ts";
 import { SnapshotModuleScan } from "./snapshot-ast-scan.ts";
 import { collectRegistration } from "./snapshot-junit.ts";
 import {
@@ -154,12 +155,16 @@ export async function createRepositoryTestEvidenceSnapshot(
     path.join(os.tmpdir(), "skills-test-evidence-")
   );
   try {
-    const entities = await collectRepositoryEntities(
-      workspaceRoot,
-      commands,
-      definitions,
-      reportDirectory
-    );
+    const entities = [
+      ...(await collectRepositoryEntities(
+        workspaceRoot,
+        commands,
+        definitions,
+        reportDirectory
+      ))
+    ];
+    entities.push(...(await collectCargoEntities(workspaceRoot)));
+    entities.sort((left, right) => left.id.localeCompare(right.id));
     assertUnchangedSource(
       before,
       await sourceFingerprint(workspaceRoot, excludedSourcePaths)

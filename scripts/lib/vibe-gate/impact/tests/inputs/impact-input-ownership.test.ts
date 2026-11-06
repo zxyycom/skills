@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { gateToolScopes } from "../../impact-tools.ts";
 import { domainInputOwnershipCases } from "./impact-input-ownership-fixture.ts";
 import {
   prepareChangedFixtureActivation,
@@ -310,5 +311,31 @@ test("incremental Gate assigns domain-owned inputs to their actual consumers", a
         0
       );
     }
+  });
+});
+
+test("record Rust test fixture changes invalidate the Cargo receipt without widening metric ownership", async () => {
+  await withImpactFixture(async (fixture) => {
+    const input =
+      "tools/investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md";
+    const plan = await prepareChangedFixtureActivation(fixture, input);
+    assert.deepEqual(gateToolScopes["record-rust"].files, [
+      "tools/record-cli/**"
+    ]);
+    assert.ok(gateToolScopes["record-rust"].additionalInputs.includes(input));
+    assert.equal(plan.kind, "incremental");
+    assert.deepEqual(plan.snapshot.unclassifiedPaths, []);
+    assert.ok(plan.activeToolIds.includes("record-rust"));
+    assert.equal(
+      plan.decisions.find((item) => item.checkId === "test:record-rust:cargo")
+        ?.action,
+      "execute"
+    );
+    assert.equal(
+      plan.decisions.find(
+        (item) => item.checkId === "test:novel-cards:card-and-query-contract"
+      )?.action,
+      "reuse"
+    );
   });
 });

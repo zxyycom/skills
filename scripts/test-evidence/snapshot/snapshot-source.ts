@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import * as v from "valibot";
 import type { RepositoryTestSource } from "./snapshot-types.ts";
 import {
   isWithin,
@@ -30,7 +31,8 @@ async function trackedSourceFiles(
       "--",
       "scripts",
       "tools",
-      "skills"
+      "skills",
+      ".cargo"
     ],
     workspaceRoot
   );
@@ -43,7 +45,13 @@ async function trackedSourceFiles(
     .split("\0")
     .filter((entry) => entry.length > 0)
     .filter((entry) => !excludedSourcePaths.has(entry.replaceAll("\\", "/")))
-    .filter((entry) => /\.(?:[cm]?[jt]s|json)$/u.test(entry))
+    .filter(
+      (entry) =>
+        entry.startsWith("tools/record-cli/") ||
+        entry ===
+          "tools/investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md" ||
+        /\.(?:[cm]?[jt]s|json|rs|toml|lock)$/u.test(entry)
+    )
     .sort();
 }
 
@@ -133,8 +141,46 @@ export async function sourceFingerprint(
       "could not fingerprint required Bun, Node, and ast-grep versions"
     );
   }
+  const manifest = v.parse(
+    v.object({ scripts: v.optional(v.record(v.string(), v.unknown())) }),
+    JSON.parse(
+      await fs.readFile(path.join(workspaceRoot, "package.json"), "utf8")
+    )
+  );
+  const cargoEnabled = manifest.scripts?.["test:record-rust"] !== undefined;
+  let cargoVersion = "";
+  let rustVersion = "";
+  if (cargoEnabled) {
+    const cargo = await runSnapshotCommand(
+      "cargo",
+      ["--version"],
+      path.join(workspaceRoot, "tools/record-cli")
+    );
+    const rust = await runSnapshotCommand(
+      "rustc",
+      ["-Vv"],
+      path.join(workspaceRoot, "tools/record-cli")
+    );
+    if (cargo.exitCode !== 0 || rust.exitCode !== 0)
+      throw snapshotFailure("could not fingerprint Rust toolchain");
+    cargoVersion = cargo.output.trim();
+    rustVersion = rust.output.trim();
+  }
   digest.update(
     JSON.stringify({
+      cargo: cargoVersion,
+      rust: rustVersion,
+      rustEnvironment: cargoEnabled
+        ? Object.fromEntries(
+            [
+              "RUSTFLAGS",
+              "CARGO_ENCODED_RUSTFLAGS",
+              "CARGO_BUILD_TARGET",
+              "RUSTC_WRAPPER",
+              "RUSTC_WORKSPACE_WRAPPER"
+            ].map((key) => [key, process.env[key] ?? null])
+          )
+        : null,
       arch: process.arch,
       astGrep: astVersion.output.trim(),
       bun: bunVersion.output.trim(),

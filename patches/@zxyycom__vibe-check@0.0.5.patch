@@ -1,5 +1,102 @@
+diff --git a/dist/esm/package-checks/function-metrics/analyzer/extensions/lizardnd.mjs b/dist/esm/package-checks/function-metrics/analyzer/extensions/lizardnd.mjs
+index da8e9339..dfbdbb5f 100644
+--- a/dist/esm/package-checks/function-metrics/analyzer/extensions/lizardnd.mjs
++++ b/dist/esm/package-checks/function-metrics/analyzer/extensions/lizardnd.mjs
+@@ -63,6 +63,9 @@ export class LizardExtension {
+                     reader.context.set_logical_operator_added(false);
+                 }
+             }
++            else if ((token === "&&" || token === "||") && reader.languageNames.includes("rust")) {
++                // Rust short-circuit expressions do not introduce a nested block.
++            }
+             else if (token === "&&" ||
+                 token === "||" ||
+                 (token === "??" && reader.logicalOperators.has(token))) {
+diff --git a/dist/esm/package-checks/function-metrics/analyzer/readers/rust.mjs b/dist/esm/package-checks/function-metrics/analyzer/readers/rust.mjs
+index c725f32d..e797ecd8 100644
+--- a/dist/esm/package-checks/function-metrics/analyzer/readers/rust.mjs
++++ b/dist/esm/package-checks/function-metrics/analyzer/readers/rust.mjs
+@@ -8,12 +8,17 @@ export class RustReader extends CodeReader {
+     static logicalOperators = new Set(["&&", "||"]);
+     static caseKeywords = new Set();
+     static ternaryOperators = new Set(["?"]);
++    // Rust `?` propagates an error; it is not a nested ternary expression.
++    loops = new Set(["if", "foreach", "for", "while", "&&", "||", "catch", "case", "try", "def"]);
+     constructor(context) {
+         super(context);
+         this.parallelStates = [new RustStates(context)];
+     }
+     static generateTokens(sourceCode, _addition = "", tokenFactory) {
+-        return CodeReader.generateTokens(sourceCode, String.raw `|(?:'\w+\b)`, tokenFactory);
++        // Rust raw strings do not escape quotes with backslashes. Consume the
++        // matching hash-delimited literal before the shared escaped-string rule.
++        const rawString = String.raw `|(?:b|c)?r(#{0,255})"[\s\S]*?"\1`;
++        return CodeReader.generateTokens(sourceCode, rawString + String.raw `|(?:'\w+\b)`, tokenFactory);
+     }
+     get_comment_from_token(token) {
+         return CCppCommentsMixin.get_comment_from_token(token);
+@@ -24,11 +29,59 @@ class RustStates extends GoLikeStates {
+     _in_match_arms;
+     _seen_match_arm = false;
+     _match_subject_nesting = 0;
++  parameterDepth = 0;
++  genericDepth = 0;
++  otherDepth = 0;
++  addFunctionParameter = (token) => {
++    if (token === "(") {
++      this.parameterDepth++;
++      return;
++    }
++    if (token === ")") {
++      this.parameterDepth--;
++      return;
++    }
++    if (token === "<")
++      this.genericDepth++;
++    if (token === ">" && this.genericDepth > 0)
++      this.genericDepth--;
++    if (token === "[" || token === "{")
++      this.otherDepth++;
++    if ((token === "]" || token === "}") && this.otherDepth > 0)
++      this.otherDepth--;
++    if (token === "," && (this.parameterDepth > 1 || this.genericDepth > 0 || this.otherDepth > 0)) {
++      this.context.parameter(" ");
++    } else {
++      this.context.parameter(token);
++    }
++  };
++  _expect_function_impl(token) {
++    if (token === ";") {
++      this.context.forgive = true;
++      this.context.endOfFunction();
++      this.next(this.globalState);
++    } else {
++      super._expect_function_impl(token);
++    }
++  }
++  _rust_function_name = (token) => {
++    if (/^(?:r#)?[a-zA-Z_][a-zA-Z0-9_]*$/.test(token)) {
++      super._state_global("fn");
++      this._function_name(token);
++    } else {
++      this.next(this.globalState, token);
++    }
++  };
++
+     constructor(context, inMatchArms = false) {
+         super(context);
+         this._in_match_arms = inMatchArms;
+     }
+     _state_global(token) {
++        if (token === "fn") {
++            this.next(this._rust_function_name);
++            return;
++        }
+         if (token === "=>") {
+             if (this._in_match_arms) {
+                 if (this._seen_match_arm) {
 diff --git a/dist/esm/package-checks/markdown-lint/findings-cache.mjs b/dist/esm/package-checks/markdown-lint/findings-cache.mjs
-index e4c7c52ba7bafd42e469974a5011ef8d37f890a1..af82907321e482633e0f54db472550fd3469bde0 100644
+index e4c7c52b..dda70375 100644
 --- a/dist/esm/package-checks/markdown-lint/findings-cache.mjs
 +++ b/dist/esm/package-checks/markdown-lint/findings-cache.mjs
 @@ -1,6 +1,6 @@
@@ -25,15 +122,127 @@ index e4c7c52ba7bafd42e469974a5011ef8d37f890a1..af82907321e482633e0f54db472550fd
      }
      catch {
          return undefined;
+diff --git a/src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts b/src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts
+index 0d2cb8c6..a2b8c754 100644
+--- a/src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts
++++ b/src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts
+@@ -71,6 +71,8 @@ export class LizardExtension implements LizardExtensionProtocol {
+           reader.context.set_in_condition(false);
+           reader.context.set_logical_operator_added(false);
+         }
++      } else if ((token === "&&" || token === "||") && reader.languageNames.includes("rust")) {
++        // Rust short-circuit expressions do not introduce a nested block.
+       } else if (
+         token === "&&" ||
+         token === "||" ||
+diff --git a/src/package-checks/function-metrics/analyzer/readers/rust.ts b/src/package-checks/function-metrics/analyzer/readers/rust.ts
+index 7cc8e3e9..6d6766e1 100644
+--- a/src/package-checks/function-metrics/analyzer/readers/rust.ts
++++ b/src/package-checks/function-metrics/analyzer/readers/rust.ts
+@@ -16,6 +16,8 @@ export class RustReader extends CodeReader {
+   public static override logicalOperators = new Set(["&&", "||"]);
+   public static override caseKeywords = new Set<string>();
+   public static override ternaryOperators = new Set(["?"]);
++  // Rust `?` propagates an error; it is not a nested ternary expression.
++  public readonly loops = new Set(["if", "foreach", "for", "while", "&&", "||", "catch", "case", "try", "def"]);
+-
++
+   public constructor(context: FileInfoBuilder) {
+     super(context);
+@@ -27,7 +29,10 @@ export class RustReader extends CodeReader {
+     _addition = "",
+     tokenFactory?: TokenFactory
+   ): Generator<string> {
+-    return CodeReader.generateTokens(sourceCode, String.raw`|(?:'\w+\b)`, tokenFactory);
++    // Rust raw strings do not escape quotes with backslashes. Consume the
++    // matching hash-delimited literal before the shared escaped-string rule.
++    const rawString = String.raw`|(?:b|c)?r(#{0,255})"[\s\S]*?"\1`;
++    return CodeReader.generateTokens(sourceCode, rawString + String.raw`|(?:'\w+\b)`, tokenFactory);
+   }
+-
++
+   public override get_comment_from_token(token: string): string | undefined {
+@@ -40,6 +45,42 @@ class RustStates extends GoLikeStates {
+   private readonly _in_match_arms: boolean;
+   private _seen_match_arm = false;
+   private _match_subject_nesting = 0;
++  private parameterDepth = 0;
++  private genericDepth = 0;
++  private otherDepth = 0;
++
++  protected override readonly addFunctionParameter = (token: string): void => {
++    if (token === "(") { this.parameterDepth++; return; }
++    if (token === ")") { this.parameterDepth--; return; }
++    if (token === "<") this.genericDepth++;
++    if (token === ">" && this.genericDepth > 0) this.genericDepth--;
++    if (token === "[" || token === "{") this.otherDepth++;
++    if ((token === "]" || token === "}") && this.otherDepth > 0) this.otherDepth--;
++    if (token === "," && (this.parameterDepth > 1 || this.genericDepth > 0 || this.otherDepth > 0)) {
++      this.context.parameter(" ");
++    } else {
++      this.context.parameter(token);
++    }
++  };
++
++  protected override _expect_function_impl(token: string): void {
++    if (token === ";") {
++      this.context.forgive = true;
++      this.context.endOfFunction();
++      this.next(this.globalState);
++    } else {
++      super._expect_function_impl(token);
++    }
++  }
++
++  private readonly _rust_function_name = (token: string): void => {
++    if (/^(?:r#)?[a-zA-Z_][a-zA-Z0-9_]*$/.test(token)) {
++      super._state_global("fn");
++      this._function_name(token);
++    } else {
++      this.next(this.globalState, token);
++    }
++  };
+-
++
+   public constructor(context: FileInfoBuilder, inMatchArms = false) {
+     super(context);
+@@ -47,6 +88,10 @@ class RustStates extends GoLikeStates {
+   }
+-
++
+   public override _state_global(token: string): void {
++    if (token === "fn") {
++      this.next(this._rust_function_name);
++      return;
++    }
+     if (token === "=>") {
+       if (this._in_match_arms) {
+         if (this._seen_match_arm) {
+diff --git a/src/package-checks/function-metrics/analyzer/shared/golike.ts b/src/package-checks/function-metrics/analyzer/shared/golike.ts
+index d27cb514..7db111ff 100644
+--- a/src/package-checks/function-metrics/analyzer/shared/golike.ts
++++ b/src/package-checks/function-metrics/analyzer/shared/golike.ts
+@@ -109,7 +109,7 @@ export class GoLikeStates extends CodeStateMachine {
+     this.readInsideBracketsThen("()", token, this.addFunctionParameter, this._expect_function_impl);
+   };
+-
++
+-  private readonly addFunctionParameter = (token: string): void => {
++  protected readonly addFunctionParameter = (token: string): void => {
+     if (!"()".includes(token)) this.context.parameter(token);
+   };
+-
++
 diff --git a/src/package-checks/markdown-lint/findings-cache.ts b/src/package-checks/markdown-lint/findings-cache.ts
-index 22b6705c919a90008d3ab257add5ed674caeb886..7a49583c62d11f20a0058bf49ffc53ba4d6680af 100644
+index 22b6705c..7a49583c 100644
 --- a/src/package-checks/markdown-lint/findings-cache.ts
 +++ b/src/package-checks/markdown-lint/findings-cache.ts
 @@ -1,10 +1,7 @@
  import { createHash } from "node:crypto";
 -import { createRequire } from "node:module";
 +import { getVersion } from "markdownlint";
- 
+-
++
 -import {
 -  snapshotClosedRecord,
 -  snapshotExactClosedRecord
@@ -43,7 +252,8 @@ index 22b6705c919a90008d3ab257add5ed674caeb886..7a49583c62d11f20a0058bf49ffc53ba
  import {
    lintMarkdownString,
 @@ -134,11 +131,8 @@ function isMarkdownLintRuleName(value: unknown): value is MarkdownLintRuleName {
- 
+-
++
  function installedMarkdownlintVersion(): string | undefined {
    try {
 -    const packageJson: unknown = createRequire(import.meta.url)("markdownlint/package.json");
@@ -56,3 +266,28 @@ index 22b6705c919a90008d3ab257add5ed674caeb886..7a49583c62d11f20a0058bf49ffc53ba
    } catch {
      return undefined;
    }
+diff --git a/types/package-checks/function-metrics/analyzer/readers/rust.d.ts b/types/package-checks/function-metrics/analyzer/readers/rust.d.ts
+index 5960981a..ac5cb091 100644
+--- a/types/package-checks/function-metrics/analyzer/readers/rust.d.ts
++++ b/types/package-checks/function-metrics/analyzer/readers/rust.d.ts
+@@ -14,6 +14,7 @@ export declare class RustReader extends CodeReader {
+     static logicalOperators: Set<string>;
+     static caseKeywords: Set<string>;
+     static ternaryOperators: Set<string>;
++    readonly loops: Set<string>;
+     constructor(context: FileInfoBuilder);
+     static generateTokens(sourceCode: string, _addition?: string, tokenFactory?: TokenFactory): Generator<string>;
+     get_comment_from_token(token: string): string | undefined;
+diff --git a/types/package-checks/function-metrics/analyzer/shared/golike.d.ts b/types/package-checks/function-metrics/analyzer/shared/golike.d.ts
+index f76e3fef..310b3502 100644
+--- a/types/package-checks/function-metrics/analyzer/shared/golike.d.ts
++++ b/types/package-checks/function-metrics/analyzer/shared/golike.d.ts
+@@ -30,7 +30,7 @@ export declare class GoLikeStates extends CodeStateMachine {
+     private readonly _member_function;
+     private readonly addMemberFunctionToken;
+     private readonly _function_dec;
+-    private readonly addFunctionParameter;
++    protected readonly addFunctionParameter: (token: string) => void;
+     /** Source `_expect_function_impl` virtual seam used by Scala and Kotlin. */
+     protected _expect_function_impl(token: string): void;
+     protected readonly _function_impl: (_token: string) => void;

@@ -1,0 +1,188 @@
+use super::*;
+use crate::transaction::{TxStatus, preflight};
+use std::path::Path;
+
+fn git(root: &Path, args: &[&str]) {
+    let result = std::process::Command::new("git")
+        .arg("-C")
+        .arg(root)
+        .args(args)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+}
+fn publish_old(root: &crate::source::Root, collection: &Path) {
+    std::fs::write(collection.join("old.md"), candidate("261105-old", "[]")).unwrap();
+    let result = run_transaction(
+        root,
+        &RelativePath::new(".decision.lock").unwrap(),
+        &mut operation("old"),
+    );
+    assert_eq!(result.status, TxStatus::Ok, "{:?}", result.errors);
+}
+fn commit(root: &Path) {
+    git(root, &["add", "."]);
+    git(
+        root,
+        &[
+            "-c",
+            "user.name=Fixture",
+            "-c",
+            "user.email=fixture@example.invalid",
+            "commit",
+            "-qm",
+            "baseline",
+        ],
+    );
+}
+
+#[test]
+fn unrecorded_relation_reports_target_reason_and_explicit_confirmation() {
+    let dir = tempfile::tempdir().unwrap();
+    let collection = dir.path().join("decisions");
+    std::fs::create_dir(&collection).unwrap();
+    git(dir.path(), &["init", "-q"]);
+    let root = crate::source::open_root(dir.path()).unwrap();
+    publish_old(&root, &collection);
+    std::fs::write(
+        collection.join("new.md"),
+        candidate(
+            "261106-new",
+            "\n  - type: 修订\n    target: 261105-old\n    summary: Reason",
+        ),
+    )
+    .unwrap();
+    let before = std::fs::read(collection.join("decision-index.json")).unwrap();
+    let error = preflight(&root, &mut operation("new")).err().unwrap();
+    assert_eq!(error.code, "evolution");
+    assert_eq!(error.diagnostics.len(), 1);
+    let diagnostic = &error.diagnostics[0];
+    assert_eq!(
+        diagnostic.target.as_deref(),
+        Some("Decision history for 261105-old")
+    );
+    assert_eq!(diagnostic.path.as_deref(), Some("decisions/old.md"));
+    assert!(diagnostic.reason.as_deref().unwrap().contains("修订"));
+    assert!(
+        diagnostic
+            .recovery
+            .as_deref()
+            .unwrap()
+            .contains("--keep-unrecorded-history")
+    );
+    assert_eq!(
+        std::fs::read(collection.join("decision-index.json")).unwrap(),
+        before
+    );
+    assert!(!collection.join("archive").exists());
+}
+
+#[test]
+fn recorded_discard_requires_specific_confirmation() {
+    let dir = tempfile::tempdir().unwrap();
+    let collection = dir.path().join("decisions");
+    std::fs::create_dir(&collection).unwrap();
+    git(dir.path(), &["init", "-q"]);
+    let root = crate::source::open_root(dir.path()).unwrap();
+    publish_old(&root, &collection);
+    commit(dir.path());
+    std::fs::write(collection.join("new.md"), candidate("261106-new", "[]")).unwrap();
+    let mut op = operation("new");
+    op.publish_only = false;
+    op.discard = Some("261105-old".into());
+    let before = std::fs::read(collection.join("old.md")).unwrap();
+    let error = preflight(&root, &mut op).err().unwrap();
+    assert_eq!(error.code, "history-confirmation");
+    let diagnostic = &error.diagnostics[0];
+    assert_eq!(
+        diagnostic.target.as_deref(),
+        Some("Decision history for 261105-old")
+    );
+    assert!(
+        diagnostic
+            .recovery
+            .as_deref()
+            .unwrap()
+            .contains("--delete-recorded")
+    );
+    assert_eq!(std::fs::read(collection.join("old.md")).unwrap(), before);
+}
+
+#[test]
+fn unreadable_historical_baseline_is_not_a_confirmation() {
+    let dir = tempfile::tempdir().unwrap();
+    let collection = dir.path().join("decisions");
+    std::fs::create_dir(&collection).unwrap();
+    git(dir.path(), &["init", "-q"]);
+    std::fs::write(collection.join("other.md"), "historical source").unwrap();
+    commit(dir.path());
+    std::fs::remove_file(collection.join("other.md")).unwrap();
+    let root = crate::source::open_root(dir.path()).unwrap();
+    publish_old(&root, &collection);
+    std::fs::write(
+        collection.join("new.md"),
+        candidate(
+            "261106-new",
+            "\n  - type: 修订\n    target: 261105-old\n    summary: Reason",
+        ),
+    )
+    .unwrap();
+    let error = preflight(&root, &mut operation("new")).err().unwrap();
+    assert_eq!(error.code, "history");
+    let diagnostic = &error.diagnostics[0];
+    assert_eq!(
+        diagnostic.target.as_deref(),
+        Some("Decision history baseline")
+    );
+    assert!(
+        diagnostic
+            .recovery
+            .as_deref()
+            .unwrap()
+            .contains("trusted historical index")
+    );
+    assert!(
+        !diagnostic
+            .recovery
+            .as_deref()
+            .unwrap()
+            .contains("--keep-unrecorded-history")
+    );
+    assert!(!collection.join("archive").exists());
+}
+
+#[test]
+fn unready_candidate_identifies_selected_source_and_correction() {
+    let dir = tempfile::tempdir().unwrap();
+    let collection = dir.path().join("decisions");
+    std::fs::create_dir(&collection).unwrap();
+    let original = candidate("261106-new", "[]").replace("Purpose.", "");
+    std::fs::write(collection.join("new.md"), &original).unwrap();
+    let root = crate::source::open_root(dir.path()).unwrap();
+    let error = preflight(&root, &mut operation("new")).err().unwrap();
+    assert_eq!(error.code, "candidate-unready");
+    let diagnostic = &error.diagnostics[0];
+    assert_eq!(
+        diagnostic.target.as_deref(),
+        Some("Decision candidate 261106-new")
+    );
+    assert_eq!(diagnostic.path.as_deref(), Some("decisions/new.md"));
+    assert!(
+        diagnostic
+            .reason
+            .as_deref()
+            .unwrap()
+            .contains("empty section: 目的")
+    );
+    assert!(diagnostic.reason.as_deref().unwrap().contains("not ready"));
+    assert!(diagnostic.recovery.is_some());
+    assert_eq!(
+        std::fs::read_to_string(collection.join("new.md")).unwrap(),
+        original
+    );
+    assert!(!collection.join("decision-index.json").exists());
+}

@@ -65,6 +65,10 @@ jobs:
           go-version: 1.26.5
           cache: false
 
+      - name: Install pinned Rust toolchain for source checks
+        working-directory: tools/record-cli
+        run: rustup toolchain install 1.98.1 --profile minimal --component rustfmt --component clippy
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:

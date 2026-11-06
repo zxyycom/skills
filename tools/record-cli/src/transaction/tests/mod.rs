@@ -1,0 +1,20 @@
+use super::*;
+use crate::source::{Root, capture};
+mod parent_swap_fixture;
+mod record_exit_fault;
+mod record_fixtures;
+mod resource_fixtures;
+use parent_swap_fixture::*;
+use record_exit_fault::*;
+use record_fixtures::*;
+use resource_fixtures::*;
+
+mod backups_namespace;
+mod candidate_and_modes;
+mod freshness;
+mod outcomes;
+mod owner_tree_moves;
+mod owner_tree_races;
+mod parent_guards;
+mod rename_and_resource_move;
+mod resource_recovery;

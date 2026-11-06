@@ -5,6 +5,9 @@ import {
   snapshotFailure
 } from "./snapshot-files.ts";
 
+export const cargoTestCommand =
+  "cargo +1.98.1 test --manifest-path ./tools/record-cli/Cargo.toml --locked --all-targets -- --include-ignored";
+
 const testRunners: Readonly<Record<string, TestCommand["runner"]>> = {
   "bun\0test": "bun",
   "node\0--test": "node"
@@ -111,35 +114,52 @@ export async function parseRepositoryTestCommands(
     if (typeof original !== "string") {
       throw snapshotFailure(`test script ${scriptName} must be a string`);
     }
-    const segments = original.split("&&").map((segment) => segment.trim());
-    if (
-      segments.length === 0 ||
-      segments.some((segment) => segment.length === 0)
-    ) {
-      throw snapshotFailure(
-        `test script ${scriptName} has an unsupported && sequence`
-      );
-    }
-    for (const segment of segments) {
-      const parsed = parseTestSegment(segment, scriptName);
-      const uniqueFiles = [...new Set(parsed.files)];
-      if (uniqueFiles.length !== parsed.files.length) {
-        throw snapshotFailure(
-          `test script ${scriptName} repeats a file target`
-        );
-      }
-      for (const file of parsed.files) {
-        await requireRegularProjectFile(
-          workspaceRoot,
-          file,
-          `test script ${scriptName} target`
-        );
-      }
-      commands.push({ ...parsed, original, scriptName });
-    }
+    commands.push(
+      ...(await parseScriptCommands(workspaceRoot, scriptName, original))
+    );
   }
   if (commands.length === 0) {
     throw snapshotFailure("package manifest defines no test:* scripts");
+  }
+  return commands;
+}
+
+async function parseScriptCommands(
+  workspaceRoot: string,
+  scriptName: string,
+  original: string
+): Promise<TestCommand[]> {
+  const commands: TestCommand[] = [];
+  const segments = original.split("&&").map((segment) => segment.trim());
+  if (
+    segments.length === 0 ||
+    segments.some((segment) => segment.length === 0)
+  ) {
+    throw snapshotFailure(
+      `test script ${scriptName} has an unsupported && sequence`
+    );
+  }
+  for (const segment of segments) {
+    if (segment === cargoTestCommand) {
+      if (scriptName !== "test:record-rust" || segments.length !== 1)
+        throw snapshotFailure(
+          "Cargo test command must be the sole test:record-rust command"
+        );
+      continue;
+    }
+    const parsed = parseTestSegment(segment, scriptName);
+    const uniqueFiles = [...new Set(parsed.files)];
+    if (uniqueFiles.length !== parsed.files.length) {
+      throw snapshotFailure(`test script ${scriptName} repeats a file target`);
+    }
+    for (const file of parsed.files) {
+      await requireRegularProjectFile(
+        workspaceRoot,
+        file,
+        `test script ${scriptName} target`
+      );
+    }
+    commands.push({ ...parsed, original, scriptName });
   }
   return commands;
 }

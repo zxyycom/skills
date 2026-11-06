@@ -1,3 +1,4 @@
+import "./snapshot-cargo.test.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
@@ -589,6 +590,26 @@ test("producer refuses to publish after a registration mutates source inputs", a
         createRepositoryTestEvidenceSnapshot({ workspaceRoot: root }),
         /source inputs changed while collecting/u
       );
+    }
+  );
+});
+
+test("source fingerprint tracks the external Rust fixture but not unrelated Markdown", async () => {
+  const fixture =
+    "tools/investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md";
+  const unrelated =
+    "tools/investigation-report/tests/fixtures/rename-noop/docs/investigations/unrelated.md";
+  await withSnapshotFixture(
+    {},
+    { [fixture]: "first\n", [unrelated]: "other\n" },
+    async (root) => {
+      const first = await repositoryTestEvidenceSource(root);
+      await fs.writeFile(path.join(root, unrelated), "changed unrelated\n");
+      const afterUnrelated = await repositoryTestEvidenceSource(root);
+      assert.equal(afterUnrelated.revision, first.revision);
+      await fs.writeFile(path.join(root, fixture), "changed fixture\n");
+      const afterFixture = await repositoryTestEvidenceSource(root);
+      assert.notEqual(afterFixture.revision, first.revision);
     }
   );
 });

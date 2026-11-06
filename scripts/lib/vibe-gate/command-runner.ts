@@ -1,7 +1,7 @@
 // 命令的生命周期、输出上限和 transcript 由原生 commandCheck 承接。
 export type GateCommand = Readonly<{
   args: readonly string[];
-  command: "bun" | "node";
+  command: "bun" | "node" | "cargo";
 }>;
 
 export const gateCommandPolicy = {

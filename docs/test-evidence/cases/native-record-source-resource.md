@@ -1,0 +1,22 @@
+### Case NATIVE-RECORD-SOURCE-RESOURCE-001: 资源树读取与合作锁的身份证明
+
+Tests:
+- `test:1206002dd382620fe7b1f1640d1c0cfe08083936fdbef0416277a0a8e9283504`
+- `test:141022a17596ce5095a89edb2266f58f1f28edc6361480e82cdb39efa7448aa3`
+- `test:1693019d5c99978ce673988eb2873587cf25d423b98b16bbb6b8611e7b3d62d3`
+- `test:7cec9ba5cc698c187b762f06c00a3bae073b228d081dcc2518b41d62eea5325d`
+- `test:91117db779893816379525a3e111837a4bf9ab6e6c71650ea07dbb216da52575`
+- `test:98924cc78def42b95bc158e0d5e1897b388fa70df145bd4353da6df7ab15d984`
+- `test:ce86ce7f0b8f86be1853445a865b37cf62d02b0a54b30d53895dc795e25197cb`
+- `test:defd2c8871e211520d2902984b865bfd82039090e3c354dd241a777e98bce3d7`
+- `test:f26efd8f275a1a0563f09afaf6a66449c89f6376c6e25c3255d059cb85aa5b3a`
+- `test:ff21cf14397ad0044a698e9d0d7558ec9101f4d6d7e8b7b862741d3b3692d120`
+
+Tags:
+- `record-rust`
+
+Contract:
+- 资源读取和锁清理只能作用于已观察且仍匹配身份的对象。
+
+Proves:
+- 选定资源、缺失证明、目录成员与竞争锁在私有文件系统中被区分，替换对象不被当作自有对象清理。

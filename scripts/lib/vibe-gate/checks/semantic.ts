@@ -27,6 +27,72 @@ const bunTest = (file: string): GateCommand => ({
 
 export const semanticGateChecks = [
   {
+    checkId: "test:record-rust:delivery",
+    toolIds: ["record-rust"],
+    requiredTag: undefined,
+    displayName: "Record Rust candidate delivery",
+    command: {
+      command: "node",
+      args: ["--test", "./tools/record-cli/delivery/delivery.test.ts"]
+    }
+  },
+  {
+    checkId: "test:record-rust:format",
+    toolIds: ["record-rust"],
+    requiredTag: undefined,
+    displayName: "Record Rust formatting",
+    command: {
+      command: "cargo",
+      args: [
+        "+1.98.1",
+        "fmt",
+        "--manifest-path",
+        "tools/record-cli/Cargo.toml",
+        "--",
+        "--check"
+      ]
+    }
+  },
+  {
+    checkId: "test:record-rust:clippy",
+    toolIds: ["record-rust"],
+    requiredTag: undefined,
+    displayName: "Record Rust clippy",
+    command: {
+      command: "cargo",
+      args: [
+        "+1.98.1",
+        "clippy",
+        "--manifest-path",
+        "tools/record-cli/Cargo.toml",
+        "--locked",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ]
+    }
+  },
+  {
+    checkId: "test:record-rust:cargo",
+    toolIds: ["record-rust"],
+    requiredTag: undefined,
+    displayName: "Record Rust native tests",
+    command: {
+      command: "cargo",
+      args: [
+        "+1.98.1",
+        "test",
+        "--manifest-path",
+        "tools/record-cli/Cargo.toml",
+        "--locked",
+        "--all-targets",
+        "--",
+        "--include-ignored"
+      ]
+    }
+  },
+  {
     checkId: "test:video-understanding:source-contracts",
     toolIds: ["video-understanding"],
     displayName: "Video Understanding source contracts",

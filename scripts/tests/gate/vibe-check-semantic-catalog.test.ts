@@ -107,6 +107,30 @@ test("semantic Gate catalog matches its aggregate native entry points", async ()
     semanticGateChecks.every(({ requiredTag }) => requiredTag === undefined)
   );
 
+  // The last argument alone cannot establish which package or targets Cargo runs.
+  for (const [id, args] of [
+    ["format", ["fmt", "--", "--check"]],
+    ["clippy", ["clippy", "--locked", "--all-targets", "--", "-D", "warnings"]],
+    ["cargo", ["test", "--locked", "--all-targets", "--", "--include-ignored"]]
+  ] as const) {
+    const [subcommand, ...suffix] = args;
+    assert.deepEqual(
+      semanticGateChecks.find(
+        ({ checkId }) => checkId === `test:record-rust:${id}`
+      )?.command,
+      {
+        command: "cargo",
+        args: [
+          "+1.98.1",
+          subcommand,
+          "--manifest-path",
+          "tools/record-cli/Cargo.toml",
+          ...suffix
+        ]
+      }
+    );
+  }
+
   const wrapperFiles = expectedSemanticChecks
     .map(([, , commandPath]) => commandPath)
     .filter((file) => file.includes("/checks/"));
@@ -124,6 +148,7 @@ test("semantic Gate catalog matches its aggregate native entry points", async ()
   const semanticLeafFiles: string[] = [];
   const aggregateFilesByTool = new Map<string, string[]>();
   for (const [checkId, command, commandPath] of expectedSemanticChecks) {
+    if (command === "cargo") continue;
     const leafFiles = commandPath.includes("/checks/")
       ? importedTestFiles(imports, commandPath)
       : [commandPath];
@@ -178,11 +203,12 @@ test("semantic commands retain native store, version-control and retired perform
   assert.equal(
     semanticGateChecks.filter(({ command }) => command.command === "node")
       .length,
-    1
+    2
   );
   assert.deepEqual(
-    semanticGateChecks.find(({ command }) => command.command === "node")
-      ?.command.args,
+    semanticGateChecks.find(
+      ({ checkId }) => checkId === "test:task-graph:native-store"
+    )?.command.args,
     ["--test", "./tools/task-graph/tests/store/native-store.test.ts"]
   );
   const manifest = v.parse(

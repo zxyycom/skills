@@ -41,19 +41,19 @@ const projectExclusions = [...historicalContentExclusions] as const;
 
 export const maintainedCodeFiles = maintainedProjectFiles([
   "scripts/**/*.{js,ts}",
-  "tools/**/*.{js,ts}",
+  "tools/**/*.{js,ts,rs}",
   ...projectExclusions.map((pattern) => `!${pattern}`)
 ]);
 export const productCodeFiles = maintainedProjectFiles([
-  "tools/**/*.{js,ts}",
+  "tools/**/*.{js,ts,rs}",
   "!tools/**/tests/**",
-  "!tools/**/*.test.{js,ts}",
+  "!tools/**/*.test.{js,ts,rs}",
   ...projectExclusions.map((pattern) => `!${pattern}`)
 ]);
 export const testCodeFiles = maintainedProjectFiles([
   "scripts/**/*.test.{js,ts}",
-  "tools/**/tests/**/*.{js,ts}",
-  "tools/**/*.test.{js,ts}",
+  "tools/**/tests/**/*.{js,ts,rs}",
+  "tools/**/*.test.{js,ts,rs}",
   ...projectExclusions.map((pattern) => `!${pattern}`)
 ]);
 export const automationCodeFiles = maintainedProjectFiles([
@@ -71,7 +71,7 @@ export const maintainedDocumentFiles = maintainedProjectFiles([
   ...maintainedDocumentExclusions
 ]);
 export const maintainedSecretFiles = maintainedProjectFiles([
-  "**/*.{code-workspace,example,html,js,json,jsonl,md,mjs,mts,rules,toml,ts,txt,yaml,yml}",
+  "**/*.{code-workspace,example,html,js,json,jsonl,md,mjs,mts,rs,rules,toml,ts,txt,yaml,yml}",
   "**/.gitattributes",
   "**/.gitignore",
   ".githooks/*",
@@ -147,7 +147,28 @@ export function createVibeNativeChecks(
           findingPolicy: "blocking",
           minimumTokens: 150
         }
-      }
+      },
+      findingWaivers: [
+        {
+          identity: {
+            metric: "duplicate-tokens",
+            locations: [
+              {
+                path: "tools/record-cli/src/queries/decision.rs",
+                startLine: 88,
+                endLine: 112
+              },
+              {
+                path: "tools/record-cli/src/queries/investigation.rs",
+                startLine: 55,
+                endLine: 79
+              }
+            ]
+          },
+          reason:
+            "两域保留各自闭合的强类型查询结果；载荷及 Trace 警告契约不同，共享泛型族或宏会损害局部性。"
+        }
+      ]
     }),
     secretDetection({
       ...gateCheckDeclaration(
@@ -157,7 +178,7 @@ export function createVibeNativeChecks(
       ),
       files: maintainedSecretFiles,
       findingWaivers: [],
-      maximumFileCount: 5_120,
+      maximumFileCount: 8_192,
       maximumTotalBytes: 67_108_864
     }),
     jsonValidation({

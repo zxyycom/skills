@@ -1,8 +1,16 @@
 export const expectedSemanticChecks: readonly (readonly [
   checkId: string,
-  command: "bun" | "node",
+  command: "bun" | "node" | "cargo",
   commandPath: string
 ])[] = [
+  [
+    "test:record-rust:delivery",
+    "node",
+    "./tools/record-cli/delivery/delivery.test.ts"
+  ],
+  ["test:record-rust:format", "cargo", "--check"],
+  ["test:record-rust:clippy", "cargo", "warnings"],
+  ["test:record-rust:cargo", "cargo", "--include-ignored"],
   [
     "test:video-understanding:source-contracts",
     "bun",

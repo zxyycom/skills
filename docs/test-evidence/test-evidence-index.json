@@ -1004,6 +1004,55 @@
       "MCPSHELL-BRIDGE-RUNTIME-003": "sha256:c6826ca9aa1a2ca76dddb4a2b7e8d46c596cbdb27ad339f64b294b0d9f23876a",
       "MCPSHELL-BRIDGE-SHELL-001": "sha256:e7d4fad77c6c3e0835afb51c9cc30ffe61776491048b6e8debfb580c8f4f88f1",
       "MCPSHELL-BRIDGE-SHELL-002": "sha256:54dfbf839a6686cf12ede129b5388db6f6e35552fb548906f61bc784fc9a53c1",
+      "NATIVE-RECORD-AUTHOR-CREATE-001": "sha256:e28e0b64d6f1e303d0db0cdadf58d46d869b2fbe1002e7d296846be2fb46e314",
+      "NATIVE-RECORD-AUTHOR-PUBLISH-001": "sha256:d63c72706ba7c8ce2c6783b42015f4e4af75bc8d849687c0ebacdf4973b65bdf",
+      "NATIVE-RECORD-CLI-CONTRACT-001": "sha256:d2d4d3a2a7f1083976bc893d2c63b57a6ec8f3c3600fc1eb0ee742cafe64e740",
+      "NATIVE-RECORD-CLI-INTERNAL-001": "sha256:0a6c46a1398d19df47e9459035228e97bf15dc355ceeb92efb9269ad8cb50b4b",
+      "NATIVE-RECORD-COLLECTOR-001": "sha256:820adfc4afcab4dead9a2073db6cacb97378ddbb4e0386be8047af1437cb235d",
+      "NATIVE-RECORD-DECISION-FLOW-001": "sha256:20b9c6c869b596645200f7437f84424164259eda9eee5dff7d2c0b9ce7c2941b",
+      "NATIVE-RECORD-DECISION-IDENTITY-001": "sha256:98538e539b268152524a65cd3bc29a843683697d077b6f780006aeb5b5687301",
+      "NATIVE-RECORD-DECISION-PENDING-001": "sha256:1518ac726192ae083f5bb62d75582309b4eb4fa6da1bd93754aedc96e2fe682b",
+      "NATIVE-RECORD-DELIVERY-001": "sha256:67e9ebe10ef31f81348b442e1f30ea14629e97e283ce8bf02cc61031083ee457",
+      "NATIVE-RECORD-DOMAIN-INDEX-001": "sha256:642ce748ed70d7c37a8633f70eecdf4e982d0b46161d942abe15b85e5c5e99a7",
+      "NATIVE-RECORD-DR-MARKDOWN-001": "sha256:8cbc34684d229f49c31dd9f3792fd279f310fb19774f791ce1cdc83862d00ac7",
+      "NATIVE-RECORD-GATE-FIXTURE-INPUT-001": "sha256:b3404f610d6241aaebb5df6e72f1db9042a83228e643460f4aa4a3a62d07952d",
+      "NATIVE-RECORD-GATE-RUST-METRICS-001": "sha256:7b9913bf84ae4f682332910dd69debbb33bf10abee50af9646f2ef36a7854dbd",
+      "NATIVE-RECORD-GATE-WAIVER-001": "sha256:507e1d930b1f68645af44f9e0822ebb54d5f76dfcaad58ee167898ba8f483da4",
+      "NATIVE-RECORD-GIT-HISTORY-001": "sha256:b5753954a575c1fc7d19285c16de8568b48c6e76621726de3b27551b5bfcd1ab",
+      "NATIVE-RECORD-GIT-PUBLISH-001": "sha256:485ea999de485660dd6aafee3dad9c360da8289ac57cdf5c5eb32f22c7ce6983",
+      "NATIVE-RECORD-GIT-READ-001": "sha256:742c90ea35a67df84b33c050cf470da804beee3ffa0cdba779b778440da67b65",
+      "NATIVE-RECORD-GIT-STAGE-COMPOSE-001": "sha256:f4d3e641d20a8dd4d567803abe3a20b698920eeff3c87c88acefc18049468980",
+      "NATIVE-RECORD-GIT-STAGE-DECISION-001": "sha256:356cd86c4652c1bb24dfe17d4365e94622e3be9347646c4ff1b155b58fd49ab6",
+      "NATIVE-RECORD-GIT-STAGE-INDEX-001": "sha256:3350fde0317459a8fb7283202d0ed0da5e258ad0af51cf4572caaf8d8cac7562",
+      "NATIVE-RECORD-GIT-STAGE-INVESTIGATION-001": "sha256:1bc681948eee534a524717fa06cc70fe71117004efccbfd3d4a468ea8d85e994",
+      "NATIVE-RECORD-INDEX-BOUNDARY-001": "sha256:529d3b48e433ac2031bcd372575c3f7ae92d9d9a5e4b2de2986e3c396dec53d6",
+      "NATIVE-RECORD-INVESTIGATION-IDENTITY-001": "sha256:5b7b06374a1f970bad86071c67ec26c5e3cd6170883f1916c8d147ac22c9b584",
+      "NATIVE-RECORD-IR-MARKDOWN-001": "sha256:c76c0def71f12ecc8552cf1d8d972d499cea13fe7705e08ed3fc8abc164cbf18",
+      "NATIVE-RECORD-MUTATION-CHECK-001": "sha256:9d1aa083cc39a218b9065b8beb2c4759e948fdb0c3f130b5352696941af010bd",
+      "NATIVE-RECORD-MUTATION-FULL-SYNC-001": "sha256:d9b309a2a70031bddf1a593bb47bebdea3d9b2e8ecd5e2c2c79e3a3f3543b205",
+      "NATIVE-RECORD-MUTATION-IDENTITY-001": "sha256:cbe445aa008bc34064684cb0ce19d2b9d8b1549bd311091afec4d3a0b7d2badc",
+      "NATIVE-RECORD-MUTATION-LIFECYCLE-001": "sha256:fcc0c52ec13fb98b99be3e32d4fb97483d41d6625cc3fe82715ce4b19271c3a7",
+      "NATIVE-RECORD-MUTATION-PUBLISH-001": "sha256:5ea2f3e624be9ef9c88f9a740af96771a1b0562c111a1f967905553e7929e4bb",
+      "NATIVE-RECORD-MUTATION-RELATIONS-001": "sha256:81c56070a3770995855eea0123f3c4d94fab3061a365fd1310ec1a4b73cf58c4",
+      "NATIVE-RECORD-MUTATION-SELECTED-SYNC-001": "sha256:37d727583a7eb4743be4fb65bbb944ddeaca4d486d73bbc31fc6c9e0d6d5de1c",
+      "NATIVE-RECORD-QUERY-CANDIDATES-001": "sha256:717025e5f4770c5cf4d6be7b051816f1515b597ccf580e1c30f69dc7baf11574",
+      "NATIVE-RECORD-QUERY-CHECK-001": "sha256:d73550d01fdd5ca50247d4d33b3a4fc0fbc9a6e1752e7ecc8e0cabf779a8b6bf",
+      "NATIVE-RECORD-QUERY-GRAPH-001": "sha256:bbe4440ac0dc3dcad4e930832e2335073cc4b9a15bf44c7a4a42a07edf822d1f",
+      "NATIVE-RECORD-QUERY-SEARCH-001": "sha256:c1c899be38020da1a2a093909032ac3669dc545a13fc10b1c4ed48618358af3e",
+      "NATIVE-RECORD-QUERY-SNAPSHOT-001": "sha256:988f93c72e1276d0469c220b467fbead97e344d3d872c6bc63726dcead0aab62",
+      "NATIVE-RECORD-QUERY-TEXT-001": "sha256:01bd3558757d659b316c2e4211dc8b77630cbb517e1eac141be9015994504bb9",
+      "NATIVE-RECORD-RESOURCE-EVIDENCE-001": "sha256:eac16aba94440c7fb0e38cf7c34c3682086f740ecd87f4a34872c4f0256530ae",
+      "NATIVE-RECORD-SOURCE-CAPTURE-001": "sha256:9d04c37f5e4c806930863da9f82bdfbfeaea1905793d577ed1dbfc38708ea30a",
+      "NATIVE-RECORD-SOURCE-MOVE-001": "sha256:67de7ef70fb3db09dce3ec91f59a1ffdc1646e785576d86e934af48f820bb34e",
+      "NATIVE-RECORD-SOURCE-RESOURCE-001": "sha256:76ddf0dad077bf91b05c9e49a460fa81ac82d6fb5553fcf3c1a7730c1ada4855",
+      "NATIVE-RECORD-SOURCE-REVISION-001": "sha256:a57504f373c0ea4f9adbcc21474724d6fde82d74a637c366f09b52cd5333ddd4",
+      "NATIVE-RECORD-TXN-BACKUPS-001": "sha256:a27d2bd65efef5d5a497bae90b95d4a94160c654251c11c1732d1e0b2393c66a",
+      "NATIVE-RECORD-TXN-FRESH-001": "sha256:67ebb995728e33faafd79c07a59bb55f766b2e1b8fe6654f6593a8890b056196",
+      "NATIVE-RECORD-TXN-MODES-001": "sha256:f580af12cb34ca4032dca5d84dccaa9dfe36a49185c14029776571d55f983b64",
+      "NATIVE-RECORD-TXN-MOVES-001": "sha256:ebe9e9ed5feb62a6fbc83b6d4649bf2f3bfff205dba816c8e6314c65db1f1f4a",
+      "NATIVE-RECORD-TXN-OUTCOME-001": "sha256:94c1c0af344654d2c8dc46c2fd8d1d6456a80458c3374a4a71b673dc1ad16bb0",
+      "NATIVE-RECORD-TXN-PARENT-001": "sha256:6dc262e7d33edaed5a08da4f50b13c396bf1f44e1bd1bacf9b1864e2e4329e54",
+      "NATIVE-RECORD-TXN-RESTORE-001": "sha256:d961f5cb1ad6db2cf7b3c88d06772e2590f600ea472450a1a3f60827f12e689d",
       "NOVEL-CARDS-AUTHOR-REVISION-022": "sha256:28d2edbc1eddaa6770dedaa7c7cc00f0d79c9c0f756f673a47d91090d850ee31",
       "NOVEL-CARDS-BATCH-INPUT-DIAGNOSTICS-037": "sha256:d635ed50035e17208bee01b3b159c9474f6597e57a7c483c864762b90cfbe755",
       "NOVEL-CARDS-BOM-PRESERVATION-032": "sha256:c9860626e3c772ccb1b13cbf74536f9027f7d6fbd7442ffd912a270f7234def5",
@@ -11760,6 +11809,772 @@
       ],
       "testIds": [
         "test:23d35d88f7a6242676cf1947db710bb37780cd39522b09192b2bf8a17b9caaa9"
+      ]
+    },
+    "NATIVE-RECORD-AUTHOR-CREATE-001": {
+      "title": "双域候选新建和选择器",
+      "sourcePath": "cases/native-record-author-create.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:2bd9b5fca5f4a1fd8ae31d268baaad2e09d63d193f0bbef80b49ca72b052434a",
+        "test:5436b0f133ca139170087390100705e76706e080d82252cf5fbc381e1fb588b2",
+        "test:754788a0576242dabbf86395455864553d0087506d9fd07562364a9a2672a703",
+        "test:ca15550b11c85b8cc8feb14c2a72644a732ec1bc9433aa95e4caf54cf96f5332",
+        "test:d8cfae767c4ab8d10cd28e3a5b6ed468ffa1bf6ad795db9d9c4a75652b21325b",
+        "test:e69da66b29e094f28020d5e95e6ee239f428954736cf573b63f004d407c2a9e1",
+        "test:e953dbdcff49169f59254b8f60827a2b2609b83fd76f8e181c1c6e214026c928"
+      ]
+    },
+    "NATIVE-RECORD-AUTHOR-PUBLISH-001": {
+      "title": "双域候选发布和前序关系",
+      "sourcePath": "cases/native-record-author-publish.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:110aed203d8745555fc0e87022dfd88aa5cf59c6e8f006430a428259c6fa17cc",
+        "test:1ec369ee4dafe5dd5e0aa0dfdb29a19a50c9c8dc3b25e345023c0bb55df91e18",
+        "test:1f6927e8d3d0f8b61640dc9f548d73e39a13056d72039ff1b6d773366d78189a",
+        "test:3184a8685cabc846e131c44302af75558d6e6d6c833e25defd62be36e3d7272f",
+        "test:435e0920496edf89de9ef7cbf718521c977f7df321d95fef76172929675f9e5a",
+        "test:55c8e42dff4d407d29dc8d311658194175b3e57b42cd5577e6719e4b5c5dda29",
+        "test:5d9d0c9b23d9e8d91b0e428446e1d0a4022c3c5f7fe476289be94941693a3d4f",
+        "test:63f984d4806f46c791f3521793bbd9e41aa229b95d9e60ed8a9a7929c32f2324",
+        "test:a2d780235f87c6e3e9396120783158fada40251cf3340f664eabc1f1b5cc8fd9",
+        "test:b770d083e5425c18302bee8766c0d49b62f8dfd1affddc705457963dcfa35922",
+        "test:cdd381ca2767d63b88354b24db736f19333dfa4793665895f3270f98aa8daf5c",
+        "test:d1cd47c4880b2dceccd6e3574e08b70caf771163b986e64e894a1a332eb94f82",
+        "test:e4017e83145eb6eac4b65efc128a38726c2642579cf31fa47f9b810fe5070316",
+        "test:f3cae0bf811f58573af5990840c0face99c29880bccb948edba1651ebeedb048"
+      ]
+    },
+    "NATIVE-RECORD-CLI-CONTRACT-001": {
+      "title": "双域 CLI 参数与事务结果通道",
+      "sourcePath": "cases/native-record-cli-contract.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:2dfd48c79c1d1110d13aa7a23dbfae990286309490720cb51802b13bd7fc659b",
+        "test:6e47f8cda3c29049a6d3c915454f4c20fe67bb4cc28b7a38cdd5d44d6ef55fe9",
+        "test:ecef0aaaa4ac24a6ed06850d00de83b8bf00f0179b73df5fa2179902f00acbc5",
+        "test:f45af7a8b5ca245c57f637a22e845979a89aaddfad7b0fcd3046b7819ef7b1fc"
+      ]
+    },
+    "NATIVE-RECORD-CLI-INTERNAL-001": {
+      "title": "CLI 解析及事务诊断映射",
+      "sourcePath": "cases/native-record-cli-internal.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:0aabf51bf99c26e341b82f3c8097bee1f178db8c16941a77e9f193469b279de3",
+        "test:158ed63b52014f947fe05764dfbafaa7bf3581021b61cc446644ca71c765151b",
+        "test:4cc0057d0940fc03d068e122fff3331d78a92ad8c1b5e387ab910a6a13309f0e",
+        "test:4dbc333ed7a2e8958895162ba2f06292ac63e2900dda129b29a5c884f3b16395",
+        "test:734eb2220659ac12cda7ac0909e39e1c9782c3d395b022e78d9508b3e9e67615",
+        "test:7c73a623dfe0e83e953da2e018114d86233cc1f29218012fe53e3cb66be98f95",
+        "test:b566f1566f893ec3a71a7fd95f9692fd1f6fbb9f15c4964df4ac5ac34168663e",
+        "test:e259152bad12e9e58eb3b66449b8dda7d6d50993e44c65d0f98185484ae307a1"
+      ]
+    },
+    "NATIVE-RECORD-COLLECTOR-001": {
+      "title": "Cargo 原生测试实体采集",
+      "sourcePath": "cases/native-record-collector.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:19aed8b7d4f2e4d73a2107fa3de266b9317302734c8f51918eb1777d57189225",
+        "test:6314a0ef63ea947e8e2a30bec20657177e50841568b085143bac523de54fedad",
+        "test:7d64416438952d5100295605b714e508d842084977b12395528475d050836b16",
+        "test:ab0432d760d02d372ee9ca9e277a14a7f0a1519c0a261a5045399087bb703717"
+      ]
+    },
+    "NATIVE-RECORD-DECISION-FLOW-001": {
+      "title": "决策 flow YAML 的局部写入",
+      "sourcePath": "cases/native-record-decision-flow.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:4a699825dafc2e2a7b6e8e5be3791a96f0cd90da62d97e1396c1bd652971637c",
+        "test:dc419f004fb22b9e4c54b3b49be6077faad986b5744b1c8442f4c4b73bfb9cfc"
+      ]
+    },
+    "NATIVE-RECORD-DECISION-IDENTITY-001": {
+      "title": "决策身份修改与引用更新",
+      "sourcePath": "cases/native-record-decision-identity.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:1c465af311b52c0329fe899ef38272b8b71b9a6eceb98f0d4396c120cfc4445d",
+        "test:1ef283703a3c84fb1006fffe155d15b37ceb21971ce4cdc3e4ee3a4c06713426",
+        "test:1fd2828410042efca7e832a379aa21056ce7ced025f92b12bdfcef1ac361a597",
+        "test:21e8c2a4bdaac7e6b7e691b2d69849594547db18cdcb795dd3e730b236a48bb5",
+        "test:2ca385e8f555a6015e0b130fe50e5a9744a40c64a7951ef0a927aa45115373dc",
+        "test:42d577afe4baaba177220893c1f3715a6d616166caeffc8b05040bfc3a02768f",
+        "test:5c26f163fc4d327c24a5ed9a2d52fea17921e888ea1ea95a75836f82632bb1c0",
+        "test:6251dc1300265d603e7385cb11b54fd6b8a390125da3796c7feadbc30d032684",
+        "test:9e91b55189d7bf9d253a69d1222548c9f48a77c08521aadd6b953cfe768bc87b",
+        "test:ace078cbf203c835d7f02c733fb568d9c7c20c08e23edfc125fcbdd8e2b575fc",
+        "test:b03b2ac4a8adc80acda16605b6e7078ee4e2f503f68186b1127493e1053e00a4",
+        "test:c0d66e3c64a0eb6bf37d71303c915b5c335591cf4847d9f8c364564e1583a001",
+        "test:c7b77e3480cd103c9c986380fecd1c5d137e58e9e4f7d689afeed1bdae20a0ba"
+      ]
+    },
+    "NATIVE-RECORD-DECISION-PENDING-001": {
+      "title": "决策身份操作保护 Git pending",
+      "sourcePath": "cases/native-record-decision-pending.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:ca1bd12ee1d43d32f3699e8524a26545c16b12ecd5f6930c917b33171a1cdc56",
+        "test:f85865be2e504eb5c957bb9aabc8958ba46b81611c3280d9908740b652b41d81"
+      ]
+    },
+    "NATIVE-RECORD-DELIVERY-001": {
+      "title": "候选离线制品身份与私有安装",
+      "sourcePath": "cases/native-record-delivery.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:1d8d32f8d1ef354dcf0f44a35e1027d0f3803ddc3728d7b159fdaf2884b722dc",
+        "test:203bc4ecb3e34d308e0b6e243cc2287814ce131b66c15d0e482cb9ca97c42c43",
+        "test:d81b00e28434ccbefe546245bffe96260e5a8c520c1ad0baef4b97ff4d91a906"
+      ]
+    },
+    "NATIVE-RECORD-DOMAIN-INDEX-001": {
+      "title": "两域索引身份与关系约束",
+      "sourcePath": "cases/native-record-domain-index.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:2e07b66789d6f58eb00f835568c9d0bf3d661f800ab454778562aa3bb015f664",
+        "test:31264316906f2dd22939b5f1f81b75fb4ad55c79f7ef3fe06d41dfcb134f5fbb",
+        "test:45f8d1ac72065e376f8df03fba4a2547bcb71b8dcbbb9e0ff76f4c6614844ad7",
+        "test:4e572abfeea52b35c3c4bffc062551f60a2a20ffd64dd908e460bd7d795d107a",
+        "test:6f8ceef2bf575191256c65e409c0d46ce6527ed9b5436b966b79d0ae99e45e3e",
+        "test:7b51c6051faa3cf1fc1d60e8b03cdc2957686f8099d43631b1ae0db5eacc288f",
+        "test:d0e8607153957bc765119ffa5bbdf0deed94952e55c77dc41bd158408293c76f"
+      ]
+    },
+    "NATIVE-RECORD-DR-MARKDOWN-001": {
+      "title": "决策文档解析和局部改写",
+      "sourcePath": "cases/native-record-dr-markdown.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:0132b7085ec07be23e82fc3c8f16c9b6d566f0bc360aecff1c7e3593458aed9e",
+        "test:141781b82804d32148da5f8156acd31cc9e267aa3523c6c133e659f4a383c5ab",
+        "test:1562e0ec86731ee6252e448882419a3cdcb464f96d79214ba4414bb54f792569",
+        "test:1f02661cd0f74ad261f3532a9a60d4fa418264565d380d22d01a0360c36c1415",
+        "test:368b9b3ada2c39d6af0b40f9c50f36c0616071172986d45e0b0d341a1d15b329",
+        "test:4c77434f379b6a097f57f9fa02df4dceaafc5e4ff1dacc776a910a1a9a91d506",
+        "test:5188738de44857305dea8370a4fe4b51d21583b81627cc546c443b7f7b829f1b",
+        "test:82210a95be051387f86b74a1d94cce4c3b6f0e1746cd7347074d4c4424730d59",
+        "test:88ae748876d431f17b4c3ab9331072c33dc9b093ef8b8f676c1a7fedff55f6eb",
+        "test:98a7d77091f7ea28d88355c7620c20004077e42e42dd8e46bf0ad04d07b33142",
+        "test:e753e67b006de7c64b31a39d4626f6543eba9ef06440babd1e25820c2e5f7c0f",
+        "test:e99fb894ee63771e889b1c8e1ea6966acb9cd211b99f66e2e49daf579c56ad56",
+        "test:e9c6f505c55786d3e5bf578a5205895aa1ac61a4d10721ddf18962ed0a90628e",
+        "test:ec81e51cd3f11aa139fde9242937823354cca18a599e5ec2506fcc805c8acc5b",
+        "test:fc19cbabacbd3295686b12d60cb01e0606a3c2740d88cce67f91155be5a0720b"
+      ]
+    },
+    "NATIVE-RECORD-GATE-FIXTURE-INPUT-001": {
+      "title": "Rust 外部测试 fixture 的精确输入闭包",
+      "sourcePath": "cases/native-record-gate-fixture-input.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:aad270c2ed75b80d4f42d5496a994e1abbedcb95a5b31b84fe5298ee704b6333"
+      ]
+    },
+    "NATIVE-RECORD-GATE-RUST-METRICS-001": {
+      "title": "Rust 源码与函数指标实际覆盖",
+      "sourcePath": "cases/native-record-gate-rust-metrics.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:1122cc9732fbfeea962debf6f45ce1958513c6942c503b4623caffbf610fbb5f",
+        "test:7aa93131136f2550f3ea0ea77c38d3d92b77b233cae1b493078418986e4b7a34",
+        "test:9a35479cc62e2fe0c2368359e597c97e27c6dbab4de31bc8f36ea90d2e4b847f",
+        "test:c8a86e4fe728c2a401f5a0d28a54ba1fc20099d3d62f38177932a72f16626948",
+        "test:dfc9250a9dc0252eb10abd7e4541799ef6a9d21796a7bb5a2c75123f8bc3f42d"
+      ]
+    },
+    "NATIVE-RECORD-GATE-WAIVER-001": {
+      "title": "已审查查询 DTO 的局部重复例外",
+      "sourcePath": "cases/native-record-gate-waiver.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:6c25f134e9b379a3b7108156e85f2db6bec8c9aaf8ebf501a0956592908bc37e"
+      ]
+    },
+    "NATIVE-RECORD-GIT-HISTORY-001": {
+      "title": "缺失历史索引的 stage 安全边界",
+      "sourcePath": "cases/native-record-git-history.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:8e9f09c73aaa7c1d5316cc2b8583a841731b32c11cb76be65edfddeb31a877cf",
+        "test:9f5ca95c45c861c78d7e5dc343489c9a51ba9cbe2ec22a123378cf13dabaee20"
+      ]
+    },
+    "NATIVE-RECORD-GIT-PUBLISH-001": {
+      "title": "真实 Git 条件发布和锁竞争",
+      "sourcePath": "cases/native-record-git-publish.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:0a73b2e75053ee920c387d5f21d6ba7c41cb653381cf649ecc22427481ffb084",
+        "test:15b863f2ab1d69d29f4ee1b617166d019c1e1503df64a7950ed37b8534d8b1ef",
+        "test:20ad9f1001408d13e8eb929189f5535672bd3c836d4b0162e88ad6020e39cf32",
+        "test:305da211c6e7ea54ab08877458303b8ffefa9aca51fa787e83a8818b6688f385",
+        "test:4a95b0fb7360ee43a842a42aafa563140863fc5eeb25f5611a20556631a6ca0a",
+        "test:93ac163e715cb209189e59376e4099ef2db76da0c97fc4fb104c1dca07920dcb",
+        "test:a4990d60483af484e0ea3a2d71d720d053f31266164b2cb263a00e1098608081",
+        "test:bc48ce19bfffdd269ff1d5dc0853c0ee7639432a496877ad324c7da1f5146ebe",
+        "test:fbffca0af094cbea7929e9efe9c4fce6675e21dbc034e21ccc1ec9b2139b1874"
+      ]
+    },
+    "NATIVE-RECORD-GIT-READ-001": {
+      "title": "真实 Git 历史与选定 pending 读取",
+      "sourcePath": "cases/native-record-git-read.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:027fd8bef94fc0895ada14464b6216b75694b73715b77ccf5a9d1097fe260b06",
+        "test:2fbe89e6f5ed90b7e4ec69190bb45a419312d47de71bb5517c459f13df72c42a",
+        "test:3b001110b59165420f1f39026a3fc7ee2fdce321145b6ec95406af3ae97d6379",
+        "test:8a5ce4ac05f54437c0fcb2245935e6dde14026286717e4af63b5955f00432fe9",
+        "test:8c14dab201ab2e7687b94baef85bb4d70543f4b71ad2c7ebeca2d3f007a66e61",
+        "test:a8a01d74ccda60a4211658ba6bff6631b9f8753004bf488807e6c405fc1363c5",
+        "test:b62f2170eeb9d5374ea5d18f3677032e7a429cfb44be0933d4fb109d619d8afb",
+        "test:c980cb35ebfa7db4c63e4b7d0c4421a8b3388c8aa3208411e1ab185aea49171a",
+        "test:cfebf68b8612b35f09b3d3f1da6cdb0c2c2c555783a05fc799e0f51d4823d732",
+        "test:dcfc3ff854c499b6f7a661028d1b96a086dcaa2a0cd6e1e8074068791321dd38",
+        "test:e40cb17c8aa6459de2e32a8d15e73925b481d877b9a95644f1d7cf42e3cdcf07"
+      ]
+    },
+    "NATIVE-RECORD-GIT-STAGE-COMPOSE-001": {
+      "title": "选择性 stage 投影组合",
+      "sourcePath": "cases/native-record-git-stage-compose.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:f33c933c17e5acde3da6af37c9c3527783cd4d574dad9ba15d7bc4d4d59a9150",
+        "test:f4ff48ad89f95e41a332cbdf37d6245e3d75a6dbf722c0374c8706a6796fb3ee"
+      ]
+    },
+    "NATIVE-RECORD-GIT-STAGE-DECISION-001": {
+      "title": "决策正文及删除的选择性 stage",
+      "sourcePath": "cases/native-record-git-stage-decision.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:1c81fd1c344d203bf10a8b6983429ce15c17ba203f24287b3e715509409a24d5",
+        "test:1cef7b2435f54305b487ac49017309de51a2be8b1bb7fe45f715c6ddbf20f387",
+        "test:2bebe4b041eaae3a3f10f3b2ee22917e6595955f1bd7e012d03aa780ece454ea",
+        "test:64cb075bde1bd43f9cd98895478d08477bfbb37eda788e461cb698051b786154",
+        "test:964e255edf614465843bd9de4c850235cb8ccb35d91e9c1823456591a1b8bf39"
+      ]
+    },
+    "NATIVE-RECORD-GIT-STAGE-INDEX-001": {
+      "title": "两域选定索引 stage 与错误诊断",
+      "sourcePath": "cases/native-record-git-stage-index.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:377f869a34af709f3f1366295acf1d3e0190cb773fe725973ce69f242045e849",
+        "test:a0f7e8d91d7cab17bf5ef5c757033826305a9f83f591226e2057905066410af4",
+        "test:a4d0cf5c8886cb5e3a5992001f6ee81f852a86ec20e7ce081d95606b63f0220c",
+        "test:a922ab01cf4dbcc8346297d66392fa2dd18a8caf226b9994394f524b9ff42f77",
+        "test:de4754fb2181797d6515c24b87946c21f659cef97d8d9c8a3cefd4348fa056b3",
+        "test:f865d470785377d6f27f940f73f67657e8230abfb6aaf2c02c83ab52df3271c3"
+      ]
+    },
+    "NATIVE-RECORD-GIT-STAGE-INVESTIGATION-001": {
+      "title": "调查正文与资源的选择性 stage",
+      "sourcePath": "cases/native-record-git-stage-investigation.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:51e2039addb976c9e176869a41e03b5d8e759ba2a589e42606fbc5c044d876e7",
+        "test:5657f62961e6f35b8785c5106d093bc4368031eb55a361aff30c053591f827d4",
+        "test:657e7e34000acc14e240d625433dccc939f00ac2cc6a75fc464241743cd30740",
+        "test:b70e6b3f47d425d529669847e4d34aa9dc3e5d75aa28306d1d3820732b9a30bb",
+        "test:cd7ba3529a572030fbc9d4e6d7208bd3106a82bca48ef30b916a1b7272d92686"
+      ]
+    },
+    "NATIVE-RECORD-INDEX-BOUNDARY-001": {
+      "title": "索引 JSON 严格字符边界",
+      "sourcePath": "cases/native-record-index-boundary.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:742214772af86f0a140071ba80c86ab9669e3edd102fc5a108582693ae501d4d"
+      ]
+    },
+    "NATIVE-RECORD-INVESTIGATION-IDENTITY-001": {
+      "title": "调查身份和资源 owner 迁移",
+      "sourcePath": "cases/native-record-investigation-identity.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:0be58a2b3a8b3ad6d2b0822133d53bd04ebcf05ff3426e3dadd212ff819755db",
+        "test:1be2551068f1dbd2f5f6f17176cd1d5aa098007c969e0a9a208a3ec7b937b00d",
+        "test:210e246eb965575015d92f12d897b44850e13030ea07292bc62e6012fb417e79",
+        "test:2cb229d38e0af08f4f36e2969685ac10b1a5fc84d257a9b6626381bd180867a8",
+        "test:57ab1cf9db8328e4923e957ecde429e9a6bef4a5b75e93e423ca2113285d42c7",
+        "test:a3aa7a386c422674fea73eae9c5da2e54dc24e0d53d77d795d109ca099e88d2e",
+        "test:a7199bb8a1f2ce0570b0afe3177b152cc02aaa589dc6ad4d028642ff17e191a7",
+        "test:ad74713b84803d52e15fb3e2e900e7298f5c042d38c9a5c05c3d898f9926d0d0",
+        "test:bfc8a2107b179a5b9d77513e890c07bc7f9c82ffabb7f10f65a2dc1ad21bb9de",
+        "test:d2e7274e123d72bb36bfc9571659c924d4ce7a46104ee54fc947216a04cbac1a",
+        "test:e06b9f36fcea339561836d2509411bc1559f02bfa2db7956bfec7aa33d4450ab",
+        "test:ec61230fa824193b5c31dcb62aab6dea9bb17d3648e622c8e0a5f1fc5dd31166"
+      ]
+    },
+    "NATIVE-RECORD-IR-MARKDOWN-001": {
+      "title": "调查文档身份、关系和资源解析",
+      "sourcePath": "cases/native-record-ir-markdown.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:2c23b842ec656021221aab513bd89a18ef11194a607780728ee1420621db589e",
+        "test:3e7c8905846baafb02876baf305ecdf8be4085c5a4ac700082d95b1bbb3292f5",
+        "test:631231617ba3f42b37e3446d8546e6d93389636e4582f4983997eee4757e4e06",
+        "test:638ed9d7947311bd84f9cf7990718e1fa0a9e12274f6802eb78bf8537cf4384e",
+        "test:aa5d37f9a79672d95216dda84be9a18de18943caab8cd51c0c8e04c6ca65de2f",
+        "test:b19a043472206c16231990677aaaa8ecd2dcb6b756ca5af3109ff7ad11536fc7",
+        "test:b45b887728fc161adae1174ae9d4220164b89aa42ffb18c338df9bf93c66c220",
+        "test:efff6796aede05e0c9c88297117d5574a05f230ae84122a7cb6dbc7fc5b82273",
+        "test:f7f8b51d22df475cc0e2fb366c96317d3ec698c61fdf9cf6c5e7457f3f5e5c24"
+      ]
+    },
+    "NATIVE-RECORD-MUTATION-CHECK-001": {
+      "title": "双域来源检查与错误聚合",
+      "sourcePath": "cases/native-record-mutation-check.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:1256b027c981c43bb5d698426e4e088d487d3875fc5ba54b489c2c33ec7da167",
+        "test:598319a3c78139f391e1d8e39eb9a5ec6b21ce7e6c9d0e998886104d3ab04986",
+        "test:9fce3c04922a6c38202fdeb907eae7cc944be4d67bb9a8f16ef09aea075289c4",
+        "test:aa8b51aa7b298b7f3ee8cf34bcacab13bd0e40dd32b4f91e483e9d9c585d020e",
+        "test:f305d1446702243fdb39186c40af0f8221d5bc2bdc605fc0da5ab58834fa4f48"
+      ]
+    },
+    "NATIVE-RECORD-MUTATION-FULL-SYNC-001": {
+      "title": "两域全量同步的新鲜度和资源范围",
+      "sourcePath": "cases/native-record-mutation-full-sync.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:073dd4778a44b50ba7b9f27dafddfbe7872ad2d7cd4e43903f353f066dca0ef4",
+        "test:2316c6678026a199ce045889194bff9c947c94f60a661eee62fcd6c775c90a0e",
+        "test:25dc50b4872d5f3489babc35027ea34249f3ec3c0aa329938c10d89155696b45",
+        "test:2c340ef8e6aa5d4546b9094e5325c433e8c1b9b030ef361520f956a510b16074",
+        "test:6a081bf10f5a5856dfe51cfc3be0ef4c875f8f9e101022467a652af669e3984b",
+        "test:c1824434b541caeb0bc9422b0cb3339a5c0aa024cebe9b04d845152af2991f9c"
+      ]
+    },
+    "NATIVE-RECORD-MUTATION-IDENTITY-001": {
+      "title": "候选身份和删除的局部事务",
+      "sourcePath": "cases/native-record-mutation-identity.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:48c73cfdda737660d9c70450ee786bd5dd4a562f08bd599ca18b3704a722dde3",
+        "test:49e415d991a9193174a0b7d2cf281d9f61720210df8395e12059e976c5d73e7d",
+        "test:559fb79eff2978a5cbf4009eeb4c1ef8d7c1d49dbe863a26dcfe4499216ff9c0",
+        "test:653bbc8b7a209b756a203ba3840dbb47b2c503720e931b3e64fb90bd0c5d8bef",
+        "test:665561a600d77d552bea4f3ef2351717cea5e995043419c6d35f4c06e42e84da",
+        "test:7f473c36cc7dd9a13647c768927fa1782093fb6c28be94828abf6088c1a45d4f",
+        "test:8a884f3dd1b301d3859f85fb1080bd595a8f8476648854f1111291159ab846eb",
+        "test:a43b1b74e0c91c37330cb39ffc180cc63f872390f36f576dccdd71c6990e3846"
+      ]
+    },
+    "NATIVE-RECORD-MUTATION-LIFECYCLE-001": {
+      "title": "决策生命周期与前序约束",
+      "sourcePath": "cases/native-record-mutation-lifecycle.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:02ea65ec9b7738420a56f41783bd4e88ce48ef31256709b246aefd94fc3ff2fb",
+        "test:22fb5685f16e5d9858271c4316a8cf93e184bcad2e00b8106b0a035e0b41d56c",
+        "test:72e9c778eb5248b2bf2c30f439d15f13c00bc2ea23fc890c32e1d2df3d665502",
+        "test:95bf44e736844bdc0b26d309ebf10e45f124e5b41d2776e0b33a3997bbd0572d",
+        "test:aa180a29c4d0b0a0d08f310b12732145147f70ad90d820ff5e23b434f6e9be54",
+        "test:cc2986adc9130ac335313e8d0680d7acb3230c93e9d5ab1f3f3b9a3d5e0877e5",
+        "test:efbcc27ff2b40e2778e4e54670f0304a74019d3e834f6cc19a980f1bf1f2725c",
+        "test:f4640ae9b3f5765eeb73ee3eb2f4731b4cb0d1811063bc4ec5bc759a1687a349"
+      ]
+    },
+    "NATIVE-RECORD-MUTATION-PUBLISH-001": {
+      "title": "候选发布的领域前提",
+      "sourcePath": "cases/native-record-mutation-publish.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:2c9a98bb9d49646756e035fbae39a3ec37b0c43b6c12471e85755364a0f32440",
+        "test:3a0b203d3e6edd0a7d375adf78685d551ba1c27a767a8221eb24316f07e45358",
+        "test:3a349e12a834c125102c36d8acc13c5966e6e6d577f4bd4c6bf27e190f5c690c",
+        "test:643add61f9c8010d3ff714dfb9aaa01538f50ab12c5a5ff160ab8c19e03a102d",
+        "test:9109869a5094b2240c8b089cf150f7b372f9c15cbc75693355d687bba15b3242",
+        "test:a86f87a0736f0fda446d75ccdbf73fe6f9529a1256f9de2be45ffe7f2aad2764",
+        "test:a97daa69dcfb245f6db5388face050a73befaf5622b5ccf410ee091978e47452",
+        "test:c134c6f68bda11f27b7c2174b55c5920a01a5bbdefe90fa8642b239372b8ea28"
+      ]
+    },
+    "NATIVE-RECORD-MUTATION-RELATIONS-001": {
+      "title": "两域关系替换与校验",
+      "sourcePath": "cases/native-record-mutation-relations.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:0eb416053745392aa788afdaf7afae9ca3f98c37557502cfd1b5e4cf62c6e2e3",
+        "test:1aea3633b419ada40c82157c5b1d44c848a2f71d8f28f23850b4a273502ea581",
+        "test:21d1f64cb6816931b2e974d1f3ed6444e046debaf0e820f9790141bddc78cfd6",
+        "test:613021a8a7a61804b915021fdd2031f9810aeb11ec799b0c99449c15cb65c631",
+        "test:a6a718cc4bb91121cee4c2b9e4ef4d22fa90bd0921650ea6ce9299c9581723f0",
+        "test:b2ebc9fc2ef4fa777f53ae6d7308f93a2b09f1ebfc082ed42d7f3b06374c9ecb",
+        "test:bbbef6bec221c129065217e6601a26d96036fadc60e22c685e8ae6c4796d4e9f",
+        "test:bfeb56dfc2efab1323f5d832e4d5c213155437c4bdfd7b2334f716c55a48e279",
+        "test:f8264139cd816e115baaf81969b5f1e6098c8a23af887c6c0057554b428f4799",
+        "test:f92111b2396839c984f7972b88beab3d7386960a8292ca418ba33c2e7f31403f"
+      ]
+    },
+    "NATIVE-RECORD-MUTATION-SELECTED-SYNC-001": {
+      "title": "两域选择性同步与诊断",
+      "sourcePath": "cases/native-record-mutation-selected-sync.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:30f07c7631fee9029ebbd7c0b85a97d7d1006200611f408a3c452f26ed290c05",
+        "test:4f87da79777d6e472ddf9fadfc5f731efdc6e73d00f36a5277ca75f7bf9cc06c",
+        "test:5839a3b61a06c51c82d1195d8d53f4a77b530fefc2d6e33f41d392edf49c5d72",
+        "test:7a3b87e70c0a63a4ec0883bd134083e35d22b30ca32f2f54887aef581786d725",
+        "test:92bfde5a6b81d14c6a47b1744f778a9b4deea8bd7070adb342911219472b791f",
+        "test:956c75b9cba5f66d0bb074f0ee9e2b88f2b489df8b3d3b190783fd7e745c06b8",
+        "test:9580d92ef03ac0ef53859f10a6f0739afc1f3178c9ee80c8d2f82dac7e93f454",
+        "test:c1e06c055ee6deea46caea43ab1361ef1d725f7b47b6b78269fad6745e5d12eb",
+        "test:d09bd3b9a405193cf073dac0ff4d9f8cff58ad4d9b0dcb2b2f2fae998a828cdd"
+      ]
+    },
+    "NATIVE-RECORD-QUERY-CANDIDATES-001": {
+      "title": "候选身份发现与资源诊断",
+      "sourcePath": "cases/native-record-query-candidates.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:02be1afba29927483d2d794e1c26ee20f82a5bb6cba7e530a083c1576f2cc96a",
+        "test:0deb551bad25d25b014365ae465bfcc4710bd89f634721cbc851376ef4643e24",
+        "test:17f2c43244c1324a88c7537bd6c409d1564c62039e908da6a2a2bdb0fe65fdb3",
+        "test:203dc2ec1de15733a9cffe85facbcbee34a2a4a21f757ba6ce33e8f4c820eb93",
+        "test:2ac3d8341e3f1d7d3ac7a29fb3c56d1af04bdb525c0bbd5638fb703d5a7f28db",
+        "test:397b90aad353a0d212e2a3d6c5b5c304477dd0a7b94f37da7cda4bef21b71da1",
+        "test:731db1e72ca7ae4f427534f34ad3764ab9d7c6bc6bd4d297cbd65da622dc9650",
+        "test:8b186c00dc71eea7115110f5d998c11598329b669f04e7729e15206530704a08",
+        "test:da79c216f6f0d38e409a9c5ec3cb0ba30242c286549c913c4648fb5ed55fb3a6",
+        "test:e5913b8c51fd69bdb648464129b1c89cc31b5851cf2dc96ed9275d2bfaa49772"
+      ]
+    },
+    "NATIVE-RECORD-QUERY-CHECK-001": {
+      "title": "双域检查的诊断与覆盖范围",
+      "sourcePath": "cases/native-record-query-check.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:17fc9af448c7eba1839b8e6356d23dcf4151a2c02ea4b6ca38f2b02b40f39b28",
+        "test:398e9d0f7d82933d4600f613a50fa29cf9016eccf39ca0dc81e15d0e6d53b0be",
+        "test:45bcc3e6a72baeb54b20a069f8ed5b66bac8984524604a227343fae706f8a1b1",
+        "test:a39bae902c83f1d8e80b3c32b6e3e47d8d6b85d10dd164f85a603ea93775b9ff"
+      ]
+    },
+    "NATIVE-RECORD-QUERY-GRAPH-001": {
+      "title": "追踪事件预算和关系筛选",
+      "sourcePath": "cases/native-record-query-graph.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:19e6feaeb3a2bbd0b45dfe37e7a215dda6e42fc624fae2ca41f36b0a7fed63d0",
+        "test:5f19f3e5e0c354682d047be1ab0c97da576c458d76451c9297067f207dc880f6",
+        "test:f0286f573f8276c416a9ef97f2606fe1738d431507e4c7e6703652669f74b7e4",
+        "test:fa14b21b854b174209d38e20ebaee91f25795f9c18004ddde6ebb58cb0437018"
+      ]
+    },
+    "NATIVE-RECORD-QUERY-SEARCH-001": {
+      "title": "搜索匹配证据和内容边界",
+      "sourcePath": "cases/native-record-query-search.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:045ca118cdb50dc7cd62c08d5230734cbd8e026b3e21144f29aa83e99afdd2b4",
+        "test:14db0289cf9151b67118ad2bce522b41a2996694f9eb8b7cdf2862a6147204e5",
+        "test:7b59c6c796eaeea22265216147d09cb80753038008d9a74c377e6718eaf0767b",
+        "test:8a41b7470a7e30dcd63bb14599d1dfbf027f092e129a1c2c9f9c7fc07b1da52f",
+        "test:af98f1b451d118d106b5002c86e96299576f1daed9cb2c695437ddb5ff7d2d5e",
+        "test:cb3719729c8cf2c45c7619caa51da8d712fcdef71bc1e97f72f57145d4c44eed",
+        "test:dd1eaa29b875a6ac01352d6e96cc1ed3da9ae3785ec0dd5a2ae8839be18b7edb",
+        "test:ddbd96e2d971a31fe060b1438e6a09f5cd2ba43f256b43680752bdb2a89a8c85",
+        "test:fd65ce18c71f88b9a16472c41b676428c87785cb9588e3c542b5b7e4b32d0532"
+      ]
+    },
+    "NATIVE-RECORD-QUERY-SNAPSHOT-001": {
+      "title": "列表、显示与追踪快照投影",
+      "sourcePath": "cases/native-record-query-snapshot.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:02d04ea3493daeecbcd4da2e19cba074334b88382f54c21ff14c6eadba0675a5",
+        "test:2747afd346ed801104f1bb38812a87782051398d4355361ac16b735f4cb14925",
+        "test:57dec937f91d20f42381884ff673493a43d2c87058cf7c09c2fce6c7c9803d8f",
+        "test:7784259019830dd766ba15fb49025f52d796804442865dc134bd533eb04e7b1c",
+        "test:82344a738cd4e9a87f2d168c911aa9e77626670dc907da0f71e9ee3678d9fb6f",
+        "test:88fee32d8e90fbece5440bbfedec4ed02d3c1f614d23dbcf9ced78915e1abf7c",
+        "test:8fc38b0078d1ddfea1f7f8b68c272611f888965e27c46498c028dd1fe1023fad",
+        "test:cf57484c7542de3975c7ad2ffec03dc91e55068e0f54b53d3907db16e562a0ba",
+        "test:f3e589c00f450ba7649d425982d51b6feff556a05018a8ddc62d5a1a729ae8aa"
+      ]
+    },
+    "NATIVE-RECORD-QUERY-TEXT-001": {
+      "title": "文本匹配与 Unicode 预览",
+      "sourcePath": "cases/native-record-query-text.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:1dba0f2c24048a57c8c2cae7b9bc24aa2bf27714c7b668091e2f52a5d492a2c2",
+        "test:2dd5cfb9f260460fe6bc7ebadaf03e2571c6d94c5b5b58b7f724213f0979e42e",
+        "test:5036447766aa136e06dbc1506144875da8dc01a08c35688a215d4cd83cabdf60",
+        "test:9815a50e99136096dbc2182a7348b6f9a194ba58f70ce292c5639ca58ca6d845",
+        "test:e15ea36afe1e6621bceb6c83adb199f35a24fb9983f4125296d8dd194eb2208f"
+      ]
+    },
+    "NATIVE-RECORD-RESOURCE-EVIDENCE-001": {
+      "title": "调查资源的成员与身份快照",
+      "sourcePath": "cases/native-record-resource-evidence.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:70d4d0fec68f17a6d4e9a921608025810371a7639cf64a355c4bace7a9a2d6a5",
+        "test:b688c812559d0d577649359ec1c80be16b3341b39dab327d292ae8f65e257774",
+        "test:dadcd4a41bbf8cfb7445fa58237fbc18dbcd8a55fc4f7b54f58222088196c6da",
+        "test:e51358e3de5ecfe218f689f0d069146cc171b422ae153756b25bc99f11ba8f03"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-CAPTURE-001": {
+      "title": "安全捕获选定源与受限文件系统操作",
+      "sourcePath": "cases/native-record-source-capture.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:005c9a5dad27e2cb13ee518f1cfec6b63d7217258ec84371570423e6eafc17c5",
+        "test:19a7bb27d3a497135d6f256217f363f7b759c93570d1fa918a44aaffd38175ad",
+        "test:2b40ee77a5ac4832e4d3fe2951a043264b027f8028eacd303d247cdb5bac1669",
+        "test:31c7f6a7fd9362dd7690f9d97042a4e2ad1a56fa5de47c01c757864832c37b8c",
+        "test:4ad78ac23109dfc0693c0de2366708005cc46780a53134f7145c57a4894f936f",
+        "test:a7030eb474442817ec5a989b89d6ddc571d010655b66f8cfdf2826cd04ec086b",
+        "test:b5be6344be5af3344746dad7fcf571d923350c34e3a4b6d250893a7d05487af2",
+        "test:d621602b3124046a3749073ab48fca46db721a9b58a71c582626194b5cdba4ec",
+        "test:ea626a8a003158c592dd348b8a3c6fbbd6ba26dcc21d3c28aff3951b21159f9a"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-MOVE-001": {
+      "title": "资源目录迁移与条件恢复",
+      "sourcePath": "cases/native-record-source-move.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:04926c90e4bd204ff6704f73d3abed6480ce49102b37135874555ffd70c85eb4",
+        "test:1f60e466e7356aa2f4f1d276b601cbddfb6b4dd3726c25898bde5d2d7138846d",
+        "test:4ca6cbfb42c96692c0d76ffe5be5d9be8a5995ed0936756748058337681c14ce",
+        "test:5852142fe658efdd37611c39efd2cbcf29cafdd2e9bfb95a37a255ab6d745443",
+        "test:7065142098c1e0aed4f21395661c47d582d02092c6e84b8043556c9f7907cfaa",
+        "test:73b2867ed3bf133e783ba60cc9475a42e8d7850fae4de59d1fbdf83b375a81d3",
+        "test:90ad243f148a1cdf5dbab37e8115b213cd37aaf50a6334d0671cc3edc17a2698",
+        "test:c2d5e430f52605bd3f1305b34d81d1411cdea1963ea5837bccff6251a3301691",
+        "test:dc47948e76a2fec2172a3b646024da62ca6520ae524aeaac431b9442e11d3fe1"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-RESOURCE-001": {
+      "title": "资源树读取与合作锁的身份证明",
+      "sourcePath": "cases/native-record-source-resource.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:1206002dd382620fe7b1f1640d1c0cfe08083936fdbef0416277a0a8e9283504",
+        "test:141022a17596ce5095a89edb2266f58f1f28edc6361480e82cdb39efa7448aa3",
+        "test:1693019d5c99978ce673988eb2873587cf25d423b98b16bbb6b8611e7b3d62d3",
+        "test:7cec9ba5cc698c187b762f06c00a3bae073b228d081dcc2518b41d62eea5325d",
+        "test:91117db779893816379525a3e111837a4bf9ab6e6c71650ea07dbb216da52575",
+        "test:98924cc78def42b95bc158e0d5e1897b388fa70df145bd4353da6df7ab15d984",
+        "test:ce86ce7f0b8f86be1853445a865b37cf62d02b0a54b30d53895dc795e25197cb",
+        "test:defd2c8871e211520d2902984b865bfd82039090e3c354dd241a777e98bce3d7",
+        "test:f26efd8f275a1a0563f09afaf6a66449c89f6376c6e25c3255d059cb85aa5b3a",
+        "test:ff21cf14397ad0044a698e9d0d7558ec9101f4d6d7e8b7b862741d3b3692d120"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-REVISION-001": {
+      "title": "两域来源 revision 字节计算",
+      "sourcePath": "cases/native-record-source-revision.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:1d9828351c26a30f4f53836da4c066271d3eb82d2e87421bd3fe74e9d8399596",
+        "test:d450556d26d89627e27522529305f48f79cf42186ad13dd1d0cb06c34b55acc7"
+      ]
+    },
+    "NATIVE-RECORD-TXN-BACKUPS-001": {
+      "title": "事务备份与新 namespace 所有权",
+      "sourcePath": "cases/native-record-txn-backups.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:8754973abdf21d5897323c509fa0e27d341f931980fc1df1d0a460c017f49aee",
+        "test:9b011533213b26bf53e20bc25832c29caee4510d00e83536b8b13411d43aae69",
+        "test:aea1e0b89bcf18986f3d038e43c4fcf0769e7f7212f1be9537b75248acecfbfd",
+        "test:c752f707e3826e7059f1e4abccc8af944d4e876b7a3b4a0184a086c2221607cb",
+        "test:c7928d08884437cba2d243a12138ea572e7fb6d5a4c33f2a53edc4d381aea9d7"
+      ]
+    },
+    "NATIVE-RECORD-TXN-FRESH-001": {
+      "title": "事务 fresh、提交点和并发保护",
+      "sourcePath": "cases/native-record-txn-fresh.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:06cbeb18fcf30ae2b7903a9cf4e8f988570f26d02fc7399238825b1c6234e03e",
+        "test:1aad74bcd5faa589ed32ebcfa075d374d9e008f4669792d35aa4871d51c5b92b",
+        "test:3c547c964f0fe90b45e457f265498c29d7624665a2e2e8252fbc74eb6a69b3c0",
+        "test:7b0db39f9d9bb1a6f5a8b0dddb7c6ce1698bcd7bbf0ceb86afded3bfe75c6837",
+        "test:9aab2cca57fcfa0f9863be17cea82a385b8890606f02083c467876be86dec568",
+        "test:9b01f5e2cf4504299651747351c47d4f87148223cd9578962e20f2efc0384f8d",
+        "test:a2162c2b02b965f1d38f826bcea655cb907827b7559bb0e80774300228ab5bf1",
+        "test:d7b0168067e5f713b5d290efdbc4c7d0e89e7d013866cd4b257928bd2af0619f",
+        "test:e312deee7bbaba89a44e1d915f1591074f5d6406a9963c28a7ac11fd00505db6",
+        "test:fed04f6ff3933a3e2ef3058715b5118d3651965be33f4923966db2f9b94a9fd8"
+      ]
+    },
+    "NATIVE-RECORD-TXN-MODES-001": {
+      "title": "候选身份更新和资源模式保护",
+      "sourcePath": "cases/native-record-txn-modes.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:1bb5d80c64f3b448820651bea26bf6e9f4badfc9bfbedebc1cc807c3af10a681",
+        "test:38702b816ecf06943568a469498b371f32755a2fcef8fc547ac313f5a6ab4d66",
+        "test:7579e5914f25e79f5f2695d0803ff458d9b8fe96a22bc7975ad0e7cfd8ea425c",
+        "test:89c538434801cd34d66949b383dc992a5a5ffdfabbb88b03607ee92ddfbca9cc",
+        "test:b1e6f7d7ecfc77bc948aa2b8c812d2ad9ba5a1a3ceed3a0b0961d16b788a3490",
+        "test:cff62acb230bfc3153ec1ed97b995ee529389da31406d82b02f254c04a5ab795",
+        "test:d5c9ffedb12d1218988b91bb2793e9dc4193295840ec4d088b5b75d0d74dc08a"
+      ]
+    },
+    "NATIVE-RECORD-TXN-MOVES-001": {
+      "title": "资源 owner 迁移竞争与恢复",
+      "sourcePath": "cases/native-record-txn-moves.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:0b724609a1866a0e61c5b7c333c642497afdd9423d2fb0e115d36de808393fee",
+        "test:30082373b82651b7904531113aaf9dccb1091b8002ced522cd8fa9b918694754",
+        "test:3c5ee849cf0b1a6e6a0daf56ed55c05440092c040f411f685c7c903fee29824f",
+        "test:45ab85c84a19d036de10fbd9e301122ac249fb5330f424de171483b8e8971f11",
+        "test:46dfc4af88be69b4c1fffb0ecc81cce409c6938dcd25bb69acb8e739f8a59cdb",
+        "test:7167ddc1ff85101f3a1df519191933c916eb706fe5440dad36975c37a3bc821d",
+        "test:be2809839407ba38d7326bc5676ea908bf48c0bd5be96a4127a203fc9aa70321",
+        "test:d53a80b079fc7417691235d24486ccc0b06484e4b4870aa6a7448b63c5c8d337",
+        "test:ee128b80b920edb8e37d0fbfb74b2a13af56fb90e1eb512645fc7ee9b62f5ecf"
+      ]
+    },
+    "NATIVE-RECORD-TXN-OUTCOME-001": {
+      "title": "事务准备和输出状态事实",
+      "sourcePath": "cases/native-record-txn-outcome.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:24a8d16cf936d47b3b2723707a303440ee87f9dceb0a8d65f8e3b9fc7e346cc8",
+        "test:a18268a1c56245d08449ad1b26026b9622db188147eb258055a0b0d4f5fe5987",
+        "test:af901ea0968947244034935c6a1a26a6729b7ac341c854980fa74ea7c8a2e30f"
+      ]
+    },
+    "NATIVE-RECORD-TXN-PARENT-001": {
+      "title": "事务父目录身份与缺失证明",
+      "sourcePath": "cases/native-record-txn-parent.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:09c9a8b36f49c44dbfe4ea9f9fae286e9df7d639f304b6e5d9b1f1835cbfbac6",
+        "test:60ff818c3623e15bcccdb7d6c16f08946c7742622ccf56b8d7e83f722524c54d",
+        "test:b8ae000124cdd2428f32562273dee59fd4ed00459e2a5770a436fecd23356c67",
+        "test:e1588d58cb477dbcc54939cdf133d9775eab9c8e057749293af8e2891a0bccfc"
+      ]
+    },
+    "NATIVE-RECORD-TXN-RESTORE-001": {
+      "title": "重命名和资源删除的条件恢复",
+      "sourcePath": "cases/native-record-txn-restore.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:045ad0dc30cba6b9893744850c061cadf42d349ee66955f6e0347be9411a6415",
+        "test:23e97198f24857de57d9a8c1ce2de0d5a3fe105b45a2f8c9ebf9228ca18ac47e",
+        "test:38a53e5c3fb0020e717ce49e7ea2fc7ece92bd200c54bc27a17363e8663a21e1",
+        "test:56d9f437da44c8289c33c7bfdaf43ef213596aea5fc0ea336e9170b65aa25d41",
+        "test:6609b6ee35634d24ed6a9a889a27e323d4345d6b060b02860a82ca98ee19247e",
+        "test:6923c867a55fb7fd3baca4072e88263b2346a1e57e73f960d4712377f70ca5e0",
+        "test:6ea7408c39169c8c03652d088f97728bc966b51b0fad0d52de971b83ae4fb0e4",
+        "test:d424328b15c184a158fe8002028bf04c7a3179e722ef2c6ef76974909018e294",
+        "test:edae6844a242fbb1b6c89dcb1dc71c60af91af4ac883d8a2f76402d0bfd318b1",
+        "test:f48daab5e627e6b2ada356d091770a04564ed793c2368be6e374a04fe5991d0a"
       ]
     },
     "NOVEL-CARDS-AUTHOR-REVISION-022": {
