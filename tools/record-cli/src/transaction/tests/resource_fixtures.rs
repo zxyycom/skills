@@ -1,10 +1,7 @@
 use super::*;
 
 pub(super) struct FirstNamespace {
-    pub(super) barrier: Option<(
-        std::sync::Arc<std::sync::Barrier>,
-        std::sync::Arc<std::sync::Barrier>,
-    )>,
+    pub(super) barrier: Option<(std::sync::Arc<TimedBarrier>, std::sync::Arc<TimedBarrier>)>,
 }
 impl TransactionOperation<()> for FirstNamespace {
     fn prepare(&mut self, _: &Root) -> Result<Plan<()>, TxError> {
@@ -237,10 +234,7 @@ pub(super) fn resource_move_fixture() -> tempfile::TempDir {
 
 /// Delete the selected owner resource before an injected pre-write failure.
 pub(super) struct DeleteOnly {
-    pub(super) mkdir_barrier: Option<(
-        std::sync::Arc<std::sync::Barrier>,
-        std::sync::Arc<std::sync::Barrier>,
-    )>,
+    pub(super) mkdir_barrier: Option<(std::sync::Arc<TimedBarrier>, std::sync::Arc<TimedBarrier>)>,
 }
 impl TransactionOperation<()> for DeleteOnly {
     fn prepare(&mut self, root: &Root) -> Result<Plan<()>, TxError> {

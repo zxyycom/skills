@@ -5,7 +5,7 @@ fn removed_resource_recovery_rejects_replaced_parent_before_creating() {
     let dir = resource_ancestor_fixture();
     let (worker, entered, resume) =
         start_resource_parent_swap(dir.path(), SwapPhase::BeforeWrite, true);
-    entered.wait();
+    let worker = wait_for_worker(&entered, worker);
     std::fs::rename(dir.path().join("outer"), dir.path().join("original-outer")).unwrap();
     std::fs::create_dir(dir.path().join("outer")).unwrap();
     std::fs::write(dir.path().join("outer/winner.txt"), b"winner").unwrap();
@@ -28,7 +28,7 @@ fn deleted_resource_file_recovery_does_not_write_into_replaced_parent() {
     let dir = resource_ancestor_fixture();
     let (worker, entered, resume) =
         start_resource_parent_swap(dir.path(), SwapPhase::BeforeWrite, false);
-    entered.wait();
+    let worker = wait_for_worker(&entered, worker);
     std::fs::rename(dir.path().join("outer"), dir.path().join("original-outer")).unwrap();
     std::fs::create_dir_all(dir.path().join("outer/old-assets")).unwrap();
     std::fs::write(dir.path().join("outer/old-assets/winner.txt"), b"winner").unwrap();

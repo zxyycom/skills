@@ -70,6 +70,7 @@ jobs:
       - name: Rust clippy
         run: cargo +1.98.1 clippy --manifest-path tools/record-cli/Cargo.toml --locked --all-targets -- -D warnings
       - name: Rust native tests
+        timeout-minutes: 15
         run: cargo +1.98.1 test --manifest-path tools/record-cli/Cargo.toml --locked --all-targets -- --include-ignored
       - name: Candidate offline delivery tests
         run: node --test tools/record-cli/delivery/delivery.test.ts

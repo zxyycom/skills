@@ -1,14 +1,14 @@
 //! Faults after deleting an original record but before publishing the index.
 use super::*;
-use std::sync::{Arc, Barrier};
+use std::sync::Arc;
 
 pub(super) enum RecordExitFault {
     CopyThenDelete {
         rival: bool,
     },
     DeleteUnderReplacedParent {
-        entered: Arc<Barrier>,
-        resume: Arc<Barrier>,
+        entered: Arc<TimedBarrier>,
+        resume: Arc<TimedBarrier>,
     },
 }
 impl TransactionOperation<()> for RecordExitFault {

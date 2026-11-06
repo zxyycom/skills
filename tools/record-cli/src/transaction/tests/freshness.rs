@@ -176,10 +176,10 @@ fn precommit_recovery_preserves_noncooperative_later_edit() {
 }
 #[test]
 fn cooperative_transactions_do_not_prepare_at_the_same_time() {
-    use std::sync::{Arc, Barrier};
+    use std::sync::Arc;
     struct Blocking {
-        entered: Arc<Barrier>,
-        resume: Arc<Barrier>,
+        entered: Arc<TimedBarrier>,
+        resume: Arc<TimedBarrier>,
     }
     impl TransactionOperation<()> for Blocking {
         fn prepare(&mut self, _: &Root) -> Result<Plan<()>, TxError> {
@@ -205,8 +205,8 @@ fn cooperative_transactions_do_not_prepare_at_the_same_time() {
     }
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().to_path_buf();
-    let entered = Arc::new(Barrier::new(2));
-    let resume = Arc::new(Barrier::new(2));
+    let entered = Arc::new(TimedBarrier::new("entered"));
+    let resume = Arc::new(TimedBarrier::new("resume"));
     let e = entered.clone();
     let r = resume.clone();
     let worker = std::thread::spawn(move || {
@@ -220,7 +220,7 @@ fn cooperative_transactions_do_not_prepare_at_the_same_time() {
             },
         )
     });
-    entered.wait();
+    let worker = wait_for_worker(&entered, worker);
     let root = crate::source::open_root(dir.path()).unwrap();
     let second = run_transaction(&root, &RelativePath::new(".lock").unwrap(), &mut Creation);
     assert_eq!(second.errors[0].code, "collection-lock");

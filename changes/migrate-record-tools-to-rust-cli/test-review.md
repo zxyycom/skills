@@ -38,8 +38,8 @@
 
 - 大型 `git_stage` 拆为 Git 读取、条件发布、index、DR stage、IR 源与资源、历史基线模块；`authoring`、`decision_authoring`、`identity`、`queries` 按责任拆模块。Cargo target 不变，但节点名称带模块前缀；**所有受影响 Case 必须用最终 Cargo snapshot 重采并逐意图对账**，不得按旧 ID 直接复用。拆分后未因规模删除保护。
 - 列表、事务、Git、CLI 各有不同责任，不把相同输出当重复；未把每个案例都升级成真实 Git。无关生产功能、账本和内联单元测试未在此修改。
-- 此审查不是 P1 的 32 命令参数/成功结果联合验收。最小充分组合是：领域/API 规则与事务（含 fresh/postverify/recovery）、必要真实 Git 和源边界测试，加分别验证 argv/JSON 单对象/退出状态/输出通道的真实二进制调用。当前成功出口仍未对 32 条逐一完成联合映射；最终矩阵 owner 在稳定版私有工作区逐条核对，尤其不能用共同 error 出口替代各命令成功字段和通道。
-- 待联合逐项对账的命令集合是两域各自的 `candidates`、`check`、`discard`、`list`、`new`、`publish`、`rename`、`search`、`set-relations`、`show`、`show-candidate`、`stage`、`sync-index`、`trace`，另加 DR `archive`、`evolve`、`mark-aligned`、`reactivate`。这是尚未完成联合证明的集合，并非断言这些命令各自没有测试。
+- 此审查形成时只裁决测试节点的准入，不是 P1 的 32 命令参数/成功结果联合验收。联合验收需组合领域/API 规则与事务（含 fresh/postverify/recovery）、必要真实 Git 和源边界测试，以及分别验证 argv、JSON 单对象、退出状态和输出通道的真实二进制调用；共同 error 出口不能替代各命令成功字段和通道。
+- 后续冻结源码的 Linux 联合验收已逐条覆盖 DR 18、IR 14 个命令；字段映射、实际运行证据与平台边界见 [双域 CLI 联合验收](joint-acceptance.md)。该结果与本审查的测试准入是不同证据，不代表穷尽全部参数组合或其他平台通过。
 - 平台实际通过状态以原生对应 runner 为准；本机 Unix 节点、symlink/mode 与 Windows 原生句柄节点不能互证。最终汇总另列实际执行、跳过和平台证据；跨编译不算 Windows 原生测试。
 
 ## 精确候选清单

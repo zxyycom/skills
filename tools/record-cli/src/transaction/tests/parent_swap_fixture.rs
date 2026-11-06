@@ -1,14 +1,14 @@
 //! Shared race fixture for replacing a resource ancestor at a known transaction phase.
 use super::*;
-use std::sync::{Arc, Barrier};
+use std::sync::Arc;
 
 pub(super) enum SwapPhase {
     BeforeWrite,
     BeforePostverify,
 }
 struct ResourceParentSwap {
-    entered: Arc<Barrier>,
-    resume: Arc<Barrier>,
+    entered: Arc<TimedBarrier>,
+    resume: Arc<TimedBarrier>,
     phase: SwapPhase,
     remove_directory: bool,
 }
@@ -62,11 +62,11 @@ pub(super) fn start_resource_parent_swap(
     remove_directory: bool,
 ) -> (
     std::thread::JoinHandle<TransactionOutcome<()>>,
-    Arc<Barrier>,
-    Arc<Barrier>,
+    Arc<TimedBarrier>,
+    Arc<TimedBarrier>,
 ) {
-    let entered = Arc::new(Barrier::new(2));
-    let resume = Arc::new(Barrier::new(2));
+    let entered = Arc::new(TimedBarrier::new("entered"));
+    let resume = Arc::new(TimedBarrier::new("resume"));
     let mut operation = ResourceParentSwap {
         entered: entered.clone(),
         resume: resume.clone(),

@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn same_mode_rival_between_recovery_mkdir_and_open_keeps_bytes_in_durable_backup() {
-    use std::sync::{Arc, Barrier};
+    use std::sync::Arc;
     let dir = tempfile::tempdir().unwrap();
     std::fs::write(dir.path().join("old.md"), b"old").unwrap();
     std::fs::create_dir(dir.path().join("old-assets")).unwrap();
@@ -28,8 +28,8 @@ fn same_mode_rival_between_recovery_mkdir_and_open_keeps_bytes_in_durable_backup
     else {
         panic!("original missing")
     };
-    let entered = Arc::new(Barrier::new(2));
-    let resume = Arc::new(Barrier::new(2));
+    let entered = Arc::new(TimedBarrier::new("entered"));
+    let resume = Arc::new(TimedBarrier::new("resume"));
     let e = entered.clone();
     let r = resume.clone();
     let path = dir.path().to_path_buf();
@@ -43,7 +43,7 @@ fn same_mode_rival_between_recovery_mkdir_and_open_keeps_bytes_in_durable_backup
             },
         )
     });
-    entered.wait();
+    let worker = wait_for_worker(&entered, worker);
     std::fs::rename(
         dir.path().join("old-assets"),
         dir.path().join("our-created-dir"),
@@ -133,10 +133,10 @@ fn newly_created_namespace_accepts_only_actual_candidate_write() {
 }
 #[test]
 fn newly_created_namespace_rejects_concurrent_unjournaled_member_after_commit() {
-    use std::sync::{Arc, Barrier};
+    use std::sync::Arc;
     let dir = tempfile::tempdir().unwrap();
-    let entered = Arc::new(Barrier::new(2));
-    let resume = Arc::new(Barrier::new(2));
+    let entered = Arc::new(TimedBarrier::new("entered"));
+    let resume = Arc::new(TimedBarrier::new("resume"));
     let e = entered.clone();
     let r = resume.clone();
     let path = dir.path().to_path_buf();
@@ -150,7 +150,7 @@ fn newly_created_namespace_rejects_concurrent_unjournaled_member_after_commit() 
             },
         )
     });
-    entered.wait();
+    let worker = wait_for_worker(&entered, worker);
     std::fs::write(dir.path().join("collection/rival.md"), b"rival").unwrap();
     resume.wait();
     let result = worker.join().unwrap();

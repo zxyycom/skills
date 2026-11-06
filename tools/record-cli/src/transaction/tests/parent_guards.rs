@@ -79,13 +79,13 @@ fn resource_nested_created_parents_extend_original_missing_proof() {
 }
 #[test]
 fn deleted_record_recovery_rejects_replaced_parent_before_creating() {
-    use std::sync::{Arc, Barrier};
+    use std::sync::Arc;
     let dir = tempfile::tempdir().unwrap();
     std::fs::create_dir(dir.path().join("records")).unwrap();
     std::fs::write(dir.path().join("records/old.md"), b"old").unwrap();
     std::fs::write(dir.path().join("index.json"), b"index").unwrap();
-    let entered = Arc::new(Barrier::new(2));
-    let resume = Arc::new(Barrier::new(2));
+    let entered = Arc::new(TimedBarrier::new("entered"));
+    let resume = Arc::new(TimedBarrier::new("resume"));
     let e = entered.clone();
     let r = resume.clone();
     let path = dir.path().to_path_buf();
@@ -100,7 +100,7 @@ fn deleted_record_recovery_rejects_replaced_parent_before_creating() {
             },
         )
     });
-    entered.wait();
+    let worker = wait_for_worker(&entered, worker);
     std::fs::rename(
         dir.path().join("records"),
         dir.path().join("original-records"),
@@ -127,7 +127,7 @@ fn removed_resource_ancestor_replacement_fails_postverify_without_rollback() {
     let dir = resource_ancestor_fixture();
     let (worker, entered, resume) =
         start_resource_parent_swap(dir.path(), SwapPhase::BeforePostverify, true);
-    entered.wait();
+    let worker = wait_for_worker(&entered, worker);
     std::fs::rename(dir.path().join("outer"), dir.path().join("original-outer")).unwrap();
     std::fs::create_dir(dir.path().join("outer")).unwrap();
     std::fs::write(dir.path().join("outer/winner.txt"), b"winner").unwrap();
