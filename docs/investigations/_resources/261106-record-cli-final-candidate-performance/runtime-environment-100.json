@@ -1,0 +1,122 @@
+{
+  "timestamp": "2026-11-06T14:12:53.241Z",
+  "node": "v26.8.2",
+  "nodeExecutable": "/home/dev/.local/share/mise/installs/node/26.8.2/bin/node",
+  "platform": "linux",
+  "release": "6.18.33.2-microsoft-standard-WSL2",
+  "arch": "x64",
+  "cpus": [
+    "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+    "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+    "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+    "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+    "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+    "AMD Ryzen AI 7 H 450 w/ Radeon 860M"
+  ],
+  "filesystem": "ext2/ext3",
+  "gitHead": "8ba448ea45681525f1237d82846c08e3e8410215",
+  "fixture": {
+    "count": 100,
+    "width": 10,
+    "depth": 10,
+    "edges": {
+      "decisions": 27,
+      "investigations": 36
+    }
+  },
+  "inputs": {
+    "fixture": "b1f659926febd5530fea67c695ccfd46a3633f2bb5ab82c2367a6b0bff02800b",
+    "assets": "b2511b2ff93a2d21edaba0f55bc15b6c2897dbfcce04021cf3655714c8d4ff90",
+    "decisionRuntime": "db45344268d9ef1006040bf7c095d311745b4e4fe585f5197ec14b7db227b72f",
+    "investigationRuntime": "dec2d885724458dada500863e1070dc4645256670ed9efedd65a89960341d940",
+    "benchmark": "8dc4dc9e61a1d90a4f504a5400ccea55922cfe88eb2dac6ee4787dabb484ed96",
+    "node": "8a22a371fd85aecf5411636574309f6380fbc42694aaf0651a089a8ef9c44e52",
+    "rootLock": "026e4cb5ad75bc688cb6e4f57b85f2029d753697f9fe3bd7cbb3e9b527270255",
+    "dependencyEntries": {
+      "decisions:commander": {
+        "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+        "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+      },
+      "decisions:fast-glob": {
+        "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+        "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+      },
+      "decisions:fflate": {
+        "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+        "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+      },
+      "decisions:neverthrow": {
+        "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+        "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+      },
+      "decisions:simple-git": {
+        "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+        "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+      },
+      "decisions:valibot": {
+        "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+        "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+      },
+      "decisions:yaml": {
+        "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+        "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+      },
+      "investigations:commander": {
+        "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+        "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+      },
+      "investigations:fast-glob": {
+        "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+        "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+      },
+      "investigations:fflate": {
+        "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+        "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+      },
+      "investigations:neverthrow": {
+        "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+        "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+      },
+      "investigations:simple-git": {
+        "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+        "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+      },
+      "investigations:valibot": {
+        "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+        "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+      },
+      "investigations:yaml": {
+        "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+        "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+      }
+    }
+  },
+  "manifest": {
+    "schemaVersion": 1,
+    "version": "0.1.0",
+    "target": "x86_64-unknown-linux-gnu",
+    "source": {
+      "sha256": "638ec2528e3d1e87c1156f8c3aa2bf43eb36300e403f16e140ad057c68e56f19",
+      "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8",
+      "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)"
+    },
+    "assets": [
+      {
+        "role": "decision-records",
+        "file": "decision-records",
+        "size": 7663760,
+        "sha256": "7ed36f8faa5cd161cb78a7539db4daf226a85ee9d0f2412e285ad3dd54248927"
+      },
+      {
+        "role": "investigation-report",
+        "file": "investigation-report",
+        "size": 7663776,
+        "sha256": "f68ced932f1f840c40cdfa0a6f9dbb77ca486bf6ba153b0b11ff1672a0606a28"
+      }
+    ]
+  },
+  "samples": 20,
+  "seed": 26110700,
+  "cache": "new process; OS cache not cleared",
+  "warmup": "one process per arm and scenario"
+}

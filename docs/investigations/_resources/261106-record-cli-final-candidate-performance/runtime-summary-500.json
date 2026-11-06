@@ -1,0 +1,420 @@
+[
+  {
+    "domain": "decisions",
+    "scenario": "list",
+    "arm": "node",
+    "count": 20,
+    "medianMs": 308.86792,
+    "p95Ms": 364.250088,
+    "stdoutBytes": [
+      1408
+    ]
+  },
+  {
+    "domain": "decisions",
+    "scenario": "list",
+    "arm": "native",
+    "count": 20,
+    "medianMs": 5.932789,
+    "p95Ms": 7.141063,
+    "stdoutBytes": [
+      4422
+    ]
+  },
+  {
+    "domain": "decisions",
+    "scenario": "search-metadata",
+    "arm": "node",
+    "count": 20,
+    "medianMs": 324.68602599999997,
+    "p95Ms": 363.678175,
+    "stdoutBytes": [
+      569
+    ]
+  },
+  {
+    "domain": "decisions",
+    "scenario": "search-metadata",
+    "arm": "native",
+    "count": 20,
+    "medianMs": 7.232911,
+    "p95Ms": 10.075447,
+    "stdoutBytes": [
+      1077
+    ]
+  },
+  {
+    "domain": "decisions",
+    "scenario": "search-content",
+    "arm": "node",
+    "count": 20,
+    "medianMs": 1026.7876285,
+    "p95Ms": 1203.883904,
+    "stdoutBytes": [
+      786
+    ]
+  },
+  {
+    "domain": "decisions",
+    "scenario": "search-content",
+    "arm": "native",
+    "count": 20,
+    "medianMs": 32.091373000000004,
+    "p95Ms": 37.695562,
+    "stdoutBytes": [
+      1959
+    ]
+  },
+  {
+    "domain": "decisions",
+    "scenario": "split-budget",
+    "arm": "node",
+    "count": 20,
+    "medianMs": 316.35789950000003,
+    "p95Ms": 567.911339,
+    "stdoutBytes": [
+      1210
+    ]
+  },
+  {
+    "domain": "decisions",
+    "scenario": "split-budget",
+    "arm": "native",
+    "count": 20,
+    "medianMs": 6.15341,
+    "p95Ms": 6.895929,
+    "stdoutBytes": [
+      875
+    ]
+  },
+  {
+    "domain": "decisions",
+    "scenario": "depth-frontier",
+    "arm": "node",
+    "count": 20,
+    "medianMs": 314.034007,
+    "p95Ms": 352.866856,
+    "stdoutBytes": [
+      1582
+    ]
+  },
+  {
+    "domain": "decisions",
+    "scenario": "depth-frontier",
+    "arm": "native",
+    "count": 20,
+    "medianMs": 6.0639175,
+    "p95Ms": 7.351934,
+    "stdoutBytes": [
+      1105
+    ]
+  },
+  {
+    "domain": "decisions",
+    "scenario": "event-budget",
+    "arm": "node",
+    "count": 20,
+    "medianMs": 313.692588,
+    "p95Ms": 342.498883,
+    "stdoutBytes": [
+      1219
+    ]
+  },
+  {
+    "domain": "decisions",
+    "scenario": "event-budget",
+    "arm": "native",
+    "count": 20,
+    "medianMs": 6.255978499999999,
+    "p95Ms": 7.389953,
+    "stdoutBytes": [
+      886
+    ]
+  },
+  {
+    "domain": "decisions",
+    "scenario": "event-context",
+    "arm": "node",
+    "count": 20,
+    "medianMs": 318.497047,
+    "p95Ms": 351.425653,
+    "stdoutBytes": [
+      2293
+    ]
+  },
+  {
+    "domain": "decisions",
+    "scenario": "event-context",
+    "arm": "native",
+    "count": 20,
+    "medianMs": 6.1627715,
+    "p95Ms": 9.003042,
+    "stdoutBytes": [
+      1636
+    ]
+  },
+  {
+    "domain": "decisions",
+    "scenario": "width-depth",
+    "arm": "node",
+    "count": 20,
+    "medianMs": 312.7855445,
+    "p95Ms": 348.817129,
+    "stdoutBytes": [
+      20781
+    ]
+  },
+  {
+    "domain": "decisions",
+    "scenario": "width-depth",
+    "arm": "native",
+    "count": 20,
+    "medianMs": 6.1821874999999995,
+    "p95Ms": 7.046172,
+    "stdoutBytes": [
+      14620
+    ]
+  },
+  {
+    "domain": "decisions",
+    "scenario": "sync",
+    "arm": "node",
+    "count": 20,
+    "medianMs": 1970.2561685,
+    "p95Ms": 2293.834467,
+    "stdoutBytes": [
+      73
+    ]
+  },
+  {
+    "domain": "decisions",
+    "scenario": "sync",
+    "arm": "native",
+    "count": 20,
+    "medianMs": 171.18091750000002,
+    "p95Ms": 193.48781,
+    "stdoutBytes": [
+      466
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "list",
+    "arm": "node",
+    "count": 20,
+    "medianMs": 339.04920849999996,
+    "p95Ms": 402.551725,
+    "stdoutBytes": [
+      1179
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "list",
+    "arm": "native",
+    "count": 20,
+    "medianMs": 6.061375999999999,
+    "p95Ms": 7.394209,
+    "stdoutBytes": [
+      3406
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "search-metadata",
+    "arm": "node",
+    "count": 20,
+    "medianMs": 330.23450349999996,
+    "p95Ms": 387.300996,
+    "stdoutBytes": [
+      505
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "search-metadata",
+    "arm": "native",
+    "count": 20,
+    "medianMs": 6.6263965,
+    "p95Ms": 7.374664,
+    "stdoutBytes": [
+      966
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "search-content",
+    "arm": "node",
+    "count": 20,
+    "medianMs": 942.341357,
+    "p95Ms": 1329.730745,
+    "stdoutBytes": [
+      714
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "search-content",
+    "arm": "native",
+    "count": 20,
+    "medianMs": 28.249955,
+    "p95Ms": 30.575971,
+    "stdoutBytes": [
+      1886
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "split-budget",
+    "arm": "node",
+    "count": 20,
+    "medianMs": 333.317837,
+    "p95Ms": 385.472369,
+    "stdoutBytes": [
+      983
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "split-budget",
+    "arm": "native",
+    "count": 20,
+    "medianMs": 5.994126,
+    "p95Ms": 7.772696,
+    "stdoutBytes": [
+      701
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "depth-frontier",
+    "arm": "node",
+    "count": 20,
+    "medianMs": 335.054758,
+    "p95Ms": 374.547488,
+    "stdoutBytes": [
+      1214
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "depth-frontier",
+    "arm": "native",
+    "count": 20,
+    "medianMs": 6.0588605,
+    "p95Ms": 7.578354,
+    "stdoutBytes": [
+      822
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "event-budget",
+    "arm": "node",
+    "count": 20,
+    "medianMs": 327.6441545,
+    "p95Ms": 347.612399,
+    "stdoutBytes": [
+      956
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "event-budget",
+    "arm": "native",
+    "count": 20,
+    "medianMs": 6.231730000000001,
+    "p95Ms": 7.837582,
+    "stdoutBytes": [
+      683
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "event-context",
+    "arm": "node",
+    "count": 20,
+    "medianMs": 326.93176400000004,
+    "p95Ms": 407.114452,
+    "stdoutBytes": [
+      1285
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "event-context",
+    "arm": "native",
+    "count": 20,
+    "medianMs": 5.7803425,
+    "p95Ms": 6.603033,
+    "stdoutBytes": [
+      898
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "width-depth",
+    "arm": "node",
+    "count": 20,
+    "medianMs": 336.6487105,
+    "p95Ms": 386.828385,
+    "stdoutBytes": [
+      14914
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "width-depth",
+    "arm": "native",
+    "count": 20,
+    "medianMs": 5.9702234999999995,
+    "p95Ms": 6.920955,
+    "stdoutBytes": [
+      10086
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "ordinary-width-budget",
+    "arm": "node",
+    "count": 20,
+    "medianMs": 327.552218,
+    "p95Ms": 448.304271,
+    "stdoutBytes": [
+      1814
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "ordinary-width-budget",
+    "arm": "native",
+    "count": 20,
+    "medianMs": 5.8936825,
+    "p95Ms": 6.966031,
+    "stdoutBytes": [
+      1273
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "sync",
+    "arm": "node",
+    "count": 20,
+    "medianMs": 1832.558146,
+    "p95Ms": 2054.122728,
+    "stdoutBytes": [
+      48
+    ]
+  },
+  {
+    "domain": "investigations",
+    "scenario": "sync",
+    "arm": "native",
+    "count": 20,
+    "medianMs": 153.327018,
+    "p95Ms": 163.071499,
+    "stdoutBytes": [
+      436
+    ]
+  }
+]

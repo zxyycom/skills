@@ -1,6 +1,6 @@
 # 双域 CLI 联合验收：字段审计与过程证据
 
-状态：**本轮范围已调整为 Linux GNU x86_64；新源码尚未完成最终联合验收。**以下 `65c5c49` 的 Linux 结果仅作为形成过程，不能替代 Linux-only 修改后精确源码的重验。本表是逐命令字段核对；`compatibility.md` 是旧结果信息要求，`protocol.md` 是 native 映射定位；现行两域 CLI 操作 owner 决定局部读取及写集。不能因为旧 DTO 的字段名扩大未选候选范围。下列 32 行所列可选择 Cargo 节点均已在下述冻结测试快照实际运行通过；CLI 观察来自下述同源 release 二进制的独立私有进程。证据覆盖所列字段与代表边界，不声称穷尽所有参数及规则组合。
+状态：**Linux-only 提交 `8ba448ea` 的本地联合 CLI 契约验收通过；冻结 Ubuntu 原生环境及其他 Change 门禁另行证明。**本表是逐命令字段核对；`compatibility.md` 是旧结果信息要求，`protocol.md` 是 native 映射定位；现行两域 CLI 操作 owner 决定局部读取及写集。不能因为旧 DTO 的字段名扩大未选候选范围。下列 32 行所列可选择 Cargo 节点均已在下述冻结测试快照实际运行通过；CLI 观察来自下述同源 release 二进制的独立私有进程。证据覆盖所列字段与代表边界，不声称穷尽所有参数及规则组合。
 
 ## 共同字段与证据规则
 
@@ -52,17 +52,13 @@
 
 ## 冻结身份、执行与结论
 
-- 实际输入为提交 `65c5c49cd7be5084d1b73637c5d1eb21ea8ccbc5` 的候选源码；工作区开始时相关路径无未提交改动。将 `tools/record-cli/` 排除 `target/` 的 356 个普通文件复制到独立目录，逐文件路径与 SHA-256 的排序清单再取 SHA-256 得 `77ffa44299c48a6f9dbdd1aabe36d4495fe5a1572d0ec18bb747437c9f886a23`。快照与工作区在构建、运行前后逐文件一致，运行后 HEAD 仍为该提交。这个清单包含 manifest、lock、Rust 运行时、测试、工具链、候选文档与辅助交付材料；release 编译只使用其构建子集。
-- Cargo 原生测试还通过 `include_str!` 读取 `tools/investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md`，SHA-256 为 `b4c0bd95d94080cdb0cfc68c56e5e95877c851e97d7445dca7a683d141f49d79`。按原相对位置复制并独立核对后，356 个候选文件加此 fixture 的 357 文件测试输入清单 SHA-256 为 `0ca71320e15fc09952f443d87b84c3291a0db06d8814e1b7a3ce1a58d47fe54b`；测试前后私有与仓库 fixture 字节一致。release 二进制编译不使用该 fixture，但 Cargo 全测试不能只复制候选目录。
-- 实际环境为 Linux x86_64、WSL2 kernel `6.18.33.2-microsoft-standard-WSL2`、工作区 `stat -f` 为 `ext2/ext3`、glibc 2.43、Git 2.53.0；rustc 1.98.1 (`48a229cea`)、Cargo 1.98.1，Cargo.lock SHA-256 `4cb266d231fe5a4463abaea1c7dec78e1998d09760f76445d84e765bf073d1fb`。从上述隔离快照执行 `cargo +1.98.1 build --manifest-path <snapshot>/source/Cargo.toml --locked --offline --release --bins --target-dir <snapshot>/target` 成功。直接验收的二进制 SHA-256：DR `9ce8071bbe3261fda9657eee0c974bb52a6cb700fe4f6fa089296a12a319ac30`；IR `37b9a1b50806201f176e1cf0b48df40fdf83811c873e778b334098bcd87101ab`。
-- 清除 `SKIP_DUPLICATE` 和 `SKIP_KNOWN_GAPS`，对这两个精确 release 二进制运行一次性私有 `check.py`：**110 次进程观察通过，0 跳过**，日志分别确认 DR 18、IR 14 个不同命令的真实成功出口。`identity_probe.py` 同样零跳过重跑该矩阵并补验正式引用、资源 owner 移动、影响计数及域外 pending；不读写真实记录。脚本 SHA-256 分别为 `d3d669f80d2cb6c90c21f2ff1f63a3306bb627edf2cfc790fe54fdb759e553e8`、`213bb4a542e62473a7e2ffaa4d4e0fde9d788eeadfb36801e2acde11417880ac`。其末尾固定文本 `PARTIAL ONLY` / `IDENTITY PRELIMINARY` 保留为两平台与全 Change 未完成的边界，不否定本次绑定提交、源码和二进制的 Linux 观察。
-- 同一快照执行 `cargo +1.98.1 test --manifest-path <snapshot>/source/Cargo.toml --target-dir <snapshot>/target --release --locked --offline --all-targets -- --include-ignored` 成功：**190 个 library 与 122 个 integration 节点通过，0 failed、0 ignored**。日志中还有测试自行启动的三个单节点结果，不重复计数。上表引用的 29 个具名节点均已在该次日志中核对为 `ok`。
-- 私有过程日志 SHA-256：matrix `771d4714b87915fc41cb77db4bd9b9ede4c6d42d0d1b79f8361c763facbfe0bf`、identity `fe5c4a15092dbf0f9ffd66810e33c132bb7efb4b580ec53b15d0f942d2726537`、Cargo `dd850e839a2f8952e4d54ec5c200731b88ea1ee85daafbce6e87fe7d62ac1e9c`。临时日志、私有 `.git`、fixture 副本与二进制不提交。仓库内可核实调用者和唯一批准的孤立 UTF-16 源/索引结构化拒绝见 `capability-mapping.md`；正常 emoji、UTF-16 preview 及各域成功 trace 全对象在本次真实进程重验。
+- 实际输入为 Linux-only 冻结提交 `8ba448ea45681525f1237d82846c08e3e8410215`；工作区开始时相关路径无未提交改动。将 `tools/record-cli/` 排除 `target/` 的 353 个普通文件复制到独立目录，逐文件路径与 SHA-256 的排序清单再取 SHA-256 得 `60d1e5b6aae98e650b408b40467a9115b095fa9be0846b72d3bb1aab40e4c4a6`。快照与工作区在构建、运行前后逐文件一致，运行后 HEAD 仍为该提交。清单包含 manifest、lock、Rust 运行时、测试、工具链、候选文档与交付材料；release 编译只使用其构建子集。
+- Cargo 原生测试另通过 `include_str!` 读取 `tools/investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md`，SHA-256 为 `b4c0bd95d94080cdb0cfc68c56e5e95877c851e97d7445dca7a683d141f49d79`。按原相对位置复制并核对后，候选 353 文件加此 fixture 共 354 文件的测试输入清单 SHA-256 为 `b830ef5e4b2ec19ebd48181e6fbca61796678ce3c2815fd8468429ef21d006b6`；测试前后私有与仓库 fixture 字节一致。release 编译不使用该 fixture，但 Cargo 全测试不能只复制候选目录。
+- 本机为 Linux x86_64、WSL2 kernel `6.18.33.2-microsoft-standard-WSL2`、工作区 `stat -f` 为 `ext2/ext3`、glibc 2.43、Git 2.53.0；rustc 1.98.1 (`48a229cea`)、Cargo 1.98.1，Cargo.lock SHA-256 `f940642b7f731b864d09ea8af554edac5b27ccb65b37cec17357aeff8b83caa7`。从上述隔离快照执行 `cargo +1.98.1 build --manifest-path <snapshot>/source/Cargo.toml --locked --offline --release --bins --target-dir <snapshot>/target` 成功。直接验收的 release 二进制 SHA-256：DR `e8b586b9e15209712b888d85ef8bdae592d7244b7ba65a254534b66acbfcdada`；IR `44e04a6e63f28d68786c630433b5361094f5e3164cd7592d60a34150302c2737`。
+- 清除 `SKIP_DUPLICATE` 和 `SKIP_KNOWN_GAPS`，对这两个精确二进制运行一次性私有 `check.py`：**110 次进程观察通过，0 跳过**，日志分别确认 DR 18、IR 14 个不同命令的真实成功出口。`identity_probe.py` 零跳过重跑矩阵并补验正式引用、资源 owner 移动、影响计数及域外 pending；不读写真实记录。脚本 SHA-256 分别为 `d3d669f80d2cb6c90c21f2ff1f63a3306bb627edf2cfc790fe54fdb759e553e8`、`213bb4a542e62473a7e2ffaa4d4e0fde9d788eeadfb36801e2acde11417880ac`。脚本末尾固定文本 `PARTIAL ONLY` / `IDENTITY PRELIMINARY` 表示它们不单独证明完整 Change，不否定本次精确冻结输入和实际进程观察。
+- 同一快照执行 `cargo +1.98.1 test --manifest-path <snapshot>/source/Cargo.toml --target-dir <snapshot>/target --release --locked --offline --all-targets -- --include-ignored` 成功：**190 个 library 与 122 个 integration 节点通过，0 failed、0 ignored**。日志另有测试自行启动的三个单节点结果，不重复计数；上表引用的 29 个具名节点均在日志中实际报告 `ok`。
+- 私有过程日志 SHA-256：matrix `b9b65dc0973107c371d9a6220f4e9f0967c7d99b30c97c5f41dcf355e1f7704c`、identity `01597634b2e19486f43db7d192a41c01b54d7b6c5ae59360964e72aa05cf63ce`、Cargo `c191a8d747cc476b266dddafe54ce3d14357aef006328d5ceb426eb238b6f411`。临时日志、私有 `.git`、fixture 副本和二进制不提交。可核实调用者和唯一批准的孤立 UTF-16 源/索引结构化拒绝见 `capability-mapping.md`；正常 emoji、UTF-16 preview 与两域成功 trace 完整对象均在本次真实进程重验。
 
-形成阶段结论：在上述 Linux 环境及当时 `65c5c49` 精确冻结源码范围内，双域 32 命令成功路由、逐项字段映射和代表失败/恢复边界形成可核对证据；本次 Linux-only 源码尚须重新建立对应证据。这不是全部参数组合穷举，也不证明 Windows 原生、Ubuntu 22.04 原生、最终 CI、Case、性能或发布；这些由各自 owner 独立验收。
+结论：在上述 Linux 环境和精确冻结源码范围内，双域 32 命令成功路由、逐项字段映射和代表失败/恢复边界形成可核对证据，联合 CLI 契约可接受。这不是全部参数组合穷举，也不替代冻结的 Ubuntu 22.04/glibc 2.35 原生 CI、Case、性能和发布验收；这些由各自 owner 独立证明。用户已将本轮候选范围收敛至 Linux GNU x86_64，现行 TypeScript 和视频工具的 Windows 支持不因本决定改变。
 
-此前 `be1e9c4` 的 110 次观察及随后测试同步、Git/Windows 路径修复仅是形成过程，不替代上述对新运行时的完整重验；同样，旧性能结果不覆盖后来运行时修复。字段审计发现的历史确认、资源删除确认及预检诊断传播问题，在本次精确 release 进程中均已重验。
-
-## 当前范围调整
-
-用户已决定本候选仅验收 Linux GNU x86_64，以 Ubuntu 22.04/glibc 2.35 为冻结原生验收环境；Windows 候选不在本轮，现行 TypeScript 和视频工具的 Windows 支持不因此变化。当前修改尚未提交，下文形成阶段的 hash、二进制和测试结果均不代表该修改后的源码；待新提交冻结后，从精确隔离快照重新构建并重跑 32 命令联合矩阵、实际 Cargo 节点及相关验收。
+此前 `65c5c49` 的 110 次观察及 312 节点仅为形成过程，不替代上述对 Linux-only 提交的独立重验；旧性能结果同样不能覆盖后续运行时修复。

@@ -2,7 +2,7 @@
 title: 两域共用 Rust 候选底座并隔离生产接线
 id: 261106-isolate-shared-native-record-candidate
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-11-06T09:46:50Z
 purpose: 在完整迁移两域能力时保持共同安全契约和独立领域语义，并分开候选验收与生产切换。
 background: 决策与调查工具共享索引和事务，分开迁移容易产生语义漂移；原生运行时也改变调试、构建及分发责任。
