@@ -1303,6 +1303,36 @@
       ],
       "title": "Rust trace 查重优化后的关系图性能对照"
     },
+    "261106-record-cli-final-candidate-performance": {
+      "formedAt": "2026-11-06T12:24:56Z",
+      "name": "record-cli-final-candidate-performance",
+      "question": "冻结正式 Rust 候选在两域真实单次进程查询与同步中，相对现行 Node CLI 的端到端延迟和规模变化如何？",
+      "relations": [],
+      "resourceIds": [
+        "261106-record-cli-final-candidate-performance/correctness-100.json",
+        "261106-record-cli-final-candidate-performance/correctness-32.json",
+        "261106-record-cli-final-candidate-performance/correctness-500.json",
+        "261106-record-cli-final-candidate-performance/environment-100.json",
+        "261106-record-cli-final-candidate-performance/environment-32.json",
+        "261106-record-cli-final-candidate-performance/environment-500.json",
+        "261106-record-cli-final-candidate-performance/samples-100.jsonl",
+        "261106-record-cli-final-candidate-performance/samples-32.jsonl",
+        "261106-record-cli-final-candidate-performance/samples-500.jsonl",
+        "261106-record-cli-final-candidate-performance/summary-100.json",
+        "261106-record-cli-final-candidate-performance/summary-32.json",
+        "261106-record-cli-final-candidate-performance/summary-500.json",
+        "261106-record-cli-final-candidate-performance/window-monitor.jsonl"
+      ],
+      "sourcePath": "261106-record-cli-final-candidate-performance.md",
+      "tags": [
+        "decision-records",
+        "investigation-report",
+        "native-cli",
+        "performance",
+        "rust"
+      ],
+      "title": "决策与调查 CLI 正式 Rust 候选的单次进程性能"
+    },
     "261106-rust-function-metrics-boundaries": {
       "formedAt": "2026-11-06T10:23:37Z",
       "name": "rust-function-metrics-boundaries",
@@ -2049,6 +2079,7 @@
       "261105-rust-query-algorithmic-complexity": "sha256:4cc79ca0d4e610141c1beda1369ad8f77b6a9b6596b62d613138a5ccaa738de3",
       "261105-rust-query-fixed-cost-and-scale": "sha256:6ecf09c891f5f1e276fcd8e2494435b854efa13ce6566bc9d3cdf7ea866e372b",
       "261105-rust-trace-aligned-graph-performance": "sha256:355fa3139a6a4e6aa4ab8bab69df53dc59d9bce1b06a998130f192bb47a619cd",
+      "261106-record-cli-final-candidate-performance": "sha256:8cf1175283f9a7c18685e60a8d9d2ef9894bb6161ce7faa025c46473e88cb9af",
       "261106-rust-function-metrics-boundaries": "sha256:e85870944d58186950abe4e47806a302259dd0a5da3838908d9f6443751b3031",
       "261106-rust-transaction-namespace-race": "sha256:3a2f6b27fe32c95d72cc6383bdd102296e7975ef3efbd4723d245aeae1eae88d",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:512b8f0c5b6466034d7d851032bf41af7413a227bdd19c62959fc2ad343d495c",
