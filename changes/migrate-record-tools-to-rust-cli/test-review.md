@@ -261,3 +261,18 @@
 - `investigation_identity::cli_resources::cli_owner_move_preserves_resources_and_platform_metadata`：Windows 分支仍先断言只读属性与字节，再对私有 fixture 使用 `SetFileAttributesW` **仅清除 READONLY** 以允许清理；不存在关闭 lint 或修改产品代码。Unix mode/umask 与 Windows 属性为不同证明点。
 
 最终本轮 Linux 复验：native `--lib -- --include-ignored` 188/188；`investigation_identity` 12/12、`cli_entry` 4/4、`git_stage` 37/37、`identity` 15/15。Windows MSVC target all-target Clippy `-D warnings` 通过，属于交叉检查而非 Windows 原生执行。上述新增节点及分组移动后的真实完整名称须由最终 Cargo 快照和 Case owner 对账。
+
+## 冻结前平台兼容增量复核
+
+以 `be1e9c4..5fe61474` 中测试及 support diff 为增量；此前全量裁决不因本节重写。以下是静态准入，不是本轮运行结果：
+
+- `transaction::tests` 的 `same_mode_rival_between_recovery_mkdir_and_open_keeps_bytes_in_durable_backup`、`newly_created_namespace_rejects_concurrent_unjournaled_member_after_commit`、`cooperative_transactions_do_not_prepare_at_the_same_time`、`deleted_record_recovery_rejects_replaced_parent_before_creating`、`removed_resource_ancestor_replacement_fails_postverify_without_rollback`、`removed_resource_recovery_rejects_replaced_parent_before_creating`、`deleted_resource_file_recovery_does_not_write_into_replaced_parent`：保留真实事务和文件竞争，以及原结果断言；两侧阶段会合改为 30 秒有界等待，进入阶段失败时保留已完成 worker 的结果或 panic。它限制会合等待，不证明 resume 之后的 `join` 或整个测试全面有界。
+- `missing_parent_replacement_between_prepare_and_fresh_is_rejected`：Unix 实际替换后要求 `source-changed`、不提交并保留原目录哨兵；Windows 要求真实 rename 的 sharing violation 32，随后事务提交新文件并保留哨兵。两者验证不同的文件系统防护机制，Windows 分支不证明替换成功后的拒绝。
+- `git::tests::local_paths_convert_to_git_spelling_without_weakening_raw_output_validation`：手写本地路径与原始 Git index 记录分别检查斜杠转换及反斜杠拒绝；Windows 本地输入额外拒绝列出的 ADS 和设备名，Unix 本地输入及原始 Git 输入保留列出的合法名称。纯解析边界足够，不冒称实际 Git 文件创建或完整平台保留名覆盖。
+- `source::tests::capture::capture_allows_internal_directory_link_but_rejects_escape`：真实私有目录分别检查相对/绝对内部目录链接内容、文件链接和逃逸拒绝；新增上下文只改善失败定位，不改变 oracle。Windows 需要创建符号链接权限。
+- `source::directory_move::tests` 原有九节点保留：实际目录树及 syscall 前后注入覆盖移动、冲突、漂移、恢复和平台元数据；`replaced_parent_and_case_alias_are_rejected` 的父目录替换子观察只在 rename 成功时执行，不能把该子观察的条件未执行当作平台证明。临时 probe 不属于保留测试。
+- `git_stage::stage_index::cli_unresolved_selector_reports_target_recovery_and_unchanged_pending`：真实双域 CLI 与 Git index，IR 诊断路径以既有 fixture 的文件系统 canonicalize 结果作独立预期，并仍比较前后完整 pending；此调整不验证所有路径拼写或替代运行。此前四种非法 OS argv、源 JSON 孤立代理项拒绝与预览允许转义仍按各自入口及前述裁决区分。
+
+未发现需要更改上述测试实现的准入缺口。最终 Case owner 应以冻结快照核对新增 Git 节点及修改节点的实体与平台证明；原生 Windows 运行、最终全量 Gate 和 A/B 结果仍须另行取得，不能由本节静态复核或旧运行结果推导。
+
+后续 `queries::candidates::investigation_candidate_referenced_symlink_is_a_resource_issue` 的 Windows junction fixture 增量复核：路径逐段 native join，在私有 fixture 根用固定相对路径调用 `mklink /J`，失败即报告状态及输出而非跳过；`canonicalize` 将实际链接目标与独立创建的 outside 目录比较，原资源未就绪与禁止遍历链接诊断仍保留。真实 junction 和资源扫描边界不可用纯路径替身替代。此为静态准入；修正后 Windows 原生结果待新 runner，不由 Linux 定向测试或 Windows 交叉检查替代。

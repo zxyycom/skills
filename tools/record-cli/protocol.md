@@ -8,6 +8,8 @@
 
 除成功 trace 外，成功对象含 `version: 1`、`command`、`ok: true`、`result` 和 `diagnostics`；失败对象含 `version: 1`、`command`、`ok: false`、`error` 和 `diagnostics`，有实际可证明部分事实时还可含 `result`。`error` 包含 `code`、`message`，可带 `path`、`field`、`recovery`；诊断可带 `code`、`message`、`path`、`target`、`reason`、`recovery`、`causeCategory`、`operation` 和 `detail`。成功输出的诊断数组可以为空，warning 亦可能在结果内并写 stderr，不能只检查其中一个通道。失败时先读 `error` 和诊断，再读存在的部分结果；不得把 absent、`null`、空数组或 false 当成同一含义。仅在来源分支有相应事实时输出可选字段；明确未知的 `null` 保留为未知。
 
+诊断的 `path` 用于定位实际问题，可为平台显示的规范路径；它不等同于记录结果中表示逻辑来源的 `sourcePath`，调用者不应假定两者字面相同或采用相同的相对路径基准。
+
 成功 `trace --json` 不套 envelope：DR 带 `source`，IR 带 `warnings` 且 warning 同时写 stderr；两域均保留各自原有字段、类型、顺序、缺省及预算语义。失败 trace 使用失败 envelope，不将其说成旧版同形。`version` 是候选 envelope 版本，不是索引 schema 版本；需破坏现有机器契约时应先审查并调整版本。实现入口为 [protocol.rs](src/protocol.rs) 和 [输出映射](src/cli/output.rs)。
 
 ## 命令结果和信息归属
