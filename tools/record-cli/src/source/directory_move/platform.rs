@@ -34,13 +34,23 @@ pub(super) fn platform_rename(
     _held: &File,
     from: &std::ffi::OsStr,
     to: &std::ffi::OsStr,
-) -> Result<(), SourceError> {
+) -> Result<(), MoveDirectoryFailure> {
     use std::{
         ffi::CString,
         os::{fd::AsRawFd, unix::ffi::OsStrExt},
     };
-    let from = CString::new(from.as_bytes()).map_err(|_| SourceError::InvalidPath(from.into()))?;
-    let to = CString::new(to.as_bytes()).map_err(|_| SourceError::InvalidPath(to.into()))?;
+    let from = CString::new(from.as_bytes()).map_err(|_| {
+        fail(
+            SourceError::InvalidPath(from.into()),
+            MoveDirectoryEffect::NotStarted,
+        )
+    })?;
+    let to = CString::new(to.as_bytes()).map_err(|_| {
+        fail(
+            SourceError::InvalidPath(to.into()),
+            MoveDirectoryEffect::NotStarted,
+        )
+    })?;
     // SAFETY: both names are single NUL-terminated components relative to the live parent.
     let result = unsafe {
         libc::renameat2(
@@ -52,7 +62,7 @@ pub(super) fn platform_rename(
         )
     };
     if result != 0 {
-        return Err(io::Error::last_os_error().into());
+        return Err(syscall_failure(io::Error::last_os_error().into()));
     }
     Ok(())
 }
@@ -92,46 +102,101 @@ pub(super) fn platform_rename(
     held: &File,
     _from: &std::ffi::OsStr,
     to: &std::ffi::OsStr,
-) -> Result<(), SourceError> {
+) -> Result<(), MoveDirectoryFailure> {
+    use std::os::windows::io::AsRawHandle;
+    use windows_sys::{
+        Wdk::Storage::FileSystem::{FileRenameInformation, NtSetInformationFile},
+        Win32::{Foundation::HANDLE, System::IO::IO_STATUS_BLOCK},
+    };
+    let (mut storage, size) = rename_buffer(parent, to)?;
+    let mut io_status = Box::<IO_STATUS_BLOCK>::default();
+    // SAFETY: the initialized, aligned rename buffer and both capability handles
+    // remain live across the documented synchronous NT call.
+    let status = unsafe {
+        NtSetInformationFile(
+            held.as_raw_handle() as HANDLE,
+            &mut *io_status,
+            storage.as_mut_ptr().cast(),
+            size,
+            FileRenameInformation,
+        )
+    };
+    complete_rename(status, storage, io_status)
+}
+
+// Construct the aligned, no-replace NT rename request for the held parent.
+#[cfg(windows)]
+fn rename_buffer(
+    parent: &cap_std::fs::Dir,
+    to: &std::ffi::OsStr,
+) -> Result<(Vec<usize>, u32), MoveDirectoryFailure> {
     use std::os::windows::{ffi::OsStrExt, io::AsRawHandle};
-    use windows_sys::Win32::{
-        Foundation::HANDLE,
-        Storage::FileSystem::{FILE_RENAME_INFO, FileRenameInfo, SetFileInformationByHandle},
+    use windows_sys::{
+        Wdk::Storage::FileSystem::FILE_RENAME_INFORMATION, Win32::Foundation::HANDLE,
+    };
+    let invalid = || {
+        fail(
+            SourceError::InvalidPath(to.into()),
+            MoveDirectoryEffect::NotStarted,
+        )
     };
     let name: Vec<u16> = to.encode_wide().collect();
-    let offset = std::mem::offset_of!(FILE_RENAME_INFO, FileName);
-    let len = offset
-        .checked_add(
-            name.len()
-                .checked_mul(2)
-                .ok_or_else(|| SourceError::InvalidPath(to.into()))?,
-        )
-        .ok_or_else(|| SourceError::InvalidPath(to.into()))?;
-    let len = len.max(std::mem::size_of::<FILE_RENAME_INFO>());
-    let size = u32::try_from(len).map_err(|_| SourceError::InvalidPath(to.into()))?;
-    // usize storage supplies the alignment required by FILE_RENAME_INFO.
+    let offset = std::mem::offset_of!(FILE_RENAME_INFORMATION, FileName);
+    let name_bytes = name.len().checked_mul(2).ok_or_else(invalid)?;
+    let len = std::mem::size_of::<FILE_RENAME_INFORMATION>()
+        .checked_add(name_bytes)
+        .ok_or_else(invalid)?;
+    let size = u32::try_from(len).map_err(|_| invalid())?;
+    let name_size = u32::try_from(name_bytes).map_err(|_| invalid())?;
+    // usize storage supplies the alignment required by FILE_RENAME_INFORMATION.
     let mut storage = vec![0usize; len.div_ceil(std::mem::size_of::<usize>()).max(1)];
-    let info = storage.as_mut_ptr().cast::<FILE_RENAME_INFO>();
+    let info = storage.as_mut_ptr().cast::<FILE_RENAME_INFORMATION>();
     // SAFETY: storage is aligned, zero-initialized and large enough for the header
-    // and UTF-16 name. RootDirectory and held source are live capability handles.
+    // and UTF-16 name. RootDirectory is a live capability handle.
     unsafe {
         (*info).Anonymous.ReplaceIfExists = false;
         (*info).RootDirectory = parent.as_raw_handle() as HANDLE;
-        (*info).FileNameLength = (name.len() * 2) as u32;
+        (*info).FileNameLength = name_size;
         std::ptr::copy_nonoverlapping(
             name.as_ptr(),
             storage.as_mut_ptr().cast::<u8>().add(offset).cast::<u16>(),
             name.len(),
         );
-        if SetFileInformationByHandle(
-            held.as_raw_handle() as HANDLE,
-            FileRenameInfo,
-            info.cast(),
-            size,
-        ) == 0
-        {
-            return Err(io::Error::last_os_error().into());
-        }
+    }
+    Ok((storage, size))
+}
+
+#[cfg(windows)]
+fn complete_rename(
+    status: i32,
+    storage: Vec<usize>,
+    io_status: Box<windows_sys::Win32::System::IO::IO_STATUS_BLOCK>,
+) -> Result<(), MoveDirectoryFailure> {
+    use windows_sys::Win32::Foundation::{
+        RtlNtStatusToDosError, STATUS_OBJECT_NAME_COLLISION, STATUS_PENDING,
+    };
+    // NtSetInformationFile is documented to complete synchronously. If a
+    // provider nevertheless reports pending, retain buffers that the kernel
+    // could still access and report an unknown effect, never success.
+    if status == STATUS_PENDING {
+        std::mem::forget(storage);
+        Box::leak(io_status);
+        return Err(fail(
+            SourceError::Io(io::Error::other("rename unexpectedly pending")),
+            MoveDirectoryEffect::Unknown,
+        ));
+    }
+    if status < 0 {
+        // SAFETY: translating an NTSTATUS has no pointer or lifetime requirements.
+        let code = unsafe { RtlNtStatusToDosError(status) };
+        return Err(fail(
+            SourceError::Io(io::Error::from_raw_os_error(code as i32)),
+            if status == STATUS_OBJECT_NAME_COLLISION {
+                MoveDirectoryEffect::NotStarted
+            } else {
+                MoveDirectoryEffect::Unknown
+            },
+        ));
     }
     Ok(())
 }

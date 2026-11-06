@@ -103,12 +103,11 @@ pub(crate) fn set_move_before_test_hook(hook: impl FnOnce() + 'static) {
 pub(crate) fn set_move_after_test_hook(hook: impl FnOnce() + 'static) {
     AFTER_RENAME.with(|slot| *slot.borrow_mut() = Some(Box::new(hook)));
 }
+#[cfg(target_os = "linux")]
 fn syscall_failure(error: SourceError) -> MoveDirectoryFailure {
     let collision = match &error {
         #[cfg(target_os = "linux")]
         SourceError::Io(e) => e.raw_os_error() == Some(libc::EEXIST),
-        #[cfg(windows)]
-        SourceError::Io(e) => matches!(e.raw_os_error(), Some(80 | 183)),
         _ => false,
     };
     fail(
@@ -139,8 +138,7 @@ pub(crate) fn move_directory(
         &prepared.held,
         prepared.source_name,
         prepared.target_name,
-    )
-    .map_err(syscall_failure)?;
+    )?;
     #[cfg(test)]
     run_hook(&AFTER_RENAME);
     verify_moved(root, expected, destination, prepared)

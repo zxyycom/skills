@@ -2,24 +2,61 @@
 use super::*;
 
 #[cfg(unix)]
-fn absolute_inside(root: &Path, target: &Path) -> Option<PathBuf> {
-    target.strip_prefix(root).ok().map(Path::to_path_buf)
+fn absolute_inside(root: &Path, target: &Path) -> Result<Option<PathBuf>, SourceError> {
+    Ok(target.strip_prefix(root).ok().map(Path::to_path_buf))
 }
 #[cfg(windows)]
-fn absolute_inside(root: &Path, target: &Path) -> Option<PathBuf> {
-    fn normalize(path: &Path) -> Option<PathBuf> {
-        let text = path.to_str()?;
-        if let Some(rest) = text.strip_prefix(r"\\?\UNC\") {
-            Some(PathBuf::from(format!(r"\\{rest}")))
-        } else if let Some(rest) = text.strip_prefix(r"\\?\") {
-            Some(PathBuf::from(rest))
-        } else {
-            Some(path.to_path_buf())
-        }
+fn normalize_windows_path(path: &Path) -> Option<PathBuf> {
+    let text = path.to_str()?;
+    if let Some(rest) = text.strip_prefix(r"\\?\UNC\") {
+        Some(PathBuf::from(format!(r"\\{rest}")))
+    } else if let Some(rest) = text.strip_prefix(r"\\?\") {
+        Some(PathBuf::from(rest))
+    } else {
+        Some(path.to_path_buf())
     }
-    let root = normalize(root)?;
-    let target = normalize(target)?;
-    target.strip_prefix(root).ok().map(Path::to_path_buf)
+}
+#[cfg(windows)]
+fn absolute_inside(root: &Path, target: &Path) -> Result<Option<PathBuf>, SourceError> {
+    let root =
+        normalize_windows_path(root).ok_or_else(|| SourceError::InvalidPath(root.to_path_buf()))?;
+    let target = normalize_windows_path(target)
+        .ok_or_else(|| SourceError::InvalidPath(target.to_path_buf()))?;
+    if let Ok(relative) = target.strip_prefix(&root) {
+        return Ok(Some(relative.to_path_buf()));
+    }
+    // A Windows absolute link may use an 8.3 spelling for an ancestor of
+    // the canonical workspace. Expand names, then apply the same strict
+    // component boundary; subsequent traversal still uses the root handle.
+    let long = windows_long_path(&target)?;
+    Ok(normalize_windows_path(&long)
+        .ok_or_else(|| SourceError::InvalidPath(long.clone()))?
+        .strip_prefix(root)
+        .ok()
+        .map(Path::to_path_buf))
+}
+// Expand 8.3 spellings without trusting the result as a workspace-relative path.
+#[cfg(windows)]
+fn windows_long_path(target: &Path) -> Result<PathBuf, SourceError> {
+    use std::os::windows::ffi::{OsStrExt, OsStringExt};
+    use windows_sys::Win32::Storage::FileSystem::GetLongPathNameW;
+    let input: Vec<u16> = target.as_os_str().encode_wide().chain(Some(0)).collect();
+    // SAFETY: input is NUL-terminated; a null output with length zero queries size.
+    let needed = unsafe { GetLongPathNameW(input.as_ptr(), std::ptr::null_mut(), 0) };
+    if needed == 0 {
+        return Err(io::Error::last_os_error().into());
+    }
+    let mut output = vec![0u16; needed as usize];
+    // SAFETY: output has exactly the reported number of writable UTF-16 units.
+    let written = unsafe { GetLongPathNameW(input.as_ptr(), output.as_mut_ptr(), needed) };
+    if written == 0 {
+        return Err(io::Error::last_os_error().into());
+    }
+    if written >= needed {
+        return Err(SourceError::Changed(target.to_path_buf()));
+    }
+    output.truncate(written as usize);
+    Ok(PathBuf::from(std::ffi::OsString::from_wide(&output)))
 }
 
 /// Resolve directory links lexically under the retained root capability. An
@@ -132,7 +169,7 @@ fn apply_link_target(
 ) -> Result<(), SourceError> {
     let target = if target.is_absolute() {
         resolved.clear();
-        absolute_inside(&root.path, &target).ok_or_else(|| SourceError::Unsafe(path.0.clone()))?
+        absolute_inside(&root.path, &target)?.ok_or_else(|| SourceError::Unsafe(path.0.clone()))?
     } else {
         target
     };

@@ -1,6 +1,4 @@
 use super::*;
-#[cfg(windows)]
-mod windows_rename_diagnostics;
 fn fixture() -> (tempfile::TempDir, Root, RelativePath, RelativePath) {
     let temp = tempfile::tempdir().unwrap();
     std::fs::create_dir_all(temp.path().join("resources/old/nested")).unwrap();
@@ -37,15 +35,7 @@ fn moves_complete_tree_and_conditionally_restores_it() {
     let (temp, root, old, new) = fixture();
     let tree = capture_tree(&root, &old).unwrap();
     let proof = capture_missing(&root, &new).unwrap();
-    let receipt = move_directory(&root, &tree, &proof).unwrap_or_else(|error| {
-        #[cfg(windows)]
-        panic!(
-            "{error:?}; isolated rename diagnostics: {:?}",
-            windows_rename_diagnostics::rename_diagnostics()
-        );
-        #[cfg(not(windows))]
-        panic!("{error:?}");
-    });
+    let receipt = move_directory(&root, &tree, &proof).unwrap();
     assert!(!temp.path().join("resources/old").exists());
     assert_eq!(
         std::fs::read(temp.path().join("resources/new/nested/file")).unwrap(),
