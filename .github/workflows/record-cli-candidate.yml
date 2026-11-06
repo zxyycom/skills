@@ -69,9 +69,19 @@ jobs:
         run: cargo +1.98.1 fmt --manifest-path tools/record-cli/Cargo.toml -- --check
       - name: Rust clippy
         run: cargo +1.98.1 clippy --manifest-path tools/record-cli/Cargo.toml --locked --all-targets -- -D warnings
+      - name: Windows directory move smoke test
+        id: windows_smoke
+        if: runner.os == 'Windows'
+        timeout-minutes: 5
+        env:
+          RUST_BACKTRACE: 1
+        run: cargo +1.98.1 test --manifest-path tools/record-cli/Cargo.toml --locked --lib source::directory_move::tests::moves_complete_tree_and_conditionally_restores_it -- --exact --nocapture
       - name: Rust native tests
+        if: ${{ !cancelled() && (success() || steps.windows_smoke.outcome == 'failure') }}
         timeout-minutes: 15
-        run: cargo +1.98.1 test --manifest-path tools/record-cli/Cargo.toml --locked --all-targets -- --include-ignored
+        env:
+          RUST_BACKTRACE: 1
+        run: cargo +1.98.1 test --manifest-path tools/record-cli/Cargo.toml --locked --all-targets -- --include-ignored --nocapture
       - name: Candidate offline delivery tests
         run: node --test tools/record-cli/delivery/delivery.test.ts
       - name: Verify project test evidence coverage
