@@ -1,5 +1,5 @@
 ---
-title: "Rust 记录工具惯用实现审阅"
+title: "Rust 记录工具实现与语法普查"
 id: "261107-rust-record-idiomatic-implementation-review"
 formedAt: "2026-11-07T10:14:40Z"
 question: "Rust 记录候选中哪些内部表达值得惯用化而不改变对外契约？"
@@ -12,40 +12,44 @@ relations: []
 
 ## 形成时背景
 
-2026-11-07 审阅 `4f15106afc1eb517c65e595eccfe96b991d0b916` 的 Rust record CLI 候选。它不是生产 TS 入口，也不是纯机械翻译：已用类型化结果、Serde、能力目录、Unicode 与临时文件库。批准的 JSON、错误通道和实际部分写事实不能因语法改写静默改变；旧 TS 的偶然实现也不自动成为新增产品契约。
+最初于 2026-11-07 10:14 UTC 在 `4f15106afc1eb517c65e595eccfe96b991d0b916` 定向审阅 Rust record CLI 候选；同轮随后补做源码普查，纠正不能从热点外推全仓的缺口。Rust 是候选而非生产 TS 入口；批准的 JSON、通道和实际部分写事实不能因语法改写静默改变。
 
 ## 调查目的
 
-识别不依赖换库即可减少内部表达负担的局部选择，区分可试点、保留和尚无收益证据；不实施改动或宣称已验证替代。通用库的职责取舍见[库替换调查](./261107-rust-record-library-replacement-survey.md)。
+从完整源码识别无需新库的明确改进，区分静态可建议修改与依赖契约或替代验证的候选，并说明应保留的结构；库和依赖取舍见[通用库职责普查](./261107-rust-record-library-replacement-survey.md)。
 
 ## 调查范围与依据
 
-按基线定向阅读 `cli/arguments/{query,mutation}/arguments.rs`、`cli/output/{identity,transaction}.rs`、`cli/output/transaction/stage.rs`、`mutations/sync/selected_sync.rs`、`mutations/decision/{history,lifecycle/operation/archive}.rs`、`domains/graph.rs`、`queries/matcher.rs` 与 `source_revision.rs`。本文源码路径和行号相对 `tools/record-cli/src/`；这是代表性审阅，不是全部文件或全部行为的审计。
+2026-11-07 10:55 UTC 采集 commit `e03e9e87e937029c3058456cfb88d600e1f88ed7`，覆盖 `tools/record-cli/src` 和 `tests` 全部 280 个受版本控制 Rust 文件、38,815 行，另阅 17 个关联输入；五名 gpt-6.1-terra 按分区逐文件全文阅读（249 个 src、31 个 tests），记录 SHA、完整范围和两类判断；另一名 gpt-6.1-terra 独立 reviewer 逐项核实 13 项线索及抽样，路径/哈希/范围机械闭合，但机械检查不证明逐行阅读真实性或零遗漏。本报告共享库职责普查拥有的两份资源：逐文件范围、责任和判断见 `source-census.json`，13 项发现、验证要求及独立复核见 `findings.json`；它们是静态普查记录，不是动态验证结果。账本的 retain 仅表示本轮未发现应库化或惯用化的调整，不证明行为正确或测试通过 Test Design 准入；外部与内嵌测试列入源码普查，但不构成逐入口测试价值审计，本轮不修改测试或 Case。源码路径除明确仓库路径外均相对 `tools/record-cli/src/`，行号属于此补充基线。未运行测试、构建替代或采样。
 
 ## 调查结果与边界
 
-优先试点外部错误映射，其次试点局部输出 DTO；clone 仅按实际所有权关系处理。已承载语义的集合、顺序和领域流程是保留项，不是待重写清单。以下建议均不要求新增依赖。
+本轮 13 条线索分为 8 项建议修改和 5 项待验证候选；本篇覆盖 7 项行为、测试及实现修改和 3 项候选，另外 1 项依赖修改与 2 项库候选见[库职责普查](./261107-rust-record-library-replacement-survey.md)。建议修改不全是产品 bug；候选不等于应实施。
 
-### 优先试点：错误映射
+### 应改：用户可见错误和测试条件
 
-**明确错误到外部消息的映射，而非依赖 Debug（高）**。`cli/output/transaction/stage.rs:87-101` 将 `IndexStageError` 的 `Debug` 格式直接作为 JSON message；`mutations/decision/lifecycle/operation/archive.rs:108-118,145` 和 `mutations/sync/selected_sync.rs:135` 也把 Debug 放进跨边界失败。变更内部枚举名称或字段可能连带改变外部文字，且原因和定位易被埋在调试表示中。先在一个错误族增加显式穷尽映射或 Display，保留 code、recovery、已批准消息和部分写状态；比较成功、各失败分支、stdout/stderr、退出码及实际部分写结果。收益是将内部演进与公开协议解耦；现有协议是否要求逐字兼容需按行为 owner 判断，不能把现有字符串一律视为新规范。
+1. **CLI-002**：`cli/help.rs:50-52,75-79` 对两域共享 discard/publish 帮助，但 `cli/arguments/mutation/decision.rs:73-91` 只接受单 selector 且 publish 必需 alignment；`cli/arguments/mutation/investigation.rs:42-61` 允许多 selector、拒绝 alignment 与 keep-unrecorded-history，而 DR discard 不接受 delete-owned-resources。应分域修正帮助，不改变现有语法；验证两域 help 与正反例。
+2. **CLI-003**：`cli/mutation/decision/services.rs:70-76,87-94` 的 selected 失败上下文硬编码索引 basename，失败 JSON 的 indexRelativePath 因而不指实际配置路径；应复用已验证的实际工作区相对路径，比较默认及自定义目录的成功、预检和执行失败。
+3. **CLI-004**：`tools/record-cli/tests/queries/candidates.rs:237-265` 仅 symlink 创建受 Unix 条件限制，后续却无条件断言专属诊断。建议整个测试函数使用 `cfg(unix)`，在 Unix 运行该节点并核对非 Unix 编译。此为测试 fixture 条件不一致，**不是**已证明 Windows 产品失败或现有 CI 失败；Windows 当前承诺 release 构建与 smoke，不由此扩大到全套测试。
 
-### 局部输出 DTO
+### 应改：复用现有规则和显式成功值
 
-**先试点：对稳定输出使用局部 Serialize DTO（中）**。`cli/output/identity.rs:152-157` 先构造 `Value` 再复制 `id` 到 `decisionId` 并条件插字段；`cli/output/transaction/stage.rs:52-74` 按领域追加不同字段。局部具名结构和可选字段可以让必要字段、缺省和分支可在编译期看见，减少动态回读，但不必把全部 JSON 宏替换，也不应为每个一次性对象设计泛型层。试一个输出并比对数组顺序、可选字段存在/缺失与 null/false、文本与 JSON、错误分支，以及索引 fingerprint 规范化精确字节；对象键或序列化字节顺序仅在 owner 明确要求时验证。`preserve_order` 影响 Value 对象 map，不统管 DTO 字段顺序；无同等证据前保留 Value。收益为结构可读与误拼字段的风险降低，并非性能结论。
+- **AUTHOR-003**：`mutations/candidate.rs:36-43`、`mutations/decision/lifecycle/rules.rs:182-188` 与 `domains/mod.rs:60-68` 的 kebab 判定等义；调用已有 `is_kebab`，保留路径和错误语义，验证空值、连字符、ASCII、非 ASCII 和迁移。
+- **OPS-003**：`mutations/investigation_relations.rs:230-239` 的 ECMAScript whitespace 字符表与 `domains/mod.rs:46-58` 的 `JsTrim` 相同；复用后保留对原始值的 CR/LF 检查及修剪后长度限制，不能换成 Rust 默认 trim。验证 BOM、换行和非 ASCII 空白。
+- **OPS-002**：`mutations/sync/selected_sync.rs:47-84,250-263` 将校验结果经可变 Option 副作用取回，再用 `unreachable` 表达必然有值；让回调返回 `Result<V, E>` 或在投影后直接返回已验证索引更能表达成功值。现有调用成功前恰执行回调一次，**不是已证明可触发 panic**；保留成功前验证、错误映射和排序。
+- **OPS-001**：`mutations/investigation_operation.rs:37-61` 与 `mutations/investigation_relations/transaction.rs:13-17,44-74` 在一次准备中两次捕获解析基线，选择与写集来自两次观察。建议传递同一快照，保留第二路径承担的图验证、selector/review 相关失败顺序和独立调用入口；预检与正式执行仍各自准备。覆盖预检、无变更、写入和读取失败，不新增 fresh、CAS、回滚或跨文件隔离承诺。
 
-### 按所有权判断 clone
+### 候选：先确认契约或比较
 
-**只按所有权关系消除实际多余 clone（低）**。`cli/output/identity.rs:154` 从刚生成的 Value 回读克隆是上项试点的明确候选；`mutations/sync/selected_sync.rs:56-76` 克隆 baseline 后构造待验证完整投影，则让可信基线不受失败中的候选变动影响，是清晰的隔离边界，不应机械删除。`domains/graph.rs:24-36` 的边复制服务双向索引；使用共享引用或 arena 将增加生命周期和维护成本，目前无净收益证据。只有消费方可自然转移所有权且简化代码时用 `into_iter`/借用，验证结果及顺序，勿为避免 clone 引入复杂生命周期、泛型或 trait。
+- **MODEL-001**：`queries/investigation/show.rs:23-28` 在身份提取前剥 BOM，`queries/investigation/content.rs:49-58` 则不剥，`domains/investigation/document.rs:217-229` 要求首行 `---`。已发布索引下当前源加 BOM 会形成身份核验差异；固定正式报告要求 frontmatter 首行开始，不能据宽容 show 断言 BOM 是合法正式来源。先由 owner 明确只读兼容边界，再用私有 fixture 核对 show/content、stale 与严格 check，不预设放宽解析。
+- **AUTHOR-002**：`mutations/check/selected.rs:226-279` 回退身份发现时完整捕获并解码所有合格成员；即使未选正文无效也可能阻断。owner 允许必要扩大身份发现，但未明确此情况下非法未选正文的处置。先确认契约，再比较 `capture_header` 与完整读取，验证编码、重复身份、不安全成员和再次捕获一致性。
+- **AUTHOR-001**：`mutations/authoring/render.rs:187-205` 将泛型关系序列化为 Value 后两次 unwrap；现有两种关系枚举不构成已发生 panic 的证据。可比较穷尽转换与已有命名规则复用，避免引入另一份会漂移的名称映射。
 
-### 保留：数据结构与顺序
+### 保留及理由
 
-**保留已表达语义的数据结构与顺序**。`mutations/sync/selected_sync.rs:13-46,77-79` 的 BTreeMap/BTreeSet 与显式 UTF-16 排序、`domains/graph.rs:45-75` 的非递归 Kahn 验环分别承担候选投影和深图栈安全；`queries/matcher.rs:123-141` 将规范化匹配映射回原始 UTF-16 范围。集合类型、排序与所有权不是风格替换对象。若后续重构，需覆盖补充平面字符、规范化、图错误和确定顺序；不能仅凭 HashMap、Vec 或 clone 推断问题。
+`mutations/sync/selected_sync.rs` 克隆基线隔离候选；`domains/graph.rs` 的双向索引与非递归验环支持深图；`queries/matcher.rs` 维护规范化后到原文 UTF-16 的范围。选择顺序、事务阶段和实际写入事实均有用途，不机械消除 clone、换组合子或合并两类 argv 数据结构。原定向报告把 Debug 对外映射和输出 DTO 列为优先试点；本次未发现证明其相对以上具体问题更迫切、或 DTO 有净收益的证据，撤回优先级，按具体协议需求再评估。所有建议为静态判断；没有实施、运行测试或验证平台、性能和全行为正确性。
 
-### 保留：领域流程
+## 随附资源
 
-**保留领域流程，不为语法统一扩大抽象**。两套 argv 扫描相似，但 `cli/arguments/query/arguments.rs:37-55` 用按名称分组的 map，而 `cli/arguments/mutation/arguments.rs:3-31` 保留有序 option 列表；后者的关系事件顺序可能有语义。可在验证后抽取确实相同的局部解析，但不能先合并数据结构。`mutations/decision/history.rs` 与 lifecycle 操作中显式状态和失败路径应由领域契约决定，不以统一 Result 链或组合子代替可读的事务次序。
-
-### 使用边界
-
-本轮没有做性能采样、代码修改、测试或替代实现编译。这些是静态阅读下的维护收益判断，不证明当前行为有 bug，也不证明性能、二进制大小或实现可行性。后续任何实施先确认行为 owner，再按变更覆盖边界、回归和平台验收；本轮无实施、性能或全仓检查证据。
+- [发现与独立复核目录](./_resources/261107-rust-record-library-replacement-survey/findings.json)
+- [逐文件普查与关联输入账本](./_resources/261107-rust-record-library-replacement-survey/source-census.json)

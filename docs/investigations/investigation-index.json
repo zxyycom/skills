@@ -1424,28 +1424,34 @@
       "name": "rust-record-idiomatic-implementation-review",
       "question": "Rust 记录候选中哪些内部表达值得惯用化而不改变对外契约？",
       "relations": [],
-      "resourceIds": [],
+      "resourceIds": [
+        "261107-rust-record-library-replacement-survey/findings.json",
+        "261107-rust-record-library-replacement-survey/source-census.json"
+      ],
       "sourcePath": "261107-rust-record-idiomatic-implementation-review.md",
       "tags": [
         "maintainability",
         "record-cli",
         "rust"
       ],
-      "title": "Rust 记录工具惯用实现审阅"
+      "title": "Rust 记录工具实现与语法普查"
     },
     "261107-rust-record-library-replacement-survey": {
       "formedAt": "2026-11-07T10:14:39Z",
       "name": "rust-record-library-replacement-survey",
       "question": "Rust 记录候选中哪些职责值得交给库，哪些应保留领域实现？",
       "relations": [],
-      "resourceIds": [],
+      "resourceIds": [
+        "261107-rust-record-library-replacement-survey/findings.json",
+        "261107-rust-record-library-replacement-survey/source-census.json"
+      ],
       "sourcePath": "261107-rust-record-library-replacement-survey.md",
       "tags": [
         "dependencies",
         "record-cli",
         "rust"
       ],
-      "title": "Rust 记录工具通用库职责取舍"
+      "title": "Rust 记录工具通用库职责普查"
     },
     "261107-rust-record-transaction-io": {
       "formedAt": "2026-11-07T03:14:25Z",
@@ -2190,8 +2196,8 @@
       "261106-rust-verification-error-causes": "sha256:3a4d1a073c8f1811e33b5a8ee536181362618bb281c29181f5ef2c59b204b95d",
       "261106-rust-windows-native-compatibility": "sha256:e6837963e21bae8298cdd5748c6c8b05e7df0740de9dc27d2a65b7299cf8e573",
       "261107-git-index-update-prefix-collisions": "sha256:cc4553d9e3bdeff028b103ad7573accda44bfcc57740296b3b23901866aae842",
-      "261107-rust-record-idiomatic-implementation-review": "sha256:39870f16b858770715c355be979c5a0a8db74cf17fbcb8f4ef632a46628d7669",
-      "261107-rust-record-library-replacement-survey": "sha256:ed530284894cca29efd1b02d784e5460ddc26dc7cdc52851075dab782b48bbde",
+      "261107-rust-record-idiomatic-implementation-review": "sha256:0b49be7012c9a5273b60e1ef810c7d0a2fab638bee3a4b93abe4b6ede9f7bb5d",
+      "261107-rust-record-library-replacement-survey": "sha256:89419af8a5a29659d4ec998594a80be06946032bc4227e37eaa4892eff352e59",
       "261107-rust-record-transaction-io": "sha256:c1e92ff82dcc0c4fc75201783f0a54de9fa456726fc56a986baa0bc0f3a41fd7",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:512b8f0c5b6466034d7d851032bf41af7413a227bdd19c62959fc2ad343d495c",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",

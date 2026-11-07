@@ -1,0 +1,574 @@
+{
+  "baselineCommit": "e03e9e87e937029c3058456cfb88d600e1f88ed7",
+  "findings": [
+    {
+      "id": "CLI-001",
+      "category": "library",
+      "decision": "candidate",
+      "priority": "P2",
+      "locations": [
+        {
+          "path": "tools/record-cli/src/cli/arguments/mutation/arguments.rs",
+          "startLine": 3,
+          "endLine": 65,
+          "symbol": "parse_args"
+        },
+        {
+          "path": "tools/record-cli/src/cli/arguments/query/arguments.rs",
+          "startLine": 36,
+          "endLine": 91,
+          "symbol": "parse_arguments"
+        },
+        {
+          "path": "tools/record-cli/src/cli/help.rs",
+          "startLine": 43,
+          "endLine": 115,
+          "symbol": "help_arguments"
+        },
+        {
+          "path": "tools/record-cli/src/cli.rs",
+          "startLine": 69,
+          "endLine": 155,
+          "symbol": "read_arguments / handle_help"
+        }
+      ],
+      "currentFact": "两套解析分别实现长选项拆分、值与标志检查；命令白名单、重复规则和 help 另处声明。",
+      "problem": "通用解析机制重复维护，命令语法与帮助已发生可观察漂移。",
+      "proposedDirection": "评估 clap builder/ArgMatches 承接通用参数机制与 help；关系事件仍由领域层按出现次序重建，不先假定兼容。",
+      "whyBetter": "由单一参数声明覆盖通常参数机制，并可用非退出解析入口保留 CLI 错误封装。",
+      "contractBoundary": "必须保留 JSON/文本 help 和错误出口、全局参数顺序、拒绝重复、inline 值和 source/relation 跨参数事件顺序；不能把领域关系规则交库。",
+      "validationNeeded": "比较两域全部命令 help、原样诊断/退出通道，非法 Unicode、重复、source 交织顺序；评估依赖与构建成本，尚未安装或试验。",
+      "confidence": "high for duplication; candidate for replacement",
+      "officialSources": [
+        {
+          "url": "https://docs.rs/clap/4.6.7/clap/struct.Command.html",
+          "title": "clap Command::try_get_matches_from",
+          "version": "4.6.7",
+          "accessedAt": "2026-11-07"
+        },
+        {
+          "url": "https://docs.rs/clap/4.6.7/clap/struct.ArgMatches.html",
+          "title": "clap ArgMatches indices_of",
+          "version": "4.6.7",
+          "accessedAt": "2026-11-07"
+        }
+      ],
+      "independentReview": {
+        "id": "CLI-001",
+        "verdict": "accepted",
+        "reason": "query 与 mutation 分别实现 -- 拆分、值和 flag 处理；help 独立声明且已由 CLI-002 展示漂移。clap 官方 builder 确有 command/arg/help 与 Set/Append/SetTrue 能力；不证明兼容项目参数和错误协议。",
+        "evidence": [
+          "tools/record-cli/src/cli/arguments/query/arguments.rs:36-90",
+          "tools/record-cli/src/cli/arguments/mutation/arguments.rs:3-65",
+          "https://docs.rs/clap/latest/clap/builder/struct.Command.html",
+          "https://docs.rs/clap/latest/clap/builder/enum.ArgAction.html"
+        ],
+        "wording": "作为比较候选而非要求引入 clap；评估事件先后、重复值、位置选项、错误/JSON/退出码及净成本。",
+        "validation": "源码静态、官方 API；未运行"
+      }
+    },
+    {
+      "id": "CLI-002",
+      "category": "correctness",
+      "decision": "should-change",
+      "priority": "P2",
+      "locations": [
+        {
+          "path": "tools/record-cli/src/cli/help.rs",
+          "startLine": 50,
+          "endLine": 52,
+          "symbol": "help_arguments discard"
+        },
+        {
+          "path": "tools/record-cli/src/cli/help.rs",
+          "startLine": 75,
+          "endLine": 79,
+          "symbol": "help_arguments publish"
+        },
+        {
+          "path": "tools/record-cli/src/cli/arguments/mutation/decision.rs",
+          "startLine": 73,
+          "endLine": 91,
+          "symbol": "parse_publish / parse_discard"
+        },
+        {
+          "path": "tools/record-cli/src/cli/arguments/mutation/investigation.rs",
+          "startLine": 42,
+          "endLine": 61,
+          "symbol": "parse_publish / parse_discard"
+        }
+      ],
+      "currentFact": "两个域共享 discard 和 publish 的帮助文案：前者展示 --delete-owned-resources，后者展示多 SELECTOR、可选 alignment 和 keep-unrecorded-history。DR 只接受单 selector 且 publish 必需 alignment；IR 不接受 alignment/keep-unrecorded-history；DR discard 不接受 delete-owned-resources。",
+      "problem": "用户按 README 指定的 help 入口会得到被解析器拒绝的调用方式，且 DR 必需参数被标可选。",
+      "proposedDirection": "按域定义准确的 discard 和 publish 帮助，并与现有解析语法一致。",
+      "whyBetter": "用户可从公开帮助得到实际可运行的参数形状。",
+      "contractBoundary": "只改呈现不改变领域参数语义；不把新参数隐式开放。",
+      "validationNeeded": "两域 help 文本与正反例参数入口测试；本次只读未运行。",
+      "confidence": "high",
+      "officialSources": [],
+      "independentReview": {
+        "id": "CLI-002",
+        "verdict": "accepted",
+        "reason": "共享 help 的 publish/discard 与两域 parse_publish/parse_discard 及命令选项白名单不同：DR 单选择且 alignment 必需，IR 多选择但无 alignment/keep 选项，DR discard 不接受 delete-owned-resources。",
+        "evidence": [
+          "tools/record-cli/src/cli/help.rs:43-53,75-79",
+          "tools/record-cli/src/cli/arguments/mutation/decision.rs:73-91",
+          "tools/record-cli/src/cli/arguments/mutation/investigation.rs:42-61"
+        ],
+        "wording": "按域区分帮助，不改变实际语法。",
+        "validation": "源码静态；未运行"
+      }
+    },
+    {
+      "id": "CLI-003",
+      "category": "correctness",
+      "decision": "should-change",
+      "priority": "P2",
+      "locations": [
+        {
+          "path": "tools/record-cli/src/cli/mutation/decision/services.rs",
+          "startLine": 70,
+          "endLine": 76,
+          "symbol": "sync_selected preflight"
+        },
+        {
+          "path": "tools/record-cli/src/cli/mutation/decision/services.rs",
+          "startLine": 87,
+          "endLine": 94,
+          "symbol": "sync_selected transaction"
+        }
+      ],
+      "currentFact": "selected 失败上下文的 index_path 固定为 decision-index.json；成功结果由 configured directory 拼接该文件名。",
+      "problem": "默认及自定义目录下 JSON 失败结果的 indexRelativePath 不指向实际索引，妨碍定位与恢复。",
+      "proposedDirection": "使用已验证的 MutationContext.index_path 映射工作区相对路径，而非硬编码 basename。",
+      "whyBetter": "成功和失败分支返回一致、可定位的实际索引路径。",
+      "contractBoundary": "保留现有 selected 诊断及实际/未知写入字段；区分相对路径与 IR 绝对显示路径。",
+      "validationNeeded": "以默认和自定义目录分别触发预检与执行 selected 失败并断言路径；本轮未运行。",
+      "confidence": "high",
+      "officialSources": [],
+      "independentReview": {
+        "id": "CLI-003",
+        "verdict": "accepted",
+        "reason": "selected preflight 与 transaction 都把 basename 放入 SelectedSyncContext；失败映射写入 indexRelativePath，而实际索引按目录定位。",
+        "evidence": [
+          "tools/record-cli/src/cli/mutation/decision/services.rs:51-94",
+          "tools/record-cli/src/cli/mutation.rs:66-88"
+        ],
+        "wording": "使用已经验证的实际工作区相对路径并检查成功与失败的路径表示，不扩大为 IR 显示路径问题。",
+        "validation": "源码静态；未运行"
+      }
+    },
+    {
+      "id": "CLI-004",
+      "category": "correctness",
+      "decision": "should-change",
+      "priority": "P3",
+      "locations": [
+        {
+          "path": "tools/record-cli/tests/queries/candidates.rs",
+          "startLine": 237,
+          "endLine": 265,
+          "symbol": "investigation_candidate_referenced_symlink_is_a_resource_issue"
+        }
+      ],
+      "currentFact": "函数在所有平台编译运行，但创建 symlink 语句仅在 Unix 编译；后续无条件要求 symlink 专属诊断。",
+      "problem": "非 Unix fixture 没有 symlink，缺失资源不能可靠满足该断言，测试表达的平台条件不一致。",
+      "proposedDirection": "仅将该测试函数整体标注 cfg(unix)，保持 Unix fixture 与断言同一平台条件。",
+      "whyBetter": "平台执行条件与构造的安全场景一致，避免平台无关断言误报。",
+      "contractBoundary": "测试 fixture 的条件问题，不表示 Windows 产品失败或当前 CI 门禁被阻断；当前 Windows 承诺为原生构建加 smoke，不要求全套测试。",
+      "validationNeeded": "修正后在 Unix 运行该节点，并检查非 Unix 条件编译；无需据此扩大 Windows 测试承诺。本轮未运行。",
+      "confidence": "high",
+      "officialSources": [],
+      "independentReview": {
+        "id": "CLI-004",
+        "verdict": "accepted",
+        "reason": "只有 symlink 创建语句 cfg(unix)，后续跨平台断言必须含符号链接专属诊断；非 Unix 没有构造该链接。",
+        "evidence": [
+          "tools/record-cli/tests/queries/candidates.rs:237-265",
+          "tools/record-cli/README.md:交付与验证边界"
+        ],
+        "wording": "这是测试 fixture 平台约束不一致，不是 Windows 产品失败或既有 CI 门禁失败；Windows 当前承诺 release 构建与 smoke。",
+        "validation": "源码静态；未在 Windows 运行"
+      }
+    },
+    {
+      "id": "INFRA-001",
+      "category": "maintainability",
+      "decision": "should-change",
+      "priority": "P3",
+      "locations": [
+        {
+          "path": "tools/record-cli/Cargo.toml",
+          "startLine": 16,
+          "endLine": 16,
+          "symbol": "libc dependency"
+        },
+        {
+          "path": "tools/record-cli/tests/cli_entry.rs",
+          "startLine": 160,
+          "endLine": 165,
+          "symbol": "RLIMIT_FSIZE test"
+        }
+      ],
+      "currentFact": "libc 是普通直接依赖；限定 tools/record-cli 的源码搜索仅在三个集成测试的 Unix 故障注入中发现 libc 引用，生产 src 没有引用。",
+      "problem": "直接依赖归属与实际用途不一致，普通构建依赖声明包含测试专属 API；libc 仍可能作为其他运行时依赖的传递依赖存在。",
+      "proposedDirection": "把 libc 从普通 dependencies 移到 target cfg(unix) 的 dev-dependencies；保留 tempfile 生产依赖。",
+      "whyBetter": "Cargo 能表达仅测试且仅 Unix 的直接依赖责任，不改变领域流程，也不声称移除传递依赖或显著性能收益。",
+      "contractBoundary": "不改变 CLI、Git、文件替换或事务行为；不要求新库、CAS 或回滚。",
+      "validationNeeded": "修改后以锁定依赖运行 Unix 全 target 测试、Linux release 构建及 Windows 构建/smoke，并核对锁文件和测试 cfg；本次未执行。",
+      "confidence": "high",
+      "officialSources": [
+        {
+          "url": "https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#development-dependencies",
+          "title": "Cargo Book: Development dependencies",
+          "version": "current online",
+          "accessedAt": "2026-11-07"
+        }
+      ],
+      "independentReview": {
+        "id": "INFRA-001",
+        "verdict": "accepted",
+        "reason": "直接 libc 引用仅见三个集成测试故障注入，Cargo.toml 普通依赖还包含 tempfile，后者不可一并移动；Cargo 支持 target 条件 dev-dependencies。",
+        "evidence": [
+          "tools/record-cli/Cargo.toml:16-20",
+          "tools/record-cli/tests/cli_entry.rs:155-165",
+          "tools/record-cli/tests/decision_authoring/publication.rs",
+          "tools/record-cli/tests/investigation_identity/cli_resources.rs",
+          "https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#development-dependencies",
+          "https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#platform-specific-dependencies"
+        ],
+        "wording": "仅调整直接依赖归属，不承诺移除传递 libc 或性能改善。",
+        "validation": "源码搜索、官方文档；未构建"
+      }
+    },
+    {
+      "id": "MODEL-001",
+      "category": "correctness",
+      "decision": "candidate",
+      "priority": "P2",
+      "locations": [
+        {
+          "path": "tools/record-cli/src/queries/investigation/content.rs",
+          "startLine": 49,
+          "endLine": 58,
+          "symbol": "project_content"
+        },
+        {
+          "path": "tools/record-cli/src/queries/investigation/show.rs",
+          "startLine": 23,
+          "endLine": 28,
+          "symbol": "show"
+        },
+        {
+          "path": "tools/record-cli/src/domains/investigation/document.rs",
+          "startLine": 218,
+          "endLine": 229,
+          "symbol": "id_from_markdown"
+        }
+      ],
+      "currentFact": "领域 CLI 查询契约要求 show 与 content 搜索均读取索引选定的当前来源并核对 ID，show 还在指纹不同时报 warning；固定契约称 frontmatter 从首行开始，但相关章节没有明确 BOM 规则。Rust show 在身份提取前剥除 BOM；content 直接调用要求首行恰为 --- 的 id_from_markdown，strict_text 不剥除 BOM。已有 show 测试源码构造了 BOM 当前文本与已发布索引并断言读取及 stale 警告，但本轮未运行；该测试正文不是完整合法正式报告。Rust 严格 frontmatter 解析及全量检查身份发现不剥 BOM，因而不能据 show 兼容路径断言带 BOM 来源可通过正式文档校验。",
+      "problem": "已发布索引所定位的当前文件增加 BOM 时，两种查询身份核验路径存在可静态推导的分歧；是否必须让 content 接受此类当前文件，还是收紧 show，现有针对性 owner 章节未明确决定。",
+      "proposedDirection": "先明确 owner 对已发布索引下当前正文 BOM 的只读兼容边界，再统一 show 与 content 的身份发现策略；不预设放宽严格正式文档解析。",
+      "whyBetter": "共同身份规则可避免同一已索引当前来源因查询入口不同而产生意外分歧，同时保留严格校验与宽容只读发现各自的边界。",
+      "contractBoundary": "已核对 skills/investigation-report/references/cli-operations.md 的查询与搜索章节、investigation-report-contract.md 的身份、frontmatter 和检查同步章节，以及候选 protocol 的 show/search 摘要；未发现这些章节明确 BOM 接受规则，不能据此宣称全契约已核验。来源版本覆盖完整 Markdown；任何改动不得静默改变原始文本、指纹或已批准输出，也不得把 show 兼容推及发布/严格 check。",
+      "validationNeeded": "先由领域 owner 确认当前源 BOM 兼容策略；在获授权后以私有 fixture 验证合法已发布索引指向的当前文本含/不含 BOM 时 show 与 content 身份核验、stale、结果和错误；另确认严格 check/sync 是否继续拒绝 BOM，补充真实契约证据。当前仅静态读取既有 show 测试，未执行动态验证。",
+      "confidence": "high（源码分支差异）；medium（影响的可观察行为，尚未运行）；low（应接受或拒绝 BOM 的契约决策）",
+      "officialSources": [],
+      "independentReview": {
+        "id": "MODEL-001",
+        "verdict": "accepted",
+        "reason": "show 身份提取前剥 BOM，而 content 传入未剥 BOM 的 id_from_markdown；该函数首行严格要求 ---。固定正文从首行开始，不能由宽容 show 推断 BOM 是合法正式来源。",
+        "evidence": [
+          "tools/record-cli/src/queries/investigation/show.rs:23-28",
+          "tools/record-cli/src/queries/investigation/content.rs:49-58",
+          "tools/record-cli/src/domains/investigation/document.rs:217-229",
+          "skills/investigation-report/references/cli-operations.md:17-28"
+        ],
+        "wording": "仅列静态入口差异与 owner 待决定项，不认定 BOM 输入必合法或必须放宽 content；不变更字节、指纹和严格 check。",
+        "validation": "源码与局部 owner 静态；未运行"
+      }
+    },
+    {
+      "id": "MODEL-002",
+      "category": "library",
+      "decision": "candidate",
+      "priority": "P3",
+      "locations": [
+        {
+          "path": "tools/record-cli/src/domains/graph.rs",
+          "startLine": 47,
+          "endLine": 77,
+          "symbol": "validate_acyclic"
+        }
+      ],
+      "currentFact": "当前维护 incoming/outgoing 图并以非递归 Kahn 算法检查环；petgraph 0.8.3 toposort 文档说明其迭代执行且可返回 cycle。",
+      "problem": "无环检查属于通用图原语，但引入图适配可能增加类型与存储复杂度，当前尚无净成本与协议等价证据。",
+      "proposedDirection": "仅在后续有其他图原语复用需求时比较 petgraph toposort 与当前实现，不建议立即添加依赖。",
+      "whyBetter": "可能减少通用算法的自维护；前提是适配成本低于保留现有简短实现。",
+      "contractBoundary": "保留端点检查、非递归抗栈耗尽、领域事件及 UTF-16 顺序，不能以库遍历顺序替代输出契约。",
+      "validationNeeded": "静态设计比较图表示和依赖成本；如果未来获授权实施，再覆盖环、自环、长链、分支及两域 trace 输出。",
+      "confidence": "high 对 API，low 对净收益",
+      "officialSources": [
+        {
+          "url": "https://docs.rs/petgraph/0.8.3/petgraph/algo/fn.toposort.html",
+          "title": "petgraph::algo::toposort",
+          "version": "0.8.3",
+          "accessedAt": "2026-11-07"
+        }
+      ],
+      "independentReview": {
+        "id": "MODEL-002",
+        "verdict": "accepted",
+        "reason": "graph.rs 已用非递归 Kahn 维护图并检测环；petgraph 0.8.3 官方 toposort 是迭代并报告 cycle，但映射、存储及附加依赖净成本尚未证明。",
+        "evidence": [
+          "tools/record-cli/src/domains/graph.rs:47-80",
+          "https://docs.rs/petgraph/0.8.3/petgraph/algo/fn.toposort.html"
+        ],
+        "wording": "低收益置信度候选，当前不建议添加依赖；不要称已证明库替换更简单或可直接保留领域输出顺序。",
+        "validation": "源码、官方 API；未实施比较或测量"
+      }
+    },
+    {
+      "id": "AUTHOR-001",
+      "category": "rust",
+      "decision": "candidate",
+      "priority": "P3",
+      "locations": [
+        {
+          "path": "tools/record-cli/src/mutations/authoring/render.rs",
+          "startLine": 187,
+          "endLine": 205,
+          "symbol": "convert_relations"
+        }
+      ],
+      "currentFact": "通用 K: Copy + Serialize 被序列化为 serde_json::Value 后，两次 unwrap 假定总是成功且结果为字符串。当前调用为两个领域关系枚举。",
+      "problem": "类型边界没有表达仅支持字符串形式；未来扩展序列化形态可能变成运行时 panic，且 JSON 中间值只为取领域字符串。",
+      "proposedDirection": "比较用现有领域关系枚举穷尽匹配或小型显式转换函数替换 Value 转换，不引入新泛型层；确保字符串与序列化名称唯一一致。",
+      "whyBetter": "把映射的完整性放在编译期，同时省去 Value 中间表示。",
+      "contractBoundary": "两域关系名称及 JSON 和 Markdown 输出不得变更；当前没有证据表明现有枚举会 panic。",
+      "validationNeeded": "核对完整枚举映射与两域创建候选/关系序列化测试，衡量与已有映射复用是否减少净维护面。",
+      "confidence": "medium",
+      "officialSources": [
+        {
+          "url": "https://docs.rs/serde_json/latest/serde_json/fn.to_value.html",
+          "title": "serde_json::to_value",
+          "version": "1.0.154",
+          "accessedAt": "2026-11-07"
+        }
+      ],
+      "independentReview": {
+        "id": "AUTHOR-001",
+        "verdict": "accepted",
+        "reason": "convert_relations 对通用 Serialize 的结果与 as_str 各 unwrap；现有调用仅两个具体关系枚举，不构成现存 panic 证据；to_value 返回 Result<Value> 且 Value 不保证字符串。",
+        "evidence": [
+          "tools/record-cli/src/mutations/authoring/render.rs:101-108,187-205",
+          "tools/record-cli/src/mutations/contract.rs:17-45",
+          "https://docs.rs/serde_json/latest/serde_json/fn.to_value.html"
+        ],
+        "wording": "作为未来类型扩展风险和小范围替代比较，不称现有可触发 panic；穷尽匹配须避免复制并漂移序列化命名。",
+        "validation": "源码和官方 API 静态；未运行"
+      }
+    },
+    {
+      "id": "AUTHOR-002",
+      "category": "correctness",
+      "decision": "candidate",
+      "priority": "P2",
+      "locations": [
+        {
+          "path": "tools/record-cli/src/mutations/check/selected.rs",
+          "startLine": 226,
+          "endLine": 279,
+          "symbol": "discover_unresolved / discover_member"
+        }
+      ],
+      "currentFact": "索引无效、缺失或所选位置失效时，对所有非忽略的正式成员执行完整 capture 和 strict_text，再取 ID；代码注释称该分支为 header discovery。",
+      "problem": "未选文件正文包含非法 UTF-8 等情况也可提前终止选择性检查，即使其头部与选中对象无关；完整读取也超过身份发现所需范围。",
+      "proposedDirection": "用现有 capture_header 读取身份，只有命中所选 ID 才捕获并解析完整正文；保留发现重复身份及来源安全失败的诊断。",
+      "whyBetter": "身份发现只依赖头部，与选择性读取边界一致，避免未选正文阻断。",
+      "contractBoundary": "不得屏蔽真正的不安全目录成员、重复所选身份、所选正文编码错误；check --id 仍不证明全集。",
+      "validationNeeded": "构造缺失索引或已移动所选文件，加一个头合法但正文非法 UTF-8 的未选正式来源及所选成功反例；核对头读取的 UTF-8 边界和实际合同是否容许该范围。",
+      "confidence": "medium",
+      "officialSources": [],
+      "independentReview": {
+        "id": "AUTHOR-002",
+        "verdict": "accepted",
+        "reason": "缺失有效定位时 discover_member 对所有合格成员完整 capture 并 strict_text，再检查是否为所选 ID；check --id 的 owner 允许必要扩大身份发现，但不直接定义非法未选正文在该情形下的处置。capture_header 只读至头结束，且独立重新捕获需审查安全与重复身份。",
+        "evidence": [
+          "tools/record-cli/src/mutations/check/selected.rs:226-279",
+          "tools/record-cli/src/source.rs:141-153",
+          "tools/record-cli/src/source/header.rs:1-42",
+          "skills/investigation-report/references/cli-operations.md:140,171"
+        ],
+        "wording": "保留候选，不将无关正文阻断直接定为违反既定契约；先确认 owner 与 header 读取、重捕获身份、编码、重复所选 ID 和不安全成员处理。",
+        "validation": "源码及相关契约静态；未执行 fixture"
+      }
+    },
+    {
+      "id": "AUTHOR-003",
+      "category": "maintainability",
+      "decision": "should-change",
+      "priority": "P3",
+      "locations": [
+        {
+          "path": "tools/record-cli/src/mutations/candidate.rs",
+          "startLine": 36,
+          "endLine": 43,
+          "symbol": "plan_creation"
+        },
+        {
+          "path": "tools/record-cli/src/mutations/decision/lifecycle/rules.rs",
+          "startLine": 182,
+          "endLine": 188,
+          "symbol": "lifecycle_path"
+        },
+        {
+          "path": "tools/record-cli/src/domains/mod.rs",
+          "startLine": 60,
+          "endLine": 68,
+          "symbol": "is_kebab"
+        }
+      ],
+      "currentFact": "两个位置分别重复非空且每个连字符分段只含 ASCII 小写字母或数字的判断；domains::is_kebab 具有相同的完整逻辑。",
+      "problem": "同一记录命名规则存在三份独立实现，日后改变时可能分叉。",
+      "proposedDirection": "候选身份及生命周期 basename 调用已有 domains::is_kebab，保留各自错误及前后缀、路径状态校验。",
+      "whyBetter": "回到现有领域 owner，减少重复且无需新增依赖或抽象。",
+      "contractBoundary": "保留当前英文数字、空分段和非 ASCII 的接受范围以及原错误变体。",
+      "validationNeeded": "针对空值、连字符边缘、ASCII 字母数字、非 ASCII 以及路径迁移运行现有与必要边界测试。",
+      "confidence": "high",
+      "officialSources": [],
+      "independentReview": {
+        "id": "AUTHOR-003",
+        "verdict": "accepted",
+        "reason": "三个函数的非空、连字符非空段、ASCII 小写或数字判定逐项相同。",
+        "evidence": [
+          "tools/record-cli/src/mutations/candidate.rs:36-43",
+          "tools/record-cli/src/mutations/decision/lifecycle/rules.rs:182-188",
+          "tools/record-cli/src/domains/mod.rs:60-68"
+        ],
+        "wording": "复用现有实现并保留调用方路径/错误语义；边界测试而非扩大命名规则。",
+        "validation": "源码静态对照；未运行"
+      }
+    },
+    {
+      "id": "OPS-001",
+      "category": "maintainability",
+      "decision": "should-change",
+      "priority": "P2",
+      "locations": [
+        {
+          "path": "tools/record-cli/src/mutations/investigation_operation.rs",
+          "startLine": 46,
+          "endLine": 60,
+          "symbol": "SetRelationsOperation::prepare_phase"
+        },
+        {
+          "path": "tools/record-cli/src/mutations/investigation_relations/transaction.rs",
+          "startLine": 13,
+          "endLine": 17,
+          "symbol": "capture_plan"
+        }
+      ],
+      "currentFact": "先采集并解析索引以解析 review，随后 capture_plan 再采集解析同一索引并基于第二份快照准备事务。",
+      "problem": "同次正式准备重复读取和验证基线；选择结果与写集来自不同次观察，增加认知与失败分支，无法明确关联选择和提交事实。",
+      "proposedDirection": "将首次捕获的 ExpectedFile 和验证后 baseline 交给内部计划准备，保留对外独立 capture_plan 的必要调用入口或改造其调用方。",
+      "whyBetter": "单一准备事实支撑 selector、正文验证与索引写入，不增加新依赖。",
+      "contractBoundary": "只消除同次准备中的重复读取，不增加 fresh/CAS 或声称跨文件原子隔离；仍保留 actual/unknown 写入报告。",
+      "validationNeeded": "覆盖选择解析、预检、无变化、正式写入及基线读取失败；确认所有调用方的图验证顺序。",
+      "confidence": "high",
+      "officialSources": [],
+      "independentReview": {
+        "id": "OPS-001",
+        "verdict": "accepted",
+        "reason": "一次 prepare_phase 中先 capture/parse 供 selector resolve，capture_plan 再 capture/parse 形成写集；候选顺序本地模型不要求在同一准备内重读来制造 fresh。第二次 capture_baseline 另外执行 QuerySnapshot.graph，不能误认为两次只剩字节读取完全重复。",
+        "evidence": [
+          "tools/record-cli/src/mutations/investigation_operation.rs:37-61",
+          "tools/record-cli/src/mutations/investigation_relations/transaction.rs:13-17,44-74",
+          "tools/record-cli/README.md:契约与责任",
+          "tools/record-operations/model.md:事务如何推进"
+        ],
+        "wording": "单次准备传递同一快照时必须保留 graph 验证和相对 selector/review 的既有失败顺序、独立调用入口；不新增 fresh、proof、CAS、rollback 或跨文件隔离承诺；预检和正式执行仍各自准备。",
+        "validation": "源码及候选事务契约静态；未运行"
+      }
+    },
+    {
+      "id": "OPS-002",
+      "category": "rust",
+      "decision": "should-change",
+      "priority": "P3",
+      "locations": [
+        {
+          "path": "tools/record-cli/src/mutations/sync/selected_sync.rs",
+          "startLine": 47,
+          "endLine": 84,
+          "symbol": "project_selected"
+        },
+        {
+          "path": "tools/record-cli/src/mutations/sync/selected_sync.rs",
+          "startLine": 250,
+          "endLine": 258,
+          "symbol": "build_validated_selected"
+        }
+      ],
+      "currentFact": "验证闭包返回 Result<(), E>，调用方用可变 Option 捕获构建的索引，再以 unreachable 取出。",
+      "problem": "成功数据通过副作用返回，类型允许闭包成功而未赋值，必须靠额外的运行时不可达断言表达必然有索引。",
+      "proposedDirection": "让投影验证回调返回 Result<V, E> 并将 V 与投影一起返回，或在投影后直接执行验证并返回已验证索引。",
+      "whyBetter": "Result 的成功值携带证明结果，去掉可变捕获与不可能状态；不引入库。",
+      "contractBoundary": "保留验证必须成功后才产生投影、错误传播和现有排序。",
+      "validationNeeded": "运行选择投影及真实领域图测试，检查调用点与错误映射；不改变检查范围。",
+      "confidence": "high",
+      "officialSources": [
+        {
+          "url": "https://doc.rust-lang.org/std/result/enum.Result.html",
+          "title": "std::result::Result",
+          "version": "1.99.1; Result variants stable since 1.0.0",
+          "accessedAt": "2026-11-07"
+        }
+      ],
+      "independentReview": {
+        "id": "OPS-002",
+        "verdict": "accepted",
+        "reason": "project_selected 成功前恰调用一次校验闭包；当前调用以 Option 外部副作用取得索引并在成功后 unreachable，类型本身不表达成功值。",
+        "evidence": [
+          "tools/record-cli/src/mutations/sync/selected_sync.rs:47-84,250-263",
+          "https://doc.rust-lang.org/std/result/enum.Result.html"
+        ],
+        "wording": "是可维护性改善而非证明当前可达 panic；如变更回调，保留成功前验证、错误映射和排序。",
+        "validation": "源码及标准库 API 静态；未运行"
+      }
+    },
+    {
+      "id": "OPS-003",
+      "category": "maintainability",
+      "decision": "should-change",
+      "priority": "P3",
+      "locations": [
+        {
+          "path": "tools/record-cli/src/mutations/investigation_relations.rs",
+          "startLine": 230,
+          "endLine": 234,
+          "symbol": "normalize_relations"
+        }
+      ],
+      "currentFact": "调查关系摘要在本地复制完整 ECMAScript whitespace 字符集合；domains::JsTrim 已拥有同一集合实现。",
+      "problem": "同一外部文本规范的字符定义重复维护，未来一侧变更可令语义偏离。",
+      "proposedDirection": "复用 domains::JsTrim 替换局部 trim_matches 字符表，保留当前对原始 value 的 CR/LF 检查和长度规则。",
+      "whyBetter": "已有 owner 承载通用规范化原语，领域拒绝规则仍保留本地，无需新增依赖。",
+      "contractBoundary": "不能改为 Rust 标准 trim，也不可顺手改变两域现有换行检查顺序。",
+      "validationNeeded": "比较空白全集与 BOM、CR/LF、非 ASCII 空白、边界长度及摘要排序。",
+      "confidence": "high",
+      "officialSources": [],
+      "independentReview": {
+        "id": "OPS-003",
+        "verdict": "accepted",
+        "reason": "两处 matches 字符列表完全相同，包括 FEFF、换行及 U+2000..200A；JsTrim 封装的 trim_matches 与当前局部修剪相同。",
+        "evidence": [
+          "tools/record-cli/src/mutations/investigation_relations.rs:230-239",
+          "tools/record-cli/src/domains/mod.rs:46-58"
+        ],
+        "wording": "复用 JsTrim 但保留对原 value 的 CR/LF 检查及 trimmed 字符数限制；不能换为标准 trim。",
+        "validation": "源码逐项静态比较；未运行"
+      }
+    }
+  ]
+}

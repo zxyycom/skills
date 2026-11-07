@@ -1,5 +1,5 @@
 ---
-title: "Rust 记录工具通用库职责取舍"
+title: "Rust 记录工具通用库职责普查"
 id: "261107-rust-record-library-replacement-survey"
 formedAt: "2026-11-07T10:14:39Z"
 question: "Rust 记录候选中哪些职责值得交给库，哪些应保留领域实现？"
@@ -12,44 +12,43 @@ relations: []
 
 ## 形成时背景
 
-2026-11-07 在基线 `4f15106afc1eb517c65e595eccfe96b991d0b916` 调查 Rust 记录 CLI 候选。它仍是候选而非生产 TS 入口；`tools/record-cli/Cargo.toml` 已依赖 serde、serde_json、yaml-rust2、sha2、unicode、time、cap-std 和 tempfile，不能把现状描述为手写一切。现有批准的 JSON、错误通道及实际部分写事实是替换边界，不把 TS 的偶然实现自动提升为产品要求。
+2026-11-07 最初在 `4f15106afc1eb517c65e595eccfe96b991d0b916` 定向调查记录 CLI Rust 候选。此前不能据定向阅读判断整个代码库：同轮稍后追加完整源码普查，以下结论以补充基线为准，而非声称最初即已取得全量证据。候选不是生产 TypeScript 入口；既有 JSON、错误通道和实际部分写事实是选择边界，TS 偶然实现不自动成为产品要求。
 
 ## 调查目的
 
-判断哪些通用职责适合交给成熟库或现有依赖，哪些应留在领域代码；给出最小对照、预期维护收益和验证代价，而非按流行度增加依赖。不新增依赖的内部表达选择见[惯用实现审阅](./261107-rust-record-idiomatic-implementation-review.md)。
+逐文件判断现有通用原语、可替换候选和保留原因；仅在能指出具体重复或依赖责任时建议调整，不按流行度选库。无须新增依赖的实现改进及具体行为问题见[惯用实现普查](./261107-rust-record-idiomatic-implementation-review.md)。
 
 ## 调查范围与依据
 
-定向检查 `tools/record-cli/Cargo.toml`、`cli/arguments/{query,mutation}/arguments.rs`、`cli/help.rs`、`cli/output/`、`{index,source,source_revision}.rs`、`domains/{graph,decision/flow}.rs`、`queries/{matcher,trace/frontier}.rs`、`transaction/filesystem.rs`、`git/{command,publish}.rs` 和 `tools/record-cli/protocol.md`。除明确写出仓库路径的文件外，本文源码路径相对 `tools/record-cli/src/`，行号指该基线；不宣称审完全部源码。2026-11-07 对照下述官方文档；文档能力不是本仓已安装版本、编译可用性或等价替换证明。
+补充普查以 2026-11-07 10:55 UTC 所采集 commit `e03e9e87e937029c3058456cfb88d600e1f88ed7`、`tools/record-cli` tree `1070e4a0527f3884f7707922924824abacb33456` 为基线。五个 gpt-6.1-terra 代理按分区分别全文阅读 `tools/record-cli/src` 的 249 个和 `tests` 的 31 个受版本控制 Rust 文件，共 280 个、38,815 行及 17 个关联清单、互操作或 CI 输入；不包括生成 target 与归档报告资源。逐文件记录责任、SHA-256、完整行范围、库和 Rust 判断与关联发现；另一名 gpt-6.1-terra 独立 reviewer 逐项核实 13 项线索及抽样，机械核对路径、哈希和行范围闭合。机械闭合不证明逐行阅读真实性或没有遗漏；独立复核未重读全部文件。源码路径除明确写仓库路径外均相对 `tools/record-cli/src/`，行号指该补充基线。
+
+账本中的 retain 仅表示本轮未发现应库化或惯用化的调整，不证明行为正确或测试通过 Test Design 准入；外部与内嵌测试属于源码普查，并非逐测试入口价值审计，本轮不修改测试或 Case。按静态事实、建议和待验证候选分级；本轮未安装 crate、编译替代、动态测试或性能采样。官方文档能力不证明本仓版本、协议等价或净收益。需要逐文件核对责任、覆盖范围和判断时读 `source-census.json`；需要核对 13 项发现的位置、建议、验证要求及独立复核时读 `findings.json`。两者是同轮普查与复核记录，不是动态验证结果。
 
 ## 调查结果与边界
 
-优先对照 CLI 的项目内表驱动方案与库方案；其次分别试点错误、输出结构和图通用原语。YAML、Unicode、哈希、能力目录、临时文件与系统 Git 是建议保留的现有组合，不是高优先级替换待办。以下均为静态建议。
+本轮 13 条线索中，8 项建议修改、5 项是待验证候选；本篇覆盖其中 1 项依赖归属修改和 2 项库比较候选，其余 7 项修改和 3 项候选见[实现普查](./261107-rust-record-idiomatic-implementation-review.md)。这些修改建议包含维护性与测试条件，不全是产品 bug；候选不等于应实施。**目前没有建议立即替换或新增通用库**：唯一的依赖修改是调整现有 libc 的直接依赖归属，clap 和 petgraph 均仅供条件成熟时比较。
 
-### 优先候选：CLI 声明式入口
+### 应改：直接依赖归属（INFRA-001）
 
-**先对照试点，不立即添加依赖。** `cli/arguments/query/arguments.rs:3-29,37-55` 与 `cli/arguments/mutation/arguments.rs:3-31` 分别维护 flags 和扫描；`cli/help.rs` 又有 help 表，命令变化需协调多个位置。先比较项目内单一表驱动方案与 [clap 4.6.7 Command](https://docs.rs/clap/4.6.7/clap/struct.Command.html)：后者提供命令、参数和 help 声明，`try_get_matches` 可把解析错误交回入口；不直接用会自行退出的入口，否则绕过 JSON 错误映射。预期收益是减少重复声明和漂移，净删除量尚未证明。对照须涵盖两域命令、重复和未知选项、空值、位置、事件顺序、help/version、退出码与 JSON stdout/stderr；只在兼容且复杂度净降时考虑引入。clap 默认诊断格式和退出行为不能假定等价。
+`tools/record-cli/Cargo.toml:16` 将 libc 声明为普通依赖，而 `tools/record-cli/tests/cli_entry.rs:160-165`、`tests/decision_authoring/publication.rs`、`tests/investigation_identity/cli_resources.rs` 的 Unix 故障注入才直接使用它；生产源码未发现直接引用。建议移到 Unix 条件 dev-dependencies，保留生产使用的 tempfile；[Cargo 开发依赖](https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#development-dependencies)和[平台依赖](https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#platform-specific-dependencies)提供声明方式。这不保证传递依赖消失或性能改善。实施后应核对 lockfile、Unix 全 target 测试、Linux release 及 Windows 构建/smoke；目前均未执行。
 
-### 错误语义与 thiserror
+### 候选：CLI 通用参数机制（CLI-001）
 
-**先规范错误语义，再考虑 thiserror（中）。** `source.rs:69-74` 和 `index.rs:38-43` 的 Display 使用 Debug；`cli/output/transaction/stage.rs:87-101` 直接把 Debug 做 message。应先定义各错误的对外映射及 cause，不能依赖内部枚举调试形状。 [thiserror 2.0.21](https://docs.rs/crate/thiserror/2.0.21) 可 derive Error、声明消息和 source，能减少样板，但不设计业务错误码或兼容协议；仅为消除几行 impl 尚无新增依赖的净收益证据。试点须比较 message、code、recovery、通道、退出与实际部分写事实。
+`cli/arguments/mutation/arguments.rs:3-65` 与 `cli/arguments/query/arguments.rs:36-91` 各自实现长选项、值和标志处理，`cli/help.rs:43-115` 另维护帮助；两域 publish/discard 帮助与实际解析已经漂移。应先修正帮助，而非等待换库。可比较内部单表与 [clap 4.6.7 Command](https://docs.rs/clap/4.6.7/clap/struct.Command.html)、[ArgMatches](https://docs.rs/clap/4.6.7/clap/struct.ArgMatches.html)：非退出解析和参数位置能力可供对照，但未证明满足事件顺序。比较须覆盖两域命令、非 Unicode、重复及未知选项、inline 值、source/relation 交错、help/version、错误文本、JSON 通道、退出码和依赖/构建净成本；未达到等价与净收益前不建议引入。
 
-### Serde 与输出结构
+### 候选：图库原语，不立即引入（MODEL-002）
 
-**继续使用现有 Serde，局部试 DTO（中）。** `cli/output/identity.rs:152-157` 的 Value 动态插字段并从结果回读 clone，具名 Serialize 输出可让字段显式，利用 [Serde 字段属性](https://serde.rs/field-attrs.html) 控制可选字段；`cli/output/transaction/stage.rs:52-74` 的两域差异也可小范围对照。不能把一切 Value 视为坏代码。`index.rs:68-74` 当前有意通过 Value 保持 JSON.parse 风格的重复对象键后者覆盖；改输入解析须对照此行为，是否为已批准外部契约需由 owner 确认，且不同于 YAML 重复键限制。验证数组顺序、可选字段存在/缺失与 null/false、索引 fingerprint 规范化精确字节、成功失败、两域及输出通道；对象键或序列化字节顺序仅在 owner 明确要求时验证，`preserve_order` 影响 Value 对象 map，不统管 DTO 字段顺序；无同等证据前保留现状。
+`domains/graph.rs:47-77` 使用非递归 Kahn 验环；[petgraph 0.8.3 toposort](https://docs.rs/petgraph/0.8.3/petgraph/algo/fn.toposort.html) 也提供迭代拓扑排序和环错误，可承担部分通用原语。图索引适配、存储、领域事件预算与稳定顺序的净成本未比较；只在出现其他图原语复用需要时对照，覆盖自环、长链、分支及两域 trace，当前不建议加依赖。
 
-### 保留：YAML、Unicode 和哈希
+### 保留及理由
 
-**保留现有库及领域适配。** `domains/decision/flow.rs:97-125,169-171` 不只解析值，还用 yaml-rust2 scanner 检查流式写法；[yaml-rust2 0.10 scanner](https://docs.rs/yaml-rust2/0.10.4/yaml_rust2/scanner/index.html) 是词法层，不替代 frontmatter 规则。`queries/matcher.rs:123-141` 将 NFKC 转换映射到原始 UTF-16 范围；`domains/graph.rs:80-86` 对图证据按 UTF-16 排序；`source_revision.rs:8-28` 在 SHA-256 外定义域标签、长度、分隔符和不同换行规则。换解析或规范化库不能自动保留这些语义；需要流式/引号、重复键、补充平面字符、规范化映射和精确 fingerprint 字节对照。没有换库收益证据，不建议仅因惯用而替换。
+- YAML、源文本与 Unicode：`domains/decision/flow.rs` 使用 yaml-rust2 scanner 定位局部 token，重解析保护未选内容；`queries/matcher.rs` 已用 Unicode 库规范化并映射回原始 UTF-16 范围。通用解析和规范化已委托，但字节保真与范围映射的等价替代未证实。`index.rs` 的孤立代理项、JS 键序与重复键处理也不能凭 DTO 假定等价。
+- 安全读取与事务：`source.rs` 使用 cap-std/cap-fs-ext 承接相对能力和 no-follow，`transaction/filesystem.rs` 使用 tempfile 和标准文件操作；`git/command.rs` 调用系统 Git，`git/publish.rs` 交 Git 管锁。更换库需证明路径与失败语义、未选暂存及真实部分结果，不假称跨阶段隔离、回滚或 CAS。
+- 图和领域操作：标准集合承担映射、排序和去重；本地还协调事件预算、选集、历史与资源 owner。领域责任不是拒绝库的理由：上面的 toposort 仍是可比原语，只是目前净成本未知。
 
-### 保留：能力目录、tempfile 与系统 Git
+原定向报告将 thiserror 和输出 DTO 列为中等优先试点；全量普查未发现能证明其净收益或紧迫性的跨文件证据，撤回优先级，保留现有 Serde 和错误表达；Debug 字符串的协议风险仅在后续具体错误族需求及 owner 确认下评估，不普遍改写。本轮未实施、未验证平台和性能；源码阅读不证明全部行为正确，也不代表正式发布。
 
-**保留现有组合。** `transaction/filesystem.rs:57` 已使用同目录 NamedTempFile；`transaction/filesystem.rs:7-18` 在普通操作前 canonicalize 父目录并检查其位于工作区，不能据此推断跨阶段父链证明或竞争安全；安全来源与实际失败结果仍由项目承担。`git/command.rs:10` 调用系统 Git，`git/publish.rs` 实现索引发布；[gix Repository](https://docs.rs/gix/latest/gix/struct.Repository.html) 提供 index 访问，不证明与该操作的锁及事务等价。换库须对照配置、unborn HEAD、路径冲突、Git 自管锁、未选暂存、相同 JSON 合成、真实部分结果和 Windows；不把已删除的跨阶段 proof、备份回滚、CAS 或 readback 机制作为门槛。不能因为纯 Rust 就替换。`libc` 是否只在测试使用可单独核查后考虑移入 dev-dependencies，本轮未修改或证明完整构建矩阵。
+## 随附资源
 
-### 图库通用原语
-
-**先对照，再决定是否引入（中）。** `domains/graph.rs:10-43,45-75` 同时验证边、建双向索引并用非递归 Kahn 算法验环；`queries/trace/frontier.rs` 负责方向、深度、截断原因与顺序。[petgraph 0.8.3 toposort](https://docs.rs/petgraph/0.8.3/petgraph/algo/fn.toposort.html) 是迭代拓扑排序并在有环时返回错误，可对照现有通用验环；[BFS](https://docs.rs/petgraph/0.8.3/petgraph/visit/struct.Bfs.html) 也可对照可达遍历。领域边校验、ID 映射、稳定排序及事件预算仍由项目承接，这本身不否定库。应比较可删除的通用逻辑与图构建、映射及桥接的净成本，并验证深图、事件、顺序与错误；目前未试点、净收益未证明，暂缓是否引库。
-
-### 使用边界
-
-本轮没有安装新 crate、全量升级、编译替代实现、性能采样或实施代码。推荐是静态取舍而非依赖变更或已通过验收。既有性能、Windows 和事务调查可作背景，但本轮不复查其结论。实际实施需经依赖 owner 选择并以跨平台、协议和恢复验证作决定；没有测得性能或体积收益。
+- [发现与独立复核目录](./_resources/261107-rust-record-library-replacement-survey/findings.json)
+- [逐文件普查与关联输入账本](./_resources/261107-rust-record-library-replacement-survey/source-census.json)
