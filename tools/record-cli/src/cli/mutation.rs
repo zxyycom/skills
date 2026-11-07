@@ -241,9 +241,9 @@ enum ContextError {
 
 fn prepare_context<'a>(
     command: &'a str,
-    invocation: &crate::cli_mutation::MutationInvocation,
+    invocation: &crate::cli::arguments::mutation::MutationInvocation,
 ) -> Result<MutationContext<'a>, ContextError> {
-    use crate::{cli_mutation::MutationCommand, source::RelativePath};
+    use crate::{cli::arguments::mutation::MutationCommand, source::RelativePath};
     let root = crate::source::open_root(std::path::Path::new(&invocation.root))
         .map_err(ContextError::Source)?;
     let collection = RelativePath::new(&invocation.directory).map_err(ContextError::Path)?;
@@ -271,9 +271,9 @@ fn prepare_context<'a>(
 
 pub(super) fn dispatch_mutation(
     command: &str,
-    invocation: crate::cli_mutation::MutationInvocation,
+    invocation: crate::cli::arguments::mutation::MutationInvocation,
 ) -> i32 {
-    use crate::cli_mutation::MutationCommand;
+    use crate::cli::arguments::mutation::MutationCommand;
     let context = match prepare_context(command, &invocation) {
         Ok(context) => context,
         Err(error) => {

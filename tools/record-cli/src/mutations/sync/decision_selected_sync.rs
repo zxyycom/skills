@@ -1,6 +1,6 @@
 //! Selected Decision synchronization: only selected known locations and their
 //! necessary graph dependencies are read. Unknown locations remain unchecked.
-use super::selected_sync;
+use crate::mutations::sync::selected_sync;
 use crate::{
     domains::{
         self,

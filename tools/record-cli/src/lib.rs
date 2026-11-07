@@ -1,6 +1,5 @@
-//! Native record tool candidate. The target is restricted at compile time; domain boundaries are validated at runtime.
+//! Native record tool candidate. Domain boundaries are validated at runtime.
 pub mod cli;
-pub mod cli_mutation;
 pub mod domains;
 pub mod git;
 pub mod index;

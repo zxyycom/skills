@@ -7,7 +7,7 @@ pub(crate) fn history(
     path: &str,
     candidate: bool,
 ) -> Result<(Option<String>, bool), TxError> {
-    let historical = crate::mutations::decision_history::capture_history(
+    let historical = crate::mutations::decision::history::capture_history(
         root,
         c,
         &BTreeMap::from([(id.into(), path.into())]),
@@ -15,7 +15,7 @@ pub(crate) fn history(
     .map_err(|e| fail("history", format!("{e:?}")))?;
     let indexed = matches!(
         historical.facts[id],
-        crate::mutations::lifecycle::HistoryFact::Recorded
+        crate::mutations::decision::lifecycle::rules::HistoryFact::Recorded
     );
     if !candidate || historical.head.is_none() || indexed {
         return Ok((historical.head, indexed));

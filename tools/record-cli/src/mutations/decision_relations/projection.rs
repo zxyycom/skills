@@ -1,7 +1,7 @@
 use super::*;
 
 pub(super) struct Rendered {
-    pub projection: crate::mutations::selected_sync::ValidatedSelectedProjection<
+    pub projection: crate::mutations::sync::selected_sync::ValidatedSelectedProjection<
         domains::decision::DecisionState,
     >,
     pub changed: HashMap<String, Vec<u8>>,

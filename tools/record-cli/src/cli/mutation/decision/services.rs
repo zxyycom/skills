@@ -58,7 +58,7 @@ fn sync_selected(context: MutationContext<'_>, selectors: Vec<String>, preflight
         ..
     } = context;
     let mut operation =
-        crate::mutations::decision_selected_sync::SelectedDecisionSyncOperation::new(
+        crate::mutations::sync::decision_selected_sync::SelectedDecisionSyncOperation::new(
             directory,
             selectors.clone(),
         );
@@ -110,7 +110,7 @@ fn sync_all(context: MutationContext<'_>, preflight: bool) -> i32 {
         root,
         ..
     } = context;
-    let mut operation = crate::mutations::decision_sync::DecisionSyncOperation { directory };
+    let mut operation = crate::mutations::sync::decision_sync::DecisionSyncOperation { directory };
     if preflight {
         emit_sync_preflight(command, json, operation.preflight(&root), |result| {
             &result.warnings

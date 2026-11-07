@@ -128,7 +128,7 @@ fn unrecorded_confirmation(
     paths: &BTreeMap<String, String>,
     operation: &DecisionEvolutionOperation,
 ) -> TxError {
-    use crate::mutations::lifecycle::HistoryFact;
+    use crate::mutations::decision::lifecycle::rules::HistoryFact;
     let targets: BTreeSet<_> = successors
         .iter()
         .flat_map(|successor| &successor.after)

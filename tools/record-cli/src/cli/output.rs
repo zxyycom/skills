@@ -1,3 +1,5 @@
+pub(super) mod identity;
+pub(super) mod transaction;
 pub(super) fn emit_success<T: serde::Serialize>(
     command: &str,
     json: bool,

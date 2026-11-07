@@ -1,5 +1,5 @@
 use super::*;
-use crate::mutations::lifecycle::{EstablishedLifecycle, LifecycleEdit};
+use crate::mutations::decision::lifecycle::rules::{EstablishedLifecycle, LifecycleEdit};
 #[test]
 fn archive_preparation_produces_selected_source_and_full_validated_index() {
     let id = "250102-one";

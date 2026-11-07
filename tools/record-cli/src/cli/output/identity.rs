@@ -1,13 +1,13 @@
-use super::*;
+use crate::cli::*;
 
 #[derive(Clone, Copy)]
-pub(super) struct ExecutionContext<'a> {
+pub(in crate::cli) struct ExecutionContext<'a> {
     pub command: &'a str,
     pub json: bool,
     pub root: &'a crate::source::Root,
 }
 
-pub(super) fn identity_transaction_body<T>(
+pub(in crate::cli) fn identity_transaction_body<T>(
     result: &mut crate::transaction::TransactionOutcome<T>,
     index_path: &crate::source::RelativePath,
     is_source: impl Fn(&crate::source::RelativePath) -> bool,
@@ -35,14 +35,14 @@ pub(super) fn identity_transaction_body<T>(
     (verified, body)
 }
 
-pub(super) fn captured_utc() -> String {
+pub(in crate::cli) fn captured_utc() -> String {
     time::OffsetDateTime::now_utc()
         .replace_nanosecond(0)
         .expect("zero nanoseconds are valid")
         .format(&time::format_description::well_known::Rfc3339)
         .expect("UTC time is RFC3339 representable")
 }
-pub(super) fn output_evolution(
+pub(in crate::cli) fn output_evolution(
     context: ExecutionContext<'_>,
     mut operation: crate::mutations::authoring::decision::DecisionEvolutionOperation,
     preflight: bool,
@@ -73,7 +73,7 @@ pub(super) fn output_evolution(
         })
     }
 }
-pub(super) fn output_new(
+pub(in crate::cli) fn output_new(
     context: ExecutionContext<'_>,
     collection: crate::source::RelativePath,
     selector: String,

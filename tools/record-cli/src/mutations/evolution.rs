@@ -2,7 +2,7 @@
 //! history, source validation and index publication remain separate responsibilities.
 use super::{
     contract::{Alignment, DecisionRelationKind, Relation, ReviewAction, SourceReview},
-    lifecycle::{HistoryFact, Status},
+    decision::lifecycle::rules::{HistoryFact, Status},
 };
 use std::collections::{BTreeMap, BTreeSet};
 

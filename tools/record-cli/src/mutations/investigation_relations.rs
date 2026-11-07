@@ -97,7 +97,7 @@ pub enum PreparationError {
     InvalidUtf8(String),
     StaleSource(String),
     Render(RenderError),
-    Projection(super::selected_sync::SelectedError<crate::index::IndexError>),
+    Projection(crate::mutations::sync::selected_sync::SelectedError<crate::index::IndexError>),
 }
 
 /// Prepares source bytes and the complete next index from a validated baseline.
@@ -109,7 +109,7 @@ pub fn prepare_replacements(
     review: &[SourceReview<InvestigationRelationKind>],
     source_bytes: &HashMap<String, Vec<u8>>,
 ) -> Result<PreparedReplacement, PreparationError> {
-    use super::selected_sync::build_validated_selected;
+    use crate::mutations::sync::selected_sync::build_validated_selected;
     validate_sources(baseline, review, source_bytes)?;
     let edits = render_replacements(review, source_bytes).map_err(PreparationError::Render)?;
     let updates = build_updates(baseline, review, &edits)?;
@@ -133,10 +133,14 @@ fn build_updates(
     review: &[SourceReview<InvestigationRelationKind>],
     edits: &[SourceEdit],
 ) -> Result<
-    Vec<super::selected_sync::SelectedUpdate<crate::domains::investigation::InvestigationState>>,
+    Vec<
+        crate::mutations::sync::selected_sync::SelectedUpdate<
+            crate::domains::investigation::InvestigationState,
+        >,
+    >,
     PreparationError,
 > {
-    use super::selected_sync::{Entry, SelectedUpdate};
+    use crate::mutations::sync::selected_sync::{Entry, SelectedUpdate};
     let edited: HashMap<_, _> = edits.iter().map(|edit| (edit.id.as_str(), edit)).collect();
     let mut updates = Vec::with_capacity(review.len());
     for item in review {

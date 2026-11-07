@@ -1,5 +1,5 @@
 //! Pure lifecycle transitions; caller owns source, history and transaction proofs.
-use super::contract::Alignment;
+use crate::mutations::contract::Alignment;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize)]
 #[serde(rename_all = "lowercase")]
@@ -205,5 +205,5 @@ fn lifecycle_path(
 }
 
 #[cfg(test)]
-#[path = "lifecycle/tests/plan_tests.rs"]
+#[path = "rules/tests/plan_tests.rs"]
 mod plan_tests;

@@ -1,7 +1,7 @@
 //! Full Decision sync built on the same stage-local source collector as check.
 //! No production wiring is implied by this isolated candidate operation.
-use super::check::{DecisionStage, decision_stage};
-use super::full_sync;
+use crate::mutations::check::{DecisionStage, decision_stage};
+use crate::mutations::sync::full_sync;
 use crate::{
     source::Root,
     transaction::{Plan, TransactionOperation, TxError},
@@ -30,7 +30,7 @@ pub struct DecisionSyncOperation {
 fn failure(code: &str, message: impl Into<String>) -> TxError {
     TxError::new(code, message)
 }
-fn map_error(error: super::check::CheckError) -> TxError {
+fn map_error(error: crate::mutations::check::CheckError) -> TxError {
     failure(error.code, format!("{}: {}", error.path, error.message))
 }
 impl DecisionSyncOperation {

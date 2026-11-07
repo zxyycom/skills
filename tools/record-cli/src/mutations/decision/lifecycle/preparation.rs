@@ -1,9 +1,9 @@
-//! Prepare Decision lifecycle edits from a validated baseline and observed bytes.
-//! This does not capture sources or execute the transaction.
-use super::{
+//! Capture sources and prepare Decision lifecycle edits and transaction plans.
+//! Transaction execution is handled separately.
+use crate::mutations::{
     contract::Alignment,
-    lifecycle::{LifecycleEdit, Status},
-    selected_sync::{Entry, SelectedError, SelectedUpdate, build_validated_selected},
+    decision::lifecycle::rules::{LifecycleEdit, Status},
+    sync::selected_sync::{Entry, SelectedError, SelectedUpdate, build_validated_selected},
 };
 use crate::{
     domains::decision::{DecisionState, Definition},
@@ -19,8 +19,8 @@ pub struct SourceMove {
     pub new_path: String,
     pub before: Vec<u8>,
     pub after: Vec<u8>,
-    pub before_lifecycle: super::lifecycle::EstablishedLifecycle,
-    pub after_lifecycle: super::lifecycle::EstablishedLifecycle,
+    pub before_lifecycle: crate::mutations::decision::lifecycle::rules::EstablishedLifecycle,
+    pub after_lifecycle: crate::mutations::decision::lifecycle::rules::EstablishedLifecycle,
 }
 pub struct PreparedLifecycle {
     pub moves: Vec<SourceMove>,

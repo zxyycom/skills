@@ -1,4 +1,4 @@
-//! Lock-held candidate creation. Publication is a separate transaction.
+//! Candidate creation and transaction planning. Publication is a separate transaction.
 use super::{
     candidate::{self, CandidateIdentity, Domain},
     contract::{Alignment, DecisionRelationKind, InvestigationRelationKind, Relation},

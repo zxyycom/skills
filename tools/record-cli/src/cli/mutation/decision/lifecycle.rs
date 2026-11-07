@@ -30,7 +30,7 @@ fn reactivate(
         index_path,
         ..
     } = context;
-    let mut operation = crate::mutations::decision_operation::ReactivateOperation {
+    let mut operation = crate::mutations::decision::lifecycle::operation::ReactivateOperation {
         collection,
         index_path,
         selector,
@@ -65,7 +65,7 @@ fn archive(
         index_path,
         ..
     } = context;
-    let mut operation = crate::mutations::decision_operation::ArchiveOperation {
+    let mut operation = crate::mutations::decision::lifecycle::operation::ArchiveOperation {
         collection,
         index_path,
         selectors,
@@ -86,7 +86,7 @@ fn mark_aligned(context: MutationContext<'_>, selector: String) -> i32 {
         index_path,
         ..
     } = context;
-    let mut operation = crate::mutations::decision_operation::MarkAlignedOperation {
+    let mut operation = crate::mutations::decision::lifecycle::operation::MarkAlignedOperation {
         collection,
         index_path,
         selector,

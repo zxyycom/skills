@@ -7,7 +7,7 @@ fn full_sync_tracks_resources_without_treating_in_place_bytes_as_index_revision(
     let text = format!(
         "{}\n## 随附资源\n- [evidence](./_resources/260828-same/file.txt)\n",
         include_str!(
-            "../../../../../investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md"
+            "../../../../../../investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md"
         )
     );
     std::fs::write(collection.join("same.md"), &text).unwrap();
@@ -59,7 +59,7 @@ fn unreferenced_unsafe_resource_root_is_warning() {
     let dir = tempfile::tempdir().unwrap();
     let collection = dir.path().join("investigations");
     std::fs::create_dir(&collection).unwrap();
-    std::fs::write(collection.join("same.md"), include_str!("../../../../../investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md")).unwrap();
+    std::fs::write(collection.join("same.md"), include_str!("../../../../../../investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md")).unwrap();
     std::fs::write(collection.join("_resources"), b"not a directory").unwrap();
     std::fs::write(collection.join("investigation-index.json"), b"broken").unwrap();
     let root = crate::source::open_root(dir.path()).unwrap();

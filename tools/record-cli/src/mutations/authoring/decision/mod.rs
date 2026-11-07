@@ -4,8 +4,10 @@ use crate::mutations::{
         Alignment, DecisionRelationKind, DecisionRelationOverride, Relation, SourceReview,
         Successor,
     },
-    decision_history, decision_selected_sync, evolution,
-    lifecycle::Status,
+    decision::history as decision_history,
+    decision::lifecycle::rules::Status,
+    evolution,
+    sync::decision_selected_sync,
 };
 use crate::{
     domains::{

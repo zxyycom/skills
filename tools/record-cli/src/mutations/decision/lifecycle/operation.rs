@@ -1,9 +1,10 @@
 //! Isolated Decision mark-aligned operation; not a public CLI entry point.
-use super::{
+use crate::mutations::{
     contract::Alignment,
-    decision_lifecycle::{self, PreparedLifecycle},
-    lifecycle::{
-        self, EstablishedLifecycle, HistoryFact, LifecycleAction, LifecycleRecord, Status,
+    decision::lifecycle::preparation::{self as decision_lifecycle, PreparedLifecycle},
+    decision::lifecycle::rules::{
+        self as lifecycle, EstablishedLifecycle, HistoryFact, LifecycleAction, LifecycleRecord,
+        Status,
     },
 };
 use crate::{

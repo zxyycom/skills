@@ -16,7 +16,7 @@ fn selected_sync_preserves_unrelated_source_and_requires_old_owner_absence() {
     )
     .unwrap();
     let a = include_str!(
-        "../../../../../investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md"
+        "../../../../../../investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md"
     )
     .to_owned();
     let b = a

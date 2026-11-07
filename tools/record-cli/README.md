@@ -26,6 +26,10 @@ bun run check -- --scope record-rust
 
 候选采用[顺序本地运行时方向](../../docs/decisions/261107-rust-record-candidate-sequential-local-runtime.md)：预检不保存执行凭据，正式执行重新读取准备一次；已有文件用成熟库原子替换，新建以 `create_new` 防止覆盖，初始化失败可留下部分新文件。实际及未知写入如实报告，不能报作成功回滚。stage 只有在可证明历史为空时才能采用空基线：缺失 DR HEAD 索引且路径无法区分候选与正式记录时应停止并恢复可信基线，不读取未选正文推定身份。安全与竞争保证以真实平台及测试证据为限，不承诺对非合作进程的跨文件原子隔离。
 
+## 源码导航
+
+维护 CLI 参数时，从 [`src/cli/arguments/`](src/cli/arguments/) 下的 query 或 mutation 入口查找；身份和事务结果映射位于 [`src/cli/output/`](src/cli/output/)。同步索引的两域适配与共享规划位于 [`src/mutations/sync/`](src/mutations/sync/)；决策生命周期的规则、准备和操作位于 [`src/mutations/decision/lifecycle/`](src/mutations/decision/lifecycle/)，多个操作共用的历史处理位于 [`src/mutations/decision/history.rs`](src/mutations/decision/history.rs)。这些路径是候选内部维护入口，不是公共 Rust SDK 契约。
+
 ## 交付与验证边界
 
 [离线交付入口](delivery/README.md)只对私有 fixture 构建、安装和恢复；[性能方法](benchmarks/README.md)定义私有数据和新进程测量；制品不提交 Git。Linux 原生验收目标是 Ubuntu 22.04 x64 glibc 2.35（`x86_64-unknown-linux-gnu`）。Windows x64 MSVC CI 独立构建两个 release 可执行文件，并在私有 Git fixture 运行 `smoke:record-rust`，覆盖启动、决策读写与缺失记录 JSON、调查资源目录重命名和保留未选暂存的 stage；它不运行 Windows 全套测试，也不证明发布或全部行为的原生资格。候选 CI、Case 和性能报告须分别以实际 revision、环境、测试节点与结果为依据。离线结果不证明正式发布、线上更新或真实用户安装；生产切换与发布另需授权。

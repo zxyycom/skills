@@ -217,7 +217,8 @@ fn predecessor_facts(
                     } else {
                         Status::Archived
                     },
-                    history: crate::mutations::lifecycle::HistoryFact::NotApplicable,
+                    history:
+                        crate::mutations::decision::lifecycle::rules::HistoryFact::NotApplicable,
                 },
             )
         })

@@ -1,7 +1,7 @@
 //! Decision relation replacement in an isolated candidate workspace.
 use super::{
     contract::{DecisionRelationKind, Relation, RelationGroup, ReviewAction, SourceReview},
-    selected_sync::{Entry, SelectedUpdate, build_validated_selected},
+    sync::selected_sync::{Entry, SelectedUpdate, build_validated_selected},
 };
 use crate::{
     domains::{self, JsTrim},

@@ -1,10 +1,10 @@
-use super::*;
+use crate::cli::*;
 use crate::{
     protocol::Diagnostic,
     stage::index_scope::{IndexStageError, SelectedSourceIssue},
 };
 
-pub(super) fn stage_diagnostic(
+pub(in crate::cli) fn stage_diagnostic(
     output: &StageOutput<'_>,
     error: &IndexStageError,
 ) -> Option<Diagnostic> {

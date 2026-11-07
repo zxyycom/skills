@@ -1,5 +1,5 @@
 //! Decision history facts for archive/evolution; Git and identity errors are not absence.
-use super::lifecycle::HistoryFact;
+use crate::mutations::decision::lifecycle::rules::HistoryFact;
 use crate::{
     git::{self, GitError, HeadState},
     source::{RelativePath, Root},

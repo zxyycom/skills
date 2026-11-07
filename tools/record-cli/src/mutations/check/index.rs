@@ -131,11 +131,11 @@ impl<D: crate::index::DomainDefinition> IndexComparison<'_, D> {
             ExpectedFile::Missing => None,
             ExpectedFile::Present(file) => Some(file.bytes.as_slice()),
         };
-        let disposition = crate::mutations::full_sync::compare(
+        let disposition = crate::mutations::sync::full_sync::compare(
             self.expected,
             self.definition,
             current,
-            crate::mutations::full_sync::Mode::Write,
+            crate::mutations::sync::full_sync::Mode::Write,
         )
         .map_err(|e| {
             attach_partial(
@@ -144,8 +144,10 @@ impl<D: crate::index::DomainDefinition> IndexComparison<'_, D> {
             )
         })?;
         match disposition {
-            crate::mutations::full_sync::Disposition::Unchanged => Ok(("unchanged", false)),
-            crate::mutations::full_sync::Disposition::NeedsWrite(_) => Ok(("previewed", true)),
+            crate::mutations::sync::full_sync::Disposition::Unchanged => Ok(("unchanged", false)),
+            crate::mutations::sync::full_sync::Disposition::NeedsWrite(_) => {
+                Ok(("previewed", true))
+            }
             _ => Err(attach_partial(
                 error("index-invalid", name, "unexpected sync state"),
                 self.partial.clone(),
@@ -174,11 +176,11 @@ impl<D: crate::index::DomainDefinition> IndexComparison<'_, D> {
                 ));
             }
             ExpectedFile::Present(file) => {
-                crate::mutations::full_sync::compare(
+                crate::mutations::sync::full_sync::compare(
                     self.expected,
                     self.definition,
                     Some(&file.bytes),
-                    crate::mutations::full_sync::Mode::Check,
+                    crate::mutations::sync::full_sync::Mode::Check,
                 )
                 .map_err(|e| {
                     attach_partial(

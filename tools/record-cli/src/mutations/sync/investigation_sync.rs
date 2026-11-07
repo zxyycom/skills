@@ -1,7 +1,7 @@
 //! Full Investigation synchronization using the same source and resource
 //! collection as check, prepared once for ordered execution.
-use super::check::{InvestigationStage, investigation_stage};
-use super::full_sync;
+use crate::mutations::check::{InvestigationStage, investigation_stage};
+use crate::mutations::sync::full_sync;
 use crate::{
     source::Root,
     transaction::{Plan, TransactionOperation, TxError},
@@ -29,7 +29,7 @@ pub struct InvestigationSyncOperation {
 fn fail(code: &str, message: impl Into<String>) -> TxError {
     TxError::new(code, message)
 }
-fn map_error(error: super::check::CheckError) -> TxError {
+fn map_error(error: crate::mutations::check::CheckError) -> TxError {
     fail(error.code, format!("{}: {}", error.path, error.message))
 }
 impl InvestigationSyncOperation {

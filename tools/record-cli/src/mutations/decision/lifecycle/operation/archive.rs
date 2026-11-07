@@ -10,7 +10,7 @@ pub struct ArchiveOperation {
 }
 pub struct PreparedArchive {
     pub lifecycle: PreparedLifecycle,
-    pub history: Option<super::super::decision_history::HistoryEvidence>,
+    pub history: Option<crate::mutations::decision::history::HistoryEvidence>,
 }
 fn archive_evidence(
     root: &Root,
@@ -89,7 +89,7 @@ fn capture_archive_plan(
 
 struct ArchiveSelection {
     edits: Vec<lifecycle::LifecycleEdit>,
-    history: Option<super::super::decision_history::HistoryEvidence>,
+    history: Option<crate::mutations::decision::history::HistoryEvidence>,
 }
 fn select_archive(
     operation: &ArchiveOperation,
@@ -110,8 +110,12 @@ fn select_archive(
         None
     } else {
         Some(
-            super::super::decision_history::capture_history(root, &operation.collection, &locators)
-                .map_err(|e| failure("history", format!("{e:?}")))?,
+            crate::mutations::decision::history::capture_history(
+                root,
+                &operation.collection,
+                &locators,
+            )
+            .map_err(|e| failure("history", format!("{e:?}")))?,
         )
     };
     let selected_with_history: Vec<_> = selected
@@ -136,7 +140,7 @@ fn select_archive(
 fn archive_history_failure(
     error: lifecycle::LifecyclePlanError,
     selected: &[(LifecycleRecord, HistoryFact)],
-    history: Option<&super::super::decision_history::HistoryEvidence>,
+    history: Option<&crate::mutations::decision::history::HistoryEvidence>,
 ) -> TxError {
     let mut result = failure("history-attention", format!("{error:?}"));
     if matches!(

@@ -1,7 +1,7 @@
-use super::*;
+use crate::cli::*;
 
-pub(super) fn lifecycle_details(
-    prepared: crate::mutations::decision_lifecycle::PreparedLifecycle,
+pub(in crate::cli) fn lifecycle_details(
+    prepared: crate::mutations::decision::lifecycle::preparation::PreparedLifecycle,
 ) -> serde_json::Value {
     let ids = prepared
         .moves
@@ -17,9 +17,9 @@ pub(super) fn lifecycle_details(
     serde_json::json!({"affectedIds":ids,"sourcePaths":paths,"affected":changes})
 }
 mod stage;
-pub(super) use stage::{StageOutput, output_stage};
+pub(in crate::cli) use stage::{StageOutput, output_stage};
 
-pub(super) fn output_transaction<T>(
+pub(in crate::cli) fn output_transaction<T>(
     command: &str,
     json: bool,
     result: crate::transaction::TransactionOutcome<T>,
@@ -27,7 +27,7 @@ pub(super) fn output_transaction<T>(
 ) -> i32 {
     output_transaction_warnings(command, json, result, |value| (success(value), Vec::new()))
 }
-pub(super) fn output_transaction_warnings<T>(
+pub(in crate::cli) fn output_transaction_warnings<T>(
     command: &str,
     json: bool,
     mut result: crate::transaction::TransactionOutcome<T>,
@@ -53,7 +53,7 @@ pub(super) fn output_transaction_warnings<T>(
     }
     1
 }
-pub(super) fn print_transaction_failure<T>(
+pub(in crate::cli) fn print_transaction_failure<T>(
     command: &str,
     json: bool,
     result: &crate::transaction::TransactionOutcome<T>,
@@ -68,7 +68,7 @@ pub(super) fn print_transaction_failure<T>(
     1
 }
 
-pub(super) fn transaction_failure_envelope<T>(
+pub(in crate::cli) fn transaction_failure_envelope<T>(
     command: &str,
     result: &crate::transaction::TransactionOutcome<T>,
     body: serde_json::Value,
@@ -85,7 +85,7 @@ pub(super) fn transaction_failure_envelope<T>(
     serde_json::json!({"version":2,"command":command,"ok":false,"error":error,"diagnostics":diagnostics,"result":body})
 }
 
-pub(super) fn transaction_body<T>(
+pub(in crate::cli) fn transaction_body<T>(
     result: &mut crate::transaction::TransactionOutcome<T>,
     success: impl FnOnce(T) -> serde_json::Value,
 ) -> (bool, serde_json::Value) {

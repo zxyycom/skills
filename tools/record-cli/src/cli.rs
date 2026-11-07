@@ -48,25 +48,23 @@ impl std::fmt::Display for ArgumentError {
 }
 impl std::error::Error for ArgumentError {}
 
+pub mod arguments;
 mod decision_identity;
 mod help;
-mod identity_output;
 mod investigation_identity;
 mod mutation;
 mod output;
-mod query;
-mod transaction_output;
 
+pub use arguments::query::parse_query;
 use decision_identity::output_decision_identity;
 use help::{command_names, print_help};
-use identity_output::*;
 use investigation_identity::output_investigation_identity;
 use mutation::dispatch_mutation;
+use output::identity::*;
+use output::transaction::*;
 use output::{
     emit_success, print_argument_error, print_error, print_transaction_error, transaction_error,
 };
-pub use query::parse_query;
-use transaction_output::*;
 
 fn global_argument_width(argument: &std::ffi::OsStr) -> usize {
     let bytes = argument.as_encoded_bytes();
@@ -192,7 +190,7 @@ pub fn main_entry(domain: Domain) -> i32 {
     }
     let command = raw.first().map(String::as_str).unwrap_or("");
     if MUTATION_COMMANDS.contains(&command) {
-        return match crate::cli_mutation::parse_mutation(domain, &raw) {
+        return match crate::cli::arguments::mutation::parse_mutation(domain, &raw) {
             Ok(invocation) => dispatch_mutation(command, invocation),
             Err(error) => print_argument_error(command, json, error),
         };
