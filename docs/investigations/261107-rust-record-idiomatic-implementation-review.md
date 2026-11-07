@@ -12,42 +12,46 @@ relations: []
 
 ## 形成时背景
 
-最初于 2026-11-07 10:14 UTC 在 `4f15106afc1eb517c65e595eccfe96b991d0b916` 定向审阅 Rust record CLI 候选；同轮随后补做源码普查，纠正不能从热点外推全仓的缺口。Rust 是候选而非生产 TS 入口；批准的 JSON、通道和实际部分写事实不能因语法改写静默改变。
+2026-11-07 对 Rust record CLI 候选的定向审阅，关注内部表达与对外契约。同轮随后补做完整源码普查，避免将热点观察外推全仓。Rust 是候选而非生产 TypeScript 入口；既有 JSON、通道和实际部分写事实是改写边界。
 
 ## 调查目的
 
-从完整源码识别无需新库的明确改进，区分静态可建议修改与依赖契约或替代验证的候选，并说明应保留的结构；库和依赖取舍见[通用库职责普查](./261107-rust-record-library-replacement-survey.md)。
+识别无需新库的实现改进，区分可建议修改的具体问题与依赖契约确认的候选。库和依赖取舍见[通用库职责普查](./261107-rust-record-library-replacement-survey.md)。
 
 ## 调查范围与依据
 
-2026-11-07 10:55 UTC 采集 commit `e03e9e87e937029c3058456cfb88d600e1f88ed7`，覆盖 `tools/record-cli/src` 和 `tests` 全部 280 个受版本控制 Rust 文件、38,815 行，另阅 17 个关联输入；五名 gpt-6.1-terra 按分区逐文件全文阅读（249 个 src、31 个 tests），记录 SHA、完整范围和两类判断；另一名 gpt-6.1-terra 独立 reviewer 逐项核实 13 项线索及抽样，路径/哈希/范围机械闭合，但机械检查不证明逐行阅读真实性或零遗漏。本报告共享库职责普查拥有的两份资源：逐文件范围、责任和判断见 `source-census.json`，13 项发现、验证要求及独立复核见 `findings.json`；它们是静态普查记录，不是动态验证结果。账本的 retain 仅表示本轮未发现应库化或惯用化的调整，不证明行为正确或测试通过 Test Design 准入；外部与内嵌测试列入源码普查，但不构成逐入口测试价值审计，本轮不修改测试或 Case。源码路径除明确仓库路径外均相对 `tools/record-cli/src/`，行号属于此补充基线。未运行测试、构建替代或采样。
+补充普查的基线是 2026-11-07 10:55 UTC 采集的 commit `e03e9e87e937029c3058456cfb88d600e1f88ed7`。五名 gpt-6.1-terra 按分区全文阅读`tools/record-cli/src` 和 `tools/record-cli/tests` 下受版本控制的 280 个 Rust 文件（分别为 249 和 31 个，共 38,815 行）及 17 个关联输入；另一名同模型 reviewer 逐项复核 13 项发现并抽样。主代理完成路径、哈希和行范围闭合；机械闭合不等于独立重读全部源码或保证零遗漏。
+
+这是静态源码普查，未运行新测试、替代构建或性能采样，也不是逐测试入口价值审核。共享资源 `source-census.json` 保存逐文件责任、完整行范围、SHA 和判断；`findings.json` 保存各发现的定位、建议、验证要求和独立复核。账本的 `retain` 仅表示未发现应库化或惯用化的调整，不证明行为正确。资源供进一步核对，不是动态验证结果。
 
 ## 调查结果与边界
 
-本轮 13 条线索分为 8 项建议修改和 5 项待验证候选；本篇覆盖 7 项行为、测试及实现修改和 3 项候选，另外 1 项依赖修改与 2 项库候选见[库职责普查](./261107-rust-record-library-replacement-survey.md)。建议修改不全是产品 bug；候选不等于应实施。
+13 项发现中有 8 项建议修改、5 项待验证候选。本篇承接 7 项修改和 3 项候选；另外 1 项依赖修改、2 项库候选见[库职责普查](./261107-rust-record-library-replacement-survey.md)。建议涵盖行为、测试条件和维护性，并非全部为产品 bug；候选需先确认或比较。
 
-### 应改：用户可见错误和测试条件
+### 应改：可见行为与测试条件
 
-1. **CLI-002**：`cli/help.rs:50-52,75-79` 对两域共享 discard/publish 帮助，但 `cli/arguments/mutation/decision.rs:73-91` 只接受单 selector 且 publish 必需 alignment；`cli/arguments/mutation/investigation.rs:42-61` 允许多 selector、拒绝 alignment 与 keep-unrecorded-history，而 DR discard 不接受 delete-owned-resources。应分域修正帮助，不改变现有语法；验证两域 help 与正反例。
-2. **CLI-003**：`cli/mutation/decision/services.rs:70-76,87-94` 的 selected 失败上下文硬编码索引 basename，失败 JSON 的 indexRelativePath 因而不指实际配置路径；应复用已验证的实际工作区相对路径，比较默认及自定义目录的成功、预检和执行失败。
-3. **CLI-004**：`tools/record-cli/tests/queries/candidates.rs:237-265` 仅 symlink 创建受 Unix 条件限制，后续却无条件断言专属诊断。建议整个测试函数使用 `cfg(unix)`，在 Unix 运行该节点并核对非 Unix 编译。此为测试 fixture 条件不一致，**不是**已证明 Windows 产品失败或现有 CI 失败；Windows 当前承诺 release 构建与 smoke，不由此扩大到全套测试。
+- **CLI-002：分域修正帮助。** 两域共享的 discard/publish 帮助与各自实际接受的 selector 和选项不一致；应反映现有语法，而非改变语法。
+- **CLI-003：返回实际索引路径。** selected 失败上下文硬编码索引 basename，导致失败 JSON 的 `indexRelativePath` 不反映配置路径；应复用已验证的工作区相对路径。
+- **CLI-004：统一 symlink fixture 条件。** 创建 symlink 只在 Unix 执行，专属诊断断言却无条件执行；建议整个测试函数使用 `cfg(unix)`。这是测试条件不一致，不是已证明的 Windows 产品失败；当前 Windows 承诺是 release 构建与 smoke。
 
-### 应改：复用现有规则和显式成功值
+### 应改：复用规则与明确数据流
 
-- **AUTHOR-003**：`mutations/candidate.rs:36-43`、`mutations/decision/lifecycle/rules.rs:182-188` 与 `domains/mod.rs:60-68` 的 kebab 判定等义；调用已有 `is_kebab`，保留路径和错误语义，验证空值、连字符、ASCII、非 ASCII 和迁移。
-- **OPS-003**：`mutations/investigation_relations.rs:230-239` 的 ECMAScript whitespace 字符表与 `domains/mod.rs:46-58` 的 `JsTrim` 相同；复用后保留对原始值的 CR/LF 检查及修剪后长度限制，不能换成 Rust 默认 trim。验证 BOM、换行和非 ASCII 空白。
-- **OPS-002**：`mutations/sync/selected_sync.rs:47-84,250-263` 将校验结果经可变 Option 副作用取回，再用 `unreachable` 表达必然有值；让回调返回 `Result<V, E>` 或在投影后直接返回已验证索引更能表达成功值。现有调用成功前恰执行回调一次，**不是已证明可触发 panic**；保留成功前验证、错误映射和排序。
-- **OPS-001**：`mutations/investigation_operation.rs:37-61` 与 `mutations/investigation_relations/transaction.rs:13-17,44-74` 在一次准备中两次捕获解析基线，选择与写集来自两次观察。建议传递同一快照，保留第二路径承担的图验证、selector/review 相关失败顺序和独立调用入口；预检与正式执行仍各自准备。覆盖预检、无变更、写入和读取失败，不新增 fresh、CAS、回滚或跨文件隔离承诺。
+- **AUTHOR-003：复用 `is_kebab`。** 现有重复判定等义；复用时保留路径和错误语义。
+- **OPS-003：复用 `JsTrim`。** 重复字符表表达 ECMAScript whitespace；复用时仍需检查原始值的 CR/LF，并保留修剪后长度边界，不能改用 Rust 默认 trim。
+- **OPS-002：让成功值通过 `Result` 返回。** selected sync 当前借可变 `Option` 副作用取回校验结果，再用 `unreachable` 表达必然有值；显式返回值更清晰。现有成功路径会执行回调一次，未证明可触发 panic。
+- **OPS-001：单次 prepare 复用基线快照。** 当前一次准备中两次读取解析基线，选择和写集来自两次观察；可传递同一快照，但必须保留第二路径承担的图验证、selector/review 相关失败顺序和独立调用入口。preflight 与 execute 仍各自独立 prepare。
 
-### 候选：先确认契约或比较
+### 候选：先确认边界
 
-- **MODEL-001**：`queries/investigation/show.rs:23-28` 在身份提取前剥 BOM，`queries/investigation/content.rs:49-58` 则不剥，`domains/investigation/document.rs:217-229` 要求首行 `---`。已发布索引下当前源加 BOM 会形成身份核验差异；固定正式报告要求 frontmatter 首行开始，不能据宽容 show 断言 BOM 是合法正式来源。先由 owner 明确只读兼容边界，再用私有 fixture 核对 show/content、stale 与严格 check，不预设放宽解析。
-- **AUTHOR-002**：`mutations/check/selected.rs:226-279` 回退身份发现时完整捕获并解码所有合格成员；即使未选正文无效也可能阻断。owner 允许必要扩大身份发现，但未明确此情况下非法未选正文的处置。先确认契约，再比较 `capture_header` 与完整读取，验证编码、重复身份、不安全成员和再次捕获一致性。
-- **AUTHOR-001**：`mutations/authoring/render.rs:187-205` 将泛型关系序列化为 Value 后两次 unwrap；现有两种关系枚举不构成已发生 panic 的证据。可比较穷尽转换与已有命名规则复用，避免引入另一份会漂移的名称映射。
+- **MODEL-001：BOM 兼容。** show 在身份提取前剥除 BOM，content 不剥；正式报告要求 frontmatter 首行开始，不能据 show 的宽容行为认定 BOM 来源合法。先由 owner 确认只读兼容边界。
+- **AUTHOR-002：身份发现的读取范围。** 回退发现会完整解码所有合格成员，未选正文无效也可能阻断；先由 owner 确认这种情况下的处置，再比较只读取头部。
+- **AUTHOR-001：显式穷尽关系转换。** 泛型关系经 JSON 值转换后使用 `unwrap`，可比较穷尽转换；现有关系类型并未证明当前存在 panic。
 
-### 保留及理由
+### 保留及认识转折
 
-`mutations/sync/selected_sync.rs` 克隆基线隔离候选；`domains/graph.rs` 的双向索引与非递归验环支持深图；`queries/matcher.rs` 维护规范化后到原文 UTF-16 的范围。选择顺序、事务阶段和实际写入事实均有用途，不机械消除 clone、换组合子或合并两类 argv 数据结构。原定向报告把 Debug 对外映射和输出 DTO 列为优先试点；本次未发现证明其相对以上具体问题更迫切、或 DTO 有净收益的证据，撤回优先级，按具体协议需求再评估。所有建议为静态判断；没有实施、运行测试或验证平台、性能和全行为正确性。
+基线 clone、非递归图遍历及规范化到原文 UTF-16 的映射分别服务候选隔离、深图和定位，不能仅为语法简化而消除。最初定向审阅将 Debug 映射和输出 DTO 列为优先试点；全量普查未发现证明它们比上述具体问题更迫切或 DTO 有净收益的证据，因此撤回优先级。
+
+本轮尚未实施；具体验证清单见发现资源。
 
 ## 随附资源
 
