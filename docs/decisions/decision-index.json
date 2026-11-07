@@ -171,6 +171,7 @@
       "261105-route-test-design-and-existing-review": "sha256:fa048f539b7b543bb0489bc1fee0e0afe8082a7b9626fbe704a66084a508d4eb",
       "261106-isolate-shared-native-record-candidate": "sha256:deb97c4cbb8258f6fc7e4e0425f72ce423d07e7f2ee98b189ccda4bcfcae242f",
       "261106-retain-domain-query-result-types": "sha256:fed60edd16b21da364b0dcf8313f8e1c32d48c9209a6baf10f30c72997186c98",
+      "261107-rust-record-candidate-cooperative-file-safety": "sha256:f3f37f5872989c83384a7b90a0b98fb17b3a26c430fd48757d97988624e39fab",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -3941,6 +3942,24 @@
         "gate",
         "record-cli",
         "types"
+      ],
+      "relations": []
+    },
+    "261107-rust-record-candidate-cooperative-file-safety": {
+      "name": "rust-record-candidate-cooperative-file-safety",
+      "sourcePath": "261107-rust-record-candidate-cooperative-file-safety.md",
+      "title": "以合作型文件保障收敛 Rust 记录候选",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-11-07T02:37:28Z",
+      "purpose": "在保护领域事实的同时降低两域 Rust 候选文件事务的证明和恢复复杂度。",
+      "background": "强身份和恢复证明无法提供非合作进程的跨文件隔离，候选需按本地工作区风险取舍。",
+      "decision": "候选采用局部比较、原子替换和可核对恢复材料，保留真实结果并隔离生产 TypeScript。",
+      "tags": [
+        "concurrency",
+        "native-cli",
+        "record-cli",
+        "recovery"
       ],
       "relations": []
     },

@@ -175,8 +175,11 @@ fn resource_recovery_preserves_unowned_directory_and_verified_backup() {
             .contains(&RelativePath::new("old-assets").unwrap())
     );
     assert!(!dir.path().join("old-assets/item.txt").exists());
-    assert_eq!(result.recovery_backups.len(), 1);
-    let backup = &result.recovery_backups[0];
+    let backup = result
+        .recovery_backups
+        .iter()
+        .find(|b| b.source == RelativePath::new("old-assets/item.txt").unwrap())
+        .expect("resource backup");
     assert_eq!(
         backup.source,
         RelativePath::new("old-assets/item.txt").unwrap()
@@ -207,9 +210,13 @@ fn resource_recovery_keeps_later_editor_and_verified_original_backup() {
     assert_eq!(result.status, TxStatus::Error);
     assert_eq!(result.outcome, RecoveryStatus::PartialOrUnknown);
     assert!(!dir.path().join("old-assets/item.txt").exists());
-    assert_eq!(result.recovery_backups.len(), 1);
+    let backup = result
+        .recovery_backups
+        .iter()
+        .find(|b| b.source == RelativePath::new("old-assets/item.txt").unwrap())
+        .expect("resource backup");
     assert_eq!(
-        std::fs::read(dir.path().join(result.recovery_backups[0].backup.as_path())).unwrap(),
+        std::fs::read(dir.path().join(backup.backup.as_path())).unwrap(),
         b"asset"
     );
     assert_eq!(

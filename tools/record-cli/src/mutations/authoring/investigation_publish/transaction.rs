@@ -6,7 +6,7 @@ impl TransactionOperation<PreparedPublication> for InvestigationPublishOperation
     }
     fn fresh(&mut self, root: &Root, plan: &Plan<PreparedPublication>) -> Result<(), TxError> {
         let now = self.prepare_phase(root)?;
-        if plan.value.evidence != now.value.evidence
+        if !plan.value.evidence.equivalent(&now.value.evidence)
             || plan.value.warnings != now.value.warnings
             || !plan.value.resources.equivalent(&now.value.resources)
             || !same_writes(&plan.writes, &now.writes)
@@ -45,15 +45,17 @@ fn same_writes(
     b: &[crate::transaction::WriteIntent],
 ) -> bool {
     a.len() == b.len()
-        && a.iter()
-            .zip(b)
-            .all(|(a, b)| a.path == b.path && a.before == b.before && a.after == b.after)
+        && a.iter().zip(b).all(|(a, b)| {
+            a.path == b.path
+                && crate::source::equivalent_file(&a.before, &b.before)
+                && a.after == b.after
+        })
 }
 fn same_guards(a: &[crate::transaction::Guard], b: &[crate::transaction::Guard]) -> bool {
     a.len() == b.len()
         && a.iter()
             .zip(b)
-            .all(|(a, b)| a.path == b.path && a.before == b.before)
+            .all(|(a, b)| a.path == b.path && crate::source::equivalent_file(&a.before, &b.before))
 }
 fn verify_writes(root: &Root, plan: &Plan<PreparedPublication>) -> Result<(), TxError> {
     for w in &plan.writes {

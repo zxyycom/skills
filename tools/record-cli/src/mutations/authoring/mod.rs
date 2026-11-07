@@ -52,18 +52,20 @@ struct Evidence {
     directory: Option<source::DirectorySnapshot>,
     index: ExpectedFile,
     candidates: Vec<(String, String, String)>,
-    missing_parents: Option<MissingParents>,
+    missing_parents: bool,
+}
+impl Evidence {
+    fn equivalent(&self, other: &Self) -> bool {
+        super::same_optional_directory(&self.directory, &other.directory)
+            && source::equivalent_file(&self.index, &other.index)
+            && self.candidates == other.candidates
+            && self.missing_parents == other.missing_parents
+    }
 }
 
-#[derive(Debug, PartialEq, Eq)]
-struct MissingParents {
-    parents: Vec<source::FileIdentity>,
-    parent_paths: Vec<RelativePath>,
-    remaining: usize,
-}
 struct ParentPreparation {
     resources: Vec<ResourceIntent>,
-    missing_parents: Option<MissingParents>,
+    missing_parents: bool,
 }
 
 fn sorted_tags(tags: &[String]) -> Vec<String> {
@@ -264,14 +266,10 @@ fn prepare_parents(
     collection_exists: bool,
 ) -> Result<ParentPreparation, TxError> {
     let mut resources = vec![];
-    let mut missing_parents = None;
+    let mut missing_parents = false;
     if !collection_exists {
         let proof = source::capture_missing(root, collection).map_err(|e| err("collection", e))?;
-        missing_parents = Some(MissingParents {
-            parents: proof.parents().to_vec(),
-            parent_paths: proof.parent_paths().to_vec(),
-            remaining: proof.remaining_components(),
-        });
+        missing_parents = true;
         let components: Vec<_> = collection.as_path().components().collect();
         for n in components.len() - proof.remaining_components()..components.len() {
             let prefix: std::path::PathBuf = components[..=n].iter().collect();

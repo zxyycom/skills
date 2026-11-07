@@ -110,9 +110,10 @@ impl TransactionOperation<PreparedReplacement> for SetRelationsOperation {
             }
         }
         for guard in &plan.guards {
-            if capture(root, &guard.path).map_err(|e| failure("postverify", e.to_string()))?
-                != guard.before
-            {
+            if !crate::source::equivalent_file(
+                &capture(root, &guard.path).map_err(|e| failure("postverify", e.to_string()))?,
+                &guard.before,
+            ) {
                 return Err(failure("postverify", "guard changed"));
             }
         }

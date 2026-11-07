@@ -2,40 +2,7 @@
 use super::*;
 
 impl Journal {
-    pub(super) fn ensure_tree_backups(
-        &self,
-        root: &Root,
-        tree: &source::TreeSnapshot,
-    ) -> Result<(), TxError> {
-        for entry in tree.entries() {
-            if let source::TreeEntry::File {
-                path,
-                identity,
-                bytes,
-            } = entry
-            {
-                let backup = self
-                    .backups
-                    .iter()
-                    .find(|item| &item.source == path)
-                    .ok_or_else(|| {
-                        error("backup-missing", "moved resource has no recovery backup")
-                    })?;
-                if backup.snapshot.bytes != *bytes
-                    || super::super::exact_mode(backup.snapshot.identity.mode)
-                        != super::super::exact_mode(identity.mode)
-                    || !matches!(file(root, &backup.snapshot.path)?, ExpectedFile::Present(current) if current == backup.snapshot)
-                {
-                    return Err(error(
-                        "backup-changed",
-                        "moved resource backup changed before move",
-                    ));
-                }
-            }
-        }
-        Ok(())
-    }
-    pub(super) fn ensure_backup(
+    pub(in crate::transaction) fn ensure_backup(
         &self,
         root: &Root,
         before: &SourceSnapshot,
@@ -55,44 +22,13 @@ impl Journal {
         Ok(())
     }
     pub fn recovery_directories(&self) -> Vec<super::super::RecoveryDirectory> {
-        let mut result: Vec<_> = self
-            .uncertain_moves
-            .iter()
-            .flatten()
-            .map(|entry| super::super::RecoveryDirectory {
-                path: entry.path.clone(),
-                mode: entry.mode,
-            })
-            .collect();
+        let mut result = Vec::new();
         for entry in &self.entries {
-            match entry {
-                Actual::RemovedDirectory { path, before } => {
-                    result.push(super::super::RecoveryDirectory {
-                        path: path.clone(),
-                        mode: super::super::exact_mode(before.identity.mode),
-                    })
-                }
-                Actual::MovedDirectory { source, moved, .. } => {
-                    for item in moved.entries() {
-                        if let source::TreeEntry::Directory { path, identity } = item {
-                            let relative = path
-                                .as_path()
-                                .strip_prefix(moved.root().as_path())
-                                .expect("tree member under root");
-                            let restored = if relative.as_os_str().is_empty() {
-                                source.clone()
-                            } else {
-                                RelativePath::new(source.as_path().join(relative))
-                                    .expect("validated tree path")
-                            };
-                            result.push(super::super::RecoveryDirectory {
-                                path: restored,
-                                mode: super::super::exact_mode(identity.mode),
-                            });
-                        }
-                    }
-                }
-                _ => {}
+            if let Actual::RemovedDirectory { path, before } = entry {
+                result.push(super::super::RecoveryDirectory {
+                    path: path.clone(),
+                    mode: super::super::exact_mode(before.identity.mode),
+                });
             }
         }
         result
@@ -100,6 +36,7 @@ impl Journal {
     pub fn retained_backups(
         &self,
         root: &Root,
+        include_move_copies: bool,
     ) -> (
         Vec<super::super::RecoveryBackup>,
         Vec<String>,
@@ -126,16 +63,48 @@ impl Journal {
                 }
             }
         }
+        if include_move_copies {
+            self.collect_move_copies(root, &mut retained, &mut errors, &mut unknown);
+        }
         (retained, errors, unknown)
+    }
+    fn collect_move_copies(
+        &self,
+        root: &Root,
+        retained: &mut Vec<super::super::RecoveryBackup>,
+        errors: &mut Vec<String>,
+        unknown: &mut Vec<RelativePath>,
+    ) {
+        for copy in &self.copied_move_files {
+            match file(root, &copy.destination) {
+                Ok(ExpectedFile::Present(current))
+                    if current.bytes == copy.bytes
+                        && super::super::exact_mode(current.identity.mode) == copy.mode =>
+                {
+                    retained.push(super::super::RecoveryBackup {
+                        source: copy.source.clone(),
+                        backup: copy.destination.clone(),
+                        mode: copy.mode,
+                    })
+                }
+                _ => {
+                    errors.push(format!(
+                        "copied resource changed or is unreadable: {}",
+                        copy.destination.as_path().display()
+                    ));
+                    unknown.push(copy.destination.clone());
+                }
+            }
+        }
     }
     pub fn cleanup_backups(&mut self, root: &Root) -> (Vec<String>, Vec<RelativePath>) {
         let mut errors = Vec::new();
         let mut unknown = Vec::new();
         self.backups.retain(
-            |backup| match source::remove_if_matches(root, &backup.snapshot) {
+            |backup| match source::remove_if_owned(root, &backup.snapshot) {
                 Ok(()) => false,
                 Err(error) => {
-                    if error.effect == source::RemoveEffect::Unknown {
+                    if error.effect != source::RemoveEffect::NotStarted {
                         unknown.push(backup.snapshot.path.clone());
                     }
                     errors.push(format!(

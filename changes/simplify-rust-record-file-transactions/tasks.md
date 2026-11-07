@@ -10,18 +10,26 @@
 
 ## Implementation
 
-- [ ] 1.1 实现 source 文件操作：受管路径和链接、无覆盖创建、同目录完整临时写入、内容和普通权限比较、原子替换及必要回读。
-- [ ] 1.2 按设计实现事务、资源迁移与必要恢复材料；保护正文及不可重建索引事实，记录真实提交、故障、实际和未知路径。
-- [ ] 1.3 迁移 mutation、stage 和输出消费者，删除无消费者类型及不必要的重复证明；保持领域不变量及 Git pending 保护。
-- [ ] 1.4 同步候选协议及受影响共同模型与两域参考，分清 TS 与候选；评估长期决策记录门槛，保留历史调查的版本边界。
-- [ ] 1.5 实施下列测试方案，按新契约逐项裁决受影响旧竞争测试，核对失去的保护；维护受影响 Case 和索引，不以排除测试或降低阈值换绿灯。
+- [x] 1.1 实现 source 文件操作：受管路径和链接、无覆盖创建、同目录完整临时写入、内容和普通权限比较、原子替换及必要回读。
+- [x] 1.2 按设计实现事务、资源迁移与必要恢复材料；保护正文及不可重建索引事实，记录真实提交、故障、实际和未知路径。
+- [x] 1.3 迁移 mutation、stage 和输出消费者，删除无消费者类型及不必要的重复证明；保持领域不变量及 Git pending 保护。
+- [x] 1.4 同步候选协议及受影响共同模型与两域参考，分清 TS 与候选；评估长期决策记录门槛，保留历史调查的版本边界。
+- [x] 1.5 实施下列测试方案，按新契约逐项裁决受影响旧竞争测试，核对失去的保护；维护受影响 Case 和索引，不以排除测试或降低阈值换绿灯。
 
 ## Verification
 
-- [ ] 2.1 核对下列正常和故障矩阵、运行节点、意外 skip、清理和独立预期；不将非合作竞争窗口描述为 CAS。
-- [ ] 2.2 按 `docs/coding-style.md` 检查无不必要抽象、重复证明与无消费者类型；完成 AI-Ready Docs 文档复核、Test Design 审核与 Case 索引采集。
-- [ ] 2.3 运行 `bun run check`、`bun run check -- --scope record-rust` 和按实际改动选取的代码 scope；按影响完成必要的全工作区变更门禁，记录实际范围与结果。
-- [ ] 2.4 用私有 fixture 运行两个实际 CLI 的正常及故障回归和 `bun run test:record-delivery`；以相同 fixture 比较改前改后普通更新及资源迁移 I/O，记录方法和环境，不设未经依据的阈值。
+- [x] 2.1 核对下列正常和故障矩阵、运行节点、意外 skip、清理和独立预期；不将非合作竞争窗口描述为 CAS。
+- [x] 2.2 按 `docs/coding-style.md` 检查无不必要抽象、重复证明与无消费者类型；完成 AI-Ready Docs 文档复核、Test Design 审核与 Case 索引采集。
+- [x] 2.3 运行 `bun run check`、`bun run check -- --scope record-rust` 和按实际改动选取的代码 scope；按影响完成必要的全工作区变更门禁，记录实际范围与结果。
+- [x] 2.4 用私有 fixture 运行两个实际 CLI 的正常及故障回归和 `bun run test:record-delivery`；以相同 fixture 比较改前改后普通更新及资源迁移 I/O，记录方法和环境，不设未经依据的阈值。
+
+### 验收证据
+
+- 原生测试为 205 个库节点和 126 个集成节点，共 331 个，0 ignored；包括两域实际 CLI 的正常、权限/写入故障与资源复制故障。阶段正确性发现已修复并复核关闭，最终职责拆分另经独立定向正确性审阅，无阻断项。
+- 6.1 terra 分别完成编码规范优化、Test Design 测试审核和 AI-Ready Docs 文档优化。最终采集 2168 个测试实体，包含上述 331 个原生节点；Case、索引、完整引用和覆盖检查通过，采集前后独立计算的源 revision 一致。
+- `bun run check` 为 6 项通过；`bun run check -- --scope record-rust --scope repository-code` 为 16 项通过、0 失败。随后对冻结版本运行 `bun run check -- --scope full`：70 项通过、0 失败、3 项发布检查不适用；invocation 为 `20261107T033705646Z-2f9ceb80-cc54-418d-bdbb-2e1b50ad3c26`。未降低质量阈值或新增豁免。
+- `node tools/record-cli/delivery/verify-real.ts --build simplified-record-accepted-20261107` 完成真实 A/B 构建、两域安装运行、故障回退、无关文件保留及升级。最终资产也用于[同 fixture 的 I/O 调查](../../docs/investigations/261107-rust-record-transaction-io.md)；该报告绑定源码/二进制摘要和原始样本，记录读类计数下降、写类代价增加及单样本边界。
+- 本轮实际环境为 Linux WSL2，不新增 Ubuntu 22.04 远端或 Windows 原生资格证明；生产 TypeScript、skill 分发与 updater 未切换，未发布原生包。
 
 ### 测试矩阵
 
@@ -38,4 +46,4 @@
 | HEAD/pending 漂移、选择增删、模式、未选暂存及未跟踪文件 | 真实 Git index 和工作区逐项对照；冲突拒绝，未选和未跟踪内容不丢失，发布后失败保留提交事实。 |
 | 两域 CLI 成功、写后或清理失败 JSON | 对照实际文件、已完成/未知路径、错误及恢复位置；预检不冒充执行。少量端到端场景验证消费者信息。 |
 
-代表性依据：`transaction/tests/freshness.rs` 的源漂移、独占创建和锁测试；`rename_and_resource_move.rs` 的实际恢复及硬链接别名测试；`capture_errors.rs` 的提交后读取失败诊断；`stage/tests.rs` 和 `tests/git_stage/stage_decision.rs` 的 pending 保护；Case `native-record-txn-fresh`、`native-record-source-move`、`native-record-git-stage-index`。旧测试中绑定每阶段完整身份或父链的断言不自动成为新契约；逐项核对后调整或退出时记录失去的强竞争保护，不能删掉仍承诺的行为。上述为方案审计，未运行测试。
+Readiness 审计时的基线代表性依据（部分旧路径或 Case 已退役，不作为当前覆盖清单）：`transaction/tests/freshness.rs` 的源漂移、独占创建和锁测试；`rename_and_resource_move.rs` 的实际恢复及硬链接别名测试；`capture_errors.rs` 的提交后读取失败诊断；`stage/tests.rs` 和 `tests/git_stage/stage_decision.rs` 的 pending 保护；Case `native-record-txn-fresh`、`native-record-source-move`、`native-record-git-stage-index`。旧测试中绑定每阶段完整身份或父链的断言不自动成为新契约；逐项核对后调整或退出时记录失去的强竞争保护，不能删掉仍承诺的行为。Readiness 中的方案审计仅阅读测试，未在该审计中运行；后续运行和验收以实际验证证据为准。

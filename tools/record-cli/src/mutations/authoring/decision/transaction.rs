@@ -6,7 +6,7 @@ impl TransactionOperation<PreparedEvolution> for DecisionEvolutionOperation {
     }
     fn fresh(&mut self, root: &Root, plan: &Plan<PreparedEvolution>) -> Result<(), TxError> {
         let now = self.phase(root)?;
-        if plan.value.evidence != now.value.evidence
+        if !plan.value.evidence.equivalent(&now.value.evidence)
             || plan.value.review != now.value.review
             || !same_writes(&plan.writes, &now.writes)
             || !same_guards(&plan.guards, &now.guards)
@@ -49,7 +49,7 @@ fn same_writes(
     a.len() == b.len()
         && a.iter().zip(b).all(|(a, b)| {
             a.path == b.path
-                && a.before == b.before
+                && crate::source::equivalent_file(&a.before, &b.before)
                 && a.after == b.after
                 && same_mode(&a.mode, &b.mode)
         })
@@ -58,7 +58,7 @@ fn same_guards(a: &[crate::transaction::Guard], b: &[crate::transaction::Guard])
     a.len() == b.len()
         && a.iter()
             .zip(b)
-            .all(|(a, b)| a.path == b.path && a.before == b.before)
+            .all(|(a, b)| a.path == b.path && crate::source::equivalent_file(&a.before, &b.before))
 }
 fn verify_writes(root: &Root, plan: &Plan<PreparedEvolution>) -> Result<(), TxError> {
     for write in &plan.writes {
@@ -88,7 +88,10 @@ fn verify_writes(root: &Root, plan: &Plan<PreparedEvolution>) -> Result<(), TxEr
 }
 fn verify_guards(root: &Root, plan: &Plan<PreparedEvolution>) -> Result<(), TxError> {
     for guard in &plan.guards {
-        if source::capture(root, &guard.path).map_err(|e| fail("postverify", e))? != guard.before {
+        if !source::equivalent_file(
+            &source::capture(root, &guard.path).map_err(|e| fail("postverify", e))?,
+            &guard.before,
+        ) {
             return Err(fail("postverify", "dependency changed"));
         }
     }

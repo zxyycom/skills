@@ -117,6 +117,23 @@ fn observe_created_directory(
     }
     Ok(CreatedDirectory { handle, identity })
 }
+/// Open a directory without following its final component for a mode update.
+pub(crate) fn open_directory_for_mode(
+    root: &Root,
+    path: &RelativePath,
+) -> Result<File, SourceError> {
+    use cap_fs_ext::{FollowSymlinks, OpenOptionsExt, OpenOptionsFollowExt};
+    let resolved = resolve_directory_links(root, path, true)?;
+    let directory = cap_std::fs::Dir::from_std_file(root.directory.try_clone()?);
+    let mut options = cap_std::fs::OpenOptions::new();
+    options
+        .read(true)
+        .follow(FollowSymlinks::No)
+        .custom_flags(libc::O_DIRECTORY);
+    Ok(directory
+        .open_with(resolved.as_path(), &options)?
+        .into_std())
+}
 /// Conditional directory deletion never recursively removes members. Only an
 /// unchanged, empty, non-link directory can be passed to the actual syscall.
 pub(crate) fn remove_empty_directory(
@@ -147,21 +164,43 @@ pub(crate) fn remove_empty_directory(
     confirm_directory_removed(&capability, resolved.as_path(), &expected.path)
 }
 
+#[cfg(test)]
+thread_local! { static FAIL_REMOVED_DIRECTORY: std::cell::RefCell<Option<PathBuf>> = const { std::cell::RefCell::new(None) }; }
+#[cfg(test)]
+pub(crate) fn fail_directory_readback_for_test(path: RelativePath) {
+    FAIL_REMOVED_DIRECTORY.with(|slot| *slot.borrow_mut() = Some(path.0));
+}
+
 // A successful remove syscall remains unknown if a name reappears or cannot be checked.
 fn confirm_directory_removed(
     capability: &cap_std::fs::Dir,
     resolved: &Path,
     expected_path: &RelativePath,
 ) -> Result<(), RemoveFailure> {
+    #[cfg(test)]
+    if FAIL_REMOVED_DIRECTORY.with(|slot| {
+        let mut value = slot.borrow_mut();
+        if value.as_ref().is_some_and(|path| path == &expected_path.0) {
+            value.take();
+            true
+        } else {
+            false
+        }
+    }) {
+        return Err(RemoveFailure {
+            error: io::Error::other("injected directory readback failure").into(),
+            effect: RemoveEffect::RemovedUnverified,
+        });
+    }
     match capability.symlink_metadata(resolved) {
         Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(()),
         Ok(_) => Err(RemoveFailure {
             error: SourceError::Changed(expected_path.0.clone()),
-            effect: RemoveEffect::Unknown,
+            effect: RemoveEffect::RemovedUnverified,
         }),
         Err(error) => Err(RemoveFailure {
             error: error.into(),
-            effect: RemoveEffect::Unknown,
+            effect: RemoveEffect::RemovedUnverified,
         }),
     }
 }

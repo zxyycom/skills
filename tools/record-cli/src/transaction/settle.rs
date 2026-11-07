@@ -73,7 +73,8 @@ fn collect_retained_backups<T>(
     resource_journal: &resources::Journal,
     outcome: &mut TransactionOutcome<T>,
 ) {
-    let (backups, backup_errors, backup_unknown) = resource_journal.retained_backups(root);
+    let (backups, backup_errors, backup_unknown) =
+        resource_journal.retained_backups(root, !outcome.errors.is_empty());
     outcome.recovery_backups = backups;
     if !outcome.recovery_backups.is_empty() {
         outcome.changed = true;

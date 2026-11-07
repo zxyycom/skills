@@ -67,9 +67,11 @@ fn pure_resource_deletion_keeps_durable_bytes_and_mode_when_directory_ownership_
     );
     assert_eq!(result.outcome, RecoveryStatus::PartialOrUnknown);
     assert!(!result.committed);
-    assert_eq!(result.recovery_backups.len(), 1);
-    let backup = &result.recovery_backups[0];
-    assert_eq!(backup.source, original.path);
+    let backup = result
+        .recovery_backups
+        .iter()
+        .find(|b| b.source == original.path)
+        .expect("original resource backup");
     assert_eq!(backup.mode, exact_mode(original.identity.mode));
     let ExpectedFile::Present(saved) = capture(&root, &backup.backup).unwrap() else {
         panic!("backup missing")

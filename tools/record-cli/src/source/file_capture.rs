@@ -66,26 +66,24 @@ struct ParentFacts {
 #[cfg(unix)]
 fn observe_parents(
     root: &Root,
-    path: &RelativePath,
+    _path: &RelativePath,
     capability: &cap_std::fs::Dir,
     resolved: &RelativePath,
 ) -> Result<Option<ParentFacts>, SourceError> {
-    let mut prefix = PathBuf::new();
     let mut parents = vec![directory_identity(&root.directory.metadata()?)];
     let mut parent_paths = Vec::new();
-    let components: Vec<_> = resolved.as_path().components().collect();
-    for component in components.iter().take(components.len().saturating_sub(1)) {
-        let Component::Normal(name) = component else {
-            return Err(SourceError::InvalidPath(path.0.clone()));
-        };
-        prefix.push(name);
-        let parent = match capability.open_dir(&prefix) {
+    if let Some(parent_path) = resolved
+        .as_path()
+        .parent()
+        .filter(|p| !p.as_os_str().is_empty())
+    {
+        let parent = match capability.open_dir(parent_path) {
             Ok(dir) => dir.into_std_file(),
             Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(None),
             Err(error) => return Err(error.into()),
         };
         parents.push(directory_identity(&parent.metadata()?));
-        parent_paths.push(RelativePath::new(&prefix)?);
+        parent_paths.push(RelativePath::new(parent_path)?);
     }
     Ok(Some(ParentFacts {
         parents,
@@ -144,19 +142,10 @@ pub fn capture_bounded(
         file: max_file_bytes,
         total: remaining_total_bytes,
     };
-    // Compare two independent traversals from the retained root handle and the named root.
-    // This detects common replacement and in-place write races, not atomic isolation
-    // from non-cooperating writers.
-    let root_now = std::fs::metadata(&root.path)?;
-    if directory_identity(&root_now) != root.identity {
+    if directory_identity(&std::fs::metadata(&root.path)?) != root.identity {
         return Err(SourceError::Changed(path.0.clone()));
     }
-    let first = capture_once(root, path, limits)?;
-    let second = capture_once(root, path, limits)?;
-    if first != second || directory_identity(&std::fs::metadata(&root.path)?) != root.identity {
-        return Err(SourceError::Changed(path.0.clone()));
-    }
-    Ok(second)
+    capture_once(root, path, limits)
 }
 
 #[cfg(unix)]
@@ -195,10 +184,30 @@ pub fn capture_header(
     if directory_identity(&std::fs::metadata(&root.path)?) != root.identity {
         return Err(SourceError::Changed(path.0.clone()));
     }
-    let first = capture_header_once(root, path)?;
-    let second = capture_header_once(root, path)?;
-    if first != second || directory_identity(&std::fs::metadata(&root.path)?) != root.identity {
-        return Err(SourceError::Changed(path.0.clone()));
+    capture_header_once(root, path)
+}
+
+/// Observe only a regular file's identity for write-set alias detection.
+#[cfg(unix)]
+pub(crate) fn file_identity(
+    root: &Root,
+    path: &RelativePath,
+) -> Result<Option<FileIdentity>, SourceError> {
+    use cap_std::fs::MetadataExt;
+    let resolved = resolve_directory_links(root, path, true)?;
+    let directory = cap_std::fs::Dir::from_std_file(root.directory.try_clone()?);
+    let metadata = match directory.symlink_metadata(resolved.as_path()) {
+        Ok(metadata) => metadata,
+        Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(None),
+        Err(error) => return Err(error.into()),
+    };
+    if !metadata.is_file() {
+        return Err(SourceError::NonRegular(path.0.clone()));
     }
-    Ok(second)
+    Ok(Some(FileIdentity {
+        device: metadata.dev(),
+        inode: metadata.ino(),
+        mode: metadata.mode(),
+        size: metadata.size(),
+    }))
 }

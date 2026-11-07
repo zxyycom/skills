@@ -2,14 +2,16 @@
 //! owns safe source/dependency discovery and independent fresh/postverify.
 mod baseline;
 mod observation;
-pub(super) use observation::Observation;
+pub(super) use observation::{Observation, same_observations};
 mod publication;
 mod sources;
 pub(super) use baseline::{
     acquire as acquire_baseline, require_selection, resolve as resolve_selection,
 };
 
-pub(super) use publication::{prepare as prepare_publication, verify_index, verify_sources};
+pub(super) use publication::{
+    prepare as prepare_publication, verify_fresh_projection, verify_index, verify_sources,
+};
 pub(super) use sources::{SelectedFacts, SourceAdapter, SourceScope};
 
 use std::collections::{BTreeMap, BTreeSet, HashSet};

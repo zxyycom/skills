@@ -63,13 +63,6 @@ impl Journal {
         written: &[&SourceSnapshot],
     ) -> Result<(), TxError> {
         match entry {
-            Actual::MovedDirectory {
-                source,
-                destination,
-                before,
-                moved,
-                ..
-            } => moved_tree_still_matches(root, source, destination, before, moved),
             Actual::CreatedFile { snapshot } => {
                 if same_current_file(root, snapshot)? {
                     Ok(())
@@ -180,13 +173,6 @@ impl Journal {
 // Protect prior owned effects before a later removal can proceed.
 fn verify_live_entry(root: &Root, entry: &Actual) -> Result<(), TxError> {
     match entry {
-        Actual::MovedDirectory {
-            source,
-            destination,
-            before,
-            moved,
-            ..
-        } => moved_tree_still_matches(root, source, destination, before, moved),
         Actual::CreatedFile { snapshot } => verify_live_file(root, snapshot),
         Actual::CreatedDirectory { path, observed } => verify_live_directory(root, path, observed),
         _ => Ok(()),

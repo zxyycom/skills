@@ -21,20 +21,13 @@ impl TransactionOperation<PreparedSelected> for SelectedInvestigationSyncOperati
     }
     fn fresh(&mut self, root: &Root, plan: &Plan<PreparedSelected>) -> Result<(), TxError> {
         let fresh = self.stage(root)?;
-        if !fresh.evidence.equivalent(&plan.value.stage.evidence)
-            || fresh.target != plan.value.stage.target
-            || fresh.selected != plan.value.stage.selected
-            || fresh.checked != plan.value.stage.checked
-        {
-            return Err(selected_sync::source_failure(
-                fail(
-                    "source-changed",
-                    "selected facts changed before publication",
-                ),
-                Domain::Investigation,
-            ));
-        }
-        Ok(())
+        let before = &plan.value.stage;
+        selected_sync::verify_fresh_projection(
+            (&before.target, &before.selected, &before.checked),
+            (&fresh.target, &fresh.selected, &fresh.checked),
+            fresh.evidence.equivalent(&before.evidence),
+            Domain::Investigation,
+        )
     }
     fn verify(&mut self, root: &Root, plan: &Plan<PreparedSelected>) -> Result<(), TxError> {
         self.observation.phase.set(if plan.value.stage.needs_write {
@@ -76,7 +69,10 @@ impl TransactionOperation<PreparedSelected> for SelectedInvestigationSyncOperati
             .evidence
             .resources
             .equivalent(&plan.value.stage.evidence.resources)
-            || fresh.evidence.sources != plan.value.stage.evidence.sources
+            || !selected_sync::same_observations(
+                &fresh.evidence.sources,
+                &plan.value.stage.evidence.sources,
+            )
             || fresh.evidence.index.bytes != plan.value.stage.evidence.index.bytes
             || fresh.evidence.index.identity.mode != plan.value.stage.evidence.index.identity.mode
         {

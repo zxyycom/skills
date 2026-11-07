@@ -105,66 +105,22 @@ fn recover_entry(
     unknown: &mut Vec<RelativePath>,
 ) -> Result<(), String> {
     match entry {
-        Actual::MovedDirectory { .. } => recover_move(root, entry, unknown),
         // mkdir has no atomic creation handle: never delete an observed winner.
         Actual::CreatedDirectory { path, .. } => {
             unknown.push(path.clone());
             Ok(())
         }
-        Actual::CreatedFile { snapshot } => {
-            source::remove_if_matches(root, snapshot).map_err(|e| {
-                if e.effect == source::RemoveEffect::Unknown {
-                    unknown.push(snapshot.path.clone());
-                }
-                e.error.to_string()
-            })
-        }
+        Actual::CreatedFile { snapshot } => source::remove_if_owned(root, snapshot).map_err(|e| {
+            if e.effect != source::RemoveEffect::NotStarted {
+                unknown.push(snapshot.path.clone());
+            }
+            e.error.to_string()
+        }),
         Actual::RemovedFile { before } => recover_removed_file(root, before, unknown),
         Actual::RemovedDirectory { path, before } => {
             recover_removed_directory(root, path, before, unknown)
         }
     }
-}
-
-fn recover_move(
-    root: &Root,
-    entry: &Actual,
-    unknown: &mut Vec<RelativePath>,
-) -> Result<(), String> {
-    let Actual::MovedDirectory {
-        source,
-        destination,
-        before,
-        destination_before,
-        moved,
-        receipt,
-    } = entry
-    else {
-        unreachable!()
-    };
-
-    if let Err(failure) = receipt.restore(root) {
-        if failure.effect == source::MoveDirectoryEffect::Unknown {
-            unknown.push(source.clone());
-            unknown.push(destination.clone());
-        }
-        return Err(failure.error.to_string());
-    }
-    // A completed inverse still needs an independent readback.
-    // Preserve both paths as uncertain until all checks pass.
-    unknown.push(source.clone());
-    unknown.push(destination.clone());
-    let current = source::capture_tree(root, source).map_err(|e| e.to_string())?;
-    let dir = directory(root, source)
-        .map_err(|e| e.to_string())?
-        .ok_or("restored source missing")?;
-    let missing = source::capture_missing(root, destination).map_err(|e| e.to_string())?;
-    if !same_tree(moved, &current) || dir != **before || !destination_before.equivalent(&missing) {
-        return Err("restored tree or namespace did not verify".into());
-    }
-    unknown.pop();
-    unknown.pop();
-    Ok(())
 }
 
 fn recover_removed_file(

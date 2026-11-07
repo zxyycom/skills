@@ -13,6 +13,7 @@ mod backups_namespace;
 mod candidate_and_modes;
 mod capture_errors;
 mod freshness;
+mod freshness_effects;
 mod outcomes;
 mod owner_tree_moves;
 mod owner_tree_races;

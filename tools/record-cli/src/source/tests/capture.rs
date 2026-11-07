@@ -250,3 +250,72 @@ fn resource_root_and_owner_are_proven_without_following_links() {
         Err(SourceError::Symlink(_))
     ));
 }
+
+#[test]
+fn atomic_replace_compares_content_and_mode_and_preserves_external_hard_link() {
+    use std::os::unix::fs::PermissionsExt;
+    let workspace = tempfile::tempdir().unwrap();
+    let path = workspace.path().join("record.md");
+    let link = workspace.path().join("old-link.md");
+    std::fs::write(&path, b"old").unwrap();
+    std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o640)).unwrap();
+    let root = open_root(workspace.path()).unwrap();
+    let relative = RelativePath::new("record.md").unwrap();
+    let ExpectedFile::Present(before) = capture(&root, &relative).unwrap() else {
+        panic!()
+    };
+    // A different inode with the same content and permissions is not a conflict.
+    let replacement = workspace.path().join("replacement");
+    std::fs::write(&replacement, b"old").unwrap();
+    std::fs::set_permissions(&replacement, std::fs::Permissions::from_mode(0o640)).unwrap();
+    std::fs::rename(&replacement, &path).unwrap();
+    // The external link must refer to the current target at replacement time.
+    std::fs::hard_link(&path, &link).unwrap();
+    replace_if_matches(&root, &before, b"new").unwrap();
+    assert_eq!(std::fs::read(&path).unwrap(), b"new");
+    assert_eq!(std::fs::read(&link).unwrap(), b"old");
+    assert_eq!(
+        std::fs::metadata(&path).unwrap().permissions().mode() & 0o7777,
+        0o640
+    );
+    assert!(replace_if_matches(&root, &before, b"lost").is_err());
+    assert_eq!(std::fs::read(&path).unwrap(), b"new");
+}
+
+#[test]
+fn atomic_replace_rejects_readonly_even_when_directory_is_writable() {
+    use std::os::unix::fs::PermissionsExt;
+    let workspace = tempfile::tempdir().unwrap();
+    let path = workspace.path().join("record.md");
+    std::fs::write(&path, b"old").unwrap();
+    std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o444)).unwrap();
+    let root = open_root(workspace.path()).unwrap();
+    let relative = RelativePath::new("record.md").unwrap();
+    let ExpectedFile::Present(before) = capture(&root, &relative).unwrap() else {
+        panic!()
+    };
+    assert!(
+        matches!(replace_if_matches(&root, &before, b"new"), Err(ReplaceFailure { error: SourceError::Io(e), .. }) if e.kind() == std::io::ErrorKind::PermissionDenied)
+    );
+    assert_eq!(std::fs::read(&path).unwrap(), b"old");
+}
+
+#[test]
+fn owned_cleanup_never_deletes_equal_replacement() {
+    use std::os::unix::fs::PermissionsExt;
+    let workspace = tempfile::tempdir().unwrap();
+    let file = workspace.path().join("file");
+    std::fs::write(&file, b"same").unwrap();
+    std::fs::set_permissions(&file, std::fs::Permissions::from_mode(0o600)).unwrap();
+    let root = open_root(workspace.path()).unwrap();
+    let path = RelativePath::new("file").unwrap();
+    let ExpectedFile::Present(before) = capture(&root, &path).unwrap() else {
+        panic!()
+    };
+    let replacement = workspace.path().join("replacement");
+    std::fs::write(&replacement, b"same").unwrap();
+    std::fs::set_permissions(&replacement, std::fs::Permissions::from_mode(0o600)).unwrap();
+    std::fs::rename(replacement, &file).unwrap();
+    assert!(remove_if_owned(&root, &before).is_err());
+    assert_eq!(std::fs::read(file).unwrap(), b"same");
+}

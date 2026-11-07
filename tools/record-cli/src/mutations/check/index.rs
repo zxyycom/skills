@@ -79,13 +79,14 @@ impl IndexObservation<'_> {
         })?;
         match (index_identity, &existing) {
             (None, ExpectedFile::Missing) => {}
-            (Some(expected), ExpectedFile::Present(actual)) if expected == &actual.identity => {}
+            (Some(expected), ExpectedFile::Present(actual))
+                if expected.mode == actual.identity.mode => {}
             _ => {
                 return Err(attach_partial(
                     error(
                         "source-changed",
                         index_name,
-                        "index identity or membership changed during collection",
+                        "index mode or membership changed during collection",
                     ),
                     partial.clone(),
                 ));

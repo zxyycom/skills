@@ -35,16 +35,10 @@ pub(super) struct LockedExecution<'a, T, O> {
     pub(super) resource_journal: &'a mut resources::Journal,
 }
 impl<T, O: TransactionOperation<T>> LockedExecution<'_, T, O> {
-    fn execute(self, plan: &Plan<T>) -> Result<(), TxError> {
+    fn execute(mut self, plan: &Plan<T>) -> Result<(), TxError> {
         let reserved = plan_validation::validate(plan, self.lock_path)?;
         let fresh = fresh::prepare(self.root, plan, self.operation)?;
-        let writes = apply_resources(
-            self.root,
-            &fresh.resources,
-            &reserved,
-            self.resource_journal,
-            self.outcome,
-        );
+        let writes = self.apply_resources(&fresh.resources, plan, &reserved);
         let writes = writes.apply(writes::WriteContext {
             root: self.root,
             plan,
@@ -64,6 +58,9 @@ impl<T, O: TransactionOperation<T>> LockedExecution<'_, T, O> {
         mut writes: writes::WriteJournal,
     ) -> Result<(), TxError> {
         let mut failure = writes.failure.take();
+        if failure.is_none() && fresh.resources.has_moves() {
+            failure = self.retire_moves(plan, fresh).err();
+        }
         if failure.is_none() {
             match self.verify_after_writes(plan, fresh, &writes) {
                 Ok(()) => return Ok(()),
@@ -89,36 +86,73 @@ impl<T, O: TransactionOperation<T>> LockedExecution<'_, T, O> {
         .execute();
         Err(failure.expect("failure recorded"))
     }
+    fn retire_moves(
+        &mut self,
+        plan: &Plan<T>,
+        fresh: &fresh::FreshPlan<'_>,
+    ) -> Result<(), TxError> {
+        let previous = self.resource_journal.changed.len();
+        let previous_unknown = self.resource_journal.unknown.len();
+        let exit = fresh
+            .resources
+            .retire_moves(self.root, self.resource_journal);
+        self.outcome
+            .written_paths
+            .extend(self.resource_journal.changed[previous..].iter().cloned());
+        self.outcome.unknown_paths.extend(
+            self.resource_journal.unknown[previous_unknown..]
+                .iter()
+                .cloned(),
+        );
+        self.outcome.changed |= self.resource_journal.changed.len() > previous;
+        if fresh.resources.all_moves_exited(self.resource_journal)
+            && matches!(
+                plan.commit_point,
+                CommitPoint::Renamed { .. } | CommitPoint::Updated(_)
+            )
+        {
+            self.outcome.committed = true;
+        }
+        exit
+    }
 }
 
 // Back up and apply resource effects before ordinary writes; journal only actual effects.
-fn apply_resources<T>(
-    root: &Root,
-    resource_plan: &resources::Resources<'_>,
-    reserved: &std::collections::HashSet<RelativePath>,
-    resource_journal: &mut resources::Journal,
-    outcome: &mut TransactionOutcome<T>,
-) -> writes::WriteJournal {
-    let journal: Vec<Entry> = Vec::new();
-    let mut failure = resource_plan
-        .backup_removals(root, resource_journal, reserved)
-        .err();
-    if failure.is_none() {
-        failure = resource_plan.execute(root, resource_journal).err();
-    }
-    outcome.changed |= !resource_journal.changed.is_empty();
-    outcome
-        .written_paths
-        .extend(resource_journal.changed.iter().cloned());
-    outcome
-        .unknown_paths
-        .extend(resource_journal.unknown.iter().cloned());
-    let unknown = !resource_journal.unknown.is_empty();
-    let removed = Vec::new();
-    writes::WriteJournal {
-        entries: journal,
-        removed,
-        unknown,
-        failure,
+impl<T, O: TransactionOperation<T>> LockedExecution<'_, T, O> {
+    fn apply_resources(
+        &mut self,
+        resource_plan: &resources::Resources<'_>,
+        plan: &Plan<T>,
+        reserved: &std::collections::HashSet<RelativePath>,
+    ) -> writes::WriteJournal {
+        let root = self.root;
+        let resource_journal = &mut self.resource_journal;
+        let outcome = &mut self.outcome;
+        let journal: Vec<Entry> = Vec::new();
+        let mut failure = resource_plan
+            .backup_removals(root, resource_journal, reserved)
+            .err();
+        if failure.is_none() {
+            failure =
+                resources::Resources::backup_writes(root, plan, resource_journal, reserved).err();
+        }
+        if failure.is_none() {
+            failure = resource_plan.execute(root, resource_journal).err();
+        }
+        outcome.changed |= !resource_journal.changed.is_empty();
+        outcome
+            .written_paths
+            .extend(resource_journal.changed.iter().cloned());
+        outcome
+            .unknown_paths
+            .extend(resource_journal.unknown.iter().cloned());
+        let unknown = !resource_journal.unknown.is_empty();
+        let removed = Vec::new();
+        writes::WriteJournal {
+            entries: journal,
+            removed,
+            unknown,
+            failure,
+        }
     }
 }

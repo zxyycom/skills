@@ -6,7 +6,7 @@
 
 `tools/record-cli/README.md` 明确候选有两个二进制，生产维护和分发仍使用 TypeScript；本次验证平台为现有 Linux 候选，Windows 原生支持、manifest、CI 和 Windows 测试不属本次范围。`tools/record-operations/model.md` 描述现行共同事务，实施后须分层说明新候选与未改变的生产 TS。候选不承担发布、上线、入口切换、批量或常驻服务。
 
-只读审计依据：`source/file_write.rs` 和 `transaction/writes/update.rs` 当前以句柄原位更新并证明身份；`source/resolve.rs` 允许受管根内目录链接而不跟随最终文件链接；`transaction/model.rs`、`mutations/identity/*/change.rs` 和 `transaction/writes.rs` 区分创建、更新、退出、更名及索引发布提交点。`git/publish/attempt.rs`、`alternate.rs` 使用真实锁与备用 index；`protocol.md` 已有独立结果及恢复字段。这些是现状证据，以下是新候选设计。
+实施前只读审计的基线：`source/file_write.rs` 和 `transaction/writes/update.rs` 当时以句柄原位更新并证明身份；`source/resolve.rs` 允许受管根内目录链接而不跟随最终文件链接；`transaction/model.rs`、`mutations/identity/*/change.rs` 和 `transaction/writes.rs` 区分创建、更新、退出、更名及索引发布提交点。`git/publish/attempt.rs`、`alternate.rs` 使用真实锁与备用 index；`protocol.md` 已有独立结果及恢复字段。上述文件描述的是审计时的基线，不是实施后的现状；当前候选契约见 `tools/record-cli/protocol.md`。
 
 ## Goals / Non-Goals
 

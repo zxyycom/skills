@@ -63,7 +63,7 @@ fn prepare_lifecycle(
         .find(|write| &write.path == index_path)
         .map(|write| &write.before)
         .ok_or_else(|| failure("invalid-plan", "index proof missing"))?;
-    if &first != second {
+    if !crate::source::equivalent_file(&first, second) {
         return Err(failure("index-changed", "index changed during selection"));
     }
     Ok(plan)
@@ -233,7 +233,7 @@ fn same_writes(
     old.len() == fresh.len()
         && old.iter().zip(fresh).all(|(a, b)| {
             a.path == b.path
-                && a.before == b.before
+                && crate::source::equivalent_file(&a.before, &b.before)
                 && a.after == b.after
                 && match policy {
                     ModeEvidence::Absent => a.mode.is_none() && b.mode.is_none(),

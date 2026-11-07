@@ -4,17 +4,30 @@ use super::*;
 pub(crate) struct FileProof {
     pub path: RelativePath,
     pub identity: source::FileIdentity,
-    pub parents: Vec<source::FileIdentity>,
-    pub parent_paths: Vec<RelativePath>,
     pub bytes: Vec<u8>,
+}
+impl FileProof {
+    pub fn equivalent(&self, other: &Self) -> bool {
+        self.path == other.path
+            && self.bytes == other.bytes
+            && self.identity.mode == other.identity.mode
+    }
+}
+pub fn same_files(a: &[FileProof], b: &[FileProof]) -> bool {
+    a.len() == b.len() && a.iter().zip(b).all(|(a, b)| a.equivalent(b))
+}
+fn same_optional_file(a: &Option<FileProof>, b: &Option<FileProof>) -> bool {
+    match (a, b) {
+        (Some(a), Some(b)) => a.equivalent(b),
+        (None, None) => true,
+        _ => false,
+    }
 }
 impl From<&source::SourceSnapshot> for FileProof {
     fn from(value: &source::SourceSnapshot) -> Self {
         Self {
             path: value.path.clone(),
             identity: value.identity.clone(),
-            parents: value.parents.clone(),
-            parent_paths: value.parent_paths.clone(),
             bytes: value.bytes.clone(),
         }
     }
@@ -22,18 +35,21 @@ impl From<&source::SourceSnapshot> for FileProof {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct DirectoryProof {
     pub path: RelativePath,
-    pub identity: source::FileIdentity,
-    pub parents: Vec<source::FileIdentity>,
-    pub parent_paths: Vec<RelativePath>,
     pub members: Vec<DirectoryMember>,
 }
 impl DirectoryProof {
+    fn equivalent(&self, other: &Self) -> bool {
+        self.path == other.path
+            && self.members.len() == other.members.len()
+            && self
+                .members
+                .iter()
+                .zip(&other.members)
+                .all(|(a, b)| a.name == b.name && a.kind == b.kind)
+    }
     pub(super) fn from_listing(listing: &source::DirectorySnapshot, ignored: Option<&str>) -> Self {
         Self {
             path: listing.path.clone(),
-            identity: listing.identity.clone(),
-            parents: listing.parents.clone(),
-            parent_paths: listing.parent_paths.clone(),
             members: listing
                 .members
                 .iter()
@@ -48,6 +64,18 @@ pub(crate) struct DecisionProof {
     pub directories: Vec<DirectoryProof>,
     pub sources: Vec<FileProof>,
     pub index: Option<FileProof>,
+}
+impl DecisionProof {
+    pub fn sources_equivalent(&self, other: &Self) -> bool {
+        same_directories(&self.directories, &other.directories)
+            && same_files(&self.sources, &other.sources)
+    }
+    pub fn equivalent(&self, other: &Self) -> bool {
+        self.sources_equivalent(other) && same_optional_file(&self.index, &other.index)
+    }
+}
+fn same_directories(a: &[DirectoryProof], b: &[DirectoryProof]) -> bool {
+    a.len() == b.len() && a.iter().zip(b).all(|(a, b)| a.equivalent(b))
 }
 #[derive(Clone, Debug)]
 pub(crate) struct DecisionStage {
@@ -65,8 +93,8 @@ pub(crate) struct InvestigationProof {
 }
 impl InvestigationProof {
     pub fn sources_equivalent(&self, other: &Self) -> bool {
-        self.directories == other.directories
-            && self.sources == other.sources
+        same_directories(&self.directories, &other.directories)
+            && same_files(&self.sources, &other.sources)
             && match (&self.resources, &other.resources) {
                 (Some(a), Some(b)) => a.equivalent(b),
                 (None, None) => true,
@@ -74,7 +102,7 @@ impl InvestigationProof {
             }
     }
     pub fn equivalent(&self, other: &Self) -> bool {
-        self.sources_equivalent(other) && self.index == other.index
+        self.sources_equivalent(other) && same_optional_file(&self.index, &other.index)
     }
 }
 pub(crate) struct InvestigationStage {

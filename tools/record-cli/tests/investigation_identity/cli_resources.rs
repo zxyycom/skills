@@ -274,3 +274,98 @@ fn cli_owner_move_preserves_resources_and_platform_metadata() {
         false
     );
 }
+
+#[cfg(unix)]
+#[test]
+fn cli_resource_copy_write_failure_preserves_published_facts_and_reports_partial() {
+    use std::os::unix::process::CommandExt;
+    let dir = tempfile::tempdir().unwrap();
+    let c = dir.path().join("investigations");
+    let old_resource = c.join("_resources/261106-old/nested/file.txt");
+    std::fs::create_dir_all(old_resource.parent().unwrap()).unwrap();
+    let evidence = vec![b'e'; 8192];
+    std::fs::write(&old_resource, &evidence).unwrap();
+    let original = report("261106-old", true);
+    publish_fixture(&c, &[("261106-old", "old.md", original.clone())]);
+    let index = std::fs::read(c.join("investigation-index.json")).unwrap();
+    let mut command = std::process::Command::new(env!("CARGO_BIN_EXE_investigation-report"));
+    command
+        .args(["rename", "261106-old", "new", "--root"])
+        .arg(dir.path())
+        .args(["--investigations-dir", "investigations", "--json"]);
+    // Limit only the child: directory creation succeeds, but copied file data cannot be written.
+    unsafe {
+        command.pre_exec(|| {
+            libc::signal(libc::SIGXFSZ, libc::SIG_IGN);
+            let limit = libc::rlimit {
+                rlim_cur: 4096,
+                rlim_max: 4096,
+            };
+            if libc::setrlimit(libc::RLIMIT_FSIZE, &limit) != 0 {
+                return Err(std::io::Error::last_os_error());
+            }
+            Ok(())
+        });
+    }
+    let output = command.output().unwrap();
+    assert_eq!(
+        output.status.code(),
+        Some(1),
+        "{}",
+        String::from_utf8_lossy(&output.stdout)
+    );
+    let response: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(response["ok"], false);
+    assert_eq!(response["error"]["code"], "resource-write");
+    assert!(response["error"]["recovery"].as_str().is_some());
+    let result = &response["result"];
+    assert_eq!(result["changed"], true);
+    assert_eq!(result["committed"], false);
+    assert_eq!(result["outcome"], "partial-or-unknown");
+    assert_eq!(result["verification"], "not-run");
+    let partial = "investigations/_resources/261106-new/nested/file.txt";
+    assert!(
+        result["writtenPaths"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|v| v == partial)
+    );
+    assert!(
+        result["unknownPaths"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|v| v == partial)
+    );
+    assert_eq!(
+        std::fs::read(dir.path().join(partial)).unwrap(),
+        evidence[..4096]
+    );
+    let backups = result["recoveryBackups"].as_array().unwrap();
+    assert_eq!(backups.len(), 2);
+    for (source, expected) in [
+        ("investigations/old.md", original.as_bytes()),
+        ("investigations/investigation-index.json", index.as_slice()),
+    ] {
+        let backup = backups
+            .iter()
+            .find(|entry| entry["source"] == source)
+            .unwrap();
+        assert_ne!(backup["backup"], partial);
+        assert_eq!(
+            std::fs::read(dir.path().join(backup["backup"].as_str().unwrap())).unwrap(),
+            expected
+        );
+    }
+    assert_eq!(
+        std::fs::read(c.join("old.md")).unwrap(),
+        original.as_bytes()
+    );
+    assert_eq!(
+        std::fs::read(c.join("investigation-index.json")).unwrap(),
+        index
+    );
+    assert_eq!(std::fs::read(old_resource).unwrap(), evidence);
+    assert!(!c.join("new.md").exists());
+}

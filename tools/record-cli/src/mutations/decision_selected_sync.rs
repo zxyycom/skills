@@ -20,6 +20,12 @@ struct Evidence {
     index: FileProof,
     sources: Vec<Observation>,
 }
+impl Evidence {
+    fn equivalent(&self, other: &Self) -> bool {
+        self.index.equivalent(&other.index)
+            && selected_sync::same_observations(&self.sources, &other.sources)
+    }
+}
 #[derive(Clone, Debug)]
 struct Stage {
     evidence: Evidence,
@@ -192,7 +198,7 @@ impl SelectedDecisionSyncOperation {
     pub fn preflight(&self, root: &Root) -> Result<SelectedSyncResult, TxError> {
         let first = self.stage(root)?;
         let second = self.stage(root)?;
-        if first.evidence != second.evidence
+        if !first.evidence.equivalent(&second.evidence)
             || first.target != second.target
             || first.selected != second.selected
             || first.checked != second.checked
@@ -260,20 +266,13 @@ impl TransactionOperation<PreparedSelected> for SelectedDecisionSyncOperation {
     }
     fn fresh(&mut self, root: &Root, plan: &Plan<PreparedSelected>) -> Result<(), TxError> {
         let fresh = self.stage(root)?;
-        if fresh.evidence != plan.value.stage.evidence
-            || fresh.target != plan.value.stage.target
-            || fresh.selected != plan.value.stage.selected
-            || fresh.checked != plan.value.stage.checked
-        {
-            return Err(selected_sync::source_failure(
-                fail(
-                    "source-changed",
-                    "selected facts changed before publication",
-                ),
-                Domain::Decision,
-            ));
-        }
-        Ok(())
+        let before = &plan.value.stage;
+        selected_sync::verify_fresh_projection(
+            (&before.target, &before.selected, &before.checked),
+            (&fresh.target, &fresh.selected, &fresh.checked),
+            fresh.evidence.equivalent(&before.evidence),
+            Domain::Decision,
+        )
     }
     fn verify(&mut self, root: &Root, plan: &Plan<PreparedSelected>) -> Result<(), TxError> {
         self.observation.phase.set(if plan.value.stage.needs_write {
@@ -298,8 +297,10 @@ impl TransactionOperation<PreparedSelected> for SelectedDecisionSyncOperation {
         plan: &Plan<PreparedSelected>,
     ) -> Result<(), TxError> {
         let fresh = self.stage(root)?;
-        if fresh.evidence.sources != plan.value.stage.evidence.sources
-            || fresh.evidence.index.bytes != plan.value.stage.evidence.index.bytes
+        if !selected_sync::same_observations(
+            &fresh.evidence.sources,
+            &plan.value.stage.evidence.sources,
+        ) || fresh.evidence.index.bytes != plan.value.stage.evidence.index.bytes
             || fresh.evidence.index.identity.mode != plan.value.stage.evidence.index.identity.mode
         {
             return Err(fail(

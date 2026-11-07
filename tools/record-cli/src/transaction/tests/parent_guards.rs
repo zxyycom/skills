@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn missing_parent_replacement_between_prepare_and_fresh_is_rejected() {
+fn missing_parent_replacement_before_fresh_uses_safe_current_parent() {
     struct SwapParent;
     impl TransactionOperation<()> for SwapParent {
         fn prepare(&mut self, _: &Root) -> Result<Plan<()>, TxError> {
@@ -40,10 +40,12 @@ fn missing_parent_replacement_between_prepare_and_fresh_is_rejected() {
     let root = crate::source::open_root(dir.path()).unwrap();
     let result = run_transaction(&root, &RelativePath::new(".lock").unwrap(), &mut SwapParent);
     {
-        assert_eq!(result.status, TxStatus::Error);
-        assert_eq!(result.errors[0].code, "source-changed");
-        assert!(!result.changed && !result.committed);
-        assert!(!dir.path().join("parent/item.md").exists());
+        assert_eq!(result.status, TxStatus::Ok, "{:?}", result.errors);
+        assert!(result.changed && result.committed);
+        assert_eq!(
+            std::fs::read(dir.path().join("parent/item.md")).unwrap(),
+            b"new"
+        );
         assert_eq!(
             std::fs::read(dir.path().join("old-parent/sentinel")).unwrap(),
             b"keep"

@@ -22,7 +22,10 @@ impl<S> ObservedIndexes<S> {
         root: &Root,
         index_path: &RelativePath,
     ) -> Result<(), IndexStageError> {
-        if source::capture(root, index_path).map_err(IndexStageError::Source)? != self.workspace {
+        if !source::equivalent_file(
+            &source::capture(root, index_path).map_err(IndexStageError::Source)?,
+            &self.workspace,
+        ) {
             return Err(IndexStageError::Drift);
         }
         Ok(())

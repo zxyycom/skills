@@ -134,8 +134,8 @@ fn capture_member(
     let ExpectedFile::Present(file) = observed else {
         return Err(error("source-changed", name, "source disappeared"));
     };
-    if file.identity != member.identity {
-        return Err(error("source-changed", name, "source identity changed"));
+    if file.identity.mode != member.identity.mode {
+        return Err(error("source-changed", name, "source mode changed"));
     }
     Ok(file)
 }

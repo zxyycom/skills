@@ -31,7 +31,6 @@ impl TransactionOperation<PreparedIdentity> for CompeteBeforeRollback {
     }
     fn before_write(&mut self, root: &Root, _: usize) -> Result<(), TxError> {
         let path = root.path().join("investigations/_resources/261106-old");
-        std::fs::create_dir(&path).map_err(|e| fail("fixture", e))?;
         std::fs::write(path.join("winner.txt"), b"concurrent").map_err(|e| fail("fixture", e))?;
         Err(fail("injected", "competing owner before rollback"))
     }
@@ -47,7 +46,7 @@ impl TransactionOperation<PreparedIdentity> for CompeteBeforeRollback {
     }
 }
 #[test]
-fn competing_old_owner_prevents_rollback_and_preserves_both_sides() {
+fn competing_old_owner_preserves_source_and_exclusive_copy() {
     let dir = tempfile::tempdir().unwrap();
     let c = dir.path().join("investigations");
     std::fs::create_dir_all(c.join("_resources/261106-old")).unwrap();
@@ -84,18 +83,20 @@ fn competing_old_owner_prevents_rollback_and_preserves_both_sides() {
         std::fs::read(c.join("_resources/261106-new/file.txt")).unwrap(),
         b"original"
     );
-    assert_eq!(out.recovery_backups.len(), 1, "{out:?}");
     assert_eq!(
-        std::fs::read(dir.path().join(out.recovery_backups[0].backup.as_path())).unwrap(),
+        std::fs::read(c.join("_resources/261106-old/file.txt")).unwrap(),
         b"original"
     );
+    assert!(out.changed);
+    assert!(out.written_paths.iter().any(|path| path.as_path()
+        == std::path::Path::new("investigations/_resources/261106-new/file.txt")));
     assert_eq!(
         std::fs::read_to_string(c.join("_candidate.old")).unwrap(),
         text
     );
 }
 #[test]
-fn failure_before_source_write_restores_moved_owner() {
+fn failure_before_source_write_preserves_source_and_reports_copy() {
     let dir = tempfile::tempdir().unwrap();
     let c = dir.path().join("investigations");
     std::fs::create_dir_all(c.join("_resources/261106-old")).unwrap();
@@ -129,7 +130,7 @@ fn failure_before_source_write_restores_moved_owner() {
     assert!(out.value.is_none());
     assert_eq!(
         out.outcome,
-        crate::transaction::RecoveryStatus::RolledBack,
+        crate::transaction::RecoveryStatus::PartialOrUnknown,
         "{out:?}"
     );
     assert_eq!(
@@ -140,6 +141,12 @@ fn failure_before_source_write_restores_moved_owner() {
         std::fs::read(c.join("_resources/261106-old/file.txt")).unwrap(),
         b"original"
     );
-    assert!(!c.join("_resources/261106-new").exists());
-    assert!(out.recovery_backups.is_empty());
+    assert_eq!(
+        std::fs::read(c.join("_resources/261106-new/file.txt")).unwrap(),
+        b"original"
+    );
+    assert!(out.changed);
+    assert!(out.written_paths.iter().any(|path| path.as_path()
+        == std::path::Path::new("investigations/_resources/261106-new/file.txt")));
+    assert!(out.unknown_paths.is_empty(), "{out:?}");
 }

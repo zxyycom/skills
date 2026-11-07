@@ -2,7 +2,7 @@
 
 本 owner 为 Decision Records（DR）与 Investigation Report（IR）维护共同操作编排、同阶段证明交接和失败边界。依赖方向为 `DR / IR → record-operations → index-runtime / shared`；两个领域保留各自的 skill、CLI、公开程序化边界、持久格式和独立分发。
 
-共同事实、范围与阶段证明的阅读骨架见[共同记录操作模型](model.md)；本页承接维护入口和精确实现约束。
+共同事实、范围与阶段证明的阅读骨架见[共同记录操作模型](model.md)；本页承接现行生产 TypeScript 的维护入口和精确实现约束；Rust 候选的实现与文件保障见[候选维护入口](../record-cli/README.md)及[候选协议](../record-cli/protocol.md#事务编码和恢复)，不因候选变化修改生产保证。
 
 ## 操作入口与责任
 
@@ -77,7 +77,7 @@ worker 从同一 skill 安装内的 URL 启动，分发包含其模块闭包，�
 
 越过提交点不自动回滚。提交后验收失败或未知，保留已知 committed/changed，报告 `partial-or-unknown`；验收通过且仅清理或解锁未完，才是 `committed-cleanup-pending`。收尾失败非零，保留真实 mutation 和路径，分别诊断多个失败，不返回成功 review 或建议直接重试。无写入而解锁失败同样非零，但不虚构 committed。
 
-提交前恢复只撤销仍匹配本事务 written bytes/identity/mode 的实际写集；旧路径仅缺失时独占恢复，索引同样 CAS。未写成员和后来编辑/新建的 winner 不被覆盖。只有完整旧范围与未选保护均已证明才报告 `rolled-back`；否则保留现场人工对账。此机制不承诺非合作外部编辑的原子隔离。
+提交前恢复只撤销仍匹配本事务 written bytes/identity/mode 的实际写集；旧路径仅缺失时独占恢复，索引同样 CAS。未写成员和后来编辑/新建的 winner 不被覆盖。只有完整旧范围与未选保护均已证明才报告 `rolled-back`；否则保留现场人工对账。这些条件检查不是对任意非合作外部编辑的原子 CAS：比较与实际写入之间仍有竞争窗口，不承诺跨文件原子隔离。
 
 ### 创建权限与实际句柄证明
 

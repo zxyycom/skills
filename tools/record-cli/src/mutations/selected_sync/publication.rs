@@ -73,7 +73,7 @@ pub(in crate::mutations) fn verify_sources(
     sources: &[Observation],
 ) -> Result<(), TxError> {
     for expected in sources {
-        if observe(root, expected.path())? != *expected {
+        if !observe(root, expected.path())?.equivalent(expected) {
             return Err(fail("postverify", "selected source changed"));
         }
     }
@@ -92,7 +92,7 @@ pub(in crate::mutations) fn verify_index<D: DomainDefinition>(
     else {
         return Err(fail("postverify", "index is missing"));
     };
-    if file.bytes != target {
+    if file.bytes != target || file.identity.mode != index.identity.mode {
         return Err(fail("postverify", "index bytes differ from proposal"));
     }
     let index =
@@ -101,4 +101,23 @@ pub(in crate::mutations) fn verify_index<D: DomainDefinition>(
         .graph(domain)
         .map_err(|e| fail("postverify", e.to_string()))?;
     Ok(())
+}
+
+// Compare the selected projection independently of domain-specific evidence.
+pub(in crate::mutations) fn verify_fresh_projection(
+    before: (&[u8], &[String], &[String]),
+    after: (&[u8], &[String], &[String]),
+    evidence_equal: bool,
+    domain: crate::source_revision::Domain,
+) -> Result<(), crate::transaction::TxError> {
+    if evidence_equal && before == after {
+        return Ok(());
+    }
+    Err(super::source_failure(
+        crate::transaction::TxError::new(
+            "source-changed",
+            "selected facts changed before publication",
+        ),
+        domain,
+    ))
 }

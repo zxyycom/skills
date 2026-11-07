@@ -3,7 +3,7 @@ mod files;
 use super::*;
 use crate::source::{
     CreateEffect, CreateMode, RemoveEffect, Root, capture, capture_missing, create_exclusive,
-    finalize_created_mode, identity_from_handle, open_verified_for_update, remove_if_matches,
+    finalize_created_mode, identity_from_handle, replace_if_matches,
 };
 
 pub(super) struct Recovery<'a, 'p, T, O> {
@@ -17,7 +17,9 @@ pub(super) struct Recovery<'a, 'p, T, O> {
 }
 impl<T, O: TransactionOperation<T>> Recovery<'_, '_, T, O> {
     pub fn execute(mut self) {
-        if self.outcome.committed {
+        if self.outcome.committed
+            || (self.fresh.resources.has_moves() && !self.resource_journal.changed.is_empty())
+        {
             self.outcome.outcome = RecoveryStatus::PartialOrUnknown;
         } else if !self.writes.entries.is_empty()
             || !self.resource_journal.changed.is_empty()
@@ -97,21 +99,13 @@ fn recover_resources<T>(
 fn verify_original_scope<T>(
     root: &Root,
     plan: &Plan<T>,
-    recreated: &std::collections::HashSet<RelativePath>,
+    _recreated: &std::collections::HashSet<RelativePath>,
 ) -> Vec<Diagnostic> {
     let mut errors = Vec::new();
     for (path, expected) in protected_sources(plan) {
-        let matches_original = match (capture(root, path), expected) {
-            (Ok(ExpectedFile::Present(actual)), ExpectedFile::Present(before))
-                if recreated.contains(path) =>
-            {
-                actual.bytes == before.bytes
-                    && actual.identity.mode == before.identity.mode
-                    && actual.parents == before.parents
-                    && actual.parent_paths == before.parent_paths
-            }
-            (Ok(actual), _) => &actual == expected,
-            (Err(error), _) => {
+        let matches_original = match capture(root, path) {
+            Ok(actual) => crate::source::equivalent_file(&actual, expected),
+            Err(error) => {
                 errors.push(diagnostic(
                     "recovery-verification",
                     format!("{}: {error}", path.as_path().display()),

@@ -168,8 +168,7 @@ impl TransactionOperation<()> for OwnerTreeMove {
             )
         {
             if matches!(self, Self::RecreateOriginal) {
-                std::fs::create_dir(root.path().join("_resources/old")).unwrap();
-                std::fs::write(root.path().join("_resources/old/winner"), b"winner").unwrap();
+                std::fs::write(root.path().join("_resources/old/nested/item"), b"winner").unwrap();
             } else if matches!(self, Self::EditDestination) {
                 std::fs::write(
                     root.path().join("_resources/new/nested/item"),

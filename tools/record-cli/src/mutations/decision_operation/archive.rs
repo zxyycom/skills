@@ -85,7 +85,10 @@ fn capture_archive_plan(
         &operation.index_path,
         edits,
     )?;
-    if archive_before != archive_evidence(root, &operation.collection)? {
+    if !crate::mutations::same_directory(
+        &archive_before,
+        &archive_evidence(root, &operation.collection)?,
+    ) {
         return Err(failure(
             "source-changed",
             "archive directory changed during preparation",
@@ -104,7 +107,7 @@ fn capture_archive_plan(
         .find(|write| write.path == operation.index_path)
         .map(|write| &write.before)
         .ok_or_else(|| failure("invalid-plan", "index proof missing"))?;
-    if first != second {
+    if !crate::source::equivalent_file(first, second) {
         return Err(failure("index-changed", "index changed during selection"));
     }
     Ok(ArchivePlan {
@@ -221,7 +224,10 @@ impl TransactionOperation<PreparedArchive> for ArchiveOperation {
     fn fresh(&mut self, root: &Root, plan: &Plan<PreparedArchive>) -> Result<(), TxError> {
         let fresh = self.prepare_phase(root)?;
         let same = plan.value.history == fresh.value.history
-            && plan.value.archive_evidence == fresh.value.archive_evidence
+            && crate::mutations::same_directory(
+                &plan.value.archive_evidence,
+                &fresh.value.archive_evidence,
+            )
             && same_writes(&plan.writes, &fresh.writes, ModeEvidence::Equal);
         if !same {
             return Err(failure(

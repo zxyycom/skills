@@ -1,6 +1,13 @@
 //! Exclusive file creation, initialization, and readback.
 use super::*;
 
+#[cfg(test)]
+thread_local! { static FAIL_INITIALIZE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) }; }
+#[cfg(test)]
+pub(in crate::transaction) fn fail_initialize_for_test() {
+    FAIL_INITIALIZE.with(|slot| slot.set(true));
+}
+
 // Exclusive creation succeeded, but its bytes and representation still need readback.
 struct EstablishedWrite<'a> {
     index: usize,
@@ -19,7 +26,6 @@ impl WriteJournal {
     ) -> Result<(), TxError> {
         let WriteContext {
             root,
-            plan,
             outcome,
             resource_journal,
             missing,
@@ -37,11 +43,8 @@ impl WriteJournal {
             }
             TxError::new("create", error.error.to_string())
         })?;
-        // Exclusive establishment is the candidate-create commit point,
-        // even if populating or verifying its actual handle later fails.
+        // Establishment is an actual write; creation commits only after readback.
         outcome.changed = true;
-        outcome.committed =
-            matches!(&plan.commit_point, CommitPoint::Created(path) if *path == write.path);
         outcome.written_paths.push(write.path.clone());
         self.populate_created(
             context,
@@ -82,16 +85,18 @@ impl WriteJournal {
             outcome.committed = true;
         }
         match readback_created(root, &write.path, after, &created.identity, &handle) {
-            Some(snapshot) => self.entries.push(Entry::Written(index, snapshot)),
-            None => {
+            Ok(snapshot) => {
+                self.entries.push(Entry::Written(index, snapshot));
+                if matches!(&plan.commit_point, CommitPoint::Created(path) if *path == write.path) {
+                    outcome.committed = true;
+                }
+            }
+            Err(error) => {
                 self.unknown = true;
                 outcome.unknown_paths.push(write.path.clone());
                 return Err(TxError::new(
                     "write-readback",
-                    format!(
-                        "created file could not be verified: {}",
-                        write.path.as_path().display()
-                    ),
+                    format!("{}: {error}", write.path.as_path().display()),
                 ));
             }
         }
@@ -106,6 +111,13 @@ fn initialize_created(
     after: &[u8],
     mode: CreateMode,
 ) -> Result<(), TxError> {
+    #[cfg(test)]
+    if FAIL_INITIALIZE.with(|slot| slot.replace(false)) {
+        return Err(TxError::new(
+            "write-unknown",
+            "injected create initialization failure",
+        ));
+    }
     if let Err(error) = write_synced(handle, after) {
         return Err(TxError::new("write-unknown", error.to_string()));
     }
@@ -150,16 +162,20 @@ fn readback_created(
     bytes: &[u8],
     created: &crate::source::FileIdentity,
     handle: &std::fs::File,
-) -> Option<crate::source::SourceSnapshot> {
-    match (capture(root, path), identity_from_handle(handle)) {
-        (Ok(ExpectedFile::Present(snapshot)), Ok(identity))
+) -> Result<crate::source::SourceSnapshot, crate::source::SourceError> {
+    let actual = capture(root, path)?;
+    let identity = identity_from_handle(handle)?;
+    match actual {
+        ExpectedFile::Present(snapshot)
             if snapshot.identity == identity
                 && identity.device == created.device
                 && identity.inode == created.inode
                 && snapshot.bytes == *bytes =>
         {
-            Some(snapshot)
+            Ok(snapshot)
         }
-        _ => None,
+        _ => Err(crate::source::SourceError::Changed(
+            path.as_path().to_path_buf(),
+        )),
     }
 }

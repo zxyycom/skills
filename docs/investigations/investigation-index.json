@@ -1405,6 +1405,26 @@
       ],
       "title": "Rust 记录工具 Windows 原生兼容性调查"
     },
+    "261107-rust-record-transaction-io": {
+      "formedAt": "2026-11-07T03:14:25Z",
+      "name": "rust-record-transaction-io",
+      "question": "相同私有记录与操作下，事务改造前后的普通更新和资源迁移产生怎样的进程 I/O 代价与实际结果？",
+      "relations": [],
+      "resourceIds": [
+        "261107-rust-record-transaction-io/baseline.jsonl",
+        "261107-rust-record-transaction-io/calibration.json",
+        "261107-rust-record-transaction-io/final.jsonl",
+        "261107-rust-record-transaction-io/measure.py"
+      ],
+      "sourcePath": "261107-rust-record-transaction-io.md",
+      "tags": [
+        "benchmarking",
+        "io",
+        "record-cli",
+        "rust"
+      ],
+      "title": "Rust 记录事务改造前后 I/O 对照"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -2127,6 +2147,7 @@
       "261106-rust-transaction-namespace-race": "sha256:3a2f6b27fe32c95d72cc6383bdd102296e7975ef3efbd4723d245aeae1eae88d",
       "261106-rust-verification-error-causes": "sha256:3a4d1a073c8f1811e33b5a8ee536181362618bb281c29181f5ef2c59b204b95d",
       "261106-rust-windows-native-compatibility": "sha256:e6837963e21bae8298cdd5748c6c8b05e7df0740de9dc27d2a65b7299cf8e573",
+      "261107-rust-record-transaction-io": "sha256:49a86b163d6ffa48b701b62528fca0c781d57b72fd0fdfe9748eafc7fc8e8da9",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:512b8f0c5b6466034d7d851032bf41af7413a227bdd19c62959fc2ad343d495c",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

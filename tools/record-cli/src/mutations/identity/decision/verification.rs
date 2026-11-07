@@ -5,9 +5,12 @@ impl TransactionOperation<PreparedIdentity> for DecisionIdentityOperation {
         self.phase(root)
     }
     fn fresh(&mut self, root: &Root, plan: &Plan<PreparedIdentity>) -> Result<(), TxError> {
-        let now = self.phase(root)?;
-        super::super::verify_fresh(plan.value.evidence == now.value.evidence, plan, &now)?;
-        Ok(())
+        super::super::fresh_phase(
+            root,
+            plan,
+            |root| self.phase(root),
+            |before, after| before.evidence.equivalent(&after.evidence),
+        )
     }
     fn verify(&mut self, root: &Root, plan: &Plan<PreparedIdentity>) -> Result<(), TxError> {
         super::super::verify_written_files(root, plan)?;

@@ -96,13 +96,12 @@ impl TransactionOperation<PreparedIdentity> for InvestigationIdentityOperation {
         self.phase(root)
     }
     fn fresh(&mut self, root: &Root, plan: &Plan<PreparedIdentity>) -> Result<(), TxError> {
-        let now = self.phase(root)?;
-        super::super::verify_fresh(
-            plan.value.evidence.equivalent(&now.value.evidence),
+        super::super::fresh_phase(
+            root,
             plan,
-            &now,
-        )?;
-        Ok(())
+            |root| self.phase(root),
+            |before, after| before.evidence.equivalent(&after.evidence),
+        )
     }
     fn verify(&mut self, root: &Root, plan: &Plan<PreparedIdentity>) -> Result<(), TxError> {
         super::super::verify_written_files(root, plan)?;

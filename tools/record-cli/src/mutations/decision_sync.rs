@@ -34,7 +34,7 @@ fn map_error(error: super::check::CheckError) -> TxError {
     failure(error.code, format!("{}: {}", error.path, error.message))
 }
 fn same_source_proof(a: &DecisionProof, b: &DecisionProof) -> bool {
-    a.directories == b.directories && a.sources == b.sources
+    a.sources_equivalent(b)
 }
 impl DecisionSyncOperation {
     fn stage(&self, root: &Root) -> Result<DecisionStage, TxError> {
@@ -44,7 +44,7 @@ impl DecisionSyncOperation {
     pub fn preflight(&self, root: &Root) -> Result<SyncResult, TxError> {
         let first = self.stage(root)?;
         let second = self.stage(root)?;
-        if first.proof != second.proof
+        if !first.proof.equivalent(&second.proof)
             || first.target != second.target
             || first.needs_write != second.needs_write
         {
@@ -104,7 +104,7 @@ impl TransactionOperation<PreparedSync> for DecisionSyncOperation {
     }
     fn fresh(&mut self, root: &Root, plan: &Plan<PreparedSync>) -> Result<(), TxError> {
         let actual = self.stage(root)?;
-        if actual.proof != plan.value.stage.proof
+        if !actual.proof.equivalent(&plan.value.stage.proof)
             || actual.target != plan.value.stage.target
             || actual.needs_write != plan.value.stage.needs_write
         {

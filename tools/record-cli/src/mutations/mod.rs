@@ -28,3 +28,41 @@ pub mod selected_sync;
 
 #[cfg(test)]
 mod tests;
+
+// Freshness compares observable facts, not incidental inode or parent-chain identity.
+fn same_directory(
+    a: &crate::source::DirectorySnapshot,
+    b: &crate::source::DirectorySnapshot,
+) -> bool {
+    a.path == b.path
+        && a.members.len() == b.members.len()
+        && a.members
+            .iter()
+            .zip(&b.members)
+            .all(|(a, b)| a.name == b.name && a.kind == b.kind)
+}
+fn same_header(a: &crate::source::HeaderSnapshot, b: &crate::source::HeaderSnapshot) -> bool {
+    a.path == b.path && a.bytes == b.bytes && a.identity.mode == b.identity.mode
+}
+fn same_headers(a: &[crate::source::HeaderSnapshot], b: &[crate::source::HeaderSnapshot]) -> bool {
+    a.len() == b.len() && a.iter().zip(b).all(|(a, b)| same_header(a, b))
+}
+fn same_named_headers(
+    a: &[(String, crate::source::HeaderSnapshot)],
+    b: &[(String, crate::source::HeaderSnapshot)],
+) -> bool {
+    a.len() == b.len()
+        && a.iter()
+            .zip(b)
+            .all(|((an, a), (bn, b))| an == bn && same_header(a, b))
+}
+fn same_optional_directory(
+    a: &Option<crate::source::DirectorySnapshot>,
+    b: &Option<crate::source::DirectorySnapshot>,
+) -> bool {
+    match (a, b) {
+        (Some(a), Some(b)) => same_directory(a, b),
+        (None, None) => true,
+        _ => false,
+    }
+}

@@ -56,6 +56,16 @@ struct Evidence {
     history: decision_history::HistoryEvidence,
     discard_history: Option<(Option<String>, bool)>,
 }
+impl Evidence {
+    fn equivalent(&self, other: &Self) -> bool {
+        super::super::same_directory(&self.listing, &other.listing)
+            && super::super::same_optional_directory(&self.archive, &other.archive)
+            && super::super::same_named_headers(&self.headers, &other.headers)
+            && self.history == other.history
+            && self.discard_history == other.discard_history
+    }
+}
+
 fn fail(code: &str, message: impl ToString) -> TxError {
     TxError::new(code, message.to_string())
 }

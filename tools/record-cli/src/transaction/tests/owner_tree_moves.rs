@@ -90,7 +90,7 @@ fn owner_tree_move_target_winner_is_not_overwritten() {
     );
 }
 #[test]
-fn owner_tree_move_preindex_failure_conditionally_restores_original_tree() {
+fn owner_tree_move_preindex_failure_retains_source_copy_and_backups() {
     let (dir, root) = owner_tree_fixture();
     let result = run_transaction(
         &root,
@@ -101,7 +101,7 @@ fn owner_tree_move_preindex_failure_conditionally_restores_original_tree() {
     assert!(!result.committed);
     assert_eq!(
         result.outcome,
-        RecoveryStatus::RolledBack,
+        RecoveryStatus::PartialOrUnknown,
         "{:?}",
         result.cleanup_errors
     );
@@ -111,12 +111,23 @@ fn owner_tree_move_preindex_failure_conditionally_restores_original_tree() {
         std::fs::read(dir.path().join("_resources/old/nested/item")).unwrap(),
         b"old resource"
     );
-    assert!(!dir.path().join("_resources/new").exists());
+    assert_eq!(
+        std::fs::read(dir.path().join("_resources/new/nested/item")).unwrap(),
+        b"old resource"
+    );
     assert_eq!(
         std::fs::read(dir.path().join("record.md")).unwrap(),
+        b"new record"
+    );
+    let backup = result
+        .recovery_backups
+        .iter()
+        .find(|b| b.source == RelativePath::new("record.md").unwrap())
+        .unwrap();
+    assert_eq!(
+        std::fs::read(dir.path().join(backup.backup.as_path())).unwrap(),
         b"old record"
     );
-    assert!(result.recovery_backups.is_empty());
 }
 #[test]
 fn owner_tree_move_postcommit_failure_keeps_moved_tree_and_verified_backup() {
@@ -138,10 +149,14 @@ fn owner_tree_move_postcommit_failure_keeps_moved_tree_and_verified_backup() {
         std::fs::read(dir.path().join("index.json")).unwrap(),
         b"new index"
     );
-    assert_eq!(result.recovery_backups.len(), 1);
+    let backup = result
+        .recovery_backups
+        .iter()
+        .find(|b| b.source == RelativePath::new("index.json").unwrap())
+        .unwrap();
     assert_eq!(
-        std::fs::read(dir.path().join(result.recovery_backups[0].backup.as_path())).unwrap(),
-        b"old resource"
+        std::fs::read(dir.path().join(backup.backup.as_path())).unwrap(),
+        b"old index"
     );
 }
 #[test]
@@ -162,7 +177,7 @@ fn owner_tree_move_recovery_never_overwrites_recreated_original_or_edited_target
         assert_eq!(result.outcome, RecoveryStatus::PartialOrUnknown);
         if original {
             assert_eq!(
-                std::fs::read(dir.path().join("_resources/old/winner")).unwrap(),
+                std::fs::read(dir.path().join("_resources/old/nested/item")).unwrap(),
                 b"winner"
             );
             assert_eq!(
@@ -170,16 +185,20 @@ fn owner_tree_move_recovery_never_overwrites_recreated_original_or_edited_target
                 b"old resource"
             );
         } else {
-            assert!(!dir.path().join("_resources/old").exists());
+            assert!(dir.path().join("_resources/old/nested/item").exists());
             assert_eq!(
                 std::fs::read(dir.path().join("_resources/new/nested/item")).unwrap(),
                 b"later edit"
             );
         }
-        assert_eq!(result.recovery_backups.len(), 1);
+        let backup = result
+            .recovery_backups
+            .iter()
+            .find(|b| b.source == RelativePath::new("record.md").unwrap())
+            .unwrap();
         assert_eq!(
-            std::fs::read(dir.path().join(result.recovery_backups[0].backup.as_path())).unwrap(),
-            b"old resource"
+            std::fs::read(dir.path().join(backup.backup.as_path())).unwrap(),
+            b"old record"
         );
     }
 }

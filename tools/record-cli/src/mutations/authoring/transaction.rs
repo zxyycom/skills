@@ -15,9 +15,9 @@ impl TransactionOperation<PreparedNew> for NewOperation {
             _ => false,
         };
         if !resources_equal
-            || plan.value.evidence != fresh.value.evidence
+            || !plan.value.evidence.equivalent(&fresh.value.evidence)
             || plan.writes[0].path != fresh.writes[0].path
-            || plan.writes[0].before != fresh.writes[0].before
+            || !source::equivalent_file(&plan.writes[0].before, &fresh.writes[0].before)
             || plan.writes[0].after != fresh.writes[0].after
         {
             return Err(err(

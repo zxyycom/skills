@@ -9,13 +9,14 @@ impl<'a> Resources<'a> {
         journal: &mut Journal,
         reserved: &std::collections::HashSet<RelativePath>,
     ) -> Result<(), TxError> {
-        let sources = self.backup_sources(root)?;
-        for before in &sources {
+        let sources = self.backup_sources()?;
+        for before in sources {
             let path = &before.path;
             if journal.backups.iter().any(|backup| &backup.source == path) {
                 continue;
             }
-            if !matches!(file(root, path)?, ExpectedFile::Present(current) if current == *before) {
+            if !matches!(file(root, path)?, ExpectedFile::Present(current) if source::same_content_and_mode(&current, before))
+            {
                 return Err(error(
                     "backup-source-changed",
                     "resource changed before backup",
@@ -26,45 +27,44 @@ impl<'a> Resources<'a> {
         }
         Ok(())
     }
-    fn backup_sources(&self, root: &Root) -> Result<Vec<SourceSnapshot>, TxError> {
+    /// Protect old record and index bytes before any destructive ordinary write.
+    pub fn backup_writes<T>(
+        root: &Root,
+        plan: &super::super::Plan<T>,
+        journal: &mut Journal,
+        reserved: &std::collections::HashSet<RelativePath>,
+    ) -> Result<(), TxError> {
+        for write in &plan.writes {
+            let ExpectedFile::Present(before) = &write.before else {
+                continue;
+            };
+            if write
+                .after
+                .as_ref()
+                .is_some_and(|after| *after == before.bytes)
+            {
+                continue;
+            }
+            if !matches!(file(root, &before.path)?, ExpectedFile::Present(current) if source::same_content_and_mode(&current, before))
+            {
+                return Err(error(
+                    "backup-source-changed",
+                    "source changed before backup",
+                ));
+            }
+            let (path, proof) = reserve_backup_name(root, reserved)?;
+            persist_backup(root, journal, before, path, proof)?;
+        }
+        Ok(())
+    }
+    fn backup_sources(&self) -> Result<Vec<&SourceSnapshot>, TxError> {
         let mut sources = Vec::new();
         for (intent, observed) in self.intents.iter().zip(&self.observations) {
-            match intent {
-                ResourceIntent::RemoveFile { .. } => {
-                    let Some(ExpectedFile::Present(before)) = &observed.file else {
-                        return Err(error("backup-plan", "resource file missing"));
-                    };
-                    let ExpectedFile::Present(snapshot) = file_snapshot_from_observation(before)
-                    else {
-                        unreachable!()
-                    };
-                    sources.push(snapshot);
-                }
-                ResourceIntent::MoveDirectory { .. } => {
-                    for entry in observed.tree.as_ref().expect("move tree").entries() {
-                        if let source::TreeEntry::File {
-                            path,
-                            identity,
-                            bytes,
-                        } = entry
-                        {
-                            let ExpectedFile::Present(snapshot) = file(root, path)? else {
-                                return Err(error(
-                                    "backup-source-changed",
-                                    "move tree file missing",
-                                ));
-                            };
-                            if snapshot.identity != *identity || snapshot.bytes != *bytes {
-                                return Err(error(
-                                    "backup-source-changed",
-                                    "move tree file changed",
-                                ));
-                            }
-                            sources.push(snapshot);
-                        }
-                    }
-                }
-                _ => {}
+            if let ResourceIntent::RemoveFile { .. } = intent {
+                let Some(ExpectedFile::Present(before)) = &observed.file else {
+                    return Err(error("backup-plan", "resource file missing"));
+                };
+                sources.push(before);
             }
         }
         Ok(sources)

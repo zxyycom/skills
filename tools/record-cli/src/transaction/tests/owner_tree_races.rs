@@ -1,34 +1,40 @@
 use super::*;
 
-// Configure the real syscall barrier without changing the individual observations.
-enum MoveRace {
-    PostMoveEdit,
+// These faults occur at the copy/publication boundary, not at an atomic tree rename.
+enum CopyFault {
     TargetCollision,
-    SourceChanged,
-    SourceAndTargetChanged,
+    SourceEdit,
+    TargetEdit,
+    StopAfterCopy,
 }
-impl TransactionOperation<()> for MoveRace {
+impl TransactionOperation<()> for CopyFault {
     fn prepare(&mut self, root: &Root) -> Result<Plan<()>, TxError> {
         OwnerTreeMove::Success.prepare(root)
     }
     fn fresh(&mut self, root: &Root, _: &Plan<()>) -> Result<(), TxError> {
-        let parent = root.path().join("_resources");
+        if matches!(self, Self::TargetCollision) {
+            std::fs::create_dir(root.path().join("_resources/new")).unwrap();
+            std::fs::write(root.path().join("_resources/new/winner"), b"winner").unwrap();
+        }
+        Ok(())
+    }
+    fn before_write(&mut self, root: &Root, index: usize) -> Result<(), TxError> {
+        if index != 0 {
+            return Ok(());
+        }
         match self {
-            Self::PostMoveEdit => crate::source::set_move_after_test_hook(move || {
-                std::fs::write(parent.join("new/nested/item"), b"rival edit").unwrap();
-            }),
-            Self::TargetCollision => crate::source::set_move_before_test_hook(move || {
-                std::fs::create_dir(parent.join("new")).unwrap();
-                std::fs::write(parent.join("new/winner"), b"winner").unwrap();
-            }),
-            Self::SourceChanged => crate::source::set_move_before_test_hook(move || {
-                replace_or_edit_source(&parent, b"winner", b"rival edit");
-            }),
-            Self::SourceAndTargetChanged => crate::source::set_move_before_test_hook(move || {
-                replace_or_edit_source(&parent, b"source winner", b"source edit");
-                std::fs::create_dir(parent.join("new")).unwrap();
-                std::fs::write(parent.join("new/winner"), b"target winner").unwrap();
-            }),
+            Self::SourceEdit => std::fs::write(
+                root.path().join("_resources/old/nested/item"),
+                b"source edit",
+            )
+            .unwrap(),
+            Self::TargetEdit => std::fs::write(
+                root.path().join("_resources/new/nested/item"),
+                b"target edit",
+            )
+            .unwrap(),
+            Self::StopAfterCopy => return Err(TxError::new("injected", "stop after copy")),
+            Self::TargetCollision => {}
         }
         Ok(())
     }
@@ -36,77 +42,20 @@ impl TransactionOperation<()> for MoveRace {
         Ok(())
     }
     fn verify_recovered(&mut self, _: &Root, _: &Plan<()>) -> Result<(), TxError> {
-        if matches!(self, Self::PostMoveEdit | Self::SourceChanged) {
-            panic!("unknown move must not claim recovery");
-        }
         Ok(())
-    }
-}
-fn replace_or_edit_source(parent: &std::path::Path, winner: &[u8], edit: &[u8]) {
-    #[cfg(unix)]
-    {
-        let _ = edit;
-        std::fs::rename(parent.join("old"), parent.join("displaced")).unwrap();
-        std::fs::create_dir(parent.join("old")).unwrap();
-        std::fs::write(parent.join("old/winner"), winner).unwrap();
     }
 }
 
 #[test]
-fn owner_tree_move_syscall_unknown_never_uses_receipt_or_loses_verified_backup() {
+fn target_collision_never_overwrites_winner_or_original() {
     let (dir, root) = owner_tree_fixture();
-    let result = run_transaction(
+    let outcome = run_transaction(
         &root,
         &RelativePath::new(".lock").unwrap(),
-        &mut MoveRace::PostMoveEdit,
+        &mut CopyFault::TargetCollision,
     );
-    assert_eq!(result.status, TxStatus::Error);
-    assert!(!result.committed);
-    assert_eq!(result.outcome, RecoveryStatus::PartialOrUnknown);
-    assert!(
-        result
-            .unknown_paths
-            .contains(&RelativePath::new("_resources/old").unwrap())
-    );
-    assert!(
-        result
-            .unknown_paths
-            .contains(&RelativePath::new("_resources/new").unwrap())
-    );
-    assert!(
-        !dir.path().join("_resources/old").exists(),
-        "an unknown move must not be inverted"
-    );
-    assert_eq!(
-        std::fs::read(dir.path().join("_resources/new/nested/item")).unwrap(),
-        b"rival edit"
-    );
-    assert_eq!(
-        std::fs::read(dir.path().join("record.md")).unwrap(),
-        b"old record"
-    );
-    assert_eq!(result.recovery_backups.len(), 1);
-    assert_eq!(
-        std::fs::read(dir.path().join(result.recovery_backups[0].backup.as_path())).unwrap(),
-        b"old resource"
-    );
-    assert!(
-        result
-            .recovery_directories
-            .iter()
-            .any(|d| d.path == RelativePath::new("_resources/old/nested").unwrap())
-    );
-}
-#[test]
-fn owner_tree_move_syscall_target_collision_keeps_winner_and_original() {
-    let (dir, root) = owner_tree_fixture();
-    let result = run_transaction(
-        &root,
-        &RelativePath::new(".lock").unwrap(),
-        &mut MoveRace::TargetCollision,
-    );
-    assert_eq!(result.status, TxStatus::Error);
-    assert!(!result.committed);
+    assert_eq!(outcome.status, TxStatus::Error);
+    assert!(!outcome.committed);
     assert_eq!(
         std::fs::read(dir.path().join("_resources/new/winner")).unwrap(),
         b"winner"
@@ -115,75 +64,208 @@ fn owner_tree_move_syscall_target_collision_keeps_winner_and_original() {
         std::fs::read(dir.path().join("_resources/old/nested/item")).unwrap(),
         b"old resource"
     );
-    assert!(result.recovery_backups.is_empty());
 }
+
 #[test]
-fn owner_tree_move_source_changes_at_syscall_are_unknown_and_never_inverted() {
+fn source_edit_stops_exit_after_index_commit_and_preserves_both_trees() {
     let (dir, root) = owner_tree_fixture();
-    let result = run_transaction(
+    let outcome = run_transaction(
         &root,
         &RelativePath::new(".lock").unwrap(),
-        &mut MoveRace::SourceChanged,
+        &mut CopyFault::SourceEdit,
     );
-    assert_eq!(result.status, TxStatus::Error);
-    assert!(!result.committed);
-    assert_eq!(result.outcome, RecoveryStatus::PartialOrUnknown);
-    assert!(
-        result
-            .unknown_paths
-            .contains(&RelativePath::new("_resources/old").unwrap())
+    assert_eq!(outcome.status, TxStatus::Error);
+    assert!(outcome.committed, "{:?}", outcome.errors);
+    assert_eq!(
+        std::fs::read(dir.path().join("_resources/old/nested/item")).unwrap(),
+        b"source edit"
     );
-    assert!(
-        result
-            .unknown_paths
-            .contains(&RelativePath::new("_resources/new").unwrap())
+    assert_eq!(
+        std::fs::read(dir.path().join("_resources/new/nested/item")).unwrap(),
+        b"old resource"
     );
-    assert!(
-        !dir.path().join("_resources/old").exists(),
-        "unknown move must not be automatically inverted"
+}
+
+#[test]
+fn target_edit_stops_publication_and_preserves_editor_and_source() {
+    let (dir, root) = owner_tree_fixture();
+    let outcome = run_transaction(
+        &root,
+        &RelativePath::new(".lock").unwrap(),
+        &mut CopyFault::TargetEdit,
     );
-    #[cfg(unix)]
-    {
-        assert_eq!(
-            std::fs::read(dir.path().join("_resources/new/winner")).unwrap(),
-            b"winner"
+    assert_eq!(outcome.status, TxStatus::Error);
+    assert!(!outcome.committed);
+    assert_eq!(
+        std::fs::read(dir.path().join("_resources/old/nested/item")).unwrap(),
+        b"old resource"
+    );
+    assert_eq!(
+        std::fs::read(dir.path().join("_resources/new/nested/item")).unwrap(),
+        b"target edit"
+    );
+}
+
+#[test]
+fn failure_after_copy_keeps_both_copies_for_reconciliation() {
+    let (dir, root) = owner_tree_fixture();
+    let outcome = run_transaction(
+        &root,
+        &RelativePath::new(".lock").unwrap(),
+        &mut CopyFault::StopAfterCopy,
+    );
+    assert_eq!(outcome.status, TxStatus::Error);
+    assert!(!outcome.committed);
+    assert_eq!(outcome.outcome, RecoveryStatus::PartialOrUnknown);
+    assert_eq!(
+        std::fs::read(dir.path().join("_resources/old/nested/item")).unwrap(),
+        b"old resource"
+    );
+    assert_eq!(
+        std::fs::read(dir.path().join("_resources/new/nested/item")).unwrap(),
+        b"old resource"
+    );
+}
+
+#[test]
+fn source_tree_hard_link_alias_is_rejected_before_copy() {
+    let (dir, root) = owner_tree_fixture();
+    std::fs::hard_link(
+        dir.path().join("_resources/old/nested/item"),
+        dir.path().join("_resources/old/nested/alias"),
+    )
+    .unwrap();
+    let outcome = run_transaction(
+        &root,
+        &RelativePath::new(".lock").unwrap(),
+        &mut OwnerTreeMove::Success,
+    );
+    assert_eq!(outcome.status, TxStatus::Error);
+    assert!(!outcome.committed && !outcome.changed);
+    assert!(outcome.errors.iter().any(|e| e.code == "resource-alias"));
+    assert!(!dir.path().join("_resources/new").exists());
+    assert_eq!(
+        std::fs::read(dir.path().join("_resources/old/nested/item")).unwrap(),
+        b"old resource"
+    );
+}
+
+#[test]
+fn same_path_rename_waits_for_resource_exit_before_commit() {
+    struct SamePath;
+    impl TransactionOperation<()> for SamePath {
+        fn prepare(&mut self, root: &Root) -> Result<Plan<()>, TxError> {
+            let mut plan = OwnerTreeMove::Success.prepare(root)?;
+            plan.writes.truncate(1);
+            plan.commit_point = CommitPoint::Updated(plan.writes[0].path.clone());
+            Ok(plan)
+        }
+        fn fresh(&mut self, _: &Root, _: &Plan<()>) -> Result<(), TxError> {
+            Ok(())
+        }
+        fn before_write(&mut self, root: &Root, _: usize) -> Result<(), TxError> {
+            std::fs::write(
+                root.path().join("_resources/old/nested/item"),
+                b"source edit",
+            )
+            .unwrap();
+            Ok(())
+        }
+        fn verify(&mut self, _: &Root, _: &Plan<()>) -> Result<(), TxError> {
+            Ok(())
+        }
+        fn verify_recovered(&mut self, _: &Root, _: &Plan<()>) -> Result<(), TxError> {
+            Ok(())
+        }
+    }
+    let (dir, root) = owner_tree_fixture();
+    let outcome = run_transaction(&root, &RelativePath::new(".lock").unwrap(), &mut SamePath);
+    assert_eq!(outcome.status, TxStatus::Error);
+    assert!(outcome.changed && !outcome.committed);
+    assert_eq!(outcome.outcome, RecoveryStatus::PartialOrUnknown);
+    assert_eq!(
+        std::fs::read(dir.path().join("record.md")).unwrap(),
+        b"new record"
+    );
+    assert_eq!(
+        std::fs::read(dir.path().join("_resources/old/nested/item")).unwrap(),
+        b"source edit"
+    );
+    assert_eq!(
+        std::fs::read(dir.path().join("_resources/new/nested/item")).unwrap(),
+        b"old resource"
+    );
+}
+
+#[test]
+fn final_old_root_exit_commits_even_when_its_readback_fails_but_not_before_other_moves() {
+    struct RootReadback {
+        two_moves: bool,
+    }
+    impl TransactionOperation<()> for RootReadback {
+        fn prepare(&mut self, root: &Root) -> Result<Plan<()>, TxError> {
+            let mut plan = OwnerTreeMove::Success.prepare(root)?;
+            plan.writes.truncate(1);
+            plan.commit_point = CommitPoint::Updated(plan.writes[0].path.clone());
+            if self.two_moves {
+                plan.resources.push(ResourceIntent::MoveDirectory {
+                    source: RelativePath::new("_resources/other").unwrap(),
+                    destination: RelativePath::new("_resources/other-new").unwrap(),
+                });
+            }
+            Ok(plan)
+        }
+        fn fresh(&mut self, _: &Root, _: &Plan<()>) -> Result<(), TxError> {
+            Ok(())
+        }
+        fn before_write(&mut self, _: &Root, _: usize) -> Result<(), TxError> {
+            crate::source::fail_directory_readback_for_test(
+                RelativePath::new("_resources/old").unwrap(),
+            );
+            Ok(())
+        }
+        fn verify(&mut self, _: &Root, _: &Plan<()>) -> Result<(), TxError> {
+            Ok(())
+        }
+        fn verify_recovered(&mut self, _: &Root, _: &Plan<()>) -> Result<(), TxError> {
+            Ok(())
+        }
+    }
+    for two_moves in [false, true] {
+        let (dir, root) = owner_tree_fixture();
+        if two_moves {
+            std::fs::create_dir(dir.path().join("_resources/other")).unwrap();
+            std::fs::write(dir.path().join("_resources/other/item"), b"second").unwrap();
+        }
+        let outcome = run_transaction(
+            &root,
+            &RelativePath::new(".lock").unwrap(),
+            &mut RootReadback { two_moves },
         );
+        let old = RelativePath::new("_resources/old").unwrap();
+        assert_eq!(outcome.status, TxStatus::Error);
+        assert_eq!(outcome.committed, !two_moves);
+        assert!(
+            outcome.changed
+                && outcome.written_paths.contains(&old)
+                && outcome.unknown_paths.contains(&old)
+        );
+        assert!(
+            outcome
+                .errors
+                .iter()
+                .any(|e| e.message.contains("injected directory readback failure"))
+        );
+        assert!(!dir.path().join("_resources/old").exists());
         assert_eq!(
-            std::fs::read(dir.path().join("_resources/displaced/nested/item")).unwrap(),
+            std::fs::read(dir.path().join("_resources/new/nested/item")).unwrap(),
             b"old resource"
         );
+        if two_moves {
+            assert_eq!(
+                std::fs::read(dir.path().join("_resources/other/item")).unwrap(),
+                b"second"
+            );
+        }
     }
-    assert_eq!(result.recovery_backups.len(), 1);
-    assert_eq!(
-        std::fs::read(dir.path().join(result.recovery_backups[0].backup.as_path())).unwrap(),
-        b"old resource"
-    );
-}
-#[test]
-fn owner_tree_move_notstarted_collision_keeps_backup_if_original_changed() {
-    let (dir, root) = owner_tree_fixture();
-    let result = run_transaction(
-        &root,
-        &RelativePath::new(".lock").unwrap(),
-        &mut MoveRace::SourceAndTargetChanged,
-    );
-    assert_eq!(result.status, TxStatus::Error);
-    assert!(!result.committed);
-    assert_eq!(result.outcome, RecoveryStatus::PartialOrUnknown);
-    assert_eq!(
-        std::fs::read(dir.path().join("_resources/new/winner")).unwrap(),
-        b"target winner"
-    );
-    #[cfg(unix)]
-    {
-        assert_eq!(
-            std::fs::read(dir.path().join("_resources/old/winner")).unwrap(),
-            b"source winner"
-        );
-    }
-    assert_eq!(result.recovery_backups.len(), 1);
-    assert_eq!(
-        std::fs::read(dir.path().join(result.recovery_backups[0].backup.as_path())).unwrap(),
-        b"old resource"
-    );
 }

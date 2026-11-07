@@ -23,9 +23,10 @@ pub(in crate::mutations) fn verify_recovered(
         }
     }
     for guard in guards {
-        if source::capture(root, &guard.path).map_err(|e| fail("recovery", e.to_string()))?
-            != guard.before
-        {
+        if !crate::source::equivalent_file(
+            &source::capture(root, &guard.path).map_err(|e| fail("recovery", e.to_string()))?,
+            &guard.before,
+        ) {
             return Err(fail("recovery", "guard changed"));
         }
     }
@@ -60,7 +61,7 @@ pub(in crate::mutations) fn same_plan(
     left_writes.len() == right_writes.len()
         && left_writes.iter().zip(right_writes).all(|(a, b)| {
             a.path == b.path
-                && a.before == b.before
+                && crate::source::equivalent_file(&a.before, &b.before)
                 && a.after == b.after
                 && a.mode.is_none()
                 && b.mode.is_none()
@@ -69,5 +70,5 @@ pub(in crate::mutations) fn same_plan(
         && left_guards
             .iter()
             .zip(right_guards)
-            .all(|(a, b)| a.path == b.path && a.before == b.before)
+            .all(|(a, b)| a.path == b.path && crate::source::equivalent_file(&a.before, &b.before))
 }

@@ -205,11 +205,17 @@ pub(super) fn check_document_sources(
     workspace: &ExpectedFile,
     sources: &[(RelativePath, ExpectedFile)],
 ) -> Result<(), FreshnessError> {
-    if source::capture(root, index_path).map_err(|_| FreshnessError::Read)? != *workspace {
+    if !source::equivalent_file(
+        &source::capture(root, index_path).map_err(|_| FreshnessError::Read)?,
+        workspace,
+    ) {
         return Err(FreshnessError::Drift);
     }
     for (path, expected) in sources {
-        if source::capture(root, path).map_err(|_| FreshnessError::Read)? != *expected {
+        if !source::equivalent_file(
+            &source::capture(root, path).map_err(|_| FreshnessError::Read)?,
+            expected,
+        ) {
             return Err(FreshnessError::Drift);
         }
     }
@@ -260,11 +266,16 @@ pub(super) struct SourceEvidence<'a> {
 }
 impl SourceEvidence<'_> {
     pub fn equivalent(&self, other: &Self) -> bool {
-        self.base.workspace == other.base.workspace
+        source::equivalent_file(&self.base.workspace, &other.base.workspace)
             && self.base.selected == other.base.selected
             && self.base.target == other.base.target
             && self.pending == other.pending
-            && self.sources == other.sources
+            && self.sources.len() == other.sources.len()
+            && self
+                .sources
+                .iter()
+                .zip(other.sources)
+                .all(|((ap, a), (bp, b))| ap == bp && source::equivalent_file(a, b))
             && self.updates == other.updates
     }
 }
@@ -296,5 +307,32 @@ pub(super) fn phase_freshness_error(error: FreshnessError) -> IndexStageError {
     match error {
         FreshnessError::Drift => IndexStageError::Drift,
         FreshnessError::Read => IndexStageError::Selection("source verification failed".into()),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::os::unix::fs::PermissionsExt;
+
+    #[test]
+    fn source_recheck_accepts_equal_replacement_but_rejects_changed_mode() {
+        let workspace = tempfile::tempdir().unwrap();
+        let path = workspace.path().join("index.json");
+        std::fs::write(&path, b"index").unwrap();
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o640)).unwrap();
+        let root = source::open_root(workspace.path()).unwrap();
+        let relative = RelativePath::new("index.json").unwrap();
+        let before = source::capture(&root, &relative).unwrap();
+        let replacement = workspace.path().join("replacement");
+        std::fs::write(&replacement, b"index").unwrap();
+        std::fs::set_permissions(&replacement, std::fs::Permissions::from_mode(0o640)).unwrap();
+        std::fs::rename(&replacement, &path).unwrap();
+        assert!(check_document_sources(&root, &relative, &before, &[]).is_ok());
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).unwrap();
+        assert!(matches!(
+            check_document_sources(&root, &relative, &before, &[]),
+            Err(FreshnessError::Drift)
+        ));
     }
 }

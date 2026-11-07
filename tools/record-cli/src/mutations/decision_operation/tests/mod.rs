@@ -323,7 +323,10 @@ fn private_archive_checks_unborn_history_and_freshness_before_success() {
     let prepared = operation.prepare(&root).unwrap();
     std::fs::rename(collection.join("archive"), collection.join("old-archive")).unwrap();
     std::fs::create_dir(collection.join("archive")).unwrap();
+    operation.fresh(&root, &prepared).unwrap();
+    std::fs::write(collection.join("archive/one.md"), b"new member").unwrap();
     assert!(operation.fresh(&root, &prepared).is_err());
+    std::fs::remove_file(collection.join("archive/one.md")).unwrap();
     std::fs::remove_dir(collection.join("archive")).unwrap();
     std::fs::rename(collection.join("old-archive"), collection.join("archive")).unwrap();
     std::fs::remove_dir(collection.join("archive")).unwrap();

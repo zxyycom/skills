@@ -1,14 +1,6 @@
-//! Conditional update through a verified handle and independent readback.
+//! Atomic replacement and independent readback journal.
 use super::*;
 
-// The opened update handle is bound to the old snapshot until its bytes are changed.
-struct PendingUpdate<'a> {
-    index: usize,
-    write: &'a WriteIntent,
-    before: &'a crate::source::SourceSnapshot,
-    after: &'a [u8],
-    handle: std::fs::File,
-}
 impl WriteJournal {
     pub(super) fn update<T, O: TransactionOperation<T>>(
         &mut self,
@@ -16,121 +8,78 @@ impl WriteJournal {
         index: usize,
         write: &WriteIntent,
     ) -> Result<(), TxError> {
-        let root = context.root;
         let (ExpectedFile::Present(before), Some(after)) = (&write.before, &write.after) else {
             return Ok(());
         };
         if before.bytes == *after {
             return Ok(());
         }
-        let handle = match open_verified_for_update(root, before) {
-            Ok(handle) => handle,
-            Err(error) => {
-                return Err(TxError::new("write-open", error.to_string()));
-            }
-        };
-        self.finish_update(
-            context,
-            PendingUpdate {
-                index,
-                write,
-                before,
-                after,
-                handle,
-            },
-        )
-    }
-    // A verified update handle may mutate bytes; independently read back before recording ownership.
-    fn finish_update<T, O: TransactionOperation<T>>(
-        &mut self,
-        context: &mut WriteContext<'_, '_, T, O>,
-        mut pending: PendingUpdate<'_>,
-    ) -> Result<(), TxError> {
-        // From the first write onward an error may have changed bytes.
-        if let Err(error) = write_synced(&mut pending.handle, pending.after) {
-            self.unknown = true;
-            context
-                .outcome
-                .unknown_paths
-                .push(pending.write.path.clone());
-            return Err(TxError::new(
-                "write-unknown",
-                format!("{}: {error}", pending.write.path.as_path().display()),
-            ));
-        }
+        self.replace(context, write, before, after)?;
         context.outcome.changed = true;
-        context
-            .outcome
-            .written_paths
-            .push(pending.write.path.clone());
-        self.record_update(context, pending)
+        context.outcome.written_paths.push(write.path.clone());
+        if matches!(&context.plan.commit_point, CommitPoint::PublishedIndex(path) if *path == write.path)
+        {
+            context.outcome.committed = true;
+        }
+        self.readback(context, index, write, after)
     }
-    // Publication can commit before readback; ordinary update commits only after it matches.
-    fn record_update<T, O: TransactionOperation<T>>(
+    fn readback<T, O>(
         &mut self,
         context: &mut WriteContext<'_, '_, T, O>,
-        pending: PendingUpdate<'_>,
+        index: usize,
+        write: &WriteIntent,
+        after: &[u8],
     ) -> Result<(), TxError> {
-        let WriteContext {
-            root,
-            plan,
-            outcome,
-            ..
-        } = context;
-        let PendingUpdate {
-            index,
-            write,
-            before,
-            after,
-            handle,
-        } = pending;
-        if matches!(&plan.commit_point, CommitPoint::PublishedIndex(path) if *path == write.path) {
-            outcome.committed = true;
-        }
-        match readback_update(root, write, before, after, &handle) {
-            Some(snapshot) => {
+        let ExpectedFile::Present(before) = &write.before else {
+            unreachable!()
+        };
+        match capture(context.root, &write.path) {
+            Ok(ExpectedFile::Present(snapshot))
+                if snapshot.bytes == *after
+                    && (snapshot.identity.mode & 0o7777) == (before.identity.mode & 0o7777) =>
+            {
                 self.entries.push(Entry::Written(index, snapshot));
-                if matches!(&plan.commit_point, CommitPoint::Updated(path) if *path == write.path) {
-                    outcome.committed = true;
+                if matches!(&context.plan.commit_point, CommitPoint::Updated(path) if *path == write.path)
+                    && !context.resource_plan.has_moves()
+                {
+                    context.outcome.committed = true;
                 }
+                Ok(())
             }
-            None => {
+            observed => {
+                let reason = match observed {
+                    Err(error) => error.to_string(),
+                    Ok(_) => "written file bytes or permissions differ".to_string(),
+                };
                 self.unknown = true;
-                outcome.unknown_paths.push(write.path.clone());
-                return Err(TxError::new(
+                context.outcome.unknown_paths.push(write.path.clone());
+                Err(TxError::new(
                     "write-readback",
-                    format!(
-                        "written file could not be independently verified: {}",
-                        write.path.as_path().display()
-                    ),
+                    format!("{}: {reason}", write.path.as_path().display()),
+                ))
+            }
+        }
+    }
+    fn replace<T, O>(
+        &mut self,
+        context: &mut WriteContext<'_, '_, T, O>,
+        write: &WriteIntent,
+        before: &crate::source::SourceSnapshot,
+        after: &[u8],
+    ) -> Result<(), TxError> {
+        if let Err(failure) = replace_if_matches(context.root, before, after) {
+            if failure.unknown {
+                self.unknown = true;
+                context.outcome.unknown_paths.push(write.path.clone());
+            }
+            if let Some((path, error)) = failure.cleanup {
+                context.outcome.cleanup_errors.push(diagnostic(
+                    "temporary-cleanup",
+                    format!("{}: {error}", path.display()),
                 ));
             }
+            return Err(TxError::new("write-replace", failure.error.to_string()));
         }
         Ok(())
-    }
-}
-
-// Read back the named file and the open handle; bind them to the original identity and bytes.
-fn readback_update(
-    root: &Root,
-    write: &WriteIntent,
-    before: &crate::source::SourceSnapshot,
-    after: &[u8],
-    handle: &std::fs::File,
-) -> Option<crate::source::SourceSnapshot> {
-    let observed = capture(root, &write.path);
-    let handle_identity = identity_from_handle(handle);
-    match (observed, handle_identity) {
-        (Ok(ExpectedFile::Present(snapshot)), Ok(identity))
-            if snapshot.identity == identity
-                && snapshot.identity.device == before.identity.device
-                && snapshot.identity.inode == before.identity.inode
-                && snapshot.identity.mode == before.identity.mode
-                && snapshot.parents == before.parents
-                && snapshot.bytes == *after =>
-        {
-            Some(snapshot)
-        }
-        _ => None,
     }
 }

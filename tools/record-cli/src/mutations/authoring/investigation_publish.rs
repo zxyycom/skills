@@ -42,6 +42,15 @@ struct Evidence {
     history: Option<String>,
     history_warnings: Vec<String>,
 }
+impl Evidence {
+    fn equivalent(&self, other: &Self) -> bool {
+        super::super::same_directory(&self.listing, &other.listing)
+            && super::super::same_named_headers(&self.headers, &other.headers)
+            && self.history == other.history
+            && self.history_warnings == other.history_warnings
+    }
+}
+
 fn fail(code: &str, message: impl ToString) -> TxError {
     TxError::new(code, message.to_string())
 }

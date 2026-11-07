@@ -1,10 +1,6 @@
 //! Phase-local source capture primitives. These do not yet implement the full
 //! platform safety contract; paths are validated and unsupported cases fail closed.
 use std::fs::File;
-mod directory_move;
-pub(crate) use directory_move::{MoveDirectoryEffect, MovedDirectory, move_directory};
-#[cfg(test)]
-pub(crate) use directory_move::{set_move_after_test_hook, set_move_before_test_hook};
 use std::{
     fmt, io,
     path::{Component, Path, PathBuf},
@@ -62,7 +58,7 @@ impl Root {
         &self.identity
     }
 }
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SourceSnapshot {
     pub path: RelativePath,
     pub identity: FileIdentity,
@@ -165,6 +161,7 @@ fn directory_identity(meta: &std::fs::Metadata) -> FileIdentity {
     result
 }
 mod file_capture;
+pub(crate) use file_capture::file_identity;
 pub use file_capture::{capture, capture_bounded, capture_header, open_root};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -288,8 +285,14 @@ mod file_write;
 pub(crate) use file_write::{
     CreateEffect, CreateFailure, CreateMode, CreatedFile, RemoveEffect, RemoveFailure,
 };
+#[cfg(test)]
 pub(crate) use file_write::{
-    create_exclusive, finalize_created_mode, open_verified_for_update, remove_if_matches,
+    ReplaceFailure, fail_after_remove_for_test, fail_after_replace_for_test,
+    fail_temp_cleanup_for_test, fail_temp_identity_for_test,
+};
+pub(crate) use file_write::{
+    create_exclusive, equivalent_file, finalize_created_mode, remove_if_matches, remove_if_owned,
+    replace_if_matches, same_content_and_mode,
 };
 
 mod missing;
@@ -299,11 +302,11 @@ use missing::parent_chain;
 
 mod directory_write;
 use directory_write::reject_final_link;
-#[cfg(test)]
-pub(crate) use directory_write::set_mkdir_test_hook;
 pub(crate) use directory_write::{
-    CreatedDirectory, create_directory_exclusive, remove_empty_directory,
+    CreatedDirectory, create_directory_exclusive, open_directory_for_mode, remove_empty_directory,
 };
+#[cfg(test)]
+pub(crate) use directory_write::{fail_directory_readback_for_test, set_mkdir_test_hook};
 
 mod exact_name;
 use exact_name::has_exact_resource_name;

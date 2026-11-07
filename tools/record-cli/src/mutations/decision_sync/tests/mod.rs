@@ -72,3 +72,34 @@ fn full_sync_preflight_fresh_and_published_index_are_distinct() {
     assert!(created.errors.is_empty(), "{:?}", created.errors);
     assert!(created.changed && created.committed);
 }
+
+#[cfg(unix)]
+#[test]
+fn fresh_compares_source_bytes_and_mode_not_replaced_inode() {
+    use std::os::unix::fs::{MetadataExt, PermissionsExt};
+
+    let dir = tempfile::tempdir().unwrap();
+    let collection = dir.path().join("decisions");
+    std::fs::create_dir(&collection).unwrap();
+    let path = collection.join("one.md");
+    let text = "---\ntitle: Example title\nid: 250102-one\nstatus: active\nalignment: unaligned\ncreatedAt: 2025-01-02T00:00:00Z\npurpose: Some purpose\nbackground: Some background\ndecision: Some decision\ntags:\n  - tag\nrelations: []\n---\n\n## 目的\n\nSome purpose.\n\n## 背景\n\nSome background.\n\n## 决策\n\n- 采用: Some decision.\n";
+    std::fs::write(&path, text).unwrap();
+    std::fs::write(collection.join("decision-index.json"), b"broken").unwrap();
+    let root = crate::source::open_root(dir.path()).unwrap();
+    let mut operation = DecisionSyncOperation {
+        directory: "decisions".into(),
+    };
+    let plan = operation.prepare(&root).unwrap();
+    let old = std::fs::metadata(&path).unwrap();
+    let replacement = dir.path().join("replacement");
+    std::fs::write(&replacement, text).unwrap();
+    std::fs::set_permissions(&replacement, old.permissions()).unwrap();
+    std::fs::rename(&replacement, &path).unwrap();
+    assert_ne!(old.ino(), std::fs::metadata(&path).unwrap().ino());
+    operation.fresh(&root, &plan).unwrap();
+    std::fs::set_permissions(&path, std::fs::Permissions::from_mode(old.mode() ^ 0o100)).unwrap();
+    assert!(operation.fresh(&root, &plan).is_err());
+    std::fs::set_permissions(&path, old.permissions()).unwrap();
+    std::fs::write(&path, format!("{text}\nChanged body.\n")).unwrap();
+    assert!(operation.fresh(&root, &plan).is_err());
+}

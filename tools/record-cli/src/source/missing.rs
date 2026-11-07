@@ -22,8 +22,18 @@ impl MissingProof {
         if self.remaining.len() != 1 {
             return Err(SourceError::InvalidPath(self.path.0.clone()));
         }
-        let (_, current) = parent_chain(root, &self.path)?;
-        if current != self.parents {
+        let resolved = resolve_directory_links(root, &self.path, true)?;
+        let capability = cap_std::fs::Dir::from_std_file(root.directory.try_clone()?);
+        let parent = match resolved
+            .as_path()
+            .parent()
+            .filter(|p| !p.as_os_str().is_empty())
+        {
+            Some(path) => capability.open_dir(path)?,
+            None => capability,
+        };
+        let current = directory_identity(&parent.into_std_file().metadata()?);
+        if self.parents.last() != Some(&current) {
             return Err(SourceError::Changed(self.path.0.clone()));
         }
         Ok(())
@@ -42,8 +52,8 @@ impl MissingProof {
     pub(crate) fn matches_parent_of(&self, source: &SourceSnapshot) -> bool {
         self.path == source.path
             && self.remaining.len() == 1
-            && self.parents == source.parents
-            && self.parent_paths == source.parent_paths
+            && self.parents.last() == source.parents.last()
+            && self.parent_paths.last() == source.parent_paths.last()
     }
     fn matches_chain(
         &self,
@@ -81,8 +91,38 @@ impl MissingProof {
         observed: &[(RelativePath, FileIdentity)],
         removed: &[RelativePath],
     ) -> bool {
-        self.path == source.path
-            && self.matches_chain(&source.parent_paths, &source.parents, observed, removed)
+        if self.path != source.path {
+            return false;
+        }
+        if self.remaining.len() == 1 {
+            return self.matches_parent_of(source)
+                || self
+                    .parent_paths
+                    .last()
+                    .zip(self.parents.last())
+                    .is_some_and(|(path, identity)| observed_directory(observed, path, identity));
+        }
+        let Some(parent_path) = self.path.as_path().parent() else {
+            return false;
+        };
+        let existing = self
+            .parent_paths
+            .last()
+            .map_or(Path::new(""), RelativePath::as_path);
+        if !parent_path.starts_with(existing) {
+            return false;
+        }
+        let mut current = parent_path.to_path_buf();
+        while current != existing {
+            if !removed.iter().any(|path| path.as_path() == current) {
+                return false;
+            }
+            let Some(parent) = current.parent() else {
+                return false;
+            };
+            current = parent.to_path_buf();
+        }
+        true
     }
     pub(crate) fn matches_journaled_parent_of_directory(
         &self,
@@ -244,16 +284,6 @@ pub(crate) fn capture_missing(
         })
     }
     let first = observe(root, path)?;
-    let MissingObservation {
-        parent: fresh_parent,
-        identities,
-        paths,
-        remaining,
-    } = observe(root, path)?;
-    drop(fresh_parent);
-    if first.identities != identities || first.paths != paths || first.remaining != remaining {
-        return Err(SourceError::Changed(path.0.clone()));
-    }
     Ok(MissingProof {
         workspace: root.path.clone(),
         workspace_identity: root.identity.clone(),

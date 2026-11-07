@@ -259,7 +259,7 @@ where
 {
     let before = acquire(root, index_path, domain, baseline, request)?;
     let after = acquire(root, index_path, domain, baseline, request)?;
-    if before.workspace != after.workspace
+    if !source::equivalent_file(&before.workspace, &after.workspace)
         || before.pending != after.pending
         || before.selected != after.selected
         || before.target != after.target

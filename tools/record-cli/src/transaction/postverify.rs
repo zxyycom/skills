@@ -48,7 +48,7 @@ impl<T, O: TransactionOperation<T>> super::execute::LockedExecution<'_, T, O> {
         Ok(())
     }
 }
-// Each actual written file must still be the exact independently captured snapshot.
+// Each actual written file must still have the verified bytes and permissions.
 fn verify_written(root: &Root, journal: &[Entry]) -> Result<(), TxError> {
     for entry in journal {
         let Entry::Written(_, snapshot) = entry else {
@@ -60,7 +60,8 @@ fn verify_written(root: &Root, journal: &[Entry]) -> Result<(), TxError> {
                 format!("{}: {error}", snapshot.path.as_path().display()),
             )
         })?;
-        if !matches!(actual, ExpectedFile::Present(current) if current == *snapshot) {
+        if !matches!(actual, ExpectedFile::Present(current) if crate::source::same_content_and_mode(&current, snapshot))
+        {
             return Err(TxError::new(
                 "postverify-source",
                 format!(
@@ -144,7 +145,7 @@ fn verify_protected<T>(
                 let message = format!("{}: {error}", path.as_path().display());
                 TxError::new("postverify-source", message)
             })?;
-            if &actual == expected {
+            if crate::source::equivalent_file(&actual, expected) {
                 continue;
             }
         }

@@ -22,8 +22,8 @@ struct Evidence {
 }
 impl Evidence {
     fn equivalent(&self, other: &Self) -> bool {
-        self.index == other.index
-            && self.sources == other.sources
+        self.index.equivalent(&other.index)
+            && selected_sync::same_observations(&self.sources, &other.sources)
             && self.resources.equivalent(&other.resources)
     }
 }

@@ -66,15 +66,8 @@ fn collect_archive(
         .map_err(|e| error("path-invalid", directory, e.to_string()))?;
     let contents = source::enumerate_directory(root, &archive)
         .map_err(|e| error("collection-read", "archive", e.to_string()))?;
-    if contents.identity.device != member.identity.device
-        || contents.identity.inode != member.identity.inode
-        || contents.identity.mode != member.identity.mode
-    {
-        return Err(error(
-            "source-changed",
-            "archive",
-            "directory identity changed",
-        ));
+    if contents.identity.mode != member.identity.mode {
+        return Err(error("source-changed", "archive", "directory mode changed"));
     }
     let proof = DirectoryProof::from_listing(&contents, None);
     let members = contents

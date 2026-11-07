@@ -27,6 +27,33 @@ impl<'a> Resources<'a> {
             observations,
         })
     }
+    /// Reject hard-linked files that would appear more than once in the write set.
+    pub fn reject_write_aliases<T>(
+        &self,
+        root: &Root,
+        plan: &super::super::Plan<T>,
+    ) -> Result<(), TxError> {
+        let mut identities = std::collections::HashSet::new();
+        for write in &plan.writes {
+            reject_alias(root, &write.path, &mut identities)?;
+        }
+        for (intent, observed) in self.intents.iter().zip(&self.observations) {
+            match intent {
+                ResourceIntent::MoveDirectory { .. } => {
+                    for entry in observed.tree.as_ref().expect("move tree").entries() {
+                        if let source::TreeEntry::File { path, .. } = entry {
+                            reject_alias(root, path, &mut identities)?;
+                        }
+                    }
+                }
+                ResourceIntent::RemoveFile { path } => {
+                    reject_alias(root, path, &mut identities)?;
+                }
+                _ => {}
+            }
+        }
+        Ok(())
+    }
     pub fn fresh(&self, root: &Root) -> Result<(), TxError> {
         for (intent, before) in self.intents.iter().zip(&self.observations) {
             let equal = matches_observation(root, intent, before)?;
@@ -88,14 +115,19 @@ impl<'a> Resources<'a> {
         }
         match intent {
             ResourceIntent::CreateDirectoryFrom { source, .. }
-                if directory(root, source)? != before.directory =>
+                if !same_directory(
+                    directory(root, source)?.as_ref(),
+                    before.directory.as_ref(),
+                ) =>
             {
                 Err(error(
                     "resource-verify",
                     format!("source directory changed: {}", source.as_path().display()),
                 ))
             }
-            ResourceIntent::CopyFile { source, .. } if Some(file(root, source)?) != before.file => {
+            ResourceIntent::CopyFile { source, .. }
+                if !file_matches(root, source, before.file.as_ref())? =>
+            {
                 Err(error(
                     "resource-verify",
                     format!("copy source changed: {}", source.as_path().display()),
@@ -221,9 +253,9 @@ fn matches_observation(
     before: &Observation,
 ) -> Result<bool, TxError> {
     match intent {
-        ResourceIntent::CreateDirectory { path } | ResourceIntent::RemoveDirectory { path } => {
-            Ok(directory(root, path)? == before.directory)
-        }
+        ResourceIntent::CreateDirectory { path } | ResourceIntent::RemoveDirectory { path } => Ok(
+            same_directory(directory(root, path)?.as_ref(), before.directory.as_ref()),
+        ),
         ResourceIntent::MoveDirectory {
             source,
             destination,
@@ -241,7 +273,7 @@ fn matches_observation(
             source,
             destination,
         } => same_copy_files(root, source, destination, before),
-        ResourceIntent::RemoveFile { path } => Ok(Some(file(root, path)?) == before.file),
+        ResourceIntent::RemoveFile { path } => file_matches(root, path, before.file.as_ref()),
     }
 }
 
@@ -252,7 +284,10 @@ fn same_source_and_missing_destination(
     destination: &RelativePath,
     before: &Observation,
 ) -> Result<bool, TxError> {
-    Ok(directory(root, source)? == before.directory && directory(root, destination)?.is_none())
+    Ok(
+        same_directory(directory(root, source)?.as_ref(), before.directory.as_ref())
+            && directory(root, destination)?.is_none(),
+    )
 }
 
 // Move freshness includes the full source tree, not just its directory identity.
@@ -274,6 +309,37 @@ fn same_copy_files(
     destination: &RelativePath,
     before: &Observation,
 ) -> Result<bool, TxError> {
-    Ok(Some(file(root, source)?) == before.file
-        && Some(file(root, destination)?) == before.destination)
+    let source_file = file(root, source)?;
+    let destination_file = file(root, destination)?;
+    Ok(before
+        .file
+        .as_ref()
+        .is_some_and(|expected| source::equivalent_file(&source_file, expected))
+        && before
+            .destination
+            .as_ref()
+            .is_some_and(|expected| source::equivalent_file(&destination_file, expected)))
+}
+
+fn file_matches(
+    root: &Root,
+    path: &RelativePath,
+    expected: Option<&ExpectedFile>,
+) -> Result<bool, TxError> {
+    let current = file(root, path)?;
+    Ok(expected.is_some_and(|value| source::equivalent_file(&current, value)))
+}
+
+fn reject_alias(
+    root: &Root,
+    path: &RelativePath,
+    identities: &mut std::collections::HashSet<(u64, u64)>,
+) -> Result<(), TxError> {
+    if let Some(identity) =
+        source::file_identity(root, path).map_err(|e| error("resource-alias", e))?
+        && !identities.insert((identity.device, identity.inode))
+    {
+        return Err(error("resource-alias", "aliased files in write set"));
+    }
+    Ok(())
 }

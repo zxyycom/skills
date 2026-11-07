@@ -10,7 +10,9 @@ fn fail(code: &str, message: impl Into<String>) -> TxError {
 fn capture_matching(root: &Root, expected: &FileProof) -> Result<ExpectedFile, TxError> {
     let current = capture(root, &expected.path).map_err(|e| fail("source-read", e.to_string()))?;
     match &current {
-        ExpectedFile::Present(actual) if FileProof::from(actual) == *expected => Ok(current),
+        ExpectedFile::Present(actual) if FileProof::from(actual).equivalent(expected) => {
+            Ok(current)
+        }
         _ => Err(fail(
             "source-changed",
             format!("source changed: {}", expected.path.as_path().display()),

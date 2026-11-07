@@ -38,41 +38,9 @@ impl ResourceAction<'_> {
         old: &RelativePath,
         destination: &RelativePath,
     ) -> Result<(), TxError> {
-        let Self {
-            root,
-            journal,
-            observed,
-        } = self;
-
-        let tree = observed.tree.as_ref().expect("prepared move tree");
-        let proof = recheck_move(root, old, destination, observed)?;
-        journal.ensure_tree_backups(root, tree)?;
-        let receipt = source::move_directory(root, tree, &proof).map_err(|failure| {
-            if failure.effect == source::MoveDirectoryEffect::Unknown {
-                journal.mark_unknown_move(old, destination, tree);
-            }
-            error("resource-move", failure.error)
-        })?;
-        journal.changed.push(old.clone());
-        journal.changed.push(destination.clone());
-        let moved = verify_moved_tree(root, destination, tree)
-            .inspect_err(|_| journal.mark_unknown_move(old, destination, tree))?;
-        let before = observed
-            .directory
-            .as_ref()
-            .expect("prepared source directory")
-            .clone();
-        journal.entries.push(Actual::MovedDirectory {
-            source: old.clone(),
-            destination: destination.clone(),
-            before: Box::new(before),
-            destination_before: Box::new(proof),
-            moved: Box::new(moved),
-            receipt: Box::new(receipt),
-        });
-
-        Ok(())
+        copy_move::prepare(self.root, self.journal, self.observed, old, destination)
     }
+
     fn create_directory(&mut self, intent: &ResourceIntent) -> Result<(), TxError> {
         let Self {
             root,
@@ -124,7 +92,8 @@ impl ResourceAction<'_> {
         if !matches!(&observed.destination, Some(ExpectedFile::Missing)) {
             return Err(error("resource-plan", "copy destination exists"));
         }
-        if !matches!(file(root, path)?, ExpectedFile::Present(current) if current == *before) {
+        if !matches!(file(root, path)?, ExpectedFile::Present(current) if source::same_content_and_mode(&current, before))
+        {
             return Err(error("resource-changed", "copy source changed"));
         }
         let proof =
@@ -164,16 +133,18 @@ impl ResourceAction<'_> {
         };
         journal.ensure_backup(root, before)?;
         source::remove_if_matches(root, before).map_err(|e| {
-            if e.effect == source::RemoveEffect::Unknown {
+            if e.effect == source::RemoveEffect::RemovedUnverified {
+                journal.changed.push(path.clone());
+            }
+            if e.effect != source::RemoveEffect::NotStarted {
                 journal.unknown.push(path.clone());
             }
             error("resource-remove", e.error)
         })?;
         journal.changed.push(path.clone());
-        let ExpectedFile::Present(before) = file_snapshot_from_observation(before) else {
-            unreachable!()
-        };
-        journal.entries.push(Actual::RemovedFile { before });
+        journal.entries.push(Actual::RemovedFile {
+            before: before.clone(),
+        });
 
         Ok(())
     }
@@ -188,16 +159,12 @@ impl ResourceAction<'_> {
         let Some(before) = &observed.directory else {
             return Err(error("resource-plan", "remove directory missing"));
         };
-        let current =
-            directory(root, path)?.ok_or_else(|| error("resource-changed", "directory missing"))?;
-        if current.identity != before.identity
-            || current.parents != before.parents
-            || !current.members.is_empty()
-        {
-            return Err(error("resource-changed", "directory changed or not empty"));
-        }
+        let current = empty_directory_unchanged(root, path, before)?;
         source::remove_empty_directory(root, &current).map_err(|e| {
-            if e.effect == source::RemoveEffect::Unknown {
+            if e.effect == source::RemoveEffect::RemovedUnverified {
+                journal.changed.push(path.clone());
+            }
+            if e.effect != source::RemoveEffect::NotStarted {
                 journal.unknown.push(path.clone());
             }
             error("resource-rmdir", e.error)
@@ -232,7 +199,7 @@ fn directory_creation_spec<'a>(
                 .directory
                 .as_ref()
                 .ok_or_else(|| error("resource-plan", "source directory missing"))?;
-            if directory(root, source)?.as_ref() != Some(before) {
+            if !same_directory(directory(root, source)?.as_ref(), Some(before)) {
                 return Err(error("resource-changed", "source directory changed"));
             }
             Ok((
@@ -305,65 +272,18 @@ fn populate_copy(
     Ok(snapshot)
 }
 
-// Recheck both selected source tree and missing destination immediately before the move.
-fn recheck_move(
+fn empty_directory_unchanged(
     root: &Root,
-    old: &RelativePath,
-    destination: &RelativePath,
-    observed: &Observation,
-) -> Result<source::MissingProof, TxError> {
-    let tree = observed.tree.as_ref().expect("prepared move tree");
-    let proof =
-        source::capture_missing(root, destination).map_err(|e| error("resource-missing", e))?;
-    if !observed
-        .missing
-        .as_ref()
-        .expect("prepared missing proof")
-        .equivalent(&proof)
+    path: &RelativePath,
+    before: &DirectorySnapshot,
+) -> Result<DirectorySnapshot, TxError> {
+    let current =
+        directory(root, path)?.ok_or_else(|| error("resource-changed", "directory missing"))?;
+    if current.identity != before.identity
+        || current.parents != before.parents
+        || !current.members.is_empty()
     {
-        return Err(error(
-            "resource-changed",
-            "move destination namespace changed",
-        ));
+        return Err(error("resource-changed", "directory changed or not empty"));
     }
-    if directory(root, old)?.as_ref() != observed.directory.as_ref()
-        || !same_tree(
-            tree,
-            &source::capture_tree(root, old).map_err(|e| error("resource-tree", e))?,
-        )
-    {
-        return Err(error("resource-changed", "move source changed"));
-    }
-    Ok(proof)
-}
-
-impl Journal {
-    // An unprovable move preserves both names and the original tree's recovery facts.
-    fn mark_unknown_move(
-        &mut self,
-        old: &RelativePath,
-        destination: &RelativePath,
-        tree: &source::TreeSnapshot,
-    ) {
-        self.unknown.push(old.clone());
-        self.unknown.push(destination.clone());
-        self.uncertain_moves.push(recovery_dirs_from_tree(tree));
-    }
-}
-
-// Independently re-read the entire moved tree before recording its receipt.
-fn verify_moved_tree(
-    root: &Root,
-    destination: &RelativePath,
-    original: &source::TreeSnapshot,
-) -> Result<source::TreeSnapshot, TxError> {
-    source::capture_tree(root, destination)
-        .ok()
-        .filter(|moved| same_tree(original, moved))
-        .ok_or_else(|| {
-            error(
-                "resource-move-readback",
-                "moved tree could not be independently verified",
-            )
-        })
+    Ok(current)
 }

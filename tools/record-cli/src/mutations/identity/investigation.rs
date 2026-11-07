@@ -72,10 +72,15 @@ impl std::fmt::Debug for PreparedIdentity {
 }
 impl Evidence {
     fn equivalent(&self, other: &Self) -> bool {
-        self.listing == other.listing
-            && self.headers == other.headers
+        super::super::same_directory(&self.listing, &other.listing)
+            && super::super::same_headers(&self.headers, &other.headers)
             && self.history == other.history
-            && self.tree == other.tree
+            && self.tree.len() == other.tree.len()
+            && self
+                .tree
+                .iter()
+                .zip(&other.tree)
+                .all(|((ap, ai, ab), (bp, bi, bb))| ap == bp && ai.mode == bi.mode && ab == bb)
             && match (&self.resources, &other.resources) {
                 (None, None) => true,
                 (Some(a), Some(b)) => a.equivalent(b),

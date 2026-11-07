@@ -1,45 +1,27 @@
 //! Conditional file creation, update handles, and removal.
 use super::*;
 
-/// Open an existing file for update after independently checking both the
-/// phase snapshot and the identity/bytes of the actual write handle. The caller
-/// must hold the collection lock and still perform independent postverify.
-/// This does not provide atomic isolation from non-cooperating writers.
-pub(crate) fn open_verified_for_update(
-    root: &Root,
-    expected: &SourceSnapshot,
-) -> Result<File, SourceError> {
-    use cap_fs_ext::{FollowSymlinks, OpenOptionsFollowExt};
-    match capture(root, &expected.path)? {
-        ExpectedFile::Present(current) if current == *expected => {}
-        _ => return Err(SourceError::Changed(expected.path.0.clone())),
-    }
-    let capability = cap_std::fs::Dir::from_std_file(root.directory.try_clone()?);
-    let resolved = resolve_directory_links(root, &expected.path, true)?;
-    let mut options = cap_std::fs::OpenOptions::new();
-    options.read(true).write(true).follow(FollowSymlinks::No);
-    let mut file = capability
-        .open_with(resolved.as_path(), &options)?
-        .into_std();
-    verify_update_handle(&mut file, expected)?;
-    Ok(file)
+mod replace;
+#[cfg(test)]
+pub(crate) use replace::ReplaceFailure;
+pub(crate) use replace::replace_if_matches;
+#[cfg(test)]
+pub(crate) use replace::{
+    fail_after_replace_for_test, fail_temp_cleanup_for_test, fail_temp_identity_for_test,
+};
+
+pub(crate) fn same_content_and_mode(a: &SourceSnapshot, b: &SourceSnapshot) -> bool {
+    a.bytes == b.bytes && (a.identity.mode & 0o7777) == (b.identity.mode & 0o7777)
 }
 
-// Compare the opened handle before and after reading, then restore its write position.
-fn verify_update_handle(file: &mut File, expected: &SourceSnapshot) -> Result<(), SourceError> {
-    use std::io::{Read, Seek, SeekFrom};
-    if identity_from_handle(file)? != expected.identity {
-        return Err(SourceError::Changed(expected.path.0.clone()));
+pub(crate) fn equivalent_file(a: &ExpectedFile, b: &ExpectedFile) -> bool {
+    match (a, b) {
+        (ExpectedFile::Missing, ExpectedFile::Missing) => true,
+        (ExpectedFile::Present(a), ExpectedFile::Present(b)) => {
+            a.path == b.path && same_content_and_mode(a, b)
+        }
+        _ => false,
     }
-    let mut bytes = Vec::new();
-    (&mut *file)
-        .take(expected.bytes.len() as u64 + 1)
-        .read_to_end(&mut bytes)?;
-    if bytes != expected.bytes || identity_from_handle(file)? != expected.identity {
-        return Err(SourceError::Changed(expected.path.0.clone()));
-    }
-    file.seek(SeekFrom::Start(0))?;
-    Ok(())
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -161,10 +143,18 @@ pub(crate) fn finalize_created_mode(
     Ok(identity)
 }
 
+#[cfg(test)]
+thread_local! { static FAIL_AFTER_REMOVE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) }; }
+#[cfg(test)]
+pub(crate) fn fail_after_remove_for_test() {
+    FAIL_AFTER_REMOVE.with(|slot| slot.set(true));
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum RemoveEffect {
     NotStarted,
     Unknown,
+    RemovedUnverified,
 }
 #[derive(Debug)]
 pub(crate) struct RemoveFailure {
@@ -179,12 +169,27 @@ pub(crate) fn remove_if_matches(
     root: &Root,
     expected: &SourceSnapshot,
 ) -> Result<(), RemoveFailure> {
+    remove_checked(root, expected, false)
+}
+
+/// Remove a transaction-created file only if its observed identity still belongs to it.
+pub(crate) fn remove_if_owned(root: &Root, expected: &SourceSnapshot) -> Result<(), RemoveFailure> {
+    remove_checked(root, expected, true)
+}
+
+fn remove_checked(
+    root: &Root,
+    expected: &SourceSnapshot,
+    require_identity: bool,
+) -> Result<(), RemoveFailure> {
     let fail = |error| RemoveFailure {
         error,
         effect: RemoveEffect::NotStarted,
     };
     match capture(root, &expected.path).map_err(fail)? {
-        ExpectedFile::Present(current) if current == *expected => {}
+        ExpectedFile::Present(current)
+            if same_content_and_mode(&current, expected)
+                && (!require_identity || current == *expected) => {}
         _ => return Err(fail(SourceError::Changed(expected.path.0.clone()))),
     }
     let resolved = resolve_directory_links(root, &expected.path, true).map_err(fail)?;
@@ -196,15 +201,25 @@ pub(crate) fn remove_if_matches(
             effect: RemoveEffect::Unknown,
         });
     }
+    confirm_removed(root, expected)
+}
+fn confirm_removed(root: &Root, expected: &SourceSnapshot) -> Result<(), RemoveFailure> {
+    #[cfg(test)]
+    if FAIL_AFTER_REMOVE.with(|slot| slot.replace(false)) {
+        return Err(RemoveFailure {
+            error: io::Error::other("injected remove readback failure").into(),
+            effect: RemoveEffect::RemovedUnverified,
+        });
+    }
     match capture(root, &expected.path) {
         Ok(ExpectedFile::Missing) => Ok(()),
         Ok(ExpectedFile::Present(_)) => Err(RemoveFailure {
             error: SourceError::Changed(expected.path.0.clone()),
-            effect: RemoveEffect::Unknown,
+            effect: RemoveEffect::RemovedUnverified,
         }),
         Err(error) => Err(RemoveFailure {
             error,
-            effect: RemoveEffect::Unknown,
+            effect: RemoveEffect::RemovedUnverified,
         }),
     }
 }

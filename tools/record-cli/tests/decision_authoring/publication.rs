@@ -210,3 +210,128 @@ fn grouped_relations_bind_to_successors_and_discard_candidate() {
         ("261105-old-two", Some("second reason"))
     );
 }
+
+#[cfg(unix)]
+#[test]
+fn cli_publish_replaces_file_without_mutating_external_hard_link() {
+    let dir = tempfile::tempdir().unwrap();
+    let c = dir.path().join("decisions");
+    std::fs::create_dir(&c).unwrap();
+    let original = candidate("261106-one", "[]");
+    std::fs::write(c.join("one.md"), &original).unwrap();
+    let external = dir.path().join("external-copy.md");
+    std::fs::hard_link(c.join("one.md"), &external).unwrap();
+    let output = std::process::Command::new(env!("CARGO_BIN_EXE_decision-records"))
+        .args([
+            "publish",
+            "261106-one",
+            "--alignment",
+            "unaligned",
+            "--root",
+        ])
+        .arg(dir.path())
+        .args(["--decisions-dir", "decisions", "--json"])
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stdout)
+    );
+    let json: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(json["ok"], true);
+    assert_eq!(json["result"]["committed"], true);
+    assert!(
+        std::fs::read_to_string(c.join("one.md"))
+            .unwrap()
+            .contains("status: active")
+    );
+    assert_eq!(std::fs::read_to_string(external).unwrap(), original);
+}
+
+#[cfg(unix)]
+#[test]
+fn cli_publish_rejects_read_only_source_without_data_loss() {
+    use std::os::unix::fs::PermissionsExt;
+    let dir = tempfile::tempdir().unwrap();
+    let c = dir.path().join("decisions");
+    std::fs::create_dir(&c).unwrap();
+    let original = candidate("261106-one", "[]");
+    let source = c.join("one.md");
+    std::fs::write(&source, &original).unwrap();
+    std::fs::set_permissions(&source, std::fs::Permissions::from_mode(0o444)).unwrap();
+    let output = std::process::Command::new(env!("CARGO_BIN_EXE_decision-records"))
+        .args([
+            "publish",
+            "261106-one",
+            "--alignment",
+            "unaligned",
+            "--root",
+        ])
+        .arg(dir.path())
+        .args(["--decisions-dir", "decisions", "--json"])
+        .output()
+        .unwrap();
+    assert_eq!(
+        output.status.code(),
+        Some(1),
+        "{}",
+        String::from_utf8_lossy(&output.stdout)
+    );
+    let json: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(json["ok"], false);
+    assert_eq!(json["result"]["committed"], false);
+    assert!(!json["diagnostics"].as_array().unwrap().is_empty());
+    assert_eq!(std::fs::read_to_string(source).unwrap(), original);
+    assert!(!c.join("decision-index.json").exists());
+}
+
+#[cfg(unix)]
+#[test]
+fn cli_publish_write_failure_preserves_existing_source() {
+    use std::os::unix::process::CommandExt;
+    let dir = tempfile::tempdir().unwrap();
+    let c = dir.path().join("decisions");
+    std::fs::create_dir(&c).unwrap();
+    let original = candidate("261106-one", "[]");
+    let source = c.join("one.md");
+    std::fs::write(&source, &original).unwrap();
+    let mut command = std::process::Command::new(env!("CARGO_BIN_EXE_decision-records"));
+    command
+        .args([
+            "publish",
+            "261106-one",
+            "--alignment",
+            "unaligned",
+            "--root",
+        ])
+        .arg(dir.path())
+        .args(["--decisions-dir", "decisions", "--json"]);
+    // Fail regular-file writes while leaving the JSON output pipe usable.
+    unsafe {
+        command.pre_exec(|| {
+            libc::signal(libc::SIGXFSZ, libc::SIG_IGN);
+            let limit = libc::rlimit {
+                rlim_cur: 0,
+                rlim_max: 0,
+            };
+            if libc::setrlimit(libc::RLIMIT_FSIZE, &limit) != 0 {
+                return Err(std::io::Error::last_os_error());
+            }
+            Ok(())
+        });
+    }
+    let output = command.output().unwrap();
+    assert_eq!(
+        output.status.code(),
+        Some(1),
+        "{}",
+        String::from_utf8_lossy(&output.stdout)
+    );
+    let json: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(json["ok"], false);
+    assert_eq!(json["result"]["committed"], false);
+    assert!(!json["diagnostics"].as_array().unwrap().is_empty());
+    assert_eq!(std::fs::read_to_string(source).unwrap(), original);
+    assert!(!c.join("decision-index.json").exists());
+}

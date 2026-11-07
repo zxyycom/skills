@@ -99,8 +99,8 @@ fn restore_written<T>(
 ) -> bool {
     let mut restored = true;
     if matches!(*original, ExpectedFile::Missing) {
-        if let Err(error) = remove_if_matches(root, written) {
-            if error.effect == RemoveEffect::Unknown {
+        if let Err(error) = crate::source::remove_if_owned(root, written) {
+            if error.effect != RemoveEffect::NotStarted {
                 outcome.unknown_paths.push(written.path.clone());
             }
             restored = false;
@@ -114,14 +114,7 @@ fn restore_written<T>(
     let ExpectedFile::Present(before) = original else {
         unreachable!()
     };
-    let result = (|| -> Result<(), String> {
-        let mut handle = open_verified_for_update(root, written).map_err(|e| e.to_string())?;
-        write_synced(&mut handle, &before.bytes).map_err(|e| e.to_string())?;
-        match capture(root, &before.path) {
-            Ok(ExpectedFile::Present(current)) if current == *before => Ok(()),
-            _ => Err("restored file does not match original snapshot".into()),
-        }
-    })();
+    let result = restore_replaced(root, before, written, outcome);
     if let Err(error) = result {
         restored = false;
         outcome.cleanup_errors.push(diagnostic(
@@ -130,6 +123,34 @@ fn restore_written<T>(
         ));
     }
     restored
+}
+
+fn restore_replaced<T>(
+    root: &Root,
+    before: &SourceSnapshot,
+    written: &SourceSnapshot,
+    outcome: &mut TransactionOutcome<T>,
+) -> Result<(), String> {
+    if let Err(failure) = replace_if_matches(root, written, &before.bytes) {
+        if failure.unknown {
+            outcome.unknown_paths.push(written.path.clone());
+        }
+        if let Some((path, error)) = failure.cleanup {
+            outcome.cleanup_errors.push(diagnostic(
+                "temporary-cleanup",
+                format!("{}: {error}", path.display()),
+            ));
+        }
+        return Err(failure.error.to_string());
+    }
+    match capture(root, &before.path) {
+        Ok(ExpectedFile::Present(current))
+            if crate::source::same_content_and_mode(&current, before) =>
+        {
+            Ok(())
+        }
+        _ => Err("restored file does not match original bytes and mode".into()),
+    }
 }
 
 // Recreated bytes and mode must match through the actual handle and original parents.

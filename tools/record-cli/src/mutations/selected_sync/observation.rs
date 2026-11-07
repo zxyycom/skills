@@ -11,9 +11,6 @@ fn fail(code: &str, message: impl Into<String>) -> TxError {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(in crate::mutations) struct MissingFact {
     path: RelativePath,
-    parents: Vec<source::FileIdentity>,
-    parent_paths: Vec<RelativePath>,
-    remaining: usize,
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(in crate::mutations) enum Observation {
@@ -21,6 +18,13 @@ pub(in crate::mutations) enum Observation {
     Missing(MissingFact),
 }
 impl Observation {
+    pub(in crate::mutations) fn equivalent(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Present(a), Self::Present(b)) => a.equivalent(b),
+            (Self::Missing(a), Self::Missing(b)) => a.path == b.path,
+            _ => false,
+        }
+    }
     pub(in crate::mutations) fn path(&self) -> &RelativePath {
         match self {
             Self::Present(file) => &file.path,
@@ -35,14 +39,8 @@ pub(in crate::mutations) fn observe(
     match source::capture(root, path).map_err(|e| fail("source-read", e.to_string()))? {
         ExpectedFile::Present(file) => Ok(Observation::Present(FileProof::from(&file))),
         ExpectedFile::Missing => {
-            let missing = source::capture_missing(root, path)
-                .map_err(|e| fail("source-read", e.to_string()))?;
-            Ok(Observation::Missing(MissingFact {
-                path: path.clone(),
-                parents: missing.parents().to_vec(),
-                parent_paths: missing.parent_paths().to_vec(),
-                remaining: missing.remaining_components(),
-            }))
+            source::capture_missing(root, path).map_err(|e| fail("source-read", e.to_string()))?;
+            Ok(Observation::Missing(MissingFact { path: path.clone() }))
         }
     }
 }
@@ -51,7 +49,7 @@ pub(in crate::mutations) fn observed_expected(
     expected: &Observation,
 ) -> Result<ExpectedFile, TxError> {
     let current = observe(root, expected.path())?;
-    if &current != expected {
+    if !current.equivalent(expected) {
         return Err(fail(
             "source-changed",
             "selected source changed during preparation",
@@ -61,7 +59,7 @@ pub(in crate::mutations) fn observed_expected(
         source::capture(root, expected.path()).map_err(|e| fail("source-read", e.to_string()))?;
     match (&captured, expected) {
         (ExpectedFile::Present(actual), Observation::Present(proof))
-            if FileProof::from(actual) == *proof =>
+            if FileProof::from(actual).equivalent(proof) =>
         {
             Ok(captured)
         }
@@ -71,4 +69,8 @@ pub(in crate::mutations) fn observed_expected(
             "selected source changed during capture",
         )),
     }
+}
+
+pub(in crate::mutations) fn same_observations(a: &[Observation], b: &[Observation]) -> bool {
+    a.len() == b.len() && a.iter().zip(b).all(|(a, b)| a.equivalent(b))
 }

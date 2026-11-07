@@ -58,19 +58,28 @@ fn mode(file: &source::SourceSnapshot) -> u32 {
 }
 
 // The fresh phase independently prepares the same file facts before transaction writes.
+fn fresh_phase<T>(
+    root: &Root,
+    plan: &Plan<T>,
+    phase: impl FnOnce(&Root) -> Result<Plan<T>, TxError>,
+    equivalent: impl FnOnce(&T, &T) -> bool,
+) -> Result<(), TxError> {
+    let now = phase(root)?;
+    verify_fresh(equivalent(&plan.value, &now.value), plan, &now)
+}
+
 fn verify_fresh<T>(evidence_equal: bool, plan: &Plan<T>, now: &Plan<T>) -> Result<(), TxError> {
     let writes_equal = plan.writes.len() == now.writes.len()
-        && plan
-            .writes
-            .iter()
-            .zip(&now.writes)
-            .all(|(a, b)| a.path == b.path && a.before == b.before && a.after == b.after);
-    let guards_equal = plan.guards.len() == now.guards.len()
-        && plan
-            .guards
-            .iter()
-            .zip(&now.guards)
-            .all(|(a, b)| a.path == b.path && a.before == b.before);
+        && plan.writes.iter().zip(&now.writes).all(|(a, b)| {
+            a.path == b.path
+                && crate::source::equivalent_file(&a.before, &b.before)
+                && a.after == b.after
+        });
+    let guards_equal =
+        plan.guards.len() == now.guards.len()
+            && plan.guards.iter().zip(&now.guards).all(|(a, b)| {
+                a.path == b.path && crate::source::equivalent_file(&a.before, &b.before)
+            });
     if evidence_equal && writes_equal && guards_equal {
         Ok(())
     } else {
@@ -118,7 +127,10 @@ fn verify_recovered_files<T>(root: &Root, plan: &Plan<T>) -> Result<(), TxError>
 
 fn verify_guards<T>(root: &Root, plan: &Plan<T>, code: &str) -> Result<(), TxError> {
     for guard in &plan.guards {
-        if source::capture(root, &guard.path).map_err(|e| fail(code, e))? != guard.before {
+        if !source::equivalent_file(
+            &source::capture(root, &guard.path).map_err(|e| fail(code, e))?,
+            &guard.before,
+        ) {
             return Err(fail(code, "guard changed"));
         }
     }

@@ -234,9 +234,13 @@ fn resource_directory_mode_mismatch_preserves_old_tree_without_chmod() {
                 .mode,
             expected_mode
         );
-        assert_eq!(result.recovery_backups.len(), 1);
+        let backup = result
+            .recovery_backups
+            .iter()
+            .find(|b| b.source == RelativePath::new("old-assets/nested/item.txt").unwrap())
+            .expect("resource backup");
         assert_eq!(
-            std::fs::read(dir.path().join(result.recovery_backups[0].backup.as_path())).unwrap(),
+            std::fs::read(dir.path().join(backup.backup.as_path())).unwrap(),
             b"asset"
         );
     }

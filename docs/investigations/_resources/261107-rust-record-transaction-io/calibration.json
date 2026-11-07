@@ -1,0 +1,15 @@
+{
+  "exit": 0,
+  "io": {
+    "rchar": 1074138,
+    "wchar": 1048576,
+    "syscr": 45,
+    "syscw": 16,
+    "read_bytes": 4096,
+    "write_bytes": 1048576,
+    "cancelled_write_bytes": 0
+  },
+  "elapsed_ns": 8739504,
+  "stdout": "",
+  "stderr": ""
+}

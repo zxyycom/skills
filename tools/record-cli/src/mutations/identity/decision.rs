@@ -50,6 +50,16 @@ struct Evidence {
     history: Option<(Option<String>, bool)>,
     pending: Option<pending::Observation>,
 }
+impl Evidence {
+    fn equivalent(&self, other: &Self) -> bool {
+        super::super::same_directory(&self.listing, &other.listing)
+            && super::super::same_optional_directory(&self.archive, &other.archive)
+            && super::super::same_headers(&self.headers, &other.headers)
+            && self.history == other.history
+            && self.pending == other.pending
+    }
+}
+
 use super::{fail, mode, relative};
 mod change;
 mod discovery;
