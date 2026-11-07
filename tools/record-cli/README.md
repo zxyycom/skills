@@ -7,15 +7,16 @@
 从仓库根目录使用目录内 `rust-toolchain.toml` 固定的工具链（含 rustfmt、clippy），依赖由 `Cargo.lock` 锁定：
 
 ```sh
-cargo +1.98.1 build --manifest-path tools/record-cli/Cargo.toml --locked --bins
+cargo +1.98.1 build --manifest-path tools/record-cli/Cargo.toml --locked --release --bins
 cargo +1.98.1 run --manifest-path tools/record-cli/Cargo.toml --locked --bin decision-records -- --help
 cargo +1.98.1 run --manifest-path tools/record-cli/Cargo.toml --locked --bin investigation-report -- help list
 bun run test:record-rust
+bun run smoke:record-rust
 bun run test:record-delivery
 bun run check -- --scope record-rust
 ```
 
-具体命令和选项以二进制 `help <command>` 为入口，`--root` 指向工作区，领域目录选项为工作区相对路径。验证写操作须使用独立私有 fixture 和真实 Git 状态，不以示例目录指向真实记录。`test:record-rust` 运行 Cargo 全 target 测试及 ignored 节点；scope 还包含格式、clippy、离线交付和项目代码质量检查。quick 不要求 Rust 工具链。执行命令不意味着目标平台或所有行为已经验收。
+具体命令和选项以二进制 `help <command>` 为入口，`--root` 指向工作区，领域目录选项为工作区相对路径。验证写操作须使用独立私有 fixture 和真实 Git 状态，不以示例目录指向真实记录。`smoke:record-rust` 默认读取 `tools/record-cli/target/release` 下的两个可执行文件，并自行创建私有 Git fixture；若构建时指定了 `--target` 或其他目标目录，通过环境变量 `RECORD_CLI_BIN_DIR` 指向包含两个可执行文件的 release 目录。`test:record-rust` 运行 Cargo 全 target 测试及 ignored 节点；scope 还包含格式、clippy、离线交付和项目代码质量检查。quick 不要求 Rust 工具链。执行命令不意味着目标平台或所有行为已经验收。
 
 ## 契约与责任
 
@@ -27,4 +28,4 @@ bun run check -- --scope record-rust
 
 ## 交付与验证边界
 
-[离线交付入口](delivery/README.md)只对私有 fixture 构建、安装和恢复；[性能方法](benchmarks/README.md)定义私有数据和新进程测量；制品不提交 Git。Linux 原生验收目标是 Ubuntu 22.04 x64 glibc 2.35（`x86_64-unknown-linux-gnu`）。Windows x64 MSVC 本轮仅做 bins 目标 `cargo check` 和 manifest/.exe 接线的 mock/单元验证，不新增 Windows CI 或 native 运行；目标编译不证明 Windows 原生资格。现行 TypeScript 的 Windows 支持不变。候选 CI、Case 和性能报告须分别以实际 revision、环境、测试节点与结果为依据。离线结果不证明正式发布、线上更新或真实用户安装；生产切换与发布另需授权。
+[离线交付入口](delivery/README.md)只对私有 fixture 构建、安装和恢复；[性能方法](benchmarks/README.md)定义私有数据和新进程测量；制品不提交 Git。Linux 原生验收目标是 Ubuntu 22.04 x64 glibc 2.35（`x86_64-unknown-linux-gnu`）。Windows x64 MSVC CI 独立构建两个 release 可执行文件，并在私有 Git fixture 运行 `smoke:record-rust`，覆盖启动、决策读写与缺失记录 JSON、调查资源目录重命名和保留未选暂存的 stage；它不运行 Windows 全套测试，也不证明发布或全部行为的原生资格。候选 CI、Case 和性能报告须分别以实际 revision、环境、测试节点与结果为依据。离线结果不证明正式发布、线上更新或真实用户安装；生产切换与发布另需授权。

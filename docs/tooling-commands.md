@@ -78,7 +78,7 @@ task-graph 短命令另外承担项目 root 选择。省略 `--root` 时，它�
 | Decision Records | `test:decision-records-cli` | `sync:decision-records-cli` | `check:decision-records-cli`、`check:decisions` |
 | Skill Validator | `test:skill-validator` | `sync:skill-validator` | `check:skill-validator` |
 | Investigation Report | `test:investigation-report-check` | `sync:investigation-report-check` | `check:investigation-report-check`、`check:investigations` |
-| Record Rust 候选 | `test:record-rust`、`test:record-delivery` | — | `bun run check -- --scope record-rust` |
+| Record Rust 候选 | `test:record-rust`、`test:record-delivery`、`smoke:record-rust`（构建前置见[候选维护](../tools/record-cli/README.md#构建与调用)） | — | `bun run check -- --scope record-rust` |
 | Task Graph | `test:task-graph-cli` | `sync:task-graph-cli` | `check:task-graph-cli`、`check:task-graph-index` |
 | Test Evidence | `test:test-evidence-cli`、`test:test-evidence-project` | `sync:test-evidence-cli`、`sync:test-evidence-catalog` | `check:test-evidence-cli`、`check:test-evidence-catalog` |
 | Skill Updater | `test:skill-updater` | `sync:skill-updaters` | `check:skill-updaters` |

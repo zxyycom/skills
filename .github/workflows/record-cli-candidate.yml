@@ -73,3 +73,21 @@ jobs:
             dist/record-cli-ci-b/assets/
           if-no-files-found: warn
           retention-days: 7
+
+  windows-smoke:
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.18.0
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install 1.98.1 --profile minimal --target x86_64-pc-windows-msvc
+      - name: Build native release binaries
+        run: cargo +1.98.1 build --manifest-path tools/record-cli/Cargo.toml --locked --release --bins --target x86_64-pc-windows-msvc
+      - name: Run private fixture smoke
+        shell: pwsh
+        run: |
+          $env:RECORD_CLI_BIN_DIR = 'tools/record-cli/target/x86_64-pc-windows-msvc/release'
+          node tools/record-cli/smoke/native.ts
