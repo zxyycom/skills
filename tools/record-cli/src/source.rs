@@ -274,7 +274,7 @@ mod tests {
         assert!(RelativePath::new("a/../record").is_err());
     }
     #[test]
-    fn captures_tree_members_without_reading_payloads() {
+    fn captures_tree_members() {
         let temp = tempfile::tempdir().unwrap();
         std::fs::create_dir_all(temp.path().join("owner/sub")).unwrap();
         std::fs::write(temp.path().join("owner/sub/data"), b"content").unwrap();

@@ -45,9 +45,13 @@ fn rename_publishes_new_identity_and_removes_old() {
     assert!(out.errors.is_empty(), "{:?}", out.errors);
     assert!(out.changed && out.committed);
     assert!(!c.join("old.md").exists());
-    assert!(c.join("new.md").exists());
-    assert_ne!(
-        std::fs::read(c.join("decision-index.json")).unwrap(),
-        index_bytes
-    );
+    let renamed = std::fs::read_to_string(c.join("new.md")).unwrap();
+    assert!(renamed.contains("261106-new"));
+    let index = crate::index::parse_index(
+        &std::fs::read(c.join("decision-index.json")).unwrap(),
+        &Definition,
+    )
+    .unwrap();
+    assert!(!index.index().entries.contains_key(id));
+    assert_eq!(index.index().entries["261106-new"].source_path, "new.md");
 }

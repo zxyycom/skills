@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn creation_is_atomic_and_does_not_overwrite_existing_candidate() {
+fn creation_does_not_overwrite_existing_candidate() {
     let fixture = tempfile::tempdir().unwrap();
     std::fs::create_dir(fixture.path().join("records")).unwrap();
     let root = open_root(fixture.path()).unwrap();
