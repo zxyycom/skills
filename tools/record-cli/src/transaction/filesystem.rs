@@ -70,27 +70,26 @@ pub(super) fn resource_effects(resource: &ResourceIntent) -> Vec<&RelativePath> 
         } => vec![source, destination],
     }
 }
-type ResourceFailure = (&'static str, RelativePath, io::Error, bool);
+type ResourceFailure = (&'static str, RelativePath, io::Error);
 pub(super) fn apply_resource(root: &Root, intent: &ResourceIntent) -> Result<(), ResourceFailure> {
-    let fail = |step, path: &RelativePath, error, unknown| (step, path.clone(), error, unknown);
+    let fail = |step, path: &RelativePath, error| (step, path.clone(), error);
     match intent {
         ResourceIntent::CreateDirectory { path } => {
-            let dest = target(root, path).map_err(|e| fail("create-directory", path, e, false))?;
-            std::fs::create_dir(dest).map_err(|e| fail("create-directory", path, e, false))
+            let dest = target(root, path).map_err(|e| fail("create-directory", path, e))?;
+            std::fs::create_dir(dest).map_err(|e| fail("create-directory", path, e))
         }
         ResourceIntent::MoveDirectory {
             source,
             destination,
         } => move_directory(root, source, destination),
         ResourceIntent::RemoveFile { path } => {
-            let target = target(root, path).map_err(|e| fail("remove-file", path, e, false))?;
-            regular(&target).map_err(|e| fail("remove-file", path, e, false))?;
-            std::fs::remove_file(target).map_err(|e| fail("remove-file", path, e, false))
+            let target = target(root, path).map_err(|e| fail("remove-file", path, e))?;
+            regular(&target).map_err(|e| fail("remove-file", path, e))?;
+            std::fs::remove_file(target).map_err(|e| fail("remove-file", path, e))
         }
         ResourceIntent::RemoveDirectory { path } => {
-            let target =
-                target(root, path).map_err(|e| fail("remove-directory", path, e, false))?;
-            std::fs::remove_dir(target).map_err(|e| fail("remove-directory", path, e, false))
+            let target = target(root, path).map_err(|e| fail("remove-directory", path, e))?;
+            std::fs::remove_dir(target).map_err(|e| fail("remove-directory", path, e))
         }
     }
 }
@@ -100,7 +99,7 @@ fn move_directory(
     source: &RelativePath,
     destination: &RelativePath,
 ) -> Result<(), ResourceFailure> {
-    let fail = |path: &RelativePath, error| ("move-directory", path.clone(), error, false);
+    let fail = |path: &RelativePath, error| ("move-directory", path.clone(), error);
     let src = target(root, source).map_err(|e| fail(source, e))?;
     let dst = target(root, destination).map_err(|e| fail(destination, e))?;
     let metadata = std::fs::symlink_metadata(&src).map_err(|e| fail(source, e))?;

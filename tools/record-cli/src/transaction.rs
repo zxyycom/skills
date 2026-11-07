@@ -143,12 +143,7 @@ fn apply_plan<T>(
     result: &mut TransactionOutcome<T>,
 ) -> Option<Diagnostic> {
     for resource in &plan.resources {
-        if let Err((step, path, error, unknown)) = apply_resource(root, resource) {
-            if unknown {
-                result.changed = true;
-                result.written_paths.push(path.clone());
-                result.unknown_paths.push(path.clone());
-            }
+        if let Err((step, path, error)) = apply_resource(root, resource) {
             return Some(failure(step, &path, error));
         }
         for path in resource_effects(resource) {
