@@ -171,7 +171,7 @@
       "261105-route-test-design-and-existing-review": "sha256:fa048f539b7b543bb0489bc1fee0e0afe8082a7b9626fbe704a66084a508d4eb",
       "261106-isolate-shared-native-record-candidate": "sha256:deb97c4cbb8258f6fc7e4e0425f72ce423d07e7f2ee98b189ccda4bcfcae242f",
       "261106-retain-domain-query-result-types": "sha256:fed60edd16b21da364b0dcf8313f8e1c32d48c9209a6baf10f30c72997186c98",
-      "261107-rust-record-candidate-cooperative-file-safety": "sha256:0cd202ba48c3c0c208dee119acaa2722bc868ec0afb0326fd5d74b8982d47f87",
+      "261107-rust-record-candidate-cooperative-file-safety": "sha256:165763b9a9fa04f5324b0ba9608cfe5ece2ad256ee3c6745365b824797690bdf",
       "261107-rust-record-candidate-sequential-local-runtime": "sha256:b7c702a382628256972ce28a59970fd4afcfe28e307554742929764d8d519695",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",

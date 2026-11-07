@@ -17,6 +17,8 @@ relations: []
 
 ## 目的
 
+本文记录已归档的历史取舍；现行 Rust 候选方向见[顺序本地运行时决策](../261107-rust-record-candidate-sequential-local-runtime.md)。
+
 - 为 Decision Records 和 Investigation Report 的 Rust CLI 候选确定与本地工作区风险相称的文件、事务和恢复边界，使数据保护与维护成本都可解释。
 
 ## 背景
