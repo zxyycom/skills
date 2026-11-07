@@ -79,7 +79,6 @@ fn new_relation_selectors_normalize_suffix_and_reject_ambiguous_names() {
         let dir = fixture.path().join("records");
         std::fs::create_dir(&dir).unwrap();
         let root = open_root(fixture.path()).unwrap();
-        let lock = RelativePath::new(".lock").unwrap();
         let input = || input_with_relations(decision_domain, &[]);
         let create = |selector: &str, day: &str, input: NewInput| {
             let mut op = NewOperation::at(
@@ -89,7 +88,7 @@ fn new_relation_selectors_normalize_suffix_and_reject_ambiguous_names() {
                 day.into(),
             )
             .unwrap();
-            run_transaction(&root, &lock, &mut op)
+            run_transaction(&root, &mut op)
         };
         assert_eq!(
             create("foo", "2026-11-06T12:00:00Z", input()).status,

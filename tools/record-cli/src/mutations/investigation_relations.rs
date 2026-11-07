@@ -1,5 +1,5 @@
 //! Rendering the source portion of an IR relation replacement. The caller
-//! validates the complete proposed index and supplies fresh source snapshots.
+//! validates the complete proposed index and supplies selected source snapshots.
 use super::contract::{InvestigationRelationKind, Relation, ReviewAction, SourceReview};
 use std::collections::HashMap;
 
@@ -102,8 +102,8 @@ pub enum PreparationError {
 
 /// Prepares source bytes and the complete next index from a validated baseline.
 /// The shared domain source-revision algorithm checks the selected bytes. The
-/// caller retains responsibility for the baseline's canonical bytes, opened
-/// source identity, locks, fresh/postverify and all actual writes.
+/// caller retains responsibility for reading the baseline and selected sources
+/// and for executing the resulting writes.
 pub fn prepare_replacements(
     baseline: &crate::index::ValidatedIndex<crate::domains::investigation::InvestigationState>,
     review: &[SourceReview<InvestigationRelationKind>],

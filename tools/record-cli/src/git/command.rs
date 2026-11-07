@@ -5,15 +5,6 @@ pub(super) fn command(
     args: &[&str],
     input: Option<&[u8]>,
 ) -> Result<Vec<u8>, GitError> {
-    command_index(root, args, input, None)
-}
-
-pub(super) fn command_index(
-    root: &std::path::Path,
-    args: &[&str],
-    input: Option<&[u8]>,
-    index: Option<&std::path::Path>,
-) -> Result<Vec<u8>, GitError> {
     use std::process::{Command, Stdio};
     check_git_context()?;
     let mut process = Command::new("git");
@@ -29,9 +20,6 @@ pub(super) fn command_index(
         })
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
-    if let Some(index) = index {
-        process.env("GIT_INDEX_FILE", index);
-    }
     let child = process.spawn().map_err(GitError::Io)?;
     collect_output(child, input)
 }

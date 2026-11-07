@@ -11,8 +11,6 @@ pub(super) struct HistoryPreparation<'a> {
     pub successors: &'a [evolution::Successor],
 }
 pub(super) struct HistoryReview {
-    pub history: decision_history::HistoryEvidence,
-    pub discard_history: Option<(Option<String>, bool)>,
     pub plan: evolution::EvolutionPlan,
 }
 impl HistoryPreparation<'_> {
@@ -43,11 +41,7 @@ impl HistoryPreparation<'_> {
             }
             _ => fail("evolution", format!("{e:?}")),
         })?;
-        Ok(HistoryReview {
-            history,
-            discard_history,
-            plan,
-        })
+        Ok(HistoryReview { plan })
     }
     fn confirm_discard(
         &self,

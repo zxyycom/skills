@@ -16,9 +16,8 @@ fn unrecorded_git_predecessor_requires_confirmation() {
     );
     std::fs::write(c.join("old.md"), candidate("261105-old", "[]")).unwrap();
     let root = open_root(dir.path()).unwrap();
-    let lock = RelativePath::new(".decision.lock").unwrap();
     assert_eq!(
-        run_transaction(&root, &lock, &mut operation("old")).status,
+        run_transaction(&root, &mut operation("old")).status,
         TxStatus::Ok
     );
     std::fs::write(
@@ -39,7 +38,7 @@ fn unrecorded_git_predecessor_requires_confirmation() {
     );
     assert!(!c.join("archive").exists());
     op.keep_unrecorded_history = true;
-    let result = run_transaction(&root, &lock, &mut op);
+    let result = run_transaction(&root, &mut op);
     assert_eq!(result.status, TxStatus::Ok, "{:?}", result.errors);
 }
 #[test]
@@ -63,9 +62,8 @@ fn recorded_predecessor_is_identified_from_head_index() {
     git(&["init", "-q"]);
     std::fs::write(c.join("old.md"), candidate("261105-old", "[]")).unwrap();
     let root = open_root(dir.path()).unwrap();
-    let lock = RelativePath::new(".decision.lock").unwrap();
     assert_eq!(
-        run_transaction(&root, &lock, &mut operation("old")).status,
+        run_transaction(&root, &mut operation("old")).status,
         TxStatus::Ok
     );
     git(&["add", "decisions"]);
@@ -86,7 +84,7 @@ fn recorded_predecessor_is_identified_from_head_index() {
         ),
     )
     .unwrap();
-    let result = run_transaction(&root, &lock, &mut operation("new"));
+    let result = run_transaction(&root, &mut operation("new"));
     assert_eq!(result.status, TxStatus::Ok, "{:?}", result.errors);
     assert!(result.committed);
     assert!(c.join("archive/old.md").exists());
@@ -105,7 +103,6 @@ fn legacy_name_ambiguity_rejects_every_selector_role_without_writes() {
         std::fs::write(c.join(path), candidate(id, "[]")).unwrap();
     }
     let root = open_root(dir.path()).unwrap();
-    let lock = RelativePath::new(".decision.lock").unwrap();
     let snapshots: Vec<_> = ["legacy.md", "dated.md", "next.md"]
         .into_iter()
         .map(|name| (name, std::fs::read(c.join(name)).unwrap()))
@@ -143,7 +140,7 @@ fn legacy_name_ambiguity_rejects_every_selector_role_without_writes() {
             "{role}: {}",
             error.message
         );
-        let result = run_transaction(&root, &lock, &mut op);
+        let result = run_transaction(&root, &mut op);
         assert_eq!(result.status, TxStatus::Error, "{role}");
         assert!(!result.committed && !result.changed, "{role}");
         for (name, before) in &snapshots {
@@ -165,7 +162,7 @@ fn legacy_name_ambiguity_rejects_every_selector_role_without_writes() {
     ] {
         let mut op = operation(invalid);
         assert_eq!(preflight(&root, &mut op).err().unwrap().code, "selector");
-        let result = run_transaction(&root, &lock, &mut op);
+        let result = run_transaction(&root, &mut op);
         assert_eq!(result.status, TxStatus::Error);
         assert!(!result.committed && !result.changed);
         for (name, before) in &snapshots {

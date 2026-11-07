@@ -40,7 +40,14 @@ fn archive_preparation_produces_selected_source_and_full_validated_index() {
     let root = crate::source::open_root(dir.path()).unwrap();
     let collection_path = crate::source::RelativePath::new("decisions").unwrap();
     let index_path = crate::source::RelativePath::new("decisions/decision-index.json").unwrap();
-    let plan = capture_plan(&root, &collection_path, &index_path, &[edit]).unwrap();
+    let plan = capture_plan(
+        &root,
+        &collection_path,
+        &index_path,
+        crate::source::capture(&root, &index_path).unwrap(),
+        &[edit],
+    )
+    .unwrap();
     assert_eq!(plan.writes.len(), 3);
     assert_eq!(
         plan.writes[0].path.as_path(),

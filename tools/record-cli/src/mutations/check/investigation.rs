@@ -30,18 +30,14 @@ pub(crate) fn investigation_stage(
     let partial = partial_result(&dir, &initial);
     let mut result = partial.clone();
     let initial::Initial {
-        directories,
-        index_identity,
-        source_proofs,
         states,
         revisions,
         formal_count,
-        resource_evidence,
         ..
     } = initial;
     let IndexCheck {
         index_path,
-        index_proof,
+        index_before,
         target,
         index_state,
         needs_write,
@@ -57,7 +53,6 @@ pub(crate) fn investigation_stage(
         root,
         dir: &dir,
         directory,
-        index_identity,
         states,
         revisions,
         formal_count,
@@ -69,12 +64,7 @@ pub(crate) fn investigation_stage(
     result.index_path = index_path.as_path().to_string_lossy().replace('\\', "/");
     result.index_checked = Some(true);
     Ok(InvestigationStage {
-        proof: Some(InvestigationProof {
-            directories,
-            sources: source_proofs,
-            index: index_proof,
-            resources: resource_evidence,
-        }),
+        index_before,
         target,
         needs_write,
         result,

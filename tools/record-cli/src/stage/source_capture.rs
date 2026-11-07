@@ -1,6 +1,6 @@
 //! Capture and validate selected source documents against the phase's index and Git evidence.
 use super::{
-    FreshnessError, StageScope,
+    StageScope,
     index_scope::{IndexStageError, Phase, checked_index, validated_pending_index},
 };
 use crate::{
@@ -17,7 +17,6 @@ type Paths = BTreeMap<PathBuf, BTreeSet<String>>;
 type Verify<S> =
     fn(&source::SourceSnapshot, &str, &S, &ValidatedIndex<S>) -> Result<(), IndexStageError>;
 type Updates = BTreeMap<PathBuf, Option<PendingFile>>;
-type Sources = Vec<(RelativePath, ExpectedFile)>;
 type IndexPair<S> = (ValidatedIndex<S>, Option<ValidatedIndex<S>>);
 
 pub(super) enum FileMode {
@@ -52,21 +51,16 @@ pub(super) fn path_in_domain(
 }
 
 impl<S> SourceCapture<'_, S> {
-    pub fn capture(&self) -> Result<(Updates, Sources), IndexStageError> {
+    pub fn capture(&self) -> Result<Updates, IndexStageError> {
         let mut updates = Updates::new();
-        let mut sources = Vec::new();
         for path in self.selected_paths {
-            let (relative, snapshot, update) = self.capture_one(path)?;
+            let update = self.capture_one(path)?;
             updates.insert(path.clone(), update);
-            sources.push((relative, snapshot));
         }
-        Ok((updates, sources))
+        Ok(updates)
     }
 
-    fn capture_one(
-        &self,
-        path: &PathBuf,
-    ) -> Result<(RelativePath, ExpectedFile, Option<PendingFile>), IndexStageError> {
+    fn capture_one(&self, path: &PathBuf) -> Result<Option<PendingFile>, IndexStageError> {
         let relative = RelativePath::new(path).map_err(IndexStageError::Source)?;
         let snapshot = source::capture(self.root, &relative).map_err(IndexStageError::Source)?;
         let owner = self.workspace.index().entries.iter().find(|(id, state)| {
@@ -95,7 +89,7 @@ impl<S> SourceCapture<'_, S> {
             }
         };
         self.verify_pending_identity(path)?;
-        Ok((relative, snapshot, update))
+        Ok(update)
     }
 
     /// Verify the indexed document and derive its staged file representation.
@@ -109,7 +103,7 @@ impl<S> SourceCapture<'_, S> {
         let mode = match self.mode {
             FileMode::Fixed => 0o100644,
             FileMode::Git(file_mode) => {
-                git::workspace_file_mode(source, self.pending.membership(), file_mode)
+                git::workspace_file_mode(self.root, source, self.pending.membership(), file_mode)
                     .map_err(IndexStageError::Git)?
             }
         };
@@ -150,18 +144,19 @@ pub(super) fn stage_indexes<D: DomainDefinition>(
 ) -> Result<IndexPair<D::State>, IndexStageError> {
     let workspace = match &base.workspace {
         ExpectedFile::Present(snapshot) => checked_index(&snapshot.bytes, domain)?,
-        ExpectedFile::Missing => return Err(IndexStageError::Drift),
+        ExpectedFile::Missing => {
+            return Err(IndexStageError::Selection("workspace index missing".into()));
+        }
     };
     let pending = validated_pending_index(&base.pending, index_path, domain, scope)?;
     Ok((workspace, pending))
 }
 
-/// Bind a broader selected-content read to the index and locator observations.
+/// Read pending payloads for the selected source paths and index.
 pub(super) fn pending_for_sources(
     root: &Root,
     index_path: &RelativePath,
     base: &Phase,
-    locator: Option<&ContentSnapshot>,
     mut paths: Vec<PathBuf>,
 ) -> Result<ContentSnapshot, IndexStageError> {
     if base
@@ -173,53 +168,7 @@ pub(super) fn pending_for_sources(
         paths.push(index_path.as_path().to_owned());
     }
     let pending = git::read_selected(root.path(), &paths).map_err(IndexStageError::Git)?;
-    if locator.is_some_and(|snapshot| {
-        snapshot.membership() != pending.membership()
-            || snapshot
-                .blobs()
-                .iter()
-                .any(|blob| !pending.blobs().contains(blob))
-    }) {
-        return Err(IndexStageError::Drift);
-    }
-    if pending.membership() != base.pending.membership()
-        || pending
-            .blobs()
-            .iter()
-            .find(|(p, _)| p == index_path.as_path())
-            != base
-                .pending
-                .blobs()
-                .iter()
-                .find(|(p, _)| p == index_path.as_path())
-    {
-        return Err(IndexStageError::Drift);
-    }
     Ok(pending)
-}
-
-/// Recheck the workspace index and selected documents without conflating drift and read failure.
-pub(super) fn check_document_sources(
-    root: &Root,
-    index_path: &RelativePath,
-    workspace: &ExpectedFile,
-    sources: &[(RelativePath, ExpectedFile)],
-) -> Result<(), FreshnessError> {
-    if !source::equivalent_file(
-        &source::capture(root, index_path).map_err(|_| FreshnessError::Read)?,
-        workspace,
-    ) {
-        return Err(FreshnessError::Drift);
-    }
-    for (path, expected) in sources {
-        if !source::equivalent_file(
-            &source::capture(root, path).map_err(|_| FreshnessError::Read)?,
-            expected,
-        ) {
-            return Err(FreshnessError::Drift);
-        }
-    }
-    Ok(())
 }
 
 /// Map every indexed source path to its observed owners across the fixed snapshots.
@@ -257,29 +206,6 @@ pub(super) fn selected_owned_paths(
     Ok(selected)
 }
 
-/// Selected source evidence compared between independent stage acquisitions.
-pub(super) struct SourceEvidence<'a> {
-    pub base: &'a Phase,
-    pub pending: &'a ContentSnapshot,
-    pub sources: &'a [(RelativePath, ExpectedFile)],
-    pub updates: &'a [crate::git::publish::PendingUpdate],
-}
-impl SourceEvidence<'_> {
-    pub fn equivalent(&self, other: &Self) -> bool {
-        source::equivalent_file(&self.base.workspace, &other.base.workspace)
-            && self.base.selected == other.base.selected
-            && self.base.target == other.base.target
-            && self.pending == other.pending
-            && self.sources.len() == other.sources.len()
-            && self
-                .sources
-                .iter()
-                .zip(other.sources)
-                .all(|((ap, a), (bp, b))| ap == bp && source::equivalent_file(a, b))
-            && self.updates == other.updates
-    }
-}
-
 /// Complete a source-stage update batch, adding the index only for all scope.
 pub(super) fn finish_updates(
     scope: StageScope,
@@ -300,39 +226,4 @@ pub(super) fn finish_updates(
         .into_iter()
         .map(|(path, file)| crate::git::publish::PendingUpdate { path, file })
         .collect()
-}
-
-/// Phase recapture distinguishes observed drift from an unreadable source.
-pub(super) fn phase_freshness_error(error: FreshnessError) -> IndexStageError {
-    match error {
-        FreshnessError::Drift => IndexStageError::Drift,
-        FreshnessError::Read => IndexStageError::Selection("source verification failed".into()),
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::os::unix::fs::PermissionsExt;
-
-    #[test]
-    fn source_recheck_accepts_equal_replacement_but_rejects_changed_mode() {
-        let workspace = tempfile::tempdir().unwrap();
-        let path = workspace.path().join("index.json");
-        std::fs::write(&path, b"index").unwrap();
-        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o640)).unwrap();
-        let root = source::open_root(workspace.path()).unwrap();
-        let relative = RelativePath::new("index.json").unwrap();
-        let before = source::capture(&root, &relative).unwrap();
-        let replacement = workspace.path().join("replacement");
-        std::fs::write(&replacement, b"index").unwrap();
-        std::fs::set_permissions(&replacement, std::fs::Permissions::from_mode(0o640)).unwrap();
-        std::fs::rename(&replacement, &path).unwrap();
-        assert!(check_document_sources(&root, &relative, &before, &[]).is_ok());
-        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).unwrap();
-        assert!(matches!(
-            check_document_sources(&root, &relative, &before, &[]),
-            Err(FreshnessError::Drift)
-        ));
-    }
 }

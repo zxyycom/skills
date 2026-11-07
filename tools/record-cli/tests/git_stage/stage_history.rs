@@ -120,7 +120,6 @@ fn historical_missing_index_is_not_treated_as_empty_for_ambiguous_or_formal_memb
                     assert!(
                         matches!(&error, record_cli::stage::index_scope::IndexStageError::HistoricalIndexMissing { namespace_indeterminate } if *namespace_indeterminate == (domain == "decisions"))
                     );
-                    assert!(error.pending_outcome().is_none());
                     assert_eq!(before, git(root, &["ls-files", "--stage", "-z"]));
                 }
                 fs::write(

@@ -1,16 +1,16 @@
 # Record CLI 候选机器协议
 
-本文供调用者和维护者理解两个原生 CLI 的 JSON、结果和恢复边界。领域行为及授权仍以 [Decision Records CLI](../../skills/decision-records/references/cli-operations.md)、[Investigation Report CLI](../../skills/investigation-report/references/cli-operations.md) 和[共同操作模型](../record-operations/model.md)为准；参数、默认值及命令的域差异用各二进制 `help <command>` 查询。候选的构建、隔离与验证从 [README](README.md) 进入。这里描述候选接口及其应保留的信息，并不把源码映射当成跨平台或全部分支已验收的证据。
+本文供调用者和维护者理解两个原生 CLI 的 JSON、结果和恢复边界。领域行为及授权仍以 [Decision Records CLI](../../skills/decision-records/references/cli-operations.md)、[Investigation Report CLI](../../skills/investigation-report/references/cli-operations.md) 和[共同操作模型](../record-operations/model.md)为准；参数、默认值及命令的域差异用各二进制 `help <command>` 查询。候选的构建、隔离与验证从 [README](README.md) 进入。本页描述候选 version 2 接口；平台及行为验收以实际测试证据为准。
 
 ## 通道与 envelope
 
 请求 `--json` 时，正常情况下 stdout 是单个 JSON 对象，stderr 承接警告或非协议诊断；退出码 0 为成功、1 为领域或系统失败、2 为参数错误。help 和 version 是独立的文本入口。解析器已识别 JSON 请求但无法判定命令时，失败对象的 `command` 可以为空字符串。输出自身发生序列化或 I/O 故障时不能假设一定得到可解析对象。
 
-除成功 trace 外，成功对象含 `version: 1`、`command`、`ok: true`、`result` 和 `diagnostics`；失败对象含 `version: 1`、`command`、`ok: false`、`error` 和 `diagnostics`，有实际可证明部分事实时还可含 `result`。`error` 包含 `code`、`message`，可带 `path`、`field`、`recovery`；诊断可带 `code`、`message`、`path`、`target`、`reason`、`recovery`、`causeCategory`、`operation` 和 `detail`。成功输出的诊断数组可以为空，warning 亦可能在结果内并写 stderr，不能只检查其中一个通道。失败时先读 `error` 和诊断，再读存在的部分结果；不得把 absent、`null`、空数组或 false 当成同一含义。仅在来源分支有相应事实时输出可选字段；明确未知的 `null` 保留为未知。
+除成功 trace 外，成功对象含 `version: 2`、`command`、`ok: true`、`result` 和 `diagnostics`；失败对象含 `version: 2`、`command`、`ok: false`、`error` 和 `diagnostics`，有实际可证明部分事实时还可含 `result`。`error` 包含 `code`、`message`，可带 `path`、`field`、`recovery`；诊断可带 `code`、`message`、`path`、`target`、`reason`、`recovery`、`causeCategory`、`operation` 和 `detail`。成功输出的诊断数组可以为空，warning 亦可能在结果内并写 stderr，不能只检查其中一个通道。失败时先读 `error` 和诊断，再读存在的部分结果；不得把 absent、`null`、空数组或 false 当成同一含义。仅在来源分支有相应事实时输出可选字段；明确未知的 `null` 保留为未知。
 
 诊断的 `path` 用于定位实际问题，可为平台显示的规范路径；它不等同于记录结果中表示逻辑来源的 `sourcePath`，调用者不应假定两者字面相同或采用相同的相对路径基准。
 
-成功 `trace --json` 不套 envelope：DR 带 `source`，IR 带 `warnings` 且 warning 同时写 stderr；两域均保留各自原有字段、类型、顺序、缺省及预算语义。失败 trace 使用失败 envelope，不将其说成旧版同形。`version` 是候选 envelope 版本，不是索引 schema 版本；需破坏现有机器契约时应先审查并调整版本。实现入口为 [protocol.rs](src/protocol.rs) 和 [输出映射](src/cli/output.rs)。
+成功 `trace --json` 不套 envelope：DR 带 `source`，IR 带 `warnings` 且 warning 同时写 stderr；两域均保留各自原有字段、类型、顺序、缺省及预算语义。失败 trace 使用失败 envelope，不将其说成旧版同形。`version` 是候选 envelope 版本，不是索引 schema 版本；version 2 移除不再产生事实的验证与恢复状态字段，成功 trace 的特殊形状不变。实现入口为 [protocol.rs](src/protocol.rs) 和 [输出映射](src/cli/output.rs)。
 
 ## 命令结果和信息归属
 
@@ -25,13 +25,13 @@
 | 两域 `search` | DR `records`、IR `entries`；各结果保留筛选关系、metadata 命中字段/关系或 content `previews`（含位置、范围），以及 `searchInfo` 的 query、source、counts、coverage 和适用截断信息。见各域 [DR content](src/queries/decision/content.rs)、[DR metadata](src/queries/decision/metadata.rs)、[IR content](src/queries/investigation/content.rs)、[IR metadata](src/queries/investigation/metadata.rs) 与[共享搜索信息](src/queries/search_info.rs)。 |
 | 两域 `trace` | `anchorId`、`direction`、`limits`、`coverage`、`traceIds`、`contextIds`、`frontier`、可选 `blockedEvent` 和各域 `entries`；域差异见上节和 [DR DTO](src/queries/decision/trace.rs)、[IR DTO](src/queries/investigation/trace.rs)。frontier 不是 cursor。 |
 | 两域 `new` | 创建身份、路径、readiness、warning 及事务事实；DR 还提供 `decisionId`、可选 alignment preview。提交后失败仍可能已创建，不把 `ok: false` 当作零写入。见 [身份输出](src/cli/identity_output.rs)。 |
-| 两域 `publish`、`set-relations`，以及 DR `evolve` | 按操作保留选中或建立/归档身份、`preflight`、`relationReview` 及事务结果；review 的 `phase` 区分预检与提交后，source 保留 before/after 和 action。见 [DR mutation 映射](src/cli/mutation/decision/services.rs)、[IR mutation 映射](src/cli/mutation/investigation/services.rs)、[evolve 映射](src/cli/identity_output.rs)。 |
+| 两域 `publish`、`set-relations`，以及 DR `evolve` | 按操作保留选中或建立/归档身份、`preflight`、`relationReview` 及有依据的事务结果；计划 review 与实际结果分别判断，不伪造 postverify review，source 的 before/after 和 action 按可证明事实提供。见 [DR mutation 映射](src/cli/mutation/decision/services.rs)、[IR mutation 映射](src/cli/mutation/investigation/services.rs)、[evolve 映射](src/cli/identity_output.rs)。 |
 | 两域 `discard`、`rename` | 分别保留选择身份、实际影响、确认或恢复事实，以及 rename 的旧新身份、路径、影响与候选/资源归属信息。预检只表达计划。见 [DR 身份映射](src/cli/decision_identity.rs)、[IR 身份映射](src/cli/investigation_identity.rs) 和[共同事务输出](src/cli/transaction_output.rs)。 |
 | 两域 `sync-index` | 区分 full / selected、preflight / 实际执行、`changedIds`、所选 ID、索引位置、状态、warning 和适用的 `coverage`；事务分支的字段可能不同于预检 DTO。见 [DR selected](src/mutations/decision_selected_sync.rs)、[IR selected](src/mutations/investigation_selected_sync.rs)、[IR full](src/mutations/investigation_sync.rs) 和各域 mutation 映射。 |
 | 两域 `stage` | 适用范围、选择、实际 `writtenPaths`、`preservedPendingPaths`、`callerOwnedPaths`；DR 另有 `indexRelativePath`、`pendingFileCount`，IR 有 `indexPath`、`namespace`、`changed`、`state`。失败可含 `pending`、未知的 `changed: null` 和恢复提示。见 [stage 输出](src/cli/transaction_output.rs)。 |
 | DR `archive`、`mark-aligned`、`reactivate` | 受影响 ID、原/新状态和路径，及实际事务/预检事实。见 [lifecycle 输出](src/cli/transaction_output.rs) 和 [执行映射](src/cli/mutation/decision/lifecycle.rs)。 |
 
-rename 两域分别提供 `oldName` / `newName`、候选和正式关系改写计数及 `affectedCountsScope: "selected-and-rewritten"`；IR 另有 `affectedResourceReferenceCount`，计量所选及实际改写来源中的资源字面引用。该范围不包含未选候选，不为计数读取或改写它们。DR rename 对域内 Git pending 执行保护；冲突或无法证明时停止，不能覆盖 pending。IR discard 成功后的 `deletedResourceIds` 与历史确认需求 `requiresRecordedDeletionConfirmation` 分开表达；预检只提供 `plannedDeletedResourceIds`。
+rename 两域分别提供 `oldName` / `newName`、候选和正式关系改写计数及 `affectedCountsScope: "selected-and-rewritten"`；IR 另有 `affectedResourceReferenceCount`，计量所选及实际改写来源中的资源字面引用。该范围不包含未选候选，不为计数读取或改写它们。IR 预检或失败时的计划使用 `plannedResourceOwnerMove`，实际结果使用 `resourceOwnerMoved`，不能以计划推断移动已完成。DR rename 对域内 Git pending 执行保护；冲突或无法证明时停止，不能覆盖 pending。IR discard 成功后的 `deletedResourceIds` 与历史确认需求 `requiresRecordedDeletionConfirmation` 分开表达；预检只提供 `plannedDeletedResourceIds`。
 
 selected sync 和 stage 的多个 selector 诊断保留各自有序的 `target`、`reason`、`recovery` 及可证明的 scope、state、`causeCategory`、`operation`、`detail`；IR `reportCount` 仅在可信 baseline 已验证后提供。没有实际 I/O 错误细节时，`detail` 省略，不伪造 Node `realpath` 错误原文。
 
@@ -39,17 +39,16 @@ selected sync 和 stage 的多个 selector 诊断保留各自有序的 `target`�
 
 ## 文件与事务边界
 
-本节定义当前 Rust 候选面向合作型本地单用户 CLI 的文件与事务契约，对应[候选文件保障决策](../../docs/decisions/261107-rust-record-candidate-cooperative-file-safety.md)；实现与测试证据以实际 revision 和 Linux 环境为限，不外推 Windows 或其他平台。候选仍只用于私有 fixture，不操作真实记录。生产 TypeScript 不随候选改变，其保障见[共同操作维护](../record-operations/README.md)。
+本节定义[顺序本地候选](../../docs/decisions/261107-rust-record-candidate-sequential-local-runtime.md)的文件与事务边界，面向合作型本地单用户顺序操作；它不修改生产 TypeScript 的保证，不承诺非合作进程的跨文件原子隔离。实际能力以实现及相应平台测试证据为准。
 
-- **更新与新建**：持合作锁，在受管路径核对完整内容与普通权限；内容或权限变化为冲突，同内容同权限的 inode 变化可接受。普通更新在同目录独占创建临时文件，完整写入并设置权限后再次比较，原子替换并回读字节与权限。最后比较到 rename 之间仍有非合作编辑竞争窗口，不是 CAS；普通编辑器也可能原子替换。新建直接独占创建，不能覆盖竞争者；普通候选创建在写入并回读验证后提交。已知替换或创建发生时记录实际写入；替换结果无法确认或回读失败时报告未知，不把 `changed: false` 当成零变化的证明。
-- **路径、权限与硬链接**：保留根内目录链接规则，最终文件和资源树成员链接不跟随，越界或不能安全判定时拒绝；只读目标拒绝，不因目录可写绕过。写集内硬链接别名拒绝；写集外硬链接继续指向旧内容。特殊属性、ACL 与 Windows 全属性保真不作承诺。
-- **资源与恢复**：资源先逐项独占复制到目标并验证，再更新引用和必要索引，最后重查旧源成员、字节和权限后删除；业务删除和旧源核对按内容及普通权限判断等价，不要求 inode 不变。覆盖或删除不可重建旧数据且无可验证保留副本时先独占保存并验证恢复副本；IR 的发布身份和成员是业务事实，不能仅凭正文猜测。恢复副本和操作者根据结果整理的简短对账清单是运维材料，不改变领域 schema 或权威源。失败保留已完成、未知路径、系统原因和适用备份；有后来编辑或状态无法证明安全时停止并人工对账。清理本事务拥有的临时文件或备份时仍需证明必要身份，不能仅凭内容等价删除其他对象。不引入 WAL、自动重放或强制完整自动回滚，只有完整恢复经证明才报告 rolled-back。
-- **提交与暂存**：普通更新以回读通过为提交点；已有索引发布以实际替换为提交点，新建索引以独占创建并完成写入和初始化为发布点；之后验收或清理失败仍保留 committed；删除以旧路径退出为提交点，更名以目标、必要引用和索引完成及旧路径退出为提交点。多个资源移动须所有必要旧源均退出才满足该退出条件；最后目录删除已成功但其回读失败时，仍保留已知退出和适用提交事实。涉及索引发布时分别依据 `committed` 和实际、未知路径判断发布事实与旧源退出状态。Git stage 保留真实锁、备用 index、`git update-index`、锁内 HEAD/pending 检查，以及精确选择、模式和删除；保留未选暂存及未跟踪数据，真实 index 发布为提交点。Git 不是工作区备份。
+- 正式调用正常读取并准备一次，完成必要领域校验；预检仅展示计划，不保存执行凭据。保留基本工作区路径范围；已有文件用成熟库原子替换以保护旧内容；替换后普通文件属性由库和操作系统决定，不保证继承旧权限。新建使用 `create_new` 不覆盖已有目标，但初始化失败可留下部分新文件，按可证明的 `changed`、`writtenPaths`、`unknownPaths` 和写入诊断如实报告，不提供完整内容原子发布保证；不再要求主动 readonly 策略、权限漂移或 exact mode、根父链/inode 跨阶段身份、多阶段 fresh 或全范围 readback 证明。
+- IR 发布身份和成员是业务事实，不能从正文猜测。资源普通冲突预检后目录 rename，再顺序更新引用和必要索引；多文件过程允许部分完成。无普遍磁盘备份、自动条件 rollback、恢复完整证明、额外强制 `sync_all` 或 owned-temp 清理协议。失败时应对照实际结果和现场，不假定未发生写入。
+- stage 合成所选记录同 JSON 内容，保留未选暂存，以 `hash-object` 和一次 `update-index --index-info` 交给 Git 自身管理锁；不使用 CLI 手持 real lock、alternate index 或 HEAD/pending CAS。写入前检查路径组件的文件/目录冲突：Git 更新可能驱逐已有的祖先或后代项，只有本批明确删除的项可被替换。这是保留未选暂存所必需的检查，不是并发保护。Git pending 不是工作区备份。
 
 ## 事务、编码和恢复
 
-预检不持久保存执行凭据，正式执行重新准备并在写锁内核对；fresh 与写后验收独立采集。事务结果的 `changed`、`committed`、`verification`、`outcome`、`writtenPaths`、`unknownPaths`、`errors` 和 `cleanupErrors` 是不同事实；适用时 `recoveryBackups`、`recoveryDirectories` 提供恢复线索。`changed` 表示已知变化，`committed` 表示已知越过提交点，均为 false 不排除 `unknownPaths` 中发生了变化；`verification` 和 `outcome` 分别说明验收与恢复状态。`writtenPaths` 是已知实际影响，`unknownPaths` 是结果不能确认的路径，两者可能同时包含同一路径。`partial-or-unknown` 或提交后清理失败不代表完整回滚；保留报告的备份和目录，检查实际状态再决定恢复，不盲目重试。`recoveryBackups` 的 `source` / `backup` 既可能指独立恢复副本，也可能在资源迁移失败时指向已验证的目标资源文件；后者是目标树的一部分，不是成功后可删除的临时备份。准备成功后事务失败时可能出现 `plannedIdentity`，它只表示已准备的计划，不等于实际 mutation；提交后结果未知、实际写集及计划分别判断。计划的路径和关系审阅不等于实际写集或已提交 review。stage 按其 pending outcome 解释，不用普通文件事务结果替代。
+version 2 保留业务结果的信息粒度，以及适用的 `status`、`changed`、`committed`、`writtenPaths`、`unknownPaths`、`errors`；诊断按有证据的 `operation`、路径和原因区分失败步骤。`committed` 只表示适用操作的实际提交点已发生；计划身份、路径及 review 不能代替实际完成结果。`writtenPaths` 表示已知实际影响，不保证路径内容完整，也可以与 `unknownPaths` 重叠：例如新目标已创建但写入失败时，`changed: true` 是真实变化，内容仍未知。使用者应检查现场并对账。
 
-临时文件残留属于清理诊断，应提供实际残留路径和原因；它不表示业务目标已经替换，也不能据此把业务目标记为已写入。
+不再产生事实的 `verification`、`outcome` 恢复状态、`recoveryBackups`、`recoveryDirectories`、`cleanupErrors` 不以恒空或 NotRun 兼容壳保留；不能虚构 `rolled-back`、通过验收或 postverify relationReview。失败、结果未知和实际完成必须分别表达。成功 trace 保留原特殊形状。
 
 源文档和索引文本中的孤立 UTF-16 代理项被结构化拒绝，不静默替换；正常文字和完整 emoji 不受影响。预览按 UTF-16 code unit 截断时仍须保留原 JSON 输出契约，包括截断产生的转义代理项。安全和并发能力依实际平台与证据界定，不承诺非合作进程的跨文件原子隔离。

@@ -1,13 +1,11 @@
 use super::*;
 
 pub(super) struct Collection {
-    pub listing: source::DirectorySnapshot,
     pub index_path: RelativePath,
     pub index_before: ExpectedFile,
     pub baseline: index::ValidatedIndex<decision::DecisionState>,
     pub ids: BTreeMap<String, Located>,
     pub archive: Option<source::DirectorySnapshot>,
-    pub headers: Vec<(String, source::HeaderSnapshot)>,
     pub candidates: BTreeSet<String>,
 }
 
@@ -23,19 +21,14 @@ pub(super) fn capture(
         baseline,
     } = baseline(operation, root)?;
     let Members { archive, paths } = collect_members(operation, root, &listing)?;
-    let CandidateHeaders {
-        ids,
-        headers,
-        candidates,
-    } = candidate_headers(operation, root, &baseline, &index_before, &paths)?;
+    let CandidateHeaders { ids, candidates } =
+        candidate_headers(operation, root, &baseline, &index_before, &paths)?;
     Ok(Collection {
-        listing,
         index_path,
         index_before,
         baseline,
         ids,
         archive,
-        headers,
         candidates,
     })
 }
@@ -148,7 +141,6 @@ fn collect_archive(
 
 struct CandidateHeaders {
     ids: BTreeMap<String, Located>,
-    headers: Vec<(String, source::HeaderSnapshot)>,
     candidates: BTreeSet<String>,
 }
 fn candidate_headers(
@@ -160,13 +152,12 @@ fn candidate_headers(
 ) -> Result<CandidateHeaders, TxError> {
     let mut ids = indexed_identities(baseline);
     let indexed_paths: HashSet<_> = ids.values().map(|item| item.path.clone()).collect();
-    let mut headers = Vec::new();
     let mut candidates = BTreeSet::new();
     for p in paths {
         if indexed_paths.contains(p) {
             continue;
         }
-        let (h, id) = read_candidate_header(root, &operation.collection, p, index_before)?;
+        let id = read_candidate_header(root, &operation.collection, p, index_before)?;
         if let Some(id) = id {
             if ids
                 .insert(
@@ -182,13 +173,8 @@ fn candidate_headers(
             }
             candidates.insert(id);
         }
-        headers.push((p.clone(), h));
     }
-    Ok(CandidateHeaders {
-        ids,
-        headers,
-        candidates,
-    })
+    Ok(CandidateHeaders { ids, candidates })
 }
 
 fn read_candidate_header(
@@ -196,7 +182,7 @@ fn read_candidate_header(
     collection: &RelativePath,
     p: &str,
     index_before: &ExpectedFile,
-) -> Result<(source::HeaderSnapshot, Option<String>), TxError> {
+) -> Result<Option<String>, TxError> {
     let h = source::capture_header(root, &path(collection, p)?)
         .map_err(|e| fail("candidate-header", e))?
         .ok_or_else(|| fail("candidate-header", "source disappeared"))?;
@@ -209,7 +195,7 @@ fn read_candidate_header(
             "formal sources exist without an index",
         ));
     }
-    Ok((h, if candidate { id } else { None }))
+    Ok(if candidate { id } else { None })
 }
 
 fn indexed_identities(

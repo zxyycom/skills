@@ -163,20 +163,17 @@ fn checked_source<'a>(
     Ok(bytes)
 }
 
-/// Assemble captured source/index write intents after resolving the lifecycle
-/// selection in this same phase. The transaction operation must call this anew
-/// under the collection lock, independently fresh-check directory membership,
-/// history and all dependencies, and separately verify the post-write graph.
-/// This function only constructs a plan; it never writes or acquires a lock.
+/// Construct a lifecycle plan from the already captured index and selected sources.
 pub fn capture_plan(
     root: &crate::source::Root,
     collection: &crate::source::RelativePath,
     index_path: &crate::source::RelativePath,
+    index_before: crate::source::ExpectedFile,
     edits: &[LifecycleEdit],
 ) -> Result<crate::transaction::Plan<PreparedLifecycle>, crate::transaction::TxError> {
     use crate::transaction::{CommitPoint, Plan, TxError, WriteIntent};
     let fail = |code: &str, message: String| TxError::new(code, message);
-    let (index_before, baseline) = capture_baseline(root, index_path)?;
+    let baseline = parse_baseline(&index_before)?;
     let CapturedEdits {
         captures,
         sources,
@@ -191,26 +188,22 @@ pub fn capture_plan(
         path: index_path.clone(),
         before: index_before,
         after: Some(next_index),
-        mode: None,
     });
     Ok(Plan {
         value: prepared,
         writes,
-        guards: vec![],
+
         resources: vec![],
         commit_point: CommitPoint::PublishedIndex(index_path.clone()),
     })
 }
 
-fn capture_baseline(
-    root: &crate::source::Root,
-    index_path: &crate::source::RelativePath,
-) -> Result<(crate::source::ExpectedFile, ValidatedIndex<DecisionState>), crate::transaction::TxError>
-{
-    use crate::source::{ExpectedFile, capture};
+fn parse_baseline(
+    index_before: &crate::source::ExpectedFile,
+) -> Result<ValidatedIndex<DecisionState>, crate::transaction::TxError> {
+    use crate::source::ExpectedFile;
     let fail = |code: &str, message: String| crate::transaction::TxError::new(code, message);
-    let index_before = capture(root, index_path).map_err(|e| fail("index-read", e.to_string()))?;
-    let ExpectedFile::Present(index_snapshot) = &index_before else {
+    let ExpectedFile::Present(index_snapshot) = index_before else {
         return Err(fail(
             "index-missing",
             "published Decision index is missing".into(),
@@ -223,7 +216,7 @@ fn capture_baseline(
     check
         .graph(&Definition)
         .map_err(|e| fail("index-invalid", e.to_string()))?;
-    Ok((index_before, baseline))
+    Ok(baseline)
 }
 
 struct CapturedMove {
@@ -284,8 +277,7 @@ fn source_writes(
     captures: Vec<CapturedMove>,
     moves: &[SourceMove],
 ) -> Vec<crate::transaction::WriteIntent> {
-    use crate::source::ExpectedFile;
-    use crate::transaction::{WriteIntent, WriteMode};
+    use crate::transaction::WriteIntent;
     let mut writes = Vec::new();
     for (
         CapturedMove {
@@ -302,14 +294,8 @@ fn source_writes(
                 path: old,
                 before,
                 after: Some(change.after.clone()),
-                mode: None,
             });
         } else {
-            let ExpectedFile::Present(snapshot) = &before else {
-                unreachable!("source presence was checked")
-            };
-            #[cfg(unix)]
-            let mode = snapshot.identity.mode & 0o7777;
             let Some(target) = target else {
                 unreachable!("target capture was required")
             };
@@ -317,13 +303,11 @@ fn source_writes(
                 path: new,
                 before: target,
                 after: Some(change.after.clone()),
-                mode: Some(WriteMode::Exact(mode)),
             });
             writes.push(WriteIntent {
                 path: old,
                 before,
                 after: None,
-                mode: None,
             });
         }
     }

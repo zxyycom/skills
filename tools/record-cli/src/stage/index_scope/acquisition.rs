@@ -16,22 +16,6 @@ struct ObservedIndexes<S> {
     pending: ContentSnapshot,
     pending_index: Option<ValidatedIndex<S>>,
 }
-impl<S> ObservedIndexes<S> {
-    fn verify_workspace(
-        &self,
-        root: &Root,
-        index_path: &RelativePath,
-    ) -> Result<(), IndexStageError> {
-        if !source::equivalent_file(
-            &source::capture(root, index_path).map_err(IndexStageError::Source)?,
-            &self.workspace,
-        ) {
-            return Err(IndexStageError::Drift);
-        }
-        Ok(())
-    }
-}
-
 pub(in crate::stage) fn acquire<D, F>(
     root: &Root,
     index_path: &RelativePath,
@@ -46,7 +30,6 @@ where
 {
     let observed = capture_indexes(root, index_path, domain, request.scope)?;
     let (selected, target) = selected_projection(index_path, domain, baseline, &observed, request)?;
-    observed.verify_workspace(root, index_path)?;
     Ok(Phase {
         workspace: observed.workspace,
         pending: observed.pending,

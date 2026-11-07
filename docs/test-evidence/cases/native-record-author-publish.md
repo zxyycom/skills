@@ -5,7 +5,6 @@ Tests:
 - `test:1ec369ee4dafe5dd5e0aa0dfdb29a19a50c9c8dc3b25e345023c0bb55df91e18`
 - `test:1f6927e8d3d0f8b61640dc9f548d73e39a13056d72039ff1b6d773366d78189a`
 - `test:21f7da8e4df35bd9c4fff9992b99a9eb07bc1c2615d37a091a82963bb01a5ec0`
-- `test:28b16130955c0a042cad3293f2128a36305eefd17c05f63b01d3810c8155b128`
 - `test:3184a8685cabc846e131c44302af75558d6e6d6c833e25defd62be36e3d7272f`
 - `test:435e0920496edf89de9ef7cbf718521c977f7df321d95fef76172929675f9e5a`
 - `test:55c8e42dff4d407d29dc8d311658194175b3e57b42cd5577e6719e4b5c5dda29`
@@ -15,15 +14,13 @@ Tests:
 - `test:b770d083e5425c18302bee8766c0d49b62f8dfd1affddc705457963dcfa35922`
 - `test:cdd381ca2767d63b88354b24db736f19333dfa4793665895f3270f98aa8daf5c`
 - `test:d1cd47c4880b2dceccd6e3574e08b70caf771163b986e64e894a1a332eb94f82`
-- `test:deda4f825669c02aa43c3a504749e10da557397a9ea0108d1ec4f1ea16dc572e`
 - `test:e4017e83145eb6eac4b65efc128a38726c2642579cf31fa47f9b810fe5070316`
-- `test:f3cae0bf811f58573af5990840c0face99c29880bccb948edba1651ebeedb048`
 
 Tags:
 - `record-rust`
 
 Contract:
-- 发布须验证选择、关系闭合、前序历史与 fresh 源后才修改受管内容。
+- 发布须验证选择、关系闭合及前序历史后修改受管内容。
 
 Proves:
-- 私有事务与真实 Git 检查批量闭合、前序归档及来源漂移；真实 decision CLI 检查只读更新目标拒绝、写集外硬链接旧内容和恢复备份写失败时正文保全及 JSON。
+- 私有事务与真实 Git 验证批量闭合、前序归档及历史确认；真实 CLI 验证文件写失败时原正文和索引及错误结果。

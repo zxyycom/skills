@@ -1,123 +1,31 @@
-use super::observation::{Observation, observe, observed_expected};
 use crate::{
-    index::{self, DomainDefinition},
-    mutations::check::FileProof,
-    source::{self, ExpectedFile, Root},
-    transaction::{CommitPoint, Guard, Plan, TxError, WriteIntent},
+    source::{ExpectedFile, SourceSnapshot},
+    transaction::{CommitPoint, Plan, WriteIntent},
 };
 
-fn fail(code: &str, message: impl Into<String>) -> TxError {
-    TxError::new(code, message)
-}
-
-pub(in crate::mutations) struct WriteSet {
-    pub writes: Vec<WriteIntent>,
-    pub guards: Vec<Guard>,
-    pub commit_point: CommitPoint,
-}
-
-impl WriteSet {
-    /// Selected sync publishes only an index and guarded sources, never resource intents.
-    pub fn into_plan<T>(self, value: T) -> Plan<T> {
-        Plan {
-            value,
-            writes: self.writes,
-            guards: self.guards,
-            resources: vec![],
-            commit_point: self.commit_point,
-        }
-    }
-}
-
-pub(in crate::mutations) fn prepare(
-    root: &Root,
-    index: &FileProof,
-    sources: &[Observation],
+pub(in crate::mutations) fn prepare<T>(
+    index: SourceSnapshot,
     target: &[u8],
     needs_write: bool,
-) -> Result<WriteSet, TxError> {
-    let index_before = observed_expected(root, &Observation::Present(index.clone()))?;
-    let mut guards = Vec::new();
-    for source in sources {
-        guards.push(Guard {
-            path: source.path().clone(),
-            before: observed_expected(root, source)?,
-        });
-    }
-    let index_path = index.path.clone();
-    let mut writes = Vec::new();
-    let commit_point = if needs_write {
-        writes.push(WriteIntent {
-            path: index_path.clone(),
-            before: index_before,
-            after: Some(target.to_vec()),
-            mode: None,
-        });
-        CommitPoint::PublishedIndex(index_path)
+    value: T,
+) -> Plan<T> {
+    let path = index.path.clone();
+    let (writes, commit_point) = if needs_write {
+        (
+            vec![WriteIntent {
+                path: path.clone(),
+                before: ExpectedFile::Present(index),
+                after: Some(target.to_vec()),
+            }],
+            CommitPoint::PublishedIndex(path),
+        )
     } else {
-        guards.push(Guard {
-            path: index_path,
-            before: index_before,
-        });
-        CommitPoint::NoCommit
+        (vec![], CommitPoint::NoCommit)
     };
-    Ok(WriteSet {
+    Plan {
+        value,
         writes,
-        guards,
+        resources: vec![],
         commit_point,
-    })
-}
-
-pub(in crate::mutations) fn verify_sources(
-    root: &Root,
-    sources: &[Observation],
-) -> Result<(), TxError> {
-    for expected in sources {
-        if !observe(root, expected.path())?.equivalent(expected) {
-            return Err(fail("postverify", "selected source changed"));
-        }
     }
-    Ok(())
-}
-
-pub(in crate::mutations) fn verify_index<D: DomainDefinition>(
-    root: &Root,
-    index: &FileProof,
-    target: &[u8],
-    domain: &D,
-) -> Result<(), TxError> {
-    let index_path = &index.path;
-    let ExpectedFile::Present(file) =
-        source::capture(root, index_path).map_err(|e| fail("postverify", e.to_string()))?
-    else {
-        return Err(fail("postverify", "index is missing"));
-    };
-    if file.bytes != target || file.identity.mode != index.identity.mode {
-        return Err(fail("postverify", "index bytes differ from proposal"));
-    }
-    let index =
-        index::parse_index(&file.bytes, domain).map_err(|e| fail("postverify", e.to_string()))?;
-    index::QuerySnapshot::new(index)
-        .graph(domain)
-        .map_err(|e| fail("postverify", e.to_string()))?;
-    Ok(())
-}
-
-// Compare the selected projection independently of domain-specific evidence.
-pub(in crate::mutations) fn verify_fresh_projection(
-    before: (&[u8], &[String], &[String]),
-    after: (&[u8], &[String], &[String]),
-    evidence_equal: bool,
-    domain: crate::source_revision::Domain,
-) -> Result<(), crate::transaction::TxError> {
-    if evidence_equal && before == after {
-        return Ok(());
-    }
-    Err(super::source_failure(
-        crate::transaction::TxError::new(
-            "source-changed",
-            "selected facts changed before publication",
-        ),
-        domain,
-    ))
 }

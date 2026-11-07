@@ -44,28 +44,9 @@ pub struct PreparedNew {
     pub body_ready: bool,
     pub resource_ready: Option<bool>,
     pub warnings: Vec<String>,
-    evidence: Evidence,
-    resource_evidence: Option<crate::resources::ResourceEvidence>,
 }
-#[derive(Debug, PartialEq, Eq)]
-struct Evidence {
-    directory: Option<source::DirectorySnapshot>,
-    index: ExpectedFile,
-    candidates: Vec<(String, String, String)>,
-    missing_parents: bool,
-}
-impl Evidence {
-    fn equivalent(&self, other: &Self) -> bool {
-        super::same_optional_directory(&self.directory, &other.directory)
-            && source::equivalent_file(&self.index, &other.index)
-            && self.candidates == other.candidates
-            && self.missing_parents == other.missing_parents
-    }
-}
-
 struct ParentPreparation {
     resources: Vec<ResourceIntent>,
-    missing_parents: bool,
 }
 
 fn sorted_tags(tags: &[String]) -> Vec<String> {
@@ -170,28 +151,17 @@ impl NewOperation {
             rendered,
         } = self.prepare_content(root)?;
         let discovery::Discovery {
-            listing,
-            index_path,
-            index,
-            candidates,
-            warnings,
-            ..
+            listing, warnings, ..
         } = discovery;
         let CandidatePlacement {
             source_path,
             path,
             before,
         } = placement;
-        let render::Rendered {
-            markdown,
-            ready,
-            resource_evidence,
-        } = rendered;
-        let ParentPreparation {
-            resources,
-            missing_parents,
-        } = prepare_parents(root, &self.collection, listing.is_some())?;
-        let index_guard = validate_index_guard(root, &index_path, &index)?;
+        let render::Rendered { markdown, ready } = rendered;
+        let ParentPreparation { resources } =
+            prepare_parents(root, &self.collection, listing.is_some())?;
+
         Ok(Plan {
             value: PreparedNew {
                 id: self.id.clone(),
@@ -200,23 +170,11 @@ impl NewOperation {
                 body_ready: ready.body_ready,
                 resource_ready: ready.resource_ready,
                 warnings,
-                evidence: Evidence {
-                    directory: listing,
-                    index,
-                    candidates,
-                    missing_parents,
-                },
-                resource_evidence,
             },
             writes: vec![WriteIntent {
                 path: path.clone(),
                 before,
                 after: Some(markdown.into_bytes()),
-                mode: Some(crate::transaction::WriteMode::Native(0o666)),
-            }],
-            guards: vec![crate::transaction::Guard {
-                path: index_path,
-                before: index_guard,
             }],
             resources,
             commit_point: CommitPoint::Created(path),
@@ -266,22 +224,25 @@ fn prepare_parents(
     collection_exists: bool,
 ) -> Result<ParentPreparation, TxError> {
     let mut resources = vec![];
-    let mut missing_parents = false;
     if !collection_exists {
-        let proof = source::capture_missing(root, collection).map_err(|e| err("collection", e))?;
-        missing_parents = true;
-        let components: Vec<_> = collection.as_path().components().collect();
-        for n in components.len() - proof.remaining_components()..components.len() {
-            let prefix: std::path::PathBuf = components[..=n].iter().collect();
-            resources.push(ResourceIntent::CreateDirectory {
-                path: RelativePath::new(prefix).map_err(|e| err("path", e))?,
-            });
+        let mut prefix = std::path::PathBuf::new();
+        let mut missing = false;
+        for component in collection.as_path().components() {
+            prefix.push(component.as_os_str());
+            let path = RelativePath::new(&prefix).map_err(|e| err("path", e))?;
+            if !missing {
+                match source::enumerate_directory(root, &path) {
+                    Ok(_) => continue,
+                    Err(source::SourceError::Io(e)) if e.kind() == std::io::ErrorKind::NotFound => {
+                        missing = true
+                    }
+                    Err(e) => return Err(err("collection", e)),
+                }
+            }
+            resources.push(ResourceIntent::CreateDirectory { path });
         }
     }
-    Ok(ParentPreparation {
-        resources,
-        missing_parents,
-    })
+    Ok(ParentPreparation { resources })
 }
 
 mod discovery;
@@ -291,18 +252,3 @@ mod transaction;
 pub mod investigation_publish;
 
 pub mod decision;
-
-fn validate_index_guard(
-    root: &Root,
-    index_path: &RelativePath,
-    index: &ExpectedFile,
-) -> Result<ExpectedFile, TxError> {
-    let index_guard = source::capture(root, index_path).map_err(|e| err("index", e))?;
-    if &index_guard != index {
-        return Err(err(
-            "index-changed",
-            "index changed during candidate preparation",
-        ));
-    }
-    Ok(index_guard)
-}

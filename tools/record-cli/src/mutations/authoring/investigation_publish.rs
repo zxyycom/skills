@@ -11,7 +11,7 @@ use crate::{
     index,
     source::{self, ExpectedFile, RelativePath, Root},
     source_revision::{self, Domain},
-    transaction::{CommitPoint, Plan, TransactionOperation, TxError, WriteIntent, WriteMode},
+    transaction::{CommitPoint, Plan, TransactionOperation, TxError, WriteIntent},
 };
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
@@ -30,25 +30,6 @@ pub struct PreparedPublication {
     pub ids: Vec<String>,
     pub review: Vec<SourceReview<InvestigationRelationKind>>,
     pub warnings: Vec<String>,
-    evidence: Evidence,
-    resources: crate::resources::ResourceEvidence,
-    resource_ids: Vec<String>,
-    selected_refs: HashMap<String, Vec<String>>,
-}
-#[derive(Debug, PartialEq, Eq)]
-struct Evidence {
-    listing: source::DirectorySnapshot,
-    headers: Vec<(String, source::HeaderSnapshot)>,
-    history: Option<String>,
-    history_warnings: Vec<String>,
-}
-impl Evidence {
-    fn equivalent(&self, other: &Self) -> bool {
-        super::super::same_directory(&self.listing, &other.listing)
-            && super::super::same_named_headers(&self.headers, &other.headers)
-            && self.history == other.history
-            && self.history_warnings == other.history_warnings
-    }
 }
 
 fn fail(code: &str, message: impl ToString) -> TxError {
@@ -71,8 +52,6 @@ fn relation(value: &domains::Relation) -> Result<Relation<InvestigationRelationK
     })
 }
 struct PublicationReview {
-    history: Option<String>,
-    historical_warnings: Vec<String>,
     warnings: Vec<String>,
     review: Vec<SourceReview<InvestigationRelationKind>>,
 }
@@ -96,9 +75,8 @@ impl InvestigationPublishOperation {
             &collection.candidates,
         )?;
         let mut review = self.review(root, &collection, &candidates, &selected)?;
-        let resources = resources::ResourceCheck {
+        resources::ResourceCheck {
             root,
-            collection: &self.collection,
             directory,
             selected_refs: &candidates.selected_refs,
         }
@@ -108,7 +86,6 @@ impl InvestigationPublishOperation {
             candidates,
             selected,
             review,
-            resources,
         })
     }
     fn review(
@@ -118,13 +95,12 @@ impl InvestigationPublishOperation {
         candidates: &writes::CandidateWrites,
         selected: &BTreeSet<String>,
     ) -> Result<PublicationReview, TxError> {
-        let (history, mut warnings) = history_warnings(
+        let (_, mut warnings) = history_warnings(
             root,
             &self.collection,
             &candidates.final_index.index().entries,
             selected,
         );
-        let historical_warnings = warnings.clone();
         warnings.extend(collection.discovery_warnings.iter().cloned());
         warnings.sort();
         warnings.dedup();
@@ -142,8 +118,6 @@ impl InvestigationPublishOperation {
         )
         .map_err(|e| fail("publication", format!("{e:?}")))?;
         Ok(PublicationReview {
-            history,
-            historical_warnings,
             warnings,
             review: items.into_iter().map(|item| item.relation_review).collect(),
         })
@@ -173,7 +147,6 @@ struct PublicationPrepared {
     candidates: writes::CandidateWrites,
     selected: BTreeSet<String>,
     review: PublicationReview,
-    resources: resources::ResourceResult,
 }
 fn finish_publication(prepared: PublicationPrepared) -> Result<Plan<PreparedPublication>, TxError> {
     let PublicationPrepared {
@@ -181,65 +154,35 @@ fn finish_publication(prepared: PublicationPrepared) -> Result<Plan<PreparedPubl
         candidates,
         selected,
         review,
-        resources,
     } = prepared;
     let PublicationReview {
-        history,
-        historical_warnings,
-        warnings,
-        review,
+        warnings, review, ..
     } = review;
     let collection::Collection {
-        listing,
         index_path,
         before_index,
-        headers,
         ..
     } = collection;
     let writes::CandidateWrites {
         final_index,
         mut writes,
-        selected_refs,
         ..
     } = candidates;
-    let resources::ResourceResult {
-        resources,
-        resource_ids,
-    } = resources;
     let after_index =
         index::serialize_index(&final_index, &Definition).map_err(|e| fail("index", e))?;
-    let index_mode =
-        matches!(before_index, ExpectedFile::Missing).then_some(WriteMode::Native(0o666));
     writes.push(WriteIntent {
         path: index_path.clone(),
         before: before_index,
         after: Some(after_index),
-        mode: index_mode,
     });
-    // Formal sources are represented by the validated index, not by their
-    // current directory entries or contents. Candidate identity discovery
-    // still requires a fresh membership proof for every candidate header.
-    let mut candidate_listing = listing;
-    candidate_listing
-        .members
-        .retain(|member| member.name.starts_with("_candidate."));
     Ok(Plan {
         value: PreparedPublication {
             ids: selected.into_iter().collect(),
             review,
             warnings,
-            evidence: Evidence {
-                listing: candidate_listing,
-                headers,
-                history,
-                history_warnings: historical_warnings,
-            },
-            resources,
-            resource_ids,
-            selected_refs,
         },
         writes,
-        guards: vec![],
+
         resources: vec![],
         commit_point: CommitPoint::PublishedIndex(index_path),
     })

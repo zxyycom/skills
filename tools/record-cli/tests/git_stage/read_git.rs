@@ -94,7 +94,6 @@ fn selected_unmerged_rejected_unselected_unmerged_preserved() {
     let snap = read_selected(root, &[PathBuf::from("selected")]).unwrap();
     let result = record_cli::git::publish::replace_selected(
         root,
-        &head(root).unwrap(),
         &snap,
         &[record_cli::git::publish::PendingUpdate {
             path: PathBuf::from("selected"),

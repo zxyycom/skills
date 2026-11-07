@@ -2,29 +2,20 @@ use super::*;
 
 pub(super) struct ResourceCheck<'a> {
     pub root: &'a Root,
-    pub collection: &'a RelativePath,
     pub directory: &'a str,
     pub selected_refs: &'a HashMap<String, Vec<String>>,
 }
-pub(super) struct ResourceResult {
-    pub resources: crate::resources::ResourceEvidence,
-    pub resource_ids: Vec<String>,
-}
 impl ResourceCheck<'_> {
-    pub fn verify(self, warnings: &mut Vec<String>) -> Result<ResourceResult, TxError> {
+    pub fn verify(self, warnings: &mut Vec<String>) -> Result<(), TxError> {
         let Self {
             root,
-            collection,
             directory,
             selected_refs,
         } = self;
-        let resource_root = RelativePath::new(collection.as_path().join("_resources"))
-            .map_err(|e| fail("path", e))?;
-        let resource_fact = source::capture_resource_root(root, &resource_root)
+        let exists =
+            crate::resources::root_exists(root, directory).map_err(|e| fail("resources", e))?;
+        let mut resource_context = crate::resources::ResourceContext::open(root, directory, exists)
             .map_err(|e| fail("resources", e))?;
-        let mut resource_context =
-            crate::resources::ResourceContext::open(root, directory, resource_fact.exists())
-                .map_err(|e| fail("resources", e))?;
         let mut resource_ids: Vec<String> = selected_refs.values().flatten().cloned().collect();
         resource_ids.sort();
         resource_ids.dedup();
@@ -49,10 +40,6 @@ impl ResourceCheck<'_> {
         }
         warnings.sort();
         warnings.dedup();
-        let resources = resource_context.into_evidence();
-        Ok(ResourceResult {
-            resources,
-            resource_ids,
-        })
+        Ok(())
     }
 }

@@ -58,14 +58,6 @@ fn observation_diagnostic(output: &StageOutput<'_>, error: &IndexStageError) -> 
             recovery: Some("Inspect the workspace, pending, and historical index observations before retrying.".into()),
             cause_category: Some("index-invalid".into()),
         }),
-        IndexStageError::Drift => Some(Diagnostic {
-            code: error.code().into(),
-            operation: Some("stage".into()),
-            detail: None, message: "Stage observations changed during acquisition.".into(),
-            path: None, target: None, reason: Some("The selected source or index no longer matches the captured observation.".into()),
-            recovery: Some("Inspect the selected sources and pending index, then retry from a stable state.".into()),
-            cause_category: Some("source-drift".into()),
-        }),
         IndexStageError::HistoricalIndexMissing { .. } => Some(Diagnostic {
             code: error.code().into(),
             operation: Some("stage".into()),

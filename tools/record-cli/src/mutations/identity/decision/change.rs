@@ -15,7 +15,6 @@ pub(super) struct Change<'a> {
 }
 pub(super) struct ChangeResult {
     pub writes: Vec<WriteIntent>,
-    pub guards: Vec<Guard>,
     pub next: crate::index::IndexV4<decision::DecisionState>,
     pub affected: Vec<String>,
     pub affected_relation_count: usize,
@@ -31,7 +30,7 @@ impl Change<'_> {
     fn result(&self) -> ChangeResult {
         ChangeResult {
             writes: vec![],
-            guards: vec![],
+
             next: self.baseline.index().clone(),
             affected: vec![],
             affected_relation_count: 0,
@@ -60,7 +59,6 @@ impl Change<'_> {
             path: self.old.clone(),
             before: self.take_before(),
             after: None,
-            mode: None,
         });
         if !self.candidate {
             result.next.entries.remove(self.id);
@@ -130,7 +128,7 @@ impl Change<'_> {
             })
             .collect()
     }
-    fn rename(mut self, target: &str, confirm: bool) -> Result<ChangeResult, TxError> {
+    fn rename(self, target: &str, confirm: bool) -> Result<ChangeResult, TxError> {
         let target_id = target::target_identity(
             target,
             self.id,
@@ -140,10 +138,6 @@ impl Change<'_> {
         let planned = self.rename_plan(&target_id, rename::History::NotRecorded, true)?;
         if planned.no_change {
             let mut result = self.result();
-            result.guards.push(Guard {
-                path: self.old.clone(),
-                before: self.take_before(),
-            });
             result.new_id = Some(target_id);
             result.new_path = Some(self.old_path.into());
             result.no_change = true;
@@ -280,26 +274,22 @@ impl Change<'_> {
         };
         let rendered = decision::replace_identity(&file.bytes, self.id, self.id, target_id)
             .map_err(|e| fail("render", e))?;
-        let file_mode = mode(file);
         if &new == self.old {
             result.writes.push(WriteIntent {
                 path: self.old.clone(),
                 before: self.take_before(),
                 after: Some(rendered.as_bytes().to_vec()),
-                mode: None,
             });
         } else {
             result.writes.push(WriteIntent {
                 path: new.clone(),
                 before: new_before.expect("different path captured"),
                 after: Some(rendered.as_bytes().to_vec()),
-                mode: Some(WriteMode::Exact(file_mode)),
             });
             result.writes.push(WriteIntent {
                 path: self.old.clone(),
                 before: self.take_before(),
                 after: None,
-                mode: None,
             });
         }
         Ok((new, rendered))

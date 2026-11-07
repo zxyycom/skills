@@ -4,9 +4,8 @@ mod command;
 mod revision;
 mod selected;
 mod workspace;
-use command::{command, command_index};
+use command::command;
 pub use revision::{list_revision_files, read_revision_file};
-use selected::read_selected_index;
 pub use selected::{ContentSnapshot, read_selected};
 pub use workspace::{discover_worktree, list_repository_workspace_files, list_workspace_files};
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -44,21 +43,9 @@ impl std::fmt::Display for GitError {
 impl std::error::Error for GitError {}
 
 /// Captures membership and file representation without opening unselected blobs.
-/// Publication still needs an independently captured snapshot and index.lock CAS.
+/// Unselected object payloads are not loaded.
 pub fn read_pending(root: &std::path::Path) -> Result<PendingSnapshot, GitError> {
-    read_pending_index(root, None)
-}
-
-fn read_pending_index(
-    root: &std::path::Path,
-    index: Option<&std::path::Path>,
-) -> Result<PendingSnapshot, GitError> {
-    let stdout = command_index(
-        root,
-        &["ls-files", "--stage", "-z", "--full-name"],
-        None,
-        index,
-    )?;
+    let stdout = command(root, &["ls-files", "--stage", "-z", "--full-name"], None)?;
     if !stdout.is_empty() && stdout.last() != Some(&0) {
         return Err(GitError::InvalidOutput("unterminated pending output"));
     }
@@ -183,6 +170,9 @@ fn git_path(path: &std::path::Path) -> Result<String, GitError> {
     let text = path
         .to_str()
         .ok_or(GitError::InvalidOutput("non-UTF8 path"))?;
+    #[cfg(windows)]
+    let text = text.replace('\\', "/");
+    #[cfg(not(windows))]
     let text = text.to_owned();
     validate_path(std::path::Path::new(&text))?;
     Ok(text)
@@ -288,14 +278,22 @@ pub fn core_file_mode(root: &std::path::Path) -> Result<bool, GitError> {
 /// Derive the regular-file representation from a fresh safe source capture and
 /// the same phase's pending identities. This does not read the source again.
 pub fn workspace_file_mode(
+    root: &crate::source::Root,
     source: &crate::source::SourceSnapshot,
     pending: &PendingSnapshot,
     file_mode: bool,
 ) -> Result<u32, GitError> {
+    #[cfg(not(unix))]
+    let _ = (root, file_mode);
     if file_mode {
         #[cfg(unix)]
         {
-            return Ok(if source.identity.mode & 0o100 != 0 {
+            use std::os::unix::fs::PermissionsExt;
+            let mode = std::fs::metadata(root.path().join(source.path.as_path()))
+                .map_err(GitError::Io)?
+                .permissions()
+                .mode();
+            return Ok(if mode & 0o100 != 0 {
                 0o100755
             } else {
                 0o100644

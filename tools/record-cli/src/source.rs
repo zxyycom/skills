@@ -1,6 +1,6 @@
-//! Phase-local source capture primitives. These do not yet implement the full
-//! platform safety contract; paths are validated and unsupported cases fail closed.
+//! Workspace-relative source observations for the record CLI.
 use std::fs::File;
+use std::io::Read;
 use std::{
     fmt, io,
     path::{Component, Path, PathBuf},
@@ -11,18 +11,12 @@ pub struct RelativePath(PathBuf);
 impl RelativePath {
     pub fn new(path: impl AsRef<Path>) -> Result<Self, SourceError> {
         let path = path.as_ref();
-        let normalized = path.to_str().is_some_and(|text| {
-            let parts = text.split('/');
-            let characters_safe = !text.contains('\\');
-            characters_safe
-                && parts.into_iter().all(|part| {
-                    if part.is_empty() || part == "." || part == ".." {
-                        return false;
-                    }
-                    true
-                })
+        let valid_text = path.to_str().is_some_and(|s| {
+            !s.is_empty()
+                && s.split(['/', if cfg!(windows) { '\\' } else { '/' }])
+                    .all(|p| !p.is_empty() && p != "." && p != "..")
         });
-        if !normalized || !path.components().all(|c| matches!(c, Component::Normal(_))) {
+        if !valid_text || !path.components().all(|c| matches!(c, Component::Normal(_))) {
             return Err(SourceError::InvalidPath(path.to_path_buf()));
         }
         Ok(Self(path.to_path_buf()))
@@ -31,39 +25,29 @@ impl RelativePath {
         &self.0
     }
 }
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct FileIdentity {
-    pub device: u64,
-    pub inode: u64,
-    pub mode: u32,
-    pub size: u64,
-}
-impl FileIdentity {
-    // Identity plus representation, deliberately excluding mutable size.
-    pub(crate) fn same_identity_and_mode(&self, other: &Self) -> bool {
-        self.device == other.device && self.inode == other.inode && self.mode == other.mode
-    }
-}
 #[derive(Debug)]
 pub struct Root {
-    pub(crate) path: PathBuf,
-    directory: File,
-    pub(crate) identity: FileIdentity,
+    path: PathBuf,
+    directory: cap_std::fs::Dir,
 }
 impl Root {
     pub fn path(&self) -> &Path {
         &self.path
     }
-    pub fn identity(&self) -> &FileIdentity {
-        &self.identity
-    }
+}
+pub fn open_root(path: &Path) -> Result<Root, SourceError> {
+    let path = std::fs::canonicalize(path)?;
+    let directory = cap_std::fs::Dir::open_ambient_dir(&path, cap_std::ambient_authority())?;
+    Ok(Root { path, directory })
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SourceSnapshot {
     pub path: RelativePath,
-    pub identity: FileIdentity,
-    pub parents: Vec<FileIdentity>,
-    pub parent_paths: Vec<RelativePath>,
+    pub bytes: Vec<u8>,
+}
+#[derive(Debug, PartialEq, Eq)]
+pub struct HeaderSnapshot {
+    pub path: RelativePath,
     pub bytes: Vec<u8>,
 }
 #[derive(Debug, PartialEq, Eq)]
@@ -78,12 +62,9 @@ pub enum SourceError {
     Unsafe(PathBuf),
     Symlink(PathBuf),
     NonRegular(PathBuf),
-    CaseMismatch { path: PathBuf, actual: String },
-    Changed(PathBuf),
     InvalidUtf8,
     FileBudgetExceeded { size: u64, limit: u64 },
     TotalBudgetExceeded { size: u64, remaining: u64 },
-    UnsupportedPlatform,
 }
 impl fmt::Display for SourceError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -100,70 +81,75 @@ pub fn strict_text(snapshot: &SourceSnapshot) -> Result<&str, SourceError> {
     std::str::from_utf8(&snapshot.bytes).map_err(|_| SourceError::InvalidUtf8)
 }
 
-/// Header-only observation. `bytes` ends at the closing delimiter; it is not
-/// a whole-file snapshot and must never be used as a write guard.
-#[derive(Debug, PartialEq, Eq)]
-pub struct HeaderSnapshot {
-    pub path: RelativePath,
-    pub identity: FileIdentity,
-    pub parents: Vec<FileIdentity>,
-    pub parent_paths: Vec<RelativePath>,
-    pub bytes: Vec<u8>,
+fn open_file(root: &Root, path: &RelativePath) -> Result<Option<std::fs::File>, SourceError> {
+    use cap_fs_ext::{FollowSymlinks, OpenOptionsFollowExt};
+    let metadata = match root.directory.symlink_metadata(path.as_path()) {
+        Ok(meta) => meta,
+        Err(e) if e.kind() == io::ErrorKind::NotFound => return Ok(None),
+        Err(e) => return Err(e.into()),
+    };
+    if metadata.file_type().is_symlink() {
+        return Err(SourceError::Symlink(path.0.clone()));
+    }
+    if !metadata.is_file() {
+        return Err(SourceError::NonRegular(path.0.clone()));
+    }
+    let mut options = cap_std::fs::OpenOptions::new();
+    options.read(true).follow(FollowSymlinks::No);
+    Ok(Some(
+        root.directory
+            .open_with(path.as_path(), &options)?
+            .into_std(),
+    ))
 }
-
+pub fn capture(root: &Root, path: &RelativePath) -> Result<ExpectedFile, SourceError> {
+    capture_bounded(root, path, u64::MAX, u64::MAX)
+}
+pub fn capture_bounded(
+    root: &Root,
+    path: &RelativePath,
+    file_limit: u64,
+    total_limit: u64,
+) -> Result<ExpectedFile, SourceError> {
+    let Some(file) = open_file(root, path)? else {
+        return Ok(ExpectedFile::Missing);
+    };
+    let size = file.metadata()?.len();
+    check_limits(size, file_limit, total_limit)?;
+    let mut bytes = Vec::new();
+    file.take(file_limit.min(total_limit).saturating_add(1))
+        .read_to_end(&mut bytes)?;
+    check_limits(bytes.len() as u64, file_limit, total_limit)?;
+    Ok(ExpectedFile::Present(SourceSnapshot {
+        path: path.clone(),
+        bytes,
+    }))
+}
+fn check_limits(size: u64, file: u64, total: u64) -> Result<(), SourceError> {
+    if size > file {
+        return Err(SourceError::FileBudgetExceeded { size, limit: file });
+    }
+    if size > total {
+        return Err(SourceError::TotalBudgetExceeded {
+            size,
+            remaining: total,
+        });
+    }
+    Ok(())
+}
 mod header;
-use header::read_header;
-
-#[derive(Clone, Copy)]
-struct ReadLimits {
-    file: u64,
-    total: u64,
+pub fn capture_header(
+    root: &Root,
+    path: &RelativePath,
+) -> Result<Option<HeaderSnapshot>, SourceError> {
+    let Some(mut file) = open_file(root, path)? else {
+        return Ok(None);
+    };
+    Ok(Some(HeaderSnapshot {
+        path: path.clone(),
+        bytes: header::read_header(&mut file)?,
+    }))
 }
-impl ReadLimits {
-    fn check(self, size: u64) -> Result<(), SourceError> {
-        if size > self.file {
-            return Err(SourceError::FileBudgetExceeded {
-                size,
-                limit: self.file,
-            });
-        }
-        if size > self.total {
-            return Err(SourceError::TotalBudgetExceeded {
-                size,
-                remaining: self.total,
-            });
-        }
-        Ok(())
-    }
-    fn maximum(self) -> u64 {
-        self.file.min(self.total)
-    }
-}
-
-mod resolve;
-use resolve::resolve_directory_links;
-
-#[cfg(unix)]
-fn identity(meta: &std::fs::Metadata) -> FileIdentity {
-    use std::os::unix::fs::MetadataExt;
-    FileIdentity {
-        device: meta.dev(),
-        inode: meta.ino(),
-        mode: meta.mode(),
-        size: meta.size(),
-    }
-}
-#[cfg(unix)]
-fn directory_identity(meta: &std::fs::Metadata) -> FileIdentity {
-    let mut result = identity(meta);
-    // Directory size changes on unrelated sibling activity and is not identity.
-    result.size = 0;
-    result
-}
-mod file_capture;
-pub(crate) use file_capture::file_identity;
-pub use file_capture::{capture, capture_bounded, capture_header, open_root};
-
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum MemberKind {
     File,
@@ -174,151 +160,129 @@ pub enum MemberKind {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct DirectoryMember {
     pub name: String,
-    pub identity: FileIdentity,
     pub kind: MemberKind,
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct DirectorySnapshot {
     pub path: RelativePath,
-    pub identity: FileIdentity,
-    pub parents: Vec<FileIdentity>,
-    pub parent_paths: Vec<RelativePath>,
     pub members: Vec<DirectoryMember>,
 }
-
-mod enumerate;
-pub use enumerate::enumerate_directory;
-
-/// Identity of the opened object. Compare device/inode only when file contents
-/// may legitimately change while a lock is held.
-#[cfg(unix)]
-pub fn identity_from_handle(file: &File) -> Result<FileIdentity, SourceError> {
-    Ok(identity(&file.metadata()?))
-}
-pub fn same_file_identity(a: &File, b: &File) -> Result<bool, SourceError> {
-    let a = identity_from_handle(a)?;
-    let b = identity_from_handle(b)?;
-    Ok(a.device == b.device && a.inode == b.inode)
-}
-
-/// A phase-local capture of a selected owner tree. Construction is private;
-/// consumers cannot turn an unchecked path list into a tree proof.
-mod tree;
-pub use tree::{TreeEntry, TreeSnapshot, capture_tree};
-
-/// Cooperative collection lock. Dropping without an explicit successful release
-/// closes the handle but intentionally preserves the lock file for reconciliation.
-#[derive(Debug)]
-pub struct CollectionLock {
-    file: File,
-    path: RelativePath,
-    workspace: PathBuf,
-    workspace_identity: FileIdentity,
-}
-#[derive(Debug)]
-pub enum LockError {
-    Acquire(SourceError),
-    Release(SourceError),
-    Replaced,
-}
-impl std::fmt::Display for LockError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{self:?}")
-    }
-}
-impl std::error::Error for LockError {}
-pub fn acquire_collection_lock(
+pub fn enumerate_directory(
     root: &Root,
     path: &RelativePath,
-) -> Result<CollectionLock, LockError> {
-    use cap_fs_ext::{FollowSymlinks, OpenOptionsFollowExt};
-    let directory = cap_std::fs::Dir::from_std_file(
-        root.directory
-            .try_clone()
-            .map_err(|e| LockError::Acquire(e.into()))?,
-    );
-    let mut options = cap_std::fs::OpenOptions::new();
-    options
-        .read(true)
-        .write(true)
-        .create_new(true)
-        .follow(FollowSymlinks::No);
-    let file = directory
-        .open_with(path.as_path(), &options)
-        .map_err(|e| LockError::Acquire(e.into()))?
-        .into_std();
-    Ok(CollectionLock {
-        file,
+) -> Result<DirectorySnapshot, SourceError> {
+    let metadata = root.directory.symlink_metadata(path.as_path())?;
+    if metadata.file_type().is_symlink() {
+        return Err(SourceError::Symlink(path.0.clone()));
+    }
+    if !metadata.is_dir() {
+        return Err(SourceError::NonRegular(path.0.clone()));
+    }
+    let dir = root.directory.open_dir(path.as_path())?;
+    let mut members = Vec::new();
+    for item in dir.entries()? {
+        let item = item?;
+        let name = item
+            .file_name()
+            .into_string()
+            .map_err(|_| SourceError::InvalidPath(path.0.clone()))?;
+        let kind = member_kind(item.file_type()?);
+        members.push(DirectoryMember { name, kind });
+    }
+    members.sort_by(|a, b| a.name.encode_utf16().cmp(b.name.encode_utf16()));
+    Ok(DirectorySnapshot {
         path: path.clone(),
-        workspace: root.path.clone(),
-        workspace_identity: root.identity.clone(),
+        members,
     })
 }
-impl CollectionLock {
-    /// Explicitly release only a still-matching empty lock. A failure preserves
-    /// the entry; as with the rest of the transaction, non-cooperative edits do
-    /// not have cross-operation atomic isolation.
-    pub fn release(self, root: &Root) -> Result<(), LockError> {
-        if self.workspace != root.path || self.workspace_identity != root.identity {
-            return Err(LockError::Replaced);
-        }
-        let expected = identity_from_handle(&self.file).map_err(LockError::Release)?;
-        let current = capture_bounded(root, &self.path, 0, 0).map_err(LockError::Release)?;
-        match current {
-            ExpectedFile::Present(actual)
-                if actual.identity.device == expected.device
-                    && actual.identity.inode == expected.inode => {}
-            _ => return Err(LockError::Replaced),
-        }
-        let directory = cap_std::fs::Dir::from_std_file(
-            root.directory
-                .try_clone()
-                .map_err(|e| LockError::Release(e.into()))?,
-        );
-        directory
-            .remove_file(self.path.as_path())
-            .map_err(|e| LockError::Release(e.into()))
+fn member_kind(ty: cap_std::fs::FileType) -> MemberKind {
+    if ty.is_file() {
+        MemberKind::File
+    } else if ty.is_dir() {
+        MemberKind::Directory
+    } else if ty.is_symlink() {
+        MemberKind::Symlink
+    } else {
+        MemberKind::Other
     }
 }
+#[derive(Debug)]
+pub struct TreeSnapshot {
+    root: RelativePath,
+    entries: Vec<TreeEntry>,
+}
+#[derive(Debug)]
+pub enum TreeEntry {
+    Directory { path: RelativePath },
+    File { path: RelativePath },
+}
+impl TreeSnapshot {
+    pub fn root(&self) -> &RelativePath {
+        &self.root
+    }
+    pub fn entries(&self) -> &[TreeEntry] {
+        &self.entries
+    }
+}
+pub fn capture_tree(root: &Root, path: &RelativePath) -> Result<TreeSnapshot, SourceError> {
+    fn walk(
+        root: &Root,
+        path: &RelativePath,
+        entries: &mut Vec<TreeEntry>,
+    ) -> Result<(), SourceError> {
+        let listing = enumerate_directory(root, path)?;
+        entries.push(TreeEntry::Directory { path: path.clone() });
+        for member in listing.members {
+            let child = RelativePath::new(path.as_path().join(member.name))?;
+            match member.kind {
+                MemberKind::Directory => walk(root, &child, entries)?,
+                MemberKind::File => entries.push(TreeEntry::File { path: child }),
+                _ => return Err(SourceError::Unsafe(child.0)),
+            }
+        }
+        Ok(())
+    }
+    let mut entries = Vec::new();
+    walk(root, path, &mut entries)?;
+    Ok(TreeSnapshot {
+        root: path.clone(),
+        entries,
+    })
+}
 
-mod file_write;
-pub(crate) use file_write::{
-    CreateEffect, CreateFailure, CreateMode, CreatedFile, RemoveEffect, RemoveFailure,
-};
 #[cfg(test)]
-pub(crate) use file_write::{
-    ReplaceFailure, fail_after_remove_for_test, fail_after_replace_for_test,
-    fail_temp_cleanup_for_test, fail_temp_identity_for_test,
-};
-pub(crate) use file_write::{
-    create_exclusive, equivalent_file, finalize_created_mode, remove_if_matches, remove_if_owned,
-    replace_if_matches, same_content_and_mode,
-};
-
-mod missing;
-pub use missing::MissingProof;
-pub(crate) use missing::capture_missing;
-use missing::parent_chain;
-
-mod directory_write;
-use directory_write::reject_final_link;
-pub(crate) use directory_write::{
-    CreatedDirectory, create_directory_exclusive, open_directory_for_mode, remove_empty_directory,
-};
-#[cfg(test)]
-pub(crate) use directory_write::{fail_directory_readback_for_test, set_mkdir_test_hook};
-
-mod exact_name;
-use exact_name::has_exact_resource_name;
-mod resource_facts;
-mod selected;
-pub use resource_facts::{
-    ResourceDirectoryFact, ResourceRootFact, capture_resource_directories, capture_resource_root,
-};
-pub use selected::{
-    SelectedMember, SelectedStatMember, SelectedStatTree, SelectedTree, capture_selected_tree,
-    inspect_selected_tree,
-};
-
-#[cfg(test)]
-mod tests;
+mod tests {
+    use super::*;
+    #[test]
+    fn reads_bounded_file_and_rejects_parent_paths() {
+        let temp = tempfile::tempdir().unwrap();
+        std::fs::write(temp.path().join("record"), b"hello").unwrap();
+        let root = open_root(temp.path()).unwrap();
+        let path = RelativePath::new("record").unwrap();
+        assert!(matches!(
+            capture_bounded(&root, &path, 4, 10),
+            Err(SourceError::FileBudgetExceeded { .. })
+        ));
+        assert!(matches!(
+            capture_bounded(&root, &path, 10, 4),
+            Err(SourceError::TotalBudgetExceeded { .. })
+        ));
+        assert!(
+            matches!(capture(&root, &path).unwrap(), ExpectedFile::Present(SourceSnapshot { bytes, .. }) if bytes == b"hello")
+        );
+        assert!(RelativePath::new("../record").is_err());
+        assert!(RelativePath::new("a/../record").is_err());
+    }
+    #[test]
+    fn captures_tree_members_without_reading_payloads() {
+        let temp = tempfile::tempdir().unwrap();
+        std::fs::create_dir_all(temp.path().join("owner/sub")).unwrap();
+        std::fs::write(temp.path().join("owner/sub/data"), b"content").unwrap();
+        let root = open_root(temp.path()).unwrap();
+        let tree = capture_tree(&root, &RelativePath::new("owner").unwrap()).unwrap();
+        assert_eq!(tree.entries().len(), 3);
+        assert!(
+            matches!(&tree.entries()[2], TreeEntry::File { path } if path.as_path() == Path::new("owner/sub/data"))
+        );
+    }
+}

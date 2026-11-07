@@ -7,9 +7,7 @@ use crate::{
     },
     source::{self, ExpectedFile, RelativePath, Root},
     source_revision::{self, Domain},
-    transaction::{
-        CommitPoint, Guard, Plan, TransactionOperation, TxError, WriteIntent, WriteMode,
-    },
+    transaction::{CommitPoint, Plan, TransactionOperation, TxError, WriteIntent},
 };
 use std::collections::{BTreeMap, HashSet};
 
@@ -40,27 +38,9 @@ pub struct PreparedIdentity {
     pub affected_relation_count: usize,
     pub impact: super::RewriteImpact,
     pub no_change: bool,
-    evidence: Evidence,
-}
-#[derive(Debug, PartialEq, Eq)]
-struct Evidence {
-    listing: source::DirectorySnapshot,
-    archive: Option<source::DirectorySnapshot>,
-    headers: Vec<source::HeaderSnapshot>,
-    history: Option<(Option<String>, bool)>,
-    pending: Option<pending::Observation>,
-}
-impl Evidence {
-    fn equivalent(&self, other: &Self) -> bool {
-        super::super::same_directory(&self.listing, &other.listing)
-            && super::super::same_optional_directory(&self.archive, &other.archive)
-            && super::super::same_headers(&self.headers, &other.headers)
-            && self.history == other.history
-            && self.pending == other.pending
-    }
 }
 
-use super::{fail, mode, relative};
+use super::{fail, relative};
 mod change;
 mod discovery;
 mod history;

@@ -1,10 +1,7 @@
-use super::{
-    Entry, SelectedUpdate,
-    observation::{Observation, observe},
-};
+use super::{Entry, SelectedUpdate};
 use crate::{
     index::IndexV4,
-    source::{RelativePath, Root},
+    source::{self, ExpectedFile, RelativePath, Root},
     source_revision::{Domain, fingerprint},
     transaction::TxError,
 };
@@ -21,7 +18,6 @@ fn fail(code: &str, message: impl Into<String>) -> TxError {
 }
 
 pub(in crate::mutations) struct SelectedSources<S> {
-    pub observations: Vec<Observation>,
     pub updates: BTreeMap<String, SelectedUpdate<S>>,
 }
 
@@ -33,7 +29,6 @@ pub(in crate::mutations) struct SourceScope<'a, S> {
 }
 
 pub(in crate::mutations) struct SelectedFacts<S> {
-    pub observations: Vec<Observation>,
     pub updates: BTreeMap<String, SelectedUpdate<S>>,
     pub combined: BTreeMap<String, S>,
     pub dependencies: BTreeSet<String>,
@@ -48,16 +43,12 @@ impl<S> SourceScope<'_, S> {
     where
         S: Clone + PartialEq,
     {
-        let SelectedSources {
-            mut observations,
-            updates,
-        } = self.selected_sources(selected)?;
+        let SelectedSources { updates } = self.selected_sources(selected)?;
         let combined = super::combine_selected(&self.baseline.entries, &updates);
         let mut dependencies = related(&self.baseline.entries, selected);
         dependencies.extend(related(&combined, selected));
-        observations.extend(self.dependencies(selected, &dependencies)?);
+        self.dependencies(selected, &dependencies)?;
         Ok(SelectedFacts {
-            observations,
             updates,
             combined,
             dependencies,
@@ -73,7 +64,6 @@ impl<S> SourceScope<'_, S> {
             baseline,
             adapter,
         } = self;
-        let mut observations = Vec::new();
         let mut updates = initial_updates(baseline, selected);
         for old_id in selected {
             let Some(old) = baseline.entries.get(old_id) else {
@@ -81,11 +71,11 @@ impl<S> SourceScope<'_, S> {
             };
             let path = RelativePath::new(dir.as_path().join((adapter.path)(old)))
                 .map_err(|e| fail("source-path", e.to_string()))?;
-            let observed = observe(root, &path)?;
-            if let Observation::Present(file) = &observed {
+            let observed =
+                source::capture(root, &path).map_err(|e| fail("source-read", e.to_string()))?;
+            if let ExpectedFile::Present(file) = &observed {
                 self.update_present(old_id, selected, file, &mut updates)?;
             }
-            observations.push(observed);
         }
         for id in selected {
             if !updates.contains_key(id) {
@@ -95,16 +85,13 @@ impl<S> SourceScope<'_, S> {
                 ));
             }
         }
-        Ok(SelectedSources {
-            observations,
-            updates,
-        })
+        Ok(SelectedSources { updates })
     }
     fn update_present(
         &self,
         old_id: &str,
         selected: &BTreeSet<String>,
-        file: &crate::mutations::check::FileProof,
+        file: &source::SourceSnapshot,
         updates: &mut BTreeMap<String, SelectedUpdate<S>>,
     ) -> Result<(), TxError> {
         let baseline = self.baseline;
@@ -174,17 +161,16 @@ impl<S> SourceScope<'_, S> {
         &self,
         selected: &BTreeSet<String>,
         dependencies: &BTreeSet<String>,
-    ) -> Result<Vec<Observation>, TxError>
+    ) -> Result<(), TxError>
     where
         S: PartialEq,
     {
         dependencies
             .iter()
             .filter(|id| !selected.contains(*id))
-            .map(|id| self.dependency(id))
-            .collect()
+            .try_for_each(|id| self.dependency(id))
     }
-    fn dependency(&self, id: &str) -> Result<Observation, TxError>
+    fn dependency(&self, id: &str) -> Result<(), TxError>
     where
         S: PartialEq,
     {
@@ -200,8 +186,9 @@ impl<S> SourceScope<'_, S> {
             .ok_or_else(|| fail("dependency-missing", id.to_owned()))?;
         let path = RelativePath::new(dir.as_path().join((adapter.path)(expected)))
             .map_err(|e| fail("source-path", e.to_string()))?;
-        let observed = observe(root, &path)?;
-        let Observation::Present(file) = &observed else {
+        let observed =
+            source::capture(root, &path).map_err(|e| fail("source-read", e.to_string()))?;
+        let ExpectedFile::Present(file) = &observed else {
             return Err(fail("dependency-missing", id.to_owned()));
         };
         let text =
@@ -220,7 +207,7 @@ impl<S> SourceScope<'_, S> {
                 ),
             ));
         }
-        Ok(observed)
+        Ok(())
     }
 }
 

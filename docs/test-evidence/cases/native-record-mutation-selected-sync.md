@@ -10,7 +10,6 @@ Tests:
 - `test:9580d92ef03ac0ef53859f10a6f0739afc1f3178c9ee80c8d2f82dac7e93f454`
 - `test:c1e06c055ee6deea46caea43ab1361ef1d725f7b47b6b78269fad6745e5d12eb`
 - `test:d09bd3b9a405193cf073dac0ff4d9f8cff58ad4d9b0dcb2b2f2fae998a828cdd`
-- `test:fa350006323a01da258ac9f95081973ef9536283c961912a228ad714ca0becef`
 
 Tags:
 - `record-rust`
@@ -19,4 +18,4 @@ Contract:
 - 选择性同步须验证完整选择及组合图，并保留未读的非目标来源。
 
 Proves:
-- 固定来源和索引核对选择错误、恢复提示、依赖与删除；decision fresh 接受同字节同权限替换并拒绝内容或权限变化。
+- 固定来源和索引核对选择错误、恢复提示、依赖与删除。

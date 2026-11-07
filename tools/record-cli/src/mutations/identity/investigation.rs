@@ -7,10 +7,7 @@ use crate::{
     },
     source::{self, ExpectedFile, RelativePath, Root},
     source_revision::{self, Domain},
-    transaction::{
-        CommitPoint, Guard, Plan, ResourceIntent, TransactionOperation, TxError, WriteIntent,
-        WriteMode,
-    },
+    transaction::{CommitPoint, Plan, ResourceIntent, TransactionOperation, TxError, WriteIntent},
 };
 use std::collections::{BTreeMap, HashSet};
 
@@ -44,51 +41,10 @@ pub struct PreparedIdentity {
     pub owner_moved: bool,
     pub deleted_resource_ids: Vec<String>,
     pub no_change: bool,
-    evidence: Evidence,
 }
-type OwnerTree = Vec<(RelativePath, source::FileIdentity, Option<Vec<u8>>)>;
+type OwnerTree = Vec<(RelativePath, bool)>;
 
-struct Evidence {
-    listing: source::DirectorySnapshot,
-    headers: Vec<source::HeaderSnapshot>,
-    history: Option<(Option<String>, bool)>,
-    resources: Option<crate::resources::ResourceEvidence>,
-    tree: OwnerTree,
-}
-impl std::fmt::Debug for PreparedIdentity {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("PreparedIdentity")
-            .field("old_id", &self.old_id)
-            .field("new_id", &self.new_id)
-            .field("old_path", &self.old_path)
-            .field("new_path", &self.new_path)
-            .field("candidate", &self.candidate)
-            .field("affected_ids", &self.affected_ids)
-            .field("affected_relation_count", &self.affected_relation_count)
-            .field("owner_moved", &self.owner_moved)
-            .field("no_change", &self.no_change)
-            .finish()
-    }
-}
-impl Evidence {
-    fn equivalent(&self, other: &Self) -> bool {
-        super::super::same_directory(&self.listing, &other.listing)
-            && super::super::same_headers(&self.headers, &other.headers)
-            && self.history == other.history
-            && self.tree.len() == other.tree.len()
-            && self
-                .tree
-                .iter()
-                .zip(&other.tree)
-                .all(|((ap, ai, ab), (bp, bi, bb))| ap == bp && ai.mode == bi.mode && ab == bb)
-            && match (&self.resources, &other.resources) {
-                (None, None) => true,
-                (Some(a), Some(b)) => a.equivalent(b),
-                _ => false,
-            }
-    }
-}
-use super::{fail, mode, relative as rel, selector_name};
+use super::{fail, relative as rel, selector_name};
 mod change;
 mod discovery;
 mod history;

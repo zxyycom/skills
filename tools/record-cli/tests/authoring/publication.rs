@@ -86,11 +86,7 @@ fn publish_batch_closes_relations_without_reading_unselected_body() {
             .any(|warning| warning.contains("261106-second") && warning.contains("261106-first"))
     );
     assert!(!directory.join("261106-first.md").exists());
-    let result = run_transaction(
-        &root,
-        &RelativePath::new(".investigation.lock").unwrap(),
-        &mut op,
-    );
+    let result = run_transaction(&root, &mut op);
     assert_eq!(result.status, TxStatus::Ok, "{:?}", result.errors);
     assert!(result.committed);
     assert!(directory.join("261106-first.md").is_file());
@@ -100,38 +96,7 @@ fn publish_batch_closes_relations_without_reading_unselected_body() {
 }
 #[test]
 fn first_publish_keeps_owned_resources_at_final_location() {
-    use record_cli::{
-        mutations::authoring::investigation_publish::{
-            InvestigationPublishOperation, PreparedPublication,
-        },
-        source::Root,
-        transaction::{Plan, TransactionOperation, TxError},
-    };
-    struct ChangeBytes(InvestigationPublishOperation);
-    impl TransactionOperation<PreparedPublication> for ChangeBytes {
-        fn prepare(&mut self, root: &Root) -> Result<Plan<PreparedPublication>, TxError> {
-            self.0.prepare(root)
-        }
-        fn fresh(&mut self, root: &Root, plan: &Plan<PreparedPublication>) -> Result<(), TxError> {
-            std::fs::write(
-                root.path()
-                    .join("reports/_resources/261106-report/evidence.txt"),
-                b"edited bytes with different length",
-            )
-            .unwrap();
-            self.0.fresh(root, plan)
-        }
-        fn verify(&mut self, root: &Root, plan: &Plan<PreparedPublication>) -> Result<(), TxError> {
-            self.0.verify(root, plan)
-        }
-        fn verify_recovered(
-            &mut self,
-            root: &Root,
-            plan: &Plan<PreparedPublication>,
-        ) -> Result<(), TxError> {
-            self.0.verify_recovered(root, plan)
-        }
-    }
+    use record_cli::mutations::authoring::investigation_publish::InvestigationPublishOperation;
     let fixture = tempfile::tempdir().unwrap();
     let directory = fixture.path().join("reports");
     std::fs::create_dir_all(directory.join("_resources/261106-report")).unwrap();
@@ -140,22 +105,15 @@ fn first_publish_keeps_owned_resources_at_final_location() {
     let doc = "---\ntitle: \"Report title\"\nid: \"261106-report\"\nformedAt: \"2026-11-06T12:00:00Z\"\nquestion: \"What happened?\"\ntags:\n  - \"test\"\nrelations: []\n---\n\n## 形成时背景\n背景。\n\n## 调查目的\n目的。\n\n## 调查范围与依据\n依据。\n\n## 调查结果与边界\n结果。\n\n## 随附资源\n- [evidence](./_resources/261106-report/evidence.txt)\n";
     std::fs::write(directory.join("_candidate.261106-report"), doc).unwrap();
     let root = open_root(fixture.path()).unwrap();
-    let mut op = ChangeBytes(InvestigationPublishOperation {
+    let mut op = InvestigationPublishOperation {
         collection: RelativePath::new("reports").unwrap(),
         selectors: vec!["report".into()],
-    });
-    let result = run_transaction(
-        &root,
-        &RelativePath::new(".investigation.lock").unwrap(),
-        &mut op,
-    );
+    };
+    let result = run_transaction(&root, &mut op);
     assert_eq!(result.status, TxStatus::Ok, "{:?}", result.errors);
     assert!(directory.join("investigation-index.json").is_file());
     assert!(directory.join("261106-report.md").is_file());
-    assert_eq!(
-        std::fs::read(asset).unwrap(),
-        b"edited bytes with different length"
-    );
+    assert_eq!(std::fs::read(asset).unwrap(), b"original asset");
 }
 #[test]
 fn unready_publication_and_preflight_are_zero_write() {
@@ -179,10 +137,7 @@ fn unready_publication_and_preflight_are_zero_write() {
         "2026-11-06T12:00:00Z".into(),
     )
     .unwrap();
-    assert_eq!(
-        run_transaction(&root, &RelativePath::new(".lock").unwrap(), &mut create).status,
-        TxStatus::Ok
-    );
+    assert_eq!(run_transaction(&root, &mut create).status, TxStatus::Ok);
     let candidate = fixture.path().join("reports/_candidate.261106-unready");
     let original = std::fs::read(&candidate).unwrap();
     let mut op = InvestigationPublishOperation {
@@ -190,7 +145,7 @@ fn unready_publication_and_preflight_are_zero_write() {
         selectors: vec!["unready".into()],
     };
     assert!(preflight(&root, &mut op).is_err());
-    let result = run_transaction(&root, &RelativePath::new(".lock").unwrap(), &mut op);
+    let result = run_transaction(&root, &mut op);
     assert_eq!(result.status, TxStatus::Error);
     assert!(!result.changed);
     assert!(!result.committed);
@@ -216,7 +171,7 @@ fn publication_rejects_duplicate_candidate_identity_without_writes() {
         collection: RelativePath::new("reports").unwrap(),
         selectors: vec!["duplicate".into()],
     };
-    let result = run_transaction(&root, &RelativePath::new(".lock").unwrap(), &mut op);
+    let result = run_transaction(&root, &mut op);
     assert_eq!(result.status, TxStatus::Error);
     assert!(!result.changed && !result.committed);
     assert!(

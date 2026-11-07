@@ -1,6 +1,5 @@
 use super::*;
 use crate::source;
-use crate::source::RelativePath;
 use crate::source_revision::fingerprint;
 use crate::{
     index::{self, IndexV4, Revision, build_index, serialize_index},
@@ -97,13 +96,12 @@ fn selected_sync_preserves_unread_baseline_and_requires_both_ids_for_rename() {
     )
     .unwrap();
     let root = source::open_root(dir.path()).unwrap();
-    let lock = RelativePath::new(".decision-index.json.mutation.lock").unwrap();
     let mut operation =
         SelectedDecisionSyncOperation::new("decisions".into(), vec!["250102-a".into()]);
     let preview = operation.preflight(&root).unwrap();
     assert_eq!(preview.state, "previewed");
     assert_eq!(preview.coverage.checked_ids, vec!["250102-a"]);
-    let result = crate::transaction::run_transaction(&root, &lock, &mut operation);
+    let result = crate::transaction::run_transaction(&root, &mut operation);
     assert!(result.errors.is_empty(), "{:?}", result.errors);
     assert!(result.changed && result.committed);
     let loaded = index::parse_index(
@@ -120,7 +118,7 @@ fn selected_sync_preserves_unread_baseline_and_requires_both_ids_for_rename() {
     operation.selectors = vec!["250102-a".into(), "250102-new.MD".into()];
     let preview = operation.preflight(&root).unwrap();
     assert_eq!(preview.changed_ids, vec!["250102-a", "250102-new"]);
-    let renamed = crate::transaction::run_transaction(&root, &lock, &mut operation);
+    let renamed = crate::transaction::run_transaction(&root, &mut operation);
     assert!(renamed.errors.is_empty(), "{:?}", renamed.errors);
     assert!(renamed.committed);
     let loaded = index::parse_index(
@@ -132,7 +130,7 @@ fn selected_sync_preserves_unread_baseline_and_requires_both_ids_for_rename() {
     assert_eq!(loaded.index().entries["250102-new"].source_path, "a.md");
     std::fs::remove_file(collection.join("a.md")).unwrap();
     operation.selectors = vec!["250102-new".into()];
-    let deleted = crate::transaction::run_transaction(&root, &lock, &mut operation);
+    let deleted = crate::transaction::run_transaction(&root, &mut operation);
     assert!(deleted.errors.is_empty(), "{:?}", deleted.errors);
     assert!(deleted.committed);
 }

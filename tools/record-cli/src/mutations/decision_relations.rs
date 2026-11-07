@@ -7,7 +7,7 @@ use crate::{
     domains::{self, JsTrim},
     source::{ExpectedFile, RelativePath, Root, capture},
     source_revision::{Domain, fingerprint},
-    transaction::{CommitPoint, Guard, Plan, TransactionOperation, TxError, WriteIntent},
+    transaction::{CommitPoint, Plan, TransactionOperation, TxError, WriteIntent},
 };
 use std::collections::{HashMap, HashSet};
 
@@ -94,12 +94,8 @@ fn build_plan(
         projection,
         mut changed,
     } = rendered;
-    let (mut writes, mut guards) = selected_writes(snapshots, &mut changed);
+    let mut writes = selected_writes(snapshots, &mut changed);
     let commit_point = if writes.is_empty() {
-        guards.push(Guard {
-            path: index_path.clone(),
-            before: index_before,
-        });
         CommitPoint::NoCommit
     } else {
         let next = crate::index::serialize_index(&projection.index, &domains::decision::Definition)
@@ -108,14 +104,12 @@ fn build_plan(
             path: index_path.clone(),
             before: index_before,
             after: Some(next),
-            mode: None,
         });
         CommitPoint::PublishedIndex(index_path.clone())
     };
     Ok(Plan {
         value: PreparedRelations { review },
         writes,
-        guards,
         resources: vec![],
         commit_point,
     })
@@ -124,76 +118,23 @@ fn build_plan(
 fn selected_writes(
     snapshots: Vec<sources::CapturedSource>,
     changed: &mut HashMap<String, Vec<u8>>,
-) -> (Vec<WriteIntent>, Vec<Guard>) {
+) -> Vec<WriteIntent> {
     let mut writes = Vec::new();
-    let mut guards = Vec::new();
     for sources::CapturedSource { id, path, before } in snapshots {
         if let Some(after) = changed.remove(&id) {
             writes.push(WriteIntent {
                 path,
                 before,
                 after: Some(after),
-                mode: None,
             });
-        } else {
-            guards.push(Guard { path, before });
         }
     }
-    (writes, guards)
+    writes
 }
 
 impl TransactionOperation<PreparedRelations> for DecisionRelationsOperation {
     fn prepare(&mut self, root: &Root) -> Result<Plan<PreparedRelations>, TxError> {
         self.prepare_phase(root)
-    }
-    fn fresh(&mut self, root: &Root, plan: &Plan<PreparedRelations>) -> Result<(), TxError> {
-        let next = self.prepare_phase(root)?;
-        let same_plan =
-            super::relations::same_plan(&plan.writes, &next.writes, &plan.guards, &next.guards);
-        if !same_plan || plan.value.review != next.value.review {
-            return Err(fail(
-                "source-changed",
-                "selected facts changed before publication",
-            ));
-        }
-        Ok(())
-    }
-    fn verify(&mut self, root: &Root, plan: &Plan<PreparedRelations>) -> Result<(), TxError> {
-        for write in &plan.writes {
-            let actual =
-                capture(root, &write.path).map_err(|e| fail("postverify", e.to_string()))?;
-            let (ExpectedFile::Present(actual), Some(expected)) = (actual, &write.after) else {
-                return Err(fail("postverify", "written file missing"));
-            };
-            if actual.bytes != *expected {
-                return Err(fail("postverify", "written bytes differ"));
-            }
-            if let ExpectedFile::Present(before) = &write.before
-                && actual.identity.mode != before.identity.mode
-            {
-                return Err(fail("postverify", "written mode differs"));
-            }
-        }
-        for guard in &plan.guards {
-            if !crate::source::equivalent_file(
-                &capture(root, &guard.path).map_err(|e| fail("postverify", e.to_string()))?,
-                &guard.before,
-            ) {
-                return Err(fail("postverify", "guard changed"));
-            }
-        }
-        super::relations::verify_index(
-            root,
-            &self.index_path,
-            &crate::domains::decision::Definition,
-        )
-    }
-    fn verify_recovered(
-        &mut self,
-        root: &Root,
-        plan: &Plan<PreparedRelations>,
-    ) -> Result<(), TxError> {
-        super::relations::verify_recovered(root, &plan.writes, &plan.guards)
     }
 }
 

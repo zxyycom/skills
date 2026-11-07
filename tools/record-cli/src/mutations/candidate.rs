@@ -25,7 +25,7 @@ pub enum CandidatePlanError {
 }
 
 /// `visible_ids` and `occupied_paths` come from safe discovery in this phase;
-/// this does not replace an independent fresh check and exclusive create.
+/// actual creation remains exclusive and cannot overwrite an existing file.
 pub fn plan_creation(
     domain: Domain,
     identity: &CandidateIdentity,

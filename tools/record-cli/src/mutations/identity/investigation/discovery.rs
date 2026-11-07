@@ -2,7 +2,6 @@ use super::*;
 
 pub(super) struct Discovery {
     pub(super) listing: source::DirectorySnapshot,
-    pub(super) headers: Vec<source::HeaderSnapshot>,
     pub(super) locators: BTreeMap<String, (String, bool)>,
     pub(super) occupied: HashSet<String>,
 }
@@ -17,7 +16,6 @@ struct Scanner<'a> {
     operation: &'a InvestigationIdentityOperation,
     root: &'a Root,
     missing: bool,
-    headers: Vec<source::HeaderSnapshot>,
     locators: BTreeMap<String, (String, bool)>,
     occupied: HashSet<String>,
 }
@@ -61,7 +59,6 @@ impl Scanner<'_> {
         {
             return Err(fail("duplicate-id", id));
         }
-        self.headers.push(header);
         Ok(())
     }
 }
@@ -86,14 +83,12 @@ impl InvestigationIdentityOperation {
                 .map(|(id, s)| (id.clone(), (s.source_path.clone(), false)))
                 .collect(),
             occupied: HashSet::new(),
-            headers: Vec::new(),
         };
         for member in &listing.members {
             scanner.observe(member)?;
         }
         Ok(Discovery {
             listing,
-            headers: scanner.headers,
             locators: scanner.locators,
             occupied: scanner.occupied,
         })

@@ -128,10 +128,3 @@ pub mod index_scope;
 pub mod decision_scope;
 
 pub mod investigation_scope;
-
-/// A mismatch is a concurrency conflict; a read failure is not evidence of drift.
-#[derive(Clone, Copy)]
-enum FreshnessError {
-    Drift,
-    Read,
-}

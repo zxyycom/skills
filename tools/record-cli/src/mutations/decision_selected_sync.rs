@@ -1,34 +1,20 @@
 //! Selected Decision synchronization: only selected known locations and their
 //! necessary graph dependencies are read. Unknown locations remain unchecked.
-use super::{
-    check::FileProof,
-    selected_sync::{self, Observation},
-};
+use super::selected_sync;
 use crate::{
     domains::{
         self,
         decision::{DecisionState, Definition},
     },
-    source::Root,
+    source::{Root, SourceSnapshot},
     source_revision::Domain,
     transaction::{Plan, TransactionOperation, TxError},
 };
 use std::collections::{BTreeMap, BTreeSet};
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-struct Evidence {
-    index: FileProof,
-    sources: Vec<Observation>,
-}
-impl Evidence {
-    fn equivalent(&self, other: &Self) -> bool {
-        self.index.equivalent(&other.index)
-            && selected_sync::same_observations(&self.sources, &other.sources)
-    }
-}
 #[derive(Clone, Debug)]
 struct Stage {
-    evidence: Evidence,
+    index: SourceSnapshot,
     selected: Vec<String>,
     checked: Vec<String>,
     changed: Vec<String>,
@@ -66,9 +52,6 @@ pub struct SelectedDecisionSyncOperation {
     pub directory: String,
     pub selectors: Vec<String>,
     observation: selected_sync::SelectionObservation,
-}
-fn fail(code: &str, message: impl Into<String>) -> TxError {
-    TxError::new(code, message)
 }
 pub(crate) fn related(
     entries: &BTreeMap<String, DecisionState>,
@@ -168,7 +151,6 @@ impl SelectedDecisionSyncOperation {
             adapter: &adapter,
         };
         let selected_sync::SelectedFacts {
-            mut observations,
             updates,
             dependencies,
             ..
@@ -181,13 +163,9 @@ impl SelectedDecisionSyncOperation {
             checked,
         } = selected_sync::prepare_projection(&baseline, &Definition, updates, &dependencies)
             .map_err(|error| selected_sync::source_failure(error, Domain::Decision))?;
-        observations.sort_by(|a, b| a.path().as_path().cmp(b.path().as_path()));
         let needs_write = !changed.is_empty();
         Ok(Stage {
-            evidence: Evidence {
-                index: FileProof::from(&index_file),
-                sources: observations,
-            },
+            index: index_file,
             selected: selected.into_iter().collect(),
             checked,
             changed,
@@ -197,17 +175,6 @@ impl SelectedDecisionSyncOperation {
     }
     pub fn preflight(&self, root: &Root) -> Result<SelectedSyncResult, TxError> {
         let first = self.stage(root)?;
-        let second = self.stage(root)?;
-        if !first.evidence.equivalent(&second.evidence)
-            || first.target != second.target
-            || first.selected != second.selected
-            || first.checked != second.checked
-        {
-            return Err(selected_sync::source_failure(
-                fail("source-changed", "selected facts changed during preflight"),
-                Domain::Decision,
-            ));
-        }
         Ok(sync_result(&first, &self.directory, &self.selectors, false))
     }
 }
@@ -250,65 +217,19 @@ impl PreparedSelected {
 impl TransactionOperation<PreparedSelected> for SelectedDecisionSyncOperation {
     fn prepare(&mut self, root: &Root) -> Result<Plan<PreparedSelected>, TxError> {
         let stage = self.stage(root)?;
-        let writes = selected_sync::prepare_publication(
-            root,
-            &stage.evidence.index,
-            &stage.evidence.sources,
-            &stage.target,
-            stage.needs_write,
-        )
-        .map_err(|error| selected_sync::source_failure(error, Domain::Decision))?;
-        Ok(writes.into_plan(PreparedSelected {
-            stage,
-            index_path: self.directory.clone(),
-            selectors: self.selectors.clone(),
-        }))
-    }
-    fn fresh(&mut self, root: &Root, plan: &Plan<PreparedSelected>) -> Result<(), TxError> {
-        let fresh = self.stage(root)?;
-        let before = &plan.value.stage;
-        selected_sync::verify_fresh_projection(
-            (&before.target, &before.selected, &before.checked),
-            (&fresh.target, &fresh.selected, &fresh.checked),
-            fresh.evidence.equivalent(&before.evidence),
-            Domain::Decision,
-        )
-    }
-    fn verify(&mut self, root: &Root, plan: &Plan<PreparedSelected>) -> Result<(), TxError> {
-        self.observation.phase.set(if plan.value.stage.needs_write {
-            "index-write-failed"
-        } else {
-            "source-invalid"
-        });
-        selected_sync::verify_sources(root, &plan.value.stage.evidence.sources)
-            .map_err(|error| selected_sync::verification_failure(error, Domain::Decision))?;
-        selected_sync::verify_index(
-            root,
-            &plan.value.stage.evidence.index,
-            &plan.value.stage.target,
-            &Definition,
-        )
-        .map_err(|error| selected_sync::verification_failure(error, Domain::Decision))?;
-        Ok(())
-    }
-    fn verify_recovered(
-        &mut self,
-        root: &Root,
-        plan: &Plan<PreparedSelected>,
-    ) -> Result<(), TxError> {
-        let fresh = self.stage(root)?;
-        if !selected_sync::same_observations(
-            &fresh.evidence.sources,
-            &plan.value.stage.evidence.sources,
-        ) || fresh.evidence.index.bytes != plan.value.stage.evidence.index.bytes
-            || fresh.evidence.index.identity.mode != plan.value.stage.evidence.index.identity.mode
-        {
-            return Err(fail(
-                "recovery",
-                "selected facts or baseline were not restored",
-            ));
-        }
-        Ok(())
+        let index = stage.index.clone();
+        let target = stage.target.clone();
+        let needs_write = stage.needs_write;
+        Ok(selected_sync::prepare_publication(
+            index,
+            &target,
+            needs_write,
+            PreparedSelected {
+                stage,
+                index_path: self.directory.clone(),
+                selectors: self.selectors.clone(),
+            },
+        ))
     }
 }
 

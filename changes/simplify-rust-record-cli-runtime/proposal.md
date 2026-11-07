@@ -14,7 +14,7 @@ Decision Records 与 Investigation Report 的 Rust 候选通过跨平台常用�
 
 ### Intended Change
 
-重构 `tools/record-cli/` 的来源、事务、两域操作及 Git stage；删去不再需要的特殊文件和证明机制。保留一次必要领域校验、基本工作区路径范围、独占新建、单文件原子写及如实 JSON；正式调用正常准备一次，预检不传递凭据。候选 envelope 升至 version 2 并删除不再产生事实的恢复/验证字段；Linux 实际交付和 Windows 目标编译接线按各自边界验收，保持候选和私有 fixture 边界。
+重构 `tools/record-cli/` 的来源、事务、两域操作及 Git stage；删去不再需要的特殊文件和证明机制。保留一次必要领域校验、基本工作区路径范围、独占新建、已有文件的库级原子更新及如实 JSON；正式调用正常准备一次，预检不传递凭据。候选 envelope 升至 version 2 并删除不再产生事实的恢复/验证字段；Linux 实际交付和 Windows 目标编译接线按各自边界验收，保持候选和私有 fixture 边界。
 
 ### Resulting Impacts
 

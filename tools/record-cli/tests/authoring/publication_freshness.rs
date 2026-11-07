@@ -1,60 +1,5 @@
 use super::*;
 
-#[test]
-fn publication_fresh_rejects_changed_selected_body_before_writing() {
-    use record_cli::{
-        mutations::authoring::investigation_publish::{
-            InvestigationPublishOperation, PreparedPublication,
-        },
-        source::Root,
-        transaction::{Plan, TransactionOperation, TxError},
-    };
-    struct ConcurrentEdit(InvestigationPublishOperation);
-    impl TransactionOperation<PreparedPublication> for ConcurrentEdit {
-        fn prepare(&mut self, root: &Root) -> Result<Plan<PreparedPublication>, TxError> {
-            self.0.prepare(root)
-        }
-        fn fresh(&mut self, root: &Root, plan: &Plan<PreparedPublication>) -> Result<(), TxError> {
-            let path = root.path().join("reports/_candidate.261106-report");
-            let mut bytes = std::fs::read(&path).unwrap();
-            bytes.extend_from_slice(b"late edit\n");
-            std::fs::write(path, bytes).unwrap();
-            self.0.fresh(root, plan)
-        }
-        fn verify(&mut self, root: &Root, plan: &Plan<PreparedPublication>) -> Result<(), TxError> {
-            self.0.verify(root, plan)
-        }
-        fn verify_recovered(
-            &mut self,
-            root: &Root,
-            plan: &Plan<PreparedPublication>,
-        ) -> Result<(), TxError> {
-            self.0.verify_recovered(root, plan)
-        }
-    }
-    let fixture = tempfile::tempdir().unwrap();
-    let directory = fixture.path().join("reports");
-    std::fs::create_dir(&directory).unwrap();
-    let doc = "---\ntitle: \"Report title\"\nid: \"261106-report\"\nformedAt: \"2026-11-06T12:00:00Z\"\nquestion: \"What happened?\"\ntags:\n  - \"test\"\nrelations: []\n---\n\n## 形成时背景\n背景。\n\n## 调查目的\n目的。\n\n## 调查范围与依据\n依据。\n\n## 调查结果与边界\n结果。\n";
-    let candidate = directory.join("_candidate.261106-report");
-    std::fs::write(&candidate, doc).unwrap();
-    let root = open_root(fixture.path()).unwrap();
-    let mut op = ConcurrentEdit(InvestigationPublishOperation {
-        collection: RelativePath::new("reports").unwrap(),
-        selectors: vec!["report".into()],
-    });
-    let result = run_transaction(&root, &RelativePath::new(".lock").unwrap(), &mut op);
-    assert_eq!(result.status, TxStatus::Error);
-    assert!(!result.changed && !result.committed);
-    assert!(
-        std::fs::read_to_string(candidate)
-            .unwrap()
-            .ends_with("late edit\n")
-    );
-    assert!(!directory.join("261106-report.md").exists());
-    assert!(!directory.join("investigation-index.json").exists());
-}
-
 fn indexed_formal_fixture(variant: &str) -> tempfile::TempDir {
     use record_cli::{
         domains::investigation::{self, Definition},
@@ -133,35 +78,8 @@ fn indexed_formal_fixture(variant: &str) -> tempfile::TempDir {
 fn publication_uses_formal_index_not_unselected_bodies_or_unreferenced_resources() {
     use record_cli::{
         mutations::authoring::investigation_publish::InvestigationPublishOperation,
-        mutations::authoring::investigation_publish::PreparedPublication,
-        source::Root,
-        transaction::{Plan, TransactionOperation, TxError, preflight},
+        transaction::preflight,
     };
-    struct RemoveFormal {
-        inner: InvestigationPublishOperation,
-        remove: bool,
-    }
-    impl TransactionOperation<PreparedPublication> for RemoveFormal {
-        fn prepare(&mut self, root: &Root) -> Result<Plan<PreparedPublication>, TxError> {
-            self.inner.prepare(root)
-        }
-        fn fresh(&mut self, root: &Root, plan: &Plan<PreparedPublication>) -> Result<(), TxError> {
-            if self.remove {
-                std::fs::remove_file(root.path().join("reports/owner.md")).unwrap();
-            }
-            self.inner.fresh(root, plan)
-        }
-        fn verify(&mut self, root: &Root, plan: &Plan<PreparedPublication>) -> Result<(), TxError> {
-            self.inner.verify(root, plan)
-        }
-        fn verify_recovered(
-            &mut self,
-            root: &Root,
-            plan: &Plan<PreparedPublication>,
-        ) -> Result<(), TxError> {
-            self.inner.verify_recovered(root, plan)
-        }
-    }
     let variants = if cfg!(unix) {
         vec!["missing", "corrupt", "stale", "symlink"]
     } else {
@@ -192,11 +110,7 @@ fn publication_uses_formal_index_not_unselected_bodies_or_unreferenced_resources
                 .iter()
                 .any(|w| w.contains("unsafe-link"))
         );
-        let mut operation = RemoveFormal {
-            inner: op,
-            remove: variant == "stale",
-        };
-        let result = run_transaction(&root, &RelativePath::new(".lock").unwrap(), &mut operation);
+        let result = run_transaction(&root, &mut op);
         assert_eq!(
             result.status,
             TxStatus::Ok,

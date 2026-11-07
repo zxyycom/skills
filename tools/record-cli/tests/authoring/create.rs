@@ -6,7 +6,6 @@ fn creation_is_atomic_and_does_not_overwrite_existing_candidate() {
     std::fs::create_dir(fixture.path().join("records")).unwrap();
     let root = open_root(fixture.path()).unwrap();
     let collection = RelativePath::new("records").unwrap();
-    let lock = RelativePath::new(".decision.lock").unwrap();
     let mut op = NewOperation::at(
         collection.clone(),
         "example".into(),
@@ -14,7 +13,7 @@ fn creation_is_atomic_and_does_not_overwrite_existing_candidate() {
         "2026-11-06T12:00:00Z".into(),
     )
     .unwrap();
-    let first = run_transaction(&root, &lock, &mut op);
+    let first = run_transaction(&root, &mut op);
     assert_eq!(first.status, TxStatus::Ok, "{:?}", first.errors);
     assert!(first.committed);
     let candidate = fixture.path().join("records/261106-example.md");
@@ -24,7 +23,7 @@ fn creation_is_atomic_and_does_not_overwrite_existing_candidate() {
             .unwrap()
             .contains("status: candidate")
     );
-    let second = run_transaction(&root, &lock, &mut op);
+    let second = run_transaction(&root, &mut op);
     assert_eq!(second.status, TxStatus::Error);
     assert!(!second.committed);
     assert_eq!(std::fs::read(candidate).unwrap(), original);
@@ -51,11 +50,7 @@ fn investigation_unready_scaffold_is_still_created() {
     std::fs::create_dir(fixture.path().join("reports")).unwrap();
     let root = open_root(fixture.path()).unwrap();
     let mut op = investigation_example();
-    let result = run_transaction(
-        &root,
-        &RelativePath::new(".investigation.lock").unwrap(),
-        &mut op,
-    );
+    let result = run_transaction(&root, &mut op);
     assert_eq!(result.status, TxStatus::Ok, "{:?}", result.errors);
     let value = result.value.unwrap();
     assert!(value.scaffold_valid);
@@ -81,11 +76,7 @@ fn new_investigation_reports_preexisting_unreferenced_owner_resources() {
     .unwrap();
     let root = open_root(fixture.path()).unwrap();
     let mut op = investigation_example();
-    let result = run_transaction(
-        &root,
-        &RelativePath::new(".investigation.lock").unwrap(),
-        &mut op,
-    );
+    let result = run_transaction(&root, &mut op);
     assert_eq!(result.status, TxStatus::Ok, "{:?}", result.errors);
     assert_eq!(result.value.unwrap().resource_ready, Some(false));
     assert_eq!(
@@ -110,11 +101,7 @@ fn first_collection_is_created_with_its_candidate_in_both_domains() {
         timestamp.into(),
     )
     .unwrap();
-    let first = run_transaction(
-        &root,
-        &RelativePath::new(".decision.lock").unwrap(),
-        &mut dr,
-    );
+    let first = run_transaction(&root, &mut dr);
     assert_eq!(first.status, TxStatus::Ok, "{:?}", first.errors);
     assert!(first.committed);
     assert!(fixture.path().join("decisions/261106-example.md").is_file());
@@ -131,11 +118,7 @@ fn first_collection_is_created_with_its_candidate_in_both_domains() {
         timestamp.into(),
     )
     .unwrap();
-    let second = run_transaction(
-        &root,
-        &RelativePath::new(".investigation.lock").unwrap(),
-        &mut ir,
-    );
+    let second = run_transaction(&root, &mut ir);
     assert_eq!(second.status, TxStatus::Ok, "{:?}", second.errors);
     assert!(second.committed);
     assert!(
@@ -160,11 +143,7 @@ fn invalid_candidate_input_never_creates_candidate_or_collection() {
         "2026-11-06T12:00:00Z".into(),
     )
     .unwrap();
-    let result = run_transaction(
-        &root,
-        &RelativePath::new(".decision.lock").unwrap(),
-        &mut operation,
-    );
+    let result = run_transaction(&root, &mut operation);
     assert_eq!(result.status, TxStatus::Error);
     assert!(!result.changed);
     assert!(!fixture.path().join("decisions").exists());

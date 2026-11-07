@@ -9,16 +9,13 @@ use super::{
     },
     publication::SourcePublication,
     reporting::StageReport,
-    source_capture::{
-        FileMode, SourceCapture, SourceEvidence, check_document_sources, finish_updates,
-        pending_for_sources, phase_freshness_error, stage_indexes,
-    },
+    source_capture::{FileMode, SourceCapture, finish_updates, pending_for_sources, stage_indexes},
 };
 use crate::{
     domains::decision::{DecisionState, Definition, parse_established},
     git::{self, ContentSnapshot, publish::PendingUpdate},
     index::ValidatedIndex,
-    source::{self, ExpectedFile, RelativePath, Root},
+    source::{self, RelativePath, Root},
     source_revision,
 };
 use std::{
@@ -32,19 +29,7 @@ use discovery::{acquire_with_pending_locator, selected_source_paths};
 struct DecisionPhase {
     base: Phase,
     pending: ContentSnapshot,
-    sources: Vec<(RelativePath, ExpectedFile)>,
     updates: Vec<PendingUpdate>,
-}
-
-impl DecisionPhase {
-    fn source_evidence(&self) -> SourceEvidence<'_> {
-        SourceEvidence {
-            base: &self.base,
-            pending: &self.pending,
-            sources: &self.sources,
-            updates: &self.updates,
-        }
-    }
 }
 
 /// Stage established Decision sources, optionally with the selected index.
@@ -63,7 +48,7 @@ pub fn stage_decisions(
     }
     let domain = Definition;
     let (revision, head) = super::index_scope::capture_baseline(root, index_path, &domain)?;
-    let (before, after) = prepare_consistent(root, index_path, selectors, scope, head.as_ref())?;
+    let before = prepare(root, index_path, selectors, scope, head.as_ref())?;
     validate_scope(index_path, before.pending.membership())?;
     let report = StageReport::for_sources(
         Preservation {
@@ -78,35 +63,12 @@ pub fn stage_decisions(
     )?;
     let replaced = SourcePublication {
         root,
-        revision: revision.as_deref(),
         pending: &before.pending,
         updates: &before.updates,
     }
-    .publish(
-        || check_document_sources(root, index_path, &after.base.workspace, &after.sources),
-        || check_document_sources(root, index_path, &after.base.workspace, &after.sources),
-    )?;
+    .publish()?;
     Ok(report.finish(before.base.selected, &before.pending, replaced))
 }
-/// Acquire independently twice and reject any selected-source evidence drift.
-fn prepare_consistent(
-    root: &Root,
-    index_path: &RelativePath,
-    selectors: &[String],
-    scope: StageScope,
-    head: Option<&ValidatedIndex<DecisionState>>,
-) -> Result<(DecisionPhase, DecisionPhase), IndexStageError> {
-    let before = prepare(root, index_path, selectors, scope, head)?;
-    let after = prepare(root, index_path, selectors, scope, head)?;
-    if !before
-        .source_evidence()
-        .equivalent(&after.source_evidence())
-    {
-        return Err(IndexStageError::Drift);
-    }
-    Ok((before, after))
-}
-
 fn prepare(
     root: &Root,
     index_path: &RelativePath,
@@ -115,7 +77,7 @@ fn prepare(
     head: Option<&ValidatedIndex<DecisionState>>,
 ) -> Result<DecisionPhase, IndexStageError> {
     let definition = Definition;
-    let (base, locator) = acquire_with_pending_locator(root, index_path, selectors, scope, head)?;
+    let base = acquire_with_pending_locator(root, index_path, selectors, scope, head)?;
     let (workspace, pending_index) = stage_indexes(&base, index_path, &definition, scope)?;
     let ids: BTreeSet<&str> = base.selected.iter().map(String::as_str).collect();
     let (paths, selected_paths) = selected_source_paths(
@@ -125,8 +87,8 @@ fn prepare(
         [head, pending_index.as_ref(), Some(&workspace)],
     )?;
     let read_paths = selected_paths.clone();
-    let pending = pending_for_sources(root, index_path, &base, locator.as_ref(), read_paths)?;
-    let (updates, sources) = SourceCapture {
+    let pending = pending_for_sources(root, index_path, &base, read_paths)?;
+    let updates = SourceCapture {
         root,
         index_path,
         workspace: &workspace,
@@ -144,11 +106,8 @@ fn prepare(
     let phase = DecisionPhase {
         base,
         pending,
-        sources,
         updates,
     };
-    check_document_sources(root, index_path, &phase.base.workspace, &phase.sources)
-        .map_err(phase_freshness_error)?;
     Ok(phase)
 }
 

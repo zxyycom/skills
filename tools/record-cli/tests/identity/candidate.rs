@@ -11,7 +11,6 @@ fn decision_candidate_rename_and_discard_keep_published_index() {
     )
     .unwrap();
     let before = std::fs::read(base.join("decision-index.json")).unwrap();
-    let lock = RelativePath::new(".identity.lock").unwrap();
     let mut op = operation(Action::Rename {
         target: "renamed".into(),
         confirm_recorded: false,
@@ -37,7 +36,7 @@ fn decision_candidate_rename_and_discard_keep_published_index() {
         target: "renamed".into(),
         confirm_recorded: false,
     };
-    let out = transaction::run_transaction(&root, &lock, &mut op);
+    let out = transaction::run_transaction(&root, &mut op);
     assert!(out.errors.is_empty(), "{:?}", out.errors);
     assert!(out.committed);
     assert!(!base.join("draft.md").exists());
@@ -50,7 +49,7 @@ fn decision_candidate_rename_and_discard_keep_published_index() {
     op.action = Action::Discard {
         confirm_recorded: false,
     };
-    let out = transaction::run_transaction(&root, &lock, &mut op);
+    let out = transaction::run_transaction(&root, &mut op);
     assert!(out.errors.is_empty(), "{:?}", out.errors);
     assert!(out.committed);
     assert!(!base.join("renamed.md").exists());
@@ -76,8 +75,7 @@ fn decision_recorded_candidate_rename_requires_confirmation() {
         confirm_recorded: false,
     });
     op.selector = "draft".into();
-    let lock = RelativePath::new(".identity.lock").unwrap();
-    let out = transaction::run_transaction(&root, &lock, &mut op);
+    let out = transaction::run_transaction(&root, &mut op);
     assert!(!out.errors.is_empty());
     assert!(!out.changed);
     assert_eq!(out.errors[0].target.as_deref(), Some("261106-draft"));
@@ -96,7 +94,7 @@ fn decision_recorded_candidate_rename_requires_confirmation() {
         target: "new-draft".into(),
         confirm_recorded: true,
     };
-    let out = transaction::run_transaction(&root, &lock, &mut op);
+    let out = transaction::run_transaction(&root, &mut op);
     assert!(out.errors.is_empty(), "{:?}", out.errors);
     assert!(out.committed);
     assert!(!base.join("draft.md").exists());
@@ -113,11 +111,7 @@ fn decision_candidate_noop_checks_identity_without_normalizing_bad_body() {
         confirm_recorded: false,
     });
     op.selector = "draft".into();
-    let out = transaction::run_transaction(
-        &root,
-        &RelativePath::new(".identity.lock").unwrap(),
-        &mut op,
-    );
+    let out = transaction::run_transaction(&root, &mut op);
     assert!(out.errors.is_empty(), "{:?}", out.errors);
     assert!(!out.changed && !out.committed);
     assert_eq!(std::fs::read(base.join("draft.md")).unwrap(), candidate);
@@ -135,11 +129,7 @@ fn decision_candidate_only_collection_does_not_create_an_index() {
         confirm_recorded: false,
     });
     op.selector = "draft".into();
-    let out = transaction::run_transaction(
-        &root,
-        &RelativePath::new(".identity.lock").unwrap(),
-        &mut op,
-    );
+    let out = transaction::run_transaction(&root, &mut op);
     assert!(out.errors.is_empty(), "{:?}", out.errors);
     assert!(out.committed);
     assert!(base.join("renamed.md").exists());
@@ -177,11 +167,7 @@ fn decision_candidate_reusing_historical_formal_id_requires_confirmation() {
         confirm_recorded: false,
     });
     op.selector = "261106-original".into();
-    let out = transaction::run_transaction(
-        &root,
-        &RelativePath::new(".identity.lock").unwrap(),
-        &mut op,
-    );
+    let out = transaction::run_transaction(&root, &mut op);
     assert!(!out.errors.is_empty());
     assert!(!out.changed);
     assert_eq!(
@@ -191,11 +177,7 @@ fn decision_candidate_reusing_historical_formal_id_requires_confirmation() {
     op.action = Action::Discard {
         confirm_recorded: true,
     };
-    let out = transaction::run_transaction(
-        &root,
-        &RelativePath::new(".identity.lock").unwrap(),
-        &mut op,
-    );
+    let out = transaction::run_transaction(&root, &mut op);
     assert!(out.errors.is_empty(), "{:?}", out.errors);
     assert!(out.committed);
 }
@@ -212,11 +194,7 @@ fn decision_legacy_candidate_same_path_identity_update_commits() {
         confirm_recorded: false,
     });
     op.selector = "draft".into();
-    let out = transaction::run_transaction(
-        &root,
-        &RelativePath::new(".identity.lock").unwrap(),
-        &mut op,
-    );
+    let out = transaction::run_transaction(&root, &mut op);
     assert!(out.errors.is_empty(), "{:?}", out.errors);
     assert!(out.changed && out.committed);
     let after = std::fs::read_to_string(base.join("draft.md")).unwrap();
@@ -236,11 +214,7 @@ fn decision_missing_index_with_formal_source_rejects_candidate_mutation() {
         confirm_recorded: false,
     });
     op.selector = "draft".into();
-    let out = transaction::run_transaction(
-        &root,
-        &RelativePath::new(".identity.lock").unwrap(),
-        &mut op,
-    );
+    let out = transaction::run_transaction(&root, &mut op);
     assert!(!out.errors.is_empty());
     assert!(!out.changed);
     assert_eq!(std::fs::read(base.join("draft.md")).unwrap(), candidate);

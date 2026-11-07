@@ -2,7 +2,6 @@ use super::*;
 
 #[derive(Default)]
 pub(super) struct ScannedSources {
-    pub source_proofs: Vec<FileProof>,
     pub states: BTreeMap<String, domains::investigation::InvestigationState>,
     pub revisions: BTreeMap<String, String>,
     pub all_ids: HashSet<String>,
@@ -57,7 +56,6 @@ impl ScannedSources {
             self.available_formal_count += 1;
         }
         let file = super::super::capture_member(root, dir, &member.name, &member)?;
-        self.source_proofs.push(FileProof::from(&file));
         let text = match source::strict_text(&file) {
             Ok(text) => text,
             Err(e) => {

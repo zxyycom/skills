@@ -1,8 +1,8 @@
 # 共同记录操作维护
 
-本 owner 为 Decision Records（DR）与 Investigation Report（IR）维护共同操作编排、同阶段证明交接和失败边界。依赖方向为 `DR / IR → record-operations → index-runtime / shared`；两个领域保留各自的 skill、CLI、公开程序化边界、持久格式和独立分发。
+本 owner 为现行生产 TypeScript 的 Decision Records（DR）与 Investigation Report（IR）维护共同操作编排、同阶段证明交接和失败边界。依赖方向为 `DR / IR → record-operations → index-runtime / shared`；两个领域保留各自的 skill、CLI、公开程序化边界、持久格式和独立分发。
 
-共同事实、范围与阶段证明的阅读骨架见[共同记录操作模型](model.md)；本页承接现行生产 TypeScript 的维护入口和精确实现约束；Rust 候选的实现与文件保障见[候选维护入口](../record-cli/README.md)及[候选协议](../record-cli/protocol.md#文件与事务边界)，不因候选变化修改生产保证。
+共同事实、范围与阶段证明的阅读骨架见[共同记录操作模型](model.md)；本页承接现行生产 TypeScript 的维护入口和精确实现约束；Rust 候选的实现与文件保障见[候选维护入口](../record-cli/README.md)及[候选协议](../record-cli/protocol.md#文件与事务边界)，候选采用顺序本地模型，本文下述实现与阶段保证仅适用于生产 TypeScript，不因候选变化修改。
 
 ## 操作入口与责任
 

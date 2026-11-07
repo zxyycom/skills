@@ -15,10 +15,7 @@ use crate::{
     index,
     source::{self, ExpectedFile, RelativePath, Root},
     source_revision::{self, Domain},
-    transaction::{
-        CommitPoint, Guard, Plan, ResourceIntent, TransactionOperation, TxError, WriteIntent,
-        WriteMode,
-    },
+    transaction::{CommitPoint, Plan, ResourceIntent, TransactionOperation, TxError, WriteIntent},
 };
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
@@ -46,49 +43,12 @@ pub struct PreparedEvolution {
     pub established: Vec<String>,
     pub archived: Vec<String>,
     pub discarded: Option<String>,
-    evidence: Evidence,
 }
-#[derive(Debug, PartialEq, Eq)]
-struct Evidence {
-    listing: source::DirectorySnapshot,
-    archive: Option<source::DirectorySnapshot>,
-    headers: Vec<(String, source::HeaderSnapshot)>,
-    history: decision_history::HistoryEvidence,
-    discard_history: Option<(Option<String>, bool)>,
-}
-impl Evidence {
-    fn equivalent(&self, other: &Self) -> bool {
-        super::super::same_directory(&self.listing, &other.listing)
-            && super::super::same_optional_directory(&self.archive, &other.archive)
-            && super::super::same_named_headers(&self.headers, &other.headers)
-            && self.history == other.history
-            && self.discard_history == other.discard_history
-    }
-}
-
 fn fail(code: &str, message: impl ToString) -> TxError {
     TxError::new(code, message.to_string())
 }
 fn path(c: &RelativePath, p: &str) -> Result<RelativePath, TxError> {
     RelativePath::new(c.as_path().join(p)).map_err(|e| fail("path", e))
-}
-fn same_mode(a: &Option<WriteMode>, b: &Option<WriteMode>) -> bool {
-    match (a, b) {
-        (None, None) => true,
-        (Some(WriteMode::Exact(a)), Some(WriteMode::Exact(b)))
-        | (Some(WriteMode::Native(a)), Some(WriteMode::Native(b))) => a == b,
-        _ => false,
-    }
-}
-fn same_resources(a: &[ResourceIntent], b: &[ResourceIntent]) -> bool {
-    a.len() == b.len()
-        && a.iter().zip(b).all(|(a, b)| match (a, b) {
-            (
-                ResourceIntent::CreateDirectory { path: a },
-                ResourceIntent::CreateDirectory { path: b },
-            ) => a == b,
-            _ => false,
-        })
 }
 fn kind(s: &str) -> Result<DecisionRelationKind, TxError> {
     match s {
@@ -258,28 +218,24 @@ impl DecisionEvolutionOperation {
         let writes::Writes {
             final_index,
             mut writes,
-            mut guards,
             resources,
         } = proposed;
-        guards.extend(
-            dependencies::Dependencies {
-                root,
-                collection: &self.collection,
-                baseline: &collection.baseline,
-                final_index: &final_index,
-                selected: &selection.selected,
-                target_ids: &prepared.target_ids,
-                discarded: &selection.discarded,
-                archive_ids: &history.plan.archive_ids,
-            }
-            .capture()?,
-        );
+        dependencies::Dependencies {
+            root,
+            collection: &self.collection,
+            baseline: &collection.baseline,
+            final_index: &final_index,
+            selected: &selection.selected,
+            target_ids: &prepared.target_ids,
+            discarded: &selection.discarded,
+            archive_ids: &history.plan.archive_ids,
+        }
+        .capture()?;
         let commit_point = publication_point(
             &final_index,
             collection.index_path,
             collection.index_before,
             &mut writes,
-            &mut guards,
         )?;
         Ok(Plan {
             value: PreparedEvolution {
@@ -287,16 +243,8 @@ impl DecisionEvolutionOperation {
                 established: history.plan.establish_ids,
                 archived: history.plan.archive_ids,
                 discarded: selection.discarded,
-                evidence: Evidence {
-                    listing: collection.listing,
-                    archive: collection.archive,
-                    headers: collection.headers,
-                    history: history.history,
-                    discard_history: history.discard_history,
-                },
             },
             writes,
-            guards,
             resources,
             commit_point,
         })
@@ -307,15 +255,10 @@ fn publication_point(
     index_path: RelativePath,
     index_before: ExpectedFile,
     writes: &mut Vec<WriteIntent>,
-    guards: &mut Vec<Guard>,
 ) -> Result<CommitPoint, TxError> {
     let bytes = index::serialize_index(final_index, &Definition).map_err(|e| fail("index", e))?;
     let same_index = matches!(&index_before, ExpectedFile::Present(file) if file.bytes == bytes);
     let commit_point = if same_index {
-        guards.push(Guard {
-            path: index_path.clone(),
-            before: index_before,
-        });
         if writes.is_empty() {
             CommitPoint::NoCommit
         } else if writes.len() == 1 && writes[0].after.is_none() {
@@ -327,13 +270,10 @@ fn publication_point(
             ));
         }
     } else {
-        let mode =
-            matches!(index_before, ExpectedFile::Missing).then_some(WriteMode::Native(0o666));
         writes.push(WriteIntent {
             path: index_path.clone(),
             before: index_before,
             after: Some(bytes),
-            mode,
         });
         CommitPoint::PublishedIndex(index_path)
     };

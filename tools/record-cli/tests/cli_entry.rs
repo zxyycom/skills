@@ -1,9 +1,9 @@
 //! Real process exit behavior for location-independent help.
 use std::process::Command;
 
+#[cfg(unix)]
 #[test]
 fn non_unicode_arguments_use_structured_usage_error_when_json_is_requested() {
-    #[cfg(unix)]
     let (invalid, inline_root) = {
         use std::os::unix::ffi::OsStringExt;
         (
@@ -36,7 +36,7 @@ fn non_unicode_arguments_use_structured_usage_error_when_json_is_requested() {
             let output = Command::new(binary).args(args).output().unwrap();
             assert_eq!(output.status.code(), Some(2));
             let response: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
-            assert_eq!(response["version"], 1);
+            assert_eq!(response["version"], 2);
             assert_eq!(response["command"], *command);
             assert_eq!(response["ok"], false);
             assert_eq!(response["error"]["code"], "invalid-arguments");
@@ -66,7 +66,7 @@ fn invalid_query_and_mutation_arguments_use_single_json_object_and_usage_exit() 
             assert_eq!(output.status.code(), Some(2), "{binary} {command}");
             // Parsing the entire stdout rejects extra JSON objects or text.
             let response: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
-            assert_eq!(response["version"], 1);
+            assert_eq!(response["version"], 2);
             assert_eq!(response["command"], command);
             assert_eq!(response["ok"], false);
             assert_eq!(response["error"]["code"], "invalid-arguments");
@@ -98,6 +98,7 @@ fn missing_command_is_usage_error_and_explicit_help_needs_no_workspace() {
     }
 }
 
+#[cfg(unix)]
 #[test]
 fn identity_failure_reports_prepared_plan_separately_from_actual_writes() {
     let root = tempfile::tempdir().unwrap();
@@ -200,5 +201,5 @@ fn identity_failure_reports_prepared_plan_separately_from_actual_writes() {
         Some("renamed")
     );
     assert!(response["result"].get("oldId").is_none());
-    assert_ne!(response["result"]["verification"], "passed");
+    assert!(response["result"].get("verification").is_none());
 }

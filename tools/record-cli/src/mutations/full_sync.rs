@@ -1,5 +1,4 @@
-//! Pure comparison after a complete source projection has been built. Even an
-//! unchanged or preview decision requires a later independent fresh proof.
+//! Pure comparison after a complete source projection has been built.
 mod transaction;
 pub(super) use transaction::{Input, WriteSet};
 

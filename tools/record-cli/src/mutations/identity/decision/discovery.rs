@@ -1,9 +1,6 @@
 use super::*;
 
 pub(super) struct Discovery {
-    pub(super) listing: source::DirectorySnapshot,
-    pub(super) archive: Option<source::DirectorySnapshot>,
-    pub(super) headers: Vec<source::HeaderSnapshot>,
     pub(super) locators: BTreeMap<String, (String, bool)>,
     pub(super) occupied: HashSet<String>,
 }
@@ -19,7 +16,6 @@ struct Scanner<'a> {
     root: &'a Root,
     baseline: &'a crate::index::ValidatedIndex<decision::DecisionState>,
     missing_index: bool,
-    headers: Vec<source::HeaderSnapshot>,
     locators: BTreeMap<String, (String, bool)>,
     occupied: HashSet<String>,
 }
@@ -59,7 +55,6 @@ impl Scanner<'_> {
             ));
         }
         self.insert_candidate(path, id, candidate)?;
-        self.headers.push(header);
         Ok(())
     }
     fn insert_candidate(
@@ -101,7 +96,6 @@ impl DecisionIdentityOperation {
             root,
             baseline,
             missing_index,
-            headers: Vec::new(),
             occupied: HashSet::new(),
             locators: baseline
                 .index()
@@ -118,9 +112,6 @@ impl DecisionIdentityOperation {
             }
         }
         Ok(Discovery {
-            listing,
-            archive,
-            headers: scanner.headers,
             locators: scanner.locators,
             occupied: scanner.occupied,
         })

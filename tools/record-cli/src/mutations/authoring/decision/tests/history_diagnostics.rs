@@ -17,11 +17,7 @@ fn git(root: &Path, args: &[&str]) {
 }
 fn publish_old(root: &crate::source::Root, collection: &Path) {
     std::fs::write(collection.join("old.md"), candidate("261105-old", "[]")).unwrap();
-    let result = run_transaction(
-        root,
-        &RelativePath::new(".decision.lock").unwrap(),
-        &mut operation("old"),
-    );
+    let result = run_transaction(root, &mut operation("old"));
     assert_eq!(result.status, TxStatus::Ok, "{:?}", result.errors);
 }
 fn commit(root: &Path) {

@@ -4,10 +4,7 @@ use super::*;
 pub(super) struct ResourceSelection {
     pub resource_root: RelativePath,
     pub selected_ids: BTreeSet<String>,
-    pub direct_ids: BTreeSet<String>,
     pub direct_paths: BTreeSet<PathBuf>,
-    pub resource_scopes: Vec<PathBuf>,
-    pub workspace_resources: Vec<PathBuf>,
     pub owner_paths: BTreeSet<PathBuf>,
     pub all_resource_paths: BTreeSet<PathBuf>,
     pub file_mode: bool,
@@ -23,7 +20,6 @@ pub(super) fn select_resources(
     let ResourceScope {
         resource_root,
         selected_ids,
-        direct_ids,
         owner_scopes,
         direct_paths,
         resource_scopes,
@@ -50,10 +46,7 @@ pub(super) fn select_resources(
     Ok(ResourceSelection {
         resource_root,
         selected_ids,
-        direct_ids,
         direct_paths,
-        resource_scopes,
-        workspace_resources,
         owner_paths,
         all_resource_paths,
         file_mode,
@@ -64,7 +57,6 @@ pub(super) fn select_resources(
 struct ResourceScope {
     resource_root: RelativePath,
     selected_ids: BTreeSet<String>,
-    direct_ids: BTreeSet<String>,
     owner_scopes: Vec<PathBuf>,
     direct_paths: BTreeSet<PathBuf>,
     resource_scopes: Vec<PathBuf>,
@@ -104,7 +96,6 @@ fn resource_scope(
     Ok(ResourceScope {
         resource_root,
         selected_ids,
-        direct_ids,
         owner_scopes,
         direct_paths,
         resource_scopes,
@@ -158,118 +149,48 @@ impl ResourceCapture<'_> {
     pub fn capture(
         &self,
         updates: &mut BTreeMap<PathBuf, Option<PendingFile>>,
-    ) -> Result<Vec<ResourcePhase>, IndexStageError> {
-        let mut owners = self.selection.selected_ids.clone();
-        for id in &self.selection.direct_ids {
-            let (owner, _) = id
-                .split_once('/')
-                .ok_or_else(|| IndexStageError::Selection("invalid resource identity".into()))?;
-            owners.insert(owner.to_owned());
-        }
-        owners
-            .into_iter()
-            .map(|owner| self.capture_owner(&owner, updates))
-            .collect()
-    }
-
-    /// Capture a single owner's directory and selected member snapshots.
-    fn capture_owner(
-        &self,
-        owner_id: &str,
-        updates: &mut BTreeMap<PathBuf, Option<PendingFile>>,
-    ) -> Result<ResourcePhase, IndexStageError> {
-        let selection = self.selection;
-        let owner = RelativePath::new(owner_id).map_err(IndexStageError::Source)?;
-        let owner_path = selection.resource_root.as_path().join(owner_id);
-        let directories =
-            source::capture_resource_directories(self.root, &selection.resource_root, &owner)
-                .map_err(IndexStageError::Source)?;
-        let mut members: Vec<RelativePath> = selection
-            .all_resource_paths
-            .iter()
-            .filter_map(|path| path.strip_prefix(&owner_path).ok())
-            .map(RelativePath::new)
-            .collect::<Result<_, _>>()
-            .map_err(IndexStageError::Source)?;
-        members.sort_by(|a, b| a.as_path().cmp(b.as_path()));
-        members.dedup();
-        let tree = if directories.owner_exists() {
-            let owner_rel = RelativePath::new(&owner_path).map_err(IndexStageError::Source)?;
-            Some(
-                source::capture_selected_tree(self.root, &owner_rel, &members)
-                    .map_err(IndexStageError::Source)?,
-            )
-        } else {
-            None
-        };
-        self.project_owner_members(owner_id, &owner_path, tree.as_ref(), updates)?;
-        Ok(ResourcePhase {
-            owner,
-            members,
-            directories,
-            tree,
-        })
-    }
-
-    /// Bind selected member payloads to updates and foreign-reference checks.
-    fn project_owner_members(
-        &self,
-        owner_id: &str,
-        owner_path: &Path,
-        tree: Option<&source::SelectedTree>,
-        updates: &mut BTreeMap<PathBuf, Option<PendingFile>>,
     ) -> Result<(), IndexStageError> {
         let selection = self.selection;
-        for path in selection
-            .all_resource_paths
-            .iter()
-            .filter(|path| path.starts_with(owner_path))
-        {
-            let current = self.current_resource(path, tree)?;
+        for path in &selection.all_resource_paths {
+            let current = self.capture_file(path)?;
+            if selection.direct_paths.contains(path) && current.is_none() {
+                return Err(IndexStageError::Selection(
+                    "referenced resource is missing".into(),
+                ));
+            }
             if selection.owner_paths.contains(path) {
                 updates.insert(path.clone(), current.clone());
             }
-            if self.scope == StageScope::All
-                && selection.direct_paths.contains(path)
-                && !selection.selected_ids.contains(owner_id)
-            {
-                self.verify_foreign(path, &current)?;
+            if self.scope == StageScope::All && selection.direct_paths.contains(path) {
+                let owner = path
+                    .strip_prefix(selection.resource_root.as_path())
+                    .ok()
+                    .and_then(|p| p.components().next())
+                    .and_then(|c| c.as_os_str().to_str());
+                if !owner.is_some_and(|id| selection.selected_ids.contains(id)) {
+                    self.verify_foreign(path, &current)?;
+                }
             }
         }
         Ok(())
     }
 
-    /// Validate a referenced resource and derive its selected staged representation.
-    fn current_resource(
-        &self,
-        path: &Path,
-        tree: Option<&source::SelectedTree>,
-    ) -> Result<Option<PendingFile>, IndexStageError> {
-        let snapshot = tree.and_then(|tree| {
-            tree.entries().iter().find_map(|entry| match entry {
-                source::SelectedMember::Present(file) if file.path.as_path() == path => Some(file),
-                _ => None,
-            })
-        });
-        if self.selection.direct_paths.contains(path) && snapshot.is_none() {
-            return Err(IndexStageError::Selection(
-                "referenced resource is missing".into(),
-            ));
-        }
-        let current = snapshot
-            .map(|source| {
-                Ok(PendingFile {
-                    mode: git::workspace_file_mode(
-                        source,
-                        self.pending.membership(),
-                        self.selection.file_mode,
-                    )?,
-                    bytes: source.bytes.clone(),
-                })
-            })
-            .transpose()
-            .map_err(IndexStageError::Git)?;
-        Ok(current)
+    fn capture_file(&self, path: &Path) -> Result<Option<PendingFile>, IndexStageError> {
+        let relative = RelativePath::new(path).map_err(IndexStageError::Source)?;
+        let snapshot = source::capture(self.root, &relative).map_err(IndexStageError::Source)?;
+        Ok(match snapshot {
+            source::ExpectedFile::Present(file) => Some(PendingFile {
+                mode: git::workspace_file_mode(
+                    self.root,
+                    &file,
+                    self.pending.membership(),
+                    self.selection.file_mode,
+                )
+                .map_err(IndexStageError::Git)?,
+                bytes: file.bytes,
+            }),
+            source::ExpectedFile::Missing => None,
+        })
     }
 
     fn verify_foreign(

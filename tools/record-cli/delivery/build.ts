@@ -12,7 +12,7 @@ import {
 import path from "node:path";
 import os from "node:os";
 import { fileURLToPath } from "node:url";
-import { hostTarget, parseManifest, sha256 } from "./manifest.ts";
+import { assetName, hostTarget, parseManifest, sha256 } from "./manifest.ts";
 import type { Manifest } from "./manifest.ts";
 
 const crate = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -160,13 +160,13 @@ function createManifest(
     assets: [
       {
         role: "decision-records",
-        file: "decision-records",
+        file: assetName("decision-records", target),
         size: 1,
         sha256: "0".repeat(64)
       },
       {
         role: "investigation-report",
-        file: "investigation-report",
+        file: assetName("investigation-report", target),
         size: 1,
         sha256: "0".repeat(64)
       }

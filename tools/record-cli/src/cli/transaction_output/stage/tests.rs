@@ -5,23 +5,12 @@ use std::path::PathBuf;
 
 #[test]
 fn publication_outcomes_do_not_claim_no_change_after_commit_or_unknown_recovery() {
-    for (kind, paths, outcome, changed) in [
+    for (kind, paths, changed) in [
+        (FailureKind::Failed, None, false.into()),
+        (FailureKind::PartialOrUnknown, None, serde_json::Value::Null),
         (
-            FailureKind::RecoveryFailed,
-            None,
-            "partial-or-unknown",
-            serde_json::Value::Null,
-        ),
-        (
-            FailureKind::CommittedUnverified,
+            FailureKind::CountUnavailable,
             Some(vec![PathBuf::from("selected.md")]),
-            "committed-unverified",
-            true.into(),
-        ),
-        (
-            FailureKind::CommittedCleanupPending,
-            Some(vec![PathBuf::from("selected.md")]),
-            "committed-cleanup-pending",
             true.into(),
         ),
     ] {
@@ -31,7 +20,6 @@ fn publication_outcomes_do_not_claim_no_change_after_commit_or_unknown_recovery(
             committed_paths: paths,
         });
         let body = stage_failure_body("all", &error);
-        assert_eq!(body["pending"]["outcome"], outcome);
         assert_eq!(body["changed"], changed);
     }
 }

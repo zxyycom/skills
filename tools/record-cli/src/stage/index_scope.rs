@@ -1,7 +1,6 @@
 //! Index-only stage: no domain documents or resource payloads are read.
 use super::{
     IndexInputs, StageScope, compose_index, publication::SourcePublication, reporting::StageReport,
-    source_capture::check_document_sources,
 };
 use crate::{
     git::{
@@ -44,11 +43,7 @@ pub enum IndexStageError {
     HistoricalIndexMissing {
         namespace_indeterminate: bool,
     },
-    Drift,
     Publication(ReplacementFailure),
-    CommittedUnverified {
-        changed_paths: Vec<PathBuf>,
-    },
 }
 #[derive(Debug)]
 pub enum SelectedSourceIssue {
@@ -56,13 +51,6 @@ pub enum SelectedSourceIssue {
     Invalid(String),
     Missing,
     PendingIdentityMismatch,
-}
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum PendingOutcome {
-    NoChange,
-    PartialOrUnknown,
-    CommittedUnverified,
-    CommittedCleanupPending,
 }
 impl IndexStageError {
     pub fn code(&self) -> &'static str {
@@ -76,9 +64,7 @@ impl IndexStageError {
             | Self::SelectedSource { .. }
             | Self::PendingSourceInvalid { .. } => "invalid-selection",
             Self::HistoricalIndexMissing { .. } => "historical-index-missing",
-            Self::Drift => "source-drift",
             Self::Publication(error) => publication_code(&error.kind),
-            Self::CommittedUnverified { .. } => "source-verification-failed",
         }
     }
     /// Recovery advice is available only when its precondition is established.
@@ -90,29 +76,9 @@ impl IndexStageError {
             _ => None,
         }
     }
-    pub fn pending_outcome(&self) -> Option<PendingOutcome> {
-        use git::publish::FailureKind;
-        match self {
-            Self::Publication(error) => match error.kind {
-                FailureKind::Conflict => None,
-                FailureKind::Failed => Some(PendingOutcome::NoChange),
-                FailureKind::RecoveryFailed => Some(PendingOutcome::PartialOrUnknown),
-                FailureKind::CommittedUnverified => Some(PendingOutcome::CommittedUnverified),
-                FailureKind::CommittedCleanupPending => {
-                    Some(PendingOutcome::CommittedCleanupPending)
-                }
-            },
-            Self::CommittedUnverified { .. } => Some(PendingOutcome::CommittedUnverified),
-            Self::SelectorUnresolved { .. }
-            | Self::SelectedSource { .. }
-            | Self::PendingSourceInvalid { .. } => Some(PendingOutcome::NoChange),
-            _ => None,
-        }
-    }
     pub fn committed_paths(&self) -> Option<&[PathBuf]> {
         match self {
             Self::Publication(error) => error.committed_paths.as_deref(),
-            Self::CommittedUnverified { changed_paths } => Some(changed_paths),
             _ => None,
         }
     }
@@ -121,11 +87,9 @@ impl IndexStageError {
 fn publication_code(kind: &git::publish::FailureKind) -> &'static str {
     use git::publish::FailureKind;
     match kind {
-        FailureKind::Conflict => "pending-conflict",
         FailureKind::Failed => "pending-replacement-failed",
-        FailureKind::RecoveryFailed => "pending-recovery-failed",
-        FailureKind::CommittedUnverified => "pending-verification-failed",
-        FailureKind::CommittedCleanupPending => "pending-cleanup-failed",
+        FailureKind::PartialOrUnknown => "pending-replacement-failed",
+        FailureKind::CountUnavailable => "pending-count-unavailable",
     }
 }
 
@@ -164,7 +128,7 @@ where
         return Err(IndexStageError::Selection("selectors are required".into()));
     }
     let (revision, baseline) = capture_baseline(root, index_path, domain)?;
-    let (before, after) = acquire_consistent(
+    let before = acquire(
         root,
         index_path,
         domain,
@@ -178,13 +142,7 @@ where
     )?;
     validate_scope(index_path, before.pending.membership())?;
     let report = index_report(root, index_path, revision.as_deref(), domain, &before)?;
-    IndexPublication {
-        root,
-        index_path,
-        revision: revision.as_deref(),
-        after: &after,
-    }
-    .publish(before, report)
+    IndexPublication { root, index_path }.publish(before, report)
 }
 /// Calculate the index-only stage report before publication.
 fn index_report<'a, D: DomainDefinition>(
@@ -213,8 +171,6 @@ fn index_report<'a, D: DomainDefinition>(
 struct IndexPublication<'a> {
     root: &'a Root,
     index_path: &'a RelativePath,
-    revision: Option<&'a str>,
-    after: &'a Phase,
 }
 impl IndexPublication<'_> {
     fn publish(
@@ -222,7 +178,6 @@ impl IndexPublication<'_> {
         before: Phase,
         report: StageReport<'_>,
     ) -> Result<IndexStageResult, IndexStageError> {
-        let after = self.after;
         let updates = [PendingUpdate {
             path: self.index_path.as_path().to_owned(),
             file: Some(PendingFile {
@@ -232,41 +187,12 @@ impl IndexPublication<'_> {
         }];
         let replacement = SourcePublication {
             root: self.root,
-            revision: self.revision,
             pending: &before.pending,
             updates: &updates,
         }
-        .publish(
-            || check_document_sources(self.root, self.index_path, &after.workspace, &[]),
-            || check_document_sources(self.root, self.index_path, &after.workspace, &[]),
-        )?;
+        .publish()?;
         Ok(report.finish(before.selected, &before.pending, replacement))
     }
-}
-
-/// Re-acquire independently and reject any index-phase drift.
-fn acquire_consistent<D, F>(
-    root: &Root,
-    index_path: &RelativePath,
-    domain: &D,
-    baseline: Option<&ValidatedIndex<D::State>>,
-    request: Acquisition<'_, F>,
-) -> Result<(Phase, Phase), IndexStageError>
-where
-    D: DomainDefinition,
-    D::State: Clone,
-    F: Fn(&D::State) -> &str + Copy,
-{
-    let before = acquire(root, index_path, domain, baseline, request)?;
-    let after = acquire(root, index_path, domain, baseline, request)?;
-    if !source::equivalent_file(&before.workspace, &after.workspace)
-        || before.pending != after.pending
-        || before.selected != after.selected
-        || before.target != after.target
-    {
-        return Err(IndexStageError::Drift);
-    }
-    Ok((before, after))
 }
 
 /// Report decision documents that an index-only stage leaves to its caller.
@@ -278,7 +204,9 @@ fn caller_owned_sources<D: DomainDefinition>(
     if domain.namespace() == "decisions" {
         let source = match &before.workspace {
             ExpectedFile::Present(snapshot) => checked_index(&snapshot.bytes, domain)?,
-            ExpectedFile::Missing => return Err(IndexStageError::Drift),
+            ExpectedFile::Missing => {
+                return Err(IndexStageError::Selection("workspace index missing".into()));
+            }
         };
         let mut paths = Vec::new();
         for id in &before.selected {

@@ -7,9 +7,6 @@ pub struct ContentSnapshot {
     pub(super) membership: PendingSnapshot,
     pub(super) paths: Vec<PathBuf>,
     blobs: Vec<(PathBuf, Vec<u8>)>,
-    /// SHA-256 of the complete payload actually read, not the Git object ID.
-    fingerprints: Vec<(PathBuf, [u8; 32])>,
-    pub(super) root: PathBuf,
 }
 
 impl ContentSnapshot {
@@ -22,52 +19,34 @@ impl ContentSnapshot {
     pub fn blobs(&self) -> &[(PathBuf, Vec<u8>)] {
         &self.blobs
     }
-    pub fn fingerprints(&self) -> &[(PathBuf, [u8; 32])] {
-        &self.fingerprints
-    }
 }
 
 pub fn read_selected(
     root: &std::path::Path,
     paths: &[PathBuf],
 ) -> Result<ContentSnapshot, GitError> {
-    read_selected_index(root, paths, None)
-}
-
-pub(super) fn read_selected_index(
-    root: &std::path::Path,
-    paths: &[PathBuf],
-    index: Option<&std::path::Path>,
-) -> Result<ContentSnapshot, GitError> {
-    let canonical_root = root.canonicalize().map_err(GitError::Io)?;
     let mut paths = paths.to_vec();
     paths.sort();
     paths.dedup();
     for path in &paths {
         git_path(path)?;
     }
-    let membership = read_pending_index(root, index)?;
-    let (blobs, fingerprints) = selected_payloads(root, &paths, &membership)?;
-    verify_snapshot_stable(root, index, &canonical_root, &membership)?;
+    let membership = read_pending(root)?;
+    let blobs = selected_payloads(root, &paths, &membership)?;
     Ok(ContentSnapshot {
-        root: canonical_root,
         membership,
         paths,
         blobs,
-        fingerprints,
     })
 }
 
-type SelectedPayloads = (Vec<(PathBuf, Vec<u8>)>, Vec<(PathBuf, [u8; 32])>);
-
-/// Read only selected blobs and fingerprint their complete payloads.
+/// Read only selected blobs.
 fn selected_payloads(
     root: &std::path::Path,
     paths: &[PathBuf],
     membership: &PendingSnapshot,
-) -> Result<SelectedPayloads, GitError> {
+) -> Result<Vec<(PathBuf, Vec<u8>)>, GitError> {
     let mut blobs = Vec::new();
-    let mut fingerprints = Vec::new();
     for path in paths {
         if let Some(entry) = selected_entry(membership, path)? {
             let kind = command(root, &["cat-file", "-t", &entry.oid], None)?;
@@ -75,28 +54,10 @@ fn selected_payloads(
                 return Err(GitError::InvalidOutput("pending object is not a blob"));
             }
             let bytes = read_blob(root, &entry.oid)?;
-            use sha2::{Digest, Sha256};
-            fingerprints.push((path.clone(), Sha256::digest(&bytes).into()));
             blobs.push((path.clone(), bytes));
         }
     }
-    Ok((blobs, fingerprints))
-}
-
-/// Reject membership or root changes while the selected payloads were read.
-fn verify_snapshot_stable(
-    root: &std::path::Path,
-    index: Option<&std::path::Path>,
-    canonical_root: &std::path::Path,
-    membership: &PendingSnapshot,
-) -> Result<(), GitError> {
-    if read_pending_index(root, index)? != *membership {
-        return Err(GitError::InvalidOutput("pending changed while reading"));
-    }
-    if root.canonicalize().map_err(GitError::Io)? != canonical_root {
-        return Err(GitError::InvalidOutput("repository root changed"));
-    }
-    Ok(())
+    Ok(blobs)
 }
 
 /// A selected path may name at most one stage-zero supported Git file.

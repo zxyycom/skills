@@ -1,7 +1,5 @@
 //! Final relation replacement and review for an already resolved selection.
 //! Resolution and graph validation belong to the domain preparation phase.
-mod transaction;
-pub(super) use transaction::{same_plan, verify_index, verify_recovered};
 
 use std::collections::{HashMap, HashSet};
 

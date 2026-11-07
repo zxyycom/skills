@@ -243,7 +243,7 @@ fn cli_unresolved_selector_reports_target_recovery_and_unchanged_pending() {
         assert!(diagnostic["reason"].as_str().unwrap().contains("missing"));
         assert!(!diagnostic["recovery"].as_str().unwrap().is_empty());
         assert_eq!(value["result"]["scope"], "all");
-        assert_eq!(value["result"]["pending"]["outcome"], "no-change");
+        assert!(value["result"].get("pending").is_none());
         assert_eq!(value["result"]["changed"], false);
         if is_decision {
             assert_eq!(
@@ -357,7 +357,7 @@ fn cli_stale_selected_source_reports_identity_path_and_sync_recovery() {
                 .unwrap()
                 .contains("sync-index")
         );
-        assert_eq!(value["result"]["pending"]["outcome"], "no-change");
+        assert!(value["result"].get("pending").is_none());
         assert_eq!(value["result"]["changed"], false);
         assert_eq!(git(root, &["ls-files", "--stage", "-z"]), before);
         // Reset only this isolated fixture's source so the other domain can be committed.

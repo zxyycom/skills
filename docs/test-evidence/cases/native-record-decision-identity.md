@@ -6,7 +6,6 @@ Tests:
 - `test:1fd2828410042efca7e832a379aa21056ce7ced025f92b12bdfcef1ac361a597`
 - `test:21e8c2a4bdaac7e6b7e691b2d69849594547db18cdcb795dd3e730b236a48bb5`
 - `test:2ca385e8f555a6015e0b130fe50e5a9744a40c64a7951ef0a927aa45115373dc`
-- `test:42d577afe4baaba177220893c1f3715a6d616166caeffc8b05040bfc3a02768f`
 - `test:5c26f163fc4d327c24a5ed9a2d52fea17921e888ea1ea95a75836f82632bb1c0`
 - `test:6251dc1300265d603e7385cb11b54fd6b8a390125da3796c7feadbc30d032684`
 - `test:9e91b55189d7bf9d253a69d1222548c9f48a77c08521aadd6b953cfe768bc87b`
@@ -19,7 +18,7 @@ Tags:
 - `record-rust`
 
 Contract:
-- 决策候选及正式身份变更须区分历史确认、引用、冲突及源漂移。
+- 决策候选及正式身份变更须区分历史确认、引用、普通冲突及来源有效性。
 
 Proves:
-- 私有源与必要真实 Git 验证 rename、discard、no-op、引用、旧身份及无效历史。
+- 私有来源与必要真实 Git 验证 rename、discard、no-op、引用、旧身份及无效历史。

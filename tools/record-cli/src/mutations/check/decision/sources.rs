@@ -1,9 +1,7 @@
 use super::*;
 
 pub(super) struct CollectionMembers {
-    pub(super) directories: Vec<DirectoryProof>,
     pub(super) members: Vec<SourceMember>,
-    pub(super) index_identity: Option<source::FileIdentity>,
 }
 
 pub(super) fn collect_members(
@@ -13,12 +11,7 @@ pub(super) fn collect_members(
 ) -> Result<CollectionMembers, CheckError> {
     let listing = source::enumerate_directory(root, dir)
         .map_err(|e| error("collection-read", directory, e.to_string()))?;
-    let mut directories = vec![DirectoryProof::from_listing(
-        &listing,
-        Some("decision-index.json"),
-    )];
     let mut members = Vec::new();
-    let mut index_identity = None;
     for member in listing.members.iter().cloned() {
         if member.name == "decision-index.json" {
             if member.kind != MemberKind::File {
@@ -28,12 +21,10 @@ pub(super) fn collect_members(
                     "index is not a regular file",
                 ));
             }
-            index_identity = Some(member.identity);
             continue;
         }
         if member.name == "archive" {
-            let (proof, archive_members) = collect_archive(root, dir, directory, &member)?;
-            directories.push(proof);
+            let archive_members = collect_archive(root, dir, directory, &member)?;
             members.extend(archive_members);
         } else {
             members.push(SourceMember {
@@ -42,11 +33,7 @@ pub(super) fn collect_members(
             });
         }
     }
-    Ok(CollectionMembers {
-        directories,
-        members,
-        index_identity,
-    })
+    Ok(CollectionMembers { members })
 }
 
 fn collect_archive(
@@ -54,7 +41,7 @@ fn collect_archive(
     dir: &RelativePath,
     directory: &str,
     member: &DirectoryMember,
-) -> Result<(DirectoryProof, Vec<SourceMember>), CheckError> {
+) -> Result<Vec<SourceMember>, CheckError> {
     if member.kind != MemberKind::Directory {
         return Err(error(
             "member-invalid",
@@ -66,10 +53,6 @@ fn collect_archive(
         .map_err(|e| error("path-invalid", directory, e.to_string()))?;
     let contents = source::enumerate_directory(root, &archive)
         .map_err(|e| error("collection-read", "archive", e.to_string()))?;
-    if contents.identity.mode != member.identity.mode {
-        return Err(error("source-changed", "archive", "directory mode changed"));
-    }
-    let proof = DirectoryProof::from_listing(&contents, None);
     let members = contents
         .members
         .iter()
@@ -79,11 +62,10 @@ fn collect_archive(
             member: file,
         })
         .collect();
-    Ok((proof, members))
+    Ok(members)
 }
 
 pub(super) struct ScannedDecisions {
-    pub(super) source_proofs: Vec<FileProof>,
     pub(super) states: BTreeMap<String, DecisionState>,
     pub(super) revisions: BTreeMap<String, String>,
     pub(super) candidate_count: usize,
@@ -95,7 +77,6 @@ pub(super) struct ScannedDecisions {
 
 #[derive(Default)]
 struct SourceScan {
-    source_proofs: Vec<FileProof>,
     states: BTreeMap<String, DecisionState>,
     revisions: BTreeMap<String, String>,
     all_ids: HashSet<String>,
@@ -134,7 +115,6 @@ impl SourceScan {
         entry: SourceMember,
     ) -> Result<(), CheckError> {
         let file = capture_member(root, dir, &entry)?;
-        self.source_proofs.push(FileProof::from(&file));
         let text = match source::strict_text(&file) {
             Ok(text) => text,
             Err(e) => {
@@ -227,7 +207,6 @@ pub(super) fn scan_sources(
         scan.observe(root, dir, entry)?;
     }
     let SourceScan {
-        source_proofs,
         states,
         revisions,
         all_ids,
@@ -269,7 +248,6 @@ pub(super) fn scan_sources(
         return Err(aggregate(diagnostics, partial));
     }
     Ok(ScannedDecisions {
-        source_proofs,
         states,
         revisions,
         candidate_count,

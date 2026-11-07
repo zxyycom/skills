@@ -66,19 +66,15 @@ fn prepare_candidate(
     let resource_ids = parsed.state.resource_ids.clone();
     let revision = source_revision::fingerprint(Domain::Investigation, id, &formal, text);
     let state = parsed.state;
-    #[cfg(unix)]
-    let mode = snapshot.identity.mode & 0o7777;
     let formal_write = WriteIntent {
         path: formal_path,
         before: formal_before,
         after: Some(snapshot.bytes.clone()),
-        mode: Some(WriteMode::Exact(mode)),
     };
     let candidate_write = WriteIntent {
         path: candidate_path,
         before,
         after: None,
-        mode: None,
     };
     Ok(PreparedCandidate {
         proposal,

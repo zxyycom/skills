@@ -56,7 +56,7 @@ impl<'a> Phase<'a> {
         .plan()?;
         self.finish(change)
     }
-    fn noop(mut self) -> Plan<PreparedIdentity> {
+    fn noop(self) -> Plan<PreparedIdentity> {
         let value = PreparedIdentity {
             old_id: self.facts.selected.id.clone(),
             new_id: Some(self.facts.selected.id),
@@ -67,30 +67,12 @@ impl<'a> Phase<'a> {
             affected_relation_count: 0,
             impact: Default::default(),
             no_change: true,
-            evidence: Evidence {
-                listing: self.facts.discovery.listing,
-                archive: self.facts.discovery.archive,
-                headers: self.facts.discovery.headers,
-                history: None,
-                pending: None,
-            },
         };
-        super::super::no_change_plan(
-            value,
-            Guard {
-                path: self.facts.selected.old,
-                before: self.facts.selected.before.take().expect("source retained"),
-            },
-            Guard {
-                path: self.operation.index_path.clone(),
-                before: self.facts.index_before,
-            },
-        )
+        super::super::no_change_plan(value)
     }
     fn finish(self, change: change::ChangeResult) -> Result<Plan<PreparedIdentity>, TxError> {
         let change::ChangeResult {
             mut writes,
-            mut guards,
             next,
             affected,
             affected_relation_count,
@@ -98,8 +80,8 @@ impl<'a> Phase<'a> {
             new_id,
             new_path,
             no_change,
-            history_fact,
-            pending,
+            history_fact: _,
+            pending: _,
             commit,
         } = change;
         if !self.facts.selected.candidate && !no_change {
@@ -109,11 +91,6 @@ impl<'a> Phase<'a> {
                 next,
                 &Definition,
             )?);
-        } else {
-            guards.push(Guard {
-                path: self.operation.index_path.clone(),
-                before: self.facts.index_before,
-            });
         }
         Ok(Plan {
             value: PreparedIdentity {
@@ -126,16 +103,8 @@ impl<'a> Phase<'a> {
                 affected_relation_count,
                 impact,
                 no_change,
-                evidence: Evidence {
-                    listing: self.facts.discovery.listing,
-                    archive: self.facts.discovery.archive,
-                    headers: self.facts.discovery.headers,
-                    history: history_fact,
-                    pending,
-                },
             },
             writes,
-            guards,
             resources: vec![],
             commit_point: commit,
         })

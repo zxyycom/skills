@@ -1,30 +1,22 @@
 use super::*;
 
-/// Capture a phase-local replacement plan. The caller must resolve selectors and
-/// rebuild `review` inside this same phase; fresh and postverify remain separate
-/// TransactionOperation responsibilities. No persistent write occurs here.
+/// Prepare a replacement plan from the selected sources and validated baseline.
+/// No persistent write occurs here.
 pub fn capture_plan(
     root: &crate::source::Root,
     collection: &crate::source::RelativePath,
     index_path: &crate::source::RelativePath,
     review: &[SourceReview<InvestigationRelationKind>],
 ) -> Result<crate::transaction::Plan<PreparedReplacement>, crate::transaction::TxError> {
-    use crate::transaction::{CommitPoint, Guard, Plan, TxError, WriteIntent};
+    use crate::transaction::{CommitPoint, Plan, TxError, WriteIntent};
     let fail = |code: &str, message: String| TxError::new(code, message);
     let (index_before, baseline) = capture_baseline(root, index_path)?;
     let CapturedSources { snapshots, sources } =
         capture_sources(root, collection, &baseline, review)?;
     let prepared = prepare_replacements(&baseline, review, &sources)
         .map_err(|e| fail("relation-preparation", format!("{e:?}")))?;
-    let SourceIntents {
-        mut writes,
-        mut guards,
-    } = source_intents(snapshots, &prepared.edits);
+    let mut writes = source_intents(snapshots, &prepared.edits);
     let commit_point = if writes.is_empty() {
-        guards.push(Guard {
-            path: index_path.clone(),
-            before: index_before,
-        });
         CommitPoint::NoCommit
     } else {
         let next = crate::index::serialize_index(
@@ -36,14 +28,12 @@ pub fn capture_plan(
             path: index_path.clone(),
             before: index_before,
             after: Some(next),
-            mode: None,
         });
         CommitPoint::PublishedIndex(index_path.clone())
     };
     Ok(Plan {
         value: prepared,
         writes,
-        guards,
         resources: vec![],
         commit_point,
     })
@@ -121,29 +111,24 @@ fn capture_sources(
     Ok(CapturedSources { snapshots, sources })
 }
 
-struct SourceIntents {
-    writes: Vec<crate::transaction::WriteIntent>,
-    guards: Vec<crate::transaction::Guard>,
-}
-fn source_intents(snapshots: Vec<CapturedSource>, edits: &[SourceEdit]) -> SourceIntents {
-    use crate::transaction::{Guard, WriteIntent};
+fn source_intents(
+    snapshots: Vec<CapturedSource>,
+    edits: &[SourceEdit],
+) -> Vec<crate::transaction::WriteIntent> {
+    use crate::transaction::WriteIntent;
     let after_by_id: HashMap<_, _> = edits
         .iter()
         .map(|edit| (edit.id.as_str(), &edit.after))
         .collect();
     let mut writes = Vec::new();
-    let mut guards = Vec::new();
     for CapturedSource { id, path, before } in snapshots {
         if let Some(after) = after_by_id.get(id.as_str()) {
             writes.push(WriteIntent {
                 path,
                 before,
                 after: Some((*after).clone()),
-                mode: None,
             });
-        } else {
-            guards.push(Guard { path, before });
         }
     }
-    SourceIntents { writes, guards }
+    writes
 }

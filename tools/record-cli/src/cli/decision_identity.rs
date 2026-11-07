@@ -79,12 +79,11 @@ fn decision_identity_commit(
         command,
         json,
         root,
-        lock,
     } = context;
     let preflight = false;
     let index_path = operation.index_path.clone();
     let project = |value| project_decision_identity(value, preflight);
-    let mut result = crate::transaction::run_transaction(root, lock, &mut operation);
+    let mut result = crate::transaction::run_transaction(root, &mut operation);
     let (verified, mut body) = identity_transaction_body(
         &mut result,
         &index_path,

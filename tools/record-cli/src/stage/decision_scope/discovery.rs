@@ -11,7 +11,7 @@ pub(super) fn acquire_with_pending_locator(
     selectors: &[String],
     scope: StageScope,
     head: Option<&ValidatedIndex<DecisionState>>,
-) -> Result<(Phase, Option<ContentSnapshot>), IndexStageError> {
+) -> Result<Phase, IndexStageError> {
     let definition = Definition;
 
     let base = match acquire(
@@ -28,7 +28,7 @@ pub(super) fn acquire_with_pending_locator(
     ) {
         Ok(base) => base,
         Err(IndexStageError::SelectorUnresolved { .. }) => {
-            let (snapshot, extra_ids) = pending_locator(root, index_path, selectors)?;
+            let extra_ids = pending_locator(root, index_path, selectors)?;
             let base = acquire(
                 root,
                 index_path,
@@ -41,11 +41,11 @@ pub(super) fn acquire_with_pending_locator(
                     extra_ids: &extra_ids,
                 },
             )?;
-            return Ok((base, Some(snapshot)));
+            return Ok(base);
         }
         Err(error) => return Err(error),
     };
-    Ok((base, None))
+    Ok(base)
 }
 
 /// Identify only literal pending candidates and bind their IDs to captured membership.
@@ -53,7 +53,7 @@ fn pending_locator(
     root: &Root,
     index_path: &RelativePath,
     selectors: &[String],
-) -> Result<(ContentSnapshot, Vec<String>), IndexStageError> {
+) -> Result<Vec<String>, IndexStageError> {
     let metadata = git::read_pending(root.path()).map_err(IndexStageError::Git)?;
     let paths: Vec<_> = metadata
         .entries
@@ -69,9 +69,6 @@ fn pending_locator(
         .into_iter()
         .collect();
     let snapshot = git::read_selected(root.path(), &paths).map_err(IndexStageError::Git)?;
-    if snapshot.membership() != &metadata {
-        return Err(IndexStageError::Drift);
-    }
     let mut extra_ids = Vec::new();
     for (_, bytes) in snapshot.blobs() {
         let text = std::str::from_utf8(bytes)
@@ -80,7 +77,7 @@ fn pending_locator(
             .ok_or_else(|| IndexStageError::Selection("pending source lacks identity".into()))?;
         extra_ids.push(id);
     }
-    Ok((snapshot, extra_ids))
+    Ok(extra_ids)
 }
 
 /// Resolve source ownership from trusted indices and literal pending names before reading blobs.

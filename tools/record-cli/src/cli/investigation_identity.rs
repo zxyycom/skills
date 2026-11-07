@@ -68,6 +68,12 @@ fn project_planned_identity(
     {
         planned["ownerMove"] = moved;
     }
+    if let Some(moved) = planned
+        .as_object_mut()
+        .and_then(|object| object.remove("resourceOwnerMoved"))
+    {
+        planned["plannedResourceOwnerMove"] = moved;
+    }
     planned
 }
 
@@ -147,7 +153,6 @@ fn investigation_identity_commit(
         command,
         json,
         root,
-        lock,
     } = context;
     let preflight = false;
     let index_path = operation.index_path.clone();
@@ -156,7 +161,7 @@ fn investigation_identity_commit(
         is_investigation_source(path, &index_path, &collection)
     };
     let project = |value| project_identity(value, preflight);
-    let mut result = crate::transaction::run_transaction(root, lock, &mut operation);
+    let mut result = crate::transaction::run_transaction(root, &mut operation);
     let (verified, mut body) =
         identity_transaction_body(&mut result, &index_path, is_source, project);
     if verified {
@@ -173,5 +178,55 @@ fn investigation_identity_commit(
             body["plannedIdentity"] = project_planned_identity(plan);
         }
         print_transaction_failure(command, json, &result, body)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mutations::identity::{RewriteImpact, investigation::PreparedIdentity};
+
+    fn rename_plan() -> PreparedIdentity {
+        PreparedIdentity {
+            old_id: "261107-old".into(),
+            new_id: Some("261107-new".into()),
+            old_path: "261107-old.md".into(),
+            new_path: Some("261107-new.md".into()),
+            candidate: false,
+            affected_ids: vec![],
+            affected_relation_count: 0,
+            impact: RewriteImpact::default(),
+            owner_moved: true,
+            deleted_resource_ids: vec![],
+            no_change: false,
+        }
+    }
+
+    #[test]
+    fn planned_rename_does_not_claim_resource_move_completed() {
+        let planned = project_planned_identity(rename_plan());
+        assert_eq!(planned["plannedResourceOwnerMove"], true);
+        assert!(planned.get("resourceOwnerMoved").is_none());
+        assert!(planned.get("ownerMoved").is_none());
+        let owner =
+            crate::source::RelativePath::new("investigations/_resources/261107-new").unwrap();
+        let mut outcome = crate::transaction::TransactionOutcome {
+            status: crate::transaction::TxStatus::Ok,
+            value: Some(rename_plan()),
+            planned_value: None,
+            changed: true,
+            committed: true,
+            written_paths: vec![owner],
+            unknown_paths: vec![],
+            errors: vec![],
+        };
+        let (success, body) =
+            transaction_body(&mut outcome, |value| project_identity(value, false));
+        assert!(success);
+        assert_eq!(body["resourceOwnerMoved"], true);
+        assert_eq!(
+            body["writtenPaths"][0],
+            "investigations/_resources/261107-new"
+        );
     }
 }

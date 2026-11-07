@@ -6,7 +6,7 @@ pub mod investigation;
 
 use crate::{
     source::{self, ExpectedFile, RelativePath, Root},
-    transaction::{Plan, TxError, WriteMode},
+    transaction::{Plan, TxError},
 };
 
 fn fail(code: &str, error: impl std::fmt::Display) -> TxError {
@@ -48,111 +48,6 @@ fn select_identity(
         [] => Err(fail("selector", "not found")),
         _ => Err(fail("selector", "ambiguous selector")),
     }
-}
-
-fn mode(file: &source::SourceSnapshot) -> u32 {
-    #[cfg(unix)]
-    {
-        file.identity.mode & 0o7777
-    }
-}
-
-// The fresh phase independently prepares the same file facts before transaction writes.
-fn fresh_phase<T>(
-    root: &Root,
-    plan: &Plan<T>,
-    phase: impl FnOnce(&Root) -> Result<Plan<T>, TxError>,
-    equivalent: impl FnOnce(&T, &T) -> bool,
-) -> Result<(), TxError> {
-    let now = phase(root)?;
-    verify_fresh(equivalent(&plan.value, &now.value), plan, &now)
-}
-
-fn verify_fresh<T>(evidence_equal: bool, plan: &Plan<T>, now: &Plan<T>) -> Result<(), TxError> {
-    let writes_equal = plan.writes.len() == now.writes.len()
-        && plan.writes.iter().zip(&now.writes).all(|(a, b)| {
-            a.path == b.path
-                && crate::source::equivalent_file(&a.before, &b.before)
-                && a.after == b.after
-        });
-    let guards_equal =
-        plan.guards.len() == now.guards.len()
-            && plan.guards.iter().zip(&now.guards).all(|(a, b)| {
-                a.path == b.path && crate::source::equivalent_file(&a.before, &b.before)
-            });
-    if evidence_equal && writes_equal && guards_equal {
-        Ok(())
-    } else {
-        Err(fail("source-changed", "identity facts changed"))
-    }
-}
-
-fn verify_written_files<T>(root: &Root, plan: &Plan<T>) -> Result<(), TxError> {
-    for write in &plan.writes {
-        match (
-            &write.after,
-            source::capture(root, &write.path).map_err(|e| fail("postverify", e))?,
-        ) {
-            (None, ExpectedFile::Missing) => {}
-            (Some(bytes), ExpectedFile::Present(file))
-                if file.bytes == *bytes
-                    && match (&write.mode, &write.before) {
-                        (Some(WriteMode::Exact(n)), _) => mode(&file) == *n,
-                        (Some(WriteMode::Native(n)), _) => file.identity.mode == *n,
-                        (None, ExpectedFile::Present(before)) => {
-                            file.identity.mode == before.identity.mode
-                        }
-                        (None, ExpectedFile::Missing) => false,
-                    } => {}
-            _ => return Err(fail("postverify", write.path.as_path().display())),
-        }
-    }
-    verify_guards(root, plan, "postverify")
-}
-
-fn verify_recovered_files<T>(root: &Root, plan: &Plan<T>) -> Result<(), TxError> {
-    for write in &plan.writes {
-        match (
-            &write.before,
-            source::capture(root, &write.path).map_err(|e| fail("recovery", e))?,
-        ) {
-            (ExpectedFile::Missing, ExpectedFile::Missing) => {}
-            (ExpectedFile::Present(a), ExpectedFile::Present(b))
-                if a.bytes == b.bytes && a.identity.mode == b.identity.mode => {}
-            _ => return Err(fail("recovery", write.path.as_path().display())),
-        }
-    }
-    verify_guards(root, plan, "recovery")
-}
-
-fn verify_guards<T>(root: &Root, plan: &Plan<T>, code: &str) -> Result<(), TxError> {
-    for guard in &plan.guards {
-        if !source::equivalent_file(
-            &source::capture(root, &guard.path).map_err(|e| fail(code, e))?,
-            &guard.before,
-        ) {
-            return Err(fail(code, "guard changed"));
-        }
-    }
-    Ok(())
-}
-
-fn verify_published_index<D: crate::index::DomainDefinition>(
-    root: &Root,
-    path: &RelativePath,
-    domain: &D,
-) -> Result<(), TxError> {
-    let ExpectedFile::Present(file) =
-        source::capture(root, path).map_err(|e| fail("postverify", e))?
-    else {
-        return Err(fail("postverify", "index missing"));
-    };
-    let index =
-        crate::index::parse_index(&file.bytes, domain).map_err(|e| fail("postverify", e))?;
-    crate::index::QuerySnapshot::new(index)
-        .graph(domain)
-        .map_err(|e| fail("postverify", e))?;
-    Ok(())
 }
 
 fn matches_identity(target: &str, id: &str) -> bool {
@@ -203,15 +98,10 @@ fn identity_allocation_unchanged(
     })
 }
 
-fn no_change_plan<T>(
-    value: T,
-    source: crate::transaction::Guard,
-    index: crate::transaction::Guard,
-) -> Plan<T> {
+fn no_change_plan<T>(value: T) -> Plan<T> {
     Plan {
         value,
         writes: vec![],
-        guards: vec![source, index],
         resources: vec![],
         commit_point: crate::transaction::CommitPoint::NoCommit,
     }
@@ -260,7 +150,6 @@ fn published_index_write<D: crate::index::DomainDefinition>(
         path,
         before,
         after: Some(bytes),
-        mode: None,
     })
 }
 

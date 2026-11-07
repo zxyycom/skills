@@ -21,10 +21,10 @@ bun run check -- --scope record-rust
 
 [共同原生候选决策](../../docs/decisions/261106-isolate-shared-native-record-candidate.md)记录方向和理由；该决策的对齐状态以决策记录为准。领域规则和现行操作分别由 [Decision Records](../../skills/decision-records/SKILL.md)、[Investigation Report](../../skills/investigation-report/SKILL.md) 承接；[共同操作模型](../record-operations/model.md)定义共享事务责任。共享代码负责安全来源、索引、Git 和事务，领域代码各自负责解析、身份、关系与生命周期。索引 schema 真源仍为 `tools/index-runtime/src/schemas.ts` 和各领域 index definition；Rust 类型与生成的 JSON Schema 都不是取代领域规则的真源。
 
-[候选机器协议](protocol.md)承接 JSON 通道、两域 trace 例外、逐命令结果与恢复事实，并定义[文件事务边界](protocol.md#文件与事务边界)；调用者不得把目标契约当作实际验收证据。
+[候选机器协议](protocol.md)承接 JSON 通道、两域 trace 例外、逐命令结果与恢复事实，并定义[文件事务边界](protocol.md#文件与事务边界)；调用者应以实际测试范围判断验收证据。
 
-预检不保存执行凭据；正式执行重新准备，fresh 和写后验收独立采集。未知写入或恢复事实不能报作成功回滚。stage 只有在可证明历史为空时才能采用空基线：缺失 DR HEAD 索引且路径无法区分候选与正式记录时应停止并恢复可信基线，不读取未选正文推定身份。安全与竞争保证以真实平台及测试证据为限，不承诺对非合作进程的跨文件原子隔离。
+候选采用[顺序本地运行时方向](../../docs/decisions/261107-rust-record-candidate-sequential-local-runtime.md)：预检不保存执行凭据，正式执行重新读取准备一次；已有文件用成熟库原子替换，新建以 `create_new` 防止覆盖，初始化失败可留下部分新文件。实际及未知写入如实报告，不能报作成功回滚。stage 只有在可证明历史为空时才能采用空基线：缺失 DR HEAD 索引且路径无法区分候选与正式记录时应停止并恢复可信基线，不读取未选正文推定身份。安全与竞争保证以真实平台及测试证据为限，不承诺对非合作进程的跨文件原子隔离。
 
 ## 交付与验证边界
 
-[离线交付入口](delivery/README.md)只对私有 fixture 构建、安装和恢复；[性能方法](benchmarks/README.md)定义私有数据和新进程测量；制品不提交 Git。冻结的原生验收目标是 Ubuntu 22.04 x64 glibc 2.35（`x86_64-unknown-linux-gnu`）；Windows 原生候选延后，现行 TypeScript 的 Windows 支持不变。候选 CI、Case 和性能报告须分别以实际 revision、环境、测试节点与结果为依据。离线结果不证明正式发布、线上更新或真实用户安装；生产切换与发布另需授权。
+[离线交付入口](delivery/README.md)只对私有 fixture 构建、安装和恢复；[性能方法](benchmarks/README.md)定义私有数据和新进程测量；制品不提交 Git。Linux 原生验收目标是 Ubuntu 22.04 x64 glibc 2.35（`x86_64-unknown-linux-gnu`）。Windows x64 MSVC 本轮仅做 bins 目标 `cargo check` 和 manifest/.exe 接线的 mock/单元验证，不新增 Windows CI 或 native 运行；目标编译不证明 Windows 原生资格。现行 TypeScript 的 Windows 支持不变。候选 CI、Case 和性能报告须分别以实际 revision、环境、测试节点与结果为依据。离线结果不证明正式发布、线上更新或真实用户安装；生产切换与发布另需授权。

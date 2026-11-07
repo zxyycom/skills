@@ -1,5 +1,4 @@
-//! Stage-local Decision history evidence for archive/evolution. A fresh phase
-//! must independently call this again; Git/identity errors are not absence.
+//! Decision history facts for archive/evolution; Git and identity errors are not absence.
 use super::lifecycle::HistoryFact;
 use crate::{
     git::{self, GitError, HeadState},

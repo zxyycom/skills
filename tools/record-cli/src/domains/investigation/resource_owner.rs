@@ -4,7 +4,7 @@ use super::*;
 /// This is only a phase-local owner proof, not proof for other owners, Git
 /// membership, freshness, or the complete resource readiness decision.
 pub fn validate_owner_tree(
-    root: &crate::source::Root,
+    _root: &crate::source::Root,
     expected_owner_path: &crate::source::RelativePath,
     owner_id: &str,
     tree: &crate::source::TreeSnapshot,
@@ -16,7 +16,7 @@ pub fn validate_owner_tree(
             .file_name()
             .and_then(|v| v.to_str())
             != Some(owner_id)
-        || !tree.belongs_to(root, expected_owner_path)
+        || tree.root() != expected_owner_path
     {
         return Err(vec![
             "resource tree does not match selected owner and root".into(),

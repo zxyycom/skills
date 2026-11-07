@@ -44,20 +44,13 @@ impl<'a> Phase<'a> {
             return Ok(self.noop());
         }
         let front = selected.validate(selected.text.as_bytes(), &self.operation.action)?;
-        let (change, resources, tree) = self.plan_change(front.as_ref())?;
-        self.finish(change, resources, tree)
+        let change = self.plan_change(front.as_ref())?;
+        self.finish(change)
     }
     fn plan_change(
         &mut self,
         front: Option<&investigation::Frontmatter>,
-    ) -> Result<
-        (
-            change::ChangeResult,
-            crate::resources::ResourceEvidence,
-            OwnerTree,
-        ),
-        TxError,
-    > {
+    ) -> Result<change::ChangeResult, TxError> {
         let owner::OwnerFacts {
             context: mut resources,
             owner,
@@ -86,9 +79,9 @@ impl<'a> Phase<'a> {
             tree: &tree,
         }
         .plan()?;
-        Ok((change, resources.into_evidence(), tree))
+        Ok(change)
     }
-    fn noop(mut self) -> Plan<PreparedIdentity> {
+    fn noop(self) -> Plan<PreparedIdentity> {
         let value = PreparedIdentity {
             old_id: self.facts.selected.id.clone(),
             new_id: Some(self.facts.selected.id),
@@ -101,43 +94,19 @@ impl<'a> Phase<'a> {
             owner_moved: false,
             deleted_resource_ids: Vec::new(),
             no_change: true,
-            evidence: Evidence {
-                listing: self.facts.discovery.listing,
-                headers: self.facts.discovery.headers,
-                history: None,
-                resources: None,
-                tree: vec![],
-            },
         };
-        super::super::no_change_plan(
-            value,
-            Guard {
-                path: self.facts.selected.old,
-                before: self.facts.selected.before.take().expect("source retained"),
-            },
-            Guard {
-                path: self.operation.index_path.clone(),
-                before: self.facts.index_before,
-            },
-        )
+        super::super::no_change_plan(value)
     }
-    fn finish(
-        self,
-        change: change::ChangeResult,
-        resources: crate::resources::ResourceEvidence,
-        tree: OwnerTree,
-    ) -> Result<Plan<PreparedIdentity>, TxError> {
+    fn finish(self, change: change::ChangeResult) -> Result<Plan<PreparedIdentity>, TxError> {
         let change::ChangeResult {
             resource_intents,
             owner_moved,
             deleted_resource_ids,
             next,
             mut writes,
-            mut guards,
             affected,
             affected_relation_count,
             impact,
-            history,
             new_id,
             new_path,
             commit,
@@ -149,11 +118,6 @@ impl<'a> Phase<'a> {
                 next,
                 &Definition,
             )?);
-        } else {
-            guards.push(Guard {
-                path: self.operation.index_path.clone(),
-                before: self.facts.index_before,
-            });
         }
         Ok(Plan {
             value: PreparedIdentity {
@@ -168,16 +132,8 @@ impl<'a> Phase<'a> {
                 owner_moved,
                 deleted_resource_ids,
                 no_change: false,
-                evidence: Evidence {
-                    listing: self.facts.discovery.listing,
-                    headers: self.facts.discovery.headers,
-                    history: Some(history),
-                    resources: Some(resources),
-                    tree,
-                },
             },
             writes,
-            guards,
             resources: resource_intents,
             commit_point: commit,
         })

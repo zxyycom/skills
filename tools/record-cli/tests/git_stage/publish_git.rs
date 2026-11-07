@@ -7,7 +7,6 @@ fn conditional_publication_preserves_other_pending_and_worktree() {
     let root = dir.path();
     git(root, &["update-index", "--skip-worktree", "unselected"]);
     let before_flags = git(root, &["ls-files", "-v", "--", "unselected"]);
-    let fixed = head(root).unwrap();
     let before_other = git(root, &["show", ":unselected"]);
     let snapshot = read_selected(root, &[PathBuf::from("selected")]).unwrap();
     let updates = [PendingUpdate {
@@ -17,7 +16,7 @@ fn conditional_publication_preserves_other_pending_and_worktree() {
             bytes: b"new pending\n".to_vec(),
         }),
     }];
-    let result = replace_selected(root, &fixed, &snapshot, &updates);
+    let result = replace_selected(root, &snapshot, &updates);
     assert_eq!(
         result.unwrap().changed_paths,
         vec![PathBuf::from("selected")]
@@ -32,11 +31,10 @@ fn conditional_publication_preserves_other_pending_and_worktree() {
     assert!(!root.join(".git/index.lock").exists());
 }
 #[test]
-fn conditional_publication_rejects_stale_pending_and_busy_lock() {
+fn busy_git_lock_reports_unknown_and_keeps_lock() {
     use record_cli::git::publish::{FailureKind, PendingFile, PendingUpdate, replace_selected};
     let dir = fixture();
     let root = dir.path();
-    let fixed = head(root).unwrap();
     let snapshot = read_selected(root, &[PathBuf::from("selected")]).unwrap();
     let updates = [PendingUpdate {
         path: PathBuf::from("selected"),
@@ -47,34 +45,22 @@ fn conditional_publication_rejects_stale_pending_and_busy_lock() {
     }];
     fs::write(root.join(".git/index.lock"), b"other owner").unwrap();
     assert_eq!(
-        replace_selected(root, &fixed, &snapshot, &updates)
+        replace_selected(root, &snapshot, &updates)
             .unwrap_err()
             .kind,
-        FailureKind::Conflict
+        FailureKind::PartialOrUnknown
     );
     assert_eq!(
         fs::read(root.join(".git/index.lock")).unwrap(),
         b"other owner"
     );
-    fs::remove_file(root.join(".git/index.lock")).unwrap();
-    fs::write(root.join("unselected"), b"winner\n").unwrap();
-    git(root, &["add", "--", "unselected"]);
-    assert_eq!(
-        replace_selected(root, &fixed, &snapshot, &updates)
-            .unwrap_err()
-            .kind,
-        FailureKind::Conflict
-    );
-    assert_eq!(git(root, &["show", ":unselected"]), b"winner\n");
     assert_eq!(git(root, &["show", ":selected"]), b"pending\n");
-    assert!(!root.join(".git/index.lock").exists());
 }
 #[test]
 fn conditional_publication_deletes_adds_and_keeps_unchanged_entries() {
     use record_cli::git::publish::{PendingFile, PendingUpdate, replace_selected};
     let dir = fixture();
     let root = dir.path();
-    let fixed = head(root).unwrap();
     let selected = vec![PathBuf::from("selected"), PathBuf::from("new")];
     let snapshot = read_selected(root, &selected).unwrap();
     let updates = [
@@ -90,7 +76,7 @@ fn conditional_publication_deletes_adds_and_keeps_unchanged_entries() {
             }),
         },
     ];
-    let changed = replace_selected(root, &fixed, &snapshot, &updates)
+    let changed = replace_selected(root, &snapshot, &updates)
         .unwrap()
         .changed_paths;
     assert_eq!(
@@ -107,7 +93,7 @@ fn conditional_publication_deletes_adds_and_keeps_unchanged_entries() {
     assert_eq!(git(root, &["show", ":unselected"]), b"other pending\n");
     let fresh = read_selected(root, &selected).unwrap();
     assert!(
-        replace_selected(root, &fixed, &fresh, &updates)
+        replace_selected(root, &fresh, &updates)
             .unwrap()
             .changed_paths
             .is_empty()
@@ -116,156 +102,13 @@ fn conditional_publication_deletes_adds_and_keeps_unchanged_entries() {
 }
 
 #[test]
-fn source_guard_conflict_is_observed_while_real_git_lock_is_held() {
-    use record_cli::git::publish::{
-        FailureKind, GuardFailure, PendingFile, PendingUpdate, replace_selected_guarded,
-    };
-    let dir = fixture();
-    let root = dir.path();
-    let fixed = head(root).unwrap();
-    let snapshot = read_selected(root, &[PathBuf::from("selected")]).unwrap();
-    let updates = [PendingUpdate {
-        path: PathBuf::from("selected"),
-        file: Some(PendingFile {
-            mode: 0o100644,
-            bytes: b"new\n".to_vec(),
-        }),
-    }];
-    let error = replace_selected_guarded(root, &fixed, &snapshot, &updates, || {
-        assert!(root.join(".git/index.lock").exists());
-        let competing = Command::new("git")
-            .arg("-C")
-            .arg(root)
-            .args(["add", "--", "selected"])
-            .output()
-            .unwrap();
-        assert!(
-            !competing.status.success(),
-            "Git writer must respect the held index lock"
-        );
-        fs::write(root.join("selected"), b"source changed\n").unwrap();
-        Err(GuardFailure::Conflict)
-    })
-    .unwrap_err();
-    assert_eq!(error.kind, FailureKind::Conflict);
-    assert_eq!(git(root, &["show", ":selected"]), b"pending\n");
-    assert_eq!(git(root, &["show", ":unselected"]), b"other pending\n");
-    assert_eq!(
-        fs::read(root.join("selected")).unwrap(),
-        b"source changed\n"
-    );
-    assert!(!root.join(".git/index.lock").exists());
-}
-#[test]
-fn source_guard_abort_cleans_owned_git_lock_without_publishing() {
-    use record_cli::git::publish::{
-        FailureKind, PendingFile, PendingUpdate, replace_selected_guarded,
-    };
-    let dir = fixture();
-    let root = dir.path();
-    let fixed = head(root).unwrap();
-    let snapshot = read_selected(root, &[PathBuf::from("selected")]).unwrap();
-    let updates = [PendingUpdate {
-        path: PathBuf::from("selected"),
-        file: Some(PendingFile {
-            mode: 0o100644,
-            bytes: b"new\n".to_vec(),
-        }),
-    }];
-    let error = replace_selected_guarded(root, &fixed, &snapshot, &updates, || {
-        panic!("fixture guard abort")
-    })
-    .unwrap_err();
-    assert_eq!(error.kind, FailureKind::Failed);
-    assert_eq!(git(root, &["show", ":selected"]), b"pending\n");
-    assert_eq!(git(root, &["show", ":unselected"]), b"other pending\n");
-    assert!(!root.join(".git/index.lock").exists());
-}
-#[test]
-fn noncooperative_index_change_during_guard_is_detected_and_preserved() {
-    use record_cli::git::publish::{
-        FailureKind, PendingFile, PendingUpdate, replace_selected_guarded,
-    };
-    let dir = fixture();
-    let root = dir.path();
-    let fixed = head(root).unwrap();
-    let snapshot = read_selected(root, &[PathBuf::from("selected")]).unwrap();
-    let updates = [PendingUpdate {
-        path: PathBuf::from("selected"),
-        file: Some(PendingFile {
-            mode: 0o100644,
-            bytes: b"our proposal\n".to_vec(),
-        }),
-    }];
-    let error = replace_selected_guarded(root, &fixed, &snapshot, &updates, || {
-        let index = root.join(".git/index");
-        let rival = root.join(".git/rival-index");
-        fs::copy(&index, &rival).unwrap();
-        let output = Command::new("git")
-            .arg("-C")
-            .arg(root)
-            .env("GIT_INDEX_FILE", &rival)
-            .args(["add", "--", "selected"])
-            .output()
-            .unwrap();
-        assert!(
-            output.status.success(),
-            "{}",
-            String::from_utf8_lossy(&output.stderr)
-        );
-        fs::rename(&rival, &index).unwrap();
-        Ok(())
-    })
-    .unwrap_err();
-    assert_eq!(error.kind, FailureKind::Conflict);
-    assert_eq!(git(root, &["show", ":selected"]), b"worktree\n");
-    assert_eq!(git(root, &["show", ":unselected"]), b"other pending\n");
-    assert!(!root.join(".git/index.lock").exists());
-}
-#[test]
-fn replaced_lock_is_never_deleted_as_if_owned() {
-    use record_cli::git::publish::{
-        FailureKind, PendingFile, PendingUpdate, replace_selected_guarded,
-    };
-    let dir = fixture();
-    let root = dir.path();
-    let fixed = head(root).unwrap();
-    let snapshot = read_selected(root, &[PathBuf::from("selected")]).unwrap();
-    let updates = [PendingUpdate {
-        path: PathBuf::from("selected"),
-        file: Some(PendingFile {
-            mode: 0o100644,
-            bytes: b"proposal\n".to_vec(),
-        }),
-    }];
-    let error = replace_selected_guarded(root, &fixed, &snapshot, &updates, || {
-        fs::rename(
-            root.join(".git/index.lock"),
-            root.join(".git/displaced-lock"),
-        )
-        .unwrap();
-        fs::write(root.join(".git/index.lock"), b"other owner").unwrap();
-        Ok(())
-    })
-    .unwrap_err();
-    assert_eq!(error.kind, FailureKind::RecoveryFailed);
-    assert_eq!(
-        fs::read(root.join(".git/index.lock")).unwrap(),
-        b"other owner"
-    );
-    assert_eq!(git(root, &["show", ":selected"]), b"pending\n");
-    assert_eq!(git(root, &["show", ":unselected"]), b"other pending\n");
-}
-#[test]
 fn conditional_publication_preserves_requested_git_symlink_representation() {
     use record_cli::git::publish::{PendingFile, PendingUpdate, replace_selected};
     let dir = fixture();
     let root = dir.path();
-    let fixed = head(root).unwrap();
     let snapshot = read_selected(root, &[PathBuf::from("selected")]).unwrap();
     let result = replace_selected(
         root,
-        &fixed,
         &snapshot,
         &[PendingUpdate {
             path: PathBuf::from("selected"),
@@ -305,13 +148,136 @@ fn disabled_filemode_preserves_pending_executable_representation() {
     };
     assert!(!core_file_mode(root).unwrap());
     assert_eq!(
-        workspace_file_mode(&source, &pending, false).unwrap(),
+        workspace_file_mode(&open_root(root).unwrap(), &source, &pending, false).unwrap(),
         0o100755
     );
     git(root, &["update-index", "--chmod=-x", "selected"]);
     let next = read_pending(root).unwrap();
     assert_eq!(
-        workspace_file_mode(&source, &next, false).unwrap(),
+        workspace_file_mode(&open_root(root).unwrap(), &source, &next, false).unwrap(),
         0o100644
     );
+}
+
+#[test]
+fn publication_rejects_file_directory_conflicts_without_changing_pending() {
+    use record_cli::git::publish::{FailureKind, PendingFile, PendingUpdate, replace_selected};
+    for (existing, selected) in [("clash/child", "clash"), ("clash", "clash/child")] {
+        let dir = fixture();
+        let root = dir.path();
+        let oid = String::from_utf8(git(root, &["rev-parse", ":unselected"])).unwrap();
+        git(
+            root,
+            &[
+                "update-index",
+                "--add",
+                "--cacheinfo",
+                &format!("100644,{},{}", oid.trim(), existing),
+            ],
+        );
+        let before = git(root, &["ls-files", "--stage", "-z"]);
+        let index_before = fs::read(root.join(".git/index")).unwrap();
+        let other = git(root, &["show", &format!(":{existing}")]);
+        let snapshot = read_selected(root, &[PathBuf::from(selected)]).unwrap();
+        let updates = [PendingUpdate {
+            path: selected.into(),
+            file: Some(PendingFile {
+                mode: 0o100644,
+                bytes: b"replacement".to_vec(),
+            }),
+        }];
+        let error = replace_selected(root, &snapshot, &updates).unwrap_err();
+        assert_eq!(error.kind, FailureKind::Failed);
+        assert_eq!(before, git(root, &["ls-files", "--stage", "-z"]));
+        assert_eq!(index_before, fs::read(root.join(".git/index")).unwrap());
+        assert_eq!(other, git(root, &["show", &format!(":{existing}")]));
+    }
+}
+
+#[test]
+fn publication_rejects_conflicting_upserts_but_allows_selected_path_replacement() {
+    use record_cli::git::publish::{FailureKind, PendingFile, PendingUpdate, replace_selected};
+    let file = || {
+        Some(PendingFile {
+            mode: 0o100644,
+            bytes: b"replacement".to_vec(),
+        })
+    };
+    let dir = fixture();
+    let root = dir.path();
+    let paths = [PathBuf::from("clash"), PathBuf::from("clash/child")];
+    let snapshot = read_selected(root, &paths).unwrap();
+    let before = git(root, &["ls-files", "--stage", "-z"]);
+    let updates = paths.map(|path| PendingUpdate { path, file: file() });
+    assert_eq!(
+        replace_selected(root, &snapshot, &updates)
+            .unwrap_err()
+            .kind,
+        FailureKind::Failed
+    );
+    assert_eq!(before, git(root, &["ls-files", "--stage", "-z"]));
+
+    for (existing, replacement) in [("clash/child", "clash"), ("clash", "clash/child")] {
+        let dir = fixture();
+        let root = dir.path();
+        let oid = String::from_utf8(git(root, &["rev-parse", ":unselected"])).unwrap();
+        git(
+            root,
+            &[
+                "update-index",
+                "--add",
+                "--cacheinfo",
+                &format!("100644,{},{}", oid.trim(), existing),
+            ],
+        );
+        let snapshot = read_selected(root, &[existing.into(), replacement.into()]).unwrap();
+        let updates = [
+            PendingUpdate {
+                path: existing.into(),
+                file: None,
+            },
+            PendingUpdate {
+                path: replacement.into(),
+                file: file(),
+            },
+        ];
+        replace_selected(root, &snapshot, &updates).unwrap();
+        assert_eq!(
+            git(root, &["show", &format!(":{replacement}")]),
+            b"replacement"
+        );
+        assert_eq!(git(root, &["show", ":unselected"]), b"other pending\n");
+    }
+}
+
+#[test]
+fn publication_allows_textual_prefix_without_component_conflict() {
+    use record_cli::git::publish::{PendingFile, PendingUpdate, replace_selected};
+    let dir = fixture();
+    let root = dir.path();
+    let oid = String::from_utf8(git(root, &["rev-parse", ":unselected"])).unwrap();
+    git(
+        root,
+        &[
+            "update-index",
+            "--add",
+            "--cacheinfo",
+            &format!("100644,{},ab/file", oid.trim()),
+        ],
+    );
+    let snapshot = read_selected(root, &["a".into()]).unwrap();
+    replace_selected(
+        root,
+        &snapshot,
+        &[PendingUpdate {
+            path: "a".into(),
+            file: Some(PendingFile {
+                mode: 0o100644,
+                bytes: b"a".to_vec(),
+            }),
+        }],
+    )
+    .unwrap();
+    assert_eq!(git(root, &["show", ":a"]), b"a");
+    assert_eq!(git(root, &["show", ":ab/file"]), b"other pending\n");
 }

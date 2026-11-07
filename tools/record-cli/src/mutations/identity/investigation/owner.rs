@@ -111,14 +111,8 @@ fn capture_owned_tree(
         .entries()
         .iter()
         .map(|entry| match entry {
-            source::TreeEntry::Directory { path, identity } => {
-                (path.clone(), identity.clone(), None)
-            }
-            source::TreeEntry::File {
-                path,
-                identity,
-                bytes,
-            } => (path.clone(), identity.clone(), Some(bytes.clone())),
+            source::TreeEntry::Directory { path } => (path.clone(), false),
+            source::TreeEntry::File { path } => (path.clone(), true),
         })
         .collect())
 }

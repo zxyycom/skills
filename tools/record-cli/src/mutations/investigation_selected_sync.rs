@@ -1,41 +1,24 @@
 //! Selected Investigation synchronization: only selected known locations and their
 //! necessary graph dependencies are read. Unknown locations remain unchecked.
-use super::{
-    check::FileProof,
-    selected_sync::{self, Observation},
-};
+use super::selected_sync;
 use crate::{
     domains::{
         self,
         investigation::{Definition, InvestigationState},
     },
-    source::{self, RelativePath, Root},
+    source::{RelativePath, Root, SourceSnapshot},
     source_revision::Domain,
     transaction::TxError,
 };
 use std::collections::{BTreeMap, BTreeSet};
 
-struct Evidence {
-    index: FileProof,
-    sources: Vec<Observation>,
-    resources: crate::resources::ResourceEvidence,
-}
-impl Evidence {
-    fn equivalent(&self, other: &Self) -> bool {
-        self.index.equivalent(&other.index)
-            && selected_sync::same_observations(&self.sources, &other.sources)
-            && self.resources.equivalent(&other.resources)
-    }
-}
 struct Stage {
-    evidence: Evidence,
+    index: SourceSnapshot,
     selected: Vec<String>,
     checked: Vec<String>,
     changed: Vec<String>,
     target: Vec<u8>,
     needs_write: bool,
-    resource_ids: Vec<String>,
-    removed_owners: Vec<String>,
     report_count: usize,
 }
 #[derive(Clone, Debug, serde::Serialize)]
@@ -111,12 +94,10 @@ fn capture_resources(
     directory: &str,
     ids: &[String],
     removed: &[String],
-) -> Result<crate::resources::ResourceEvidence, TxError> {
-    let resource_root = RelativePath::new(std::path::Path::new(directory).join("_resources"))
-        .map_err(|e| fail("resource-path", e.to_string()))?;
-    let root_fact = source::capture_resource_root(root, &resource_root)
+) -> Result<(), TxError> {
+    let exists = crate::resources::root_exists(root, directory)
         .map_err(|e| fail("resource-read", e.to_string()))?;
-    let mut context = crate::resources::ResourceContext::open(root, directory, root_fact.exists())
+    let mut context = crate::resources::ResourceContext::open(root, directory, exists)
         .map_err(|e| fail("resource-read", e.to_string()))?;
     for owner in removed {
         context
@@ -129,7 +110,7 @@ fn capture_resources(
     if !issues.is_empty() {
         return Err(fail("resource-invalid", issues.join("; ")));
     }
-    Ok(context.into_evidence())
+    Ok(())
 }
 fn collect_selected_facts(
     root: &Root,
@@ -157,9 +138,6 @@ fn collect_selected_facts(
 }
 
 struct ResourceClosure {
-    resources: crate::resources::ResourceEvidence,
-    resource_ids: Vec<String>,
-    removed_owners: Vec<String>,
     report_count: usize,
 }
 fn resource_closure(
@@ -182,11 +160,8 @@ fn resource_closure(
         .filter(|id| baseline.entries.contains_key(*id) && !facts.combined.contains_key(*id))
         .cloned()
         .collect();
-    let resources = capture_resources(root, directory, &resource_ids, &removed_owners)?;
+    capture_resources(root, directory, &resource_ids, &removed_owners)?;
     Ok(ResourceClosure {
-        resources,
-        resource_ids,
-        removed_owners,
         report_count: facts.combined.len(),
     })
 }
@@ -257,17 +232,6 @@ impl SelectedInvestigationSyncOperation {
     }
     pub fn preflight(&self, root: &Root) -> Result<SelectedInvestigationSyncResult, TxError> {
         let first = self.stage(root)?;
-        let second = self.stage(root)?;
-        if !first.evidence.equivalent(&second.evidence)
-            || first.target != second.target
-            || first.selected != second.selected
-            || first.checked != second.checked
-        {
-            return Err(selected_sync::source_failure(
-                fail("source-changed", "selected facts changed during preflight"),
-                Domain::Investigation,
-            ));
-        }
         Ok(sync_result(&first, &self.directory, &self.selectors, false))
     }
 }
@@ -280,38 +244,25 @@ impl Stage {
         closure: ResourceClosure,
     ) -> Result<Self, TxError> {
         let selected_sync::SelectedFacts {
-            mut observations,
             updates,
             dependencies,
             ..
         } = facts;
-        let ResourceClosure {
-            resources,
-            resource_ids,
-            removed_owners,
-            report_count,
-        } = closure;
+        let ResourceClosure { report_count } = closure;
         let selected_sync::PreparedProjection {
             target,
             changed,
             checked,
         } = selected_sync::prepare_projection(&baseline, &Definition, updates, &dependencies)
             .map_err(|error| selected_sync::source_failure(error, Domain::Investigation))?;
-        observations.sort_by(|a, b| a.path().as_path().cmp(b.path().as_path()));
         let needs_write = !changed.is_empty();
         Ok(Self {
-            evidence: Evidence {
-                index: FileProof::from(&index_file),
-                sources: observations,
-                resources,
-            },
+            index: index_file,
             selected: selected.into_iter().collect(),
             checked,
             changed,
             target,
             needs_write,
-            resource_ids,
-            removed_owners,
             report_count,
         })
     }

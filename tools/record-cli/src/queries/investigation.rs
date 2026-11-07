@@ -137,7 +137,7 @@ fn run_list(
         &crate::domains::investigation::Definition,
     )?;
     let path = root
-        .path
+        .path()
         .join(directory)
         .join("investigation-index.json")
         .display()

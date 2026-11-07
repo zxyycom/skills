@@ -177,7 +177,7 @@ fn investigation_cli_json_list_and_missing_index_are_separate_outcomes() {
     let ok = invoke("docs/investigations");
     assert!(ok.status.success());
     let body: Value = serde_json::from_slice(&ok.stdout).unwrap();
-    assert_eq!(body["version"], 1);
+    assert_eq!(body["version"], 2);
     assert_eq!(body["ok"], true);
     assert_eq!(body["result"]["entries"][0]["id"], "260101-one");
     let failure = invoke("missing");

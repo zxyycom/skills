@@ -1,6 +1,6 @@
 //! Full Decision sync built on the same stage-local source collector as check.
 //! No production wiring is implied by this isolated candidate operation.
-use super::check::{DecisionProof, DecisionStage, decision_stage};
+use super::check::{DecisionStage, decision_stage};
 use super::full_sync;
 use crate::{
     source::Root,
@@ -33,27 +33,13 @@ fn failure(code: &str, message: impl Into<String>) -> TxError {
 fn map_error(error: super::check::CheckError) -> TxError {
     failure(error.code, format!("{}: {}", error.path, error.message))
 }
-fn same_source_proof(a: &DecisionProof, b: &DecisionProof) -> bool {
-    a.sources_equivalent(b)
-}
 impl DecisionSyncOperation {
     fn stage(&self, root: &Root) -> Result<DecisionStage, TxError> {
         decision_stage(root, &self.directory, &[], true).map_err(map_error)
     }
     /// A preflight independently repeats all mutable facts; it does not lock or write.
     pub fn preflight(&self, root: &Root) -> Result<SyncResult, TxError> {
-        let first = self.stage(root)?;
-        let second = self.stage(root)?;
-        if !first.proof.equivalent(&second.proof)
-            || first.target != second.target
-            || first.needs_write != second.needs_write
-        {
-            return Err(failure(
-                "source-changed",
-                "sources or index changed during preflight",
-            ));
-        }
-        Ok(result(&first, false))
+        Ok(result(&self.stage(root)?, false))
     }
 }
 fn result(stage: &DecisionStage, committed: bool) -> SyncResult {
@@ -81,15 +67,16 @@ impl PreparedSync {
 }
 impl TransactionOperation<PreparedSync> for DecisionSyncOperation {
     fn prepare(&mut self, root: &Root) -> Result<Plan<PreparedSync>, TxError> {
-        let stage = self.stage(root)?;
+        let mut stage = self.stage(root)?;
         let full_sync::WriteSet {
             writes,
-            guards,
             commit_point,
         } = full_sync::Input {
             index_path: &stage.result.index_path,
-            sources: &stage.proof.sources,
-            index: &stage.proof.index,
+            index_before: std::mem::replace(
+                &mut stage.index_before,
+                crate::source::ExpectedFile::Missing,
+            ),
             target: &stage.target,
             needs_write: stage.needs_write,
         }
@@ -97,49 +84,9 @@ impl TransactionOperation<PreparedSync> for DecisionSyncOperation {
         Ok(Plan {
             value: PreparedSync { stage },
             writes,
-            guards,
             resources: vec![],
             commit_point,
         })
-    }
-    fn fresh(&mut self, root: &Root, plan: &Plan<PreparedSync>) -> Result<(), TxError> {
-        let actual = self.stage(root)?;
-        if !actual.proof.equivalent(&plan.value.stage.proof)
-            || actual.target != plan.value.stage.target
-            || actual.needs_write != plan.value.stage.needs_write
-        {
-            return Err(failure(
-                "source-changed",
-                "sources or index changed before publication",
-            ));
-        }
-        Ok(())
-    }
-    fn verify(&mut self, root: &Root, plan: &Plan<PreparedSync>) -> Result<(), TxError> {
-        let actual = self.stage(root)?;
-        if !same_source_proof(&actual.proof, &plan.value.stage.proof)
-            || actual.target != plan.value.stage.target
-            || actual.needs_write
-        {
-            return Err(failure(
-                "postverify",
-                "sources or published projection changed",
-            ));
-        }
-        Ok(())
-    }
-    fn verify_recovered(&mut self, root: &Root, plan: &Plan<PreparedSync>) -> Result<(), TxError> {
-        let actual = self.stage(root)?;
-        if !same_source_proof(&actual.proof, &plan.value.stage.proof) {
-            return Err(failure("recovery", "source collection changed"));
-        }
-        match (&actual.proof.index, &plan.value.stage.proof.index) {
-            (None, None) => Ok(()),
-            (Some(a), Some(b)) if a.bytes == b.bytes && a.identity.mode == b.identity.mode => {
-                Ok(())
-            }
-            _ => Err(failure("recovery", "previous index was not restored")),
-        }
     }
 }
 

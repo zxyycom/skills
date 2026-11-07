@@ -98,7 +98,7 @@ fn stage_failure(
     if json {
         println!(
             "{}",
-            serde_json::json!({"version":1,"command":command,"ok":false,"error":detail,"diagnostics":diagnostic.iter().collect::<Vec<_>>(),"result":body})
+            serde_json::json!({"version":2,"command":command,"ok":false,"error":detail,"diagnostics":diagnostic.iter().collect::<Vec<_>>(),"result":body})
         );
     } else {
         eprintln!("{code}: {message}\n{body}");
@@ -155,23 +155,26 @@ fn stage_failure_body(
     scope: &str,
     error: &crate::stage::index_scope::IndexStageError,
 ) -> serde_json::Value {
-    use crate::stage::index_scope::PendingOutcome;
+    use crate::git::publish::FailureKind;
+    use crate::stage::index_scope::IndexStageError;
     let mut body = serde_json::json!({"status":"error","scope":scope});
-    if let Some(outcome) = error.pending_outcome() {
-        let name = match outcome {
-            PendingOutcome::NoChange => "no-change",
-            PendingOutcome::PartialOrUnknown => "partial-or-unknown",
-            PendingOutcome::CommittedUnverified => "committed-unverified",
-            PendingOutcome::CommittedCleanupPending => "committed-cleanup-pending",
-        };
-        body["pending"] = serde_json::json!({"outcome":name,"scope":scope});
-        body["changed"] = match outcome {
-            PendingOutcome::NoChange => false.into(),
-            PendingOutcome::PartialOrUnknown => serde_json::Value::Null,
-            _ => error
-                .committed_paths()
+    if let IndexStageError::Publication(failure) = error {
+        body["changed"] = match failure.kind {
+            FailureKind::Failed => false.into(),
+            FailureKind::PartialOrUnknown => serde_json::Value::Null,
+            FailureKind::CountUnavailable => failure
+                .committed_paths
+                .as_ref()
                 .map_or(serde_json::Value::Null, |paths| (!paths.is_empty()).into()),
         };
+    }
+    if matches!(
+        error,
+        IndexStageError::SelectorUnresolved { .. }
+            | IndexStageError::SelectedSource { .. }
+            | IndexStageError::PendingSourceInvalid { .. }
+    ) {
+        body["changed"] = false.into();
     }
     if let Some(paths) = error.committed_paths() {
         body["writtenPaths"] = serde_json::json!(

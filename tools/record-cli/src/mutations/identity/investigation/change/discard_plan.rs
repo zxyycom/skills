@@ -8,10 +8,10 @@ impl Change<'_, '_> {
         history: (Option<String>, bool),
     ) -> Result<ChangeResult, TxError> {
         self.check_discard(confirm, delete, history.1)?;
-        let mut result = self.result(history);
+        let mut result = self.result();
         result.deleted_resource_ids = self.deleted_resource_ids()?;
-        for (path, _, bytes) in self.tree.iter().rev() {
-            result.resource_intents.push(if bytes.is_some() {
+        for (path, is_file) in self.tree.iter().rev() {
+            result.resource_intents.push(if *is_file {
                 ResourceIntent::RemoveFile { path: path.clone() }
             } else {
                 ResourceIntent::RemoveDirectory { path: path.clone() }
@@ -21,7 +21,6 @@ impl Change<'_, '_> {
             path: self.old.clone(),
             before: self.take_before(),
             after: None,
-            mode: None,
         });
         if !self.candidate {
             result.next.entries.remove(self.id);
@@ -36,8 +35,8 @@ impl Change<'_, '_> {
     }
     fn deleted_resource_ids(&self) -> Result<Vec<String>, TxError> {
         let mut ids = Vec::new();
-        for (path, _, bytes) in self.tree {
-            if bytes.is_some() {
+        for (path, is_file) in self.tree {
+            if *is_file {
                 ids.push(owner::resource_id(self.owner, self.id, path)?);
             }
         }
@@ -91,8 +90,8 @@ impl Change<'_, '_> {
             owned_resources: self
                 .tree
                 .iter()
-                .filter(|(_, _, b)| b.is_some())
-                .map(|(p, _, _)| p.as_path().to_string_lossy().into_owned())
+                .filter(|(_, is_file)| *is_file)
+                .map(|(p, _)| p.as_path().to_string_lossy().into_owned())
                 .collect(),
         }
     }

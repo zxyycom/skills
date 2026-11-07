@@ -1,8 +1,7 @@
 use super::*;
 
 #[test]
-fn decision_rename_rejects_collection_pending_and_rechecks_before_write() {
-    use record_cli::transaction::TransactionOperation;
+fn decision_rename_rejects_collection_pending() {
     let (dir, root) = fixture();
     initialize_git(dir.path());
     std::fs::create_dir(dir.path().join("decisions/archive")).unwrap();
@@ -25,19 +24,11 @@ fn decision_rename_rejects_collection_pending_and_rechecks_before_write() {
         target: "new".into(),
         confirm_recorded: true,
     });
-    let plan = operation
-        .prepare(&root)
-        .expect("outside pending does not block");
+    transaction::preflight(&root, &mut operation).expect("outside pending does not block");
     std::fs::write(dir.path().join("decisions/note.txt"), "collection pending").unwrap();
     git(dir.path(), &["add", "decisions/note.txt"]);
-    let fresh = operation.fresh(&root, &plan).unwrap_err();
-    assert_eq!(fresh.code, "decision-records.rename-pending-stage-conflict");
     let before_index = std::fs::read(dir.path().join(".git/index")).unwrap();
-    let out = transaction::run_transaction(
-        &root,
-        &RelativePath::new(".identity.lock").unwrap(),
-        &mut operation,
-    );
+    let out = transaction::run_transaction(&root, &mut operation);
     assert!(!out.committed && !out.changed);
     assert!(
         out.errors
@@ -79,11 +70,7 @@ fn decision_rename_rejects_collection_pending_and_rechecks_before_write() {
         target: "original".into(),
         confirm_recorded: false,
     });
-    let out = transaction::run_transaction(
-        &root,
-        &RelativePath::new(".identity.lock").unwrap(),
-        &mut no_op,
-    );
+    let out = transaction::run_transaction(&root, &mut no_op);
     assert!(out.errors.is_empty(), "{:?}", out.errors);
     assert!(!out.changed);
     let (unborn_dir, unborn_root) = fixture();
@@ -104,64 +91,4 @@ fn decision_rename_rejects_collection_pending_and_rechecks_before_write() {
     assert!(transaction::preflight(&corrupt_root, &mut corrupt).is_err());
     assert!(corrupt_dir.path().join("decisions/original.md").exists());
     assert!(!corrupt_dir.path().join("decisions/new.md").exists());
-}
-
-#[test]
-fn decision_pending_drift_before_write_retains_only_planned_identity() {
-    use record_cli::mutations::identity::decision::{DecisionIdentityOperation, PreparedIdentity};
-    use record_cli::transaction::{Plan, TransactionOperation, TxError};
-    struct StageBeforeFresh(DecisionIdentityOperation);
-    impl TransactionOperation<PreparedIdentity> for StageBeforeFresh {
-        fn prepare(&mut self, root: &source::Root) -> Result<Plan<PreparedIdentity>, TxError> {
-            self.0.prepare(root)
-        }
-        fn fresh(
-            &mut self,
-            root: &source::Root,
-            plan: &Plan<PreparedIdentity>,
-        ) -> Result<(), TxError> {
-            std::fs::write(root.path().join("decisions/note.txt"), "concurrent staged").unwrap();
-            git(root.path(), &["add", "decisions/note.txt"]);
-            self.0.fresh(root, plan)
-        }
-        fn verify(
-            &mut self,
-            root: &source::Root,
-            plan: &Plan<PreparedIdentity>,
-        ) -> Result<(), TxError> {
-            self.0.verify(root, plan)
-        }
-        fn verify_recovered(
-            &mut self,
-            root: &source::Root,
-            plan: &Plan<PreparedIdentity>,
-        ) -> Result<(), TxError> {
-            self.0.verify_recovered(root, plan)
-        }
-    }
-    let (dir, root) = fixture();
-    commit_fixture(dir.path());
-    let mut operation = StageBeforeFresh(super::operation(Action::Rename {
-        target: "new".into(),
-        confirm_recorded: true,
-    }));
-    let out = transaction::run_transaction(
-        &root,
-        &RelativePath::new(".identity.lock").unwrap(),
-        &mut operation,
-    );
-    assert!(!out.committed && !out.changed);
-    assert!(out.written_paths.is_empty() && out.unknown_paths.is_empty());
-    assert!(out.value.is_none());
-    assert_eq!(
-        out.planned_value.as_ref().unwrap().new_id.as_deref(),
-        Some("261106-new")
-    );
-    assert!(
-        out.errors
-            .iter()
-            .any(|e| e.code == "decision-records.rename-pending-stage-conflict")
-    );
-    assert!(dir.path().join("decisions/original.md").exists());
-    assert!(!dir.path().join("decisions/new.md").exists());
 }

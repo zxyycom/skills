@@ -8,7 +8,7 @@ Tags:
 - `record-rust`
 
 Contract:
-- stage 投影必须保留未选择 pending，且拒绝基线变化。
+- stage 投影须按选中记录合成条目并保留未选择 pending。
 
 Proves:
-- 固定 HEAD、pending 和选定项验证新增、删除与冲突投影。
+- 固定 HEAD、pending 和选定项验证新增、删除及选择冲突投影。

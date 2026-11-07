@@ -28,7 +28,6 @@ fn reactivate(
         root,
         collection,
         index_path,
-        lock_path,
         ..
     } = context;
     let mut operation = crate::mutations::decision_operation::ReactivateOperation {
@@ -48,7 +47,7 @@ fn reactivate(
             Err(error) => print_transaction_error(command, json, error),
         }
     } else {
-        let result = crate::transaction::run_transaction(&root, &lock_path, &mut operation);
+        let result = crate::transaction::run_transaction(&root, &mut operation);
         output_transaction(command, json, result, lifecycle_details)
     }
 }
@@ -64,7 +63,6 @@ fn archive(
         root,
         collection,
         index_path,
-        lock_path,
         ..
     } = context;
     let mut operation = crate::mutations::decision_operation::ArchiveOperation {
@@ -73,7 +71,7 @@ fn archive(
         selectors,
         keep_unrecorded_history,
     };
-    let result = crate::transaction::run_transaction(&root, &lock_path, &mut operation);
+    let result = crate::transaction::run_transaction(&root, &mut operation);
     output_lifecycle_transaction(command, json, result, |prepared| {
         lifecycle_details(prepared.lifecycle)
     })
@@ -86,7 +84,6 @@ fn mark_aligned(context: MutationContext<'_>, selector: String) -> i32 {
         root,
         collection,
         index_path,
-        lock_path,
         ..
     } = context;
     let mut operation = crate::mutations::decision_operation::MarkAlignedOperation {
@@ -94,7 +91,7 @@ fn mark_aligned(context: MutationContext<'_>, selector: String) -> i32 {
         index_path,
         selector,
     };
-    let result = crate::transaction::run_transaction(&root, &lock_path, &mut operation);
+    let result = crate::transaction::run_transaction(&root, &mut operation);
     output_lifecycle_transaction(command, json, result, lifecycle_details)
 }
 

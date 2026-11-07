@@ -12,7 +12,7 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { installCandidate } from "./install.ts";
-import { hostTarget, parseManifest, sha256 } from "./manifest.ts";
+import { assetName, hostTarget, parseManifest, sha256 } from "./manifest.ts";
 
 async function fixture(): Promise<{
   root: string;
@@ -32,7 +32,7 @@ async function fixture(): Promise<{
   const assets = [];
   for (const role of ["decision-records", "investigation-report"] as const) {
     const bytes = Buffer.from(`candidate-${role}`);
-    const file = role;
+    const file = assetName(role, hostTarget());
     await writeFile(path.join(source, file), bytes);
     assets.push({ role, file, size: bytes.length, sha256: sha256(bytes) });
   }
@@ -54,7 +54,7 @@ test("strict manifest binds roles, file names, target and digest", () => {
   const good = {
     schemaVersion: 1,
     version: "1.2.3",
-    target: hostTarget(),
+    target: "x86_64-unknown-linux-gnu",
     source: { sha256: "a".repeat(64), rustc: "rustc", cargo: "cargo" },
     assets: [
       {
@@ -72,8 +72,15 @@ test("strict manifest binds roles, file names, target and digest", () => {
     ]
   };
   assert.equal(parseManifest(good).version, "1.2.3");
+  const windows = {
+    ...good,
+    target: "x86_64-pc-windows-msvc",
+    assets: good.assets.map((item) => ({ ...item, file: `${item.role}.exe` }))
+  };
+  assert.equal(parseManifest(windows).target, windows.target);
+  assert.throws(() => parseManifest({ ...windows, assets: good.assets }));
+  assert.throws(() => parseManifest({ ...good, assets: windows.assets }));
   for (const target of [
-    "x86_64-pc-windows-msvc",
     "aarch64-unknown-linux-gnu",
     "x86_64-unknown-linux-musl"
   ])
@@ -163,7 +170,22 @@ test("invalid identity, corruption and unsafe destination fail before writes", a
     const manifestPath = path.join(source, "record-cli-candidate.json");
     await writeFile(
       manifestPath,
-      JSON.stringify({ ...manifest, target: "x86_64-pc-windows-msvc" })
+      JSON.stringify({
+        ...manifest,
+        target:
+          manifest.target === "x86_64-pc-windows-msvc"
+            ? "x86_64-unknown-linux-gnu"
+            : "x86_64-pc-windows-msvc",
+        assets: manifest.assets.map((item) => ({
+          ...item,
+          file: assetName(
+            item.role,
+            manifest.target === "x86_64-pc-windows-msvc"
+              ? "x86_64-unknown-linux-gnu"
+              : "x86_64-pc-windows-msvc"
+          )
+        }))
+      })
     );
     await assert.rejects(
       installCandidate({ source, destination, version: "1.0.0" })

@@ -11,7 +11,6 @@ struct MutationContext<'a> {
     root: crate::source::Root,
     collection: crate::source::RelativePath,
     index_path: crate::source::RelativePath,
-    lock_path: crate::source::RelativePath,
     index_display: String,
 }
 
@@ -128,7 +127,7 @@ fn emit_selected_sync_preflight<T: serde::Serialize>(
                     .into();
                 println!(
                     "{}",
-                    serde_json::json!({"version":1, "command":command, "ok":false, "error":{"code":error.code,"message":error.message}, "diagnostics":error.diagnostics, "result":body})
+                    serde_json::json!({"version":2, "command":command, "ok":false, "error":{"code":error.code,"message":error.message}, "diagnostics":error.diagnostics, "result":body})
                 );
             } else {
                 show_selection_diagnostics(&error.diagnostics);
@@ -146,38 +145,50 @@ fn output_selected_sync_transaction<T>(
     mut result: crate::transaction::TransactionOutcome<T>,
     project: impl FnOnce(T, bool) -> (serde_json::Value, Vec<String>),
 ) -> i32 {
-    if !result.errors.is_empty() || !result.cleanup_errors.is_empty() {
-        let structured = selected_failure_state(&result.errors).is_some();
-        let state = structured.then_some(selection.failure_state);
-        for diagnostic in result.errors.iter_mut().chain(&mut result.cleanup_errors) {
-            if diagnostic.reason.is_none() {
-                diagnostic.reason = Some(diagnostic.message.clone());
-            }
-            if diagnostic.recovery.is_none() {
-                diagnostic.recovery = Some("Inspect the actual index, sources, and reported recovery state before deciding whether to retry.".into());
-            }
-        }
-        let (_, mut body) = transaction_body(&mut result, |_| serde_json::Value::Null);
-        let outcome = body["outcome"].as_str().unwrap_or("partial-or-unknown");
-        let mut selected = selected_failure_body(&selection, outcome, state);
-        if !result.changed {
-            selected["changedIds"] = serde_json::json!([]);
-        }
-        if let (Some(body), Some(selection)) = (body.as_object_mut(), selected.as_object()) {
-            body.extend(selection.clone());
-        }
-        if json {
-            println!("{}", transaction_failure_envelope(command, &result, body));
-        } else {
-            show_selection_diagnostics(&result.errors);
-            show_selection_diagnostics(&result.cleanup_errors);
-        }
-        return 1;
+    if result.status != crate::transaction::TxStatus::Ok {
+        return output_selected_sync_failure(command, json, selection, &mut result);
     }
     let committed = result.committed;
     output_transaction_warnings(command, json, result, |prepared| {
         project(prepared, committed)
     })
+}
+
+fn output_selected_sync_failure<T>(
+    command: &str,
+    json: bool,
+    selection: SelectedSyncContext<'_>,
+    result: &mut crate::transaction::TransactionOutcome<T>,
+) -> i32 {
+    let structured = selected_failure_state(&result.errors).is_some();
+    let state = structured.then_some(selection.failure_state);
+    for diagnostic in result.errors.iter_mut() {
+        if diagnostic.reason.is_none() {
+            diagnostic.reason = Some(diagnostic.message.clone());
+        }
+        if diagnostic.recovery.is_none() {
+            diagnostic.recovery = Some("Inspect the actual index, sources, and reported paths before deciding whether to retry.".into());
+        }
+    }
+    let (_, mut body) = transaction_body(result, |_| serde_json::Value::Null);
+    let outcome = if result.changed || !result.unknown_paths.is_empty() {
+        "partial-or-unknown"
+    } else {
+        "no-change"
+    };
+    let mut selected = selected_failure_body(&selection, outcome, state);
+    if !result.changed && result.unknown_paths.is_empty() {
+        selected["changedIds"] = serde_json::json!([]);
+    }
+    if let (Some(body), Some(selection)) = (body.as_object_mut(), selected.as_object()) {
+        body.extend(selection.clone());
+    }
+    if json {
+        println!("{}", transaction_failure_envelope(command, result, body));
+    } else {
+        show_selection_diagnostics(&result.errors);
+    }
+    1
 }
 
 fn run_sync_transaction<T, O: crate::transaction::TransactionOperation<T>>(
@@ -189,9 +200,8 @@ fn run_sync_transaction<T, O: crate::transaction::TransactionOperation<T>>(
         command,
         json,
         root,
-        lock,
     } = context;
-    let result = crate::transaction::run_transaction(root, lock, operation);
+    let result = crate::transaction::run_transaction(root, operation);
     let committed = result.committed;
     output_transaction_warnings(command, json, result, |prepared| {
         project(prepared, committed)
@@ -209,7 +219,6 @@ fn author_new(
         json,
         root,
         collection,
-        lock_path,
         ..
     } = context;
     output_new(
@@ -217,7 +226,6 @@ fn author_new(
             command,
             json,
             root: &root,
-            lock: &lock_path,
         },
         collection,
         selector,
@@ -245,14 +253,6 @@ fn prepare_context<'a>(
     };
     let index_path =
         RelativePath::new(collection.as_path().join(index_name)).map_err(ContextError::Path)?;
-    let lock_path = RelativePath::new(
-        collection
-            .as_path()
-            .parent()
-            .unwrap_or_else(|| std::path::Path::new(""))
-            .join(format!(".{index_name}.mutation.lock")),
-    )
-    .map_err(ContextError::Path)?;
     let index_display = root
         .path()
         .join(index_path.as_path())
@@ -265,7 +265,6 @@ fn prepare_context<'a>(
         root,
         collection,
         index_path,
-        lock_path,
         index_display,
     })
 }

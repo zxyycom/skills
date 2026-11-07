@@ -1,17 +1,13 @@
 //! Selected-domain sync projection on a trusted canonical baseline. The caller
-//! owns safe source/dependency discovery and independent fresh/postverify.
+//! owns source/dependency discovery and projection preparation.
 mod baseline;
-mod observation;
-pub(super) use observation::{Observation, same_observations};
 mod publication;
 mod sources;
 pub(super) use baseline::{
     acquire as acquire_baseline, require_selection, resolve as resolve_selection,
 };
 
-pub(super) use publication::{
-    prepare as prepare_publication, verify_fresh_projection, verify_index, verify_sources,
-};
+pub(super) use publication::prepare as prepare_publication;
 pub(super) use sources::{SelectedFacts, SourceAdapter, SourceScope};
 
 use std::collections::{BTreeMap, BTreeSet, HashSet};
@@ -208,29 +204,6 @@ fn source_failure_with_reason(
     }])
 }
 
-pub(super) fn verification_failure(
-    error: crate::transaction::TxError,
-    domain: crate::source_revision::Domain,
-) -> crate::transaction::TxError {
-    if !error.diagnostics.is_empty() {
-        return error;
-    }
-    let (code, target) = match domain {
-        crate::source_revision::Domain::Decision => {
-            ("decision-records.sync-index-failed", "decision-index.json")
-        }
-        crate::source_revision::Domain::Investigation => {
-            ("state-index.index-write-failed", "investigation-index.json")
-        }
-    };
-    let reason = error.message.clone();
-    error.with_diagnostics(vec![crate::protocol::Diagnostic {
-        code: code.into(), message: reason.clone(), path: None, target: Some(target.into()),
-        cause_category: None, operation: None, detail: None, reason: Some(reason),
-        recovery: Some("Inspect the actual index, sources, and reported recovery state before deciding whether to retry.".into()),
-    }])
-}
-
 pub(super) fn source_failure(
     error: crate::transaction::TxError,
     domain: crate::source_revision::Domain,
@@ -243,7 +216,7 @@ pub(super) fn source_failure(
 mod tests;
 
 /// The projection remains a complete, domain-validated v4 index; selected
-/// source proofs and the baseline's canonical byte proof are separate inputs.
+/// sources and the baseline are validated during preparation.
 pub struct ValidatedSelectedProjection<S> {
     pub index: crate::index::ValidatedIndex<S>,
     pub changed_ids: Vec<String>,

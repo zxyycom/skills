@@ -8,14 +8,11 @@ pub(super) fn discover_pending_reports(
     root: &Root,
     index_path: &RelativePath,
     selectors: &[String],
-) -> Result<(ContentSnapshot, BTreeMap<PathBuf, String>), IndexStageError> {
+) -> Result<BTreeMap<PathBuf, String>, IndexStageError> {
     let metadata = git::read_pending(root.path()).map_err(IndexStageError::Git)?;
     validate_scope(index_path, &metadata)?;
     let locator_paths = candidate_paths(index_path, selectors, &metadata);
     let locator = git::read_selected(root.path(), &locator_paths).map_err(IndexStageError::Git)?;
-    if locator.membership() != &metadata {
-        return Err(IndexStageError::Drift);
-    }
     validate_candidate_modes(&locator_paths, &metadata)?;
     let mut locator_ids = BTreeMap::new();
     for (path, bytes) in locator.blobs() {
@@ -25,7 +22,7 @@ pub(super) fn discover_pending_reports(
             .ok_or_else(|| IndexStageError::Selection("pending report lacks identity".into()))?;
         locator_ids.insert(path.clone(), id);
     }
-    Ok((locator, locator_ids))
+    Ok(locator_ids)
 }
 
 /// Limit candidate inspection to matching literal report names.

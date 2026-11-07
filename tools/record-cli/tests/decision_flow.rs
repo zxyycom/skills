@@ -31,11 +31,7 @@ fn publish_flow_yaml_preserves_untouched_bytes_and_indexes_actual_output() {
         publish_only: true,
         timestamp: "2026-11-06T12:00:00Z".into(),
     };
-    let result = run_transaction(
-        &root,
-        &RelativePath::new(".decision.lock").unwrap(),
-        &mut operation,
-    );
+    let result = run_transaction(&root, &mut operation);
     assert_eq!(result.status, TxStatus::Ok, "{:?}", result.errors);
     assert!(result.committed);
     let output = std::fs::read_to_string(collection.join("one.md")).unwrap();
@@ -73,11 +69,7 @@ fn rename_flow_yaml_preserves_other_members_and_body() {
             confirm_recorded: false,
         },
     };
-    let result = run_transaction(
-        &root,
-        &RelativePath::new(".decision.lock").unwrap(),
-        &mut op,
-    );
+    let result = run_transaction(&root, &mut op);
     assert_eq!(result.status, TxStatus::Ok, "{:?}", result.errors);
     let output = std::fs::read_to_string(collection.join("two.md")).unwrap();
     let new_id = output

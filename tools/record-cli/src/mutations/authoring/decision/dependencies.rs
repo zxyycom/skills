@@ -11,7 +11,7 @@ pub(super) struct Dependencies<'a> {
     pub archive_ids: &'a [String],
 }
 impl Dependencies<'_> {
-    pub fn capture(self) -> Result<Vec<Guard>, TxError> {
+    pub fn capture(self) -> Result<(), TxError> {
         let Self {
             root,
             collection,
@@ -22,7 +22,6 @@ impl Dependencies<'_> {
             discarded,
             archive_ids,
         } = self;
-        let mut guards = Vec::new();
         let deps = related_ids(baseline, final_index, selected, target_ids, discarded);
         for id in deps {
             if selected.contains_key(&id)
@@ -32,20 +31,16 @@ impl Dependencies<'_> {
                 continue;
             }
             if let Some(state) = baseline.index().entries.get(&id) {
-                let before = validate_source(
+                validate_source(
                     root,
                     collection,
                     &id,
                     state,
                     &baseline.index().source_revision.entries[&id],
                 )?;
-                guards.push(Guard {
-                    path: path(collection, &state.source_path)?,
-                    before,
-                });
             }
         }
-        Ok(guards)
+        Ok(())
     }
 }
 

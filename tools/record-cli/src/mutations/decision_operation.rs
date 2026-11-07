@@ -15,18 +15,6 @@ fn failure(code: &str, message: impl Into<String>) -> TxError {
     TxError::new(code, message)
 }
 
-fn same_mode(
-    a: &Option<crate::transaction::WriteMode>,
-    b: &Option<crate::transaction::WriteMode>,
-) -> bool {
-    use crate::transaction::WriteMode;
-    match (a, b) {
-        (None, None) => true,
-        (Some(WriteMode::Exact(x)), Some(WriteMode::Exact(y)))
-        | (Some(WriteMode::Native(x)), Some(WriteMode::Native(y))) => x == y,
-        _ => false,
-    }
-}
 mod archive;
 mod mark_aligned;
 mod reactivate;
@@ -56,17 +44,7 @@ fn prepare_lifecycle(
         false,
     )
     .map_err(|e| lifecycle_failure(e, &selected, action))?;
-    let plan = decision_lifecycle::capture_plan(root, collection, index_path, &edits)?;
-    let second = plan
-        .writes
-        .iter()
-        .find(|write| &write.path == index_path)
-        .map(|write| &write.before)
-        .ok_or_else(|| failure("invalid-plan", "index proof missing"))?;
-    if !crate::source::equivalent_file(&first, second) {
-        return Err(failure("index-changed", "index changed during selection"));
-    }
-    Ok(plan)
+    decision_lifecycle::capture_plan(root, collection, index_path, first, &edits)
 }
 
 fn lifecycle_failure(
@@ -155,89 +133,4 @@ fn lifecycle_record(
         lifecycle: EstablishedLifecycle { status, alignment },
     };
     Ok(selected)
-}
-
-fn verify_recovered_files(
-    root: &Root,
-    writes: &[crate::transaction::WriteIntent],
-    allow_missing: bool,
-) -> Result<(), TxError> {
-    for write in writes {
-        let actual = capture(root, &write.path).map_err(|e| failure("recovery", e.to_string()))?;
-        match (&write.before, actual) {
-            (ExpectedFile::Missing, ExpectedFile::Missing) if allow_missing => {}
-            (ExpectedFile::Present(before), ExpectedFile::Present(actual))
-                if before.bytes == actual.bytes && before.identity.mode == actual.identity.mode => {
-            }
-            _ => return Err(failure("recovery", "original source was not restored")),
-        }
-    }
-    Ok(())
-}
-
-fn verify_moving_files(
-    root: &Root,
-    index_path: &RelativePath,
-    writes: &[crate::transaction::WriteIntent],
-) -> Result<(), TxError> {
-    for write in writes {
-        let actual =
-            capture(root, &write.path).map_err(|e| failure("postverify", e.to_string()))?;
-        match (&write.after, actual) {
-            (None, ExpectedFile::Missing) => {}
-            (Some(expected), ExpectedFile::Present(actual)) if actual.bytes == *expected => {
-                if let ExpectedFile::Present(before) = &write.before
-                    && actual.identity.mode != before.identity.mode
-                {
-                    return Err(failure("postverify", "written file mode differs"));
-                }
-                if let Some(crate::transaction::WriteMode::Exact(expected_mode)) =
-                    write.mode.as_ref()
-                {
-                    #[cfg(unix)]
-                    let actual_mode = actual.identity.mode & 0o7777;
-                    if actual_mode != *expected_mode {
-                        return Err(failure("postverify", "created file mode differs"));
-                    }
-                }
-            }
-            _ => return Err(failure("postverify", "actual file does not match plan")),
-        }
-    }
-    verify_index_graph(root, index_path)
-}
-
-fn verify_index_graph(root: &Root, index_path: &RelativePath) -> Result<(), TxError> {
-    let index = capture(root, index_path).map_err(|e| failure("postverify", e.to_string()))?;
-    let ExpectedFile::Present(index) = index else {
-        return Err(failure("postverify", "index missing"));
-    };
-    let parsed = crate::index::parse_index(&index.bytes, &crate::domains::decision::Definition)
-        .map_err(|e| failure("postverify", e.to_string()))?;
-    crate::index::QuerySnapshot::new(parsed)
-        .graph(&crate::domains::decision::Definition)
-        .map_err(|e| failure("postverify", e.to_string()))?;
-    Ok(())
-}
-
-#[derive(Clone, Copy)]
-enum ModeEvidence {
-    Absent,
-    Equal,
-}
-fn same_writes(
-    old: &[crate::transaction::WriteIntent],
-    fresh: &[crate::transaction::WriteIntent],
-    policy: ModeEvidence,
-) -> bool {
-    old.len() == fresh.len()
-        && old.iter().zip(fresh).all(|(a, b)| {
-            a.path == b.path
-                && crate::source::equivalent_file(&a.before, &b.before)
-                && a.after == b.after
-                && match policy {
-                    ModeEvidence::Absent => a.mode.is_none() && b.mode.is_none(),
-                    ModeEvidence::Equal => same_mode(&a.mode, &b.mode),
-                }
-        })
 }

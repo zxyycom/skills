@@ -5,7 +5,6 @@ pub(super) struct ExecutionContext<'a> {
     pub command: &'a str,
     pub json: bool,
     pub root: &'a crate::source::Root,
-    pub lock: &'a crate::source::RelativePath,
 }
 
 pub(super) fn identity_transaction_body<T>(
@@ -52,7 +51,6 @@ pub(super) fn output_evolution(
         command,
         json,
         root,
-        lock,
     } = context;
     use crate::mutations::contract::ReviewPhase;
     let project = |prepared: crate::mutations::authoring::decision::PreparedEvolution, phase| {
@@ -69,9 +67,9 @@ pub(super) fn output_evolution(
             Err(error) => print_transaction_error(command, json, error),
         }
     } else {
-        let result = crate::transaction::run_transaction(root, lock, &mut operation);
+        let result = crate::transaction::run_transaction(root, &mut operation);
         output_transaction(command, json, result, |prepared| {
-            project(prepared, ReviewPhase::Committed)
+            project(prepared, ReviewPhase::Prepared)
         })
     }
 }
@@ -86,7 +84,6 @@ pub(super) fn output_new(
         command,
         json,
         root,
-        lock,
     } = context;
     use crate::mutations::authoring::{NewInput, NewOperation};
     let is_decision = matches!(input, NewInput::Decision { .. });
@@ -97,18 +94,7 @@ pub(super) fn output_new(
         }
     };
     let id = operation.id.clone();
-    // Validate the full candidate intention before any bootstrap side effect;
-    // the lock-held phase independently prepares it again.
-    if let Err(error) = crate::transaction::preflight(root, &mut operation) {
-        return print_transaction_error(command, json, error);
-    }
-    let bootstrap = match bootstrap_lock_parent(root, lock) {
-        Ok(paths) => paths,
-        Err((paths, unknown, message)) => {
-            return bootstrap_failure(command, json, paths, unknown, message);
-        }
-    };
-    let result = crate::transaction::run_transaction(root, lock, &mut operation);
+    let result = crate::transaction::run_transaction(root, &mut operation);
     finish_new(
         context,
         result,
@@ -116,7 +102,6 @@ pub(super) fn output_new(
             id,
             is_decision,
             preview,
-            bootstrap,
         },
     )
 }
@@ -125,7 +110,6 @@ struct NewFacts {
     id: String,
     is_decision: bool,
     preview: Option<crate::mutations::contract::Alignment>,
-    bootstrap: Vec<String>,
 }
 
 fn finish_new(
@@ -138,7 +122,6 @@ fn finish_new(
         id,
         is_decision,
         preview,
-        bootstrap,
     } = facts;
     let committed = result.committed;
     let mut warnings = Vec::new();
@@ -146,19 +129,13 @@ fn finish_new(
         warnings = prepared.warnings.clone();
         project_new(prepared, is_decision, preview)
     });
-    let has_bootstrap = apply_bootstrap(&mut body, bootstrap, verified, committed);
-    // A post-commit cleanup/verification failure may remove the prepared value.
-    // The commit marker still proves creation, but not readiness.
     if !verified && committed {
         add_committed_creation(&mut body, id, is_decision);
     }
     if verified {
         return emit_success(command, json, false, &body, &warnings);
     }
-    let mut failure = transaction_failure_envelope(command, &result, body);
-    if has_bootstrap && failure["error"].get("recovery").is_none() {
-        failure["error"]["recovery"] = "Inspect retained bootstrap directories before deciding how to recover; do not blindly retry.".into();
-    }
+    let failure = transaction_failure_envelope(command, &result, body);
     if json {
         println!("{failure}");
     } else {
@@ -182,25 +159,6 @@ fn project_new(
     body
 }
 
-fn apply_bootstrap(
-    body: &mut serde_json::Value,
-    bootstrap: Vec<String>,
-    verified: bool,
-    committed: bool,
-) -> bool {
-    let has_bootstrap = !bootstrap.is_empty();
-    if has_bootstrap {
-        body["changed"] = true.into();
-        if let Some(paths) = body["writtenPaths"].as_array_mut() {
-            paths.splice(0..0, bootstrap.into_iter().map(serde_json::Value::from));
-        }
-        if !verified && !committed {
-            body["outcome"] = "partial-or-unknown".into();
-        }
-    }
-    has_bootstrap
-}
-
 fn add_committed_creation(body: &mut serde_json::Value, id: String, is_decision: bool) {
     body["created"] = true.into();
     body["id"] = id.clone().into();
@@ -213,24 +171,4 @@ fn add_committed_creation(body: &mut serde_json::Value, id: String, is_decision:
     if is_decision {
         body["decisionId"] = id.into();
     }
-}
-
-fn bootstrap_failure(
-    command: &str,
-    json: bool,
-    paths: Vec<String>,
-    unknown: Vec<String>,
-    message: String,
-) -> i32 {
-    let body = serde_json::json!({"status":"error","changed":if paths.is_empty() && !unknown.is_empty() { serde_json::Value::Null } else { (!paths.is_empty()).into() },"committed":false,"verification":"not-run","outcome":if paths.is_empty() && unknown.is_empty() {"no-change"} else {"partial-or-unknown"},"writtenPaths":paths,"unknownPaths":unknown});
-    let error = serde_json::json!({"code":"directory-bootstrap-failed","message":message,"recovery":"Inspect reported directories before retrying; unowned directories were not removed."});
-    if json {
-        println!(
-            "{}",
-            serde_json::json!({"version":1,"command":command,"ok":false,"error":error,"diagnostics":[],"result":body})
-        );
-    } else {
-        eprintln!("{error}\n{body}");
-    }
-    1
 }

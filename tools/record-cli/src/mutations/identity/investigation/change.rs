@@ -16,7 +16,7 @@ pub(super) struct Change<'a, 'root> {
     pub resources: &'a mut crate::resources::ResourceContext<'root>,
     pub owner: &'a RelativePath,
     pub present: bool,
-    pub tree: &'a [(RelativePath, source::FileIdentity, Option<Vec<u8>>)],
+    pub tree: &'a [(RelativePath, bool)],
 }
 pub(super) struct ChangeResult {
     pub resource_intents: Vec<ResourceIntent>,
@@ -24,28 +24,25 @@ pub(super) struct ChangeResult {
     pub deleted_resource_ids: Vec<String>,
     pub next: crate::index::IndexV4<investigation::InvestigationState>,
     pub writes: Vec<WriteIntent>,
-    pub guards: Vec<Guard>,
     pub affected: Vec<String>,
     pub affected_relation_count: usize,
     pub impact: super::super::RewriteImpact,
-    pub history: (Option<String>, bool),
     pub new_id: Option<String>,
     pub new_path: Option<String>,
     pub commit: CommitPoint,
 }
 impl Change<'_, '_> {
-    fn result(&self, history: (Option<String>, bool)) -> ChangeResult {
+    fn result(&self) -> ChangeResult {
         ChangeResult {
             resource_intents: vec![],
             owner_moved: false,
             deleted_resource_ids: Vec::new(),
             next: self.baseline.index().clone(),
             writes: vec![],
-            guards: vec![],
+
             affected: vec![],
             affected_relation_count: 0,
             impact: Default::default(),
-            history,
             new_id: None,
             new_path: None,
             commit: CommitPoint::NoCommit,
@@ -89,7 +86,7 @@ impl Change<'_, '_> {
             &self.front.expect("rename parses frontmatter").formed_at,
         )?;
         let planned = self.rename_plan(&target_id, confirm, history.1)?;
-        let mut result = self.result(history);
+        let mut result = self.result();
         self.count_selected_relations(&target_id, &mut result);
         self.plan_owner(&target_id, &mut result)?;
         let (new, rendered) =
@@ -219,14 +216,12 @@ impl Change<'_, '_> {
         }
         let rendered = investigation::replace_identity(&file.bytes, self.id, self.id, target_id)
             .map_err(|e| fail("render", e))?;
-        let file_mode = mode(file);
         let new = rel(&self.operation.collection, path)?;
         if &new == self.old {
             result.writes.push(WriteIntent {
                 path: self.old.clone(),
                 before: self.take_before(),
                 after: Some(rendered.as_bytes().to_vec()),
-                mode: None,
             });
         } else {
             let before = self.capture_target(&new, path)?;
@@ -234,13 +229,11 @@ impl Change<'_, '_> {
                 path: new.clone(),
                 before,
                 after: Some(rendered.as_bytes().to_vec()),
-                mode: Some(WriteMode::Exact(file_mode)),
             });
             result.writes.push(WriteIntent {
                 path: self.old.clone(),
                 before: self.take_before(),
                 after: None,
-                mode: None,
             });
         }
         Ok((new, rendered))

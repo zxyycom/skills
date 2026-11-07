@@ -73,7 +73,6 @@ impl ReferenceRewrite<'_> {
             path,
             before: b,
             after: Some(rendered.into_bytes()),
-            mode: None,
         });
         Ok(resource_count)
     }

@@ -23,32 +23,25 @@ pub(crate) fn decision_stage(
     }
     let dir = RelativePath::new(directory)
         .map_err(|e| error("path-invalid", directory, e.to_string()))?;
-    let CollectionMembers {
-        directories,
-        members,
-        index_identity,
-    } = collect_members(root, &dir, directory)?;
+    let CollectionMembers { members } = collect_members(root, &dir, directory)?;
     let scanned = scan_sources(root, &dir, members)?;
     let request = DecisionIndexRequest {
         root,
         dir: &dir,
         directory,
-        index_identity,
         rebuild,
     };
     let (source, index) = request.prepare(scanned)?;
-    Ok(source.finish(directories, index))
+    Ok(source.finish(index))
 }
 
 struct DecisionIndexRequest<'a> {
     root: &'a Root,
     dir: &'a RelativePath,
     directory: &'a str,
-    index_identity: Option<source::FileIdentity>,
     rebuild: bool,
 }
 struct DecisionSources {
-    source_proofs: Vec<FileProof>,
     candidate_count: usize,
     activation_paths: Vec<(String, String)>,
     warnings: Vec<String>,
@@ -85,7 +78,6 @@ impl DecisionIndexRequest<'_> {
             root: self.root,
             dir: self.dir,
             directory: self.directory,
-            index_identity: self.index_identity,
             states,
             revisions,
             formal_count,
@@ -104,7 +96,6 @@ impl DecisionSources {
         BTreeMap<String, String>,
     ) {
         let ScannedDecisions {
-            source_proofs,
             states,
             revisions,
             candidate_count,
@@ -116,7 +107,6 @@ impl DecisionSources {
         let formal_count = states.len();
         (
             Self {
-                source_proofs,
                 candidate_count,
                 activation_paths,
                 warnings,
@@ -128,9 +118,8 @@ impl DecisionSources {
             revisions,
         )
     }
-    fn finish(self, directories: Vec<DirectoryProof>, index: IndexCheck) -> DecisionStage {
+    fn finish(self, index: IndexCheck) -> DecisionStage {
         let Self {
-            source_proofs,
             candidate_count,
             mut activation_paths,
             mut warnings,
@@ -140,7 +129,7 @@ impl DecisionSources {
         } = self;
         let IndexCheck {
             index_path,
-            index_proof,
+            index_before,
             target,
             index_state,
             needs_write,
@@ -149,11 +138,7 @@ impl DecisionSources {
         activation_paths.sort_by(|a, b| a.0.encode_utf16().cmp(b.0.encode_utf16()));
         DecisionStage {
             activation_paths: activation_paths.into_iter().map(|(_, path)| path).collect(),
-            proof: DecisionProof {
-                directories,
-                sources: source_proofs,
-                index: index_proof,
-            },
+            index_before,
             target,
             needs_write,
             result: CheckResult {

@@ -11,7 +11,6 @@ pub struct ArchiveOperation {
 pub struct PreparedArchive {
     pub lifecycle: PreparedLifecycle,
     pub history: Option<super::super::decision_history::HistoryEvidence>,
-    archive_evidence: crate::source::DirectorySnapshot,
 }
 fn archive_evidence(
     root: &Root,
@@ -51,49 +50,33 @@ impl ArchiveOperation {
             crate::index::parse_index(&snapshot.bytes, &crate::domains::decision::Definition)
                 .map_err(|e| failure("index-invalid", e.to_string()))?;
         let ArchiveSelection { edits, history } = select_archive(self, root, &baseline)?;
-        let ArchivePlan {
-            plan,
-            archive_before,
-        } = capture_archive_plan(self, root, &edits, &first)?;
+        let plan = capture_archive_plan(self, root, &edits, first)?;
         Ok(Plan {
             value: PreparedArchive {
                 lifecycle: plan.value,
                 history,
-                archive_evidence: archive_before,
             },
             writes: plan.writes,
-            guards: plan.guards,
+
             resources: plan.resources,
             commit_point: plan.commit_point,
         })
     }
 }
-struct ArchivePlan {
-    plan: Plan<PreparedLifecycle>,
-    archive_before: crate::source::DirectorySnapshot,
-}
 fn capture_archive_plan(
     operation: &ArchiveOperation,
     root: &Root,
     edits: &[lifecycle::LifecycleEdit],
-    first: &ExpectedFile,
-) -> Result<ArchivePlan, TxError> {
+    first: ExpectedFile,
+) -> Result<Plan<PreparedLifecycle>, TxError> {
     let archive_before = archive_evidence(root, &operation.collection)?;
     let mut plan = decision_lifecycle::capture_plan(
         root,
         &operation.collection,
         &operation.index_path,
+        first,
         edits,
     )?;
-    if !crate::mutations::same_directory(
-        &archive_before,
-        &archive_evidence(root, &operation.collection)?,
-    ) {
-        return Err(failure(
-            "source-changed",
-            "archive directory changed during preparation",
-        ));
-    }
     if archive_before.members.is_empty() {
         plan.resources
             .push(crate::transaction::ResourceIntent::CreateDirectory {
@@ -101,19 +84,7 @@ fn capture_archive_plan(
                     .map_err(|e| failure("archive-path", e.to_string()))?,
             });
     }
-    let second = plan
-        .writes
-        .iter()
-        .find(|write| write.path == operation.index_path)
-        .map(|write| &write.before)
-        .ok_or_else(|| failure("invalid-plan", "index proof missing"))?;
-    if !crate::source::equivalent_file(first, second) {
-        return Err(failure("index-changed", "index changed during selection"));
-    }
-    Ok(ArchivePlan {
-        plan,
-        archive_before,
-    })
+    Ok(plan)
 }
 
 struct ArchiveSelection {
@@ -220,31 +191,5 @@ fn resolve_archive_records(
 impl TransactionOperation<PreparedArchive> for ArchiveOperation {
     fn prepare(&mut self, root: &Root) -> Result<Plan<PreparedArchive>, TxError> {
         self.prepare_phase(root)
-    }
-    fn fresh(&mut self, root: &Root, plan: &Plan<PreparedArchive>) -> Result<(), TxError> {
-        let fresh = self.prepare_phase(root)?;
-        let same = plan.value.history == fresh.value.history
-            && crate::mutations::same_directory(
-                &plan.value.archive_evidence,
-                &fresh.value.archive_evidence,
-            )
-            && same_writes(&plan.writes, &fresh.writes, ModeEvidence::Equal);
-        if !same {
-            return Err(failure(
-                "source-changed",
-                "selected facts or history changed before publication",
-            ));
-        }
-        Ok(())
-    }
-    fn verify(&mut self, root: &Root, plan: &Plan<PreparedArchive>) -> Result<(), TxError> {
-        verify_moving_files(root, &self.index_path, &plan.writes)
-    }
-    fn verify_recovered(
-        &mut self,
-        root: &Root,
-        plan: &Plan<PreparedArchive>,
-    ) -> Result<(), TxError> {
-        verify_recovered_files(root, &plan.writes, true)
     }
 }

@@ -1,7 +1,7 @@
 use record_cli::{
     mutations::identity::investigation::{Action, InvestigationIdentityOperation},
     source::{self, RelativePath},
-    transaction::{self, RecoveryStatus},
+    transaction,
 };
 use std::path::Path;
 fn commit_fixture(root: &Path, raw: &str, target: &str) {
@@ -55,24 +55,15 @@ fn run(
 ) -> transaction::TransactionOutcome<record_cli::mutations::identity::investigation::PreparedIdentity>
 {
     let root = source::open_root(root).unwrap();
-    transaction::run_transaction(&root, &RelativePath::new("identity.lock").unwrap(), op)
+    transaction::run_transaction(&root, op)
 }
 #[test]
-fn candidate_first_collection_rename_discard_and_resource_modes() {
+fn candidate_first_collection_rename_discard_and_resources() {
     let dir = tempfile::tempdir().unwrap();
     let c = dir.path().join("investigations");
     std::fs::create_dir_all(c.join("_resources/261106-old/nested")).unwrap();
     std::fs::write(c.join("_candidate.old"), report("261106-old", true)).unwrap();
     std::fs::write(c.join("_resources/261106-old/nested/file.txt"), b"evidence").unwrap();
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        std::fs::set_permissions(
-            c.join("_resources/261106-old"),
-            std::fs::Permissions::from_mode(0o750),
-        )
-        .unwrap();
-    }
     let result = run(
         dir.path(),
         &mut op(Action::Rename {
@@ -94,18 +85,6 @@ fn candidate_first_collection_rename_discard_and_resource_modes() {
             .unwrap()
             .contains("_resources/261106-new/nested/file.txt")
     );
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        assert_eq!(
-            std::fs::metadata(c.join("_resources/261106-new"))
-                .unwrap()
-                .permissions()
-                .mode()
-                & 0o777,
-            0o750
-        );
-    }
     let mut discard = op(Action::Discard {
         confirm_recorded: false,
         delete_owned_resources: false,
@@ -120,7 +99,6 @@ fn candidate_first_collection_rename_discard_and_resource_modes() {
     };
     let out = run(dir.path(), &mut discard);
     assert!(out.errors.is_empty(), "{:?}", out.errors);
-    assert_eq!(out.outcome, RecoveryStatus::Committed);
     assert_eq!(
         out.value.as_ref().unwrap().deleted_resource_ids,
         ["261106-new/nested/file.txt"]
@@ -250,26 +228,6 @@ fn published_rename_updates_referrer_and_discard_rejects_references() {
     );
     assert!(c.join("new.md").exists());
     assert!(!c.join("old.md").exists());
-}
-#[test]
-fn resource_freshness_detects_payload_drift_after_preparation() {
-    use record_cli::transaction::TransactionOperation;
-    let dir = tempfile::tempdir().unwrap();
-    let c = dir.path().join("investigations");
-    std::fs::create_dir_all(c.join("_resources/261106-old/nested")).unwrap();
-    std::fs::write(c.join("_candidate.old"), report("261106-old", true)).unwrap();
-    std::fs::write(c.join("_resources/261106-old/nested/file.txt"), b"first").unwrap();
-    let root = source::open_root(dir.path()).unwrap();
-    let mut operation = op(Action::Rename {
-        target: "new".into(),
-        confirm_recorded_report: false,
-        confirm_recorded_candidate: false,
-    });
-    let plan = operation.prepare(&root).unwrap();
-    std::fs::write(c.join("_resources/261106-old/nested/file.txt"), b"other").unwrap();
-    assert!(operation.fresh(&root, &plan).is_err());
-    assert!(c.join("_candidate.old").exists());
-    assert!(!c.join("_candidate.new").exists());
 }
 #[test]
 fn git_recorded_candidate_requires_explicit_confirmation() {

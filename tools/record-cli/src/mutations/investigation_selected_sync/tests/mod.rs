@@ -1,55 +1,10 @@
 use super::*;
+use crate::source;
 use crate::source_revision::fingerprint;
-use crate::transaction::{Plan, TransactionOperation};
 use crate::{
     index::{self, IndexV4, Revision, build_index, serialize_index},
     source_revision::metadata_fingerprint,
 };
-struct OtherOwnerChanges(SelectedInvestigationSyncOperation);
-impl TransactionOperation<PreparedSelected> for OtherOwnerChanges {
-    fn prepare(&mut self, root: &Root) -> Result<Plan<PreparedSelected>, TxError> {
-        self.0.prepare(root)
-    }
-    fn fresh(&mut self, root: &Root, plan: &Plan<PreparedSelected>) -> Result<(), TxError> {
-        std::fs::write(
-            root.path()
-                .join("investigations/_resources/unselected/new.txt"),
-            b"other owner",
-        )
-        .unwrap();
-        self.0.fresh(root, plan)
-    }
-    fn verify(&mut self, root: &Root, plan: &Plan<PreparedSelected>) -> Result<(), TxError> {
-        self.0.verify(root, plan)
-    }
-    fn verify_recovered(
-        &mut self,
-        root: &Root,
-        plan: &Plan<PreparedSelected>,
-    ) -> Result<(), TxError> {
-        self.0.verify_recovered(root, plan)
-    }
-}
-struct OwnerAppears(SelectedInvestigationSyncOperation);
-impl TransactionOperation<PreparedSelected> for OwnerAppears {
-    fn prepare(&mut self, root: &Root) -> Result<Plan<PreparedSelected>, TxError> {
-        self.0.prepare(root)
-    }
-    fn fresh(&mut self, root: &Root, plan: &Plan<PreparedSelected>) -> Result<(), TxError> {
-        std::fs::create_dir(root.path().join("investigations/_resources/260828-new")).unwrap();
-        self.0.fresh(root, plan)
-    }
-    fn verify(&mut self, root: &Root, plan: &Plan<PreparedSelected>) -> Result<(), TxError> {
-        self.0.verify(root, plan)
-    }
-    fn verify_recovered(
-        &mut self,
-        root: &Root,
-        plan: &Plan<PreparedSelected>,
-    ) -> Result<(), TxError> {
-        self.0.verify_recovered(root, plan)
-    }
-}
 #[test]
 fn selected_sync_preserves_unrelated_source_and_requires_old_owner_absence() {
     let dir = tempfile::tempdir().unwrap();
@@ -111,7 +66,6 @@ fn selected_sync_preserves_unrelated_source_and_requires_old_owner_absence() {
     )
     .unwrap();
     let root = source::open_root(dir.path()).unwrap();
-    let lock = RelativePath::new(".investigation-index.json.mutation.lock").unwrap();
     let missing =
         SelectedInvestigationSyncOperation::new("investigations".into(), vec!["missing".into()]);
     assert!(missing.preflight(&root).is_err());
@@ -128,18 +82,16 @@ fn selected_sync_preserves_unrelated_source_and_requires_old_owner_absence() {
     );
     assert!(failure.diagnostics[0].recovery.is_some());
     assert_eq!(absent.observed_baseline_count(), None);
-    let operation = SelectedInvestigationSyncOperation::new(
+    let mut operation = SelectedInvestigationSyncOperation::new(
         "investigations".into(),
         vec!["260828-same".into()],
     );
     let preview = operation.preflight(&root).unwrap();
     assert_eq!(preview.coverage.checked_ids, vec!["260828-same"]);
     assert_eq!(preview.state, "previewed");
-    let mut changing = OtherOwnerChanges(operation);
-    let result = crate::transaction::run_transaction(&root, &lock, &mut changing);
+    let result = crate::transaction::run_transaction(&root, &mut operation);
     assert!(result.errors.is_empty(), "{:?}", result.errors);
     assert!(result.changed && result.committed);
-    let mut operation = changing.0;
     let loaded = index::parse_index(
         &std::fs::read(collection.join("investigation-index.json")).unwrap(),
         &Definition,
@@ -156,7 +108,7 @@ fn selected_sync_preserves_unrelated_source_and_requires_old_owner_absence() {
     .unwrap();
     assert!(operation.preflight(&root).is_err());
     operation.selectors = vec!["260828-same".into(), "260828-new.MD".into()];
-    let renamed = crate::transaction::run_transaction(&root, &lock, &mut operation);
+    let renamed = crate::transaction::run_transaction(&root, &mut operation);
     assert!(renamed.errors.is_empty(), "{:?}", renamed.errors);
     assert!(renamed.committed);
     std::fs::remove_file(collection.join("same.md")).unwrap();
@@ -167,24 +119,7 @@ fn selected_sync_preserves_unrelated_source_and_requires_old_owner_absence() {
         "resource-owner-present"
     );
     std::fs::remove_dir(collection.join("_resources/260828-new")).unwrap();
-    std::fs::create_dir(collection.join("_resources/260828-NEW")).unwrap();
-    assert_eq!(
-        operation.preflight(&root).unwrap_err().code,
-        "resource-owner-present"
-    );
-    std::fs::remove_dir(collection.join("_resources/260828-NEW")).unwrap();
-    let before = std::fs::read(collection.join("investigation-index.json")).unwrap();
-    let mut appearing = OwnerAppears(operation);
-    let rejected = crate::transaction::run_transaction(&root, &lock, &mut appearing);
-    assert!(!rejected.errors.is_empty());
-    assert!(!rejected.changed);
-    assert_eq!(
-        std::fs::read(collection.join("investigation-index.json")).unwrap(),
-        before
-    );
-    std::fs::remove_dir(collection.join("_resources/260828-new")).unwrap();
-    let mut operation = appearing.0;
-    let deleted = crate::transaction::run_transaction(&root, &lock, &mut operation);
+    let deleted = crate::transaction::run_transaction(&root, &mut operation);
     assert!(deleted.errors.is_empty(), "{:?}", deleted.errors);
     assert!(deleted.committed);
 }

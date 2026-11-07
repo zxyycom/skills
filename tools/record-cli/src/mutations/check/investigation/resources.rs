@@ -15,7 +15,7 @@ impl<'a> ResourceReview<'a> {
         &self,
         diagnostics: &mut Vec<CheckError>,
         warnings: &mut Vec<String>,
-    ) -> Result<Option<crate::resources::ResourceEvidence>, CheckError> {
+    ) -> Result<(), CheckError> {
         let Self {
             states,
             candidate_refs,
@@ -40,7 +40,7 @@ impl<'a> ResourceReview<'a> {
                     .map_err(|e| error("resource-read", "_resources", e.to_string()))?,
             );
         }
-        Ok(resource_context.map(|context| context.into_evidence()))
+        Ok(())
     }
     fn formal_context(
         &self,

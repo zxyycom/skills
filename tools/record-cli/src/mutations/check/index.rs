@@ -54,7 +54,6 @@ pub(super) struct IndexObservation<'a> {
     pub(super) root: &'a Root,
     pub(super) dir: &'a RelativePath,
     pub(super) directory: &'a str,
-    pub(super) identity: &'a Option<source::FileIdentity>,
     pub(super) index_name: &'a str,
 }
 impl IndexObservation<'_> {
@@ -66,7 +65,6 @@ impl IndexObservation<'_> {
             root,
             dir,
             directory,
-            identity: index_identity,
             index_name,
         } = *self;
         let index_path = RelativePath::new(dir.as_path().join(index_name))
@@ -77,21 +75,6 @@ impl IndexObservation<'_> {
                 partial.clone(),
             )
         })?;
-        match (index_identity, &existing) {
-            (None, ExpectedFile::Missing) => {}
-            (Some(expected), ExpectedFile::Present(actual))
-                if expected.mode == actual.identity.mode => {}
-            _ => {
-                return Err(attach_partial(
-                    error(
-                        "source-changed",
-                        index_name,
-                        "index mode or membership changed during collection",
-                    ),
-                    partial.clone(),
-                ));
-            }
-        }
         Ok((index_path, existing))
     }
 }
@@ -123,13 +106,13 @@ impl<D: crate::index::DomainDefinition> IndexComparison<'_, D> {
         rebuild: bool,
     ) -> Result<IndexCheck, CheckError> {
         let (index_state, needs_write) = self.decide(rebuild)?;
-        let index_proof = match self.existing {
-            ExpectedFile::Missing => None,
-            ExpectedFile::Present(file) => Some(FileProof::from(file)),
+        let index_before = match self.existing {
+            ExpectedFile::Missing => ExpectedFile::Missing,
+            ExpectedFile::Present(file) => ExpectedFile::Present(file.clone()),
         };
         Ok(IndexCheck {
             index_path,
-            index_proof,
+            index_before,
             target,
             index_state,
             needs_write,
@@ -217,7 +200,6 @@ pub(super) struct IndexInput<'a, D: crate::index::DomainDefinition> {
     pub(super) root: &'a Root,
     pub(super) dir: &'a RelativePath,
     pub(super) directory: &'a str,
-    pub(super) index_identity: Option<source::FileIdentity>,
     pub(super) states: BTreeMap<String, D::State>,
     pub(super) revisions: BTreeMap<String, String>,
     pub(super) formal_count: usize,
@@ -226,7 +208,7 @@ pub(super) struct IndexInput<'a, D: crate::index::DomainDefinition> {
 }
 pub(super) struct IndexCheck {
     pub(super) index_path: RelativePath,
-    pub(super) index_proof: Option<FileProof>,
+    pub(super) index_before: ExpectedFile,
     pub(super) target: Vec<u8>,
     pub(super) index_state: &'static str,
     pub(super) needs_write: bool,
@@ -244,7 +226,6 @@ where
             root,
             dir,
             directory,
-            index_identity,
             states,
             revisions,
             formal_count,
@@ -264,7 +245,6 @@ where
             root,
             dir,
             directory,
-            identity: &index_identity,
             index_name: policy.index_name,
         }
         .capture(&partial)?;

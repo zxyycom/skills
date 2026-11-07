@@ -60,7 +60,6 @@ fn sync_selected(context: MutationContext<'_>, selectors: Vec<String>, preflight
         json,
         directory,
         root,
-        lock_path,
         index_display,
         ..
     } = context;
@@ -87,7 +86,7 @@ fn sync_selected(context: MutationContext<'_>, selectors: Vec<String>, preflight
             |result| &result.warnings,
         )
     } else {
-        let result = crate::transaction::run_transaction(&root, &lock_path, &mut operation);
+        let result = crate::transaction::run_transaction(&root, &mut operation);
         output_selected_sync_transaction(
             command,
             json,
@@ -118,7 +117,6 @@ fn sync_all(context: MutationContext<'_>, preflight: bool) -> i32 {
         json,
         directory,
         root,
-        lock_path,
         ..
     } = context;
     let mut operation =
@@ -133,7 +131,6 @@ fn sync_all(context: MutationContext<'_>, preflight: bool) -> i32 {
                 command,
                 json,
                 root: &root,
-                lock: &lock_path,
             },
             &mut operation,
             |prepared, committed| {
@@ -157,7 +154,6 @@ pub(super) fn publish(
         json,
         root,
         collection,
-        lock_path,
         ..
     } = context;
     let mut operation =
@@ -176,10 +172,10 @@ pub(super) fn publish(
             Err(error) => print_transaction_error(command, json, error),
         }
     } else {
-        let result = crate::transaction::run_transaction(&root, &lock_path, &mut operation);
+        let result = crate::transaction::run_transaction(&root, &mut operation);
         output_transaction_warnings(command, json, result, |prepared| {
             let review =
-                crate::mutations::relations::review(prepared.review, ReviewPhase::Committed);
+                crate::mutations::relations::review(prepared.review, ReviewPhase::Prepared);
             (
                 serde_json::json!({"preflight":false,"publishedIds":prepared.ids,"relationReview":review,"warnings":prepared.warnings}),
                 prepared.warnings,
@@ -244,7 +240,6 @@ pub(super) fn identity(context: MutationContext<'_>, intent: InvestigationComman
         root,
         collection,
         index_path,
-        lock_path,
         ..
     } = context;
     let operation = crate::mutations::identity::investigation::InvestigationIdentityOperation {
@@ -258,7 +253,6 @@ pub(super) fn identity(context: MutationContext<'_>, intent: InvestigationComman
             command,
             json,
             root: &root,
-            lock: &lock_path,
         },
         operation,
         preflight,
@@ -280,7 +274,6 @@ pub(super) fn set_relations(
         root,
         collection,
         index_path,
-        lock_path,
         index_display,
         ..
     } = context;
@@ -305,10 +298,10 @@ pub(super) fn set_relations(
             Err(error) => print_transaction_error(command, json, error),
         }
     } else {
-        let result = crate::transaction::run_transaction(&root, &lock_path, &mut operation);
+        let result = crate::transaction::run_transaction(&root, &mut operation);
         output_transaction(command, json, result, |prepared| {
             let review =
-                crate::mutations::relations::review(prepared.review, ReviewPhase::Committed);
+                crate::mutations::relations::review(prepared.review, ReviewPhase::Prepared);
             let source_ids: Vec<_> = review
                 .sources
                 .iter()

@@ -166,10 +166,10 @@ pub(super) fn capture_pending_index<D: DomainDefinition>(
     domain: &D,
     scope: StageScope,
 ) -> Result<PendingIndex<D::State>, IndexStageError> {
-    let pending = match git::read_selected(&root.path, &[index_path.as_path().to_owned()]) {
+    let pending = match git::read_selected(root.path(), &[index_path.as_path().to_owned()]) {
         Ok(snapshot) => snapshot,
         Err(_) if scope == StageScope::Domain => {
-            git::read_selected(&root.path, &[]).map_err(IndexStageError::Git)?
+            git::read_selected(root.path(), &[]).map_err(IndexStageError::Git)?
         }
         Err(error) => return Err(IndexStageError::Git(error)),
     };

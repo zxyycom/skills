@@ -1,16 +1,14 @@
 ### Case NATIVE-RECORD-RESOURCE-EVIDENCE-001: 调查资源的成员与身份快照
 
 Tests:
-- `test:70d4d0fec68f17a6d4e9a921608025810371a7639cf64a355c4bace7a9a2d6a5`
-- `test:b688c812559d0d577649359ec1c80be16b3341b39dab327d292ae8f65e257774`
-- `test:dadcd4a41bbf8cfb7445fa58237fbc18dbcd8a55fc4f7b54f58222088196c6da`
-- `test:e51358e3de5ecfe218f689f0d069146cc171b422ae153756b25bc99f11ba8f03`
+- `test:1740c737699157afbfda136429b5cb741af77e407310773be9a056d5a32b4319`
+- `test:727cbbdececd9f6f41c62a594e0129b29db6f87ea11fb7aea42225bb41521fb9`
 
 Tags:
 - `record-rust`
 
 Contract:
-- 资源证据须区分缺失、空目录、选定 owner 和无关成员。
+- 资源校验须区分缺失 owner、选定 owner 的直接成员及可见性。
 
 Proves:
-- 私有资源与 Git 快照验证成员选择、目录身份替换及忽略无关 payload。
+- 私有资源目录验证预期缺失与已存在冲突、直接成员选择和受管可见性。

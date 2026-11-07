@@ -1,5 +1,5 @@
 //! Decision evolution on resolved, validated stage-local records. Graph,
-//! history, source freshness and index publication remain distinct proofs.
+//! history, source validation and index publication remain separate responsibilities.
 use super::{
     contract::{Alignment, DecisionRelationKind, Relation, ReviewAction, SourceReview},
     lifecycle::{HistoryFact, Status},

@@ -5,7 +5,6 @@ impl ResourceContext<'_> {
         self.capture_missing_membership(!ids.is_empty())?;
         let mut issues = Vec::new();
         for id in ids {
-            self.observed_ids.insert(id.clone());
             if !domains::investigation::valid_resource_id(id) {
                 issues.push(format!("_resources/{id} must use a safe, normalized resource id with an owner report prefix"));
                 continue;
@@ -49,7 +48,6 @@ impl ResourceContext<'_> {
             None => scan_workspace_resources(self.root, base)?,
         };
         ids.sort_by(|a, b| a.encode_utf16().cmp(b.encode_utf16()));
-        self.full_visible = Some(ids.clone());
         for id in ids {
             if !referenced.contains(&id) {
                 warnings.push(format!("unreferenced visible resource: {id}"));

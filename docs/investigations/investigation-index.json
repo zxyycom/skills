@@ -1405,6 +1405,20 @@
       ],
       "title": "Rust 记录工具 Windows 原生兼容性调查"
     },
+    "261107-git-index-update-prefix-collisions": {
+      "formedAt": "2026-11-07T08:06:02Z",
+      "name": "git-index-update-prefix-collisions",
+      "question": "标准 Git 索引更新为何会破坏选择性暂存对未选 pending 的保留，最小防护边界是什么？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "261107-git-index-update-prefix-collisions.md",
+      "tags": [
+        "correctness",
+        "git-integration",
+        "staging"
+      ],
+      "title": "Git 索引路径前缀冲突导致未选暂存被驱逐"
+    },
     "261107-rust-record-transaction-io": {
       "formedAt": "2026-11-07T03:14:25Z",
       "name": "rust-record-transaction-io",
@@ -2147,6 +2161,7 @@
       "261106-rust-transaction-namespace-race": "sha256:3a2f6b27fe32c95d72cc6383bdd102296e7975ef3efbd4723d245aeae1eae88d",
       "261106-rust-verification-error-causes": "sha256:3a4d1a073c8f1811e33b5a8ee536181362618bb281c29181f5ef2c59b204b95d",
       "261106-rust-windows-native-compatibility": "sha256:e6837963e21bae8298cdd5748c6c8b05e7df0740de9dc27d2a65b7299cf8e573",
+      "261107-git-index-update-prefix-collisions": "sha256:cc4553d9e3bdeff028b103ad7573accda44bfcc57740296b3b23901866aae842",
       "261107-rust-record-transaction-io": "sha256:c1e92ff82dcc0c4fc75201783f0a54de9fa456726fc56a986baa0bc0f3a41fd7",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:512b8f0c5b6466034d7d851032bf41af7413a227bdd19c62959fc2ad343d495c",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",

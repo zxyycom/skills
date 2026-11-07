@@ -3,13 +3,12 @@ use super::*;
 #[test]
 fn decision_formal_rename_noop_date_and_discard() {
     let (dir, root) = fixture();
-    let lock = RelativePath::new(".identity.lock").unwrap();
     let original = std::fs::read(dir.path().join("decisions/original.md")).unwrap();
     let mut no_op = operation(Action::Rename {
         target: "original".into(),
         confirm_recorded: false,
     });
-    let result = transaction::run_transaction(&root, &lock, &mut no_op);
+    let result = transaction::run_transaction(&root, &mut no_op);
     assert!(result.errors.is_empty(), "{:?}", result.errors);
     assert!(!result.changed && !result.committed);
     assert_eq!(
@@ -25,7 +24,7 @@ fn decision_formal_rename_noop_date_and_discard() {
         target: "new".into(),
         confirm_recorded: false,
     });
-    let result = transaction::run_transaction(&root, &lock, &mut rename);
+    let result = transaction::run_transaction(&root, &mut rename);
     assert!(result.errors.is_empty(), "{:?}", result.errors);
     assert!(result.changed && result.committed);
     assert!(!dir.path().join("decisions/original.md").exists());
@@ -36,7 +35,7 @@ fn decision_formal_rename_noop_date_and_discard() {
         confirm_recorded: false,
     });
     discard.selector = "new".into();
-    let result = transaction::run_transaction(&root, &lock, &mut discard);
+    let result = transaction::run_transaction(&root, &mut discard);
     assert!(result.errors.is_empty(), "{:?}", result.errors);
     assert!(result.changed && result.committed);
     assert!(!dir.path().join("decisions/new.md").exists());
@@ -59,8 +58,7 @@ fn decision_recorded_requires_confirmation_and_preserves_git_pending() {
     let mut operation = operation(Action::Discard {
         confirm_recorded: false,
     });
-    let lock = RelativePath::new(".identity.lock").unwrap();
-    let out = transaction::run_transaction(&root, &lock, &mut operation);
+    let out = transaction::run_transaction(&root, &mut operation);
     assert!(!out.errors.is_empty());
     assert!(!out.changed);
     assert!(dir.path().join("decisions/original.md").exists());
@@ -71,26 +69,13 @@ fn decision_recorded_requires_confirmation_and_preserves_git_pending() {
     operation.action = Action::Discard {
         confirm_recorded: true,
     };
-    let out = transaction::run_transaction(&root, &lock, &mut operation);
+    let out = transaction::run_transaction(&root, &mut operation);
     assert!(out.errors.is_empty(), "{:?}", out.errors);
     assert!(out.committed);
     assert_eq!(
         std::fs::read(dir.path().join(".git/index")).unwrap(),
         pending_before
     );
-}
-#[test]
-fn decision_fresh_detects_source_drift() {
-    use record_cli::transaction::TransactionOperation;
-    let (dir, root) = fixture();
-    let mut operation = operation(Action::Rename {
-        target: "new".into(),
-        confirm_recorded: false,
-    });
-    let plan = operation.prepare(&root).unwrap();
-    std::fs::write(dir.path().join("decisions/original.md"), b"concurrent").unwrap();
-    assert!(operation.fresh(&root, &plan).is_err());
-    assert!(!dir.path().join("decisions/new.md").exists());
 }
 #[test]
 fn decision_rename_rewrites_index_visible_referrer_and_rejects_stale_source() {
@@ -225,8 +210,7 @@ fn decision_rename_rewrites_index_visible_referrer_and_rejects_stale_source() {
         json["result"]["affectedCountsScope"],
         "selected-and-rewritten"
     );
-    let lock = RelativePath::new(".identity.lock").unwrap();
-    let result = transaction::run_transaction(&root, &lock, &mut op);
+    let result = transaction::run_transaction(&root, &mut op);
     assert!(result.errors.is_empty(), "{:?}", result.errors);
     assert!(result.committed);
     let impact = &result.value.as_ref().unwrap().impact;

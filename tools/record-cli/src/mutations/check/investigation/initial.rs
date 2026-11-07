@@ -1,16 +1,12 @@
 use super::*;
 
 pub(super) struct Initial {
-    pub directories: Vec<DirectoryProof>,
-    pub index_identity: Option<source::FileIdentity>,
-    pub source_proofs: Vec<FileProof>,
     pub states: BTreeMap<String, domains::investigation::InvestigationState>,
     pub revisions: BTreeMap<String, String>,
     pub candidate_count: usize,
     pub checked_ids: Vec<String>,
     pub formal_count: usize,
     pub warnings: Vec<String>,
-    pub resource_evidence: Option<crate::resources::ResourceEvidence>,
 }
 pub(super) fn collect(
     root: &Root,
@@ -21,12 +17,7 @@ pub(super) fn collect(
     let mut collected = super::collection::collect_members(root, dir, directory)?;
     let members = std::mem::take(&mut collected.members);
     let mut scanned = super::sources::scan(root, dir, members)?;
-    let resource_evidence = review_resources(root, directory, &collected, &mut scanned)?;
-    let super::collection::CollectionMembers {
-        directories,
-        index_identity,
-        ..
-    } = collected;
+    review_resources(root, directory, &collected, &mut scanned)?;
     if !scanned.diagnostics.is_empty() {
         return Err(partial_error(dir, scanned));
     }
@@ -39,22 +30,11 @@ pub(super) fn collect(
                 &scanned.states,
             ));
     }
-    Ok(assemble_initial(
-        directories,
-        index_identity,
-        resource_evidence,
-        scanned,
-    ))
+    Ok(assemble_initial(scanned))
 }
 
-fn assemble_initial(
-    directories: Vec<DirectoryProof>,
-    index_identity: Option<source::FileIdentity>,
-    resource_evidence: Option<crate::resources::ResourceEvidence>,
-    scanned: super::sources::ScannedSources,
-) -> Initial {
+fn assemble_initial(scanned: super::sources::ScannedSources) -> Initial {
     let super::sources::ScannedSources {
-        source_proofs,
         states,
         revisions,
         all_ids,
@@ -67,16 +47,12 @@ fn assemble_initial(
     checked_ids.sort_by(|a, b| a.encode_utf16().cmp(b.encode_utf16()));
     warnings.sort_by(|a, b| a.encode_utf16().cmp(b.encode_utf16()));
     Initial {
-        directories,
-        index_identity,
-        source_proofs,
         states,
         revisions,
         candidate_count,
         checked_ids,
         formal_count,
         warnings,
-        resource_evidence,
     }
 }
 
@@ -85,7 +61,7 @@ fn review_resources(
     directory: &str,
     collected: &super::collection::CollectionMembers,
     scanned: &mut super::sources::ScannedSources,
-) -> Result<Option<crate::resources::ResourceEvidence>, CheckError> {
+) -> Result<(), CheckError> {
     super::resources::ResourceReview {
         root,
         directory,

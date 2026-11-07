@@ -125,7 +125,7 @@ fn capture_member(
     root: &Root,
     dir: &RelativePath,
     name: &str,
-    member: &DirectoryMember,
+    _member: &DirectoryMember,
 ) -> Result<source::SourceSnapshot, CheckError> {
     let path = RelativePath::new(dir.as_path().join(name))
         .map_err(|e| error("path-invalid", name, e.to_string()))?;
@@ -134,16 +134,11 @@ fn capture_member(
     let ExpectedFile::Present(file) = observed else {
         return Err(error("source-changed", name, "source disappeared"));
     };
-    if file.identity.mode != member.identity.mode {
-        return Err(error("source-changed", name, "source mode changed"));
-    }
     Ok(file)
 }
 
-mod proof;
-pub(crate) use proof::{
-    DecisionProof, DecisionStage, DirectoryProof, FileProof, InvestigationProof, InvestigationStage,
-};
+mod stage;
+pub(crate) use stage::{DecisionStage, InvestigationStage};
 mod index;
 use index::{IndexCheck, IndexInput, IndexPolicy};
 

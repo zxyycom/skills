@@ -1,5 +1,5 @@
 //! Full Investigation synchronization using the same source and resource
-//! collection as check, with independent fresh and post-write verification.
+//! collection as check, prepared once for ordered execution.
 use super::check::{InvestigationStage, investigation_stage};
 use super::full_sync;
 use crate::{
@@ -38,21 +38,7 @@ impl InvestigationSyncOperation {
     }
     /// Full sync preview separately reacquires sources, index and resource facts.
     pub fn preflight(&self, root: &Root) -> Result<SyncResult, TxError> {
-        let first = self.stage(root)?;
-        let second = self.stage(root)?;
-        let (Some(a), Some(b)) = (&first.proof, &second.proof) else {
-            return Err(fail("resource-invalid", "resource evidence unavailable"));
-        };
-        if !a.equivalent(b)
-            || first.target != second.target
-            || first.needs_write != second.needs_write
-        {
-            return Err(fail(
-                "source-changed",
-                "sources, resources or index changed during preflight",
-            ));
-        }
-        Ok(result(&first, false))
+        Ok(result(&self.stage(root)?, false))
     }
 }
 fn result(stage: &InvestigationStage, committed: bool) -> SyncResult {
@@ -79,19 +65,16 @@ impl PreparedSync {
 }
 impl TransactionOperation<PreparedSync> for InvestigationSyncOperation {
     fn prepare(&mut self, root: &Root) -> Result<Plan<PreparedSync>, TxError> {
-        let stage = self.stage(root)?;
-        let proof = stage
-            .proof
-            .as_ref()
-            .ok_or_else(|| fail("resource-invalid", "resource evidence unavailable"))?;
+        let mut stage = self.stage(root)?;
         let full_sync::WriteSet {
             writes,
-            guards,
             commit_point,
         } = full_sync::Input {
             index_path: &stage.result.index_path,
-            sources: &proof.sources,
-            index: &proof.index,
+            index_before: std::mem::replace(
+                &mut stage.index_before,
+                crate::source::ExpectedFile::Missing,
+            ),
             target: &stage.target,
             needs_write: stage.needs_write,
         }
@@ -99,58 +82,9 @@ impl TransactionOperation<PreparedSync> for InvestigationSyncOperation {
         Ok(Plan {
             value: PreparedSync { stage },
             writes,
-            guards,
             resources: vec![],
             commit_point,
         })
-    }
-    fn fresh(&mut self, root: &Root, plan: &Plan<PreparedSync>) -> Result<(), TxError> {
-        let actual = self.stage(root)?;
-        let (Some(a), Some(b)) = (&actual.proof, &plan.value.stage.proof) else {
-            return Err(fail("resource-invalid", "resource evidence unavailable"));
-        };
-        if !a.equivalent(b)
-            || actual.target != plan.value.stage.target
-            || actual.needs_write != plan.value.stage.needs_write
-        {
-            return Err(fail(
-                "source-changed",
-                "sources, resources or index changed before publication",
-            ));
-        }
-        Ok(())
-    }
-    fn verify(&mut self, root: &Root, plan: &Plan<PreparedSync>) -> Result<(), TxError> {
-        let actual = self.stage(root)?;
-        let (Some(a), Some(b)) = (&actual.proof, &plan.value.stage.proof) else {
-            return Err(fail("postverify", "resource evidence unavailable"));
-        };
-        if !a.sources_equivalent(b)
-            || actual.target != plan.value.stage.target
-            || actual.needs_write
-        {
-            return Err(fail(
-                "postverify",
-                "sources, resources or published projection changed",
-            ));
-        }
-        Ok(())
-    }
-    fn verify_recovered(&mut self, root: &Root, plan: &Plan<PreparedSync>) -> Result<(), TxError> {
-        let actual = self.stage(root)?;
-        let (Some(a), Some(b)) = (&actual.proof, &plan.value.stage.proof) else {
-            return Err(fail("recovery", "resource evidence unavailable"));
-        };
-        if !a.sources_equivalent(b) {
-            return Err(fail("recovery", "source or resource facts changed"));
-        }
-        match (&a.index, &b.index) {
-            (None, None) => Ok(()),
-            (Some(a), Some(b)) if a.bytes == b.bytes && a.identity.mode == b.identity.mode => {
-                Ok(())
-            }
-            _ => Err(fail("recovery", "previous index was not restored")),
-        }
     }
 }
 

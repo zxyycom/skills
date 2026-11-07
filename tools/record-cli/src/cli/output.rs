@@ -12,7 +12,7 @@ pub(super) fn emit_success<T: serde::Serialize>(
     // legitimately contain JSON-escaped unpaired UTF-16 surrogates.
     let output = if json && !trace {
         serde_json::to_string(&crate::protocol::Success {
-            version: 1,
+            version: 2,
             command,
             ok: true,
             result: value,
@@ -81,7 +81,7 @@ pub(super) fn print_error(
             None => None,
         };
         let envelope = crate::protocol::Failure {
-            version: 1,
+            version: 2,
             command,
             ok: false,
             error,

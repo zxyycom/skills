@@ -183,7 +183,7 @@ pub enum InvestigationCommand {
 #[serde(rename_all = "kebab-case")]
 pub enum ReviewPhase {
     Preflight,
-    Committed,
+    Prepared,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]

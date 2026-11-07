@@ -1,11 +1,9 @@
 use super::*;
 
 pub(super) struct Collection {
-    pub listing: source::DirectorySnapshot,
     pub index_path: RelativePath,
     pub before_index: ExpectedFile,
     pub baseline: index::ValidatedIndex<InvestigationState>,
-    pub headers: Vec<(String, source::HeaderSnapshot)>,
     pub candidates: BTreeMap<String, String>,
     pub discovery_warnings: Vec<String>,
     pub occupied: HashSet<String>,
@@ -22,17 +20,15 @@ pub(super) fn capture(
         baseline,
     } = baseline(operation, root, &listing)?;
     let Candidates {
-        headers,
+        headers: _,
         candidates,
         discovery_warnings,
         occupied,
     } = candidates(operation, root, &listing, &baseline)?;
     Ok(Collection {
-        listing,
         index_path,
         before_index,
         baseline,
-        headers,
         candidates,
         discovery_warnings,
         occupied,

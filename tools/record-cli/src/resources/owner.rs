@@ -46,25 +46,17 @@ impl ResourceContext<'_> {
                 "owner must be one path component",
             ));
         }
-        self.observed_owners.insert(id.to_owned());
         let Some(base) = &self.relative else {
             return Ok(());
         };
-        let fact = source::capture_resource_directories(self.root, base, &owner)
+        let listing = source::enumerate_directory(self.root, base)
             .map_err(|e| CommandError::new("candidate-resource-read-failed", e.to_string()))?;
-        if !self.root_fact.matches_owner_root(&fact) {
-            return Err(CommandError::new(
-                "source-changed",
-                "resource root changed before owner capture",
-            ));
-        }
-        if fact.owner_exists() {
+        if listing.members.iter().any(|entry| entry.name == id) {
             return Err(CommandError::new(
                 "resource-owner-present",
                 format!("resource owner still exists: {id}"),
             ));
         }
-        self.owner_facts.insert(id.to_owned(), fact);
         Ok(())
     }
     pub fn visible_owned(
@@ -119,9 +111,6 @@ impl ResourceContext<'_> {
     ) -> Result<Vec<String>, CommandError> {
         let mut files = Vec::new();
         collect_visible_files(self.root, owner_path, owner_path, &mut files)?;
-        if files.is_empty() {
-            self.bind_empty_owner(id, owner_path)?;
-        }
         Ok(files
             .into_iter()
             .map(|path| {
@@ -134,45 +123,12 @@ impl ResourceContext<'_> {
     }
 
     fn capture_owner_path(&mut self, id: &str) -> Result<Option<RelativePath>, CommandError> {
-        self.observed_owners.insert(id.to_owned());
         let Some(base) = &self.relative else {
             return Ok(None);
         };
-        let owner_component = RelativePath::new(id)
-            .map_err(|e| CommandError::new("candidate-resource-read-failed", e.to_string()))?;
-        let owner_fact = source::capture_resource_directories(self.root, base, &owner_component)
-            .map_err(|e| CommandError::new("candidate-resource-read-failed", e.to_string()))?;
-        if !self.root_fact.matches_owner_root(&owner_fact) {
-            return Err(CommandError::new(
-                "source-changed",
-                "resource root changed before owner capture",
-            ));
-        }
-        self.owner_facts.insert(id.to_owned(), owner_fact);
         let owner_path = RelativePath::new(base.as_path().join(id))
             .map_err(|e| CommandError::new("candidate-resource-read-failed", e.to_string()))?;
         Ok(Some(owner_path))
-    }
-
-    fn bind_empty_owner(
-        &mut self,
-        id: &str,
-        owner_path: &RelativePath,
-    ) -> Result<(), CommandError> {
-        let tree = source::inspect_selected_tree(self.root, owner_path, &[])
-            .map_err(|e| CommandError::new("candidate-resource-read-failed", e.to_string()))?;
-        if !self
-            .owner_facts
-            .get(id)
-            .is_some_and(|fact| fact.matches_selected_stat(&tree))
-        {
-            return Err(CommandError::new(
-                "source-changed",
-                "resource owner changed before selected stat",
-            ));
-        }
-        self.inspected.insert(format!("owner:{id}"), tree);
-        Ok(())
     }
 }
 

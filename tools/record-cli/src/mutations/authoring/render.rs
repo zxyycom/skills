@@ -10,7 +10,6 @@ pub(super) struct RenderInput<'a> {
 pub(super) struct Rendered {
     pub markdown: String,
     pub ready: domains::Readiness,
-    pub resource_evidence: Option<crate::resources::ResourceEvidence>,
 }
 enum CandidateFront {
     Decision(domains::decision::Frontmatter),
@@ -30,20 +29,15 @@ impl RenderInput<'_> {
                 Ok(Rendered {
                     markdown,
                     ready: parsed.readiness,
-                    resource_evidence: None,
                 })
             }
             CandidateFront::Investigation(front) => {
                 let (markdown, mut ready) =
                     investigation_document(front, &self.operation.id, self.source_path)?;
-                let (resource_ready, resource_evidence) =
+                let resource_ready =
                     owner_readiness(self.root, self.operation, self.listing.as_ref(), warnings)?;
                 ready.resource_ready = Some(resource_ready);
-                Ok(Rendered {
-                    markdown,
-                    ready,
-                    resource_evidence,
-                })
+                Ok(Rendered { markdown, ready })
             }
         }
     }
@@ -139,9 +133,9 @@ fn owner_readiness(
     operation: &NewOperation,
     listing: Option<&source::DirectorySnapshot>,
     warnings: &mut Vec<String>,
-) -> Result<(bool, Option<crate::resources::ResourceEvidence>), TxError> {
+) -> Result<bool, TxError> {
     let Some(listing) = listing else {
-        return Ok((true, None));
+        return Ok(true);
     };
     let directory = operation
         .collection
@@ -158,7 +152,7 @@ fn owner_readiness(
     for (id, _) in visible {
         warnings.push(format!("owner resource must be referenced: {id}"));
     }
-    Ok((ready, Some(ctx.into_evidence())))
+    Ok(ready)
 }
 
 fn resolve_target(ids: &HashSet<String>, selector: &str) -> Result<String, TxError> {

@@ -13,7 +13,6 @@ pub(super) struct WritePreparation<'a> {
 pub(super) struct Writes {
     pub final_index: index::ValidatedIndex<decision::DecisionState>,
     pub writes: Vec<WriteIntent>,
-    pub guards: Vec<Guard>,
     pub resources: Vec<ResourceIntent>,
 }
 struct ArchiveSource {
@@ -24,7 +23,6 @@ struct ArchiveSource {
 struct Proposal {
     next: index::IndexV4<decision::DecisionState>,
     writes: Vec<WriteIntent>,
-    guards: Vec<Guard>,
     resources: Vec<ResourceIntent>,
 }
 impl WritePreparation<'_> {
@@ -37,7 +35,6 @@ impl WritePreparation<'_> {
         let mut proposed = Proposal {
             next: self.baseline.index().clone(),
             writes: Vec::new(),
-            guards: Vec::new(),
             resources: Vec::new(),
         };
         for successor in successors {
@@ -51,7 +48,6 @@ impl WritePreparation<'_> {
         let Proposal {
             next,
             writes,
-            guards,
             resources,
         } = proposed;
         let final_index =
@@ -62,7 +58,6 @@ impl WritePreparation<'_> {
         Ok(Writes {
             final_index,
             writes,
-            guards,
             resources,
         })
     }
@@ -88,12 +83,7 @@ impl WritePreparation<'_> {
         before: ExpectedFile,
     ) -> Result<(), TxError> {
         let Self { operation, ids, .. } = self;
-        let Proposal {
-            next,
-            writes,
-            guards,
-            ..
-        } = proposed;
+        let Proposal { next, writes, .. } = proposed;
         let id = &successor.id;
         let ExpectedFile::Present(file) = &before else {
             unreachable!()
@@ -112,12 +102,6 @@ impl WritePreparation<'_> {
                 path: path(&operation.collection, &ids[id].path)?,
                 before,
                 after: Some(text.into_bytes()),
-                mode: None,
-            });
-        } else {
-            guards.push(Guard {
-                path: path(&operation.collection, &ids[id].path)?,
-                before,
             });
         }
         Ok(())
@@ -174,19 +158,15 @@ impl WritePreparation<'_> {
             source_revision::fingerprint(Domain::Decision, id, &target, &text),
         );
         next.entries.insert(id.to_owned(), state_after);
-        #[cfg(unix)]
-        let mode = file.identity.mode & 0o7777;
         writes.push(WriteIntent {
             path: path(&operation.collection, &target)?,
             before: target_before,
             after: Some(text.into_bytes()),
-            mode: Some(WriteMode::Exact(mode)),
         });
         writes.push(WriteIntent {
             path: path(&operation.collection, &state.source_path)?,
             before,
             after: None,
-            mode: None,
         });
         Ok(())
     }
@@ -253,7 +233,6 @@ impl WritePreparation<'_> {
             path: path(&operation.collection, &ids[id].path)?,
             before,
             after: None,
-            mode: None,
         });
         Ok(())
     }
