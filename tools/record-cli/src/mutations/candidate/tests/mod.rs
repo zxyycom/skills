@@ -25,3 +25,24 @@ fn allocates_canonical_domain_paths_and_rejects_conflicts() {
         Err(CandidatePlanError::IdentityConflict(id.id))
     );
 }
+
+#[test]
+fn identity_keeps_kebab_boundaries() {
+    for (id, valid) in [
+        ("a-12", true),
+        ("", false),
+        ("-a", false),
+        ("a-", false),
+        ("a--b", false),
+        ("A", false),
+        ("é", false),
+    ] {
+        let result = plan_creation(
+            Domain::Decision,
+            &CandidateIdentity { id: id.into() },
+            &HashSet::new(),
+            &HashSet::new(),
+        );
+        assert_eq!(result.is_ok(), valid, "{id}");
+    }
+}

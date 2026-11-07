@@ -33,14 +33,7 @@ pub fn plan_creation(
     occupied_paths: &HashSet<String>,
 ) -> Result<CandidatePlan, CandidatePlanError> {
     let id = &identity.id;
-    if id.is_empty()
-        || !id.split('-').all(|part| {
-            !part.is_empty()
-                && part
-                    .bytes()
-                    .all(|b| b.is_ascii_lowercase() || b.is_ascii_digit())
-        })
-    {
+    if !crate::domains::is_kebab(id) {
         return Err(CandidatePlanError::InvalidIdentity);
     }
     if visible_ids.contains(id) {

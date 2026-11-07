@@ -44,12 +44,12 @@ pub enum SelectedError<E> {
 /// Builds the full candidate index without reading or making claims about other
 /// current sources. `validate` must prove the combined graph and owner rules;
 /// metadata and its revision are deliberately not replaced by selected sync.
-pub fn project_selected<S: Clone + PartialEq, E>(
+pub fn project_selected<S: Clone + PartialEq, V, E>(
     baseline: &BTreeMap<String, Entry<S>>,
     updates: &[SelectedUpdate<S>],
     checked_dependencies: &[String],
-    validate: impl FnOnce(&BTreeMap<String, Entry<S>>) -> Result<(), E>,
-) -> Result<SelectedProjection<S>, SelectedError<E>> {
+    validate: impl FnOnce(&BTreeMap<String, Entry<S>>) -> Result<V, E>,
+) -> Result<(SelectedProjection<S>, V), SelectedError<E>> {
     if updates.is_empty() {
         return Err(SelectedError::EmptySelection);
     }
@@ -73,15 +73,18 @@ pub fn project_selected<S: Clone + PartialEq, E>(
             changed.push(update.id.clone());
         }
     }
-    validate(&entries).map_err(SelectedError::InvalidProjection)?;
+    let validated = validate(&entries).map_err(SelectedError::InvalidProjection)?;
     changed.sort_by(|a, b| a.encode_utf16().cmp(b.encode_utf16()));
     let mut checked_ids: Vec<_> = checked.into_iter().collect();
     checked_ids.sort_by(|a, b| a.encode_utf16().cmp(b.encode_utf16()));
-    Ok(SelectedProjection {
-        entries,
-        changed_ids: changed,
-        checked_ids,
-    })
+    Ok((
+        SelectedProjection {
+            entries,
+            changed_ids: changed,
+            checked_ids,
+        },
+        validated,
+    ))
 }
 
 fn validate_update<S, E>(
@@ -247,15 +250,10 @@ where
             )
         })
         .collect();
-    let mut built = None;
-    let projected = project_selected(&entries, updates, checked_dependencies, |combined| {
-        built = Some(validate_projection(original, domain, combined)?);
-        Ok(())
-    })?;
-    // The mandatory callback above is invoked exactly once before success.
-    let Some(index) = built else {
-        unreachable!("projection validator did not run")
-    };
+    let (projected, index) =
+        project_selected(&entries, updates, checked_dependencies, |combined| {
+            validate_projection(original, domain, combined)
+        })?;
     Ok(ValidatedSelectedProjection {
         index,
         changed_ids: projected.changed_ids,

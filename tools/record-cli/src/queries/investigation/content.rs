@@ -54,7 +54,11 @@ pub fn project_content(
         },
         &context.matcher,
         policy,
-        crate::domains::investigation::id_from_markdown,
+        |text| {
+            crate::domains::investigation::id_from_markdown(
+                text.strip_prefix('\u{feff}').unwrap_or(text),
+            )
+        },
     )?;
     let filters = context.filters(options)?;
     let presentation = search_info::content_presentation(

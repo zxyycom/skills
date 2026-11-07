@@ -210,17 +210,36 @@ fn indexed_source(
 ) -> Result<Option<Vec<u8>>, CheckError> {
     let path = RelativePath::new(dir.as_path().join(source_path))
         .map_err(|e| error("path-invalid", source_path, e.to_string()))?;
-    let ExpectedFile::Present(file) = source::capture(root, &path)
+    let Some(header) = source::capture_header(root, &path)
         .map_err(|e| error("source-read", source_path, e.to_string()))?
     else {
         return Ok(None);
     };
-    let text = source::strict_text(&file)
+    let text = std::str::from_utf8(&header.bytes)
         .map_err(|e| error("source-encoding", source_path, e.to_string()))?;
-    Ok(
-        (domains::investigation::id_from_markdown(text).as_deref() == Some(id))
-            .then_some(file.bytes),
-    )
+    if domains::investigation::id_from_markdown(text).as_deref() != Some(id) {
+        return Ok(None);
+    }
+    Ok(Some(capture_selected(root, &path, source_path, id)?))
+}
+
+fn capture_selected(
+    root: &Root,
+    path: &RelativePath,
+    name: &str,
+    id: &str,
+) -> Result<Vec<u8>, CheckError> {
+    let ExpectedFile::Present(file) =
+        source::capture(root, path).map_err(|e| error("source-read", name, e.to_string()))?
+    else {
+        return Err(error("source-changed", name, "source disappeared"));
+    };
+    let text =
+        source::strict_text(&file).map_err(|e| error("source-encoding", name, e.to_string()))?;
+    if domains::investigation::id_from_markdown(text).as_deref() != Some(id) {
+        return Err(error("source-changed", name, "source identity changed"));
+    }
+    Ok(file.bytes)
 }
 
 fn discover_unresolved(
@@ -252,35 +271,45 @@ fn discover_member(
     unresolved: &HashSet<String>,
     found: &mut FoundSources,
 ) -> Result<(), CheckError> {
-    if ignored_member(&member.name) {
+    if !is_source_member(&member)? {
         return Ok(());
     }
-    if member.kind != MemberKind::File
-        || !member
-            .name
-            .strip_suffix(".md")
-            .is_some_and(domains::is_kebab)
-    {
-        return Err(error(
-            "member-invalid",
-            member.name,
-            "unsafe Investigation source",
-        ));
-    }
-    let file = super::capture_member(root, dir, &member.name, &member)?;
-    let text = source::strict_text(&file)
-        .map_err(|e| error("source-encoding", &member.name, e.to_string()))?;
-    if let Some(id) = domains::investigation::id_from_markdown(text)
+    let (path, identity) = capture_member_identity(root, dir, &member.name)?;
+    if let Some(id) = identity
         && unresolved.contains(&id)
     {
         if found.contains_key(&id) {
             return Err(error("duplicate-id", member.name, id));
         }
-        found.insert(id, (member.name, file.bytes));
+        let bytes = capture_selected(root, &path, &member.name, &id)?;
+        found.insert(id, (member.name, bytes));
     }
     Ok(())
 }
 
-fn ignored_member(name: &str) -> bool {
-    name == "investigation-index.json" || name == "_resources" || name.starts_with("_candidate.")
+fn capture_member_identity(
+    root: &Root,
+    dir: &RelativePath,
+    name: &str,
+) -> Result<(RelativePath, Option<String>), CheckError> {
+    let path = RelativePath::new(dir.as_path().join(name))
+        .map_err(|e| error("path-invalid", name, e.to_string()))?;
+    let header = source::capture_header(root, &path)
+        .map_err(|e| error("source-read", name, e.to_string()))?
+        .ok_or_else(|| error("source-changed", name, "source disappeared"))?;
+    let text = std::str::from_utf8(&header.bytes)
+        .map_err(|e| error("source-encoding", name, e.to_string()))?;
+    Ok((path, domains::investigation::id_from_markdown(text)))
+}
+
+fn is_source_member(member: &source::DirectoryMember) -> Result<bool, CheckError> {
+    let name = &member.name;
+    if name == "investigation-index.json" || name == "_resources" || name.starts_with("_candidate.")
+    {
+        return Ok(false);
+    }
+    if member.kind == MemberKind::File && name.strip_suffix(".md").is_some_and(domains::is_kebab) {
+        return Ok(true);
+    }
+    Err(error("member-invalid", name, "unsafe Investigation source"))
 }

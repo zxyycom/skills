@@ -55,6 +55,7 @@ fn sync_selected(context: MutationContext<'_>, selectors: Vec<String>, preflight
         json,
         directory,
         root,
+        index_path,
         ..
     } = context;
     let mut operation =
@@ -73,7 +74,7 @@ fn sync_selected(context: MutationContext<'_>, selectors: Vec<String>, preflight
                 report_count: None,
                 failure_state: operation.observed_failure_state(),
                 selected_ids: operation.observed_selected_ids(),
-                index_path: "decision-index.json".into(),
+                index_path: index_path.as_path().to_string_lossy().replace('\\', "/"),
                 is_investigation: false,
             },
             result,
@@ -90,7 +91,7 @@ fn sync_selected(context: MutationContext<'_>, selectors: Vec<String>, preflight
                 report_count: None,
                 failure_state: operation.observed_failure_state(),
                 selected_ids: operation.observed_selected_ids(),
-                index_path: "decision-index.json".into(),
+                index_path: index_path.as_path().to_string_lossy().replace('\\', "/"),
                 is_investigation: false,
             },
             result,

@@ -85,3 +85,54 @@ fn private_fixture_preflight_and_committed_relation_then_unchanged() {
     assert!(result.errors.is_empty(), "{:?}", result.errors);
     assert!(!result.changed && !result.committed);
 }
+
+#[test]
+fn selector_failure_precedes_baseline_graph_failure() {
+    let dir = tempfile::tempdir().unwrap();
+    std::fs::create_dir(dir.path().join("investigations")).unwrap();
+    let mut source = state("same", "2026-08-28");
+    source.relations.push(crate::domains::Relation {
+        relation_type: "补充".into(),
+        target: "260827-missing".into(),
+        summary: None,
+    });
+    let hash = format!("sha256:{}", "a".repeat(64));
+    let index = build_index(
+        IndexV4 {
+            schema_version: 4,
+            namespace: "investigations".into(),
+            definition_version: 11,
+            metadata: serde_json::json!({}),
+            source_revision: Revision {
+                metadata: hash.clone(),
+                entries: BTreeMap::from([("260828-same".into(), hash)]),
+            },
+            entries: BTreeMap::from([("260828-same".into(), source)]),
+        },
+        &Definition,
+    )
+    .unwrap();
+    std::fs::write(
+        dir.path().join("investigations/investigation-index.json"),
+        serialize_index(&index, &Definition).unwrap(),
+    )
+    .unwrap();
+    let root = crate::source::open_root(dir.path()).unwrap();
+    let mut operation = SetRelationsOperation {
+        collection: RelativePath::new("investigations").unwrap(),
+        index_path: RelativePath::new("investigations/investigation-index.json").unwrap(),
+        groups: vec![RelationGroup {
+            source: "absent".into(),
+            relations: vec![],
+        }],
+    };
+    assert_eq!(
+        operation.prepare_phase(&root).err().unwrap().code,
+        "source-selector"
+    );
+    operation.groups[0].source = "same".into();
+    assert_eq!(
+        operation.prepare_phase(&root).err().unwrap().code,
+        "index-invalid"
+    );
+}

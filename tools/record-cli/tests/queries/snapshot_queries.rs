@@ -221,6 +221,16 @@ fn show_reads_selected_utf8_checks_identity_and_reports_stale_revision() {
             .warnings
             .is_empty()
     );
+    // The persisted fingerprint above includes the BOM; removing only that
+    // character must make the current source stale, not silently normalize it.
+    fs::write(&path, text.strip_prefix('\u{feff}').unwrap()).unwrap();
+    assert_eq!(
+        iq::show(&root, "docs/investigations", &current_snapshot, "one")
+            .unwrap()
+            .warnings
+            .len(),
+        1
+    );
     fs::write(&path, "---\ntitle: \"Wrong\"\nid: \"260101-other\"\n---\n").unwrap();
     assert!(iq::show(&root, "docs/investigations", &snapshot, "one").is_err());
     fs::write(&path, [0xff]).unwrap();

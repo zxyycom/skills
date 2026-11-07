@@ -6,6 +6,7 @@ Tests:
 - `test:7b59c6c796eaeea22265216147d09cb80753038008d9a74c377e6718eaf0767b`
 - `test:8a41b7470a7e30dcd63bb14599d1dfbf027f092e129a1c2c9f9c7fc07b1da52f`
 - `test:af98f1b451d118d106b5002c86e96299576f1daed9cb2c695437ddb5ff7d2d5e`
+- `test:c76591b189150aec4cae9de94bb1a6b681a11f38a1265bab90b317ac6a4c08dd`
 - `test:cb3719729c8cf2c45c7619caa51da8d712fcdef71bc1e97f72f57145d4c44eed`
 - `test:dd1eaa29b875a6ac01352d6e96cc1ed3da9ae3785ec0dd5a2ae8839be18b7edb`
 - `test:ddbd96e2d971a31fe060b1438e6a09f5cd2ba43f256b43680752bdb2a89a8c85`
@@ -19,3 +20,4 @@ Contract:
 
 Proves:
 - 双域 metadata 和内容搜索验证匹配证据、隐藏结果、UTF-16 预览、无效源和结构化错误。
+- 调查内容搜索容忍开头 BOM，并核对原始预览、位置和范围。

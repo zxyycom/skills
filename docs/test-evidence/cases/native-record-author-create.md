@@ -2,6 +2,7 @@
 
 Tests:
 - `test:2bd9b5fca5f4a1fd8ae31d268baaad2e09d63d193f0bbef80b49ca72b052434a`
+- `test:7500b8dda89a900dcfdce9ff9449f7e4c92a2f7653b35e6d252e8a8d67bf05fd`
 - `test:754788a0576242dabbf86395455864553d0087506d9fd07562364a9a2672a703`
 - `test:bbc0bb0002ae0f36e5116dc64f2c5952124cb70d96d1d636dc31cd72af350c4e`
 - `test:ca15550b11c85b8cc8feb14c2a72644a732ec1bc9433aa95e4caf54cf96f5332`
@@ -17,3 +18,4 @@ Contract:
 
 Proves:
 - 私有源验证两域首次创建、未就绪 scaffold、歧义、无效输入及既有资源保留。
+- 候选身份验证 kebab 格式的有效与无效边界。

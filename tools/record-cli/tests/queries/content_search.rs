@@ -311,3 +311,88 @@ fn investigation_trace_cli_selector_failure_identifies_selector_and_recovery() {
     );
     assert!(value["error"]["recovery"].is_string());
 }
+
+#[test]
+fn investigation_content_search_accepts_initial_bom_without_changing_search_text() {
+    use record_cli::queries::{
+        matcher::MatchMode,
+        options::{SearchOptions, SearchScope},
+    };
+    use std::fs;
+    let root = tempfile::tempdir().unwrap();
+    let dir = root.path().join("docs/investigations");
+    fs::create_dir_all(&dir).unwrap();
+    let bytes = fixture(
+        "investigations",
+        json!({"260101-one": investigation_state("one", "260101-one")}),
+    );
+    let path = dir.join("260101-one.md");
+    let snapshot = QuerySnapshot::new(parse_index(&bytes, &investigation::Definition).unwrap());
+    let handle = record_cli::source::open_root(root.path()).unwrap();
+    let options = SearchOptions {
+        text: "needle".into(),
+        scope: SearchScope::Content,
+        mode: MatchMode::Phrase,
+        tags: vec![],
+        relation: RelationFilter {
+            related_to: None,
+            direction: None,
+            relation_type: None,
+        },
+        limit: 1,
+    };
+    let search = || {
+        iq::project_content(
+            &handle,
+            "docs/investigations",
+            &snapshot,
+            &options,
+            iq::FormationRange {
+                from: None,
+                to: None,
+            },
+        )
+        .unwrap()
+    };
+    fs::write(
+        &path,
+        "\u{feff}---\ntitle: \"A title\"\nid: \"260101-one\"\n---\nneedle\n",
+    )
+    .unwrap();
+    let result = serde_json::to_value(search()).unwrap();
+    assert_eq!(
+        result["entries"][0]["previews"][1],
+        json!({"line":5,"column":1,"preview":"needle","ranges":[{"start":0,"end":6}]})
+    );
+    let delimiter_options = SearchOptions {
+        text: "---".into(),
+        ..options.clone()
+    };
+    let delimiter_result = serde_json::to_value(
+        iq::project_content(
+            &handle,
+            "docs/investigations",
+            &snapshot,
+            &delimiter_options,
+            iq::FormationRange {
+                from: None,
+                to: None,
+            },
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    assert_eq!(
+        delimiter_result["entries"][0]["previews"][0],
+        json!({"line":1,"column":2,"preview":"\u{feff}---","ranges":[{"start":1,"end":4}]})
+    );
+    fs::write(
+        &path,
+        "---\ntitle: \"A title\"\nid: \"260101-one\"\n---\nneedle\n",
+    )
+    .unwrap();
+    assert_eq!(
+        serde_json::to_value(search()).unwrap()["entries"][0]["previews"][1],
+        result["entries"][0]["previews"][1]
+    );
+}

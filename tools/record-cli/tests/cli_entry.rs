@@ -203,3 +203,128 @@ fn identity_failure_reports_prepared_plan_separately_from_actual_writes() {
     assert!(response["result"].get("oldId").is_none());
     assert!(response["result"].get("verification").is_none());
 }
+
+#[test]
+fn mutation_help_matches_each_domain_and_parser() {
+    let decision = env!("CARGO_BIN_EXE_decision-records");
+    let investigation = env!("CARGO_BIN_EXE_investigation-report");
+    for (binary, command, expected, absent) in [
+        (
+            decision,
+            "publish",
+            "SELECTOR --alignment aligned|unaligned",
+            "SELECTOR...",
+        ),
+        (
+            investigation,
+            "publish",
+            "SELECTOR... [--preflight]",
+            "--alignment",
+        ),
+        (
+            decision,
+            "discard",
+            "SELECTOR [--delete-recorded]",
+            "--delete-owned-resources",
+        ),
+        (
+            investigation,
+            "discard",
+            "[--delete-owned-resources]",
+            "--alignment",
+        ),
+    ] {
+        let output = Command::new(binary)
+            .args(["help", command])
+            .output()
+            .unwrap();
+        assert_eq!(output.status.code(), Some(0));
+        let text = String::from_utf8(output.stdout).unwrap();
+        assert!(text.contains(expected), "{text}");
+        assert!(!text.contains(absent), "{text}");
+    }
+    let root = tempfile::tempdir().unwrap();
+    for (binary, args, accepted) in [
+        (
+            decision,
+            vec!["publish", "one", "--alignment", "aligned"],
+            true,
+        ),
+        (decision, vec!["publish", "one"], false),
+        (
+            decision,
+            vec!["publish", "one", "two", "--alignment", "aligned"],
+            false,
+        ),
+        (investigation, vec!["publish", "one", "two"], true),
+        (
+            investigation,
+            vec!["publish", "one", "--alignment", "aligned"],
+            false,
+        ),
+        (
+            decision,
+            vec!["discard", "one", "--delete-owned-resources"],
+            false,
+        ),
+        (
+            investigation,
+            vec!["discard", "one", "--delete-owned-resources"],
+            true,
+        ),
+    ] {
+        let output = Command::new(binary)
+            .args(args)
+            .args(["--root", root.path().to_str().unwrap(), "--json"])
+            .output()
+            .unwrap();
+        let response: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert_eq!(response["ok"], false, "{response}");
+        assert_eq!(
+            response["error"]["code"],
+            if accepted {
+                "collection"
+            } else {
+                "invalid-arguments"
+            },
+            "{response}"
+        );
+    }
+}
+
+#[test]
+fn selected_decision_sync_failure_reports_configured_index_path() {
+    let root = tempfile::tempdir().unwrap();
+    for (directory, expected) in [
+        (None, "docs/decisions/decision-index.json"),
+        (
+            Some("custom/decisions"),
+            "custom/decisions/decision-index.json",
+        ),
+    ] {
+        for preflight in [false, true] {
+            let mut cmd = Command::new(env!("CARGO_BIN_EXE_decision-records"));
+            cmd.args([
+                "sync-index",
+                "--select",
+                "missing",
+                "--root",
+                root.path().to_str().unwrap(),
+                "--json",
+            ]);
+            if let Some(directory) = directory {
+                cmd.args(["--decisions-dir", directory]);
+            }
+            if preflight {
+                cmd.arg("--preflight");
+            }
+            let output = cmd.output().unwrap();
+            assert_eq!(output.status.code(), Some(1));
+            let response: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+            assert_eq!(
+                response["result"]["indexRelativePath"], expected,
+                "{response}"
+            );
+        }
+    }
+}

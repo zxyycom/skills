@@ -179,14 +179,7 @@ fn lifecycle_path(
     let name = basename
         .strip_suffix(".md")
         .ok_or_else(|| LifecyclePlanError::InvalidSourcePath(record.source_path.clone()))?;
-    if name.is_empty()
-        || !name.split('-').all(|part| {
-            !part.is_empty()
-                && part
-                    .bytes()
-                    .all(|b| b.is_ascii_lowercase() || b.is_ascii_digit())
-        })
-    {
+    if !crate::domains::is_kebab(name) {
         return Err(LifecyclePlanError::InvalidSourcePath(
             record.source_path.clone(),
         ));

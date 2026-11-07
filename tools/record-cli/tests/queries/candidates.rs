@@ -234,6 +234,7 @@ fn investigation_candidate_shared_resource_requires_owner_direct_reference() {
     );
 }
 
+#[cfg(unix)]
 #[test]
 fn investigation_candidate_referenced_symlink_is_a_resource_issue() {
     use std::{fs, process::Command};
@@ -243,7 +244,6 @@ fn investigation_candidate_referenced_symlink_is_a_resource_issue() {
     fs::create_dir_all(&owner).unwrap();
     let text = "---\ntitle: \"A title\"\nid: \"260101-one\"\nformedAt: \"2026-01-01T00:00:00Z\"\nquestion: \"A question\"\ntags:\n  - \"topic\"\nrelations: []\n---\n\n## 形成时背景\n背景\n\n## 调查目的\n目的\n\n## 调查范围与依据\n范围\n\n## 调查结果与边界\n结果\n\n## 随附资源\n- [证据](./_resources/260101-one/evidence.txt)\n";
     fs::write(dir.join("_candidate.260101-one"), text).unwrap();
-    #[cfg(unix)]
     std::os::unix::fs::symlink("/etc/passwd", owner.join("evidence.txt")).unwrap();
     assert!(
         Command::new("git")

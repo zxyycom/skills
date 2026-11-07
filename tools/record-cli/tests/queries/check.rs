@@ -128,3 +128,36 @@ fn investigation_check_cli_reports_unsupported_surrogate_in_source() {
     assert!(diag["path"].as_str().unwrap().ends_with("260101-one.md"));
     assert!(diag["recovery"].is_string());
 }
+
+#[test]
+fn investigation_bom_remains_invalid_for_formal_check_and_sync() {
+    use std::{fs, process::Command};
+    let root = tempfile::tempdir().unwrap();
+    let dir = root.path().join("docs/investigations");
+    fs::create_dir_all(&dir).unwrap();
+    let source = include_str!(
+        "../../../investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md"
+    );
+    let path = dir.join("same.md");
+    let run = |command: &str| {
+        Command::new(env!("CARGO_BIN_EXE_investigation-report"))
+            .args([command, "--json", "--root", root.path().to_str().unwrap()])
+            .output()
+            .unwrap()
+    };
+    fs::write(&path, format!("\u{feff}{source}")).unwrap();
+    for command in ["check", "sync-index"] {
+        let output = run(command);
+        assert!(!output.status.success(), "{command} accepted a BOM source");
+        let value: Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert_eq!(value["ok"], false);
+    }
+    assert!(!dir.join("investigation-index.json").exists());
+    assert_eq!(
+        fs::read_to_string(&path).unwrap(),
+        format!("\u{feff}{source}")
+    );
+    fs::write(&path, source).unwrap();
+    assert!(run("sync-index").status.success());
+    assert!(run("check").status.success());
+}

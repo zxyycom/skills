@@ -48,6 +48,11 @@ fn help_arguments(domain: Domain, command: &str) -> &'static str {
         ("check", None, ""),
         (
             "discard",
+            Some(Domain::Decision),
+            "SELECTOR [--delete-recorded]",
+        ),
+        (
+            "discard",
             None,
             "SELECTOR [--delete-recorded] [--delete-owned-resources]",
         ),
@@ -74,9 +79,10 @@ fn help_arguments(domain: Domain, command: &str) -> &'static str {
         ),
         (
             "publish",
-            None,
-            "SELECTOR... [--alignment aligned|unaligned] [--keep-unrecorded-history] [--preflight]",
+            Some(Domain::Decision),
+            "SELECTOR --alignment aligned|unaligned [--keep-unrecorded-history] [--preflight]",
         ),
+        ("publish", None, "SELECTOR... [--preflight]"),
         (
             "reactivate",
             None,

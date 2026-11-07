@@ -1,6 +1,7 @@
 ### Case NATIVE-RECORD-QUERY-CHECK-001: 双域检查的诊断与覆盖范围
 
 Tests:
+- `test:145106546a800024535d44b7a516d6aaf5e3b681c8b7e78a4b2151bec80cd8c4`
 - `test:17fc9af448c7eba1839b8e6356d23dcf4151a2c02ea4b6ca38f2b02b40f39b28`
 - `test:398e9d0f7d82933d4600f613a50fa29cf9016eccf39ca0dc81e15d0e6d53b0be`
 - `test:45bcc3e6a72baeb54b20a069f8ed5b66bac8984524604a227343fae706f8a1b1`
@@ -14,3 +15,4 @@ Contract:
 
 Proves:
 - 真实 CLI 与私有源分别核对诊断聚合、索引差异和非法字符输入。
+- 调查正式 check 与 sync 拒绝 BOM 来源且不创建索引或改写源；无 BOM 来源可同步和检查。

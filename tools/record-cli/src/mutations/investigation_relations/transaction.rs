@@ -8,9 +8,23 @@ pub fn capture_plan(
     index_path: &crate::source::RelativePath,
     review: &[SourceReview<InvestigationRelationKind>],
 ) -> Result<crate::transaction::Plan<PreparedReplacement>, crate::transaction::TxError> {
+    let (index_before, baseline) = capture_baseline(root, index_path)?;
+    prepare_captured_plan(root, collection, review, index_before, baseline)
+}
+
+pub(in crate::mutations) fn prepare_captured_plan(
+    root: &crate::source::Root,
+    collection: &crate::source::RelativePath,
+    review: &[SourceReview<InvestigationRelationKind>],
+    index_before: crate::source::SourceSnapshot,
+    baseline: crate::index::ValidatedIndex<crate::domains::investigation::InvestigationState>,
+) -> Result<crate::transaction::Plan<PreparedReplacement>, crate::transaction::TxError> {
     use crate::transaction::{CommitPoint, Plan, TxError, WriteIntent};
     let fail = |code: &str, message: String| TxError::new(code, message);
-    let (index_before, baseline) = capture_baseline(root, index_path)?;
+    let check = crate::index::QuerySnapshot::new(baseline.clone());
+    check
+        .graph(&crate::domains::investigation::Definition)
+        .map_err(|e| fail("index-invalid", e.to_string()))?;
     let CapturedSources { snapshots, sources } =
         capture_sources(root, collection, &baseline, review)?;
     let prepared = prepare_replacements(&baseline, review, &sources)
@@ -24,12 +38,13 @@ pub fn capture_plan(
             &crate::domains::investigation::Definition,
         )
         .map_err(|e| fail("index-serialize", e.to_string()))?;
+        let index_path = index_before.path.clone();
         writes.push(WriteIntent {
             path: index_path.clone(),
-            before: index_before,
+            before: crate::source::ExpectedFile::Present(index_before),
             after: Some(next),
         });
-        CommitPoint::PublishedIndex(index_path.clone())
+        CommitPoint::PublishedIndex(index_path)
     };
     Ok(Plan {
         value: prepared,
@@ -44,7 +59,7 @@ fn capture_baseline(
     index_path: &crate::source::RelativePath,
 ) -> Result<
     (
-        crate::source::ExpectedFile,
+        crate::source::SourceSnapshot,
         crate::index::ValidatedIndex<crate::domains::investigation::InvestigationState>,
     ),
     crate::transaction::TxError,
@@ -52,7 +67,7 @@ fn capture_baseline(
     use crate::source::{ExpectedFile, capture};
     let fail = |code: &str, message: String| crate::transaction::TxError::new(code, message);
     let index_before = capture(root, index_path).map_err(|e| fail("index-read", e.to_string()))?;
-    let ExpectedFile::Present(index_snapshot) = &index_before else {
+    let ExpectedFile::Present(index_snapshot) = index_before else {
         return Err(fail(
             "index-missing",
             "published Investigation index is missing".into(),
@@ -63,11 +78,7 @@ fn capture_baseline(
         &crate::domains::investigation::Definition,
     )
     .map_err(|e| fail("index-invalid", e.to_string()))?;
-    let check = crate::index::QuerySnapshot::new(baseline.clone());
-    check
-        .graph(&crate::domains::investigation::Definition)
-        .map_err(|e| fail("index-invalid", e.to_string()))?;
-    Ok((index_before, baseline))
+    Ok((index_snapshot, baseline))
 }
 
 struct CapturedSource {

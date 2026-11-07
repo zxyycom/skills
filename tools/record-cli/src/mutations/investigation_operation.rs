@@ -45,18 +45,19 @@ impl SetRelationsOperation {
         }
         let first =
             capture(root, &self.index_path).map_err(|e| failure("index-read", e.to_string()))?;
-        let ExpectedFile::Present(snapshot) = &first else {
+        let ExpectedFile::Present(snapshot) = first else {
             return Err(failure("index-missing", "published index is missing"));
         };
         let baseline =
             crate::index::parse_index(&snapshot.bytes, &crate::domains::investigation::Definition)
                 .map_err(|e| failure("index-invalid", e.to_string()))?;
         let review = review::resolve_review(&baseline, &self.groups)?;
-        let plan = investigation_relations::capture_plan(
+        let plan = investigation_relations::prepare_captured_plan(
             root,
             &self.collection,
-            &self.index_path,
             &review,
+            snapshot,
+            baseline,
         )?;
         Ok(plan)
     }

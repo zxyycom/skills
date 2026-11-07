@@ -13,8 +13,10 @@ unicode-normalization = "0.1"
 unicode-segmentation = "1"
 yaml-rust2 = "0.10"
 time = { version = "0.3", features = ["parsing", "formatting"] }
-libc = "0.2"
 cap-std = "4.0.3"
 cap-fs-ext = "4.0.3"
 
 tempfile = "3"
+
+[target.'cfg(unix)'.dev-dependencies]
+libc = "0.2"

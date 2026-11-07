@@ -80,6 +80,7 @@ pub fn render_replacements(
 
 mod transaction;
 pub use transaction::capture_plan;
+pub(super) use transaction::prepare_captured_plan;
 
 #[cfg(test)]
 mod tests;
@@ -220,6 +221,7 @@ pub enum NormalizeError {
 pub fn normalize_relations(
     relations: &[Relation<InvestigationRelationKind>],
 ) -> Result<Vec<Relation<InvestigationRelationKind>>, NormalizeError> {
+    use crate::domains::JsTrim;
     use std::collections::HashSet;
     let mut seen = HashSet::new();
     let mut normalized = Vec::with_capacity(relations.len());
@@ -229,7 +231,7 @@ pub fn normalize_relations(
         }
         let summary = match &relation.summary {
             Some(value) => {
-                let trimmed = value.trim_matches(|c: char| matches!(c, '\u{0009}'..='\u{000d}' | '\u{0020}' | '\u{00a0}' | '\u{1680}' | '\u{2000}'..='\u{200a}' | '\u{2028}' | '\u{2029}' | '\u{202f}' | '\u{205f}' | '\u{3000}' | '\u{feff}'));
+                let trimmed = value.js_trim();
                 if value.contains(['\r', '\n']) || trimmed.chars().count() > 40 {
                     return Err(NormalizeError::InvalidSummary(relation.target.clone()));
                 }

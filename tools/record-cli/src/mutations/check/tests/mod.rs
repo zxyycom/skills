@@ -265,3 +265,105 @@ fn independent_bad_sources_are_aggregated_with_partial_coverage() {
     assert_eq!(selected.diagnostics.len(), 2);
     assert_eq!(selected.partial.unwrap().scope, "selected-partial");
 }
+
+#[test]
+fn investigation_selected_discovery_limits_decoding_to_identity_headers_and_selected_body() {
+    let dir = tempfile::tempdir().unwrap();
+    let collection = dir.path().join("investigations");
+    std::fs::create_dir(&collection).unwrap();
+    let selected = include_str!(
+        "../../../../../investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md"
+    );
+    let selected_path = collection.join("same.md");
+    std::fs::write(&selected_path, selected).unwrap();
+    let unrelated = collection.join("other.md");
+    std::fs::write(
+        &unrelated,
+        b"---\ntitle: \"Other\"\nid: \"260828-other\"\n---\n\xff",
+    )
+    .unwrap();
+    let root = source::open_root(dir.path()).unwrap();
+    let ids = ["260828-same".into()];
+    for index in [None, Some(b"invalid index".as_slice())] {
+        if let Some(bytes) = index {
+            std::fs::write(collection.join("investigation-index.json"), bytes).unwrap();
+        }
+        let result = investigation(&root, "investigations", &ids).unwrap();
+        assert_eq!(result.scope, "selected");
+        assert_eq!(result.index_checked, Some(false));
+    }
+    std::fs::write(&selected_path, [selected.as_bytes(), b"\xff"].concat()).unwrap();
+    assert_eq!(
+        investigation(&root, "investigations", &ids)
+            .unwrap_err()
+            .code,
+        "source-encoding"
+    );
+    std::fs::write(&selected_path, selected).unwrap();
+    std::fs::write(&unrelated, selected).unwrap();
+    assert_eq!(
+        investigation(&root, "investigations", &ids)
+            .unwrap_err()
+            .code,
+        "duplicate-id"
+    );
+    std::fs::write(&unrelated, b"---\ntitle: \xff\nid: \"260828-other\"\n---\n").unwrap();
+    assert_eq!(
+        investigation(&root, "investigations", &ids)
+            .unwrap_err()
+            .code,
+        "source-encoding"
+    );
+    std::fs::remove_file(&unrelated).unwrap();
+    std::fs::create_dir(&unrelated).unwrap();
+    assert_eq!(
+        investigation(&root, "investigations", &ids)
+            .unwrap_err()
+            .code,
+        "member-invalid"
+    );
+}
+
+#[test]
+fn investigation_selected_moved_index_locator_does_not_decode_other_body() {
+    let dir = tempfile::tempdir().unwrap();
+    let collection = dir.path().join("investigations");
+    std::fs::create_dir(&collection).unwrap();
+    let text = include_str!(
+        "../../../../../investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md"
+    );
+    let id = "260828-same";
+    let state = domains::investigation::parse_established(text.as_bytes(), id, "old.md")
+        .unwrap()
+        .state;
+    let projection = IndexV4 {
+        schema_version: 4,
+        namespace: "investigations".into(),
+        definition_version: 11,
+        metadata: serde_json::json!({}),
+        source_revision: Revision {
+            metadata: source_revision::metadata_fingerprint(Domain::Investigation),
+            entries: BTreeMap::from([(
+                id.into(),
+                source_revision::fingerprint(Domain::Investigation, id, "old.md", text),
+            )]),
+        },
+        entries: BTreeMap::from([(id.into(), state)]),
+    };
+    let index = crate::index::build_index(projection, &domains::investigation::Definition).unwrap();
+    std::fs::write(
+        collection.join("investigation-index.json"),
+        crate::index::serialize_index(&index, &domains::investigation::Definition).unwrap(),
+    )
+    .unwrap();
+    std::fs::write(
+        collection.join("old.md"),
+        b"---\ntitle: \"Other\"\nid: \"260828-other\"\n---\n\xff",
+    )
+    .unwrap();
+    std::fs::write(collection.join("new.md"), text).unwrap();
+    let root = source::open_root(dir.path()).unwrap();
+    let result = investigation(&root, "investigations", &[id.into()]).unwrap();
+    assert_eq!(result.scope, "selected");
+    assert_eq!(result.index_checked, Some(false));
+}

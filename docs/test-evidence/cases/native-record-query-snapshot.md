@@ -19,3 +19,4 @@ Contract:
 
 Proves:
 - 固定索引和源验证 list facets、show 身份及过期状态、事件预算和两域输出。
+- 调查 show 保留开头 BOM 原文，以含 BOM 的指纹核对是否过期。

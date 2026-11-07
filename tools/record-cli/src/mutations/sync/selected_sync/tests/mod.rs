@@ -11,7 +11,7 @@ fn selected_change_keeps_unread_baseline_and_reports_only_observed_coverage() {
         ("a".into(), entry(1, "a1")),
         ("unread".into(), entry(2, "old")),
     ]);
-    let projected = project_selected(
+    let (projected, ()) = project_selected(
         &baseline,
         &[SelectedUpdate {
             id: "a".into(),
@@ -41,7 +41,7 @@ fn deletion_and_rename_require_explicit_selection_and_valid_combined_graph() {
             located_from: Some("old".into()),
         },
     ];
-    let projection = project_selected(&baseline, &updates, &[], |_| Ok::<_, ()>(())).unwrap();
+    let (projection, ()) = project_selected(&baseline, &updates, &[], |_| Ok::<_, ()>(())).unwrap();
     assert_eq!(projection.changed_ids, vec!["new", "old"]);
     assert_eq!(
         project_selected(
@@ -59,7 +59,7 @@ fn deletion_and_rename_require_explicit_selection_and_valid_combined_graph() {
         ))
     );
     assert_eq!(
-        project_selected(&baseline, &updates, &[], |_| Err("bad graph")),
+        project_selected(&baseline, &updates, &[], |_| Err::<(), _>("bad graph")),
         Err(SelectedError::InvalidProjection("bad graph"))
     );
     assert_eq!(
