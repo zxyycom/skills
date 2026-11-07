@@ -281,7 +281,10 @@ fn cli_publish_rejects_read_only_source_without_data_loss() {
     let json: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
     assert_eq!(json["ok"], false);
     assert_eq!(json["result"]["committed"], false);
-    assert!(!json["diagnostics"].as_array().unwrap().is_empty());
+    assert!(
+        json["diagnostics"].to_string().contains("read-only"),
+        "{json}"
+    );
     assert_eq!(std::fs::read_to_string(source).unwrap(), original);
     assert!(!c.join("decision-index.json").exists());
 }
@@ -307,7 +310,7 @@ fn cli_publish_write_failure_preserves_existing_source() {
         ])
         .arg(dir.path())
         .args(["--decisions-dir", "decisions", "--json"]);
-    // Fail regular-file writes while leaving the JSON output pipe usable.
+    // Fail the recovery backup write before source publication, while leaving JSON usable.
     unsafe {
         command.pre_exec(|| {
             libc::signal(libc::SIGXFSZ, libc::SIG_IGN);
@@ -330,6 +333,7 @@ fn cli_publish_write_failure_preserves_existing_source() {
     );
     let json: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
     assert_eq!(json["ok"], false);
+    assert_eq!(json["error"]["code"], "backup-write");
     assert_eq!(json["result"]["committed"], false);
     assert!(!json["diagnostics"].as_array().unwrap().is_empty());
     assert_eq!(std::fs::read_to_string(source).unwrap(), original);

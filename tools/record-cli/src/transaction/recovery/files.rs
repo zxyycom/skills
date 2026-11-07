@@ -39,20 +39,15 @@ pub(super) fn restore_removed(root: &Root, before: &SourceSnapshot) -> Result<()
     })
 }
 
-// A failed ordinary-file restoration retains precise unknown paths and recreated identities.
-pub(super) struct FileRecovery {
-    pub restored: bool,
-    pub recreated: std::collections::HashSet<RelativePath>,
-}
+// A failed ordinary-file restoration retains precise unknown paths.
 pub(super) fn restore_entries<T>(
     root: &Root,
     plan: &Plan<T>,
     journal: &[Entry],
     outcome: &mut TransactionOutcome<T>,
     unknown: bool,
-) -> FileRecovery {
+) -> bool {
     let mut restored = !unknown;
-    let mut recreated = std::collections::HashSet::new();
     for entry in journal.iter().rev() {
         // An unknown deletion may already have removed the old name;
         // retaining the new name is safer than undoing the only copy.
@@ -76,8 +71,6 @@ pub(super) fn restore_entries<T>(
                         format!("{}: {}", before.path.as_path().display(), error.message),
                     ));
                     break;
-                } else {
-                    recreated.insert(before.path.clone());
                 }
                 continue;
             }
@@ -85,10 +78,7 @@ pub(super) fn restore_entries<T>(
         restored &= restore_written(root, &plan.writes[*index].before, written, outcome);
     }
 
-    FileRecovery {
-        restored,
-        recreated,
-    }
+    restored
 }
 
 fn restore_written<T>(

@@ -59,9 +59,11 @@ Rust 记录 CLI 候选简化文件与事务层：普通更新改为临时文件�
 
 结果只证明此环境、规模和两个正常操作以及一个静态冲突；不证明非合作进程竞争下的跨文件隔离、故障恢复、所有路径或 Windows 行为，也不证明实际发布或生产切换。记录的是离线候选和私有数据，不是基准 SLA。若需性能分布，应在稳定版本按独立新进程、至少每臂每场景 20 次、随机交错和每次重置 fixture 另做实验。
 
+归档的测量脚本后续仅作等义可读性整理；历史结果绑定形成时版本，不表示当前文件字节曾用于采样。
+
 ## 随附资源
 
 - [基线原始数据](./_resources/261107-rust-record-transaction-io/baseline.jsonl)
 - [校准原始数据](./_resources/261107-rust-record-transaction-io/calibration.json)
 - [最终原始数据](./_resources/261107-rust-record-transaction-io/final.jsonl)
-- [当时测量脚本](./_resources/261107-rust-record-transaction-io/measure.py)
+- [测量脚本](./_resources/261107-rust-record-transaction-io/measure.py)

@@ -21,7 +21,7 @@ bun run check -- --scope record-rust
 
 [共同原生候选决策](../../docs/decisions/261106-isolate-shared-native-record-candidate.md)记录方向和理由；该决策的对齐状态以决策记录为准。领域规则和现行操作分别由 [Decision Records](../../skills/decision-records/SKILL.md)、[Investigation Report](../../skills/investigation-report/SKILL.md) 承接；[共同操作模型](../record-operations/model.md)定义共享事务责任。共享代码负责安全来源、索引、Git 和事务，领域代码各自负责解析、身份、关系与生命周期。索引 schema 真源仍为 `tools/index-runtime/src/schemas.ts` 和各领域 index definition；Rust 类型与生成的 JSON Schema 都不是取代领域规则的真源。
 
-[候选机器协议](protocol.md)承接 JSON 通道、两域 trace 例外、逐命令结果和恢复事实，及[文件事务边界](protocol.md#文件与事务边界)；调用者不得把目标契约当作实际验收证据。
+[候选机器协议](protocol.md)承接 JSON 通道、两域 trace 例外、逐命令结果与恢复事实，并定义[文件事务边界](protocol.md#文件与事务边界)；调用者不得把目标契约当作实际验收证据。
 
 预检不保存执行凭据；正式执行重新准备，fresh 和写后验收独立采集。未知写入或恢复事实不能报作成功回滚。stage 只有在可证明历史为空时才能采用空基线：缺失 DR HEAD 索引且路径无法区分候选与正式记录时应停止并恢复可信基线，不读取未选正文推定身份。安全与竞争保证以真实平台及测试证据为限，不承诺对非合作进程的跨文件原子隔离。
 

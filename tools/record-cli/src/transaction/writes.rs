@@ -104,9 +104,19 @@ impl WriteJournal {
     }
     fn verify_prior_writes(&self, root: &Root, write: &WriteIntent) -> Result<(), TxError> {
         // Never remove an old copy after an earlier actual write has drifted.
-        if self.entries.iter().any(|entry| matches!(entry, Entry::Written(_, snapshot) if !matches!(capture(root, &snapshot.path), Ok(ExpectedFile::Present(current)) if crate::source::same_content_and_mode(&current, snapshot)))) {
-                    return Err(TxError::new("write-changed-before-exit", format!("prior write changed before removing {}", write.path.as_path().display())));
-                }
+        for entry in &self.entries {
+            if let Entry::Written(_, snapshot) = entry
+                && !matches!(capture(root, &snapshot.path), Ok(ExpectedFile::Present(current)) if crate::source::same_content_and_mode(&current, snapshot))
+            {
+                return Err(TxError::new(
+                    "write-changed-before-exit",
+                    format!(
+                        "prior write changed before removing {}",
+                        write.path.as_path().display()
+                    ),
+                ));
+            }
+        }
         Ok(())
     }
     fn remove<T, O: TransactionOperation<T>>(

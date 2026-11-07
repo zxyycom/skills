@@ -31,10 +31,7 @@ impl<T, O: TransactionOperation<T>> Recovery<'_, '_, T, O> {
     }
     // Recover actual file effects first, then resources and the complete original scope.
     fn recover_before_commit(&mut self) {
-        let files::FileRecovery {
-            mut restored,
-            recreated,
-        } = files::restore_entries(
+        let mut restored = files::restore_entries(
             self.root,
             self.plan,
             &self.writes.entries,
@@ -45,7 +42,7 @@ impl<T, O: TransactionOperation<T>> Recovery<'_, '_, T, O> {
             restored = recover_resources(self.root, self.resource_journal, self.outcome);
         }
         if restored {
-            let errors = verify_original_scope(self.root, self.plan, &recreated);
+            let errors = verify_original_scope(self.root, self.plan);
             restored = errors.is_empty();
             self.outcome.cleanup_errors.extend(errors);
         }
@@ -95,12 +92,8 @@ fn recover_resources<T>(
     restored
 }
 
-// Recreated files may have new identity; bytes, mode, and parent chain must still match.
-fn verify_original_scope<T>(
-    root: &Root,
-    plan: &Plan<T>,
-    _recreated: &std::collections::HashSet<RelativePath>,
-) -> Vec<Diagnostic> {
+// Verify the original scope by content and mode, independent of file identity.
+fn verify_original_scope<T>(root: &Root, plan: &Plan<T>) -> Vec<Diagnostic> {
     let mut errors = Vec::new();
     for (path, expected) in protected_sources(plan) {
         let matches_original = match capture(root, path) {

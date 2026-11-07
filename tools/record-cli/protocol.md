@@ -39,7 +39,7 @@ selected sync 和 stage 的多个 selector 诊断保留各自有序的 `target`�
 
 ## 文件与事务边界
 
-本节定义当前 Rust 候选的文件与事务契约，对应[候选文件保障决策](../../docs/decisions/261107-rust-record-candidate-cooperative-file-safety.md)；实现与测试证据以实际 revision 和 Linux 环境为限，不外推 Windows 或其他平台。候选仍只用于私有 fixture，不操作真实记录。生产 TypeScript 不随候选改变，其保障见[共同操作维护](../record-operations/README.md)。
+本节定义当前 Rust 候选面向合作型本地单用户 CLI 的文件与事务契约，对应[候选文件保障决策](../../docs/decisions/261107-rust-record-candidate-cooperative-file-safety.md)；实现与测试证据以实际 revision 和 Linux 环境为限，不外推 Windows 或其他平台。候选仍只用于私有 fixture，不操作真实记录。生产 TypeScript 不随候选改变，其保障见[共同操作维护](../record-operations/README.md)。
 
 - **更新与新建**：持合作锁，在受管路径核对完整内容与普通权限；内容或权限变化为冲突，同内容同权限的 inode 变化可接受。普通更新在同目录独占创建临时文件，完整写入并设置权限后再次比较，原子替换并回读字节与权限。最后比较到 rename 之间仍有非合作编辑竞争窗口，不是 CAS；普通编辑器也可能原子替换。新建直接独占创建，不能覆盖竞争者；普通候选创建在写入并回读验证后提交。已知替换或创建发生时记录实际写入；替换结果无法确认或回读失败时报告未知，不把 `changed: false` 当成零变化的证明。
 - **路径、权限与硬链接**：保留根内目录链接规则，最终文件和资源树成员链接不跟随，越界或不能安全判定时拒绝；只读目标拒绝，不因目录可写绕过。写集内硬链接别名拒绝；写集外硬链接继续指向旧内容。特殊属性、ACL 与 Windows 全属性保真不作承诺。
