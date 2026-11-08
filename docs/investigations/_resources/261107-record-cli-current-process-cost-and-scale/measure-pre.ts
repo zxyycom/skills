@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
+import {readFile,writeFile,appendFile,unlink} from 'node:fs/promises';
+import path from 'node:path';
+import {scenarios,verifyQuery,oldCli,executable} from '/workspace/skills/tools/record-cli/benchmarks/verify.ts';
+import {treeHash,digest,dependencyEntries} from '/workspace/skills/tools/record-cli/benchmarks/identity.ts';
+const base='/workspace/skills/dist/record-benchmarks/perf-261107-main', repo='/workspace/skills', assets='/workspace/skills/dist/record-cli-perf-261107-main/assets';
+const spec=[
+ ...[32,250,1200].flatMap(n=>['list','search-metadata','search-content'].map(name=>({key:`ir-${name}-${n}`,n,name,domain:'investigations',fixture:`n${n}`,width:n===32?4:8,depth:n===32?4:8}))),
+ ...[32,1200].map(n=>({key:`dr-list-${n}`,n,name:'list',domain:'decisions',fixture:`n${n}`,width:n===32?4:8,depth:n===32?4:8})),
+ ...[{width:8,fixture:'n250'},{width:40,fixture:'width40'}].map(x=>({key:`ir-graph-${x.width}`,n:250,name:'width-depth',domain:'investigations',depth:8,...x})),
+ ...[32,250].map(n=>({key:`ir-new-${n}`,n,name:'new',domain:'investigations',fixture:`n${n}`,width:n===32?4:8,depth:n===32?4:8})),
+ {key:'ir-help',n:32,name:'help',domain:'investigations',fixture:'n32',width:4,depth:4}
+];
+const extra=['new','perf-sample','--formed-at','2026-11-07T12:00:00Z','--title','Perf','--question','Question','--tag','benchmark'];
+const expectedCandidate='8e36896cb1c7b24e1de46f71ddbe95bc2d57f2ae466e6288e4916b5031042b03';
+const candidate='docs/investigations/_candidate.261107-perf-sample';
+const phase=process.argv[2]; assert.ok(['pre','formal'].includes(phase));
+const sourceGuard=async()=>{let list=JSON.parse(await readFile('/workspace/skills/dist/record-cli-perf-261107-main/source-files.json','utf8')).files;return digest(Buffer.concat(await Promise.all(list.map(async f=>Buffer.concat([Buffer.from(f+'\0'),await readFile(path.join('/workspace/skills/tools/record-cli',f))])))));};
+const guard=async()=>({fixtures:Object.fromEntries(await Promise.all(['n32','n250','n1200','width40'].map(async f=>[f,await treeHash(path.join(base,f))]))),assets:await treeHash(assets),source:await sourceGuard(),snapshot:await treeHash('/workspace/skills/dist/record-cli-perf-261107-main/source'),node:digest(await readFile(process.execPath)),scriptsDR:await treeHash('/workspace/skills/skills/decision-records/scripts'),scriptsIR:await treeHash('/workspace/skills/skills/investigation-report/scripts'),rootLock:digest(await readFile('/workspace/skills/pnpm-lock.yaml')),dependencies:await dependencyEntries()});
+let guards=await guard(); await writeFile(`${base}/${phase}-guards-before.json`,JSON.stringify(guards,null,2));
+const expected={}; const tests=[];
+for(const s of spec){if(['new','help'].includes(s.name))continue;let scenario=scenarios(s.n,s.width,s.depth).find(x=>x.name===s.name&&x.domain===s.domain);assert.ok(scenario);let outputs=verifyQuery(scenario,path.join(base,s.fixture),assets);expected[s.key]={node:digest(outputs.old),native:digest(outputs.native)};tests.push({key:s.key,args:scenario.args,expectedIds:scenario.expectedIds,expectedTotal:scenario.expectedTotal,trace:scenario.trace,outputBytes:{node:Buffer.byteLength(outputs.old),native:Buffer.byteLength(outputs.native)}});}
+await writeFile(`${base}/${phase}-correctness.json`,JSON.stringify(tests,null,2));
+function args(s,arm){if(s.name==='help')return arm==='node'?[process.execPath,[oldCli[s.domain],'--help']]:[path.join(assets,executable[s.domain]),['--help']];let root=path.join(base,s.fixture);let a=['help'];if(s.name==='new')a=extra;else if(s.name!=='help')a=scenarios(s.n,s.width,s.depth).find(x=>x.name===s.name&&x.domain===s.domain).args;return arm==='node'?[process.execPath,[oldCli[s.domain],'--root',root,...a]]:[path.join(assets,executable[s.domain]),[...a,'--root',root,...(s.name==='help'||s.name==='width-depth'?[]:['--json'])]];}
+function shuffle(arr,seed){let state=seed>>>0;for(let i=arr.length-1;i>0;i--){state^=state<<13;state^=state>>>17;state^=state<<5;let j=(state>>>0)%(i+1);[arr[i],arr[j]]=[arr[j],arr[i]]}return arr;}
+const jobs=[];for(let i=0;i<(phase==='pre'?2:20);i++)for(const s of spec)for(const arm of ['node','native'])jobs.push({s,arm,iteration:i});shuffle(jobs,phase==='pre'?15271:583991);
+await writeFile(`${base}/${phase}-samples.jsonl`,'');
+for(const {s,arm,iteration} of jobs){let root=path.join(base,s.fixture),[cmd,argv]=args(s,arm);if(s.name==='new'){let stat=await import('node:fs/promises');await assert.rejects(stat.lstat(path.join(root,candidate)),{code:'ENOENT'});}let startAt=new Date().toISOString(),t=process.hrtime.bigint();let p=spawnSync(cmd,argv,{cwd:repo,encoding:'utf8',maxBuffer:64*1024*1024});let ms=Number(process.hrtime.bigint()-t)/1e6;let row={phase,key:s.key,iteration,arm,startAt,ms,cmd,argv,status:p.status,signal:p.signal,stdoutBytes:Buffer.byteLength(p.stdout||''),stderrBytes:Buffer.byteLength(p.stderr||''),stdoutSha256:digest(p.stdout||''),stderrSha256:digest(p.stderr||'')};await appendFile(`${base}/${phase}-samples.jsonl`,JSON.stringify(row)+'\n');assert.equal(p.status,0,JSON.stringify(row));assert.equal(p.signal,null);if(s.name==='new'){let content=await readFile(path.join(root,candidate));assert.equal(digest(content),expectedCandidate);assert.equal(await treeHash(root,candidate),guards.fixtures[s.fixture]);if(arm==='native'){let o=JSON.parse(p.stdout);assert.equal(o.result.id,'261107-perf-sample');assert.deepEqual(o.result.writtenPaths,[candidate]);assert.equal(o.result.committed,true)}else assert.match(p.stdout,/Investigation candidate created: 261107-perf-sample/);await unlink(path.join(root,candidate));}else if(s.name!=='help')assert.equal(digest(p.stdout),expected[s.key][arm]);}
+let after=await guard();await writeFile(`${base}/${phase}-guards-after.json`,JSON.stringify(after,null,2));assert.deepEqual(after,guards);await writeFile(`${base}/${phase}-complete.txt`,`PASS ${new Date().toISOString()} jobs=${jobs.length}\n`);console.log(`${phase} passed ${jobs.length}`);

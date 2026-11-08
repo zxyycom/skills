@@ -1,0 +1,758 @@
+{
+  "pre": {
+    "before": {
+      "fixtures": {
+        "n32": "c6f02aa659571b8eb7b33514ce9466146dfba6473a2c7a000c0dde2960d75933",
+        "n250": "cc0a6da7b5640f40103ce51cb795aba3b19823af94401269f64dcae03723b56c",
+        "n1200": "4ed23ace5a38f718bc8f248e05c18a40a1caec1e16aeb42a7f6b2470708a9d7f",
+        "width40": "0d23ddd565eeae29fadfa45467545c1625d676e2930d8429645025baf03c06e1"
+      },
+      "assets": "6d7a65659c83bbc74be90cd535d8bd28b475877255d9be0ae389f507fb15b3f6",
+      "source": "185a4e3e48a72f58feee1472e837db2bb3d49e25cddc507bcf282d93d75d4a40",
+      "snapshot": "88c5ecaa22b7a42ba660b7c14a3e0c5300c85fb4174c5fc818792b25d976c072",
+      "node": "8a22a371fd85aecf5411636574309f6380fbc42694aaf0651a089a8ef9c44e52",
+      "scriptsDR": "db45344268d9ef1006040bf7c095d311745b4e4fe585f5197ec14b7db227b72f",
+      "scriptsIR": "dec2d885724458dada500863e1070dc4645256670ed9efedd65a89960341d940",
+      "rootLock": "026e4cb5ad75bc688cb6e4f57b85f2029d753697f9fe3bd7cbb3e9b527270255",
+      "dependencies": {
+        "decisions:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "decisions:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "decisions:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "decisions:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "decisions:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "decisions:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "decisions:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        },
+        "investigations:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "investigations:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "investigations:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "investigations:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "investigations:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "investigations:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "investigations:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        }
+      }
+    },
+    "after": {
+      "fixtures": {
+        "n32": "c6f02aa659571b8eb7b33514ce9466146dfba6473a2c7a000c0dde2960d75933",
+        "n250": "cc0a6da7b5640f40103ce51cb795aba3b19823af94401269f64dcae03723b56c",
+        "n1200": "4ed23ace5a38f718bc8f248e05c18a40a1caec1e16aeb42a7f6b2470708a9d7f",
+        "width40": "0d23ddd565eeae29fadfa45467545c1625d676e2930d8429645025baf03c06e1"
+      },
+      "assets": "6d7a65659c83bbc74be90cd535d8bd28b475877255d9be0ae389f507fb15b3f6",
+      "source": "185a4e3e48a72f58feee1472e837db2bb3d49e25cddc507bcf282d93d75d4a40",
+      "snapshot": "88c5ecaa22b7a42ba660b7c14a3e0c5300c85fb4174c5fc818792b25d976c072",
+      "node": "8a22a371fd85aecf5411636574309f6380fbc42694aaf0651a089a8ef9c44e52",
+      "scriptsDR": "db45344268d9ef1006040bf7c095d311745b4e4fe585f5197ec14b7db227b72f",
+      "scriptsIR": "dec2d885724458dada500863e1070dc4645256670ed9efedd65a89960341d940",
+      "rootLock": "026e4cb5ad75bc688cb6e4f57b85f2029d753697f9fe3bd7cbb3e9b527270255",
+      "dependencies": {
+        "decisions:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "decisions:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "decisions:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "decisions:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "decisions:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "decisions:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "decisions:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        },
+        "investigations:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "investigations:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "investigations:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "investigations:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "investigations:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "investigations:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "investigations:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        }
+      }
+    }
+  },
+  "pre2": {
+    "before": {
+      "fixtures": {
+        "n1": "ef1e6676731c9df10f074706bb933e4744c1b390a56d27624be3ba06f0057069",
+        "n32": "c6f02aa659571b8eb7b33514ce9466146dfba6473a2c7a000c0dde2960d75933",
+        "n250": "cc0a6da7b5640f40103ce51cb795aba3b19823af94401269f64dcae03723b56c",
+        "n1200": "4ed23ace5a38f718bc8f248e05c18a40a1caec1e16aeb42a7f6b2470708a9d7f",
+        "n5000": "038814e155b3b3012712b96fce6cf23e642c2b1db36cab9de0cc8a17c9f18d15",
+        "width200": "a27891f54212d878e8f8e2c52a48a14900ad1e8ae61b0dd58e84e4b3069dac0a"
+      },
+      "assets": "6d7a65659c83bbc74be90cd535d8bd28b475877255d9be0ae389f507fb15b3f6",
+      "source": "185a4e3e48a72f58feee1472e837db2bb3d49e25cddc507bcf282d93d75d4a40",
+      "snapshot": "88c5ecaa22b7a42ba660b7c14a3e0c5300c85fb4174c5fc818792b25d976c072",
+      "node": "8a22a371fd85aecf5411636574309f6380fbc42694aaf0651a089a8ef9c44e52",
+      "scriptsDR": "db45344268d9ef1006040bf7c095d311745b4e4fe585f5197ec14b7db227b72f",
+      "scriptsIR": "dec2d885724458dada500863e1070dc4645256670ed9efedd65a89960341d940",
+      "rootLock": "026e4cb5ad75bc688cb6e4f57b85f2029d753697f9fe3bd7cbb3e9b527270255",
+      "dependencies": {
+        "decisions:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "decisions:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "decisions:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "decisions:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "decisions:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "decisions:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "decisions:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        },
+        "investigations:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "investigations:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "investigations:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "investigations:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "investigations:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "investigations:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "investigations:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        }
+      }
+    },
+    "after": {
+      "fixtures": {
+        "n1": "ef1e6676731c9df10f074706bb933e4744c1b390a56d27624be3ba06f0057069",
+        "n32": "c6f02aa659571b8eb7b33514ce9466146dfba6473a2c7a000c0dde2960d75933",
+        "n250": "cc0a6da7b5640f40103ce51cb795aba3b19823af94401269f64dcae03723b56c",
+        "n1200": "4ed23ace5a38f718bc8f248e05c18a40a1caec1e16aeb42a7f6b2470708a9d7f",
+        "n5000": "038814e155b3b3012712b96fce6cf23e642c2b1db36cab9de0cc8a17c9f18d15",
+        "width200": "a27891f54212d878e8f8e2c52a48a14900ad1e8ae61b0dd58e84e4b3069dac0a"
+      },
+      "assets": "6d7a65659c83bbc74be90cd535d8bd28b475877255d9be0ae389f507fb15b3f6",
+      "source": "185a4e3e48a72f58feee1472e837db2bb3d49e25cddc507bcf282d93d75d4a40",
+      "snapshot": "88c5ecaa22b7a42ba660b7c14a3e0c5300c85fb4174c5fc818792b25d976c072",
+      "node": "8a22a371fd85aecf5411636574309f6380fbc42694aaf0651a089a8ef9c44e52",
+      "scriptsDR": "db45344268d9ef1006040bf7c095d311745b4e4fe585f5197ec14b7db227b72f",
+      "scriptsIR": "dec2d885724458dada500863e1070dc4645256670ed9efedd65a89960341d940",
+      "rootLock": "026e4cb5ad75bc688cb6e4f57b85f2029d753697f9fe3bd7cbb3e9b527270255",
+      "dependencies": {
+        "decisions:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "decisions:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "decisions:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "decisions:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "decisions:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "decisions:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "decisions:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        },
+        "investigations:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "investigations:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "investigations:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "investigations:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "investigations:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "investigations:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "investigations:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        }
+      }
+    }
+  },
+  "pre3": {
+    "before": {
+      "fixtures": {
+        "n1": "ef1e6676731c9df10f074706bb933e4744c1b390a56d27624be3ba06f0057069",
+        "n32": "c6f02aa659571b8eb7b33514ce9466146dfba6473a2c7a000c0dde2960d75933",
+        "n250": "cc0a6da7b5640f40103ce51cb795aba3b19823af94401269f64dcae03723b56c",
+        "n1200": "4ed23ace5a38f718bc8f248e05c18a40a1caec1e16aeb42a7f6b2470708a9d7f",
+        "n5000": "038814e155b3b3012712b96fce6cf23e642c2b1db36cab9de0cc8a17c9f18d15",
+        "width2000": "05b9cbf13293fd0751a1eccb9e229afb42355a4421e183faa9841a3a82d41559"
+      },
+      "assets": "6d7a65659c83bbc74be90cd535d8bd28b475877255d9be0ae389f507fb15b3f6",
+      "source": "185a4e3e48a72f58feee1472e837db2bb3d49e25cddc507bcf282d93d75d4a40",
+      "snapshot": "88c5ecaa22b7a42ba660b7c14a3e0c5300c85fb4174c5fc818792b25d976c072",
+      "node": "8a22a371fd85aecf5411636574309f6380fbc42694aaf0651a089a8ef9c44e52",
+      "scriptsDR": "db45344268d9ef1006040bf7c095d311745b4e4fe585f5197ec14b7db227b72f",
+      "scriptsIR": "dec2d885724458dada500863e1070dc4645256670ed9efedd65a89960341d940",
+      "rootLock": "026e4cb5ad75bc688cb6e4f57b85f2029d753697f9fe3bd7cbb3e9b527270255",
+      "dependencies": {
+        "decisions:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "decisions:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "decisions:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "decisions:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "decisions:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "decisions:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "decisions:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        },
+        "investigations:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "investigations:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "investigations:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "investigations:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "investigations:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "investigations:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "investigations:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        }
+      }
+    },
+    "after": {
+      "fixtures": {
+        "n1": "ef1e6676731c9df10f074706bb933e4744c1b390a56d27624be3ba06f0057069",
+        "n32": "c6f02aa659571b8eb7b33514ce9466146dfba6473a2c7a000c0dde2960d75933",
+        "n250": "cc0a6da7b5640f40103ce51cb795aba3b19823af94401269f64dcae03723b56c",
+        "n1200": "4ed23ace5a38f718bc8f248e05c18a40a1caec1e16aeb42a7f6b2470708a9d7f",
+        "n5000": "038814e155b3b3012712b96fce6cf23e642c2b1db36cab9de0cc8a17c9f18d15",
+        "width2000": "05b9cbf13293fd0751a1eccb9e229afb42355a4421e183faa9841a3a82d41559"
+      },
+      "assets": "6d7a65659c83bbc74be90cd535d8bd28b475877255d9be0ae389f507fb15b3f6",
+      "source": "185a4e3e48a72f58feee1472e837db2bb3d49e25cddc507bcf282d93d75d4a40",
+      "snapshot": "88c5ecaa22b7a42ba660b7c14a3e0c5300c85fb4174c5fc818792b25d976c072",
+      "node": "8a22a371fd85aecf5411636574309f6380fbc42694aaf0651a089a8ef9c44e52",
+      "scriptsDR": "db45344268d9ef1006040bf7c095d311745b4e4fe585f5197ec14b7db227b72f",
+      "scriptsIR": "dec2d885724458dada500863e1070dc4645256670ed9efedd65a89960341d940",
+      "rootLock": "026e4cb5ad75bc688cb6e4f57b85f2029d753697f9fe3bd7cbb3e9b527270255",
+      "dependencies": {
+        "decisions:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "decisions:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "decisions:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "decisions:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "decisions:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "decisions:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "decisions:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        },
+        "investigations:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "investigations:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "investigations:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "investigations:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "investigations:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "investigations:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "investigations:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        }
+      }
+    }
+  },
+  "formal": {
+    "before": {
+      "fixtures": {
+        "n1": "ef1e6676731c9df10f074706bb933e4744c1b390a56d27624be3ba06f0057069",
+        "n32": "c6f02aa659571b8eb7b33514ce9466146dfba6473a2c7a000c0dde2960d75933",
+        "n250": "cc0a6da7b5640f40103ce51cb795aba3b19823af94401269f64dcae03723b56c",
+        "n1200": "4ed23ace5a38f718bc8f248e05c18a40a1caec1e16aeb42a7f6b2470708a9d7f",
+        "n5000": "038814e155b3b3012712b96fce6cf23e642c2b1db36cab9de0cc8a17c9f18d15",
+        "width2000": "05b9cbf13293fd0751a1eccb9e229afb42355a4421e183faa9841a3a82d41559"
+      },
+      "assets": "6d7a65659c83bbc74be90cd535d8bd28b475877255d9be0ae389f507fb15b3f6",
+      "source": "185a4e3e48a72f58feee1472e837db2bb3d49e25cddc507bcf282d93d75d4a40",
+      "snapshot": "88c5ecaa22b7a42ba660b7c14a3e0c5300c85fb4174c5fc818792b25d976c072",
+      "node": "8a22a371fd85aecf5411636574309f6380fbc42694aaf0651a089a8ef9c44e52",
+      "scriptsDR": "db45344268d9ef1006040bf7c095d311745b4e4fe585f5197ec14b7db227b72f",
+      "scriptsIR": "dec2d885724458dada500863e1070dc4645256670ed9efedd65a89960341d940",
+      "rootLock": "026e4cb5ad75bc688cb6e4f57b85f2029d753697f9fe3bd7cbb3e9b527270255",
+      "dependencies": {
+        "decisions:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "decisions:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "decisions:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "decisions:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "decisions:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "decisions:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "decisions:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        },
+        "investigations:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "investigations:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "investigations:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "investigations:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "investigations:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "investigations:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "investigations:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        }
+      }
+    },
+    "after": {
+      "fixtures": {
+        "n1": "ef1e6676731c9df10f074706bb933e4744c1b390a56d27624be3ba06f0057069",
+        "n32": "c6f02aa659571b8eb7b33514ce9466146dfba6473a2c7a000c0dde2960d75933",
+        "n250": "cc0a6da7b5640f40103ce51cb795aba3b19823af94401269f64dcae03723b56c",
+        "n1200": "4ed23ace5a38f718bc8f248e05c18a40a1caec1e16aeb42a7f6b2470708a9d7f",
+        "n5000": "038814e155b3b3012712b96fce6cf23e642c2b1db36cab9de0cc8a17c9f18d15",
+        "width2000": "05b9cbf13293fd0751a1eccb9e229afb42355a4421e183faa9841a3a82d41559"
+      },
+      "assets": "6d7a65659c83bbc74be90cd535d8bd28b475877255d9be0ae389f507fb15b3f6",
+      "source": "185a4e3e48a72f58feee1472e837db2bb3d49e25cddc507bcf282d93d75d4a40",
+      "snapshot": "88c5ecaa22b7a42ba660b7c14a3e0c5300c85fb4174c5fc818792b25d976c072",
+      "node": "8a22a371fd85aecf5411636574309f6380fbc42694aaf0651a089a8ef9c44e52",
+      "scriptsDR": "db45344268d9ef1006040bf7c095d311745b4e4fe585f5197ec14b7db227b72f",
+      "scriptsIR": "dec2d885724458dada500863e1070dc4645256670ed9efedd65a89960341d940",
+      "rootLock": "026e4cb5ad75bc688cb6e4f57b85f2029d753697f9fe3bd7cbb3e9b527270255",
+      "dependencies": {
+        "decisions:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "decisions:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "decisions:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "decisions:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "decisions:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "decisions:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "decisions:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        },
+        "investigations:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "investigations:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "investigations:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "investigations:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "investigations:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "investigations:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "investigations:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        }
+      }
+    }
+  },
+  "addon": {
+    "before": {
+      "fixtures": {
+        "n1": "ef1e6676731c9df10f074706bb933e4744c1b390a56d27624be3ba06f0057069",
+        "n32": "c6f02aa659571b8eb7b33514ce9466146dfba6473a2c7a000c0dde2960d75933",
+        "n250": "cc0a6da7b5640f40103ce51cb795aba3b19823af94401269f64dcae03723b56c",
+        "n1200": "4ed23ace5a38f718bc8f248e05c18a40a1caec1e16aeb42a7f6b2470708a9d7f",
+        "n5000": "038814e155b3b3012712b96fce6cf23e642c2b1db36cab9de0cc8a17c9f18d15",
+        "width2000": "05b9cbf13293fd0751a1eccb9e229afb42355a4421e183faa9841a3a82d41559"
+      },
+      "assets": "6d7a65659c83bbc74be90cd535d8bd28b475877255d9be0ae389f507fb15b3f6",
+      "source": "185a4e3e48a72f58feee1472e837db2bb3d49e25cddc507bcf282d93d75d4a40",
+      "snapshot": "88c5ecaa22b7a42ba660b7c14a3e0c5300c85fb4174c5fc818792b25d976c072",
+      "node": "8a22a371fd85aecf5411636574309f6380fbc42694aaf0651a089a8ef9c44e52",
+      "scriptsDR": "db45344268d9ef1006040bf7c095d311745b4e4fe585f5197ec14b7db227b72f",
+      "scriptsIR": "dec2d885724458dada500863e1070dc4645256670ed9efedd65a89960341d940",
+      "rootLock": "026e4cb5ad75bc688cb6e4f57b85f2029d753697f9fe3bd7cbb3e9b527270255",
+      "dependencies": {
+        "decisions:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "decisions:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "decisions:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "decisions:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "decisions:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "decisions:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "decisions:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        },
+        "investigations:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "investigations:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "investigations:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "investigations:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "investigations:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "investigations:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "investigations:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        }
+      }
+    },
+    "after": {
+      "fixtures": {
+        "n1": "ef1e6676731c9df10f074706bb933e4744c1b390a56d27624be3ba06f0057069",
+        "n32": "c6f02aa659571b8eb7b33514ce9466146dfba6473a2c7a000c0dde2960d75933",
+        "n250": "cc0a6da7b5640f40103ce51cb795aba3b19823af94401269f64dcae03723b56c",
+        "n1200": "4ed23ace5a38f718bc8f248e05c18a40a1caec1e16aeb42a7f6b2470708a9d7f",
+        "n5000": "038814e155b3b3012712b96fce6cf23e642c2b1db36cab9de0cc8a17c9f18d15",
+        "width2000": "05b9cbf13293fd0751a1eccb9e229afb42355a4421e183faa9841a3a82d41559"
+      },
+      "assets": "6d7a65659c83bbc74be90cd535d8bd28b475877255d9be0ae389f507fb15b3f6",
+      "source": "185a4e3e48a72f58feee1472e837db2bb3d49e25cddc507bcf282d93d75d4a40",
+      "snapshot": "88c5ecaa22b7a42ba660b7c14a3e0c5300c85fb4174c5fc818792b25d976c072",
+      "node": "8a22a371fd85aecf5411636574309f6380fbc42694aaf0651a089a8ef9c44e52",
+      "scriptsDR": "db45344268d9ef1006040bf7c095d311745b4e4fe585f5197ec14b7db227b72f",
+      "scriptsIR": "dec2d885724458dada500863e1070dc4645256670ed9efedd65a89960341d940",
+      "rootLock": "026e4cb5ad75bc688cb6e4f57b85f2029d753697f9fe3bd7cbb3e9b527270255",
+      "dependencies": {
+        "decisions:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "decisions:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "decisions:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "decisions:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "decisions:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "decisions:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "decisions:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        },
+        "investigations:commander": {
+          "path": "/workspace/skills/node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js",
+          "sha256": "a1bb4f6511f3801f961ab3efe5b735e6f248dd52c3937b260fc6c0d85d1896b3"
+        },
+        "investigations:fast-glob": {
+          "path": "/workspace/skills/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js",
+          "sha256": "007e6052c85f7ed2ca2eaed4ae0ca5fb14226cd7585a5f096abcf78e28146f96"
+        },
+        "investigations:fflate": {
+          "path": "/workspace/skills/node_modules/.pnpm/fflate@0.8.3/node_modules/fflate/lib/node.cjs",
+          "sha256": "befa44cd80a1da830179db9e57930050a2e460ca3df13f0b05f83f52b1491818"
+        },
+        "investigations:neverthrow": {
+          "path": "/workspace/skills/node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js",
+          "sha256": "e6ff8f15d29e7e5e3e9c6eda661d2c34dd6d03a4e14c7987215f7e02ca63bd3d"
+        },
+        "investigations:simple-git": {
+          "path": "/workspace/skills/node_modules/.pnpm/simple-git@3.36.0/node_modules/simple-git/dist/cjs/index.js",
+          "sha256": "51d3dbe284057c00120e8a15abb24b6e34c44d15fe73e60bf2104387a43caa11"
+        },
+        "investigations:valibot": {
+          "path": "/workspace/skills/node_modules/.pnpm/valibot@1.4.2/node_modules/valibot/dist/index.cjs",
+          "sha256": "f24300781b1d77bf4a888f568d23eb9f2dc1e6bcedcc2ce6520ca9b3a547017a"
+        },
+        "investigations:yaml": {
+          "path": "/workspace/skills/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js",
+          "sha256": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9"
+        }
+      }
+    }
+  }
+}
