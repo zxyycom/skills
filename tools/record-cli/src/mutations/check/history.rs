@@ -50,6 +50,10 @@ fn recorded_history(
     let historical = historical_index(&repo, &head, &scope)?;
     let mut recorded = HashSet::new();
     for target in targets {
+        // A verified source belongs to this fixed HEAD; warnings remain per relation.
+        if recorded.contains(*target) {
+            continue;
+        }
         if let Some(state) = historical
             .as_ref()
             .and_then(|index| index.index().entries.get(*target))
