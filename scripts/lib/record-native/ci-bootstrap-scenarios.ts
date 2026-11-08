@@ -19,6 +19,20 @@ type Scenario = {
   b: Release;
 };
 
+/** A fresh installation requires an empty target; existing legacy files may coexist with a sentinel. */
+export async function installFirstCandidate(
+  destination: string,
+  legacy: boolean,
+  entry: Entry
+): Promise<void> {
+  const sentinel = path.join(destination, "sentinel.txt");
+  await fs.mkdir(destination, { recursive: true });
+  if (legacy) await fs.writeFile(sentinel, "keep", { flag: "wx" });
+  assert.equal(await entry.run(["--check", "--target-dir", destination]), 1);
+  assert.equal(await entry.run(["--yes", "--target-dir", destination]), 0);
+  if (!legacy) await fs.writeFile(sentinel, "keep", { flag: "wx" });
+}
+
 async function verifyRollbackAndResume({
   role,
   destination,
@@ -115,12 +129,7 @@ async function verifyDestination(
   a: Release,
   b: Release
 ): Promise<void> {
-  await fs.mkdir(destination, { recursive: true });
-  await fs.writeFile(path.join(destination, "sentinel.txt"), "keep", {
-    flag: "wx"
-  });
-  assert.equal(await entry.run(["--check", "--target-dir", destination]), 1);
-  assert.equal(await entry.run(["--yes", "--target-dir", destination]), 0);
+  await installFirstCandidate(destination, legacy, entry);
   await assert.rejects(fs.lstat(path.join(destination, "node_modules")), {
     code: "ENOENT"
   });

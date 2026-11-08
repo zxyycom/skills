@@ -1011,6 +1011,7 @@
       "NATIVE-CANDIDATE-PACKAGE-001": "sha256:6cc9bc6c24bb45da7742efb6ab5c721e6d3a0a22c8be1e4d0057464a131e24e6",
       "NATIVE-CANDIDATE-PATH-OVERLAP-001": "sha256:b3c287ec124da6ba138c5eb23d71d006def517e860bb369d734083f56ea5072f",
       "NATIVE-CANDIDATE-PUBLISH-001": "sha256:2b0e861ba216b459864635ed6052703a024eb255646933255692cf57ae2f5ae2",
+      "NATIVE-CI-BOOTSTRAP-FIRST-TARGET-001": "sha256:8dc41d765e34097b3fbae331410820d0982835f63e89847de0c4b2246494e2de",
       "NATIVE-CI-BOOTSTRAP-SUCCESSOR-001": "sha256:07d77dd63c58ee099e26fbf4355da14d72acd6c560fa17b480b8b7572ab64ee8",
       "NATIVE-CI-SOURCE-CONSISTENCY-001": "sha256:6b66b10a8972eff8aab2cd8ffb2c01f9192cf91edbae6a879e69600c157248e9",
       "NATIVE-DISPATCH-PROTOCOL-001": "sha256:0329d3c8a9c299cfe9587b02534b83c90478aed16c0d9b27ec82f92176bc33d9",
@@ -11910,6 +11911,16 @@
       ],
       "testIds": [
         "test:b687549b63e637b101cff1a739333c15561f8715930fccbe1ed4662867af63f0"
+      ]
+    },
+    "NATIVE-CI-BOOTSTRAP-FIRST-TARGET-001": {
+      "title": "首次引导目标前置状态",
+      "sourcePath": "cases/native-ci-bootstrap-first-target-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:6e98b59342435a8dd18b978bc0a70cbb62163c638fa92b0fc75391899e3c3a03"
       ]
     },
     "NATIVE-CI-BOOTSTRAP-SUCCESSOR-001": {
