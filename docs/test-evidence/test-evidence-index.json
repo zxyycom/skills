@@ -783,6 +783,8 @@
       "NATIVE-CANDIDATE-PUBLISH-001": "sha256:9bf178f7dec84cddeaecd31154b57f22688e8a4090e0a0a0c460f741650d9644",
       "NATIVE-CI-BOOTSTRAP-FIRST-TARGET-001": "sha256:d6289b3869b09248835cd402194b63104c45beac443851b4ac39ff178f69da53",
       "NATIVE-CI-BOOTSTRAP-SUCCESSOR-001": "sha256:07d77dd63c58ee099e26fbf4355da14d72acd6c560fa17b480b8b7572ab64ee8",
+      "NATIVE-CI-LEGACY-ARCHIVE-PATH-001": "sha256:a75c8e6f20deb4f0349f9fa58cb8737389abc425c0793695d8044d1ce8cdf437",
+      "NATIVE-CI-ONLINE-HARNESS-REVISION-001": "sha256:194415fd82d0f53a178c3bcbe5b9d779790726f5050be279a08be9856da7ed87",
       "NATIVE-CI-SOURCE-CONSISTENCY-001": "sha256:6b66b10a8972eff8aab2cd8ffb2c01f9192cf91edbae6a879e69600c157248e9",
       "NATIVE-CI-WINDOWS-LOCK-EVIDENCE-001": "sha256:4891bc2a4efa666c142f287c304460e18840b1dc5a0f672a15625671af082094",
       "NATIVE-DISPATCH-PROTOCOL-001": "sha256:0329d3c8a9c299cfe9587b02534b83c90478aed16c0d9b27ec82f92176bc33d9",
@@ -9264,6 +9266,26 @@
       ],
       "testIds": [
         "test:0ef2d67c32bc7fc8966fedbb8cf0b1d61e62789e9301a5e2830208c6fbf4194d"
+      ]
+    },
+    "NATIVE-CI-LEGACY-ARCHIVE-PATH-001": {
+      "title": "旧版验收基线提取路径",
+      "sourcePath": "cases/native-ci-legacy-archive-path.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:e775550c9c5b7ab99d527ff9101e242aaafc8b5785fdfcdb5b6ad798cdbb0aa5"
+      ]
+    },
+    "NATIVE-CI-ONLINE-HARNESS-REVISION-001": {
+      "title": "线上验收程序与发布身份",
+      "sourcePath": "cases/native-ci-online-harness-revision.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:0f13c59de2fdecd006d62dbad9f8aafcb69932002dbdccb1d6c156a9fa45cefc"
       ]
     },
     "NATIVE-CI-SOURCE-CONSISTENCY-001": {

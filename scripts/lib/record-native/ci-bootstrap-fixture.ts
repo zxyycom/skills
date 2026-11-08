@@ -21,6 +21,13 @@ const legacySchema = v.object({
   )
 });
 
+export function extractLegacyTar(
+  archive: Uint8Array,
+  destination: string
+): void {
+  command("tar", ["-xf", "-"], destination, archive);
+}
+
 export async function legacyTargets(
   root: string,
   temp: string,
@@ -44,7 +51,7 @@ export async function legacyTargets(
     ],
     root
   );
-  command("tar", ["-xf", "-", "-C", temp], root, archive);
+  extractLegacyTar(archive, temp);
   const destinations = {} as Record<NativeRole, string>;
   for (const role of nativeRoles) {
     const destination = path.join(temp, "skills", role);

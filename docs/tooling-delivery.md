@@ -118,7 +118,7 @@ YAML 的 job 依赖约束发布；远端合并保护以本节生效核对为准�
 
 ### 固定线上隔离验收
 
-手动 workflow 可同时填写 `accept_release_id` 和 `accept_revision`，分别为正整数 Release ID 与完整小写提交 hash。两者必须成对且格式有效，否则输入验证失败。该模式在 package、native-build 和 video-windows 成功后，在 Linux 和 Windows 的隔离目录验收指定线上 Release 和 revision，跳过发布；不是发布操作，也不证明真实用户目录安装。普通发布不填写这两个参数。
+手动 workflow 可同时填写 `accept_release_id` 和 `accept_revision`，分别为正整数 Release ID 与完整小写提交 hash。两者必须成对且格式有效，否则输入验证失败。该模式在 package、native-build 和 video-windows 成功后，在 Linux 和 Windows 的隔离目录验收指定线上 Release 和发布 revision，跳过发布；验收程序则使用并核对本次 package 测试的 revision，两者允许不同，以便修正验收程序而不移动已发布 tag。它不是发布操作，也不证明真实用户目录安装。普通发布不填写这两个参数。
 
 ### 原生记录资产与安装
 
