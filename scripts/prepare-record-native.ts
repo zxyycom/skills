@@ -6,7 +6,6 @@ import {
   mkdtemp,
   readFile,
   readdir,
-  realpath,
   rename,
   writeFile
 } from "node:fs/promises";
@@ -48,8 +47,6 @@ async function capture(from: string, to: string, top = true): Promise<void> {
 // Use the same source closure as the frozen builder without copying or writing.
 export async function workingSourceDigest(directory: string): Promise<string> {
   await assertRuntimeDirectory(directory);
-  if ((await realpath(directory)) !== path.resolve(directory))
-    throw new Error("native source path is aliased");
   const files: { path: string; data: Buffer }[] = [];
   async function visit(dir: string, prefix: string): Promise<void> {
     for (const name of (await readdir(dir)).sort()) {
@@ -91,8 +88,6 @@ export async function ensureRuntimeBase(
 ): Promise<string> {
   const workspace = path.resolve(rootDirectory);
   await assertRuntimeDirectory(workspace);
-  if ((await realpath(workspace)) !== workspace)
-    throw new Error("workspace path is aliased");
   let current = workspace;
   for (const name of [".local", "record-cli"]) {
     current = path.join(current, name);
@@ -131,8 +126,6 @@ async function prepare(): Promise<void> {
   await validateBuildEnvironment(base);
   const target = hostTarget();
   await assertRuntimeDirectory(source);
-  if ((await realpath(source)) !== source)
-    throw new Error("native source path is aliased");
   const generation = await mkdtemp(path.join(base, "generation-"));
   const frozen = path.join(generation, "source");
   await capture(source, frozen);

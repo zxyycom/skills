@@ -111,7 +111,7 @@ jobs:
         run: |
           node --test scripts/lib/record-native/tests/runtime.test.ts
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          node --test tools/skill-updater/tests/native-archive.test.ts tools/skill-updater/tests/native-bundle.test.ts tools/skill-updater/tests/native-legacy-plan.test.ts tools/skill-updater/tests/native-legacy-preflight.test.ts tools/skill-updater/tests/native-manifest.test.ts tools/skill-updater/tests/native-release.test.ts tools/skill-updater/tests/native-transaction.test.ts
+          node --test tools/skill-updater/tests/native-archive.test.ts tools/skill-updater/tests/native-bundle.test.ts tools/skill-updater/tests/native-legacy-plan.test.ts tools/skill-updater/tests/native-legacy-preflight.test.ts tools/skill-updater/tests/native-manifest.test.ts tools/skill-updater/tests/native-release.test.ts tools/skill-updater/tests/native-transaction.test.ts tools/skill-updater/tests/native-installed-evidence.test.ts
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Prepare and validate private runtime
         id: runtime

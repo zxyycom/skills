@@ -1,3 +1,4 @@
+import { assertNativeDirectory } from "./directory.ts";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -35,15 +36,7 @@ export async function verifyLegacyInstallation(
   files: Readonly<Record<string, LegacyFile>>
 ): Promise<string[]> {
   const root = path.resolve(target);
-  const rootInfo = await fs.lstat(root);
-  if (
-    !rootInfo.isDirectory() ||
-    rootInfo.isSymbolicLink() ||
-    (await fs.realpath(root)) !== root
-  )
-    throw new Error(
-      `legacy target is not a regular unaliased directory: ${root}`
-    );
+  await assertNativeDirectory(root);
   assertNativeRelativePaths(Object.keys(files));
   const conflicts: string[] = [];
   for (const [name, expected] of Object.entries(files)) {

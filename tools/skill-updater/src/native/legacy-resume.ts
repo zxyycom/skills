@@ -1,3 +1,4 @@
+import { assertNativeDirectory } from "./directory.ts";
 import fs from "node:fs/promises";
 import path from "node:path";
 import * as v from "valibot";
@@ -119,8 +120,7 @@ export async function resumeLegacyCleanup(
   options: LegacyTransactionOptions
 ): Promise<void> {
   const root = path.resolve(options.target);
-  if ((await fs.realpath(root)) !== root)
-    throw new Error("native target is aliased");
+  await assertNativeDirectory(root);
   validateTransactionOptions(options);
   const saved = await readTargetFile(root, receiptPath);
   if (!saved) throw new Error("native cleanup receipt is missing");

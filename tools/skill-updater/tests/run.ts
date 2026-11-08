@@ -11,3 +11,5 @@ await import("./native-archive.test.ts");
 await import("./native-bundle.test.ts");
 await import("./native-release.test.ts");
 await import("./native-transaction.test.ts");
+
+await import("./native-installed-evidence.test.ts");

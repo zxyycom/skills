@@ -12,4 +12,4 @@ Contract:
 
 Proves:
 - 私有 fixture 中符号链接 receipt、generation 或源码根被拒绝；符号链接 `.local` 不会导致外部子目录被创建。
-- Windows 显式跳过 symlink fixture，不证明该平台 junction 行为。
+- 本地父目录、工作区及源码祖先使用 Unix symlink 或 Windows junction 时被拒绝；Windows 独立 receipt/generation symlink fixture 仍跳过。

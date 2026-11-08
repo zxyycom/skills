@@ -67,6 +67,15 @@ test("check rejects source drift and binary tampering without writing", async ()
   const f = await fixture();
   try {
     await check(f.root);
+    if (process.platform === "win32") {
+      // The same ordinary directory may be spelled with different case.
+      const alternate = path.join(
+        path.dirname(f.root),
+        path.basename(f.root).toUpperCase()
+      );
+      await check(alternate);
+      await ensureRuntimeBase(alternate);
+    }
     await writeFile(path.join(f.source, "Cargo.toml"), "changed\n");
     await assert.rejects(check(f.root), /source changed/);
     await writeFile(path.join(f.source, "Cargo.toml"), "source\n");
@@ -154,25 +163,34 @@ test(
   }
 );
 
-test(
-  "prepare rejects a symlinked local parent before creating its child",
-  { skip: process.platform === "win32" },
-  async () => {
-    const root = await mkdtemp(path.join(os.tmpdir(), "runtime-parent-test-"));
-    try {
-      const outside = path.join(root, "outside");
-      await mkdir(outside);
-      await symlink(outside, path.join(root, ".local"));
-      await assert.rejects(
-        ensureRuntimeBase(root),
-        /invalid runtime directory/
-      );
-      assert.deepEqual(
-        await import("node:fs/promises").then((fs) => fs.readdir(outside)),
-        []
-      );
-    } finally {
-      await rm(root, { recursive: true, force: true });
-    }
+test("prepare rejects a symlinked local parent before creating its child", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "runtime-parent-test-"));
+  try {
+    const outside = path.join(root, "outside");
+    await mkdir(outside);
+    await symlink(
+      outside,
+      path.join(root, ".local"),
+      process.platform === "win32" ? "junction" : "dir"
+    );
+    await assert.rejects(ensureRuntimeBase(root), /invalid runtime directory/);
+    assert.deepEqual(
+      await import("node:fs/promises").then((fs) => fs.readdir(outside)),
+      []
+    );
+    const alias = path.join(root, "workspace-alias");
+    await symlink(
+      outside,
+      alias,
+      process.platform === "win32" ? "junction" : "dir"
+    );
+    await assert.rejects(ensureRuntimeBase(alias), /invalid runtime directory/);
+    await mkdir(path.join(outside, "source"));
+    await assert.rejects(
+      workingSourceDigest(path.join(alias, "source")),
+      /invalid runtime directory/
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
   }
-);
+});

@@ -1,3 +1,4 @@
+import { assertRuntimeDirectory } from "./runtime.ts";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { assertNativeRelativePaths } from "../../../tools/skill-package/src/native-paths.ts";
@@ -25,8 +26,7 @@ export async function stageNativeCandidateInputs(
   if (digestNativeSource(snapshot.source) !== snapshot.sourceHash)
     throw new Error("native source snapshot digest changed");
   const root = path.resolve(workspaceRoot);
-  if ((await fs.realpath(root)) !== root)
-    throw new Error("workspace path must not be an alias");
+  await assertRuntimeDirectory(root);
   const dist = path.join(root, "dist");
   const stagingRoot = path.join(dist, "skill-release");
   await ensureOwnedParent(dist);

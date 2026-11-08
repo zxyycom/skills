@@ -1,3 +1,4 @@
+import { assertRuntimeDirectory } from "./runtime.ts";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
@@ -66,10 +67,10 @@ async function validateBuildInputs(workspaceRoot: string, stagePath: string) {
   );
   if (
     path.dirname(stage) !== parent ||
-    !path.basename(stage).startsWith("candidate-") ||
-    (await fs.realpath(stage)) !== stage
+    !path.basename(stage).startsWith("candidate-")
   )
     throw new Error("candidate stage must be a real owned staging directory");
+  await assertRuntimeDirectory(stage);
   for (const name of ["target", "native-assets"]) {
     try {
       await fs.lstat(path.join(stage, name));
@@ -82,8 +83,7 @@ async function validateBuildInputs(workspaceRoot: string, stagePath: string) {
     }
   }
   const source = path.join(stage, "source");
-  if ((await fs.realpath(source)) !== source)
-    throw new Error("candidate source must be a real directory");
+  await assertRuntimeDirectory(source);
   const metadata: unknown = JSON.parse(
     await fs.readFile(path.join(stage, "source-files.json"), "utf8")
   );

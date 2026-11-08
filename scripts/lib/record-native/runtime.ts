@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { constants } from "node:fs";
-import { access, lstat, readFile, realpath } from "node:fs/promises";
+import { access, lstat, readFile } from "node:fs/promises";
 import path from "node:path";
 
 export const roles = ["decision-records", "investigation-report"] as const;
@@ -74,9 +74,17 @@ export function parseReceipt(value: unknown): Receipt {
   };
 }
 export async function assertRuntimeDirectory(directory: string): Promise<void> {
-  const stat = await lstat(directory);
-  if (!stat.isDirectory() || stat.isSymbolicLink())
-    throw new Error(`invalid runtime directory: ${directory}`);
+  // Check actual path components rather than comparing realpath strings: Windows
+  // can spell the same directory with different casing or 8.3 names.
+  let current = path.resolve(directory);
+  while (true) {
+    const stat = await lstat(current);
+    if (!stat.isDirectory() || stat.isSymbolicLink())
+      throw new Error(`invalid runtime directory: ${current}`);
+    const parent = path.dirname(current);
+    if (parent === current) break;
+    current = parent;
+  }
 }
 
 export async function preparedRuntime(
@@ -87,8 +95,6 @@ export async function preparedRuntime(
   const local = path.join(workspace, ".local");
   const base = path.join(local, "record-cli");
   await assertRuntimeDirectory(workspace);
-  if ((await realpath(workspace)) !== workspace)
-    throw new Error("workspace path is aliased");
   await assertRuntimeDirectory(local);
   await assertRuntimeDirectory(base);
   const receiptPath = path.join(base, "receipt.json");

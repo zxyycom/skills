@@ -1,3 +1,4 @@
+import { assertNativeDirectory } from "./directory.ts";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -34,13 +35,7 @@ export async function inspectLegacyBackups(
   complete: Buffer,
   requireAll = false
 ): Promise<string[]> {
-  const directory = await fs.lstat(stage);
-  if (
-    directory.isSymbolicLink() ||
-    !directory.isDirectory() ||
-    (await fs.realpath(stage)) !== stage
-  )
-    throw new Error(`unsafe recovery directory: ${stage}`);
+  await assertNativeDirectory(stage);
   const expected = expectedBackups(files, legacy, complete);
   const names = await fs.readdir(stage);
   for (const name of names)
