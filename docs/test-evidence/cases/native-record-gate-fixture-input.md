@@ -10,4 +10,4 @@ Contract:
 - Cargo 测试读取的外部 fixture 变化须使对应测试证明失效，且不扩大 Rust 指标源码投影。
 
 Proves:
-- 私有 Git fixture 验证该路径激活 Cargo 测试、无关测试继续复用，并核对指标路径仍仅为 Rust 工具目录。
+- 私有 Git fixture 验证该路径激活 Cargo 测试、无关测试继续复用，并核对指标路径包含 Rust 工具及原生准备/调度自身，不把外部 fixture 纳入指标范围。

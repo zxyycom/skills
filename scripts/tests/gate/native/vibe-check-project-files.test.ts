@@ -42,7 +42,8 @@ const excludedMaterialDirectories = [
   "scripts/building/deep/build",
   "scripts/buildish/build",
   "scripts/builds/build",
-  "tools/alpha/build"
+  "tools/alpha/build",
+  ".local/record-cli/generation-fixture/source"
 ];
 
 async function writeSelectionFiles(
@@ -182,6 +183,21 @@ test("native JSON Markdown and secret selections share the build-source exceptio
         selectedFiles(directory, maintainedMarkdownFiles),
         markdown
       );
+    }
+  );
+});
+
+test("only the managed record runtime is excluded from local Markdown checks", async () => {
+  await withTemporaryDirectory(
+    "gate-record-runtime-output-",
+    async (directory) => {
+      await writeSelectionFiles(directory, [
+        ".local/record-cli/generation-fixture/source/README.md",
+        ".local/other/README.md"
+      ]);
+      assert.deepEqual(selectedFiles(directory, maintainedMarkdownFiles), [
+        ".local/other/README.md"
+      ]);
     }
   );
 });

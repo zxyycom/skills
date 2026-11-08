@@ -12,7 +12,7 @@ import {
   runRuntimeAdapter
 } from "../lib/generation/runtime/skill-runtime.ts";
 import { githubRepository, rootDir } from "../lib/project.ts";
-import { decisionIndexJsonSchema } from "../../tools/decision-records/src/index/decision-index-json-schema.ts";
+import decisionIndexJsonSchema from "../../tools/record-contracts/schemas/decision-index.schema.json" with { type: "json" };
 
 const skillName = "decision-records";
 const sourcePath = "tools/decision-records/src/cli.ts";
@@ -66,7 +66,7 @@ export async function syncRuntime(
       rootDir,
       "skills/decision-records/references/decision-index.schema.json"
     ),
-    sourcePath: "tools/decision-records/src/index/decision-index-json-schema.ts"
+    sourcePath: "tools/record-contracts/schemas/decision-index.schema.json"
   });
   const changed = await syncSkillRuntimeArtifacts(artifacts, {
     mode,

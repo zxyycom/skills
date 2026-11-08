@@ -1,0 +1,171 @@
+{
+  "$comment": "entry 对象键、资源排序、关系图、sourceRevision 与报告 Markdown 的一致性由调查报告 CLI 检查。",
+  "$defs": {
+    "fingerprint": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "investigationId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "sourcePath": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*\\.md$",
+      "type": "string"
+    },
+    "relation": {
+      "additionalProperties": false,
+      "properties": {
+        "target": {
+          "$ref": "#/$defs/investigationId"
+        },
+        "type": {
+          "enum": [
+            "补充",
+            "复查",
+            "修正",
+            "推翻",
+            "归并",
+            "拆分"
+          ],
+          "type": "string"
+        },
+        "summary": {
+          "maxLength": 40,
+          "minLength": 1,
+          "pattern": "^(?!\\s)(?!.*[\\r\\n])[\\s\\S]*\\S$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "target"
+      ],
+      "type": "object"
+    },
+    "resourceId": {
+      "$comment": "pattern 表达路径段字符白名单、非空路径段和正斜杠分隔；owner Investigation ID、路径段首尾点、至少一个身份字符、Windows 保留设备名和 Markdown 括号平衡由调查报告 CLI 补充校验。",
+      "pattern": "^[A-Za-z0-9\\u3007\\u4e00-\\u9fff._\\-+@=()（）\\[\\]【】《》,!~'，。！、·：？]+(?:/[A-Za-z0-9\\u3007\\u4e00-\\u9fff._\\-+@=()（）\\[\\]【】《》,!~'，。！、·：？]+)*$",
+      "type": "string"
+    },
+    "state": {
+      "additionalProperties": false,
+      "properties": {
+        "formedAt": {
+          "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})(Z|[+-]\\d{2}:\\d{2})$",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "pattern": "^(?!\\s)(?:[^\\u0000-\\u001f\\u007f]*\\S)?$",
+          "type": "string"
+        },
+        "question": {
+          "minLength": 1,
+          "pattern": "^(?!\\s)(?:[^\\u0000-\\u001f\\u007f]*\\S)?$",
+          "type": "string"
+        },
+        "relations": {
+          "items": {
+            "$ref": "#/$defs/relation"
+          },
+          "type": "array"
+        },
+        "resourceIds": {
+          "items": {
+            "$ref": "#/$defs/resourceId"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "sourcePath": {
+          "$ref": "#/$defs/sourcePath"
+        },
+        "tags": {
+          "items": {
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "title": {
+          "minLength": 1,
+          "pattern": "^(?!\\s)(?:[^\\u0000-\\u001f\\u007f]*\\S)?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "formedAt",
+        "name",
+        "question",
+        "tags",
+        "relations",
+        "resourceIds",
+        "sourcePath"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "由单份调查报告 Markdown 生成的领域状态通用索引。",
+  "properties": {
+    "definitionVersion": {
+      "const": 11
+    },
+    "entries": {
+      "additionalProperties": {
+        "$ref": "#/$defs/state"
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/investigationId"
+      },
+      "type": "object"
+    },
+    "metadata": {
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "namespace": {
+      "const": "investigations"
+    },
+    "schemaVersion": {
+      "const": 4
+    },
+    "sourceRevision": {
+      "additionalProperties": false,
+      "properties": {
+        "metadata": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "entries": {
+          "additionalProperties": {
+            "$ref": "#/$defs/fingerprint"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/investigationId"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "metadata",
+        "entries"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "definitionVersion",
+    "entries",
+    "metadata",
+    "namespace",
+    "schemaVersion",
+    "sourceRevision"
+  ],
+  "title": "Investigation Report State Index",
+  "type": "object"
+}

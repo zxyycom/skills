@@ -18,9 +18,13 @@ bun run check -- --scope record-rust
 
 具体命令和选项以二进制 `help <command>` 为入口，`--root` 指向工作区，领域目录选项为工作区相对路径。验证写操作须使用独立私有 fixture 和真实 Git 状态，不以示例目录指向真实记录。`smoke:record-rust` 默认读取 `tools/record-cli/target/release` 下的两个可执行文件，并自行创建私有 Git fixture；若构建时指定了 `--target` 或其他目标目录，通过环境变量 `RECORD_CLI_BIN_DIR` 指向包含两个可执行文件的 release 目录。`test:record-rust` 运行 Cargo 全 target 测试及 ignored 节点；scope 还包含格式、clippy、离线交付和项目代码质量检查。quick 不要求 Rust 工具链。执行命令不意味着目标平台或所有行为已经验收。
 
+## 隔离的仓库候选运行时
+
+可显式运行 `bun run prepare:record-native` 在被忽略的 `.local/record-cli/` 准备当前工作树源码对应的本机候选，使用 `bun run prepare:record-native -- --check` 只读核对来源、目标及两个程序的摘要。候选调度入口为 `node scripts/record-native-cli.ts <decision-records|investigation-report> [args...]`；不会自动构建或下载。原有生产短命令仍未切换。准备在独占 generation 中保留构建与旧 generation，不自动清理；只按自身状态确认后处理。
+
 ## 契约与责任
 
-[共同原生候选决策](../../docs/decisions/261106-isolate-shared-native-record-candidate.md)记录方向和理由；该决策的对齐状态以决策记录为准。领域规则和现行操作分别由 [Decision Records](../../skills/decision-records/SKILL.md)、[Investigation Report](../../skills/investigation-report/SKILL.md) 承接；[共同操作模型](../record-operations/model.md)定义共享事务责任。共享代码负责安全来源、索引、Git 和事务，领域代码各自负责解析、身份、关系与生命周期。索引 schema 真源仍为 `tools/index-runtime/src/schemas.ts` 和各领域 index definition；Rust 类型与生成的 JSON Schema 都不是取代领域规则的真源。
+[共同原生候选决策](../../docs/decisions/261106-isolate-shared-native-record-candidate.md)记录方向和理由；该决策的对齐状态以决策记录为准。领域规则和现行操作分别由 [Decision Records](../../skills/decision-records/SKILL.md)、[Investigation Report](../../skills/investigation-report/SKILL.md) 承接；[共同操作模型](../record-operations/model.md)定义共享事务责任。共享代码负责安全来源、索引、Git 和事务，领域代码各自负责解析、身份、关系与生命周期。两域随包索引 JSON Schema 的纯数据源为 [`tools/record-contracts/`](../record-contracts/README.md)；通用外壳和领域校验继续由 Index Runtime 及各领域 definition 负责，Rust 类型与 Schema 均不取代领域规则。
 
 [候选机器协议](protocol.md)承接 JSON 通道、两域 trace 例外、逐命令结果与恢复事实，并定义[文件事务边界](protocol.md#文件与事务边界)；调用者应以实际测试范围判断验收证据。
 

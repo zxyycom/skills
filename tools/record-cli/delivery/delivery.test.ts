@@ -12,6 +12,7 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { installCandidate } from "./install.ts";
+import { treeDigest } from "./build.ts";
 import { assetName, hostTarget, parseManifest, sha256 } from "./manifest.ts";
 
 async function fixture(): Promise<{
@@ -234,6 +235,21 @@ test("invalid identity, corruption and unsafe destination fail before writes", a
         /unsafe directory/
       );
     }
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("source digest sorts complete paths before hashing", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "record-source-order-"));
+  try {
+    await mkdir(path.join(root, "foo"));
+    await writeFile(path.join(root, "foo.rs"), "a");
+    await writeFile(path.join(root, "foo", "bar"), "b");
+    assert.deepEqual(await treeDigest(root), {
+      files: ["foo.rs", "foo/bar"],
+      sha256: "59ee9d8f016c5354a9996cf241f7212fa5ab54685058df1adfa5478bcba4b03e"
+    });
   } finally {
     await rm(root, { recursive: true, force: true });
   }

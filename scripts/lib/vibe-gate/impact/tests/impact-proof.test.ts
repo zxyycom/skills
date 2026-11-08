@@ -24,7 +24,7 @@ test("incremental Gate reuses only exact successful receipts", async () => {
   await withImpactFixture(async (fixture) => {
     assert.deepEqual(validateBaseGateImpactContracts(), []);
     assert.ok(baseGateCheckIds.includes("markdown-lint"));
-    assert.equal(baseGateCheckIds.length, 62);
+    assert.equal(baseGateCheckIds.length, 63);
     assert.ok(!baseGateCheckIds.includes("markdown-link-validation"));
     assert.ok(!baseGateCheckIds.includes("environment"));
     await publishInitialFixtureReceipts(fixture);

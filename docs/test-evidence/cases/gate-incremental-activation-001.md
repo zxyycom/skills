@@ -26,7 +26,7 @@ Tags:
 - `repository-tooling`
 
 Contract:
-- changed 完整变更验收为 57 项项目命令与 markdown-lint 共 58 项 Check 维护输入成功 receipt；其余七项原生材料与环境 Check 每轮实际执行。只有声明输入闭合、工具与环境身份精确、所选命令通过、最终 Run 成功且起止快照一致时才发布证明；release 全量执行，原生 dependsOn 负责必要前置激活。
+- changed 完整变更验收为 62 项项目命令与 markdown-lint 共 63 项 Check 维护输入成功 receipt；其余七项原生材料与环境 Check 每轮实际执行。只有声明输入闭合、工具与环境身份精确、所选命令通过、最终 Run 成功且起止快照一致时才发布证明；release 全量执行，原生 dependsOn 负责必要前置激活。
 
 Proves:
 - 首次完整输入执行全部 receipt-managed Check；稳定输入复用，单项 receipt 缺失激活其工具订阅者与必要生成前置，实际 Check 全部通过且最终 Run 成功才发布。
@@ -34,6 +34,6 @@ Proves:
 - 领域 runtime 与测试能力分别归真实 consumer；共享/skill-package/build 输入保留实际生成与加载闭包，不因无关 scripts 内容给所有领域加宽订阅。
 - Novel Cards 对代表性 runtime/分发/manifest/lock/fixture 输入失效；构建适配只使统一生成 provider 执行而 source card/query consumer 可复用。
 - 未知 owner、symlink/越界/非 UTF-8 路径、预算超限与读取失败保守 fallback；不缓存部分或 unavailable 身份。
-- 工具/环境身份改变使相关证明失效，shell 记账变量排除仍准确；非仓库 fallback 选择全部 receipt-managed base 项，release 选择完整 69 项。
+- 工具/环境身份改变使相关证明失效，shell 记账变量排除仍准确；非仓库 fallback 选择全部 receipt-managed base 项，release 选择完整 74 项。
 - 损坏 receipt manifest、未成功 Run、命令失败、不可写 cache、结束采集失败或起止漂移均不得发布成功证明。
 - updater 的分发输入限实际 ai-ready-docs；shared search/graph 与公共 runtime 测试按实际消费者失效，source-only 测试不冒充公开分发证明。

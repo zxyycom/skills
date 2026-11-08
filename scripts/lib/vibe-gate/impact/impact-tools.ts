@@ -271,9 +271,14 @@ export const gateToolScopes = {
     "tools/shared/tests/fixtures/**"
   ]),
   "skill-package-hash": toolScope(
-    ["scripts/lib/**/skill-package*.ts"],
+    [
+      "scripts/lib/**/skill-package*.ts",
+      "scripts/lib/skill-package/tests/native-*.test.ts"
+    ],
     [
       ...commonGateInputPatterns,
+      "scripts/lib/record-native/**",
+      "tools/record-cli/delivery/**",
       "tools/shared/tests/git-fixture.ts",
       "tools/shared/tests/fixtures/**"
     ]
@@ -298,9 +303,17 @@ export const gateToolScopes = {
   ),
   "record-search-output": toolScope(searchOutputInputs, domainRuntimeInputs),
   "record-rust": toolScope(
-    ["tools/record-cli/**"],
+    [
+      "tools/record-cli/**",
+      "scripts/prepare-record-native.ts",
+      "scripts/record-native-cli.ts",
+      "scripts/lib/record-native/**"
+    ],
     [
       ...commonGateInputPatterns,
+      "scripts/lib/skill-package/**",
+      "tools/skill-package/**",
+      "tools/shared/**",
       "tools/investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md"
     ]
   ),

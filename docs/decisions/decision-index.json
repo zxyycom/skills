@@ -173,6 +173,7 @@
       "261106-retain-domain-query-result-types": "sha256:fed60edd16b21da364b0dcf8313f8e1c32d48c9209a6baf10f30c72997186c98",
       "261107-rust-record-candidate-cooperative-file-safety": "sha256:165763b9a9fa04f5324b0ba9608cfe5ece2ad256ee3c6745365b824797690bdf",
       "261107-rust-record-candidate-sequential-local-runtime": "sha256:b7c702a382628256972ce28a59970fd4afcfe28e307554742929764d8d519695",
+      "261108-share-record-index-json-contracts": "sha256:11b9d29d6cce583f076862bf6759d9c6c5ceeca04c47079fc27667c67fb38594",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -292,7 +293,7 @@
       "organize-vibe-checks-by-semantic-identity": "sha256:0f7e1c20ec7d59f621f5df4ce3569c485360b9b030ced774d67b49c92af0be87",
       "own-recoverable-task-coordination": "sha256:354aa55e64591a8eb23b7186ba1ecee3f53df9e7f7f3c5a1ed8098fb90b7628c",
       "own-short-lived-task-orchestration": "sha256:eafb2f2b89583e57dbf777ca13d8f0dde1ca1e0092849802aa1403bd17c937d8",
-      "package-current-index-json-schema": "sha256:7ae833dbca84e0bb72593c0a17583a96ac3a3a1e4a53105594cbecfd662c26e8",
+      "package-current-index-json-schema": "sha256:e42bef4b3e7be1baf04fdd2e8c0034868c118585cd4e34d16e4135e81f592aad",
       "package-index-json-schema": "sha256:e8701973e3c7c4103fbf50707737f63c4e245778f4d2c33eea83b96086915e1c",
       "package-skills-from-versioned-pending-snapshot": "sha256:83ca86df943447c22b1846113e0c25e9ad1167af3c6a34c227630d49762b3d6f",
       "pass-commit-messages-with-arguments-or-files": "sha256:62d661ec199b4250233003f8c45eb133595d1a2dfeb5bac499627d9be636f327",
@@ -3988,6 +3989,28 @@
         }
       ]
     },
+    "261108-share-record-index-json-contracts": {
+      "name": "share-record-index-json-contracts",
+      "sourcePath": "261108-share-record-index-json-contracts.md",
+      "title": "以纯数据共享记录索引机器契约",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-11-08T12:05:31Z",
+      "purpose": "让两域与多语言运行时共享可分发的索引机器结构。",
+      "background": "旧 Schema 构造位于领域 TypeScript 源码，妨碍原生实现独立交付。",
+      "decision": "两域索引 JSON Schema 以独立纯数据源维护，领域语义与集合校验仍归各域。",
+      "tags": [
+        "artifact-integrity",
+        "decision-records",
+        "investigation-report"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "package-current-index-json-schema"
+        }
+      ]
+    },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",
       "sourcePath": "archive/activate-release-gate-checks-by-tag.md",
@@ -6498,9 +6521,9 @@
     },
     "package-current-index-json-schema": {
       "name": "package-current-index-json-schema",
-      "sourcePath": "package-current-index-json-schema.md",
+      "sourcePath": "archive/package-current-index-json-schema.md",
       "title": "随包分发当前索引 JSON Schema",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-07-22T09:44:48Z",
       "purpose": "让编辑器和恢复工具直接取得机器可读的当前索引结构，并让分发产物与 CLI 保持一致。",

@@ -11,5 +11,5 @@ Contract:
 
 Proves:
 - 从四项真实 Check 读取文件声明后，collectProjectFiles 在实际文件树分别返回独立列出的 JSON、大小写 Markdown 及密钥文本材料，包含 scripts/build 直接材料与 nested/src 正常子目录。
-- root 和源码根内部的依赖、VCS、日志、缓存、产物及 generated 文件均不进入结果；其他 build 位置、再次嵌套 build 和六个 scripts/build 近邻前缀负样本同样排除。
+- root 和源码根内部的依赖、VCS、日志、缓存、产物、受管本地记录运行时及 generated 文件均不进入结果；其他 build 位置、再次嵌套 build 和六个 scripts/build 近邻前缀负样本同样排除。
 - 独立收集 maintainedMarkdownFiles 完整输入声明时，结果与两项 Markdown Check 的执行材料集合精确相同；此节点证明文件选择接线，不替代各 validator 的内容验证测试。

@@ -11,7 +11,7 @@
 5. 跨领域协议由各自 owner 承接：`tools/skill-package/` 维护 skill 版本及发布端/updater 共用的 release manifest；[Index Runtime](../tools/index-runtime/README.md)维护派生索引协议和记录 stage 协调；[共同记录操作](../tools/record-operations/README.md)仅为 Decision Records 与 Investigation Report 编排操作，依赖 Index Runtime 与 shared。两域保持独立模型、公开边界和分发；仓库专用的临时 package hash 留在 `scripts/lib/`。
 6. 领域工具可以依赖自身源码、`tools/shared/`、`tools/skill-package/`、明确建立的跨领域协议、目标运行时和显式外部依赖；不能依赖 `scripts/`、`skills/`、`dist/` 或另一个领域工具。
 7. 根目录 `tsconfig.json` 统一提供 IDE 与类型检查配置；仓库 TypeScript 源码运行、同步适配和普通测试由 Bun 负责；Rust 候选的构建和测试由 [Record CLI](../tools/record-cli/README.md) 承接。真实 Node smoke、Task-graph native lock 集成测试和分发 CLI 是明确例外，使用对应 skill manifest 与 help 公布的 Node.js engine。
-8. 外部 JSON 在边界做运行时收窄。同一结构被多个入口消费或需要稳定字段诊断时，以 Valibot Schema 为结构真源；跨语言契约从同一 Schema 生成 JSON Schema 和分发声明。
+8. 外部 JSON 在边界做运行时收窄。同一结构被多个入口消费或需要稳定字段诊断时，以 Valibot Schema 为结构真源；跨语言契约从同一 Schema 生成 JSON Schema 和分发声明。Decision Records 与 Investigation Report 的索引 JSON Schema 是例外：两域纯数据格式源由 [`tools/record-contracts/`](../tools/record-contracts/README.md) 承接，各运行时仍须对照领域语义验证。
 9. 校验器检查长期源文件、链接和项目约束，不解析或正则匹配 GitHub Actions workflow 内部结构；workflow 行为由代码审查和实际运行验证。
 
 实现代码的归属、边界处理、类型表达和风险验证继续遵循 [编码规范](coding-style.md)。

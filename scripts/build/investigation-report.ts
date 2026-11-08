@@ -12,7 +12,7 @@ import {
   runRuntimeAdapter
 } from "../lib/generation/runtime/skill-runtime.ts";
 import { githubRepository, rootDir } from "../lib/project.ts";
-import { investigationIndexJsonSchema } from "../../tools/investigation-report/src/index/investigation-index-json-schema.ts";
+import investigationIndexJsonSchema from "../../tools/record-contracts/schemas/investigation-index.schema.json" with { type: "json" };
 
 const skillName = "investigation-report";
 const sourcePath = "tools/investigation-report/src/cli.ts";
@@ -80,7 +80,7 @@ export async function syncRuntime(
         "skills/investigation-report/references/investigation-index.schema.json"
       ),
       sourcePath:
-        "tools/investigation-report/src/index/investigation-index-json-schema.ts"
+        "tools/record-contracts/schemas/investigation-index.schema.json"
     }
   );
   return await syncSkillRuntimeArtifacts(artifacts, {

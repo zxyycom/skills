@@ -1,0 +1,24 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { compareEvidence } from "../ci-frozen.ts";
+
+test("cross-platform frozen inputs require matching revision and each private version", () => {
+  const a = {
+    revision: "a".repeat(40),
+    versions: ["0.1.0", "0.1.1"],
+    sources: [
+      { sha256: "1".repeat(64), files: ["Cargo.toml"] },
+      { sha256: "2".repeat(64), files: ["Cargo.toml"] }
+    ]
+  };
+  assert.doesNotThrow(() => compareEvidence(a, structuredClone(a)));
+  const wrongRevision = { ...a, revision: "b".repeat(40) };
+  assert.throws(() => compareEvidence(a, wrongRevision), /revisions differ/);
+  const wrongB = structuredClone(a);
+  wrongB.sources[1]!.sha256 = "3".repeat(64);
+  assert.throws(() => compareEvidence(a, wrongB), /0.1.1/);
+  const wrongList = structuredClone(a);
+  wrongList.sources[0]!.files.push("extra");
+  assert.throws(() => compareEvidence(a, wrongList), /0.1.0/);
+  assert.throws(() => compareEvidence(a, {}));
+});

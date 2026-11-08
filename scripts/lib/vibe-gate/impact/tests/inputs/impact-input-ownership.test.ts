@@ -320,7 +320,10 @@ test("record Rust test fixture changes invalidate the Cargo receipt without wide
       "tools/investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md";
     const plan = await prepareChangedFixtureActivation(fixture, input);
     assert.deepEqual(gateToolScopes["record-rust"].files, [
-      "tools/record-cli/**"
+      "tools/record-cli/**",
+      "scripts/prepare-record-native.ts",
+      "scripts/record-native-cli.ts",
+      "scripts/lib/record-native/**"
     ]);
     assert.ok(gateToolScopes["record-rust"].additionalInputs.includes(input));
     assert.equal(plan.kind, "incremental");
@@ -337,5 +340,28 @@ test("record Rust test fixture changes invalidate the Cargo receipt without wide
       )?.action,
       "reuse"
     );
+  });
+});
+
+test("record native runtime and build inputs invalidate affected delivery checks", async () => {
+  await withImpactFixture(async (fixture) => {
+    for (const input of [
+      "scripts/lib/record-native/runtime.ts",
+      "tools/record-cli/delivery/build.ts"
+    ]) {
+      const plan = await prepareChangedFixtureActivation(fixture, input);
+      assert.equal(plan.kind, "incremental");
+      assert.deepEqual(plan.snapshot.unclassifiedPaths, []);
+      for (const checkId of [
+        "test:record-rust:delivery",
+        "test:record-rust:runtime",
+        "script:test:skill-package-hash"
+      ])
+        assert.equal(
+          plan.decisions.find((item) => item.checkId === checkId)?.action,
+          "execute",
+          `${input}: ${checkId}`
+        );
+    }
   });
 });

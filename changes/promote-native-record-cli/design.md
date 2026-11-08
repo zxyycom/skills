@@ -20,7 +20,7 @@ Node 仅承接安装更新和仓库跨平台调度，不提供领域 SDK。macOS
 
 #### 固定方案
 
-1. **Schema**：以 `tools/record-contracts/schemas/` 下的两个纯 JSON Schema 为两域格式源，旧导出器与新生成器消费同一份数据；Rust 校验以契约样例核对，普通业务调用不加载外部 Schema。通用 Index Runtime 保持原职责。
+1. **Schema**：以 `tools/record-contracts/schemas/` 下的两个纯 JSON Schema 为两域格式源，旧导出器与新生成器消费同一份数据；Rust 校验以契约样例核对，普通业务调用不加载外部 Schema。合法 Unicode 文本为支持边界，旧 TS 意外接受的孤立 UTF-16 代理项由原生入口明确拒绝，不静默替换或丢字。通用 Index Runtime 保持原职责。
 2. **制品**：skill ZIP 继续只包含 Git pending 中的文件，原生二进制作为独立 release 资产。包内 `native-runtime.json` 绑定角色、原生版本、源码摘要和支持目标；release 的原生扩展绑定具体资产及 hash。
 3. **首次交接**：两个原生 skill 使用 `<skill>-native.zip`，独立 `record-native-installer.zip` 完成首次安装。原生 release 不提供它们的旧名 `<skill>.zip`，旧 updater 在下载前拒绝，现有安装保持；其他 skill 保持原资产名和更新入口。
 4. **后续更新**：原生专用 updater 先准备并验证包与二进制，再激活文档，最后清理受管旧文件。同版本也检查资产与清理状态；业务命令仅使用已准备的运行时。

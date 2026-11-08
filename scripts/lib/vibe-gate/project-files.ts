@@ -2,8 +2,8 @@ import { DEFAULT_PROJECT_FILE_EXCLUDES } from "@zxyycom/vibe-check";
 
 // scripts/build is maintained source, not an output directory. Keep every other
 // upstream exclusion, including nested build outputs inside this source root.
-const projectFileExclusions = DEFAULT_PROJECT_FILE_EXCLUDES.flatMap(
-  (pattern) =>
+const projectFileExclusions = [
+  ...DEFAULT_PROJECT_FILE_EXCLUDES.flatMap((pattern) =>
     pattern === "**/build/**"
       ? [
           "build/**",
@@ -12,7 +12,9 @@ const projectFileExclusions = DEFAULT_PROJECT_FILE_EXCLUDES.flatMap(
           "scripts/build/**/build/**"
         ]
       : [pattern]
-);
+  ),
+  ".local/record-cli/**"
+];
 
 export function maintainedProjectFiles(patterns: readonly string[]) {
   return {

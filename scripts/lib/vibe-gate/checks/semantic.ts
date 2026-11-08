@@ -37,6 +37,20 @@ export const semanticGateChecks = [
     }
   },
   {
+    checkId: "test:record-rust:runtime",
+    toolIds: ["record-rust"],
+    requiredTag: undefined,
+    displayName: "Record Rust repository runtime",
+    command: {
+      command: "node",
+      args: [
+        "--test",
+        "./scripts/lib/record-native/tests/ci-frozen.test.ts",
+        "./scripts/lib/record-native/tests/runtime.test.ts"
+      ]
+    }
+  },
+  {
     checkId: "test:record-rust:format",
     toolIds: ["record-rust"],
     requiredTag: undefined,

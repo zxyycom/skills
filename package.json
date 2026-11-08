@@ -26,6 +26,8 @@
     "test:skill-package-hash": "bun test ./scripts/lib/skill-package/tests/skill-package-hash.test.ts",
     "test:skill-release-publisher": "bun test ./scripts/tests/repository/publish-skills.test.ts",
     "test:record-delivery": "node --test ./tools/record-cli/delivery/delivery.test.ts",
+    "prepare:record-native": "node scripts/prepare-record-native.ts",
+    "test:record-native-runtime": "node --test ./scripts/lib/record-native/tests/ci-frozen.test.ts ./scripts/lib/record-native/tests/runtime.test.ts",
     "smoke:record-rust": "node ./tools/record-cli/smoke/native.ts",
     "test:record-rust": "cargo +1.98.1 test --manifest-path ./tools/record-cli/Cargo.toml --locked --all-targets -- --include-ignored",
     "test:record-operations": "bun test ./tools/record-operations/tests/run.ts",

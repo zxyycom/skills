@@ -156,7 +156,7 @@ test("selected scopes execute only the necessary set subscriptions and dependenc
               assert.equal(result.kind, "completed");
               if (result.kind !== "completed")
                 throw new Error("missing terminal facts");
-              assert.equal(result.snapshot.checks.length, 73);
+              assert.equal(result.snapshot.checks.length, 74);
               for (const { checkId, outcome } of result.snapshot.checks)
                 assert.equal(
                   outcome.status,
@@ -196,7 +196,7 @@ test("selected scopes execute only the necessary set subscriptions and dependenc
       assert.equal(summary.selection.eligible, expected.length);
       assert.equal(summary.selection.execute, expected.length);
       assert.equal(summary.selection.reuse, 0);
-      assert.equal(summary.selection.disabled, 73 - expected.length);
+      assert.equal(summary.selection.disabled, 74 - expected.length);
       assert.deepEqual(summary.selection.requestedScopes, scopes);
       assert.deepEqual(summary.selection.eligibleCheckIds.toSorted(), expected);
       assert.deepEqual(summary.selection.executedCheckIds.toSorted(), expected);

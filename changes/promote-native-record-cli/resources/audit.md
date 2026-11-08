@@ -68,3 +68,43 @@
 - `bun run change-plan plan changes/promote-native-record-cli --json` 成功，stage 为 Plan，基线为上述审计 revision。
 - `bun run check` 的 quick 六项公共基线通过：环境、secret、JSON、JSON Schema、Markdown 链接和 lint，性能预算通过。它不证明 Rust、安装器或完整发布门禁通过。
 - proposal 成功标准 1–5 分别由 1.1–1.6 的阶段约束、2.2、2.3、1.7/2.4、1.2/2.4–2.5 承接。任务与资源的使用复核未发现阻止从 1.1 开始的设计缺口。
+
+## 1.1 实施中格式差异
+
+已将原随包 Schema 字节复制到 `tools/record-contracts/schemas/`，生成器和过渡期导出共用该源；两项生成漂移检查通过，不表示完整格式语义已验收。DR 的既有 Schema 在 relation 上允许可选 `name`，而[领域关系规则](../../../skills/decision-records/references/decision-record-rules.md#演进关系)只定义 `type`、`target` 与可选 `summary`，旧 TS 严格 state parser 与 Rust Relation 均拒绝额外 `name`。这是 Schema 既有宽松性，不据此扩大业务格式或在本次迁移中收窄分发 Schema；跨语言固定有效/无效样例和其余格式差异仍须继续核对，1.1 尚未完成。
+
+已从 `dc874213f494ba5411330afe135c0542df5184a8` Git tree 记录两域包内各文件的长度、SHA-256 与 Git 可执行位；仅是源码包基线，并未证明远端历史 release 相同。尚无引导器消费该清单。
+
+对照 `zxyycom/skills` release ID `346715779` 的 `skills-latest`：固定资产 ID `712372943`（DR ZIP，SHA-256 `3d6bc338496d309419690e0687e25c00727b56078077b049c3a020fb65613958`）和 `712372970`（IR ZIP，SHA-256 `6870930cb866325f6f3278aa96700986d52eec87fd02e9f0bbb6abb4de3b5207`）经下载并验证资产 hash；逐成员与上述 Git 清单比较，DR 274、IR 280 均无缺失、多余或长度/SHA-256 差异。ZIP 文件并未安装；Git 可执行位来自源码而非 ZIP 权限证明。rolling tag 可变，后续不以 tag 名冒充此固定资产身份。
+
+孤立 UTF-16 代理项是另一个尚未裁决的真实差异：旧 TS 索引 state parser 接受 `title` 为 `\ud800abc`，且旧 Markdown parser 对 UTF-8 源中 YAML 转义 `title: "\uD800abc"` 返回非空结果、无诊断；原生候选明确拒绝该类输入。用户已确认以合法 Unicode 文本为支持边界，异常旧数据明确报错，不静默替换或丢字；不保留旧解析器接受孤立代理项的宽松行为。该取舍本身不证明其他格式差异已完成核对或 1.1、2.1 已通过。
+
+## A 阶段局部基础设施
+
+当前已实现从单次 Git pending 枚举捕获 skill 与 Rust 源码，以及将该输入写入 `dist/skill-release/` 独占子目录；私有 fixture 验证暂存后内容固定、源码摘要校验和 dist sentinel 保留。该阶段仅暂存现有基础 skill 包，不生成原生正式资产、引导包或可安装候选包，也未接通发布器。原生 manifest/descriptor 解析和旧包只读冲突预检已实现局部原语，尚未组成 updater、激活/恢复或清理事务。1.2–1.4 继续未完成。
+
+私有本机构建 `dist/skill-release/candidate-bEwnSX` 从同次 pending 源码捕获生成 `0.1.0` 两角色 Linux ZIP，源码 SHA-256 为 `112f7072446ad34f5418e21a353e371daf0cf28794c4dd9a231dcd2fed16de38`；Cargo 1.98.1 locked/offline 构建并实际核验两程序 `--version`。执行宿主是 WSL2、glibc 2.43，而非所需 Ubuntu 22.04 / glibc 2.35；二进制仍是私有候选，不证明 Linux 基线、Windows、安装或发布。首次尝试发现原候选 digest 的深度优先目录遍历与规范完整路径排序不同，导致 frozen manifest 拒绝构建；已修正排序并用 `foo.rs` 与 `foo/bar` 的独立固定摘要测试覆盖，复用原 staging 源码成功完成构建。
+
+将上述两个已核验 ZIP 安全解包到本轮创建的临时隔离目录后调用旧包预检：DR 274、IR 280 文件均无冲突；分别修改各自 `SKILL.md` 后均只报告该路径，两个无关 sentinel 字节保持。临时目录已清理；这是旧文件归属预检的本机证据，不是原生安装、激活、回退或 Windows 证据。
+
+复用该次冻结构建的两个原生 ZIP，在本轮私有临时目录分别回算长度与 SHA-256、确认 ZIP 中恰有对应角色程序、设置执行位并运行 `--version` 与 `--help`；两者通过，sentinel 保持，临时目录已清理。这仍不是新 skill 安装或 Ubuntu 22.04 / Windows 验收。
+
+`RECORD_CLI_BIN_DIR` 指向上述冻结构建后运行 `bun run smoke:record-rust` 通过：私有 Git fixture 覆盖两 CLI help/version、决策候选创建/查询与缺失 JSON、调查资源归属重命名、决策 stage 保留未选 pending。fixture 由入口清理；该 smoke 不覆盖 2.1 全部业务、不证明其他平台或安装。
+
+对两个真实旧 ZIP 的隔离副本，以仅含 `SKILL.md`、`native-runtime.json` 与角色二进制路径的**假设**新受管集合运行只读交接计划：DR 报新增 2、替换 1、退役 273；IR 报新增 2、替换 1、退役 279。该探针只验证清单和分类，假设集合不是最终候选包，也没有执行覆盖、删除或声明支持更新完成。
+
+独立构造的 DR v4/definition 11 索引样例在私有目录分别经 AJV、旧 TS state parser、冻结 Rust 二进制 `list --json` 验证：正常样例三者接受；仅给关系加入额外 `name` 后，既有 Schema 仍接受、两种运行时均拒绝（Rust 退出 1，`invalid-index`）。这支持上述 Schema 宽松差异的裁决，不扩展为所有字段的等价证明。
+
+新增的私有原生归档和 bundle 验证原语在解压前核对 ZIP 目录/本地头、文件类型、路径及大小上限，并在返回文件集合前核对 release 资产摘要、角色、版本和 descriptor；synthetic 样本覆盖拒绝路径。当前 fflate 生成的两份真实旧包（274/280 成员）和两份私有原生 ZIP（各一成员）均可读取。ZIP 子集有意拒绝 ZIP64、注释和 data descriptor；正式候选包与安装链仍未组装验证，不能把原语通过当成 1.3 完成。
+
+复用两个实际构建 ZIP 与对应纯数据 Schema，内存构造仅用于测试的 skill identity/descriptor/占位 updater，分别通过 `prepareNativeBundle` 绑定 manifest 长度、摘要、role、target 和源码，得到各 5 个预备文件。该组合的说明和 updater 均为合成样例，绝非可安装候选包，也没有执行安装。
+
+在原生 bundle 改为同时验证两个角色共用源码、运行时版本与 bootstrap 身份后，已用同一组合重新运行该内存探针，两角色均通过；未生成或安装正式包。
+
+原生 updater 新增的 6 个局部最小测试节点也以 Node 原生 `--test` 运行，6 通过；该运行使用仓库依赖，不证明独立引导包的 frozen 安装或完整更新生命周期。
+
+旧版事务原语进一步以两份真实旧包的隔离副本运行：新文件集合仅为合成 `SKILL.md`、占位 descriptor/updater、Schema、旧依赖清单及对应实际 0.1.0 二进制；明确确认后完成激活、经清单退役并再次核对完成状态，两个 sentinel 保留。回调运行真实二进制的 version/help，合成 updater 以本次 Bun 进程可执行文件运行，不证明 Node 独立 updater、最终候选包、Windows 或完整 2.2。隔离目录本轮已清理。
+
+仓库候选运行时现已提供 `prepare:record-native`、其 `--check` 与显式角色调度器；本机重新 prepare 后检查和两个 `--version` 通过。只读检查会识别源码或程序漂移，入口不会自动构建；两项真实平台能力仍以当前宿主为限。`record-rust` Gate 接入其独立 Node 测试；Windows 2022 候选 workflow 已配置锁定依赖预取、私有准备、角色调度、隔离 fixture 测试及仅列明文件的 artifact，但尚未执行本次 revision 的远端 CI，不把配置当通过证据。正式生产 CLI 和现有发布映射保持原状。
+
+同法对独立 IR v4/definition 11 样例比较 AJV、旧 TS state parser 与冻结 Rust `list --json`：正常样例三者接受；重复 tag 三者拒绝；资源 ID `report/../secret` 由 Schema 的词法模式接受，但两种运行时拒绝，符合 Schema 对路径段附加校验交由 CLI 的注释。Rust 失败退出 1 并给出 `invalid-index`。这些均为局部样例，不能冒充两域完整格式或业务验收。

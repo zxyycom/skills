@@ -8,6 +8,11 @@ export const expectedSemanticChecks: readonly (readonly [
     "node",
     "./tools/record-cli/delivery/delivery.test.ts"
   ],
+  [
+    "test:record-rust:runtime",
+    "node",
+    "./scripts/lib/record-native/tests/runtime.test.ts"
+  ],
   ["test:record-rust:format", "cargo", "--check"],
   ["test:record-rust:clippy", "cargo", "warnings"],
   ["test:record-rust:cargo", "cargo", "--include-ignored"],

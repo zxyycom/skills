@@ -32,6 +32,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          test "$(getconf GNU_LIBC_VERSION)" = 'glibc 2.35'
           mkdir -p dist/record-cli-evidence
           {
             echo "revision=$(git rev-parse HEAD)"
@@ -53,41 +54,140 @@ jobs:
         run: cargo +1.98.1 test --manifest-path tools/record-cli/Cargo.toml --locked --all-targets -- --include-ignored --nocapture
       - name: Candidate offline delivery tests
         run: node --test tools/record-cli/delivery/delivery.test.ts
+      - name: Test cross-platform source evidence comparison
+        run: node --test scripts/lib/record-native/tests/ci-frozen.test.ts
       - name: Verify project test evidence coverage
         run: bun run check:test-evidence-catalog
-      - name: Build and verify real candidate install, update and rollback
-        shell: bash
-        run: |
-          set -euo pipefail
-          node tools/record-cli/delivery/verify-real.ts --build record-cli-ci 2>&1 | tee dist/record-cli-evidence/delivery.log
+      - name: Build and privately verify frozen pending-revision assets
+        run: node scripts/lib/record-native/ci-frozen.ts build
+      - name: Upload exact frozen Linux assets and evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: record-cli-frozen-linux
+          path: |
+            dist/record-cli-frozen-ci/comparison.json
+            dist/record-cli-frozen-ci/private-verification.log
+            dist/record-cli-frozen-ci/0.1.0/source-files.json
+            dist/record-cli-frozen-ci/0.1.0/native.json
+            dist/record-cli-frozen-ci/0.1.0/decision-records-0.1.0-x86_64-unknown-linux-gnu.zip
+            dist/record-cli-frozen-ci/0.1.0/investigation-report-0.1.0-x86_64-unknown-linux-gnu.zip
+            dist/record-cli-frozen-ci/0.1.1/source-files.json
+            dist/record-cli-frozen-ci/0.1.1/native.json
+            dist/record-cli-frozen-ci/0.1.1/decision-records-0.1.1-x86_64-unknown-linux-gnu.zip
+            dist/record-cli-frozen-ci/0.1.1/investigation-report-0.1.1-x86_64-unknown-linux-gnu.zip
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload candidate evidence and offline assets
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: record-cli-candidate-ubuntu-22.04
           path: |
-            dist/record-cli-evidence/
-            dist/record-cli-ci-a/source-files.json
-            dist/record-cli-ci-a/assets/
-            dist/record-cli-ci-b/source-files.json
-            dist/record-cli-ci-b/assets/
+            dist/record-cli-evidence/environment.txt
           if-no-files-found: warn
           retention-days: 7
 
   windows-smoke:
     runs-on: windows-2022
-    timeout-minutes: 15
+    timeout-minutes: 30
+    steps:
+      - name: Preserve Git blob line endings for prepared-source comparison
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.18.0
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.7.0
+      - name: Install test dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install 1.98.1 --profile minimal --target x86_64-pc-windows-msvc
+      - name: Prefetch locked Cargo dependencies
+        run: cargo +1.98.1 fetch --manifest-path tools/record-cli/Cargo.toml --locked --target x86_64-pc-windows-msvc
+      - name: Run isolated installer and runtime tests
+        shell: pwsh
+        run: |
+          node --test scripts/lib/record-native/tests/runtime.test.ts
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --test tools/skill-updater/tests/native-archive.test.ts tools/skill-updater/tests/native-bundle.test.ts tools/skill-updater/tests/native-legacy-plan.test.ts tools/skill-updater/tests/native-legacy-preflight.test.ts tools/skill-updater/tests/native-manifest.test.ts tools/skill-updater/tests/native-release.test.ts tools/skill-updater/tests/native-transaction.test.ts
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Prepare and validate private runtime
+        id: runtime
+        shell: pwsh
+        run: |
+          node scripts/prepare-record-native.ts
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node scripts/prepare-record-native.ts --check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node scripts/record-native-cli.ts decision-records --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node scripts/record-native-cli.ts investigation-report --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $receipt = Get-Content .local/record-cli/receipt.json -Raw | ConvertFrom-Json
+          if ($receipt.target -ne 'x86_64-pc-windows-msvc') { throw 'unexpected target' }
+          "generation=$($receipt.generation)" >> $env:GITHUB_OUTPUT
+          New-Item -ItemType Directory -Force dist | Out-Null
+          @("revision=$(git rev-parse HEAD)", "sourceHash=$($receipt.sourceHash)", "os=$([System.Environment]::OSVersion.VersionString)", "rustc=$(rustc -Vv)", "cargo=$(cargo -V)") | Set-Content dist/record-cli-windows-environment.txt
+      - name: Run private fixture smoke on prepared binaries
+        shell: pwsh
+        run: |
+          $env:RECORD_CLI_BIN_DIR = ".local/record-cli/${{ steps.runtime.outputs.generation }}"
+          node tools/record-cli/smoke/native.ts
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build frozen pending-revision private assets
+        run: node scripts/lib/record-native/ci-frozen.ts build
+      - name: Upload exact frozen Windows assets and evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: record-cli-frozen-windows
+          path: |
+            dist/record-cli-frozen-ci/comparison.json
+            dist/record-cli-frozen-ci/private-verification.log
+            dist/record-cli-frozen-ci/0.1.0/source-files.json
+            dist/record-cli-frozen-ci/0.1.0/native.json
+            dist/record-cli-frozen-ci/0.1.0/decision-records-0.1.0-x86_64-pc-windows-msvc.zip
+            dist/record-cli-frozen-ci/0.1.0/investigation-report-0.1.0-x86_64-pc-windows-msvc.zip
+            dist/record-cli-frozen-ci/0.1.1/source-files.json
+            dist/record-cli-frozen-ci/0.1.1/native.json
+            dist/record-cli-frozen-ci/0.1.1/decision-records-0.1.1-x86_64-pc-windows-msvc.zip
+            dist/record-cli-frozen-ci/0.1.1/investigation-report-0.1.1-x86_64-pc-windows-msvc.zip
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload exact private Windows evidence and binaries
+        if: always() && steps.runtime.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: record-cli-candidate-windows-2022
+          include-hidden-files: true
+          path: |
+            dist/record-cli-windows-environment.txt
+            .local/record-cli/receipt.json
+            .local/record-cli/${{ steps.runtime.outputs.generation }}/decision-records.exe
+            .local/record-cli/${{ steps.runtime.outputs.generation }}/investigation-report.exe
+          if-no-files-found: error
+          retention-days: 7
+
+  compare-frozen-sources:
+    needs: [candidate, windows-smoke]
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: 24.18.0
-      - name: Install pinned Rust toolchain
-        run: rustup toolchain install 1.98.1 --profile minimal --target x86_64-pc-windows-msvc
-      - name: Build native release binaries
-        run: cargo +1.98.1 build --manifest-path tools/record-cli/Cargo.toml --locked --release --bins --target x86_64-pc-windows-msvc
-      - name: Run private fixture smoke
-        shell: pwsh
-        run: |
-          $env:RECORD_CLI_BIN_DIR = 'tools/record-cli/target/x86_64-pc-windows-msvc/release'
-          node tools/record-cli/smoke/native.ts
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.7.0
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: record-cli-frozen-linux
+          path: evidence/linux
+      - uses: actions/download-artifact@v4
+        with:
+          name: record-cli-frozen-windows
+          path: evidence/windows
+      - name: Compare each version's frozen revision, hash and file list
+        run: node scripts/lib/record-native/ci-frozen.ts compare evidence/linux/comparison.json evidence/windows/comparison.json

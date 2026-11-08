@@ -67,6 +67,7 @@ export async function treeDigest(
     }
   }
   await visit(directory, "");
+  files.sort();
   const hash = createHash("sha256");
   for (const name of files) {
     const bytes = await readFile(path.join(directory, ...name.split("/")));
@@ -77,7 +78,9 @@ export async function treeDigest(
   return { sha256: hash.digest("hex"), files };
 }
 
-async function validateBuildEnvironment(): Promise<void> {
+export async function validateBuildEnvironment(
+  outputDirectory = outputRoot
+): Promise<void> {
   for (const [key, value] of Object.entries(process.env)) {
     if (!value) continue;
     if (
@@ -90,12 +93,12 @@ async function validateBuildEnvironment(): Promise<void> {
   }
   if (process.env.RUSTUP_TOOLCHAIN && process.env.RUSTUP_TOOLCHAIN !== "1.98.1")
     throw new Error("Rust toolchain override differs from pinned version");
-  await validateCargoConfig();
+  await validateCargoConfig(outputDirectory);
 }
 
-async function validateCargoConfig(): Promise<void> {
+async function validateCargoConfig(outputDirectory: string): Promise<void> {
   const cargoHome = process.env.CARGO_HOME ?? path.join(os.homedir(), ".cargo");
-  let ancestor = outputRoot;
+  let ancestor = outputDirectory;
   const configs = [
     path.join(cargoHome, "config"),
     path.join(cargoHome, "config.toml")
@@ -122,7 +125,7 @@ async function validateCargoConfig(): Promise<void> {
   }
 }
 
-async function validateSnapshot(
+export async function validateSnapshot(
   source: string
 ): Promise<{ sha256: string; files: string[] }> {
   const cargoToml = await readFile(path.join(source, "Cargo.toml"), "utf8");
@@ -214,7 +217,10 @@ async function writeAssets(
   );
 }
 
-function validateToolchain(source: string): { rustc: string; cargo: string } {
+export function validateToolchain(source: string): {
+  rustc: string;
+  cargo: string;
+} {
   const rustc = command("rustc", ["-Vv"], source);
   const cargo = command("cargo", ["-V"], source);
   if (!rustc.startsWith("rustc 1.98.1 ") || !cargo.startsWith("cargo 1.98.1 "))
@@ -243,7 +249,7 @@ async function prepareSuccessor(source: string): Promise<void> {
   }
 }
 
-async function buildAndVerifySnapshot(
+export async function buildAndVerifySnapshot(
   source: string,
   output: string,
   target: ReturnType<typeof hostTarget>,

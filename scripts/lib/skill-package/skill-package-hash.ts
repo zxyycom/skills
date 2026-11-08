@@ -105,6 +105,24 @@ export async function readPendingSkillPackageSnapshot(
   const files = await repository.readPendingFiles({
     pathScopes: [skillsTreePath]
   });
+  return skillPackageSnapshotFromPendingFiles(
+    files,
+    workspaceRoot,
+    repository.rootDirectory
+  );
+}
+
+/** Derive package membership from an already captured pending input set. */
+export function skillPackageSnapshotFromPendingFiles(
+  files: readonly VersionControlFile[],
+  workspaceRoot: string,
+  repositoryRoot: string
+): SkillPackageSnapshot {
+  const skillsDirectory = path.join(workspaceRoot, skillsRootName);
+  const skillsTreePath = resolveRepositoryTreePath(
+    skillsDirectory,
+    repositoryRoot
+  );
   const filesBySkill = new Map<string, SkillPackageFile[]>();
 
   for (const pendingFile of files) {

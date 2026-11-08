@@ -200,10 +200,15 @@ test("semantic Gate catalog matches its aggregate native entry points", async ()
 });
 
 test("semantic commands retain native store, version-control and retired performance entry policies", async () => {
-  assert.equal(
-    semanticGateChecks.filter(({ command }) => command.command === "node")
-      .length,
-    2
+  assert.deepEqual(
+    semanticGateChecks
+      .filter(({ command }) => command.command === "node")
+      .map(({ checkId }) => checkId),
+    [
+      "test:record-rust:delivery",
+      "test:record-rust:runtime",
+      "test:task-graph:native-store"
+    ]
   );
   assert.deepEqual(
     semanticGateChecks.find(

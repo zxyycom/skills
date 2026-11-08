@@ -420,14 +420,14 @@
       "FILE-TEXT-SEARCH-UNICODE-RANGE-001": "sha256:b5d26feccaed24eeced503aaebd335488485a8fa64f442afe9f53c524e7f34b0",
       "GATE-CATALOG-LEAF-OWNER-001": "sha256:aa5ca5b04a0a7be7e3f4bfb4caf94eb91f36a1330484adc954fb11cf158ef684",
       "GATE-CLI-PATH-NORMALIZATION-001": "sha256:b0ef6c91f63d8fbc99cf473ffd3a63885b2db3788f19b8dd795979ccaec578a7",
-      "GATE-CLI-PERFORMANCE-BOUNDARY-001": "sha256:a201c2389bb866ed9ebd430347bea2ba6dff75c044aeb2bef6a40155b753e4da",
+      "GATE-CLI-PERFORMANCE-BOUNDARY-001": "sha256:a2eac8c640123cb5e7b4c1fed4784af13bf48f0c3f24f6beae089faf1d7f10ea",
       "GATE-CLI-PERFORMANCE-WRITE-FAILURE-001": "sha256:578c20379a00d98cb5f940ae23a844bf6881aaf85feda1de8199ce143e7e5bc2",
       "GATE-CLI-RESULT-001": "sha256:ce0150cded4fd6b58fa9f17d7bec1742a185e3c8601dbbf236d1da78ffc6ad6c",
       "GATE-COMPLETE-CODE-METRICS-001": "sha256:4d29f879d38057204c0f267e1f64477d9948f45367d76898a7f6f1523d7069ec",
       "GATE-DECISION-ACQUISITION-CLI-CLOSURE-001": "sha256:7364b9c31acd0c1fb4b5a0444117dcc6bc5d0037d853c0fb3009e35d54b9d7db",
       "GATE-DECLARATION-CODE-UNION-001": "sha256:ed18174808399f489a15e244027363d96cce23aa29512a7d931123510af31345",
       "GATE-DECLARATION-QUALITY-001": "sha256:daa5adda3af204fbff1c676a4aaf6944e4a41e354a0d8bb4bc5d99441c3e47a5",
-      "GATE-DEFINITION-CATALOG-001": "sha256:ac2f3540763427eaacf14f59c6d1b9b2fbb8bcfb417456999622039b4293d1ef",
+      "GATE-DEFINITION-CATALOG-001": "sha256:30f1dbb418a846468d9c31f837137a4b5d6fc20c536747b1b674bf7c6dcfbd6a",
       "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:26cb313b78a02adfd991b0f6c107778aff8aae0e1a2d88be63a826f67e02f851",
       "GATE-DOMAIN-AGGREGATE-OWNER-001": "sha256:88fc2665fc4767f25c3349ad1d94b3e860ba7070e904c4d5e8c6efad53bcf6e6",
       "GATE-DOMAIN-TEST-INPUT-OWNER-001": "sha256:82ec10959e26f0b6a962cd5990558ee7c66208b156e01e313161294743b4f730",
@@ -439,7 +439,7 @@
       "GATE-GENERATED-INPUTS-001": "sha256:1c65028b1e0e874773640a33280e9d928cb1d737e411a80e30b246a5603b0ddc",
       "GATE-GENERATED-TYPE-INPUTS-001": "sha256:fe437c714ab5949f97c6f45992d59b4dabb0ecad4b9578c456409f340d505bdb",
       "GATE-GENERATION-PRECONDITION-001": "sha256:9fcd26f5b8220520c24c3f308099ae327604c7dab9328e9833aa57a2966c1713",
-      "GATE-INCREMENTAL-ACTIVATION-001": "sha256:b340a057d832ff59153cd24cbf1a7472519ede662409f201e4b3a196a42c8129",
+      "GATE-INCREMENTAL-ACTIVATION-001": "sha256:3d4384cd6a310d3edca1eba7b8a47ad5b52c9935d12af71c8061270c894f5182",
       "GATE-INVESTIGATION-CLI-OWNER-001": "sha256:cc335552770f534d9a47d30955e7fd8b399e2f2bfbc31aff44d5bd030ef70c88",
       "GATE-LAYOUT-IDENTITIES-001": "sha256:4d9d84c611a2b64173d8a558d1ea609ba31bff26032a93a39ab61908578fdad2",
       "GATE-LAZY-RELATION-INPUT-OWNERSHIP-001": "sha256:41d23363aeb2bc50bc5b04eb8502f9dd50beb628d907c68f4cf4d930f51bab3b",
@@ -463,8 +463,8 @@
       "GATE-MARKDOWN-PROOF-ROUTING-001": "sha256:0c359dd4dcc76d92ef65dd1de92e2e947e75ac92f2e8b69585a7a58375a7a56f",
       "GATE-METRICS-BLOCKING-001": "sha256:117b497aea2bb4c203cd1b2e8dc051c78002a3e36944734539884be66b0c00d8",
       "GATE-NARROW-PUBLICATION-001": "sha256:b626820488b519f4a768ccc34a3ebf5be5bd133e29d20dd2cace4b7c4a90f35f",
-      "GATE-NATIVE-BUILD-CODE-001": "sha256:93625d18a828427ba01771c33252d55955452611614675c250d7fc9ecf4f0318",
-      "GATE-NATIVE-BUILD-MATERIALS-001": "sha256:837d70e7c0266ffbd577f522e485848f18c942d4ea408b787b1aa1c032c97699",
+      "GATE-NATIVE-BUILD-CODE-001": "sha256:216d98c534ea52edc43be67a9c5ad30b660933e5c420eeef86a8d7b5e7705264",
+      "GATE-NATIVE-BUILD-MATERIALS-001": "sha256:fa954af3b681946af1a89e0dd01932babef8f2798fb5e3a35b4b60ceee6f1b36",
       "GATE-NATIVE-COMMAND-LAUNCH-001": "sha256:f0bb76570a8c1b1e6218a3a86a2e009f2c6c8102319c13468c2388f8f8e8339f",
       "GATE-NATIVE-DURATION-BUDGET-001": "sha256:0e19abd2836cc7b11df4f429d39a4732319e1bcefcfa7f0203fbf1a37a0e207a",
       "GATE-PERFORMANCE-EXECUTED-SAMPLES-001": "sha256:8f25a5d06d53243a5f50174eb5db22f1c64a150e5141bc36b5e92a4a018119a6",
@@ -477,7 +477,7 @@
       "GATE-QUERY-ADAPTER-HELPER-OWNER-001": "sha256:be8720c23a9a9e512f3fa4221195feed039f00e5d44956524cecac23e134fab1",
       "GATE-QUICK-RECEIPT-ISOLATION-001": "sha256:5d23c3ed881f2f2b4191c33d1b9c796b4f788defdfdb1d1ff65511957b216ac4",
       "GATE-RECORD-OPERATIONS-INPUTS-001": "sha256:42a4cf7a5f5179bd731a9053182c11eeb042e7b2dd9512c537cbe6ae7fb15d91",
-      "GATE-RELEASE-FULL-EXECUTION-001": "sha256:77d31d53602c1e83f6b4f1ec3e7b3d918f588e785470eedea79913b964562628",
+      "GATE-RELEASE-FULL-EXECUTION-001": "sha256:402342000123e84744a2befeaea7347bab18db752966fe0ce29687b092cb5bfc",
       "GATE-RELEASE-PRIVATE-HANDOFF-001": "sha256:b531529bf6e18c4b7b535ef33e8bfbab7e730557a17f3251dbaed89e819dddb9",
       "GATE-RELEASE-SNAPSHOT-TOCTOU-001": "sha256:fd5d3a2fe06b026efbced0ae8c18266d0da4c08f056763a95e36cd5d4de81f18",
       "GATE-RELEASE-VERSION-FAILURE-001": "sha256:c577f7694ee8829993bfb7efcbbcad48c3f5864615fcaa6520bd01cbc9d436b7",
@@ -1004,6 +1004,18 @@
       "MCPSHELL-BRIDGE-RUNTIME-003": "sha256:c6826ca9aa1a2ca76dddb4a2b7e8d46c596cbdb27ad339f64b294b0d9f23876a",
       "MCPSHELL-BRIDGE-SHELL-001": "sha256:e7d4fad77c6c3e0835afb51c9cc30ffe61776491048b6e8debfb580c8f4f88f1",
       "MCPSHELL-BRIDGE-SHELL-002": "sha256:54dfbf839a6686cf12ede129b5388db6f6e35552fb548906f61bc784fc9a53c1",
+      "NATIVE-ARCHIVE-SAFETY-001": "sha256:df320bfbbb487ad2998260c8db0f386b0fb91db4bdd98375d7601797fa752423",
+      "NATIVE-BUILD-FROZEN-INPUT-001": "sha256:96ddee98a05553a49680ffb0c8a66bb7ba220cff76f82db2ea104e9ff9371a59",
+      "NATIVE-BUNDLE-IDENTITY-001": "sha256:4e5c180342f608a6a58580f6b361cf36bee95f8db60138fae6f84f3859701d7d",
+      "NATIVE-CI-SOURCE-CONSISTENCY-001": "sha256:0716d9f73460fd4e055e5e22bae4c5aa169f6708d29aa56a6c512d7a7321d88a",
+      "NATIVE-DISPATCH-PROTOCOL-001": "sha256:0329d3c8a9c299cfe9587b02534b83c90478aed16c0d9b27ec82f92176bc33d9",
+      "NATIVE-LEGACY-ACTIVATION-001": "sha256:a39bb51f0cdc8b494443e95071a1b81540b59219966af156a236515491490dbd",
+      "NATIVE-LEGACY-CLEANUP-001": "sha256:6640b0683c138c816e716b9fc7c864a0b3ea8c0d67cf5f4696a2be5a227d9b25",
+      "NATIVE-LEGACY-CONCURRENT-ROLLBACK-001": "sha256:38813ba9cda0b04a590cae73346a4076274c5369da90d82389f2fd3ac9de48dd",
+      "NATIVE-LEGACY-CONFIRMATION-001": "sha256:fc0b2a3fc06494f7a110682b86fc5e2609a2c77e39799e0aef49ec629d96cdfb",
+      "NATIVE-LEGACY-HANDOFF-001": "sha256:d4ff544721f9144d4dfcc63ac77b3c8b6c88d9d4ce35d52bd0384e5e45f4d695",
+      "NATIVE-LEGACY-PREFLIGHT-001": "sha256:9e0f59982a9794468c3628667bdfd9a9795214b055ee1b292ce58c8f352b0132",
+      "NATIVE-LEGACY-ROLLBACK-001": "sha256:aa36e4d129dc4bda27a27e690539c8d950ffce96eb231281e07582692388ba30",
       "NATIVE-RECORD-AUTHOR-CREATE-001": "sha256:c2186c63aa5589a21d55ce30d6f59954819fc7b0cde4407119c9679ffde15230",
       "NATIVE-RECORD-AUTHOR-PUBLISH-001": "sha256:8c320601e9c14e83773801596feab88ead1909cb126f16369b6a2572b80827ec",
       "NATIVE-RECORD-CLI-CONTRACT-001": "sha256:e62089cd0d1d3d09249f8c1fd6bd93c202941d6124c6509be4c10bf357d57cab",
@@ -1017,7 +1029,7 @@
       "NATIVE-RECORD-DELIVERY-001": "sha256:8982a8c97224e800bee4af398bb49fa6c18c827a019d0f98be399e50cb08698b",
       "NATIVE-RECORD-DOMAIN-INDEX-001": "sha256:642ce748ed70d7c37a8633f70eecdf4e982d0b46161d942abe15b85e5c5e99a7",
       "NATIVE-RECORD-DR-MARKDOWN-001": "sha256:8cbc34684d229f49c31dd9f3792fd279f310fb19774f791ce1cdc83862d00ac7",
-      "NATIVE-RECORD-GATE-FIXTURE-INPUT-001": "sha256:b3404f610d6241aaebb5df6e72f1db9042a83228e643460f4aa4a3a62d07952d",
+      "NATIVE-RECORD-GATE-FIXTURE-INPUT-001": "sha256:f66c27c2455599fd09a91c010711a6eda2895e77367960760ca9e4197125dd69",
       "NATIVE-RECORD-GATE-RUST-METRICS-001": "sha256:7b9913bf84ae4f682332910dd69debbb33bf10abee50af9646f2ef36a7854dbd",
       "NATIVE-RECORD-GATE-WAIVER-001": "sha256:507e1d930b1f68645af44f9e0822ebb54d5f76dfcaad58ee167898ba8f483da4",
       "NATIVE-RECORD-GIT-HISTORY-001": "sha256:b5753954a575c1fc7d19285c16de8568b48c6e76621726de3b27551b5bfcd1ab",
@@ -1054,6 +1066,15 @@
       "NATIVE-RECORD-TXN-OUTCOME-001": "sha256:069ef36019035b17ffe30d381943888551b50410efb9fd3df86796e541af9837",
       "NATIVE-RECORD-TXN-PARTIAL-001": "sha256:2cfaaf1d430c01b029b799c7663a5a875c7dacbd61f388bd5103b951eb162e79",
       "NATIVE-RECORD-TXN-RESOURCE-MOVE-001": "sha256:ca6e2b78c070c0641ea68f8715b3f3f201d4ae2cecb6ad545c84af042d47f8ca",
+      "NATIVE-RELEASE-CAPTURE-001": "sha256:cad35089d8d5140d5708bd4774d9ccc63e776ce4c60f728df5a1fddfc9bfcfba",
+      "NATIVE-RELEASE-FETCH-001": "sha256:e0182bcd449060a8efae5661ff14cba24279a9e2d69103cb518cc2fe387350a0",
+      "NATIVE-RELEASE-MANIFEST-001": "sha256:005ba546a263f024c0043dd4c52b2cdcee94073a64bbf6b0ff68860fd1c323ce",
+      "NATIVE-RELEASE-STAGING-001": "sha256:04fee029915aeb0b7c9904c20008dc4adda161b92b5c29e7ebc9d583d0196af9",
+      "NATIVE-REPOSITORY-RUNTIME-001": "sha256:4c3b26c404f5a2a507c78242f4df74496c1d7931309498c1c88bd4ed900d0dd7",
+      "NATIVE-RUNTIME-ALIAS-001": "sha256:b2e257c4898f22f7b8cef663800b3ed95459d0121cccd3d2760a05e4460d1225",
+      "NATIVE-RUNTIME-GATE-INPUT-001": "sha256:8ba3e0d761f56ef826280a30e1e2ffd9ad86734099a40e07d6fe45ff7bb9d43d",
+      "NATIVE-RUNTIME-SCAN-EXCLUSION-001": "sha256:9c1d0cb3b2bb07d421ca3ae29c491687b47082be706a159f113595e8c87897d7",
+      "NATIVE-SOURCE-ORDER-001": "sha256:f5c682823090eb643fcb72ed65506f61d1f4a921662b1aa72e98bc572553cc49",
       "NOVEL-CARDS-AUTHOR-REVISION-022": "sha256:28d2edbc1eddaa6770dedaa7c7cc00f0d79c9c0f756f673a47d91090d850ee31",
       "NOVEL-CARDS-BATCH-INPUT-DIAGNOSTICS-037": "sha256:d635ed50035e17208bee01b3b159c9474f6597e57a7c483c864762b90cfbe755",
       "NOVEL-CARDS-BOM-PRESERVATION-032": "sha256:c9860626e3c772ccb1b13cbf74536f9027f7d6fbd7442ffd912a270f7234def5",
@@ -11812,6 +11833,126 @@
         "test:23d35d88f7a6242676cf1947db710bb37780cd39522b09192b2bf8a17b9caaa9"
       ]
     },
+    "NATIVE-ARCHIVE-SAFETY-001": {
+      "title": "原生归档解包前拒绝不安全成员",
+      "sourcePath": "cases/native-archive-safety-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:e22b46b9b438aa0d48de3d6a41e8c630920dd4656ce888e6095b3bd05c037422"
+      ]
+    },
+    "NATIVE-BUILD-FROZEN-INPUT-001": {
+      "title": "构建前拒绝已变化的冻结源码",
+      "sourcePath": "cases/native-build-frozen-input-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:2e3ceb5f351eced5a955eb3b8c49a07624d85b10c234d412a0b6034802d60eb1"
+      ]
+    },
+    "NATIVE-BUNDLE-IDENTITY-001": {
+      "title": "原生包与运行时按发布身份绑定",
+      "sourcePath": "cases/native-bundle-identity-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:ee946f7f4b964f9ae7b72a44fd37c9f47e2d80c40558f3de6d0b22272912e209"
+      ]
+    },
+    "NATIVE-CI-SOURCE-CONSISTENCY-001": {
+      "title": "双平台冻结来源一致",
+      "sourcePath": "cases/native-ci-source-consistency-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:77e434ab72865c9552ad88a526d5226fe884fa5a2ee8c1746f20b9631164862a"
+      ]
+    },
+    "NATIVE-DISPATCH-PROTOCOL-001": {
+      "title": "仓库原生调度器透传进程协议",
+      "sourcePath": "cases/native-dispatch-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:3b07ce0a6bd5d35153ec832b02c81494f1370882f02da95d71e2c95e5f6209c1"
+      ]
+    },
+    "NATIVE-LEGACY-ACTIVATION-001": {
+      "title": "原生交接最后激活说明并清理已验证旧文件",
+      "sourcePath": "cases/native-legacy-activation-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:9ce2a16880402994e329372a97deb26667973fce696a32e9f5daeac82e6bda70"
+      ]
+    },
+    "NATIVE-LEGACY-CLEANUP-001": {
+      "title": "激活后清理冲突保留现场",
+      "sourcePath": "cases/native-legacy-cleanup-pending-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:5c56cb37b5df48a68afb887b2d84260d9fd316badc9347323df13ffb02762ea7"
+      ]
+    },
+    "NATIVE-LEGACY-CONCURRENT-ROLLBACK-001": {
+      "title": "回滚不覆盖并发更改",
+      "sourcePath": "cases/native-legacy-concurrent-rollback-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:9ea32b3dfe4b4fe2720e75869286e9b90b56ff050be823f1b187ac7c0f8e1c84"
+      ]
+    },
+    "NATIVE-LEGACY-CONFIRMATION-001": {
+      "title": "旧版升级先验证版本与确认",
+      "sourcePath": "cases/native-legacy-confirmation-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:4b3f03792b0ba7d3e5327533283a3025ee6cf1a06e96edbda1e150890e9e7f43"
+      ]
+    },
+    "NATIVE-LEGACY-HANDOFF-001": {
+      "title": "旧版交接计划保留定制与依赖",
+      "sourcePath": "cases/native-legacy-handoff-plan-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:f88665660489ea5ba2fb07bae2787e0591ca3ca1f28ce0d3d756ac95d0246fcb"
+      ]
+    },
+    "NATIVE-LEGACY-PREFLIGHT-001": {
+      "title": "旧安装冲突在写入前识别",
+      "sourcePath": "cases/native-legacy-preflight-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:acc159f7a1f056375ba1b9c5f556a403be96a15cf74e40da47aab1e27aa9e9ab"
+      ]
+    },
+    "NATIVE-LEGACY-ROLLBACK-001": {
+      "title": "激活前失败恢复旧安装",
+      "sourcePath": "cases/native-legacy-rollback-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:16921649cf92c3f71c32fbdf485d73e7375ca4884876631260de8f12014a2654"
+      ]
+    },
     "NATIVE-RECORD-AUTHOR-CREATE-001": {
       "title": "双域候选新建和选择器",
       "sourcePath": "cases/native-record-author-create.md",
@@ -12521,6 +12662,97 @@
       ],
       "testIds": [
         "test:00096300802c4f2af731ae4aa4ffb9d5680cdd42997d2f02ee4e3dd95038aa46"
+      ]
+    },
+    "NATIVE-RELEASE-CAPTURE-001": {
+      "title": "同次 pending 捕获原生源码与 skill",
+      "sourcePath": "cases/native-capture-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:3df6b11970f11e3a20a6ba0df6c71ba5c2e2539a9991bba5b0f0d8f082f7dd8f"
+      ]
+    },
+    "NATIVE-RELEASE-FETCH-001": {
+      "title": "原生下载限定已选仓库与资产身份",
+      "sourcePath": "cases/native-release-fetch-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:c4cca8890e918a4f26f80e505c4c321327ce9003fb62792ecdb7105b0196a192"
+      ]
+    },
+    "NATIVE-RELEASE-MANIFEST-001": {
+      "title": "原生发布扩展绑定制品身份并保持基础投影",
+      "sourcePath": "cases/native-release-manifest-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:338e90d907e40a9283484d152d0d6777dedd2c2e29328af1d3c343147c289bc0"
+      ]
+    },
+    "NATIVE-RELEASE-STAGING-001": {
+      "title": "原生输入在独占目录中暂存",
+      "sourcePath": "cases/native-release-staging-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:581578fa88e4b805d9d5a899d4b5c84194284ab0625bb6bc99c173cece50a354"
+      ]
+    },
+    "NATIVE-REPOSITORY-RUNTIME-001": {
+      "title": "仓库运行时检查来源及二进制新鲜度",
+      "sourcePath": "cases/native-repository-runtime-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:45a5fd516ea1383db421f6f0268beac22ab3218968d722bbf040a47ace995dca"
+      ]
+    },
+    "NATIVE-RUNTIME-ALIAS-001": {
+      "title": "仓库运行时拒绝别名路径",
+      "sourcePath": "cases/native-runtime-alias-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:4b415030cf1c41b31bc4d5747de59f19eb6e27b6e8b121953d29b514b5074d0c",
+        "test:ef3b73b5bbb4feab4cc6732e3ec926003e0d4c95608f4b580ca673ee7a080bc9"
+      ]
+    },
+    "NATIVE-RUNTIME-GATE-INPUT-001": {
+      "title": "原生准备与构建输入驱动相关检查",
+      "sourcePath": "cases/native-runtime-gate-input-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:dbdb5802a5c44cdd0dcb23e35885a817cb5e49ea6d09b7f58f63d5e39ce1cbf6"
+      ]
+    },
+    "NATIVE-RUNTIME-SCAN-EXCLUSION-001": {
+      "title": "项目检查仅排除受管本地运行时",
+      "sourcePath": "cases/native-runtime-scan-exclusion-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:0a01ab45309020b96f7b5d31f42d1dbbfbbf8586c1c2a4484784aca81b098fef"
+      ]
+    },
+    "NATIVE-SOURCE-ORDER-001": {
+      "title": "冻结源码摘要按完整路径排序",
+      "sourcePath": "cases/native-source-order-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:248fc53ebe1ddac0c970bdddcfe47b40d9a1034b8cc9f835507d528c775832ab"
       ]
     },
     "NOVEL-CARDS-AUTHOR-REVISION-022": {

@@ -6,6 +6,7 @@
 
 - 两域索引 JSON Schema 的数据源移到 `tools/record-contracts/schemas/`，生成器复制该源，旧 TS 导出器在准备期消费该源。保留领域规则和通用 Index Runtime 的职责；这是两域持久格式的纯数据协议，不是 SDK。
 - 当前 Schema 源位于两域 `src/index/*-index-json-schema.ts`，依赖领域定义。1.1 须逐项核对现有格式、规则及 Rust 校验；只迁移导出结果不足以证明语义一致。
+- 正式支持合法 Unicode 文本。旧 TS 对 YAML/JSON 转义中孤立 UTF-16 代理项的宽松接受不延续；原生入口明确报错，禁止静默替换或丢字。正常持久格式仍须保持。
 - 该纯数据源取代两域原有 TS Schema 构造源，属于跨语言格式 owner 的明确变更。实施时更新分发规范及决策；其他工具的 Valibot 结构源和通用索引定义不随之退役。
 
 ## 身份与资产

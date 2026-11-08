@@ -11,5 +11,5 @@ Contract:
 
 Proves:
 - 从真实三项 Check 读取文件策略，经 collectProjectFiles 扫描私有真实文件树；重复检测和文件指标恰好选中独立列出的产品、自动化及测试源码，函数指标三角色分别选中自身路径。
-- 正样本包含 scripts/build 直接源码、测试及 nested/src 下源码；负样本包含 root 与 scripts/build 下的默认排除目录、generated 文件、技能副本、历史资源和再次嵌套 build。
+- 正样本包含 scripts/build 直接源码、测试及 nested/src 下源码；负样本包含 root 与 scripts/build 下的默认排除目录、generated 文件、技能副本、历史资源、受管本地记录运行时和再次嵌套 build。
 - scripts-copy/build、scripts2/build、scripts/building/build、scripts/building/deep/build、scripts/buildish/build 与 scripts/builds/build 不因 micromatch 前缀语义而获得源码例外。
