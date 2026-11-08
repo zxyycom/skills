@@ -1,5 +1,8 @@
 //! Normalized, segment-aware selection shared by metadata and content search.
-use std::collections::HashSet;
+use std::{
+    cmp::Reverse,
+    collections::{BinaryHeap, HashSet, binary_heap::PeekMut},
+};
 use unicode_normalization::UnicodeNormalization;
 use unicode_segmentation::UnicodeSegmentation;
 
@@ -70,10 +73,35 @@ impl Matcher {
     }
 }
 /// Original UTF-16 offsets of a merged normalized match.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize)]
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd, serde::Serialize)]
 pub struct MatchRange {
     pub start: usize,
     pub end: usize,
+}
+
+// Field order preserves original UTF-16 range priority and equal-range term order.
+#[derive(Clone, Copy, Eq, Ord, PartialEq, PartialOrd)]
+struct MatchHead {
+    range: MatchRange,
+    needle_index: usize,
+    normalized_byte_offset: usize,
+}
+
+impl MatchHead {
+    // Advance one normalized character so overlapping occurrences remain visible.
+    fn next_match(self, mapped: &MappedText, needles: &[&str]) -> Option<Self> {
+        let next = self.normalized_byte_offset
+            + mapped.content[self.normalized_byte_offset..]
+                .chars()
+                .next()
+                .map_or(1, char::len_utf8);
+        let (at, range) = mapped.find(needles[self.needle_index], next)?;
+        Some(Self {
+            range,
+            needle_index: self.needle_index,
+            normalized_byte_offset: at,
+        })
+    }
 }
 
 impl Matcher {
@@ -87,20 +115,23 @@ impl Matcher {
         } else {
             self.terms.iter().map(String::as_str).collect()
         };
-        let mut heads: Vec<_> = needles
+        // A one-term queue has one element and needs no heap comparisons.
+        let mut heads: BinaryHeap<_> = needles
             .iter()
-            .map(|needle| mapped.find(needle, 0))
+            .enumerate()
+            .filter_map(|(needle_index, needle)| {
+                let (at, range) = mapped.find(needle, 0)?;
+                Some(Reverse(MatchHead {
+                    range,
+                    needle_index,
+                    normalized_byte_offset: at,
+                }))
+            })
             .collect();
         let mut merged: Vec<MatchRange> = Vec::new();
-        loop {
-            let Some((index, (at, range))) = heads
-                .iter()
-                .enumerate()
-                .filter_map(|(index, head)| head.map(|head| (index, head)))
-                .min_by_key(|(_, (_, range))| (range.start, range.end))
-            else {
-                return (merged, false);
-            };
+        while let Some(mut head) = heads.peek_mut() {
+            let Reverse(current) = *head;
+            let range = current.range;
             if let Some(previous) = merged
                 .last_mut()
                 .filter(|previous| range.start <= previous.end)
@@ -111,13 +142,13 @@ impl Matcher {
             } else {
                 merged.push(range);
             }
-            let next = at
-                + mapped.content[at..]
-                    .chars()
-                    .next()
-                    .map_or(1, char::len_utf8);
-            heads[index] = mapped.find(needles[index], next);
+            if let Some(next) = current.next_match(&mapped, &needles) {
+                *head = Reverse(next);
+            } else {
+                PeekMut::pop(head);
+            }
         }
+        (merged, false)
     }
 }
 // Carries normalized bytes and their corresponding original UTF-16 spans.
@@ -249,6 +280,44 @@ mod tests {
         assert_eq!(
             matcher.limited_ranges("ﬃ ﬃ", 1),
             (vec![MatchRange { start: 0, end: 1 }], true)
+        );
+    }
+
+    #[test]
+    fn multi_term_preview_merges_ranges_before_applying_budget() {
+        for (query, text, maximum, expected, truncated) in [
+            ("ab cd", "cdab", 1, vec![(0, 4)], false),
+            ("aaa aa a", "aaaa xx aaaa", 1, vec![(0, 4)], true),
+            ("aaa aa a", "aaaa xx aaaa", 2, vec![(0, 4), (8, 12)], false),
+            ("aaa aa a", "aaaa", 0, vec![], true),
+            ("a b", "xyz", 0, vec![], false),
+        ] {
+            let matcher = Matcher::new(query, MatchMode::Any).unwrap();
+            let ranges = expected
+                .into_iter()
+                .map(|(start, end)| MatchRange { start, end })
+                .collect();
+            assert_eq!(
+                matcher.limited_ranges(text, maximum),
+                (ranges, truncated),
+                "query={query:?}, text={text:?}, maximum={maximum}"
+            );
+        }
+    }
+
+    #[test]
+    fn multi_term_preview_preserves_utf16_when_normalized_matches_tie() {
+        let matcher = Matcher::new("f ff ffi", MatchMode::Any).unwrap();
+        let text = "😀 ﬃ ff";
+        assert_eq!(
+            matcher.limited_ranges(text, 2),
+            (
+                vec![
+                    MatchRange { start: 3, end: 4 },
+                    MatchRange { start: 5, end: 7 },
+                ],
+                false,
+            )
         );
     }
 }
