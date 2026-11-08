@@ -16,6 +16,32 @@ export type NativeCandidateSnapshot = Readonly<{
   deliveryHash: string;
 }>;
 
+function resolveDeliveryScopes(
+  workspaceRoot: string,
+  repositoryRoot: string
+): string[] {
+  return [
+    "tools/record-contracts",
+    "tools/record-cli/delivery",
+    "tools/skill-updater/src",
+    "tools/skill-package/src",
+    "tools/shared/src",
+    "scripts/lib/generation",
+    "scripts/lib/record-native",
+    "scripts/lib/skill-package",
+    "scripts/lib/project.ts",
+    "scripts/prepare-record-native.ts",
+    "scripts/lib/oxc-config.ts",
+    "scripts/build/skill-updaters.ts",
+    "scripts/build/native-record-candidate.ts",
+    "scripts/build/assemble-native-candidate.ts",
+    "package.json",
+    "pnpm-lock.yaml"
+  ].map((name) =>
+    resolveRepositoryTreePath(path.join(workspaceRoot, name), repositoryRoot)
+  );
+}
+
 /** Capture both inputs in one Git index enumeration; never read the worktree. */
 export async function captureNativeCandidateSnapshot(
   workspaceRoot: string
@@ -29,26 +55,9 @@ export async function captureNativeCandidateSnapshot(
     path.join(workspaceRoot, "tools/record-cli"),
     repository.rootDirectory
   );
-  const deliveryScopes = [
-    "tools/record-contracts",
-    "tools/record-cli/delivery",
-    "tools/skill-updater/src",
-    "tools/skill-package/src",
-    "tools/shared/src",
-    "scripts/lib/generation",
-    "scripts/lib/record-native",
-    "scripts/lib/skill-package",
-    "scripts/lib/project.ts",
-    "scripts/lib/oxc-config.ts",
-    "scripts/build/skill-updaters.ts",
-    "scripts/build/native-record-candidate.ts",
-    "package.json",
-    "pnpm-lock.yaml"
-  ].map((name) =>
-    resolveRepositoryTreePath(
-      path.join(workspaceRoot, name),
-      repository.rootDirectory
-    )
+  const deliveryScopes = resolveDeliveryScopes(
+    workspaceRoot,
+    repository.rootDirectory
   );
   const pending = await repository.readPendingFiles({
     pathScopes: [skillTree, sourceTree, ...deliveryScopes]

@@ -59,6 +59,18 @@ test(
         readStagedDelivery(stage, snapshot.deliveryHash),
         /differs from its frozen manifest/
       );
+      await fs.writeFile(
+        path.join(stage, "delivery-files.json"),
+        JSON.stringify({
+          sha256:
+            "c7d4c6545385d9e5bbd9f2765f220c15b2cf122adc79b877dfd31a80fbae0fd4",
+          files: ["package.json"]
+        })
+      );
+      await assert.rejects(
+        readStagedDelivery(stage, snapshot.deliveryHash),
+        /differs from its frozen manifest/
+      );
       assert.equal(
         await fs.readFile(path.join(dist, "sentinel"), "utf8"),
         "keep"

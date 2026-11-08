@@ -1,3 +1,7 @@
+import {
+  compatibleUpdaterDependencies,
+  updaterDependencyHook
+} from "./updater-dependencies.ts";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -75,8 +79,39 @@ export async function validateNativeRuntime(
   );
   if (!value || typeof value !== "object" || Array.isArray(value))
     throw new Error("prepared schema is invalid");
-  runChecked(process.execPath, [
-    path.join(root, "scripts/update-skill.ts"),
-    "--help"
-  ]);
+  await verifyPreparedUpdater(root);
+}
+
+/** Prefer target resolution; fallback only for missing known dependencies and compatible explicit inputs. */
+export async function verifyPreparedUpdater(root: string): Promise<void> {
+  const script = path.join(root, "scripts/update-skill.ts");
+  const options = {
+    encoding: "utf8" as const,
+    timeout: 30_000,
+    maxBuffer: 1024 * 1024,
+    env: { ...process.env, NODE_OPTIONS: "" }
+  };
+  const direct = spawnSync(process.execPath, [script, "--help"], options);
+  if (!direct.error && direct.status === 0) {
+    return;
+  }
+  const missing = /Cannot find package ['"](fflate|valibot|yaml)['"]/u.exec(
+    direct.stderr ?? ""
+  );
+  if (!missing || !(direct.stderr ?? "").includes("ERR_MODULE_NOT_FOUND")) {
+    throw new Error(
+      "prepared updater --help failed; install compatible dependencies explicitly"
+    );
+  }
+  await compatibleUpdaterDependencies(root);
+  const fallback = spawnSync(
+    process.execPath,
+    ["--import", updaterDependencyHook(), script, "--help"],
+    options
+  );
+  if (fallback.error || fallback.status !== 0) {
+    throw new Error(
+      "prepared updater --help failed with the explicitly installed validation dependencies"
+    );
+  }
 }

@@ -55,7 +55,7 @@ jobs:
       - name: Candidate offline delivery tests
         run: node --test tools/record-cli/delivery/delivery.test.ts
       - name: Test cross-platform source evidence comparison
-        run: node --test scripts/lib/record-native/tests/ci-frozen.test.ts
+        run: node --test scripts/lib/record-native/tests/ci-frozen.test.ts scripts/lib/record-native/tests/ci-bootstrap-source.test.ts
       - name: Verify project test evidence coverage
         run: bun run check:test-evidence-catalog
       - name: Build and privately verify frozen pending-revision assets
@@ -90,12 +90,15 @@ jobs:
           retention-days: 7
 
   windows-smoke:
+    needs: candidate
     runs-on: windows-2022
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Preserve Git blob line endings for prepared-source comparison
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           node-version: 24.18.0
@@ -113,7 +116,7 @@ jobs:
         run: |
           node --test scripts/lib/record-native/tests/runtime.test.ts
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          node --test tools/skill-updater/tests/native-archive.test.ts tools/skill-updater/tests/native-bundle.test.ts tools/skill-updater/tests/native-legacy-plan.test.ts tools/skill-updater/tests/native-legacy-preflight.test.ts tools/skill-updater/tests/native-manifest.test.ts tools/skill-updater/tests/native-release.test.ts tools/skill-updater/tests/native-transaction.test.ts tools/skill-updater/tests/native-installed-evidence.test.ts
+          node --test tools/skill-updater/tests/native-archive.test.ts tools/skill-updater/tests/native-bundle.test.ts tools/skill-updater/tests/native-legacy-plan.test.ts tools/skill-updater/tests/native-legacy-preflight.test.ts tools/skill-updater/tests/native-manifest.test.ts tools/skill-updater/tests/native-release.test.ts tools/skill-updater/tests/native-transaction.test.ts tools/skill-updater/tests/native-installed-evidence.test.ts tools/skill-updater/tests/native-updater-dependencies.test.ts
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Prepare and validate private runtime
         id: runtime
@@ -158,6 +161,26 @@ jobs:
             dist/record-cli-frozen-ci/0.1.1/decision-records-0.1.1-x86_64-pc-windows-msvc.zip
             dist/record-cli-frozen-ci/0.1.1/investigation-report-0.1.1-x86_64-pc-windows-msvc.zip
           if-no-files-found: error
+          retention-days: 7
+      - uses: actions/download-artifact@v4
+        with:
+          name: record-cli-frozen-linux
+          path: evidence/linux
+      - name: Verify isolated Windows bootstrap against real historical and native A/B packages
+        shell: pwsh
+        env:
+          NODE_OPTIONS: ""
+        run: |
+          $ErrorActionPreference = 'Continue'
+          node scripts/lib/record-native/ci-bootstrap.ts evidence/linux dist/record-cli-frozen-ci 2>&1 | Tee-Object -FilePath dist/record-cli-bootstrap-windows.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Upload isolated Windows bootstrap evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: record-cli-bootstrap-windows
+          path: dist/record-cli-bootstrap-windows.log
+          if-no-files-found: warn
           retention-days: 7
       - name: Upload exact private Windows evidence and binaries
         if: always() && steps.runtime.outcome == 'success'

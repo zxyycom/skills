@@ -1,8 +1,8 @@
+import { prepareNativeBundle } from "../../../tools/skill-updater/src/native/bundle.ts";
 import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { type Zippable, zipSync } from "fflate";
-import { extractNativeArchive } from "../../../tools/skill-updater/src/native/archive.ts";
 import { readSkillPackageIdentityFromMarkdown } from "../../../tools/skill-package/src/version.ts";
 import * as v from "valibot";
 import { assertNativeRelativePaths } from "../../../tools/skill-package/src/native-paths.ts";
@@ -228,11 +228,13 @@ export function verifyCandidatePackageManifest(
     for (const target of nativeTargets) {
       const data = targetArchives[role][target];
       verifyNativeAsset(release.native.targets[target], data);
-      const contents = extractNativeArchive(data);
-      const expected =
-        target === "x86_64-pc-windows-msvc" ? `${role}.exe` : role;
-      if (contents.size !== 1 || !contents.get(expected)?.byteLength)
-        throw new Error(`invalid candidate runtime archive: ${role} ${target}`);
+      prepareNativeBundle({
+        role,
+        target,
+        manifest: rawManifest,
+        packageZip: prepared.packages[role].bytes,
+        runtimeZip: data
+      });
     }
   }
 }

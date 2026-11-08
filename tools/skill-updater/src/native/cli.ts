@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import * as v from "valibot";
+import { readSkillPackageIdentityFromMarkdown } from "../../../skill-package/src/version.ts";
 import {
   parseNativeReleasePair,
   type NativeRole
@@ -14,10 +15,7 @@ import { resolveGitHubAuthentication } from "../github-auth.ts";
 import { localSkillState } from "../installation.ts";
 import { fetchGitHubRelease } from "../release.ts";
 import type { CliOptions, SkillFile, UpdaterConfig } from "../types.ts";
-import {
-  prepareBundleWithEvidence,
-  verifyInstalledNativeEvidence
-} from "./installed-evidence.ts";
+import { prepareBundleWithEvidence } from "./installed-evidence.ts";
 import {
   planLegacyHandoff,
   type LegacyHandoffPlan,
@@ -29,6 +27,10 @@ import { receiptPath } from "./legacy-state.ts";
 import { planNativeHandoff } from "./native-plan.ts";
 import { resumeNativeCleanup } from "./native-resume.ts";
 import { activateNativeBundle } from "./native-transaction.ts";
+import {
+  inspectNativeRepair,
+  repairMissingNativeMembers
+} from "./native-repair.ts";
 import { loadNativeReleaseEvidence } from "./release.ts";
 import {
   nativeHostTarget,
@@ -71,6 +73,7 @@ function showHelp(script: string, bootstrap: boolean): void {
         ? "Bootstrap requires --target-dir and never selects an existing user installation implicitly."
         : "Updates this native skill; no TypeScript domain fallback is used.",
       "Dependencies must already be installed; this command never installs them.",
+      "After activation, install target updater dependencies explicitly from its package manifest and lockfile.",
       "--check performs a read-only readiness check; --yes confirms writes and recovery."
     ].join("\n")
   );
@@ -161,7 +164,11 @@ export async function runNativeUpdaterCli(
   if (config.skillName !== role)
     throw new Error("native role does not match updater configuration");
   const target = nativeHostTarget();
-  const state = await localSkillState(options.targetDir, role);
+  const isNative =
+    (await readTargetFile(options.targetDir, receiptPath)) !== null;
+  const state = isNative
+    ? null
+    : await localSkillState(options.targetDir, role);
   const authentication = resolveGitHubAuthentication();
   if (authentication.token === null)
     printGitHubAuthWarning(authentication.reason);
@@ -182,8 +189,6 @@ export async function runNativeUpdaterCli(
   );
   const remote = parseNativeReleasePair(raw)[role];
   const files = prepareBundleWithEvidence(evidence);
-  const isNative =
-    (await readTargetFile(options.targetDir, receiptPath)) !== null;
   const pending = isNative ? await cleanupPending(options.targetDir) : null;
   const validatePrepared = async (root: string) =>
     await validateNativeRuntime(
@@ -223,20 +228,69 @@ export async function runNativeUpdaterCli(
     return 0;
   }
   if (isNative) {
-    const installed = await verifyInstalledNativeEvidence(
+    const inspection = await inspectNativeRepair(
       options.targetDir,
       role,
       target
     );
-    if (state.state === "versioned" && state.version === remote.version) {
+    const installed = inspection.files;
+    const entry = installed.find((file) => file.path === "SKILL.md");
+    if (!entry) throw new Error("installed native entry is missing from proof");
+    const local = readSkillPackageIdentityFromMarkdown(
+      new TextDecoder("utf-8", { fatal: true }).decode(entry.data)
+    );
+    if (local.name !== role || local.version === null)
+      throw new Error("installed native identity is invalid");
+    if (local.version > remote.version)
+      throw new Error("native downgrade is not supported");
+    if (local.version === remote.version) {
       if (!sameFiles(installed, files))
         throw new Error(
           "same skill version has different native assets; select a new release version"
         );
-      if (options.check) {
+      if (options.check && inspection.missing.length === 0) {
         console.log("Status: current");
         return 0;
       }
+    }
+    if (inspection.missing.length) {
+      console.log(
+        `Status: missing managed files: ${inspection.missing.join(", ")}`
+      );
+      if (options.check) return 1;
+      const accepted = await confirm({
+        add: inspection.missing,
+        replace: [],
+        retire: []
+      });
+      if (!accepted) return 1;
+      const previousManifest = installed.find(
+        (file) => file.path === ".record-native-evidence/manifest.json"
+      );
+      if (!previousManifest)
+        throw new Error("installed native manifest proof is missing");
+      const previous = parseNativeReleasePair(
+        JSON.parse(previousManifest.data.toString("utf8"))
+      )[role];
+      await repairMissingNativeMembers({
+        root: options.targetDir,
+        role,
+        target,
+        inspection,
+        validate: () =>
+          validateNativeRuntime(
+            options.targetDir,
+            role,
+            target,
+            previous.native.runtimeVersion
+          )
+      });
+      console.log("Missing native members restored.");
+      if (local.version !== remote.version) {
+        console.log("Run the updater again to perform the requested upgrade.");
+        return 1;
+      }
+      return 0;
     }
     const plan = await planNativeHandoff({
       target: options.targetDir,
@@ -254,7 +308,7 @@ export async function runNativeUpdaterCli(
       confirm,
       validatePrepared
     });
-  } else if (state.state === "versioned") {
+  } else if (state?.state === "versioned") {
     const legacy = await trustedLegacy(role);
     if (remote.version <= legacy.version)
       throw new Error(

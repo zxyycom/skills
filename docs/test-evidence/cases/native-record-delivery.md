@@ -12,4 +12,4 @@ Contract:
 - 离线安装须验证候选 manifest、目标及资产字节，失败时保护无关文件。
 
 Proves:
-- 固定资产 fixture 验证 Linux 与模拟 Windows 目标、版本和 hash、损坏与不安全目标拒绝、私有安装替换回退及无关文件；不证明 Windows 原生运行。
+- 固定资产 fixture 验证 Linux 与模拟 Windows 目标、版本和 hash、损坏、不安全目标及源目标双向重叠拒绝、私有安装替换回退及无关文件；不证明 Windows 原生运行。

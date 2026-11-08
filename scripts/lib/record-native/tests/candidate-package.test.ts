@@ -1,3 +1,4 @@
+import { nativeBuildRecipePaths } from "../candidate-build-recipe.ts";
 import assert from "node:assert/strict";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
@@ -5,21 +6,35 @@ import path from "node:path";
 import { test } from "node:test";
 import { unzipSync, zipSync } from "fflate";
 import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
 import { digestNativeSource } from "../capture.ts";
 import {
   prepareCandidateSourcePackages,
   verifyCandidatePackageManifest,
   writeCandidateSourcePackages
 } from "../candidate-package.ts";
+import {
+  assembleCandidateRelease,
+  validatePlatformSourceEvidence,
+  writeCandidateRelease
+} from "../candidate-release.ts";
 import type { SkillPackageFile } from "../../skill-package/skill-package-hash.ts";
 
 test("candidate source archives bind frozen identities and never overwrite output", async () => {
+  const usage = spawnSync(
+    process.execPath,
+    ["scripts/build/assemble-native-candidate.ts"],
+    { cwd: process.cwd(), encoding: "utf8" }
+  );
+  assert.equal(usage.status, 1);
+  assert.match(usage.stderr, /Usage:/);
+
   const source = [{ path: "Cargo.toml", data: Buffer.from("source") }];
   const sourceHash = digestNativeSource(source);
   const roles = ["decision-records", "investigation-report"] as const;
   const schemas = {
-    "decision-records": Buffer.from("decision schema"),
-    "investigation-report": Buffer.from("investigation schema")
+    "decision-records": Buffer.from('{"title":"decision"}'),
+    "investigation-report": Buffer.from('{"title":"investigation"}')
   };
   const filesBySkill = new Map<string, SkillPackageFile[]>();
   for (const role of roles) {
@@ -63,6 +78,12 @@ test("candidate source archives bind frozen identities and never overwrite outpu
       data: schemas["investigation-report"]
     }
   ];
+  const buildRecipe = nativeBuildRecipePaths.map((name) => ({
+    path: name,
+    data: Buffer.from(`recipe:${name}`)
+  }));
+  delivery.push(...buildRecipe);
+  delivery.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
   const input = {
     snapshot: {
       delivery,
@@ -198,6 +219,201 @@ test("candidate source archives bind frozen identities and never overwrite outpu
     "1.0.0",
     targetArchives
   );
+  const revision = "a".repeat(40);
+  const buildDelivery = {
+    sha256: "d".repeat(64),
+    files: ["historical-delivery"]
+  };
+  const platform = (target: (typeof targets)[number]) => ({
+    revision,
+    buildDelivery,
+    sourceHash,
+    sourceFiles: source.map((file) => file.path),
+    metadata: {
+      schemaVersion: 1,
+      runtimeVersion: "1.0.0",
+      sourceHash,
+      target,
+      toolchain: {
+        rustc: `rustc 1.98.1 (fixture)\nhost: ${target}`,
+        cargo: "cargo 1.98.1 (fixture)"
+      },
+      environment: {
+        platform: target === targets[0] ? "linux" : "win32",
+        architecture: "x64",
+        kernel: "fixture",
+        glibc: target === targets[0] ? "2.35" : null
+      },
+      assets: roles.map((role) => ({
+        role,
+        ...asset(`${role}-1.0.0-${target}.zip`, targetArchives[role][target])
+      }))
+    },
+    archives: {
+      "decision-records": targetArchives["decision-records"][target],
+      "investigation-report": targetArchives["investigation-report"][target]
+    }
+  });
+  const otherFiles = [
+    {
+      path: "SKILL.md",
+      data: Buffer.from("---\nname: other\nmetadata:\n  version: '5'\n---\n")
+    }
+  ];
+  const releaseSnapshot = {
+    ...input.snapshot,
+    skills: {
+      skills: [
+        ...input.snapshot.skills.skills,
+        { name: "other", directory: "/skills/other" }
+      ],
+      filesBySkill: new Map([
+        ...input.snapshot.skills.filesBySkill,
+        ["other", otherFiles]
+      ])
+    }
+  };
+  const releaseInput = {
+    snapshot: releaseSnapshot,
+    buildRecipe,
+    otherArchives: {
+      other: zipSync({ "other/SKILL.md": otherFiles[0]!.data })
+    },
+    prepared: result,
+    baseManifest: {
+      schemaVersion: 1,
+      skills: {
+        "decision-records": { version: 109 },
+        "investigation-report": { version: 98 },
+        other: { version: 5 }
+      }
+    },
+    runtimeVersion: "1.0.0",
+    revision,
+    pendingBaseRevision: "f".repeat(40),
+    pendingMatchesBase: true,
+    platforms: {
+      "x86_64-unknown-linux-gnu": platform(targets[0]),
+      "x86_64-pc-windows-msvc": platform(targets[1])
+    }
+  };
+  const sourceEvidence = {
+    sha256: sourceHash,
+    files: source.map((file) => file.path)
+  };
+  const comparison = {
+    revision,
+    delivery: buildDelivery,
+    versions: ["1.0.0"],
+    sources: [sourceEvidence]
+  };
+  const evidenceInput = {
+    source: sourceEvidence,
+    comparison,
+    snapshot: releaseSnapshot,
+    version: "1.0.0",
+    revision,
+    target: targets[0]
+  };
+  assert.deepEqual(validatePlatformSourceEvidence(evidenceInput), {
+    source: sourceEvidence,
+    buildDelivery
+  });
+  const wrongSource = { ...sourceEvidence, sha256: "0".repeat(64) };
+  assert.throws(
+    () =>
+      validatePlatformSourceEvidence({
+        ...evidenceInput,
+        source: wrongSource,
+        comparison: { ...comparison, sources: [wrongSource] }
+      }),
+    /source evidence differs/
+  );
+  const release = assembleCandidateRelease(releaseInput);
+  assert.equal(release.assets.length, 8);
+  assert.ok(release.assets.some((item) => item.asset.name === "other.zip"));
+  const changedRecipe = buildRecipe.map((file, index) =>
+    index === 0 ? { ...file, data: Buffer.from("changed") } : file
+  );
+  assert.throws(
+    () =>
+      assembleCandidateRelease({ ...releaseInput, buildRecipe: changedRecipe }),
+    /build recipe changed/
+  );
+  assert.throws(
+    () =>
+      assembleCandidateRelease({
+        ...releaseInput,
+        platforms: {
+          ...releaseInput.platforms,
+          [targets[1]]: {
+            ...releaseInput.platforms[targets[1]],
+            buildDelivery: { ...buildDelivery, sha256: "e".repeat(64) }
+          }
+        }
+      }),
+    /build delivery evidence differs/
+  );
+  const wrongPlatform = structuredClone(releaseInput.platforms[targets[0]]);
+  wrongPlatform.metadata.environment.glibc = "2.43";
+  assert.throws(
+    () =>
+      assembleCandidateRelease({
+        ...releaseInput,
+        platforms: { ...releaseInput.platforms, [targets[0]]: wrongPlatform }
+      }),
+    /platform baseline mismatch/
+  );
+  assert.equal(release.provenance.buildDeliveryHash, buildDelivery.sha256);
+  assert.equal(
+    release.provenance.currentDeliveryHash,
+    input.snapshot.deliveryHash
+  );
+
+  assert.throws(
+    () =>
+      assembleCandidateRelease({
+        ...releaseInput,
+        platforms: {
+          ...releaseInput.platforms,
+          [targets[1]]: {
+            ...releaseInput.platforms[targets[1]],
+            sourceHash: "0".repeat(64)
+          }
+        }
+      }),
+    /provenance mismatch/
+  );
+  assert.deepEqual(release.manifest.skills.other, { version: 5 });
+  assert.throws(
+    () => assembleCandidateRelease({ ...releaseInput, otherArchives: {} }),
+    /archive set/
+  );
+  assert.throws(
+    () =>
+      assembleCandidateRelease({
+        ...releaseInput,
+        otherArchives: {
+          other: zipSync({ "other/SKILL.md": Buffer.from("changed") })
+        }
+      }),
+    /differs from frozen snapshot/
+  );
+  assert.throws(
+    () =>
+      assembleCandidateRelease({
+        ...releaseInput,
+        platforms: {
+          ...releaseInput.platforms,
+          [targets[1]]: {
+            ...releaseInput.platforms[targets[1]],
+            revision: "b".repeat(40)
+          }
+        }
+      }),
+    /provenance mismatch/
+  );
+
   targetArchives["decision-records"][targets[0]] = Buffer.from("corrupt");
   assert.throws(
     () =>
@@ -214,6 +430,16 @@ test("candidate source archives bind frozen identities and never overwrite outpu
     path.join(os.tmpdir(), "native-package-test-")
   );
   try {
+    const releaseOutput = await writeCandidateRelease(directory, release);
+    assert.ok(
+      (
+        await readFile(
+          path.join(releaseOutput, "skill-release-manifest.json"),
+          "utf8"
+        )
+      ).includes("decision-records-native.zip")
+    );
+    await assert.rejects(writeCandidateRelease(directory, release), /EEXIST/);
     const output = await writeCandidateSourcePackages(directory, result);
     assert.deepEqual(
       await readFile(path.join(output, "record-native-installer.zip")),

@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { parse, stringify } from "yaml";
+import { candidateLock } from "./candidate-lock.ts";
 import { buildSourceRuntimeArtifacts } from "../generation/runtime/source-runtime.ts";
 import { githubRepository } from "../project.ts";
 import { readSkillPackageIdentityFromMarkdown } from "../../../tools/skill-package/src/version.ts";
@@ -40,25 +40,6 @@ function required(files: readonly SkillPackageFile[], name: string): Buffer {
   const item = files.find((file) => file.path === name);
   if (!item) throw new Error(`frozen candidate input missing: ${name}`);
   return item.data;
-}
-function lockedManifest(manifest: Buffer, lock: Buffer): Buffer {
-  const dependencies: Record<string, string> = JSON.parse(
-    manifest.toString("utf8")
-  ).dependencies;
-  const data = parse(lock.toString("utf8"));
-  const old = data?.importers?.["."]?.dependencies;
-  if (!old || typeof old !== "object")
-    throw new Error("frozen skill lock has no dependency importer");
-  const selected: Record<string, unknown> = {};
-  for (const [name, specifier] of Object.entries(dependencies)) {
-    if (!old[name] || old[name].specifier !== specifier)
-      throw new Error(
-        `frozen skill lock does not match generated dependency ${name}`
-      );
-    selected[name] = old[name];
-  }
-  data.importers = { ".": { dependencies: selected } };
-  return Buffer.from(stringify(data));
 }
 function entry(role: NativeRole, bootstrap: boolean): string {
   const config = {
@@ -130,7 +111,7 @@ async function prepare(input: Input) {
     );
     schemas[role] = schema;
     const runtime = await generated(role, false);
-    const lock = lockedManifest(
+    const lock = candidateLock(
       required(runtime, "package.json"),
       required(original, "pnpm-lock.yaml")
     );
@@ -157,7 +138,7 @@ async function prepare(input: Input) {
         ...installer,
         {
           path: "pnpm-lock.yaml",
-          data: lockedManifest(
+          data: candidateLock(
             required(installer, "package.json"),
             required(original, "pnpm-lock.yaml")
           )
@@ -165,7 +146,7 @@ async function prepare(input: Input) {
         {
           path: "README.md",
           data: Buffer.from(
-            "# Private native installer\n\n仅供隔离验收。显式安装锁定依赖后，运行对应 scripts/<role>.ts，必须传入 --target-dir。\n"
+            "# Private native installer\n\n仅供隔离验收。显式安装 bootstrap 锁定依赖后，运行对应 scripts/<role>.ts，必须传入 --target-dir。原生业务安装后可直接运行；独立目标 updater 使用前须在目标目录按自身 lock 显式安装依赖。\n"
           )
         }
       ];

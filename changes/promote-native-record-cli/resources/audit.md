@@ -73,7 +73,7 @@
 
 已将原随包 Schema 字节复制到 `tools/record-contracts/schemas/`，生成器和过渡期导出共用该源；两项生成漂移检查通过，不表示完整格式语义已验收。DR 的既有 Schema 在 relation 上允许可选 `name`，而[领域关系规则](../../../skills/decision-records/references/decision-record-rules.md#演进关系)只定义 `type`、`target` 与可选 `summary`，旧 TS 严格 state parser 与 Rust Relation 均拒绝额外 `name`。这是 Schema 既有宽松性，不据此扩大业务格式或在本次迁移中收窄分发 Schema；跨语言固定有效/无效样例和其余格式差异仍须继续核对，1.1 尚未完成。
 
-已从 `dc874213f494ba5411330afe135c0542df5184a8` Git tree 记录两域包内各文件的长度、SHA-256 与 Git 可执行位；仅是源码包基线，并未证明远端历史 release 相同。尚无引导器消费该清单。
+已从 `dc874213f494ba5411330afe135c0542df5184a8` Git tree 记录两域包内各文件的长度、SHA-256 与 Git 可执行位；仅是源码包基线，并未证明远端历史 release 相同。候选引导器已接入该固定清单；仍须完成全平台与发布验收。
 
 对照 `zxyycom/skills` release ID `346715779` 的 `skills-latest`：固定资产 ID `712372943`（DR ZIP，SHA-256 `3d6bc338496d309419690e0687e25c00727b56078077b049c3a020fb65613958`）和 `712372970`（IR ZIP，SHA-256 `6870930cb866325f6f3278aa96700986d52eec87fd02e9f0bbb6abb4de3b5207`）经下载并验证资产 hash；逐成员与上述 Git 清单比较，DR 274、IR 280 均无缺失、多余或长度/SHA-256 差异。ZIP 文件并未安装；Git 可执行位来自源码而非 ZIP 权限证明。rolling tag 可变，后续不以 tag 名冒充此固定资产身份。
 
@@ -81,7 +81,7 @@
 
 ## A 阶段局部基础设施
 
-当前已实现从单次 Git pending 枚举捕获 skill 与 Rust 源码，以及将该输入写入 `dist/skill-release/` 独占子目录；私有 fixture 验证暂存后内容固定、源码摘要校验和 dist sentinel 保留。该阶段仅暂存现有基础 skill 包，不生成原生正式资产、引导包或可安装候选包，也未接通发布器。原生 manifest/descriptor 解析和旧包只读冲突预检已实现局部原语，尚未组成 updater、激活/恢复或清理事务。1.2–1.4 继续未完成。
+现已从单次 Git pending 捕获 skill、Rust 与候选生成闭包，并写入 `dist/skill-release/` 独占目录；私有 fixture 验证快照固定、源码摘要及 dist sentinel。原生 manifest、归属预检、激活与恢复、候选 updater 和私有源码包已有局部实现，但生成/发布完整链路和目标平台验收仍未闭合，1.2–1.4 继续未完成。
 
 私有本机构建 `dist/skill-release/candidate-bEwnSX` 从同次 pending 源码捕获生成 `0.1.0` 两角色 Linux ZIP，源码 SHA-256 为 `112f7072446ad34f5418e21a353e371daf0cf28794c4dd9a231dcd2fed16de38`；Cargo 1.98.1 locked/offline 构建并实际核验两程序 `--version`。执行宿主是 WSL2、glibc 2.43，而非所需 Ubuntu 22.04 / glibc 2.35；二进制仍是私有候选，不证明 Linux 基线、Windows、安装或发布。首次尝试发现原候选 digest 的深度优先目录遍历与规范完整路径排序不同，导致 frozen manifest 拒绝构建；已修正排序并用 `foo.rs` 与 `foo/bar` 的独立固定摘要测试覆盖，复用原 staging 源码成功完成构建。
 
@@ -95,7 +95,7 @@
 
 独立构造的 DR v4/definition 11 索引样例在私有目录分别经 AJV、旧 TS state parser、冻结 Rust 二进制 `list --json` 验证：正常样例三者接受；仅给关系加入额外 `name` 后，既有 Schema 仍接受、两种运行时均拒绝（Rust 退出 1，`invalid-index`）。这支持上述 Schema 宽松差异的裁决，不扩展为所有字段的等价证明。
 
-新增的私有原生归档和 bundle 验证原语在解压前核对 ZIP 目录/本地头、文件类型、路径及大小上限，并在返回文件集合前核对 release 资产摘要、角色、版本和 descriptor；synthetic 样本覆盖拒绝路径。当前 fflate 生成的两份真实旧包（274/280 成员）和两份私有原生 ZIP（各一成员）均可读取。ZIP 子集有意拒绝 ZIP64、注释和 data descriptor；正式候选包与安装链仍未组装验证，不能把原语通过当成 1.3 完成。
+新增的私有原生归档和 bundle 验证原语在解压前核对 ZIP 目录/本地头、文件类型、路径及大小上限，并在返回文件集合前核对 release 资产摘要、角色、版本和 descriptor；synthetic 样本覆盖拒绝路径。当前 fflate 生成的两份真实旧包（274/280 成员）和两份私有原生 ZIP（各一成员）均可读取。ZIP 子集有意拒绝 ZIP64、注释和 data descriptor；该原语探针本身不证明后续候选包与安装链，不能把原语通过当成 1.3 完成。
 
 复用两个实际构建 ZIP 与对应纯数据 Schema，内存构造仅用于测试的 skill identity/descriptor/占位 updater，分别通过 `prepareNativeBundle` 绑定 manifest 长度、摘要、role、target 和源码，得到各 5 个预备文件。该组合的说明和 updater 均为合成样例，绝非可安装候选包，也没有执行安装。
 
@@ -108,3 +108,26 @@
 仓库候选运行时现已提供 `prepare:record-native`、其 `--check` 与显式角色调度器；本机重新 prepare 后检查和两个 `--version` 通过。只读检查会识别源码或程序漂移，入口不会自动构建；两项真实平台能力仍以当前宿主为限。`record-rust` Gate 接入其独立 Node 测试；Windows 2022 候选 workflow 已配置锁定依赖预取、私有准备、角色调度、隔离 fixture 测试及仅列明文件的 artifact，但尚未执行本次 revision 的远端 CI，不把配置当通过证据。正式生产 CLI 和现有发布映射保持原状。
 
 同法对独立 IR v4/definition 11 样例比较 AJV、旧 TS state parser 与冻结 Rust `list --json`：正常样例三者接受；重复 tag 三者拒绝；资源 ID `report/../secret` 由 Schema 的词法模式接受，但两种运行时拒绝，符合 Schema 对路径段附加校验交由 CLI 的注释。Rust 失败退出 1 并给出 `invalid-index`。这些均为局部样例，不能冒充两域完整格式或业务验收。
+
+
+## 当前私有生成与本机安装证据
+
+从当前暂存的同次 pending 捕获生成了 `dist/skill-release/candidate-afjyCj/` 私有源码包和独立 bootstrap；冻结 Rust 摘要 `b67627ecc8d55b41a4eed26baa511b8da37c9d1a07a8b22917e8a169b59073bc` 与 f93c439f 的 Ubuntu 22.04 私有 A 资产一致，故复用两角色 0.1.0 Linux ZIP，未重新编译。初次缺少生成器静态输入时失败的 `candidate-U8HcoW` 保留，补齐 pending 闭包后独占新目录重试；未将失败目录作为结果。
+
+已在上述 stage 的隔离目标，以固定资产下载并核验的 DR 109、IR 98 ZIP 实际测试旧版交接和同版本重执行；真实程序 `--version`/help、最终目标 updater help、两域各 42 个受管成员及自有 sentinel 均通过，未修改真实用户目录。复用安装后程序通过私有 Git 业务 smoke，覆盖代表性记录创建、查询、资源和暂存。额外运行两份真实生成 bootstrap：模拟 release 请求时，新目标 `--check` 不写入、显式 `--yes` 新装、同版本检查与重执行及 sentinel 均通过；可复验脚本和输出保留在该 stage 的 `real-linux-private-smoke/`。
+
+这些结果仅限本机 WSL/glibc 2.43 使用前述 Ubuntu 22.04 制品；Node 依赖沿仓库已准备的 `node_modules` 解析，release 响应为内存替身，Windows manifest 项为合成占位，因此不证明干净依赖安装、真实远端 release 或 Windows 安装。f6ad4284 的 Windows 2022 CI 已通过 runtime/隔离测试、真实 prepare、两个程序版本与私有 Git smoke，但旧候选 verify-real 因跨盘路径误判失败；修复后仍须以新 revision 重跑完整 Windows 及平台一致性检查。正式入口和发布映射未切换，A/B 任务不因此勾选。
+
+在不重编译的另一私有探针中，对 A 冻结 Rust 的 Cargo 版本作与 f93 CI 一致的 0.1.1 successor 转换，得到摘要 `000341830f70e26171f94adffceea2d8d708c954bf429f0ba8f3e6cd07733605`，与已核验的 Ubuntu 22.04 B 资产相同；两域旧 skill 版本也仅在测试输入中加一，以产生 B 候选包 `candidate-WnjTO3`。从已安装 A 的两域真实包内 updater 在模拟 release 下执行 A→B，更新前检查、显式升级、更新后检查、0.1.1 版本、sentinel 及无遗留旧恢复目录均通过。此转换不是正式 pending skill 包，Windows 资产仍为占位，也不证明真实 release 或其他平台；脚本与日志保留于 `candidate-afjyCj/real-linux-private-smoke/`。
+
+将仓库现有 `docs/decisions` 与 `docs/investigations` 复制到同一 stage 的隔离 fixture 后，以真实 A 二进制 JSON list 与旧 TS CLI 列表逐项比较完整身份和顺序：DR 均 156 条、IR 均 101 条，顺序完全一致，Rust 两域均退出 0 且无 warning。最初仅匹配带日期前缀的身份造成的探针假差异，改用全部列表首字段后消失；此结果不扩展为其他字段、写入或完整格式等价。
+
+`879689ab` 的候选 CI 已在 Ubuntu 22.04 和 Windows 2022 完成 A/B 私有构建与跨平台来源比较；两平台 ZIP 已逐个按 CI 记录的长度和摘要核对。这是该 revision 的私有构建与 smoke，不自动证明之后变更的 Node 交付或正式安装。复用时另核对当前 Rust 冻结清单和编译 recipe 字节，Node delivery 单独记录。
+
+从之后的同次 pending 生成私有候选 `candidate-xI85lo`，裁剪 lock 至四个直接依赖及一个可达传递依赖。在仓库外独占目录正常联网执行 pnpm 11.7 frozen install，默认供应链策略通过，隔离 store 内容均复用；没有禁用策略，也不宣称离线安装。两角色 bootstrap 在模拟 release 下使用上述 CI 的真实 Linux A 资产分别安装到没有依赖的干净目标，目标原生程序立即运行 version/help；之后在各目标显式安装冻结依赖，不使用验证 hook 的独立 updater help 与 check 均通过。依赖链接只指向独占验收目录。该 Linux 私有测试的 Windows 资产仍是占位、release 是替身；不证明真实 release、Windows 安装或 B 阶段整体通过。
+
+相同候选还对已核验的真实 DR109、IR98 ZIP 作仓库外隔离首升：bootstrap 检查及显式激活、原生 version/help、目标显式依赖安装和无 hook updater help/check 均通过；两份自有 sentinel 保持，旧 SDK 文件退役。DR 旧 SDK 的空目录层级仍存在，不将文件退役等同目录清除。此项仍使用模拟 release 和 Windows 占位资产。
+
+仅调整捕获和 updater 的相邻函数职责后，重新捕获 pending 生成 `candidate-O64E7U` 并复用隔离依赖缓存；干净新装和真实旧 ZIP 隔离首升的上述两角色检查均再次通过。记录脚本和日志保存在该 stage 的 `real-clean-install-evidence/`；这不改变前述平台和 release 边界。
+
+补齐组合器 pending 输入后，`candidate-MyCDkj` 由冻结 delivery 组合 `879689ab` 双平台 A 实际资产，生成 28 项私有发布资产和来源记录。Rust 源码摘要、两平台清单与报告一致，六个编译 recipe 文件与构建 revision 的原始字节匹配；历史 build delivery 与当前 Node delivery 分别记录。该 stage 的 pending 尚未等于 commit、运行时为私有 0.1.0，不能发布或作为正式验收。隔离依赖验证根及其 store 副本已清理；相关脚本与日志保留在对应候选 stage。

@@ -13,3 +13,5 @@ await import("./native-release.test.ts");
 await import("./native-transaction.test.ts");
 
 await import("./native-installed-evidence.test.ts");
+
+await import("./native-updater-dependencies.test.ts");

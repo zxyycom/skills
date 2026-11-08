@@ -7,6 +7,10 @@ import test from "node:test";
 import { planNativeHandoff } from "../src/native/native-plan.ts";
 import { activateNativeBundle } from "../src/native/native-transaction.ts";
 import { resumeNativeCleanup } from "../src/native/native-resume.ts";
+import {
+  inspectNativeRepair,
+  repairMissingNativeMembers
+} from "../src/native/native-repair.ts";
 import { strToU8, unzipSync, zipSync } from "fflate";
 import {
   prepareBundleWithEvidence,
@@ -387,6 +391,76 @@ test("installed release evidence and current files jointly prove native ownershi
     await fs.unlink(path.join(root, ".record-native-evidence", "package.zip"));
     await assert.rejects(
       () => verifyInstalledNativeEvidence(root, role, target),
+      /missing installed native/
+    );
+  } finally {
+    await fs.rm(root, { recursive: true, force: true });
+  }
+});
+
+test("native missing member repair proves ownership and never overwrites conflicts", async () => {
+  const { role, target, hash, files } = nativeFixture();
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "native-repair-"));
+  try {
+    await writeEvidenceFixture(root, files, role, hash);
+    const binary = path.join(root, "bin", role);
+    await fs.unlink(binary);
+    const inspection = await inspectNativeRepair(root, role, target);
+    assert.deepEqual(inspection.missing, [`bin/${role}`]);
+    await assert.rejects(fs.stat(binary), /ENOENT/);
+    await repairMissingNativeMembers({ root, role, target, inspection });
+    assert.equal(await fs.readFile(binary, "utf8"), "binary fixture");
+    await fs.writeFile(binary, "changed");
+    await assert.rejects(
+      () => inspectNativeRepair(root, role, target),
+      /differs/
+    );
+    await fs.writeFile(binary, "binary fixture");
+    await fs.unlink(binary);
+    await fs.rmdir(path.join(root, "bin"));
+    const retry = await inspectNativeRepair(root, role, target);
+    await assert.rejects(
+      () =>
+        repairMissingNativeMembers({
+          root,
+          role,
+          target,
+          inspection: retry,
+          validate: async () => {
+            throw new Error("validation failed");
+          }
+        }),
+      /created members restored/
+    );
+    await assert.rejects(fs.stat(path.join(root, "bin")), /ENOENT/);
+    await assert.rejects(
+      () =>
+        repairMissingNativeMembers({
+          root,
+          role,
+          target,
+          inspection: retry,
+          afterCreate: async () => {
+            await fs.truncate(binary, 3);
+            throw new Error("changed after creation");
+          }
+        }),
+      /rollback incomplete/
+    );
+    assert.equal(await fs.readFile(binary, "utf8"), "bin");
+    await fs.unlink(binary);
+    await fs.rmdir(path.join(root, "bin"));
+    await fs.mkdir(path.join(root, "bin"));
+    await fs.writeFile(binary, "concurrent file");
+    await assert.rejects(
+      () =>
+        repairMissingNativeMembers({ root, role, target, inspection: retry }),
+      /differs/
+    );
+    assert.equal(await fs.readFile(binary, "utf8"), "concurrent file");
+    await fs.unlink(path.join(root, ".record-native-evidence", "package.zip"));
+    await assert.rejects(
+      () => inspectNativeRepair(root, role, target),
       /missing installed native/
     );
   } finally {

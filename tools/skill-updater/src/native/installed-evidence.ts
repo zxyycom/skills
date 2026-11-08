@@ -78,17 +78,22 @@ type ReceiptRecord = v.InferOutput<typeof fileRecord>;
 async function verifyMembers(
   root: string,
   files: readonly SkillFile[],
-  records: ReadonlyMap<string, ReceiptRecord>
-): Promise<void> {
+  records: ReadonlyMap<string, ReceiptRecord>,
+  allowMissing = false
+): Promise<string[]> {
   const modes = new Map<string, number>();
+  const missing: string[] = [];
   for (const file of files) {
     const record = records.get(file.path);
     const current = await readTargetFile(root, file.path);
+    if (!current && allowMissing && record) {
+      missing.push(file.path);
+      modes.set(file.path, record.mode);
+      continue;
+    }
     if (
       !record ||
       !current ||
-      record.byteLength !== file.data.byteLength ||
-      record.sha256 !== digest(file.data) ||
       !current.bytes.equals(file.data) ||
       record.mode !== current.mode
     )
@@ -98,6 +103,7 @@ async function verifyMembers(
     modes.set(file.path, current.mode);
   }
   assertFileModePolicy(files, modes);
+  return missing;
 }
 
 function verifyReceiptMembers(
@@ -159,6 +165,20 @@ export async function verifyInstalledNativeEvidence(
   role: NativeRole,
   target: NativeTarget
 ): Promise<SkillFile[]> {
+  return (await inspectInstalledNativeEvidence(root, role, target)).files;
+}
+
+/** Independently prove the retained bundle and distinguish missing members from conflicts. */
+export async function inspectInstalledNativeEvidence(
+  root: string,
+  role: NativeRole,
+  target: NativeTarget,
+  allowMissing = false
+): Promise<{
+  files: SkillFile[];
+  missing: string[];
+  records: ReadonlyMap<string, ReceiptRecord>;
+}> {
   const manifestBytes = await requiredFile(root, evidencePaths[0]!);
   const packageZip = await requiredFile(root, evidencePaths[1]!);
   const runtimeZip = await requiredFile(root, evidencePaths[2]!);
@@ -167,6 +187,6 @@ export async function verifyInstalledNativeEvidence(
     { role, target, manifestBytes, packageZip, runtimeZip },
     receiptBytes
   );
-  await verifyMembers(root, files, records);
-  return files;
+  const missing = await verifyMembers(root, files, records, allowMissing);
+  return { files, missing, records };
 }
