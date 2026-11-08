@@ -71,7 +71,7 @@ Linux `package` 复用本地稳定入口：
 2. 在同一 package job 安装 SCC 4.0.0，并在运行门禁前精确探测版本；函数指标无需额外分析器。
 3. Checkout 后先确认非空、非全零的事件基线在本次仓库历史中可解析；不可解析时明确失败，不能把 force-push 前的基线悄悄替换成 `HEAD`。随后显式执行锁定的 Cargo 依赖预取，再运行 `prepare:record-native` 和只读 `--check`，为该 job 的离线原生构建准备依赖；最后运行 `bun run check --tag release --cold --baseline-ref <event-baseline>`，在唯一 Gate aggregate 内完成前置检查、相对事件基线的独立版本校验和全部 skill 打包；只有事件未提供有效基线时省略该参数，release Gate 才回退 `HEAD`。
 4. 运行 `bun run hash:skills --github-output --baseline-ref <event-baseline>`，重复廉价版本校验并输出本次聚合 hash；该步骤位于已经通过的 release 终结 Check 之后，不能绕过发布版本门禁。
-5. 上传本次 run 独占的 `dist/skill-release/package-<run-id>-<attempt>/packages/*` 作为保留 7 天的 `skills` workflow artifact，供当前 workflow 的 Windows 验收、发布或短期 PR 核对使用。全部门禁均成功的 `main` 构建才进入发布 job；发布器对照远端资产的名称、大小和 SHA-256 digest，完全一致时不执行远端写入，从而在先前含 skill 改动的构建失败后由下一次成功构建补发。
+5. 上传本次 run 独占的 `dist/skill-release/package-<run-id>-<attempt>/packages/*` 作为保留 7 天的 `skills` workflow artifact，供当前 workflow 的 Windows 验收、发布或短期 PR 核对使用。全部门禁均成功的 `main` 构建才进入发布 job；发布器核对资产与发布身份，完整状态无变化时不执行远端写入，从而在先前构建失败后由下一次成功构建补发。
 6. package job 失败且存在 Gate invocation 时，额外上传保留 3 天的机器结果、progress 与命令 transcript，供定位失败 Check；不上传可复用 cache。若事件基线已不可解析，可在 `main` 手动触发 `workflow_dispatch` 重新验证并重新发布当前制品；它不会恢复已丢失的历史基线比较。
 
 Windows 组合入口、独立安装与测试维护见[视频工具维护](../tools/video-understanding/README.md#windows-开发与制品验收)。该入口须消费同次 Linux 打包的原 zip；重新打包或工作树副本属于不同的验收对象。
@@ -101,8 +101,8 @@ YAML 的 job 依赖约束发布；远端合并保护以本节生效核对为准�
 | 触发条件 | 发布结果 |
 | --- | --- |
 | `pull_request` | 不发布 Release；只保留短期 workflow artifact。 |
-| `main` push 且当前制品与远端资产不同 | 更新 `skills-latest` 的 tag 与完整资产集，并把该滚动 Release 标记为 GitHub Latest。 |
-| `main` push 且当前制品与远端资产相同 | 发布 job 只读核对后跳过远端写入。 |
+| `main` push 且资产或发布身份不符合预期 | 按需同步 `skills-latest` 的 tag、资产与 Release 元数据，并将其标记为 GitHub Latest。 |
+| `main` push 且资产和发布身份均未变化 | 发布 job 只读核对后跳过远端写入。 |
 | `main` 上的 `workflow_dispatch`，未选择线上验收且 `publish_snapshot=false` | 核对并按需同步当前制品到 `skills-latest`，不创建历史快照。 |
 | `main` 上的 `workflow_dispatch`，未选择线上验收且 `publish_snapshot=true` | 核对并按需同步 `skills-latest`，再为当前聚合 hash 创建或核对一个不可变快照。 |
 | 任意分支的 `workflow_dispatch`，同时指定线上验收参数 | 不发布 Release；通过前置门禁后对指定 Release 和 revision 做隔离验收。 |
@@ -112,7 +112,7 @@ YAML 的 job 依赖约束发布；远端合并保护以本节生效核对为准�
 
 `skills-latest` 是正式滚动发布入口和 GitHub Latest，updater 默认读取该 Release。更新已有滚动 Release 时先准备并核对当前资产，退役两个记录 skill 的旧名，最后发布 manifest；完整资产可用后更新 Release 元数据，使失败后的后续运行能够重新同步。updater 会拒绝 zip 版本与 manifest 不一致的制品，不会把发布中断产生的混合资产写入本地 skill。
 
-滚动发布的无变化判断以完整资产清单、字节数和 GitHub 提供的 SHA-256 digest 为准，不以本次 push 的 Git diff 或 Release tag 所指提交为准；缺失 digest 时保守地重新同步。这样失败构建遗留的待发布内容可由后续成功构建恢复。
+滚动发布仅在资产清单、字节数与 GitHub SHA-256 digest、目标 tag 指向、Release 说明及 Latest 状态均符合预期，且旧名资产已退役时判为无变化。资产相同但提交 revision 改变时，仍会核对并更新发布身份；缺失 digest 时保守地重新同步。判断不依赖本次 push 的 Git diff，失败构建遗留的待发布内容可由后续成功构建恢复。
 
 不可变快照 tag 使用聚合 hash 前 12 位：`skills-<hash12>`。相同制品只对应一个快照；同名快照已存在时，发布脚本逐项核对资产名称、字节数和 GitHub 提供的 SHA-256 digest，一致则复用，任一字段缺失或不同则失败且不修改快照。显式 `--release-tag` 只用于仍被保留的不可变快照或历史 Release。
 
