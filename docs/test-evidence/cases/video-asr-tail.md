@@ -1,8 +1,7 @@
 ### Case VIDEO-ASR-TAIL-001: ASR 末端归一保持原始证据
 
 Tests:
-- `test:4c13a157ca957b72d361091c25f3adcc242fe83dc21af8b3ffa29e7ba71b3771`
-- `test:686da4a31c86ccfa8933779cc34fc8a3bd380c5dfa2fc068d2916df559065736`
+- `test:6f825a9ec2cd357d73707349b7211005e4e94dd786e50474cb1d404e52e7a01a`
 
 Tags:
 - `video-understanding`
