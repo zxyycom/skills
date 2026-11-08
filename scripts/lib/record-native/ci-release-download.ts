@@ -13,6 +13,7 @@ import {
 } from "./ci-release-reuse.ts";
 import { extractNativeArchive } from "../../../tools/skill-updater/src/native/archive.ts";
 import { nativeTargets } from "../../../tools/skill-package/src/native-release-manifest.ts";
+import { createReusedReleaseDirectory } from "./ci-release-output.ts";
 
 const repo = "repos/zxyycom/skills";
 function gh(args: string[]): Buffer {
@@ -92,8 +93,7 @@ async function writeReusedAssets(
   downloaded: ReadonlyMap<number, Uint8Array>,
   members: ReadonlyMap<string, Buffer> | undefined
 ): Promise<void> {
-  const output = path.join(root, "dist", "record-cli-reused-release");
-  await mkdir(output);
+  const output = await createReusedReleaseDirectory(root);
   if (recovery[0])
     await writeFile(
       path.join(output, "recovery.zip"),

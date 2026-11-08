@@ -1,8 +1,12 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { test } from "node:test";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { zipSync } from "fflate";
 import { nativeBuildRecipePaths } from "../candidate-build-recipe.ts";
+import { createReusedReleaseDirectory } from "../ci-release-output.ts";
 import {
   validateRuntimeRecovery,
   validateRuntimeReuse,
@@ -14,6 +18,24 @@ import {
 } from "../../../../tools/skill-package/src/native-release-manifest.ts";
 
 const hash = (b: Uint8Array) => createHash("sha256").update(b).digest("hex");
+
+test("reused runtime creates a missing dist but never replaces an existing output", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "native-reuse-"));
+  try {
+    const output = await createReusedReleaseDirectory(root);
+    assert.equal(output, path.join(root, "dist", "record-cli-reused-release"));
+    await fs.writeFile(path.join(output, "sentinel"), "keep");
+    await assert.rejects(createReusedReleaseDirectory(root), {
+      code: "EEXIST"
+    });
+    assert.equal(
+      await fs.readFile(path.join(output, "sentinel"), "utf8"),
+      "keep"
+    );
+  } finally {
+    await fs.rm(root, { recursive: true, force: true });
+  }
+});
 test("reuse requires the pinned evidence and every published runtime byte", () => {
   const recipe = Object.fromEntries(
     nativeBuildRecipePaths.map((name) => [name, "d".repeat(64)])
