@@ -27,7 +27,7 @@
     "test:skill-release-publisher": "bun test ./scripts/tests/repository/publish-skills.test.ts",
     "test:record-delivery": "node --test ./tools/record-cli/delivery/delivery.test.ts",
     "prepare:record-native": "node scripts/prepare-record-native.ts",
-    "test:record-native-runtime": "node --test ./scripts/lib/record-native/tests/candidate-publish.test.ts ./scripts/lib/record-native/tests/candidate-generate.test.ts ./scripts/lib/record-native/tests/candidate-package.test.ts ./scripts/lib/record-native/tests/ci-bootstrap-first-target.test.ts ./scripts/lib/record-native/tests/ci-bootstrap-source.test.ts ./scripts/lib/record-native/tests/ci-frozen.test.ts ./scripts/lib/record-native/tests/runtime.test.ts",
+    "test:record-native-runtime": "node --test ./scripts/lib/record-native/tests/candidate-publish.test.ts ./scripts/lib/record-native/tests/candidate-generate.test.ts ./scripts/lib/record-native/tests/candidate-package.test.ts ./scripts/lib/record-native/tests/ci-bootstrap-first-target.test.ts ./scripts/lib/record-native/tests/ci-bootstrap-lock.test.ts ./scripts/lib/record-native/tests/ci-bootstrap-source.test.ts ./scripts/lib/record-native/tests/ci-frozen.test.ts ./scripts/lib/record-native/tests/runtime.test.ts",
     "smoke:record-rust": "node ./tools/record-cli/smoke/native.ts",
     "test:record-rust": "cargo +1.98.1 test --manifest-path ./tools/record-cli/Cargo.toml --locked --all-targets -- --include-ignored",
     "test:record-operations": "bun test ./tools/record-operations/tests/run.ts",

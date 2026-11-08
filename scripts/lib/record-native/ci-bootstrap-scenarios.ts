@@ -7,6 +7,7 @@ import {
   type NativeRole
 } from "../../../tools/skill-package/src/native-release-manifest.ts";
 import { command } from "./ci-bootstrap-process.ts";
+import { verifyWindowsLockedUpgrade } from "./ci-bootstrap-lock.ts";
 import { mockedRelease, type Release } from "./ci-bootstrap-release.ts";
 
 type Entry = { run(args: string[]): Promise<number> };
@@ -163,9 +164,15 @@ async function verifyDestination(
   globalThis.fetch = mockedRelease(b);
   assert.equal(await updater.run(["--check"]), 1);
   const scenario = { role, destination, binary, bootstrap, updater, b };
-  if (role === "decision-records" && legacy)
+  if (role === "decision-records" && legacy) {
+    await verifyWindowsLockedUpgrade({
+      binary,
+      bootstrap,
+      destination,
+      updater
+    });
     await verifyRollbackAndResume(scenario);
-  else assert.equal(await updater.run(["--yes"]), 0);
+  } else assert.equal(await updater.run(["--yes"]), 0);
   await verifyRepairAndConflict(scenario, legacy);
   globalThis.fetch = mockedRelease(a);
   console.log(

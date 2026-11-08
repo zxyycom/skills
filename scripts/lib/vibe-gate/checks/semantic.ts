@@ -49,6 +49,7 @@ export const semanticGateChecks = [
         "./scripts/lib/record-native/tests/candidate-generate.test.ts",
         "./scripts/lib/record-native/tests/candidate-package.test.ts",
         "./scripts/lib/record-native/tests/ci-bootstrap-first-target.test.ts",
+        "./scripts/lib/record-native/tests/ci-bootstrap-lock.test.ts",
         "./scripts/lib/record-native/tests/ci-bootstrap-source.test.ts",
         "./scripts/lib/record-native/tests/ci-frozen.test.ts",
         "./scripts/lib/record-native/tests/runtime.test.ts"

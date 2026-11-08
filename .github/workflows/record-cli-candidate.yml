@@ -55,7 +55,7 @@ jobs:
       - name: Candidate offline delivery tests
         run: node --test tools/record-cli/delivery/delivery.test.ts
       - name: Test cross-platform source evidence comparison
-        run: node --test scripts/lib/record-native/tests/ci-frozen.test.ts scripts/lib/record-native/tests/ci-bootstrap-source.test.ts scripts/lib/record-native/tests/ci-bootstrap-first-target.test.ts
+        run: node --test scripts/lib/record-native/tests/ci-frozen.test.ts scripts/lib/record-native/tests/ci-bootstrap-source.test.ts scripts/lib/record-native/tests/ci-bootstrap-first-target.test.ts scripts/lib/record-native/tests/ci-bootstrap-lock.test.ts
       - name: Verify project test evidence coverage
         run: bun run check:test-evidence-catalog
       - name: Build and privately verify frozen pending-revision assets
