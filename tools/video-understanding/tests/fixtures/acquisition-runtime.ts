@@ -126,6 +126,10 @@ export function fixtureRuntime(
             path.join(output, "raw", "audio.json"),
             JSON.stringify(result)
           );
+          await writeFile(
+            path.join(output, "raw", "audio.srt"),
+            "fixture SRT\r\n"
+          );
           return { ...result, segments: parseSegments(result.segments) };
         },
         frames: async () => []

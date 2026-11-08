@@ -1553,7 +1553,8 @@
       "VIDEO-ARTIFACT-UPDATER-PRESERVATION-001": "sha256:4810c8b735a8cd366e52fe998bdb5df51f60d98c64ae9ff21e97deee5fb9baa3",
       "VIDEO-ASR-LANGUAGE-001": "sha256:7c7ae42b116f5316face78c4619c8f5ac3c0e6bfa27643581be14887f29e5382",
       "VIDEO-ASR-NATIVE-001": "sha256:6186c5174ca2a788491f4f187e560b7575a74259a095301617fe72ef1acd97d5",
-      "VIDEO-ASR-TAIL-001": "sha256:e43bd3c155e9df1c250eaa04d5d4833855cf97fba6f0329482ad8d06795a2fab",
+      "VIDEO-ASR-TAIL-001": "sha256:38393d91a89a317242da163ce5379adaf2fd31bf12d8bb9a403be1dd1c5aae9d",
+      "VIDEO-ASR-TAIL-002": "sha256:7301e7c5f46c7ca6571b070048b59f03c1c20fd82bfd3ffc66ae28a0259684ad",
       "VIDEO-BOUNDED-PROJECTION-001": "sha256:3b3e4df6a8798492c7760b3c3a8b21ea4f46d05f925fff6cdd5bfd52f7d077ae",
       "VIDEO-CALIBRATION-VALIDATION-001": "sha256:39cdd4bf4fc396d61824d3911a3fd9aa459b86515ffb10988e5a9b7b1ed455b2",
       "VIDEO-CONFIGURATION-PRECEDENCE-001": "sha256:a886e16d0b0fefb60ef5df2da215cb5d9a9f2c321c7f55ef57072cec8b705b89",
@@ -17680,16 +17681,26 @@
       ]
     },
     "VIDEO-ASR-TAIL-001": {
-      "title": "ASR 末端容差保持原始证据",
+      "title": "ASR 末端归一保持原始证据",
       "sourcePath": "cases/video-asr-tail.md",
       "tags": [
         "video-understanding"
       ],
       "testIds": [
-        "test:228b0f52279f80a438d540a9b34e42d66f3bcf62e867fddd68c913f4d100cf42",
-        "test:49ea1e034d1aaac49ab8d1b7bd1ff319aa7b85326ddc457170be94f141a6220f",
-        "test:6f825a9ec2cd357d73707349b7211005e4e94dd786e50474cb1d404e52e7a01a",
-        "test:804b831cc851b89b80e2063aa368ccc622dc282290859a9b39570da5cbfbb418"
+        "test:4c13a157ca957b72d361091c25f3adcc242fe83dc21af8b3ffa29e7ba71b3771",
+        "test:686da4a31c86ccfa8933779cc34fc8a3bd380c5dfa2fc068d2916df559065736"
+      ]
+    },
+    "VIDEO-ASR-TAIL-002": {
+      "title": "ASR 末端归一接纳边界",
+      "sourcePath": "cases/video-asr-tail-eligibility.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:0b47b60d37f12aca044a48f5127250b65d79dbf3515c1f9740253339f71b91b5",
+        "test:6eb2b8fa67472135686949a49fe35cfa86e757134f94bfe9012f68c1c294b8bf",
+        "test:b614c10451f12ab04fccebf42c368fd308e1ceeca48fad840d0e1ac216c8eac0"
       ]
     },
     "VIDEO-BOUNDED-PROJECTION-001": {
