@@ -2,6 +2,7 @@
 
 Tests:
 - `test:6f825a9ec2cd357d73707349b7211005e4e94dd786e50474cb1d404e52e7a01a`
+- `test:804b831cc851b89b80e2063aa368ccc622dc282290859a9b39570da5cbfbb418`
 
 Tags:
 - `video-understanding`
