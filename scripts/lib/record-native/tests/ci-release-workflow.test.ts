@@ -42,3 +42,29 @@ test(
     );
   }
 );
+
+test("package job prepares the native runtime before its release Gate", () => {
+  const workflow = parse(
+    readFileSync(".github/workflows/package-skills.yml", "utf8")
+  ) as {
+    jobs: Record<string, { steps?: Array<{ name?: string; run?: string }> }>;
+  };
+  const steps = workflow.jobs.package?.steps ?? [];
+  const prepare = steps.findIndex(
+    (step) => step.name === "Prepare and validate native repository runtime"
+  );
+  const release = steps.findIndex(
+    (step) => step.name === "Validate and package"
+  );
+  assert.ok(prepare >= 0 && prepare < release);
+  const prepareScript = steps[prepare]?.run ?? "";
+  const fetch = prepareScript.indexOf(
+    "cargo +1.98.1 fetch --manifest-path tools/record-cli/Cargo.toml --locked"
+  );
+  const build = prepareScript.indexOf("bun run prepare:record-native");
+  const check = prepareScript.indexOf(
+    "node scripts/prepare-record-native.ts --check"
+  );
+  assert.ok(fetch >= 0 && fetch < build && build < check);
+  assert.match(steps[release]?.run ?? "", /--tag release/u);
+});

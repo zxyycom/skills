@@ -31,7 +31,7 @@ export type GateCheckImpactContract = Readonly<{
 }>;
 
 const semanticCheckContractVersions: Readonly<Record<string, string>> = {
-  "test:record-rust:runtime": "11"
+  "test:record-rust:runtime": "12"
 };
 
 export const baseGateImpactContracts: readonly GateCheckImpactContract[] =

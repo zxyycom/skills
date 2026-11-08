@@ -6,6 +6,7 @@ import path from "node:path";
 import * as v from "valibot";
 import { captureNativeCandidateSnapshot } from "./capture.ts";
 import { legacyTargets } from "./ci-bootstrap-fixture.ts";
+import { installOnlineTarget } from "./ci-release-online-target.ts";
 import { command, hash, unpack } from "./ci-bootstrap-process.ts";
 import { nativeRoles } from "../../../tools/skill-package/src/native-release-manifest.ts";
 
@@ -72,20 +73,10 @@ async function verifyInstallation(
   bootstrap: string,
   temp: string
 ): Promise<void> {
-  await fs.mkdir(destination, { recursive: true });
-  await fs.writeFile(path.join(destination, "sentinel.txt"), "keep", {
-    flag: "wx"
-  });
-  command(
-    process.execPath,
-    [
-      path.join(bootstrap, "scripts", `${role}.ts`),
-      "--yes",
-      "--target-dir",
-      destination,
-      "--release-tag",
-      "skills-latest"
-    ],
+  await installOnlineTarget(
+    destination,
+    kind === "legacy",
+    path.join(bootstrap, "scripts", `${role}.ts`),
     temp
   );
   const binary = path.join(

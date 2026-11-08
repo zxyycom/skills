@@ -67,6 +67,7 @@ export const semanticGateChecks = [
         "./scripts/lib/record-native/tests/ci-release-evidence.test.ts",
         "./scripts/lib/record-native/tests/ci-release-reuse.test.ts",
         "./scripts/lib/record-native/tests/ci-release-workflow.test.ts",
+        "./scripts/lib/record-native/tests/ci-release-online-target.test.ts",
         "./scripts/lib/record-native/tests/runtime.test.ts"
       ]
     }

@@ -119,6 +119,12 @@ jobs:
           set -euo pipefail
           test "$(scc --version)" = "scc version 4.0.0"
 
+      - name: Prepare and validate native repository runtime
+        run: |
+          cargo +1.98.1 fetch --manifest-path tools/record-cli/Cargo.toml --locked
+          bun run prepare:record-native
+          node scripts/prepare-record-native.ts --check
+
       - name: Validate and package
         env:
           BASELINE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}

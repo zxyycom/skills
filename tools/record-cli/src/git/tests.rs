@@ -45,6 +45,12 @@ fn local_paths_convert_to_git_spelling_without_weakening_raw_output_validation()
         );
     }
     assert_raw_git_paths();
+    #[cfg(windows)]
+    assert_eq!(
+        git_path(std::path::Path::new(r"docs\record.md")).unwrap(),
+        "docs/record.md"
+    );
+    #[cfg(not(windows))]
     {
         assert!(git_path(std::path::Path::new(r"docs\record.md")).is_err());
         for valid in [
