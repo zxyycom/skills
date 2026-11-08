@@ -24,10 +24,9 @@ export const maintenanceCliPackageScripts = {
   "lightweight-judgment":
     "node skills/lightweight-judgment/scripts/lightweight-judgment.ts",
   "change-plan": "node skills/change-plan/scripts/change-plan.ts",
-  "decision-records":
-    "node skills/decision-records/scripts/decision-records.ts",
+  "decision-records": "node scripts/record-native-cli.ts decision-records",
   "investigation-report":
-    "node skills/investigation-report/scripts/check-investigations.ts",
+    "node scripts/record-native-cli.ts investigation-report",
   "task-graph": "node scripts/task-graph.js",
   "test-evidence":
     "node skills/test-evidence-review/scripts/test-evidence-catalog.ts",

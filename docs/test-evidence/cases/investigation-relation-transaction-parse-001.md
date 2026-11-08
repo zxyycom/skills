@@ -1,13 +1,13 @@
-### Case INVESTIGATION-RELATION-TRANSACTION-PARSE-001: set-relations parses complete source groups and rejects ambiguous grouping
+### Case INVESTIGATION-RELATION-TRANSACTION-PARSE-001: 关系参数拒绝缺失 source 与清空冲突
 
 Tests:
-- `test:a2e018d815986f8cbbc0a4cd992e36674ccd15746cb7337fa1d3add6510453ce`
+- `test:84fb4c401eda13363c61976627f7e8d5fad9e98a4cca1bb1aa28b118baabc22a`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- `set-relations` 只接受完整 source 关系组，拒绝歧义参数分组。
+- set-relations 解析须拒绝不完整或冲突的来源组。
 
 Proves:
-- 缺少 source 的 relation 参数以用法错误退出。
+- 调查领域解析拒绝 relation 出现在 source 之前，亦拒绝同组 clear-relations 与 relation 混用。

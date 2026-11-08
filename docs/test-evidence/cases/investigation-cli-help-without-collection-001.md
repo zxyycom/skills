@@ -1,13 +1,13 @@
 ### Case INVESTIGATION-CLI-HELP-WITHOUT-COLLECTION-001: help 渲染不读取集合状态
 
 Tests:
-- `test:d0bf6f8e79a19d027840b0839b4b7ea4a42c42ba35da8522bc44e1b6a9120a1d`
+- `test:2dfd48c79c1d1110d13aa7a23dbfae990286309490720cb51802b13bd7fc659b`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- `help [command]` 与 `<command> --help` 只解析请求并渲染静态命令信息，不读取集合状态；帮助在集合解析前完成。
+- help 与版本信息不要求可用工作区或调查集合。
 
 Proves:
-- 在没有任何调查集合的工作区中，顶层 `--help`、`help`、`help <command>` 与 `<command> --help` 都以退出码 `0` 成功渲染，stderr 为空，且命令帮助只包含该命令的选项而不混入其他命令。
+- 真实程序对 --help、help stage、--version 及带不存在 root 的顶层和 stage help 均成功输出；缺失命令返回 usage 状态。

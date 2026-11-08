@@ -8,7 +8,7 @@
 2. Bun 负责 package scripts 调度、源码同步适配和仓库中其余 TypeScript 脚本运行；本地与 hook 复用 `PATH` 上可运行的 Bun，不设置版本号前置门槛。CI 使用 workflow 选定的版本；生成一致性与实际测试承担兼容性验收，工具链指纹继续记录实际版本。优先通过 `bun run <script>` 使用稳定入口。
 3. Node.js 负责运行分发 TS 入口、`@zxyycom/vibe-check` 的 Gate 入口及其原生测试；最低兼容版本由 `package.json#engines.node` 定义，`bun run check`、`bun run check:changed` 与 `bun run test:check` 是稳定的人工作业入口。
 4. tsgo 负责类型检查；`typecheck` 使用固定版本的 `@typescript/native-preview`，对应 release-age 例外记录在 `pnpm-workspace.yaml`。
-5. Rust 候选的构建与验证使用其目录固定的 Cargo 工具链；普通 quick 不要求 Rust。构建和验证入口见 [Record CLI](../tools/record-cli/README.md)。
+5. 记录工具原生 CLI 的构建与验证使用其目录固定的 Cargo 工具链；普通 quick 不要求 Rust。构建和验证入口见 [Record CLI](../tools/record-cli/README.md)。
 6. 常见格式、协议、解析和压缩能力优先使用成熟依赖；项目领域规则才由本仓库直接实现。
 
 ## 环境自举

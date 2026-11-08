@@ -1,13 +1,13 @@
-### Case IR-INDEX-PAYLOAD-SCOPE-001: 所有 stage scope 仅消费必要 payload
+### Case IR-INDEX-PAYLOAD-SCOPE-001: 来源 stage 不读取未选 pending 资源 blob
 
 Tests:
-- `test:320c3dd0f5c6a92c313088ae55b2d1a3e3deb1120daa56ef71f31e80a7dd494a`
+- `test:ea0eabe85fd39b11c9b53b83ceec8027faf220675694bdaceee5ea66749e892d`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 各 scope 按所选对象消费必要 payload；未选 pending 路径、模式与 OID 保持，不保证其 blob 当前可读。
+- all 与 domain scope 不因未选 pending 资源 blob 不可读而阻断所选刷新，也不替换该未选条目。
 
 Proves:
-- 删除无关 pending blob 后 all、domain、index 均能完成所选刷新；无关条目完整身份保持，重复选择 unchanged。
+- 真实 Git fixture 移除未选资源的对象文件后，两种 scope 均成功暂存所选报告与资源，未选资源的 pending OID 保持。

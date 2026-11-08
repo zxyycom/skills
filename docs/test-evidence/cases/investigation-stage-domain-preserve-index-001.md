@@ -1,13 +1,13 @@
 ### Case INVESTIGATION-STAGE-DOMAIN-PRESERVE-INDEX-001: stage --scope domain preserves staged index pending bytes and reports the preserved scope
 
 Tests:
-- `test:c422b57e2f128c80e31a50194a86896ed2091884d977e3bb011f0d7d6d6c13a4`
+- `test:ea0eabe85fd39b11c9b53b83ceec8027faf220675694bdaceee5ea66749e892d`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- domain scope 原样保留已暂存索引字节并报告保留范围。
+- domain scope 暂存所选来源时不刷新 pending 索引投影。
 
 Proves:
-- 先 index 后 domain 后 pending 索引字节与 index 结果一致；结果报告 preserved 与 caller-owned 索引路径。
+- 真实 Git domain stage 暂存报告与资源，读取 pending 索引仍显示 baseline 的旧标题。

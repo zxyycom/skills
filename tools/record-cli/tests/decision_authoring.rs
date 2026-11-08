@@ -27,6 +27,14 @@ fn operation(selector: &str) -> DecisionEvolutionOperation {
     }
 }
 
+#[path = "decision_authoring/evolution_cases.rs"]
+mod evolution_cases;
+#[path = "decision_authoring/evolution_history.rs"]
+mod evolution_history;
+#[path = "decision_authoring/evolution_preconditions.rs"]
+mod evolution_preconditions;
+#[path = "decision_authoring/evolution_transactions.rs"]
+mod evolution_transactions;
 #[path = "decision_authoring/history_and_identity.rs"]
 mod history_and_identity;
 #[path = "decision_authoring/publication.rs"]

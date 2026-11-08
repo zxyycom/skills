@@ -20,6 +20,7 @@ pub(super) fn resolve_review(
             .iter()
             .map(|edge| {
                 Ok(Relation {
+                    summary_selector: None,
                     kind: kind(&edge.relation_type)?,
                     target: edge.target.clone(),
                     summary: edge.summary.clone(),
@@ -50,7 +51,19 @@ fn resolve_targets(
     for relation in relations {
         let (target, _) = crate::domains::resolve_selector(entries, &relation.target, |s| &s.name)
             .map_err(|e| failure("target-selector", format!("{e:?}")))?;
+        if let Some(selector) = &relation.summary_selector {
+            let (summary_target, _) =
+                crate::domains::resolve_selector(entries, selector, |s| &s.name)
+                    .map_err(|e| failure("relation-summary", format!("{e:?}")))?;
+            if summary_target != target {
+                return Err(failure(
+                    "relation-summary",
+                    "summary target differs from relation target",
+                ));
+            }
+        }
         after.push(Relation {
+            summary_selector: None,
             kind: relation.kind,
             target: target.to_owned(),
             summary: relation.summary.clone(),

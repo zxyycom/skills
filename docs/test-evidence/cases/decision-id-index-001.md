@@ -1,13 +1,13 @@
 ### Case DECISION-ID-INDEX-001: State-only ID 键索引
 
 Tests:
-- `test:20bec216e67ab786d17e83fcc0ea692eccc87af49d5a6fd1dd77bf9087af364e`
+- `test:aa8b51aa7b298b7f3ee8cf34bcacab13bd0e40dd32b4f91e483e9d9c585d020e`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 索引 entries 和 sourceRevision 必须以稳定 Decision ID 为键，metadata 为空对象；entry 直接持久化包含明确 alignment 的领域 state，查询字段由 definition 11 提供。
+- Decision 已发布索引以稳定 ID 对齐 entries 与 sourceRevision，并接受状态投影。
 
 Proves:
-- 内存 Markdown snapshot 经真实索引构建器生成 schemaVersion 4、namespace decisions、definitionVersion 11 和空 metadata；entries 与 sourceRevision 的 ID 键顺序、当前记录的 sourcePath 与 tags 均精确匹配。
+- DR 完整 check 对同 ID 的来源、索引状态及 revision 构建一致时成功；正文变更后报告索引不再当前。

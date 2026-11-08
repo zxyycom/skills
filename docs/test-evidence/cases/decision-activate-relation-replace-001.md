@@ -1,14 +1,13 @@
-### Case DECISION-ACTIVATE-RELATION-REPLACE-001: Evolve 关系覆盖完整替换候选来源关系
+### Case DECISION-ACTIVATE-RELATION-REPLACE-001: 候选来源关系被完整覆盖
 
 Tests:
-- `test:e1b3df5457c3d07b4d08bd5a22cc5a3f1277cdfb8bd531077ec8dab1885332a9`
+- `test:18c042b1249b872ffda1f29bcd991ee2e4f97a3762bef802bb689cb699a6de10`
 
 Tags:
 - `decision-records`
 
 Contract:
-- evolve 的重复 `--relation` 表达候选最终关系的完整覆盖，不能与候选来源关系追加或合并。
+- evolve 关系覆盖替换候选来源的完整关系集合，不与旧边合并。
 
 Proves:
-- 建立后的候选只保存 CLI 提供的替代关系，不再包含源码中原有的修订关系。
-- 覆盖新增的活动目标被归档，已从最终集合移除的原来源目标保持 active。
+- 候选原指向待删除目标，显式覆盖为两个不同前序后提交；最终索引仅包含两条新目标，原目标删除。此节点使用原生操作，不验证 CLI 参数。

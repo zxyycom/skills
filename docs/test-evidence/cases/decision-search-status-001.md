@@ -1,14 +1,14 @@
 ### Case DECISION-SEARCH-STATUS-001: Decision search 默认活动记录并可选择归档记录
 
 Tests:
-- `test:ea99b6cbb6a965d25f16cbb78256c235771b15efe024a141b059bead72c29602`
+- `test:3793ebbf9de41d2ef23dcbddb7638a31c75bf238b2e7ebe3a6880a42c531218b`
 
 Tags:
 - `decision-records`
 
 Contract:
-- Decision search 默认只搜索 active 决策，显式 status=archived 时搜索归档决策及其 archive sourcePath 与明确 alignment。
+- Decision metadata search 默认只搜索 active 决策，显式 status=archived 时搜索归档决策及其 archive sourcePath 与明确 alignment。
 
 Proves:
-- 默认查询不返回匹配的归档 Decision ID。
-- archived 查询返回该 ID、archive 下的 sourcePath、archived/unaligned，且不含 unknown 或 null。
+- 真实原生 CLI 对同一匹配词默认仅返回 active ID；显式 archived 仅返回归档 ID、archive sourcePath 和 unaligned。
+- 该节点不单独验证 content 搜索的状态过滤。

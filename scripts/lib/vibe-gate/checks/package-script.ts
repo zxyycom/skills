@@ -12,11 +12,9 @@ import {
 import { gateCommandPolicy } from "../command-runner.ts";
 
 export const compatibilityTestPackageScripts = [
-  "test:decision-records-cli",
   "test:change-plan-cli",
   "test:task-graph-cli",
-  "test:test-evidence-cli",
-  "test:investigation-report-check"
+  "test:test-evidence-cli"
 ] as const;
 
 // Package scripts remain stable manual aggregation entry points. Gate execution
@@ -51,11 +49,7 @@ export type GatePackageScriptCheckId = `script:${GatePackageScript}`;
 export const packageScriptToolSubscriptions = {
   "test:environment": ["environment"],
   "test:index-runtime": ["index-runtime"],
-  "test:check": [
-    "gate-tests",
-    "decision-test-catalog",
-    "investigation-test-catalog"
-  ],
+  "test:check": ["gate-tests", "record-rust"],
   "test:skill-updater": ["skill-updater"],
   "test:skill-validator": ["skill-validator"],
   "test:relation-graph": ["relation-graph", "relation-graph-tests"],
@@ -66,31 +60,9 @@ export const packageScriptToolSubscriptions = {
   typecheck: ["typescript-program"],
   lint: ["typescript-program"],
   validate: ["repository-validation", "skill-validator"],
-  "check:investigations": [
-    "investigation-record",
-    "investigation-query",
-    "investigation-maintenance",
-    "investigation-stage",
-    "investigation-cli",
-    "investigation-collection",
-    "file-text-search",
-    "relation-graph"
-  ],
-  "check:decisions": [
-    "decision-record",
-    "decision-query",
-    "decision-maintenance",
-    "decision-stage",
-    "decision-cli",
-    "decision-collection",
-    "file-text-search",
-    "relation-graph"
-  ],
-  "check:test-evidence-catalog": [
-    "repository-material",
-    "decision-test-catalog",
-    "investigation-test-catalog"
-  ],
+  "check:investigations": ["record-rust", "investigation-collection"],
+  "check:decisions": ["record-rust", "decision-collection"],
+  "check:test-evidence-catalog": ["repository-material", "record-rust"],
   "check:skill-updaters": ["generated-artifacts"],
   "test:generated-file": ["generated-file"],
   "format:check": ["repository-code"],

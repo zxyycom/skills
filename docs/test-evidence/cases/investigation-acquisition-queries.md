@@ -1,13 +1,15 @@
 ### Case INVESTIGATION-ACQUISITION-QUERIES-001: 快照发现不获取正式或候选来源
 
 Tests:
-- `test:16e710173720078954182b3726640eb438d40352a5dfcb06937b4970a06002b2`
+- `test:045ca118cdb50dc7cd62c08d5230734cbd8e026b3e21144f29aa83e99afdd2b4`
+- `test:8ad09f135902ceb10e7afd2f94bbfbd10c422906f74101b2e94a7e79c44bd1b0`
+- `test:8f7d4e88a44f15b8b43b3150b2746fd965c22ba80c1d50679402762dcf9fe1ad`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 纯索引查询只要求发布索引合法，不探测正式或候选正文健康。
+- list、trace 和 metadata search 的索引投影不依赖报告或候选正文。
 
 Proves:
-- 正式来源删除且无关候选非法时 list、trace、metadata 成功；观察器确认零 Markdown 与候选读取，只有 limit warning。
+- 三个独立节点仅构造内存索引即成功计算列表、追溯拆分预算与 metadata 匹配；这些投影入口源码只接收快照和查询参数，不接收工作区根。

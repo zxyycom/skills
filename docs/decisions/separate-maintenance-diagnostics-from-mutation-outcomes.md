@@ -34,5 +34,5 @@ relations: []
 
 - 采用: 共享版本控制错误稳定表达操作事件、可靠原因、对象和经过净化的 detail；共享层不表达领域 mutation 的 `scope` 或 `outcome`。
 - 采用: Index Runtime 只为自己可证明的 pending 路径表达范围与结果；领域工具不得把该局部事实扩写为完整集合 mutation 结果。
-- 采用: Decision Records 与 Investigation Report 由各自事务 owner 为 mutation 失败声明范围，并只使用 `no-change`、`rolled-back`、`partial-or-unknown` 与 `committed-cleanup-pending` 四种结果；普通读取、校验和参数失败不附会 mutation 字段。
+- 采用: Decision Records 与 Investigation Report 的原生 CLI 按可证明事实报告实际和未知写入、提交点与诊断；不再提供上述旧事务 outcome。普通读取、校验和参数失败不附会 mutation 结果。
 - 采用: CLI 在 stdout 保留成功信息，在 stderr 即时输出失败和 warning；诊断不持久化为日志、遥测或 receipt。操作者处理原因后才显式重试，工具不建议 `sudo`、不自动删除锁，也不自动重试。

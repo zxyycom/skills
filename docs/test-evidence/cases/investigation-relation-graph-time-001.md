@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RELATION-GRAPH-TIME-001: relation graph rejects a target formed later
 
 Tests:
-- `test:19e0fdc241c26df4dc9327ee6af0fc14db3527fa9cd33e2ef4539e38f224e787`
+- `test:4e572abfeea52b35c3c4bffc062551f60a2a20ffd64dd908e460bd7d795d107a`
 
 Tags:
 - `investigation-report`
@@ -10,4 +10,4 @@ Contract:
 - 关系 target 的 formedAt 不得晚于 source。
 
 Proves:
-- 指向形成更晚报告的关系返回时间诊断。
+- 有效调查关系基线成功；仅将 target 的 formedAt 改为晚于 source 后图验证拒绝，不断言诊断文本。

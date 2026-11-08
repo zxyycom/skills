@@ -1,14 +1,13 @@
 ### Case RECORD-SEARCH-WARNING-001: 正常预览限制不要求修复当前来源
 
 Tests:
-- `test:340abf27cf7d9c3713264ecc0cca35a49cbecc4466233546fa04e2260dbf0929`
+- `test:ccd35ac719bbc7ba43a90eea3915880ef91c16268f79bc4bcc07e66e8da8d209`
 
 Tags:
 - `record-search`
 
 Contract:
-- search 预算 warning 与来源 warning 分工明确；已验证当前来源上的片段省略不诊断来源问题或要求恢复索引。
+- 预览预算限制与来源恢复问题应分开报告。
 
 Proves:
-- 真实分发 Decision CLI 在 current、非 fallback 且扫描与返回完整时，只因范围预算显示 previews=limited。
-- stderr 恰为带领域前缀的一条 match-previews warning，不包含 source problem、Decision query source、sync-index 或修复来源动作。
+- DR 真实 CLI 在预览字符超预算时返回 preview-characters warning，warning 不要求 sync-index 或修复来源。

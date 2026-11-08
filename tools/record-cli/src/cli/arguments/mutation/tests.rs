@@ -92,3 +92,109 @@ fn mutation_arguments_reject_duplicate_singleton_and_invalid_group() {
     );
     assert!(parse_mutation(Domain::Investigation, &args(&["archive", "one"])).is_err());
 }
+
+#[test]
+fn grouped_summary_alias_is_preserved_for_domain_identity_resolution() {
+    let argv = args(&[
+        "set-relations",
+        "--source",
+        "one",
+        "--relation",
+        "补充=two",
+        "--relation-summary",
+        "240101-two=first=second",
+    ]);
+    let parsed = parse_mutation(Domain::Investigation, &argv).unwrap();
+    let MutationCommand::Investigation(InvestigationCommand::SetRelations { groups, .. }) =
+        parsed.command
+    else {
+        panic!("wrong command")
+    };
+    assert_eq!(groups[0].relations[0].target, "two");
+    assert_eq!(
+        groups[0].relations[0].summary_selector.as_deref(),
+        Some("240101-two")
+    );
+    assert_eq!(
+        groups[0].relations[0].summary.as_deref(),
+        Some("first=second")
+    );
+    let ambiguous = args(&[
+        "set-relations",
+        "--source",
+        "one",
+        "--relation",
+        "补充=240101-two",
+        "--relation",
+        "补充=250101-two",
+        "--relation-summary",
+        "two=ambiguous",
+    ]);
+    assert!(parse_mutation(Domain::Investigation, &ambiguous).is_err());
+}
+
+#[test]
+fn grouped_summary_full_id_with_suffix_distinguishes_same_name_dates() {
+    let argv = args(&[
+        "set-relations",
+        "--source",
+        "one",
+        "--relation",
+        "补充=240101-two",
+        "--relation",
+        "补充=250101-two",
+        "--relation-summary",
+        "240101-two.MD=reason",
+    ]);
+    let parsed = parse_mutation(Domain::Investigation, &argv).unwrap();
+    let MutationCommand::Investigation(InvestigationCommand::SetRelations { groups, .. }) =
+        parsed.command
+    else {
+        panic!("wrong command")
+    };
+    assert_eq!(groups[0].relations[0].summary.as_deref(), Some("reason"));
+    assert_eq!(
+        groups[0].relations[0].summary_selector.as_deref(),
+        Some("240101-two.MD")
+    );
+    assert_eq!(groups[0].relations[1].summary, None);
+}
+
+#[test]
+fn decision_relation_groups_reject_duplicate_empty_or_incompatible_options() {
+    for options in [
+        vec![
+            "--source",
+            "one",
+            "--relation",
+            "修订=old",
+            "--source",
+            "one",
+            "--clear-relations",
+        ],
+        vec![
+            "--source",
+            "one",
+            "--relation",
+            "修订=old",
+            "--relation",
+            "替代=old",
+        ],
+        vec!["--source", "one", "--source", "two", "--clear-relations"],
+        vec![
+            "--source",
+            "one",
+            "--clear-relations",
+            "--relation",
+            "修订=old",
+        ],
+        vec!["--source", "one", "--relation-summary", "old=reason"],
+    ] {
+        let mut argv = vec!["evolve", "--successor", "unaligned=next"];
+        argv.extend(options);
+        assert!(
+            parse_mutation(Domain::Decision, &args(&argv)).is_err(),
+            "{argv:?}"
+        );
+    }
+}

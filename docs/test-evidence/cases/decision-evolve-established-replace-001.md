@@ -1,14 +1,13 @@
-### Case DECISION-EVOLVE-ESTABLISHED-REPLACE-001: Evolve 只替换已建立记录的完整关系
+### Case DECISION-EVOLVE-ESTABLISHED-REPLACE-001: 已建立记录完整替换关系
 
 Tests:
-- `test:160f8cfee240b903dc547e7dde472c889f96c8a6e127946341b90c53a3f08c8a`
+- `test:afe6902a186d39315ab34040d54f3b5b08e03fe8596bba28347a5aa2636244e6`
 
 Tags:
 - `decision-records`
 
 Contract:
-- Evolve 修订已建立记录时只能完整替换 relations，必须保留正文、status、alignment、createdAt 和摘要字段；relationReview 对替换展示完整 before/after 差异，重复相同集合明确标记 unchanged。
+- 修订已建立记录时完整替换关系并保留正文和生命周期状态。
 
 Proves:
-- review 显示被移除的旧边和新增边；关系替换前后的 status、alignment、createdAt、title、purpose、background、decision 与三段正文逐项一致。
-- 最终关系只包含新的替代目标；该新增目标从 active 归档，已移除的旧目标继续保持 archived，重复执行显示 unchanged。
+- 以已归档后继替换旧修订边为新替代边，实际读取原文正文和索引验证正文、status、alignment、createdAt 不变，索引仅含新目标与摘要；该节点未断言 review 差异或重复执行 unchanged。

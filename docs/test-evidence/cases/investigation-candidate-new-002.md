@@ -1,14 +1,13 @@
-### Case INVESTIGATION-CANDIDATE-NEW-002: new rejects conflicting or unsafe candidate identities without overwriting
+### Case INVESTIGATION-CANDIDATE-NEW-002: 重复候选创建不覆盖原文件
 
 Tests:
-- `test:1a04b1c713fdce596dc5a27dbd51af011f935c908bad7a492249282ba79932ef`
+- `test:a55abd86facf4cb1a8b43953e0695b70b89ac26fe7f9fd938a29623210ff99cc`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- `new` 只接受规范 Investigation ID、formedAt、非重复 tags 和直接关系，且不得覆盖已有 candidate、与已发布正式报告共享身份或不安全的候选路径。
+- 同一 Investigation candidate 不得被重复新建覆盖。
 
 Proves:
-- 非法 ID、发布索引可判定的正式身份冲突、集合锁占用和候选符号链接在零写入时返回失败；并发同 ID 创建恰好保留一个候选。
-- 重复创建保持既有 candidate 的字节不变。
+- 真实 CLI 首次创建候选成功，第二次以相同 ID 调用失败；已有候选字节和候选目录项保持不变。

@@ -1,13 +1,14 @@
 import path from "node:path";
-import { packSkillPackageSnapshot } from "./lib/skill-package/skill-package-release.ts";
+import { packIsolatedSkillSnapshot } from "./lib/record-native/staging.ts";
 import { readPendingSkillPackageSnapshot } from "./lib/skill-package/skill-package-hash.ts";
 import { rootDir } from "./lib/project.ts";
 import { skillReleaseManifestFileName } from "../tools/skill-package/src/release-manifest.ts";
 
 const snapshot = await readPendingSkillPackageSnapshot(rootDir);
-const packed = await packSkillPackageSnapshot(
+const packed = await packIsolatedSkillSnapshot(
   snapshot,
-  path.join(rootDir, "dist")
+  rootDir,
+  process.env.SKILL_RELEASE_STAGE
 );
 
 for (const archive of packed.archives) {

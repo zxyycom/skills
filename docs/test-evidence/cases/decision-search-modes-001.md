@@ -1,14 +1,13 @@
 ### Case DECISION-SEARCH-MODES-001: Decision search 以三种模式检索完整 Markdown
 
 Tests:
-- `test:4a4af5f498ba682c867aaea4e95f7e2081a8fcb8095d39575ff4fb85f227fc03`
+- `test:f8b0772cfc1840c342361e4225f2475a8e1bc4c9244cce50fe9cb5b38e1de645`
 
 Tags:
 - `decision-records`
 
 Contract:
-- Decision search 的默认范围和显式 `--in content` 都必须在已建立决策的完整 Markdown 中支持 all、any、phrase 三种文本匹配，并将命中 sourcePath 和预览与稳定 ID 一并输出。
+- DR content 在已发布范围的当前 Markdown 中支持 all、any、phrase。
 
 Proves:
-- 位于正文的稀有词组在默认和显式 content 的 all 查询，以及默认 any 和 phrase 查询中都返回对应 Decision ID。
-- all 加入缺失词时零命中，phrase 的非连续词组合零命中；输出含语义 sourcePath、previews 标记和正文命中片段。
+- 真实 CLI 验证默认及显式 content 的 all、any、phrase 命中与非命中，命中返回稳定 ID、语义 sourcePath 与预览。

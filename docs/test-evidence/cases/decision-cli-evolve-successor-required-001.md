@@ -1,13 +1,13 @@
-### Case DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001: Evolve 要求至少一个后继参数
+### Case DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001: Evolve 要求显式后继
 
 Tests:
-- `test:296b2fd8a6cec498ac6ade6e160b057db84b6a6a048900afb0e1f31033190283`
+- `test:a6ec5a4bef400102ce36865106ade68e4ef6d8ab41757e2153db216e418ae608`
 
 Tags:
 - `decision-records`
 
 Contract:
-- Evolve 必须通过至少一个 `--successor` 明确完整后继集合。
+- Evolve 必须显式指定至少一个 successor；discard 是可选的附加操作。
 
 Proves:
-- 未提供 successor 的 evolve 调用，即使附带 `--discard`，也退出 2 并报告 required option `--successor`。
+- 真实原生 CLI 的无 successor 调用及带 discard 的无 successor 调用均退出 2，以 JSON 报告 invalid-arguments，且不创建领域目录。

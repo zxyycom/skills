@@ -105,6 +105,17 @@ fn body_detects_empty_sections_and_resource_links() {
     assert!(body.body_errors.is_empty());
     assert!(body.resource_errors.is_empty());
     assert_eq!(body.resource_ids, ["240229-report/file.txt"]);
+    let parentheses = text.replace("240229-report/file.txt", "240229-report/evidence(1).txt");
+    let parsed = super::assess_body(parentheses.as_bytes(), 8, false).unwrap();
+    assert!(parsed.resource_errors.is_empty());
+    assert_eq!(parsed.resource_ids, ["240229-report/evidence(1).txt"]);
+    let fragment = text.replace("file.txt)", "file.txt#section)");
+    assert!(
+        !super::assess_body(fragment.as_bytes(), 8, false)
+            .unwrap()
+            .resource_errors
+            .is_empty()
+    );
     let broken = text.replace("240229-report/file.txt", "240229-report/../secret");
     assert!(
         !super::assess_body(broken.as_bytes(), 8, false)
@@ -147,4 +158,32 @@ fn fixed_order_and_declared_identity_are_checked() {
         )
         .is_err()
     );
+}
+
+#[test]
+fn investigation_source_summary_trims_before_projection_and_validation() {
+    let with = |summary: &str| {
+        REPORT.replace(
+            "relations: []",
+            &format!(
+                "relations:\n  - type: \"补充\"\n    target: \"230101-old\"\n    summary: {}",
+                serde_json::to_string(summary).unwrap()
+            ),
+        )
+    };
+    for (raw, expected) in [("  reason  ", Some("reason")), ("\n  \n", None)] {
+        let source = with(raw);
+        let parsed = super::parse_frontmatter(source.as_bytes(), "240229-report").unwrap();
+        assert_eq!(parsed.relations[0].summary.as_deref(), expected);
+        let full = format!(
+            "{source}\n## 形成时背景\n背景\n## 调查目的\n目的\n## 调查范围与依据\n依据\n## 调查结果与边界\n结果\n"
+        );
+        let projected =
+            super::parse_established(full.as_bytes(), "240229-report", "report.md").unwrap();
+        assert_eq!(projected.state.relations[0].summary.as_deref(), expected);
+    }
+    for raw in ["one\ntwo".to_owned(), "😀".repeat(41)] {
+        assert!(super::parse_frontmatter(with(&raw).as_bytes(), "240229-report").is_err());
+    }
+    assert!(super::parse_frontmatter(with(&"😀".repeat(40)).as_bytes(), "240229-report").is_ok());
 }

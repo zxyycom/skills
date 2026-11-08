@@ -42,6 +42,30 @@ test("candidate lock retains only reachable frozen updater dependencies", async 
   );
 });
 
+test("canonical candidate lock preserves top-level order and bytes", () => {
+  const manifest = Buffer.from(
+    JSON.stringify({ dependencies: { yaml: "2.9.1" } })
+  );
+  const lock = Buffer.from(`lockfileVersion: "9.0"
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+importers:
+  .:
+    dependencies:
+      yaml:
+        specifier: 2.9.1
+        version: 2.9.1
+packages:
+  yaml@2.9.1:
+    resolution:
+      integrity: sha512-fixture
+snapshots:
+  yaml@2.9.1: {}
+`);
+  assert.deepEqual(candidateLock(manifest, lock), lock);
+});
+
 test("frozen candidate generation refuses missing or mismatched delivery inputs", async () => {
   const root = await fs.mkdtemp(
     path.join(os.tmpdir(), "native-frozen-generation-")

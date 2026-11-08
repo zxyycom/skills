@@ -19,7 +19,7 @@ node tools/record-cli/benchmarks/fixtures.ts <新目录名> <条数> [宽度] [�
 在最终稳定源码上，通过公开 delivery 入口新建隔离 release 快照并生成 manifest：
 
 ```bash
-node tools/record-cli/delivery/cli.ts build <新构建名> 0.1.0
+node tools/record-cli/delivery/cli.ts build <新构建名> 0.2.0
 node tools/record-cli/benchmarks/run.ts <fixture名> dist/<构建名>/assets <新运行名> 20 <非零随机种子>
 ```
 

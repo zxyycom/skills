@@ -1,13 +1,13 @@
-### Case INVESTIGATION-CANDIDATE-COMPLETE-LAYOUT-001: 候选准备消费发布 owner 声明
+### Case INVESTIGATION-CANDIDATE-COMPLETE-LAYOUT-001: 候选资源查询使用发布 owner 声明
 
 Tests:
-- `test:b82d9ad0ae49d4d58275ed668cccca88bae9fe9349dc65c5e9e34e8e6b34dac9`
+- `test:cdbbe1727809431145c0d2a70dfb54b66bd95d0c6b8d5ce190d9dcc4cbae5b5f`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 候选资源 owner 的正式声明只来自合法发布索引，不为纯依赖读取正式正文。
+- 候选共享资源的正式 owner 声明来自合法发布索引，而不是未选正式正文。
 
 Proves:
-- 已有完整 layout 时仍读取发布索引；共享资源 ready，references 仅含所选候选和必要 owner，正式 owner 正文没有额外 readFile。
+- 发布索引声明 owner 且资源存在时，owner 正文损坏或移位不影响候选资源 ready；索引损坏或缺失时查询失败。

@@ -1,14 +1,13 @@
 ### Case DECISION-RENAME-PATH-001: 冲突 name 路径回退完整 ID basename
 
 Tests:
-- `test:b0e4d4083f09b80629bd98ec15bb31eb844942fe4c7e20de7ef2b53b0c709c13`
+- `test:828a28dcea8e9f97489ee21dc445c1f14ae088fca049f0ccd93159f2ef3b1da1`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 目标 name basename 已被其他合法 sourcePath 占用时，Decision rename 只能回退完整 target ID basename，且不得覆盖占用来源。
+- 目标 name basename 被其他正式来源占用时，rename 使用完整目标 ID basename，不覆盖原来源。
 
 Proves:
-- rename 在完整 ID basename 建立目标文件。
-- 已占用 name path 的原 Markdown 保持原字节和 identity。
+- 真实 rename 将目标写入 261106-new.md，旧路径退出；占用 new.md 的另一个已建立来源字节不变。

@@ -1,8 +1,6 @@
 use super::*;
 
-/// Reactivation explicitly confirms the desired alignment. A rename/delete
-/// transaction is exercised only in an isolated fixture until platform and
-/// failure-boundary acceptance is complete.
+/// Reactivation explicitly confirms the desired alignment.
 pub struct ReactivateOperation {
     pub collection: RelativePath,
     pub index_path: RelativePath,

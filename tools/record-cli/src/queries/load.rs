@@ -15,10 +15,19 @@ pub fn snapshot<D: DomainDefinition>(
     let source = source::capture(root, &path)
         .map_err(|e| CommandError::new("index-read-failed", e.to_string()))?;
     let ExpectedFile::Present(source) = source else {
-        return Err(CommandError::new(
+        let mut error = CommandError::new(
             "index-not-found",
             format!("published index not found: {}", path.as_path().display()),
-        ));
+        );
+        error.path = Some(
+            path.as_path()
+                .to_string_lossy()
+                .into_owned()
+                .into_boxed_str(),
+        );
+        error.recovery =
+            Some("Run check, then sync-index explicitly after resolving reported issues.".into());
+        return Err(error);
     };
     let index =
         index::parse_index(&source.bytes, definition).map_err(|error| index_error(&path, error))?;

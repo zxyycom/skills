@@ -1,14 +1,13 @@
-### Case INVESTIGATION-CANDIDATE-QUERY-001: candidate queries report readiness without affecting formal sources
+### Case INVESTIGATION-CANDIDATE-QUERY-001: 候选查询按声明身份返回 readiness
 
 Tests:
-- `test:f50d99c1a807777ca515a54ad76af091b015d621a035388516ecaf7c46a67e5b`
+- `test:2ac3d8341e3f1d7d3ac7a29fb3c56d1af04bdb525c0bbd5638fb703d5a7f28db`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 候选查询独立返回 scaffold、body 与 resource readiness；候选及其 authoring resource 不参与正式 source revision、正式查询或正式索引成员。
+- 候选查询按声明身份发现候选并独立返回 readiness。
 
 Proves:
-- 完整候选及其自有资源返回三个 ready 状态，并可由 `show-candidate` 读取。
-- 正式 source revision、`sync-index`、`list`、`show` 与 `trace` 只读取正式报告，默认检查不会把候选 owner 当作缺失的正式 owner。
+- 旧定位文件中的合法候选以声明 ID 被列出和选中，三项 readiness 成立；重复声明身份被拒绝。

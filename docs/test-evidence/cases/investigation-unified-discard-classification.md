@@ -1,13 +1,13 @@
 ### Case INVESTIGATION-UNIFIED-DISCARD-CLASSIFICATION-001: 统一删除保留跨类型歧义与身份冲突
 
 Tests:
-- `test:078b1f2e18f1740b3c03dbacfcaecea9c8e54f271be555f6857250b707000e30`
+- `test:7fbbd2b1f22373914be0fe0bedcf421256d13cba024017aa55fe257837325939`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 单锁分类不得静默选择候选或正式同name/同ID冲突，失败保持完整集合。
+- 统一 discard 不得静默选择正式与候选的同名歧义或同 ID 冲突。
 
 Proves:
-- 跨候选和正式的同name以及显式同ID冲突均拒绝，index、正式正文与候选均保留。
+- 跨类型同名选择及同 ID 冲突均失败，正式正文、候选和索引保留。

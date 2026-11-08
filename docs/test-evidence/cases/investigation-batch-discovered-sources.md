@@ -1,16 +1,15 @@
-### Case INVESTIGATION-BATCH-DISCOVERED-SOURCES-001: 同次发现集合按唯一身份解析来源
+### Case INVESTIGATION-BATCH-DISCOVERED-SOURCES-001: 选中发现移动来源与重复身份
 
 Tests:
-- `test:145d71fd8e57ed4dacd1c876ac2dc62b2579dca6dba97f5e7a025c7097483fb5`
-- `test:20b8052c88e9e31acb2433e35eb2896ddfd610cda08d45a0226073ae63c340d1`
-- `test:cea090b00ced1698d1fa3094c0fba08310f2fb7a3dbd6fc000d03b90b20e771f`
+- `test:64a7128e1db0ce1e1ea3ff99392c661d1b996b1530553e65c52b150971f4d658`
+- `test:ae42ded23d29f2af769d620f3edcda11d54a8d40e8f3ab7902350380ed51de59`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 局部来源读取保留索引定位与必要发现，每个请求ID必须唯一解析到来源；无关集合布局错误不升级为局部门禁。
+- 选中检查发现移动的身份时，不把无关正文损坏当作所选正文错误；所选身份不唯一必须失败。
 
 Proves:
-- 移动与未索引来源在一次发现中共同解析并稳定排序，普通已索引来源继续定位读取。
-- 缺失或重复身份拒绝，重复请求ID拒绝；已索引来源类型失败及发现根读取失败均不降级为成功空源。
+- 索引旧位置已被其他身份占据且其正文有非法字节时，所选 ID 从新位置发现并通过选中检查，indexChecked 为 false。
+- 非法无关正文位于有效身份头之后时不阻断选中检查；重复所选 ID 返回 duplicate-id，所选正文非法编码返回 source-encoding。

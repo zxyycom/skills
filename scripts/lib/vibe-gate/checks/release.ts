@@ -1,7 +1,6 @@
-import path from "node:path";
+import { packIsolatedSkillSnapshot } from "../../record-native/staging.ts";
 import { defineCheck, defineContextCallback } from "@zxyycom/vibe-check";
 import {
-  packSkillPackageSnapshot,
   prepareSkillPackageRelease,
   type PreparedSkillPackageRelease
 } from "../../skill-package/skill-package-release.ts";
@@ -197,9 +196,10 @@ export function createPackSkillsCheck(
   const pack =
     packRelease ??
     ((preparedRelease: PreparedSkillPackageRelease, workspaceRoot: string) =>
-      packSkillPackageSnapshot(
+      packIsolatedSkillSnapshot(
         preparedRelease.snapshot,
-        path.join(workspaceRoot, "dist")
+        workspaceRoot,
+        process.env.SKILL_RELEASE_STAGE
       ));
   return defineCheck({
     checkId: packSkillsCheckId,

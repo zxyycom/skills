@@ -66,8 +66,29 @@ async function uploadPackages(
   existing: readonly PublishedAsset[]
 ): Promise<readonly PublishedAsset[]> {
   context.phase = "upload and verify assets";
-  for (const asset of packages) {
-    const current = existing.find((item) => item.name === asset.name);
+  const [recovery, ...remaining] = packages;
+  if (
+    !recovery ||
+    !/^record-native-recovery-\d+\.\d+\.\d+\.zip$/.test(recovery.name)
+  )
+    throw new Error("runtime recovery asset must be first");
+  if (
+    !matches(
+      existing.find((item) => item.name === recovery.name),
+      recovery
+    )
+  )
+    await context.remote.upload(context.tag, recovery, false);
+  const afterRecovery = await context.remote.readRelease(context.tag);
+  if (
+    !matches(
+      afterRecovery?.find((item) => item.name === recovery.name),
+      recovery
+    )
+  )
+    throw new Error("runtime recovery asset verification failed");
+  for (const asset of remaining) {
+    const current = afterRecovery?.find((item) => item.name === asset.name);
     if (!matches(current, asset))
       await context.remote.upload(context.tag, asset, current !== undefined);
   }

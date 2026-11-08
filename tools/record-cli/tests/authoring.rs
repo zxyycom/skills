@@ -22,6 +22,8 @@ fn ready_report(id: &str, relations: &str, resources: &str) -> String {
 
 #[path = "authoring/create.rs"]
 mod create;
+#[path = "authoring/ir_cli_contract.rs"]
+mod ir_cli_contract;
 #[path = "authoring/publication.rs"]
 mod publication;
 #[path = "authoring/publication_freshness.rs"]

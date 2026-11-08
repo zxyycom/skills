@@ -55,6 +55,14 @@ mod publish_git;
 mod read_git;
 #[path = "git_stage/stage_decision.rs"]
 mod stage_decision;
+#[path = "git_stage/stage_decision_cli.rs"]
+mod stage_decision_cli;
+#[path = "git_stage/stage_decision_fixture.rs"]
+mod stage_decision_fixture;
+#[path = "git_stage/stage_decision_pending.rs"]
+mod stage_decision_pending;
+#[path = "git_stage/stage_decision_snapshot.rs"]
+mod stage_decision_snapshot;
 #[path = "git_stage/stage_history.rs"]
 mod stage_history;
 #[path = "git_stage/stage_index.rs"]

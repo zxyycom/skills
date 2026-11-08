@@ -1,8 +1,8 @@
 ### Case DECISION-SET-RELATIONS-REPLACE-001: set-relations 完整替换已建立记录关系并重建索引
 
 Tests:
-- `test:01e967c2319fce439a60921fdcfaf66c1fb33bd15b36d15ea2b2396036f2c2ea`
-- `test:20a26f5cf5b18ac7019c37baa0aa46e14812ee0fb4f37d12d4ed3b7bc5b72d2d`
+- `test:bbbef6bec221c129065217e6601a26d96036fadc60e22c685e8ae6c4796d4e9f`
+- `test:f8264139cd816e115baaf81969b5f1e6098c8a23af887c6c0057554b428f4799`
 
 Tags:
 - `decision-records`
@@ -11,5 +11,6 @@ Contract:
 - `set-relations` 按 `--source` 分组完整替换已建立记录的直接关系，并在同一事务重建派生索引；完整替换不合并旧关系或旧摘要。
 
 Proves:
-- 合法替换后 Markdown 与索引只保留新的 archived 关系及摘要；review 显示 removed 旧关系及完整 before/after，entry 其他字段保持不变。
-- 再次替换未提供摘要时旧摘要被移除，review 报告 summary 变化。
+- 共享关系规划用新 target 完整替换旧 target，未分组来源保留原关系；该节点不运行文件事务。
+- 原生 Decision 事务写入关系并读回索引及正文中的 target/摘要；再次替换为无摘要后，索引和正文都不再保留旧摘要。
+- 两节点组合覆盖共享替换语义与领域持久化接线，不声称文件事务节点自身验证了旧 target 到新 target 的替换。

@@ -1,13 +1,13 @@
 ### Case INVESTIGATION-DISCARD-RESOURCE-SAFETY-001: discard rejects unsafe owner resource members without deleting the report
 
 Tests:
-- `test:401d7b4472e675004ec7812c21dd51cea543b9d1cde884eb16189ef242653219`
+- `test:6fba71310b1414d72c10e05385cf0ab1daac0754a4abefda2bdca99207688b64`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 删除前必须拒绝 owner 资源树中的符号链接或其他不安全成员。
+- 删除前拒绝 owner 资源树中的符号链接。
 
 Proves:
-- 检测到符号链接时无写入，报告保持存在。
+- 候选 owner 树含符号链接时 discard 失败，候选、链接和既有资源保留。

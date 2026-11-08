@@ -191,36 +191,45 @@ fn convert_relations<K: Copy + serde::Serialize>(
 ) -> Result<Vec<DomainRelation>, TxError> {
     relations
         .iter()
-        .map(|relation| {
-            convert_relation(
-                ids,
-                source,
-                serde_json::to_value(relation.kind)
-                    .unwrap()
-                    .as_str()
-                    .unwrap()
-                    .to_owned(),
-                &relation.target,
-                relation.summary.as_deref(),
-            )
-        })
+        .map(|relation| convert_relation(ids, source, relation))
         .collect()
 }
 
-fn convert_relation(
+fn convert_relation<K: Copy + serde::Serialize>(
     ids: &HashSet<String>,
     source: &str,
-    kind: String,
-    target: &str,
-    summary: Option<&str>,
+    relation: &Relation<K>,
 ) -> Result<DomainRelation, TxError> {
-    let target = resolve_target(ids, target)?;
+    use crate::domains::JsTrim;
+    let target = resolve_target(ids, &relation.target)?;
+    if let Some(selector) = &relation.summary_selector
+        && resolve_target(ids, selector)? != target
+    {
+        return Err(err(
+            "relation-summary",
+            "summary target differs from relation target",
+        ));
+    }
     if target == source {
         return Err(err("relation-target", "self relation is forbidden"));
     }
+    let summary = match relation.summary.as_deref() {
+        Some(value) => {
+            let trimmed = value.js_trim();
+            if trimmed.contains(['\r', '\n']) || trimmed.chars().count() > 40 {
+                return Err(err("relation-summary", "invalid relation summary"));
+            }
+            (!trimmed.is_empty()).then(|| trimmed.to_owned())
+        }
+        None => None,
+    };
     Ok(DomainRelation {
-        relation_type: kind,
+        relation_type: serde_json::to_value(relation.kind)
+            .unwrap()
+            .as_str()
+            .unwrap()
+            .to_owned(),
         target,
-        summary: summary.map(str::to_owned),
+        summary,
     })
 }

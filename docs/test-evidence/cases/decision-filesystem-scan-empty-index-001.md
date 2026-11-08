@@ -1,13 +1,13 @@
-### Case DECISION-FILESYSTEM-SCAN-EMPTY-INDEX-001: Scan 报告空索引诊断
+### Case DECISION-FILESYSTEM-SCAN-EMPTY-INDEX-001: 索引比较区分缺失与无效
 
 Tests:
-- `test:18cd1c3fd940b1c0a5be65a7a45e7423e15720c45fe84b2215a734f3d516f072`
+- `test:cd9e04ab25050f49eed5b576d4b01827edca775595580068c9ed579d927d3b49`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 空的决策索引文本必须被记录为包含索引路径的 JSON 解析诊断，而不是当作索引缺失。
+- 全量索引比较区分索引缺失与索引内容无效。
 
 Proves:
-- Scan 保留 `indexExists`，index 为 null、文本为空，并在 index errors 中给出 `decision-index.json` 路径与 JSON 解析语义诊断。
+- 共同比较层对缺失索引和坏字节分别返回 Missing 与 Invalid。

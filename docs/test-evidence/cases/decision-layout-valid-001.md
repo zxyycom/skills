@@ -1,13 +1,13 @@
-### Case DECISION-LAYOUT-VALID-001: 扫描器接受根目录和归档布局
+### Case DECISION-LAYOUT-VALID-001: 已建立决策投影核对状态与 sourcePath
 
 Tests:
-- `test:30473b507c00f29363fd5f0338d49a10cf65bb058f4faecbfe029a5a43eabed2`
+- `test:1562e0ec86731ee6252e448882419a3cdcb464f96d79214ba4414bb54f792569`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 根目录仅承载 active、archive 仅承载 archived，且两处 frontmatter ID 全局唯一、sourcePath 独占。
+- 已建立决策正文与物理 sourcePath 须符合生命周期位置。
 
 Proves:
-- 真实 fixture 的完整 API 验证无错误，包含两条决策、一 active、一 archived，并按确定顺序返回各自 ID/sourcePath。
+- 合法 active 正文在 root 路径可投影，同一正文置于 archive 路径被拒绝。

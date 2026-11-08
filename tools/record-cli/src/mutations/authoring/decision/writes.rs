@@ -52,9 +52,11 @@ impl WritePreparation<'_> {
         } = proposed;
         let final_index =
             index::build_index(next, &Definition).map_err(|e| fail("graph-invalid", e))?;
-        index::QuerySnapshot::new(final_index.clone())
+        let snapshot = index::QuerySnapshot::new(final_index.clone());
+        let graph = snapshot
             .graph(&Definition)
             .map_err(|e| fail("graph-invalid", e))?;
+        validate_closed_events(graph, self.selected)?;
         Ok(Writes {
             final_index,
             writes,
@@ -258,4 +260,84 @@ fn render_archived(
     let parsed = decision::parse_established(text.as_bytes(), id, target)
         .map_err(|e| fail("source-render", e))?;
     Ok((text, parsed.state))
+}
+
+/// A split or reallocation selection must cover the complete final event,
+/// including established successors that the current operation did not alter.
+fn validate_closed_events(
+    graph: &index::RelationGraph,
+    selected: &BTreeMap<String, Alignment>,
+) -> Result<(), TxError> {
+    let expected: BTreeSet<&str> = selected.keys().map(String::as_str).collect();
+    let mut validated = BTreeSet::new();
+    for id in selected.keys() {
+        if validated.contains(id.as_str()) {
+            continue;
+        }
+        for edge in graph.outgoing(id) {
+            let actual = match edge.relation_type.as_str() {
+                "拆分" => graph
+                    .incoming(&edge.target)
+                    .iter()
+                    .filter(|item| item.relation_type == "拆分")
+                    .map(|item| item.source.as_str())
+                    .collect(),
+                "重划" => reallocation_successors(graph, id),
+                _ => continue,
+            };
+            if actual != expected {
+                return Err(fail(
+                    "selection",
+                    format!(
+                        "select every successor in the complete {} event for {id}",
+                        edge.relation_type
+                    ),
+                ));
+            }
+            validated.extend(actual);
+            break;
+        }
+    }
+    if expected.len() > 1 && validated.is_empty() {
+        return Err(fail(
+            "selection",
+            "ordinary evolution requires exactly one successor",
+        ));
+    }
+    Ok(())
+}
+
+fn reallocation_successors<'a>(
+    graph: &'a index::RelationGraph,
+    source: &'a str,
+) -> BTreeSet<&'a str> {
+    let mut successors = BTreeSet::new();
+    let mut predecessors = BTreeSet::new();
+    let mut pending = vec![(true, source)];
+    while let Some((is_successor, id)) = pending.pop() {
+        if is_successor {
+            if !successors.insert(id) {
+                continue;
+            }
+            pending.extend(
+                graph
+                    .outgoing(id)
+                    .iter()
+                    .filter(|edge| edge.relation_type == "重划")
+                    .map(|edge| (false, edge.target.as_str())),
+            );
+        } else {
+            if !predecessors.insert(id) {
+                continue;
+            }
+            pending.extend(
+                graph
+                    .incoming(id)
+                    .iter()
+                    .filter(|edge| edge.relation_type == "重划")
+                    .map(|edge| (true, edge.source.as_str())),
+            );
+        }
+    }
+    successors
 }

@@ -1,23 +1,19 @@
 import { spawn } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  preparedRuntime,
-  roles,
-  type Role
-} from "./lib/record-native/runtime.ts";
+import { preparedRuntime, roles } from "./lib/record-native/runtime.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const role = process.argv[2];
-if (!roles.some((name) => name === role)) {
+if (role !== roles[0] && role !== roles[1]) {
   process.stderr.write(
     "usage: record-native-cli.ts <decision-records|investigation-report> [args...]\n"
   );
   process.exitCode = 1;
 } else {
   try {
-    const { paths } = await preparedRuntime(root, role as Role);
-    const child = spawn(paths[role as Role], process.argv.slice(3), {
+    const { paths } = await preparedRuntime(root, role);
+    const child = spawn(paths[role], process.argv.slice(3), {
       stdio: "inherit"
     });
     const signals: NodeJS.Signals[] =

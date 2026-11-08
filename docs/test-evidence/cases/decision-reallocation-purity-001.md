@@ -1,13 +1,13 @@
-### Case DECISION-REALLOCATION-PURITY-001: Evolve 拒绝混合重划关系
+### Case DECISION-REALLOCATION-PURITY-001: 重划图的关系类型边界
 
 Tests:
-- `test:d7336aad16283e4c8bf90b8246638ccb9638a4c83d84f9669ef6c0678a9cf12c`
+- `test:7b51c6051faa3cf1fc1d60e8b03cdc2957686f8099d43631b1ae0db5eacc288f`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 重划事务的每个后继都必须有重划关系，且不得混用其他关系类型。
+- 重划后继不能混合重划和其他关系类型。
 
 Proves:
-- 纯事务准备对后继混合重划与修订关系返回 error、exitCode=1，诊断每个后继须有重划且不能有其他类型，且不产生 changes。
+- 原生索引图测试将有效重划后继的一条边改为修订后，验证拒绝该图；未断言具体诊断或事务写入。

@@ -46,6 +46,7 @@ fn relation(value: &domains::Relation) -> Result<Relation<InvestigationRelationK
         _ => return Err(fail("relation-invalid", &value.relation_type)),
     };
     Ok(Relation {
+        summary_selector: None,
         kind,
         target: value.target.clone(),
         summary: value.summary.clone(),

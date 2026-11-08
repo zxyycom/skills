@@ -331,6 +331,71 @@ test("candidate source archives bind frozen identities and never overwrite outpu
   );
   const release = assembleCandidateRelease(releaseInput);
   assert.equal(release.assets.length, 8);
+  const formalInput = {
+    ...releaseInput,
+    formal: true,
+    baseManifest: {
+      schemaVersion: 1,
+      skills: {
+        "decision-records": { version: result.versions["decision-records"] },
+        "investigation-report": {
+          version: result.versions["investigation-report"]
+        },
+        other: { version: 5 }
+      }
+    }
+  };
+  const formal = assembleCandidateRelease(formalInput);
+  assert.ok(
+    formal.assets.some(
+      (item) => item.asset.name === "record-native-build-1.0.0.json"
+    )
+  );
+  const recovery = formal.assets.find(
+    (item) => item.asset.name === "record-native-recovery-1.0.0.zip"
+  )!;
+  const alternate = Buffer.from(
+    zipSync(unzipSync(recovery.bytes), { level: 0 })
+  );
+  assert.notDeepEqual(alternate, recovery.bytes);
+  const reused = assembleCandidateRelease({
+    ...formalInput,
+    recoveryBytes: alternate
+  });
+  assert.deepEqual(
+    reused.assets.find((item) => item.asset.name === recovery.asset.name)!
+      .bytes,
+    alternate
+  );
+  const alteredMembers = unzipSync(alternate);
+  alteredMembers[
+    Object.keys(alteredMembers).find((name) => name.endsWith(".zip"))!
+  ] = new Uint8Array([1]);
+  assert.throws(
+    () =>
+      assembleCandidateRelease({
+        ...formalInput,
+        recoveryBytes: zipSync(alteredMembers)
+      }),
+    /recovery members differ/
+  );
+  const changedSkills = new Map(releaseSnapshot.skills.filesBySkill);
+  const decision = changedSkills.get("decision-records")!;
+  changedSkills.set("decision-records", [
+    ...decision,
+    { path: "unexpected.txt", data: Buffer.from("different") }
+  ]);
+  assert.throws(
+    () =>
+      assembleCandidateRelease({
+        ...formalInput,
+        snapshot: {
+          ...releaseSnapshot,
+          skills: { ...releaseSnapshot.skills, filesBySkill: changedSkills }
+        }
+      }),
+    /formal package differs from pending snapshot/
+  );
   assert.ok(release.assets.some((item) => item.asset.name === "other.zip"));
   const changedRecipe = buildRecipe.map((file, index) =>
     index === 0 ? { ...file, data: Buffer.from("changed") } : file

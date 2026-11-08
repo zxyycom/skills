@@ -1,13 +1,13 @@
-### Case DECISION-SHOW-OUTPUT-001: Show 返回元数据并报告正文读取失败
+### Case DECISION-SHOW-OUTPUT-001: Show 读取当前正文并核对身份
 
 Tests:
-- `test:c5c37382a86b650ade735fe2ef9cbeb3f45e2954aff08edffc47c39fd9902315`
+- `test:3b88c658f2cf70da23bb880d6e971be8ecef2ddd924c243c13b2c2608233492c`
 
 Tags:
 - `decision-records`
 
 Contract:
-- show 返回稳定 ID/sourcePath 元数据；正文读取失败时不输出部分结果。
+- DR show 返回选中身份的当前完整正文，声明身份不符时失败。
 
 Proves:
-- 模拟安全 FileHandle open 失败，断言空 stdout、定位诊断和单次读取。
+- show 返回当前正文（即使它不是完整合法正式文档），更改为其他 ID 后失败。

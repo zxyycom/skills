@@ -1,13 +1,13 @@
 ### Case DECISION-DISCARD-ONLY-ARCHIVED-ESTABLISHED-001: Discard 删除唯一 archived 已建立决策并保留合法空索引
 
 Tests:
-- `test:39cdcca75fe5248ded579b6498a09a1de088b7ca92dc92af0e4f6e8136a2dcf8`
+- `test:6a6cade9052da091bc088374814e80fac3f43d55140d254537bd36c554fc8b48`
 
 Tags:
 - `decision-records`
 
 Contract:
-- `discard` 同样可删除无引用的 archived 已建立决策；删除末条正式成员后保留合法空派生索引。
+- 删除最后一个归档正式记录后，保留合法空索引供后续发布。
 
 Proves:
-- archive 下 Markdown 被删除；空 index 仍可查询，随后发布新候选可继续维护。
+- 真实 CLI 删除唯一归档来源，索引解析后 entries 为空；再发布候选，索引包含新身份。

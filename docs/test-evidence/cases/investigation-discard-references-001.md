@@ -1,13 +1,15 @@
-### Case INVESTIGATION-DISCARD-REFERENCES-001: discard rejects referenced reports and owner resources
+### Case INVESTIGATION-DISCARD-REFERENCES-001: discard 保护共享资源 owner
 
 Tests:
-- `test:ed2321b9d4b1156d922824d12298a01ad59394b2de3354a5c082668429753744`
+- `test:1be2551068f1dbd2f5f6f17176cd1d5aa098007c969e0a9a208a3ec7b937b00d`
+- `test:bfc8a2107b179a5b9d77513e890c07bc7f9c82ffabb7f10f65a2dc1ad21bb9de`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- `discard` 不得删除仍作为其他报告直接关系 target 的报告，也不得删除仍被其他报告引用的 owner-prefix 资源。
+- 共享资源或正式关系仍被其他报告引用时，不能删除所选目标。
 
 Proves:
-- 同时存在关系和共享资源引用时，操作返回两类可行动诊断，报告和索引字节保持不变。
+- 正式报告共享 owner 文件时 discard 不提交，资源文件仍存在。
+- 存在正式关系引用时 discard 不提交、诊断指向引用者，目标报告仍在。

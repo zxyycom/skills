@@ -1,14 +1,13 @@
-### Case INVESTIGATION-CANDIDATE-PUBLISH-004: publish preflight validates complete merge and split batches
+### Case INVESTIGATION-CANDIDATE-PUBLISH-004: 候选批次目标与最终图校验
 
 Tests:
-- `test:493d3f3aefb5ee5f66a6075da3df42762f650dab1175e74a359035bb4d76e217`
+- `test:a97daa69dcfb245f6db5388face050a73befaf5622b5ccf410ee091978e47452`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 首次集合的 `publish --preflight` 只接受由同批 selected candidates 完整闭合的归并或拆分关系图，并保持零写入。
+- 调查候选批量发布计划允许同批目标，并要求目标存在及最终图校验通过。
 
 Proves:
-- 未选择归并的直接前序时，预检拒绝该 candidate。
-- 完整选择归并前序或同一拆分的两个后继时，预检通过且不会建立正式报告。
+- 选中候选引用同批另一候选时计划通过；仅选引用者返回 MissingTarget，最终图回调失败返回 FinalGraph。

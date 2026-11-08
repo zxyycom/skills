@@ -1,13 +1,13 @@
-### Case INVESTIGATION-RESOURCE-TYPE-001: attached resource targets must be regular files
+### Case INVESTIGATION-RESOURCE-TYPE-001: 随附资源目标必须为普通文件
 
 Tests:
-- `test:5a39e3d0ad176eb85abbbd712ac70923196a8f8a202a39b0323b035617ce491a`
+- `test:f305d1446702243fdb39186c40af0f8221d5bc2bdc605fc0da5ab58834fa4f48`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 随附资源只能是普通文件。
+- 报告引用的资源目标必须是普通文件。
 
 Proves:
-- 目录资源目标返回 regular-file 诊断。
+- full check 在资源路径为目录时返回 resource-invalid；恢复为普通文件后检查通过。

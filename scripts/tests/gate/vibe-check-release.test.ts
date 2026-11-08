@@ -4,6 +4,11 @@ import path from "node:path";
 import test from "node:test";
 import { releaseSnapshotCheckId } from "../../lib/vibe-gate.ts";
 import {
+  createReleasePackageStage,
+  packIsolatedSkillSnapshot
+} from "../../lib/record-native/staging.ts";
+import { readPendingSkillPackageSnapshot } from "../../lib/skill-package/skill-package-hash.ts";
+import {
   packSkillPackageSnapshot,
   prepareSkillPackageRelease
 } from "../../lib/skill-package/skill-package-release.ts";
@@ -195,6 +200,81 @@ test("release packaging failure and cancellation cannot produce successful deliv
       );
       assert.equal(cancelled.kind, "cancelled");
       assert.equal(packed, false);
+    }
+  );
+});
+
+test("release packaging isolates an exclusive stage and preserves existing dist outputs", async () => {
+  await withTemporaryDirectory(
+    "skills-vibe-isolated-release-",
+    async (directory) => {
+      await createReleaseRepository(directory, 2, "captured content");
+      await stageSkillMarkdown(directory, 2, "captured content");
+      const dist = path.join(directory, "dist");
+      await assert.rejects(
+        createReleasePackageStage(directory, "../unsafe"),
+        /safe leaf/
+      );
+      assert.equal(await fileExists(dist), false);
+      await fs.mkdir(path.join(dist, "skill-release"), { recursive: true });
+      await fs.writeFile(path.join(dist, "sentinel"), "preserve");
+      await fs.writeFile(
+        path.join(dist, "skill-release", "previous"),
+        "preserve stage"
+      );
+      const previous = process.env.SKILL_RELEASE_STAGE;
+      process.env.SKILL_RELEASE_STAGE = "package-fixture";
+      const snapshot = await readPendingSkillPackageSnapshot(directory);
+      const originalRm = fs.rm;
+      let concurrentRejected = false;
+      fs.rm = async (target, options) => {
+        await originalRm(target, options);
+        if (
+          String(target) ===
+          path.join(dist, "skill-release", "package-fixture", "packages")
+        ) {
+          await assert.rejects(
+            packIsolatedSkillSnapshot(snapshot, directory, "package-fixture"),
+            { code: "EEXIST" }
+          );
+          concurrentRejected = true;
+        }
+      };
+      try {
+        const definition = createReleaseTestDefinition({
+          nativeChecks: passingNativeChecks()
+        });
+        const first = await runDefinition(definition, directory, ["release"]);
+        assert.equal(first.aggregate, "passed");
+        assert.equal(concurrentRejected, true);
+        const archive = path.join(
+          dist,
+          "skill-release",
+          "package-fixture",
+          "packages",
+          "alpha.zip"
+        );
+        const bytes = await fs.readFile(archive);
+        assert.ok(bytes.byteLength > 0);
+        assert.equal(
+          await fs.readFile(path.join(dist, "sentinel"), "utf8"),
+          "preserve"
+        );
+        assert.equal(
+          await fs.readFile(
+            path.join(dist, "skill-release", "previous"),
+            "utf8"
+          ),
+          "preserve stage"
+        );
+        const again = await runDefinition(definition, directory, ["release"]);
+        assert.equal(outcomeFor(again, "pack:skills").status, "failed");
+        assert.deepEqual(await fs.readFile(archive), bytes);
+      } finally {
+        fs.rm = originalRm;
+        if (previous === undefined) delete process.env.SKILL_RELEASE_STAGE;
+        else process.env.SKILL_RELEASE_STAGE = previous;
+      }
     }
   );
 });

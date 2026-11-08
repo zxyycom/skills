@@ -1,14 +1,13 @@
 ### Case INVESTIGATION-RENAME-RESOURCE-001: 不安全 owner tree 阻断 rename
 
 Tests:
-- `test:c69a2eed4f644c86e2beb155b7ff63bcaf786d55cbf7e1a516745776ee15925d`
+- `test:6fba71310b1414d72c10e05385cf0ab1daac0754a4abefda2bdca99207688b64`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- Investigation rename 预演 owner tree 时必须拒绝符号链接等非安全成员，不能移动报告或 owner。
+- rename 不得移动不安全的 owner 树。
 
 Proves:
-- 含符号链接 owner 的 preflight 返回安全诊断。
-- 拒绝后旧 report 和 owner 路径仍存在。
+- 候选 owner 树含符号链接或非法名称时 rename 失败，候选与原资源保留，目标候选不存在。

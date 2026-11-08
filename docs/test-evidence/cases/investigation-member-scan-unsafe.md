@@ -1,13 +1,13 @@
-### Case INVESTIGATION-MEMBER-SCAN-UNSAFE-001: 成员采集拒绝符号链接与特殊文件
+### Case INVESTIGATION-MEMBER-SCAN-UNSAFE-001: 检查拒绝目录占用报告成员路径
 
 Tests:
-- `test:9662962df6f376fbb70526b6144731f179b5445918355c8b5afe83ab7d479085`
+- `test:ae42ded23d29f2af769d620f3edcda11d54a8d40e8f3ab7902350380ed51de59`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 集合成员只接受普通文件或目录；符号链接与特殊文件必须失败。
+- 调查来源成员的位置不得是目录。
 
 Proves:
-- 真实悬空符号链接与 Unix socket 分别导致带目标路径的不安全成员诊断，不能被遗漏或当作普通成员接受。
+- 选中检查 fixture 将 other.md 替换成目录后返回 member-invalid，不将其忽略为合法来源。

@@ -1,13 +1,13 @@
-### Case INVESTIGATION-REPORT-VALIDATION-SCOPE-001: scoped validation selects report ids without claiming full graph proof
+### Case INVESTIGATION-REPORT-VALIDATION-SCOPE-001: 调查检查的部分覆盖与聚合诊断
 
 Tests:
-- `test:f12d42e17035a734bd0c3ea89cc2063902295603cef42874ced3b0d2b459ad93`
+- `test:45bcc3e6a72baeb54b20a069f8ed5b66bac8984524604a227343fae706f8a1b1`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- scoped validation 只证明所选规范 Investigation ID，不声明完整关系图或 index 已验证。
+- 报告来源无效时 check 保留聚合诊断，不声称已检查索引。
 
 Proves:
-- 局部校验只选择一个报告且 `indexChecked` 为 false；`./` 与首尾空白输入得到 check-id 诊断。
+- 真实 CLI 在两个无效报告下失败，诊断数量为二，scope 为 partial，indexChecked 为 false。

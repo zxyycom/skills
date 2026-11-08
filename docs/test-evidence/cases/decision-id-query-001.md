@@ -1,13 +1,13 @@
-### Case DECISION-ID-QUERY-001: 稳定 ID 的 Show
+### Case DECISION-ID-QUERY-001: Show 按索引身份读取当前来源
 
 Tests:
-- `test:77a75b5cfb9d9f7d62f7d13e6ea587b31c460d592dbfbdf0bb81915a4a10d731`
+- `test:3b88c658f2cf70da23bb880d6e971be8ecef2ddd924c243c13b2c2608233492c`
 
 Tags:
 - `decision-records`
 
 Contract:
-- show 通过稳定 ID 从持久索引定位 active 或 archived 记录，并返回其带 tags 与明确 alignment 的原始 Markdown。
+- show 使用已发布索引定位来源，读取正文时核对其身份。
 
 Proves:
-- show 分别输出 active/aligned 与 archived/unaligned 的 metadata 和 Markdown frontmatter。
+- 原生 show 对 active 索引条目按名称读取当前正文；正文不完整但身份匹配时保留正文并发出 warning，身份不匹配则失败。此节点不覆盖 archived show 或全部 frontmatter 字段。

@@ -6,11 +6,11 @@
 
 1. `scripts/` 只承接主仓库命令编排、构建适配、校验、打包、Git 和 CI 自动化。
 2. 顶层脚本只保留入口与编排；`scripts/build/` 承接生成适配，`scripts/lib/` 承接跨脚本共享能力，`scripts/validators/` 承接项目校验项。各目录可以按命令阶段或独立不变量拆分内部模块；稳定的维护命令和明确保留的入口/导出才是跨 owner 消费边界，内部文件名或拆分层级不是文档契约。
-3. `tools/<tool-name>/src/` 承接同步后随 skill 分发的运行时源码，`api/` 承接确需独立维护的公共声明源，`tests/` 承接源码、分发模块和 fixture 验证。skill 的公开程序化边界由生成制品及其声明入口确定，不包括任意 `src/` 子模块。构建适配器选择的源码入口则是维护源码与生成制品的边界：移动或替换该入口时，同步更新 `scripts/build/` 映射、生成头和对应 `sync:*`/`check:*`，而仅拆分入口相邻的内部职责模块不需要在本文另建文件索引。Task Graph 按其[局部决策](decisions/distribute-editable-typescript-runtimes.md)从运行时公开导出机械生成声明，不维护重复的 `api/` 源。Change Plan 只同步可直接 import 的当前 TS 运行时，不建立稳定 SDK 或声明源。
+3. 除原生记录工具外，`tools/<tool-name>/src/` 承接同步后随 skill 分发的运行时源码，`api/` 承接确需独立维护的公共声明源，`tests/` 承接源码、分发模块和 fixture 验证。skill 的公开程序化边界由生成制品及其声明入口确定，不包括任意 `src/` 子模块。构建适配器选择的源码入口则是维护源码与生成制品的边界：移动或替换该入口时，同步更新 `scripts/build/` 映射、生成头和对应 `sync:*`/`check:*`，而仅拆分入口相邻的内部职责模块不需要在本文另建文件索引。Task Graph 按其[局部决策](decisions/distribute-editable-typescript-runtimes.md)从运行时公开导出机械生成声明，不维护重复的 `api/` 源。Change Plan 只同步可直接 import 的当前 TS 运行时，不建立稳定 SDK 或声明源。
 4. `tools/shared/` 承接多个工具已经真实共享的运行时不变量，以及项目明确选定并预置、具有独立契约的基础实现原语；预置原语不降低其他共享代码的准入条件。当前共享职责包括版本管理、文件文本检索、关系图、Markdown/Node 基础原语和 [`Option`](../tools/shared/src/option.ts)；具体入口与局部契约由源码目录承接。[版本管理中间层](../tools/shared/version-control.md)完整说明版本管理语义，[关系图基础能力](../tools/shared/src/graph/relations.ts)负责保序建图、显式边排序、节点 trace 和结构问题；其源码与测试分别承接实现和验证。关系类型、生命周期、时序和诊断映射仍由领域工具负责。
-5. 跨领域协议由各自 owner 承接：`tools/skill-package/` 维护 skill 版本及发布端/updater 共用的 release manifest；[Index Runtime](../tools/index-runtime/README.md)维护派生索引协议和记录 stage 协调；[共同记录操作](../tools/record-operations/README.md)仅为 Decision Records 与 Investigation Report 编排操作，依赖 Index Runtime 与 shared。两域保持独立模型、公开边界和分发；仓库专用的临时 package hash 留在 `scripts/lib/`。
+5. 跨领域协议由各自 owner 承接：`tools/skill-package/` 维护 skill 版本及发布端/updater 共用的 release manifest；[Index Runtime](../tools/index-runtime/README.md)维护通用派生索引协议；[共同记录操作](../tools/record-operations/README.md)说明两域原生业务操作的责任边界。两域保持独立模型、公开边界和分发；仓库专用的临时 package hash 留在 `scripts/lib/`。
 6. 领域工具可以依赖自身源码、`tools/shared/`、`tools/skill-package/`、明确建立的跨领域协议、目标运行时和显式外部依赖；不能依赖 `scripts/`、`skills/`、`dist/` 或另一个领域工具。
-7. 根目录 `tsconfig.json` 统一提供 IDE 与类型检查配置；仓库 TypeScript 源码运行、同步适配和普通测试由 Bun 负责；Rust 候选的构建和测试由 [Record CLI](../tools/record-cli/README.md) 承接。真实 Node smoke、Task-graph native lock 集成测试和分发 CLI 是明确例外，使用对应 skill manifest 与 help 公布的 Node.js engine。
+7. 根目录 `tsconfig.json` 统一提供 IDE 与类型检查配置；仓库 TypeScript 源码运行、同步适配和普通测试由 Bun 负责；记录工具原生 CLI 的构建和测试由 [Record CLI](../tools/record-cli/README.md) 承接。真实 Node smoke、Task-graph native lock 集成测试和分发 CLI 是明确例外，使用对应 skill manifest 与 help 公布的 Node.js engine。
 8. 外部 JSON 在边界做运行时收窄。同一结构被多个入口消费或需要稳定字段诊断时，以 Valibot Schema 为结构真源；跨语言契约从同一 Schema 生成 JSON Schema 和分发声明。Decision Records 与 Investigation Report 的索引 JSON Schema 是例外：两域纯数据格式源由 [`tools/record-contracts/`](../tools/record-contracts/README.md) 承接，各运行时仍须对照领域语义验证。
 9. 校验器检查长期源文件、链接和项目约束，不解析或正则匹配 GitHub Actions workflow 内部结构；workflow 行为由代码审查和实际运行验证。
 
@@ -30,10 +30,12 @@
 ### 源码、入口与使用者
 
 - `tools/` 保存 TypeScript 运行时与必要声明源；`scripts/build/` 适配器组合领域入口、updater、可达模块与资源，统一同步每个 skill 的受管文件和 manifest。
-- 自有入口与运行时全部以 `.ts` 分发，模块关系保留在包内 `scripts/runtime/`；第三方依赖由包管理器安装。必要的 `.d.mts` 公开声明及 Schema 继续由领域 owner 维护或生成，普通源码子模块不因此成为稳定 SDK。
+- 除下述两个原生记录 skill 外，自有入口与运行时以 `.ts` 分发，模块关系保留在包内 `scripts/runtime/`；第三方依赖由包管理器安装。必要的 `.d.mts` 公开声明及 Schema 继续由领域 owner 维护或生成，普通源码子模块不因此成为稳定 SDK。
 - SDK 声明以维护源码入口所在目录为源码根，沿可达声明依赖保留子目录与相对导入关系，闭包限定在该源码根内。公开接口由入口导出决定。
 - 公开 TS 模块可导入而不执行 CLI、修改退出状态或产生文件和网络副作用；作为主模块运行时才进入 CLI。消费者使用 Node 原生类型擦除，无需 Bun、tsx 或构建工具。静态语法约束见[编码规范](coding-style.md#4-用类型表达领域含义)，运行兼容性仍由真实 Node smoke 验证。
 - 仓库维护修改 `tools/` 源码 owner 后运行对应 `sync:*`；安装者可直接修改包内 TS，无需构建，但更新会覆盖正式制品中的同路径定制。生成头标明维护源码、skill 来源与同步命令，不写时间戳或本机绝对路径。
+
+两域原生 skill 的 `native-runtime.json` 绑定角色、原生版本、源码摘要和平台；ZIP 与独立二进制由发布 manifest 的长度与 SHA-256 绑定。源码、skill、资产须来自同一冻结发布身份。各 skill 首次安装及旧版升级使用 `record-native-installer.zip` 显式引导，后续由各自原生 updater 准备并验证资产后激活；业务不依赖 Node，不提供旧 TS SDK 或回退。Linux x64 基线为 Ubuntu 22.04 / glibc 2.35，Windows 为 x64 MSVC。引导和更新检查用户定制及受管旧文件，失败按诊断保留现场；不能将多文件激活说成原子事务。其余 skill 仍按本节的 TS 路径分发。
 
 ### 依赖安装与恢复
 
@@ -71,7 +73,7 @@ pnpm --dir "<skill-directory>" install \
 
 ### 打包输入
 
-`pack:skills` 不临时构建或安装，只收集版本管理 `pending` 快照中的稳定分发输入。hash 与 zip 使用同一清单，排除依赖目录、pnpm store、缓存及安装残留；强制暂存这些内容也不能带入制品。
+`pack:skills` 不从工作树临时拾取二进制，只收集版本管理 `pending` 快照中的 skill 分发输入。hash 与 zip 使用同一清单，排除依赖目录、pnpm store、缓存及安装残留；强制暂存这些内容也不能带入制品。
 
 ### 源码与分发映射
 
@@ -81,14 +83,13 @@ pnpm --dir "<skill-directory>" install \
 | `tools/video-understanding/` | `skills/video-understanding/scripts/video.ts`、包内运行时及媒体辅助／安装资源；构建适配为 `scripts/build/video-understanding.ts` |
 | `tools/lightweight-judgment/` | `skills/lightweight-judgment/scripts/lightweight-judgment.ts` 与包内运行时；`migrations/` 下的版本迁移 SQL 同步到该 skill 对应迁移目录，迁移记录手工维护；支持的转换见[迁移清单](../skills/lightweight-judgment/migrations/README.md)；构建适配为 `scripts/build/lightweight-judgment.ts` |
 | `tools/change-plan/` | `skills/change-plan/scripts/change-plan.ts` 与包内运行时 |
-| `tools/decision-records/` | `skills/decision-records/scripts/decision-records.*` 和索引 Schema |
-| `tools/investigation-report/` | `skills/investigation-report/scripts/check-investigations.*` 和索引 Schema |
+| `tools/record-cli/` 与 `tools/record-contracts/schemas/` | 两个独立记录 skill 的 Schema、原生运行时描述符和更新入口；二进制为独立 release 资产 |
 | `tools/task-graph/` | `skills/task-graph/scripts/task-graph.*`、包内 SDK 声明树和 task index Schema |
 | `tools/skill-validator/` | `skills/skill-maintainer/scripts/validate-skill.*` |
 | `tools/test-evidence/` | `skills/test-evidence-review/scripts/` 与 `references/schemas/` 中的生成产物 |
 | `tools/skill-updater/` | 每个 skill 的 `scripts/update-skill.ts` 与包内运行时；具体契约见 [Skill Updater](../tools/skill-updater/README.md) |
 | `tools/index-runtime/` | 不独立分发，由当前领域同步器复制到对应包内模块闭包 |
-| `tools/record-operations/` | 不独立分发，由 DR/IR 同步器各自复制实际可达操作模块，不依赖另一 skill |
+| `tools/record-operations/` | 共同操作模型维护入口，不分发领域 TS 业务运行时 |
 | `tools/mcpshell-workspace-bridge/` | `skills/mcpshell-workspace-tools/scripts/{init-mcpshell-workspace,mcpshell-workspace}.ts`、包内运行时与 `references/mcpshell-tools.yaml` |
 
 修改 `tools/shared/`、`tools/index-runtime/`、`tools/record-operations/`、`tools/skill-package/` 或其他跨领域维护源码时，按上表与实际导入关系确定全部受影响 consumer，再逐一运行其全部 `sync:*` 和对应 `check:*`。同步范围以实际消费闭包为准，包含未独立分发的共享源码。
@@ -106,4 +107,4 @@ Skill hash 和 zip 使用相同的版本管理 `pending` 快照，只覆盖最�
 
 `hash:skills` 只在本次命令运行期间计算全部 skill 的聚合 hash，不把 hash 或 lock 写入仓库。它将 Git `pending` 快照中发生的版本承载变化与指定 Git 基线 `SKILL.md` 中的 `metadata.version` 比较；pre-commit hook 默认使用 `HEAD`。release Gate 将 `--baseline-ref <ref>` 交给 prepare；prepare 在普通 Check 结算期间解析该基线并运行版本分析，authorization 只消费 prepare 保留的结果。本地 release Gate 缺省基线为 `HEAD`，CI 传入事件基线。hash 用于标识本次制品，既不是 updater 输入，也不是长期状态。
 
-`pack:skills` CLI 每次从自己读取的 pending snapshot 重建 `dist/` 中的 zip 与 manifest。release tag 的 `pack:skills` Check 则从 prepare 已捕获且经 version authorization 的同一内存 snapshot 走同一打包入口，不重新读取 Git index。项目文档、`tools/`、`scripts/`、CI 和仓库元数据不进入 zip；只有这些内容同步为 skill 内生成产物后，才会改变对应 skill hash。
+`pack:skills` CLI 从自己读取的 pending snapshot 生成 skill zip 与 manifest。release tag 的 `pack:skills` Check 则从 prepare 已捕获且经 version authorization 的同一内存 snapshot 走同一打包入口，不重新读取 Git index。项目文档、`tools/`、`scripts/`、CI 和仓库元数据不进入 zip；只有这些内容同步为 skill 内生成产物后，才会改变对应 skill hash。

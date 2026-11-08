@@ -1,13 +1,13 @@
-### Case DECISION-FILESYSTEM-TRANSACTION-001: 事务预检拒绝非普通决策文件
+### Case DECISION-FILESYSTEM-TRANSACTION-001: 所选同步拒绝符号链接来源
 
 Tests:
-- `test:82252f6bcaf21601aa7a52a820bb2971cdebbbccab442ba59dbab7e166d00411`
+- `test:ddc6bc32caf655dc4e099bea61603c6cf6a1b4b8cdf8a06cf0ee7a8180daabab`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 生命周期文件事务必须在写入前确认每个源是普通非符号链接文件。
+- selected sync 的所选正文须为安全普通文件。
 
 Proves:
-- 目录和指向决策目录外文件的符号链接均使预检报告无写入失败；索引、外部文件和不安全源入口保持原状。
+- 真实 CLI 在普通来源下同步成功；替换为指向外部的 symlink 后 selected sync 以安全诊断拒绝，索引和外部文件字节保持。

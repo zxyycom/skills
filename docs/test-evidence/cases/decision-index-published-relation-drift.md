@@ -1,7 +1,8 @@
 ### Case DECISION-INDEX-PUBLISHED-RELATION-DRIFT-001: 关系查询读取已发布关系
 
 Tests:
-- `test:006b2f7fa17ae3b5afc9e7f0bf289d740e368ce85d2aa04d5b3376919f69dc17`
+- `test:398e9d0f7d82933d4600f613a50fa29cf9016eccf39ca0dc81e15d0e6d53b0be`
+- `test:3cad69a8c65e25f8d5be408deedb9aafeb16bd1813608a8e63da65af0d01eaa9`
 
 Tags:
 - `decision-records`
@@ -10,4 +11,5 @@ Contract:
 - 关系查询读取已发布关系。
 
 Proves:
-- 当前关系清空后 trace 仍给出已发布修订关系，严格检查报告 out-of-sync。
+- 原生 trace 投影从已发布索引返回修订边，并把来源标记为 `published-index / unchecked / false`；该节点不修改工作区。
+- 另一个真实 CLI fixture 在索引有效后更改来源正文，严格 check 失败并报告 `index-not-current`；它不声称同一 fixture 覆盖关系变更。

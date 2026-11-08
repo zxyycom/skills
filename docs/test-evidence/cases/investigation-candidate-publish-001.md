@@ -1,14 +1,13 @@
 ### Case INVESTIGATION-CANDIDATE-PUBLISH-001: publish preflight establishes only explicit candidates
 
 Tests:
-- `test:09395035ed972524e20ae15e827cfef99c285ca026a2bba466dddab1b3a1616f`
+- `test:5d9d0c9b23d9e8d91b0e428446e1d0a4022c3c5f7fe476289be94941693a3d4f`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- `publish --preflight` 只读预演显式 candidate 批次；普通 publish 只建立所选 candidate 并写入完整正式索引，两阶段都为显式来源返回 relationReview。
+- publish 只建立所选候选，并在预检中保持只读。
 
 Proves:
-- 预检不改 candidate、正式报告或索引，并输出 `preflight` establish review。
-- 正常 publish 将所选 candidate 的原字节建立为正式报告，未选择 candidate 保持不变，输出 `committed` establish review，默认全量检查仍通过。
+- 预检选中两个具有关联的候选且不创建正式报告；正式执行建立两个报告、移除已选候选并保留无关非法候选。

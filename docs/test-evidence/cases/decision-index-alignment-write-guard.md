@@ -1,7 +1,7 @@
 ### Case DECISION-INDEX-ALIGNMENT-WRITE-GUARD-001: 非法对齐值不能进入索引
 
 Tests:
-- `test:c0f2dfe73273abfef5a5820abe6a6b160bcc74f6461bdb6144311f873bf0e8c8`
+- `test:398e9d0f7d82933d4600f613a50fa29cf9016eccf39ca0dc81e15d0e6d53b0be`
 
 Tags:
 - `decision-records`
@@ -10,4 +10,4 @@ Contract:
 - 非法对齐值不能进入索引。
 
 Proves:
-- alignment:null 使 check 与 sync-index 失败并定位来源/字段，Markdown 与索引字节不变。
+- 已建立来源的 alignment 改为 null 后，真实 CLI `check` 与 `sync-index` 均失败、JSON `ok:false`，来源和既有索引字节保持；节点不单独断言字段定位。

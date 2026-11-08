@@ -39,7 +39,16 @@ mod candidates;
 mod check;
 #[path = "queries/content_search.rs"]
 mod content_search;
+#[path = "queries/graph_dependencies.rs"]
+mod graph_dependencies;
+#[path = "queries/investigation_filters.rs"]
+mod investigation_filters;
+#[path = "queries/investigation_query_contracts.rs"]
+mod investigation_query_contracts;
 #[path = "queries/metadata_search.rs"]
 mod metadata_search;
 #[path = "queries/snapshot_queries.rs"]
 mod snapshot_queries;
+
+#[path = "queries/decision_content_contracts.rs"]
+mod decision_content_contracts;

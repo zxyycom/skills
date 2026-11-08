@@ -1,14 +1,14 @@
-### Case DECISION-CLI-MISSING-COMMAND-001: 缺少命令时渲染顶层帮助并按参数错误结束
+### Case DECISION-CLI-MISSING-COMMAND-001: 缺少命令与显式帮助的进程退出状态
 
 Tests:
-- `test:46e464867a83fe10d7b139d792a7a2bf5bface05afd1db7bc463938d3e04d56b`
+- `test:2dfd48c79c1d1110d13aa7a23dbfae990286309490720cb51802b13bd7fc659b`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 省略 command 时，CLI 渲染顶层 help 且不读取集合状态，以参数错误退出码结束；`help` 命令仍以成功退出码渲染顶层 help。
+- 缺少命令应以参数错误退出；显式帮助不要求有效工作区。
 
 Proves:
-- 空 argv 以退出码 `2` 结束，stdout 为空，stderr 呈现顶层命令说明与 `help [command]` 入口。
-- `help` 以退出码 `0` 输出同一顶层说明，未执行任何领域命令。
+- 真实两域程序的空 argv 以退出码 2 结束且输出非空帮助。
+- `--help` 和 `help stage` 以退出码 0 输出非空帮助；指定不存在的工作区时顶层或 stage 帮助仍可运行。

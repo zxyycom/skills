@@ -1,14 +1,14 @@
 ### Case DECISION-STAGE-PENDING-ONLY-001: Stage 清理可定位旧路径并拒绝失定位 pending 身份
 
 Tests:
-- `test:dfa4633a9388fab03b05034a132f552c282fe6c36ad322e3fc6ceebb7d3f11e0`
+- `test:03034790385829750e25b4525fbca4591b204d67096a0778e926677d422aa943`
+- `test:964e255edf614465843bd9de4c850235cb8ccb35d91e9c1823456591a1b8bf39`
 
 Tags:
 - `decision-records`
 
 Contract:
-- stage 只从 H/W/P 索引与所选 canonical basename 定位旧来源，不扫描无关 pending blob 恢复任意路径身份。
+- stage 可按可信 locator 定位并清理 pending-only 来源；失去可信定位时拒绝，恢复 locator 后可清理。
 
 Proves:
-- domain 暂存新增后改名会清理 canonical 旧路径；任意 basename 的 pending-only 来源在 W 删除且三方索引都无定位后，所选 ID 明确失败且 pending tree 不变。
-- 恢复可信 pending 索引 locator 后，同一 ID 的 domain 清理成功移除旧 pending 路径。
+- 真实 Git 中 pending-only 日期来源从工作区删除后，all 清除 canonical pending 路径；任意 basename 失去 H/W/P 索引定位时 domain 拒绝且 pending 不变，恢复 P 索引后清除旧路径并保留该索引与未选 pending。

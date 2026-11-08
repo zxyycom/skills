@@ -1,13 +1,13 @@
-### Case INVESTIGATION-LOCAL-RELATION-DEPENDENCIES-001: 关系闭合只消费发布图与所选来源
+### Case INVESTIGATION-LOCAL-RELATION-DEPENDENCIES-001: 关系准备保留未选来源修订
 
 Tests:
-- `test:a62b202641920e96ecb07a7e1db6076e4c0677f7a0b1ccee78b5a1c67e6225ef`
+- `test:613021a8a7a61804b915021fdd2031f9810aeb11ec799b0c99449c15cb65c631`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- set-relations 从索引验证完整拆分事件，纯图依赖不读取当前正文。
+- 选中来源的关系替换以发布索引承接未选依赖，不更改其来源修订。
 
 Proves:
-- 无关损坏正文不被读取；同一拆分事件未选 sibling 漂移不阻断所选来源更新，sibling 的发布状态与 revision 保持。
+- 单份选中来源可准备指向未选索引条目的关系；所选索引投影更新而未选来源 revision 保持，capture plan 本身不写正文或索引。

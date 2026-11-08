@@ -155,9 +155,9 @@ fn parse_relation(lines: &[&str], cursor: &mut usize) -> Result<Relation, String
     let summary = parse_relation_summary(lines, cursor)?;
     if !["补充", "复查", "修正", "推翻", "归并", "拆分"].contains(&relation_type.as_str())
         || !is_kebab(&target)
-        || summary.as_ref().is_some_and(|s| {
-            s.is_empty() || s.js_trim() != s || s.contains(['\r', '\n']) || s.chars().count() > 40
-        })
+        || summary
+            .as_ref()
+            .is_some_and(|s| s.contains(['\r', '\n']) || s.chars().count() > 40)
     {
         return Err("invalid relation".into());
     }
@@ -205,7 +205,8 @@ fn parse_relation_summary(lines: &[&str], cursor: &mut usize) -> Result<Option<S
         }
         let v: String = serde_json::from_str(raw).map_err(|_| "invalid quoted relation summary")?;
         *cursor += 1;
-        Some(v)
+        let trimmed = v.js_trim();
+        (!trimmed.is_empty()).then(|| trimmed.to_owned())
     } else {
         None
     };

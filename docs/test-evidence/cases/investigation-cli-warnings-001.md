@@ -1,13 +1,13 @@
-### Case INVESTIGATION-CLI-WARNINGS-001: CLI show requires one Investigation ID
+### Case INVESTIGATION-CLI-WARNINGS-001: show 缺少 selector 时拒绝
 
 Tests:
-- `test:499d65aed3abe151be5962079d91fa50f1cb728dfb38b30a569e70a794a2d9d6`
+- `test:d330ff4c896bee34d730f18f090082dab989def46ddba030792d4310b042563b`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 直接调用的源码 CLI 入口 `show` 只接受一个明确 Investigation ID。
+- show 要求一个明确 selector。
 
 Proves:
-- 省略 ID 返回退出码 2、stdout 为空且 stderr 给出用法诊断。
+- 真实 IR CLI 省略 show selector 返回 invalid-arguments，且未创建集合。

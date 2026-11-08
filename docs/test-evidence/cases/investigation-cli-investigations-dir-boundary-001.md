@@ -1,13 +1,13 @@
-### Case INVESTIGATION-CLI-INVESTIGATIONS-DIR-BOUNDARY-001: 绝对与越界调查目录按普通参数错误失败
+### Case INVESTIGATION-CLI-INVESTIGATIONS-DIR-BOUNDARY-001: 调查集合目录拒绝绝对路径与父级越界
 
 Tests:
-- `test:07b6dd110548c7fb9e2e6f196e4131d378d0f3c32395f864ece07ff4a5bd784b`
+- `test:d330ff4c896bee34d730f18f090082dab989def46ddba030792d4310b042563b`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- `--investigations-dir` 只接受解析后仍位于 `--root` 内的相对路径；绝对目录与越界相对路径都按普通参数错误失败，不保留旧绝对目录解析分支。
+- 调查集合目录必须是工作区内相对路径。
 
 Proves:
-- 绝对目录与 `../` 越界目录的 CLI 调用都以退出码 `2` 结束，stdout 为空，stderr 分别给出相对与包含约束诊断。
+- 真实 IR list 对绝对 investigations-dir 与 ../ 越界目录均返回 invalid-path，未创建集合。

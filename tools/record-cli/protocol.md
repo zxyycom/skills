@@ -1,8 +1,10 @@
-# Record CLI 候选机器协议
+# Record CLI 机器协议
 
-本文供调用者和维护者理解两个原生 CLI 的 JSON、结果和恢复边界。领域行为及授权仍以 [Decision Records CLI](../../skills/decision-records/references/cli-operations.md)、[Investigation Report CLI](../../skills/investigation-report/references/cli-operations.md) 和[共同操作模型](../record-operations/model.md)为准；参数、默认值及命令的域差异用各二进制 `help <command>` 查询。候选的构建、隔离与验证从 [README](README.md) 进入。本页描述候选 version 2 接口；平台及行为验收以实际测试证据为准。
+本文供调用者和维护者理解两个原生 CLI 的 JSON、结果和恢复边界。领域行为及授权仍以 [Decision Records CLI](../../skills/decision-records/references/cli-operations.md)、[Investigation Report CLI](../../skills/investigation-report/references/cli-operations.md) 和[共同操作模型](../record-operations/model.md)为准；参数、默认值及命令的域差异用各二进制 `help <command>` 查询。构建与验证从 [README](README.md) 进入。本页描述 version 2 接口；平台及行为验收以实际测试证据为准。
 
 ## 通道与 envelope
+
+查询命令的普通成功输出为格式化 JSON 的结果对象；`--json` 成功输出为紧凑 JSON。除成功 trace 的特殊形状外，两者分别是结果对象本身和包含同一结果的 envelope，不能把整个对象的形状视为相同。普通失败的诊断输出至 stderr。
 
 请求 `--json` 时，正常情况下 stdout 是单个 JSON 对象，stderr 承接警告或非协议诊断；退出码 0 为成功、1 为领域或系统失败、2 为参数错误。help 和 version 是独立的文本入口。解析器已识别 JSON 请求但无法判定命令时，失败对象的 `command` 可以为空字符串。输出自身发生序列化或 I/O 故障时不能假设一定得到可解析对象。
 
@@ -10,11 +12,11 @@
 
 诊断的 `path` 用于定位实际问题，可为平台显示的规范路径；它不等同于记录结果中表示逻辑来源的 `sourcePath`，调用者不应假定两者字面相同或采用相同的相对路径基准。
 
-成功 `trace --json` 不套 envelope：DR 带 `source`，IR 带 `warnings` 且 warning 同时写 stderr；两域均保留各自原有字段、类型、顺序、缺省及预算语义。失败 trace 使用失败 envelope，不将其说成旧版同形。`version` 是候选 envelope 版本，不是索引 schema 版本；version 2 移除不再产生事实的验证与恢复状态字段，成功 trace 的特殊形状不变。实现入口为 [protocol.rs](src/protocol.rs) 和 [输出映射](src/cli/output.rs)。
+成功 `trace --json` 不套 envelope：DR 带 `source`，IR 带 `warnings` 且 warning 同时写 stderr；两域均保留各自原有字段、类型、顺序、缺省及预算语义。失败 trace 使用失败 envelope，不将其说成旧版同形。`version` 是CLI envelope 版本，不是索引 schema 版本；version 2 移除不再产生事实的验证与恢复状态字段，成功 trace 的特殊形状不变。实现入口为 [protocol.rs](src/protocol.rs) 和 [输出映射](src/cli/output.rs)。
 
 ## 命令结果和信息归属
 
-表中字段是定位和验收的代表性信息，不是可替代源码的完整 JSON Schema。具体字段、序列化名及可选条件以列出的 Rust DTO/输出映射为准；对应领域现行 CLI、结果类型与事务规则是兼容性预期的独立来源。覆盖目标是保留用户依赖的程序化信息，而非把未使用的 TS SDK 签名机械转成 CLI。不能由任一源码声明单独推断所有旧新分支已等价。旧领域细粒度字段及其验收来源见[兼容验收清单](compatibility.md)。
+表中字段是定位和验收的代表性信息，不是可替代源码的完整 JSON Schema。具体字段、序列化名及可选条件以列出的 Rust DTO/输出映射为准；对应领域规则与兼容验收材料是预期的独立来源。覆盖目标是保留用户依赖的程序化信息，而非把未使用的 TS SDK 签名机械转成 CLI。不能由任一源码声明单独推断所有旧新分支已等价。旧领域细粒度字段及其验收来源见[兼容验收清单](compatibility.md)。
 
 | 命令 | 结果及映射 owner |
 | --- | --- |
@@ -44,7 +46,7 @@ selected sync 和 stage 的多个 selector 诊断保留各自有序的 `target`�
 
 ## 文件与事务边界
 
-本节定义[顺序本地候选](../../docs/decisions/261107-rust-record-candidate-sequential-local-runtime.md)的文件与事务边界，面向合作型本地单用户顺序操作；它不修改生产 TypeScript 的保证，不承诺非合作进程的跨文件原子隔离。实际能力以实现及相应平台测试证据为准。
+本节定义[顺序本地运行模型](../../docs/decisions/261107-rust-record-candidate-sequential-local-runtime.md)的文件与事务边界，面向合作型本地单用户顺序操作；不承诺非合作进程的跨文件原子隔离。实际能力以实现及相应平台测试证据为准。
 
 - 正式调用正常读取并准备一次，完成必要领域校验；预检仅展示计划，不保存执行凭据。保留基本工作区路径范围；已有文件用成熟库原子替换以保护旧内容；替换后普通文件属性由库和操作系统决定，不保证继承旧权限。新建使用 `create_new` 不覆盖已有目标，但初始化失败可留下部分新文件，按可证明的 `changed`、`writtenPaths`、`unknownPaths` 和写入诊断如实报告，不提供完整内容原子发布保证。
 - IR 发布身份和成员是业务事实，不能从正文猜测。资源普通冲突预检后目录 rename，再顺序更新引用和必要索引；多文件过程允许部分完成。不提供普遍备份或自动回滚。失败时应对照实际结果和现场，不假定未发生写入。

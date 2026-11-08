@@ -47,7 +47,41 @@ fn decision_formal_rename_noop_date_and_discard() {
             .entries
             .is_empty()
     );
+    let ready = include_str!("../fixtures/identity/decisions/draft.md").replace(
+        "## 目的\n\n## 背景\n\n## 决策",
+        "## 目的\nPurpose\n\n## 背景\nBackground\n\n## 决策\n- 采用: Choice",
+    );
+    std::fs::write(dir.path().join("decisions/draft.md"), ready).unwrap();
+    let published = std::process::Command::new(env!("CARGO_BIN_EXE_decision-records"))
+        .args([
+            "publish",
+            "draft",
+            "--alignment",
+            "aligned",
+            "--root",
+            dir.path().to_str().unwrap(),
+            "--decisions-dir",
+            "decisions",
+            "--json",
+        ])
+        .output()
+        .unwrap();
+    assert!(
+        published.status.success(),
+        "stdout={} stderr={}",
+        String::from_utf8_lossy(&published.stdout),
+        String::from_utf8_lossy(&published.stderr)
+    );
+    let bytes = std::fs::read(dir.path().join("decisions/decision-index.json")).unwrap();
+    assert!(
+        index::parse_index(&bytes, &Definition)
+            .unwrap()
+            .index()
+            .entries
+            .contains_key("261106-draft")
+    );
 }
+
 #[test]
 fn decision_recorded_requires_confirmation_and_preserves_git_pending() {
     let (dir, root) = fixture();
@@ -77,6 +111,7 @@ fn decision_recorded_requires_confirmation_and_preserves_git_pending() {
         pending_before
     );
 }
+
 #[test]
 fn decision_rename_rewrites_index_visible_referrer_and_rejects_stale_source() {
     let (dir, root) = fixture();
@@ -222,6 +257,7 @@ fn decision_rename_rewrites_index_visible_referrer_and_rejects_stale_source() {
     assert!(!actual.contains("261106-original"));
     assert!(base.join("archive/new.md").exists());
 }
+
 #[test]
 fn decision_history_unavailable_fails_closed_before_any_write() {
     let (dir, _root) = fixture();

@@ -1,13 +1,15 @@
 ### Case DECISION-LIST-ARGS-001: Decision CLI 校验近期分页与时间范围参数
 
 Tests:
-- `test:e90835f48e0259b64b2dd35f5fd9128b839067081a91a6e5d73227c7b1c21909`
+- `test:420d14768d535213189f03a210a58c05df48bf71092cebc6c8fddb6a59e09ad4`
+- `test:9e384b8c0a87b3e039b43a96a8b5b173bb1d056653e69f560eca9fc5aa497a96`
 
 Tags:
 - `decision-records`
 
 Contract:
-- Decision list help 公开 createdAt 范围、limit/offset 与 detail；时间戳、页大小、offset、范围顺序和不可重复选项在 CLI/query 边界验证。
+- Decision list help 公开 createdAt 范围、状态与 alignment、limit/offset 和 detail；非法时间范围、分页值和重复 limit 必须失败。
 
 Proves:
-- help 显示默认 10、最大 1000 及五个新入口；零或越界 limit、负 offset、非法或逆序时间范围、重复 createdAt/limit/offset 均以退出码 2、空 stdout 失败。
+- 真实原生 CLI 的 list help 包含 `--created-from`、`--created-to`、`--status`、`--alignment`、`--limit`、`--offset` 和 `--detail`。
+- 真实 CLI 对非法或逆序时间、limit 0/1001、负 offset 和重复 limit 均退出 2 且 JSON `ok:false`；未覆盖所有重复选项。

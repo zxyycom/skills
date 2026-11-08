@@ -24,6 +24,38 @@ fn target_prefers_name_then_id_without_overwriting() {
     )
     .unwrap();
     assert_eq!(p.new_source_path, "archive/261106-new.md");
+    let investigation = RenameSource {
+        id: source.id.clone(),
+        source_path: "old.md".into(),
+        location: Location::InvestigationFormal,
+    };
+    let mut investigation_paths = HashSet::from(["new.md".into()]);
+    let preferred = plan_rename(
+        &investigation,
+        &target,
+        &ids,
+        &investigation_paths,
+        RenameHistoryCheck {
+            history: History::NotRecorded,
+            recorded_rename_confirmed: false,
+        },
+    )
+    .unwrap();
+    assert_eq!(preferred.new_source_path, "261106-new.md");
+    investigation_paths.insert(preferred.new_source_path);
+    assert_eq!(
+        plan_rename(
+            &investigation,
+            &target,
+            &ids,
+            &investigation_paths,
+            RenameHistoryCheck {
+                history: History::NotRecorded,
+                recorded_rename_confirmed: false
+            }
+        ),
+        Err(RenameError::PathConflict)
+    );
     paths.insert(p.new_source_path);
     assert_eq!(
         plan_rename(

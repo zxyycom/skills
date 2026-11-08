@@ -594,11 +594,9 @@ test("producer refuses to publish after a registration mutates source inputs", a
   );
 });
 
-test("source fingerprint tracks the external Rust fixture but not unrelated Markdown", async () => {
-  const fixture =
-    "tools/investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md";
-  const unrelated =
-    "tools/investigation-report/tests/fixtures/rename-noop/docs/investigations/unrelated.md";
+test("source fingerprint tracks the native Rust fixture but not unrelated Markdown", async () => {
+  const fixture = "tools/record-cli/tests/fixtures/investigation-same.md";
+  const unrelated = "tools/other/tests/fixtures/unrelated.md";
   await withSnapshotFixture(
     {},
     { [fixture]: "first\n", [unrelated]: "other\n" },

@@ -1,13 +1,13 @@
-### Case DECISION-LIFECYCLE-MOVE-001: 归档与重新激活保持 Markdown 语义
+### Case DECISION-LIFECYCLE-MOVE-001: 归档与重新激活保留身份并往返移动来源
 
 Tests:
-- `test:d4954219cc45f3fed87a169b3bee53e8fc13961781cd3a62894fe1bed9f4670d`
+- `test:4fa76af79117b1b83c33c41bd8b88e55bf882b708ad8127c8a0eb0a35780688b`
 
 Tags:
 - `decision-records`
 
 Contract:
-- archive/reactivate 只能移动同一纯 ID 的 root/archive sourcePath，并保留包含显式 `id` 的 Markdown 语义和索引投影。
+- archive/reactivate 往返保持决策身份和 createdAt，并移动相应 sourcePath。
 
 Proves:
-- 归档后 root 消失且 index 指向 archive；重新激活后正文和 sourcePath 恢复。
+- 真实 CLI 归档后正文和索引指向 archive；重新激活后恢复 root 路径、active 状态和原 createdAt。

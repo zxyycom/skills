@@ -1,13 +1,13 @@
-### Case INVESTIGATION-DISCARD-GIT-FAILURE-001: discard fails closed when a Git worktree cannot be inspected
+### Case INVESTIGATION-DISCARD-GIT-FAILURE-001: 不可用历史阻断删除计划
 
 Tests:
-- `test:862f98eede967a13f047fa92c9d4d4d56d5cf27a3b07c2e5f6154aa535980cbd`
+- `test:8a884f3dd1b301d3859f85fb1080bd595a8f8476648854f1111291159ab846eb`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 除明确的非 Git 工作区外，版本控制发现或 HEAD 检查失败必须阻止 discard 写入。
+- 历史检查不可用不能视为已记录删除许可。
 
 Proves:
-- 损坏的 Git worktree 返回 Git/版本控制诊断，报告未被删除。
+- 纯计划在 History::Unavailable 时返回 HistoryUnavailable。

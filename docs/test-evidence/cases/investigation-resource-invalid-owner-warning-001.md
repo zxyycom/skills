@@ -1,13 +1,13 @@
-### Case INVESTIGATION-RESOURCE-INVALID-OWNER-WARNING-001: visible resource discovery rejects unsafe owner directory names
+### Case INVESTIGATION-RESOURCE-INVALID-OWNER-WARNING-001: 可见未引用异常路径给出可定位 warning
 
 Tests:
-- `test:b0b37631840b69a839f604a056dfbe6918d4e5c24be5050a4a2f9546b7f09777`
+- `test:9fce3c04922a6c38202fdeb907eae7cc944be4d67bb9a8f16ef09aea075289c4`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 可见资源发现拒绝不安全的 owner 目录名。
+- 未引用的可见异常资源路径应提供可定位的 warning。
 
 Proves:
-- 真实资源树中不安全的 ..bad owner 目录产生同时标识该名字与安全原因的 warning。
+- 非 Git 资源树中 `_resources/..bad/file` 产生包含 `..bad/file` 的 unreferenced visible resource warning；不声称 warning 分类为 unsafe。

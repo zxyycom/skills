@@ -1,14 +1,13 @@
-### Case DECISION-RENAME-SELECTOR-001: dated source 精确选择且 name 歧义拒绝猜测
+### Case DECISION-RENAME-SELECTOR-001: 身份选择精确匹配日期 ID 并拒绝 name 歧义
 
 Tests:
-- `test:89fdfaf0e7635ac1da079565e6e7c6520b9d57b0facce4d4b48de7c1d8030560`
+- `test:1f3582ba2a47817bb29d520da0781f7410e5974d644891e49551fee38a400eb3`
 
 Tags:
 - `decision-records`
 
 Contract:
-- source 先按 calendar-valid dated ID 精确匹配，失败后才按 unique name 匹配；archive rename 保持 archive 生命周期位置。
+- 日期 ID 精确选择，重名 name 不猜测。
 
 Proves:
-- 重名 name source 返回 `rename-source-ambiguous`。
-- 同名 dated source 仍被精确 rename，旧 archive path 被新 archive path 替代。
+- 两个不同日期的同名身份中，带 .MD 的完整 ID 精确匹配；name 歧义及不存在的完整 ID 均拒绝。

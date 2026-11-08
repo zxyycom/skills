@@ -11,6 +11,9 @@ pub struct Relation<T> {
     pub target: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub summary: Option<String>,
+    /// CLI summary selector, independently resolved against the same snapshot.
+    #[serde(skip)]
+    pub summary_selector: Option<String>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]

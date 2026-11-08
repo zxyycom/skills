@@ -1,14 +1,13 @@
 ### Case INVESTIGATION-STAGE-SOURCE-PATH-UPDATE-001: 暂存索引指向的报告而非同 ID 文件名下的其他报告
 
 Tests:
-- `test:935d44ccbef8e89ab89a97fff9b2845a3118ecdcaa43ab0a1e495b63210d902a`
+- `test:6e280b14b5cfea75c9eab10d48e01490b0ba6bab8aba0d92ba2461a1972efa70`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 按[调查报告暂存契约](../../../skills/investigation-report/references/investigation-report-contract.md#待提交快照)，`stage` 的 `all` 与 `domain` scope 使用工作区调查索引中所选 ID 的 `sourcePath` 定位报告；文件名不决定身份，未选报告的 Git 暂存区字节保持不变。
+- domain 按工作区索引 sourcePath 选择报告，不以看似同 ID 的文件名覆盖其他报告。
 
 Proves:
-- 当 `<所选 ID>.md` 实际声明另一报告 ID 时，domain stage 将所选报告在其语义文件名下的更新写入 Git 暂存区。
-- 未选报告的暂存内容与工作区内容不同时，操作保留原暂存字节，不用其工作区版本覆盖暂存内容。
+- 真实 Git 中 alpha 使用 semantic-name.md；名称为 alpha 的文件实际属于 beta，beta 的 HEAD、pending 与工作区各自保持，pending 索引不变。

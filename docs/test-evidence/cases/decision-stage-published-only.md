@@ -1,13 +1,13 @@
 ### Case DECISION-STAGE-PUBLISHED-ONLY-001: 索引暂存只消费发布投影
 
 Tests:
-- `test:bb4840e3755c1a1079da5466308ede29acc9fe9fd7b54c91b1c0f8d3353f4675`
+- `test:a0f7e8d91d7cab17bf5ef5c757033826305a9f83f591226e2057905066410af4`
 
 Tags:
 - `decision-records`
 
 Contract:
-- index scope 只消费所选发布投影，不要求当前工作区正文健康或同步。
+- index scope 消费选中的发布索引投影，不要求读取正文。
 
 Proves:
-- 工作区 A 正文被替换为无效文本后 index stage 仍准确暂存先前已发布 A 投影，pending 正文保持 HEAD。
+- 只有索引的真实 Git fixture 中选中条目取工作区投影，未选条目沿用 pending，工作区索引不变。

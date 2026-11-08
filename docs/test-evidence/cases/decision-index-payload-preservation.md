@@ -1,13 +1,13 @@
-### Case DR-INDEX-PAYLOAD-PRESERVATION-001: index保持未选部分暂存模式及删除
+### Case DR-INDEX-PAYLOAD-PRESERVATION-001: index scope 保留未选 pending 索引投影
 
 Tests:
-- `test:f3f3c3dbea061d514ff52dc38062f3f4e310fb223346143e7f79d9ecafe13dd1`
+- `test:a0f7e8d91d7cab17bf5ef5c757033826305a9f83f591226e2057905066410af4`
 
 Tags:
 - `decision-records`
 
 Contract:
-- index只写索引投影，未选pending投影与文件表示、部分字节和staged删除保持。
+- index scope 更新所选索引投影并保留未选 pending 投影。
 
 Proves:
-- 用独立Git读取核对未选partial正文、可执行mode及staged删除不变，所选更新而未选索引title沿用pending。
+- 真实 Git 中所选 A 取工作区 title，未选 B 沿用 pending title，工作区索引与无关 pending 正文不变。

@@ -1,14 +1,13 @@
-### Case DECISION-EVOLUTION-RELATIONS-001: 候选关系接受前瞻校验但不进入正式关系图
+### Case DECISION-EVOLUTION-RELATIONS-001: 候选关系不进入正式图
 
 Tests:
-- `test:6a8199252172232e18d2f8a43a60e9d243f034b099c07a7dd0bd296b15aeaed9`
+- `test:6dbb722108aad1ce5e53a09c067568959c89259f72dabbfc59c1b6c2e28ffc4d`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 候选可以预写指向当前可解析记录的关系；候选关系在建立前只接受前瞻性结构校验，不进入正式索引或关系图。
+- 候选可预写关系；候选建立前不进入正式索引和关系图。
 
 Proves:
-- 候选指向另一个完整候选时，两者都通过严格检查并被计数。
-- 正式索引仍排除两个候选，且既有活动图保持不变。
+- 一个候选指向另一个候选时，两者均可被候选发现；正式索引字节不变、均不含两者，既有正式记录仍为 active 且正式图验证成功。此节点不声称对候选执行严格全集 check。

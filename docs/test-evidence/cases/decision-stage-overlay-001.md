@@ -1,13 +1,13 @@
 ### Case DECISION-STAGE-OVERLAY-001: Stage 应用选择的新增、修改与删除
 
 Tests:
-- `test:70b42cdc11ebed0c409f872e9af8d7d8fd41663c00f045f1c105b8b6a304238a`
+- `test:01b3816ffcec8cbbf786bd24060a09f08bd40823da097a002acf3647b3f89563`
 
 Tags:
 - `decision-records`
 
 Contract:
-- stage 将选择的新增、修改、删除和派生索引作为完整 pending 快照暂存；关系 target 与选择均使用纯 ID。
+- all scope 将所选新增、修改、删除和相应索引共同合成 pending，未选 pending 保持。
 
 Proves:
-- 新增与修改的 pending 正文字节精确等于 stage 前捕获的完整来源，来源字节不变，删除路径消失；pending index 的成员及 title、status、alignment、relations 精确匹配独立期望。
+- 真实 Git 单次选择新增、修改、删除三个 ID；pending 新增及修改正文等于工作区字节，删除路径退出；索引两个成员的标题及新记录状态、alignment、空 relations 符合独立预期，无关 pending 保持。

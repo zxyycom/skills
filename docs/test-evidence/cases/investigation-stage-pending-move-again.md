@@ -1,13 +1,13 @@
 ### Case INVESTIGATION-STAGE-PENDING-MOVE-AGAIN-001: 保留失去索引定位的旧 pending 路径
 
 Tests:
-- `test:8d3f59924916decc498fb86bd6d6d83e513484b8eddf26ae08ca18e258887392`
+- `test:3c17c60e7fc532b4845e02492c2f2b6d71feed66d78ac5159c0bf645fe115d72`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- domain 不扫描未知 pending blob 认领其身份，旧位置只能按可信索引或所选 locator 局部定位。
+- domain 使用可信索引或所选 locator 定位旧位置，不认领无可信定位的 pending 路径。
 
 Proves:
-- 同一 ID 依次移动到 middle 与 final；domain 保留没有可信索引定位的 middle pending 路径，final 正常暂存，HEAD 已知旧位置退出。
+- 真实 Git 中 P 有 middle 但 P 索引未声明该路径，W 索引指向 current；domain 保留 middle pending、暂存 current，HEAD 旧路径退出。节点不计数 blob 读取。

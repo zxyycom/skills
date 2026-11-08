@@ -1,22 +1,15 @@
-### Case DECISION-STAGE-DOMAIN-INDEX-STATE-001: 领域暂存保持坏索引字节或删除状态
+### Case DECISION-STAGE-DOMAIN-INDEX-STATE-001: 领域暂存保留调用方索引并校验所选旧身份
 
 Tests:
-- `test:a13a85a9fd6e6a4e0b03510e750b58ce4e140339833bbda0fa393322f466ac04`
-- `test:bdf5ac705be28306ee4518f7c130cd9427291580c0e0e7c0bff72a3d937d7b84`
-- `test:d2bb30bc8f91cdc442fbb054e4daf8879cb374f5e55613e1104321889284f671`
-- `test:d7faee0c17b793aea9f79feb1ae1d41899e4bd5bee8abb1eb4c29428e00cf33b`
-- `test:db70257595dc8d13cb25f6bec312401214d4153ee3ba879c9bf5b273e0c2bdd1`
+- `test:2bebe4b041eaae3a3f10f3b2ee22917e6595955f1bd7e012d03aa780ece454ea`
+- `test:61fa52f513c76f104c6281dd301da0dfdfdc8b78b06e04b73c1421b15aeb3ad4`
 
 Tags:
 - `decision-records`
 
 Contract:
-- domain scope 分开所选身份解析与旧位置收集，尝试可用合法 P 索引为所有所选 ID 补充旧 sourcePath，并核对所选 canonical pending 来源身份；不改写 P 索引。
-- P 索引不可读或不可解析时，独立 H/W/canonical 已足够定位所选才允许保留其 metadata 与已读 bytes 继续；可用 P 已识别的所选来源读取或身份失败不能被该容错吞掉。
+- domain scope 按可信 H/W/P 定位所选来源，验证已定位旧正文身份，并保留调用方拥有的 pending 索引。
 
 Proves:
-- pending 索引为坏 JSON 或已删除时，领域 A 可刷新，索引坏字节或删除状态均保持。
-- H/W 已定位所选 ID 时，即使 caller-owned P 索引的实际 Git blob 缺失，领域来源仍刷新成功；P 索引 mode/OID 与 W 索引字节保持。
-- canonical P-only 来源在 H/W 均无身份时可删除；P 索引为坏 JSON 或 blob 缺失均不形成强制门禁，不修复或改写其 mode/OID，所选 pending 路径退出。
-- H/P/W 中同一 ID 分别位于 head-old、staged-old、current 任意路径时，domain 清除 P 的 staged-old 并暂存 current；P 索引原 bytes/mode/OID、未选部分暂存正文 bytes/mode/OID 与 W 索引均保持。
-- 合法 P 索引已定位的所选旧正文 blob 缺失或 header 身份不符时，domain 明确失败；pending 完整成员与 mode/OID、W 索引和当前所选正文均保持。
+- pending 索引为坏 JSON 或其 blob 缺失时，domain 更新所选正文并保留索引字节或 OID；无关 pending 正文不变。
+- H/P/W 三处路径不同且 P 旧正文身份错误时拒绝且 pending 不变；更正后清除 P 旧路径、暂存当前来源，同时保持 P 索引、工作区索引及无关 pending。

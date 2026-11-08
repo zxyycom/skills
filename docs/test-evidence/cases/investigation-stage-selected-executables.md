@@ -1,14 +1,14 @@
-### Case INVESTIGATION-STAGE-SELECTED-EXECUTABLES-001: 暂存修改与新增可执行资源
+### Case INVESTIGATION-STAGE-SELECTED-EXECUTABLES-001: 暂存修改保留可执行资源表示
 
 Tests:
-- `test:3b1d68fbd0efde62df13356969f8c06eacefe6092eac97edea7da67fdb7c767e`
+- `test:ea0eabe85fd39b11c9b53b83ceec8027faf220675694bdaceee5ea66749e892d`
 
 Tags:
 - `investigation-report`
 - `version-control`
 
 Contract:
-- 选中报告的常规非符号链接 owner 资源按照有效工作区执行位与字节进入 pending。
+- 选择暂存更新资源时保留适用的 Git 可执行表示与当前内容。
 
 Proves:
-- 已有脚本内容变化与新脚本同时暂存后，两者内容符合工作区且均为 100755，writtenPaths 准确列出两个脚本。
+- core.filemode=false 的真实 Git fixture 中已暂存可执行资源内容更新后，pending 模式仍为 100755 且内容为工作区新字节；覆盖 all 和 domain。

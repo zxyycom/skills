@@ -1,13 +1,13 @@
-### Case DECISION-CANDIDATE-ACTIVATION-SELECTION-001: 源码查询发现候选且激活只索引审核目标
+### Case DECISION-CANDIDATE-ACTIVATION-SELECTION-001: 发布所选候选隔离未选损坏正文
 
 Tests:
-- `test:f0e116999ed261a9cd263b9591eaab0ef7a7207e811aecff69f60fa3f4100ce6`
+- `test:63f984d4806f46c791f3521793bbd9e41aa229b95d9e60ed8a9a7929c32f2324`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 候选列表发现来源集合，show-candidate 只报告所选与直接依赖问题；普通发布只建立所选 ready 候选，不默认重新验收或提醒无关来源。
+- 发布所选候选不应受未选候选正文损坏阻断。
 
 Proves:
-- show-candidate 不泄漏无关坏源警告；发布后索引只包含已选候选，未选候选由显式候选/检查入口继续发现。
+- 所选候选预检不写来源或索引，实际发布成功且未选非法 UTF-8 来源字节保持；索引保存所选来源 revision。

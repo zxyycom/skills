@@ -124,7 +124,7 @@ runtime state overlay 是 `id -> state`。同 ID 临时替换静态 entry，新 
 
 ## 同阶段内部准备证明
 
-`src/prepared.ts` 向[共同记录操作](../record-operations/README.md)提供同调用、同阶段的内部证明；公开索引 API 仍独立严格验收。
+`src/prepared.ts` 提供同调用、同阶段的内部证明；公开索引 API 仍独立严格验收。两域原生记录 CLI 不使用本 TS 运行时，执行边界见[共同记录操作](../record-operations/model.md)。
 
 | 证明 | 绑定事实 |
 | --- | --- |
@@ -133,9 +133,9 @@ runtime state overlay 是 `id -> state`。同 ID 临时替换静态 entry，新 
 
 消费证明时复核其来源和 canonical root/target；伪造对象、其他 definition/path/index 或相同解码文本均不能替代实际字节身份。selector 与 native sync 消费同一 baseline 证明：selector 可先从严格投影解析选择，native selected sync 随后验收 canonical 文本，非 canonical 输入在来源 build 和独立 fresh 前拒绝。
 
-证明只复用本阶段事实。full/selected sync 仍独立读取最终来源 revision；通用 selected 仍验完整来源、可信 baseline、collection metadata/revision 和未选变化。DR/IR 的局部来源组合由共同记录操作承接，区别于该通用契约。
+证明只复用本阶段事实。full/selected sync 仍独立读取最终来源 revision；通用 selected 仍验完整来源、可信 baseline、collection metadata/revision 和未选变化。两域原生 CLI 的局部来源组合按其自身协议，不套用该通用契约。
 
-领域图证明与 native build 证明分别交接；候选 Markdown、生命周期和资源 owner 语义留在领域。stage 的内部接点与阶段义务见下文“记录领域的内部暂存协调”。
+领域图证明与 native build 证明分别交接；领域语义留在各自 owner。
 
 ## 索引路径边界
 
@@ -147,7 +147,7 @@ runtime state overlay 是 `id -> state`。同 ID 临时替换静态 entry，新 
 
 `read` 和 `readRevision` 必须产生相同结构化来源清单。任何可能改变 metadata 的输入都必须改变 metadata fingerprint；任何可能改变成员、state 或查询结果的输入都必须改变、增加或删除对应 ID fingerprint。
 
-完整 sync 经安全 baseline FileHandle 采集持久索引，检查 canonical 包含边界、文件身份、读取稳定性与父目录身份，拒绝读取中的 file/root/nested parent 替换。合法缺失、非法 UTF-8、解析错误和 I/O 失败分别处理；同步始终独立 fresh。DR/IR 全量只读 check 的首次来源采集规则见[共同记录操作](../record-operations/README.md#同阶段证据与后续复核)。
+完整 sync 经安全 baseline FileHandle 采集持久索引，检查 canonical 包含边界、文件身份、读取稳定性与父目录身份，拒绝读取中的 file/root/nested parent 替换。合法缺失、非法 UTF-8、解析错误和 I/O 失败分别处理；同步始终独立 fresh。两域原生 check 的读取范围见各自 skill。
 
 `syncStateIndex`：
 
@@ -177,9 +177,9 @@ runtime state overlay 是 `id -> state`。同 ID 临时替换静态 entry，新 
 
 竞争返回 `pending-conflict` 且不覆盖 winner。可恢复写失败报告 `pending: { outcome: "no-change" }`；只有无法证明恢复完整时返回 `pending-recovery-failed` 与 `partial-or-unknown`，调用方必须通过版本管理公共 API 对账目标范围后再决定后续动作。
 
-## 记录领域的内部暂存协调
+## 原生记录工具的边界
 
-`src/record-staging.ts` 只为 Decision Records 与 Investigation Report 协调 scope、固定 HEAD / 工作区 / pending 投影及准备、fresh 和发布阶段，不改变通用 staging 的固定 revision 基底，也不接管领域语义。完整身份与所选 payload 必须受保护；未选 payload 不可读但身份稳定不构成失败。具体复用、校验、CAS 和领域责任见[内部暂存协调契约](record-staging.md)。
+Decision Records 与 Investigation Report 的正式业务 stage 已由原生 CLI 承接；其顺序本地模型、未选 pending 和 Git 锁边界见[原生协议](../record-cli/protocol.md#文件与事务边界)。本 TS Runtime 的上述同步及 pending CAS 契约继续适用于其实际消费者，不扩展到两域原生 CLI。
 
 ## 诊断与验证
 

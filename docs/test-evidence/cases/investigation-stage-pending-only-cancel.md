@@ -1,13 +1,13 @@
 ### Case INVESTIGATION-STAGE-PENDING-ONLY-CANCEL-001: 撤销仅 pending 存在的新增
 
 Tests:
-- `test:d7c86bc56766b380a53f36e139c78e27b7973eff665f1796fd8f04d7a858b2a0`
+- `test:cd7ba3529a572030fbc9d4e6d7208bd3106a82bca48ef30b916a1b7272d92686`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- domain/all 可从已变化的 pending 正式正文解析仅暂存身份；所选旧正文和 owner 资源位置以 HEAD、pending 与 worktree 的位置并集清理。
+- all scope 可通过所选 canonical pending 正文定位并撤销仅 pending 存在的新增。
 
 Proves:
-- 新增正文与未引用 owner 附件暂存后在 worktree 撤销，再选该 ID 会移除两者；最终 pending 无差异。
+- 真实 Git 中正文先新增暂存、工作区删除后以名称选择，pending 正文被移除，未选 pending 内容保持。

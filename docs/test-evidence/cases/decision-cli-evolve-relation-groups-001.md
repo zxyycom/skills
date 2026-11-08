@@ -1,14 +1,14 @@
-### Case DECISION-CLI-EVOLVE-RELATION-GROUPS-001: Evolve 在写入前拒绝不完整或混用的关系分组
+### Case DECISION-CLI-EVOLVE-RELATION-GROUPS-001: Evolve 拒绝不合法的关系分组
 
 Tests:
-- `test:1da6056637ae606c119a8d762b9d5ab72d58105342440a2298c70ce33161ad9a`
-- `test:bb887beba6fb5eeaf43c0eb591879f6714f232968f9e166c044182026b84a0a7`
+- `test:320fde9d3a0ba83c866f78352fb7415ba9be78162aafab473d823f61af629adb`
+- `test:6e47f8cda3c29049a6d3c915454f4c20fe67bb4cc28b7a38cdd5d44d6ef55fe9`
 
 Tags:
 - `decision-records`
 
 Contract:
-- `evolve` 的逐 successor 关系分组必须以 `--source` 开始，且每组只能声明一个完整 replacement 或显式清空。
+- 关系分组不得包含重复来源、重复目标、空组、清空与关系混用或无关系的摘要。
 
 Proves:
-- 首组之前的关系选项、空组、clear 与 relation 混用、原始重复 source 及组内重复 target 均以参数错误退出，且不产生标准输出。
+- 真实 Decision evolve 参数解析对上述五类输入逐一返回错误；独立真实 CLI 入口测试确认代表性无效查询和 mutation 参数以退出 2、JSON invalid-arguments 输出。两项是组合证据，未对每类分组和另一领域逐一启动进程。

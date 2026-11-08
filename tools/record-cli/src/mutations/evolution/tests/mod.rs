@@ -8,11 +8,13 @@ fn candidate_evolution_archives_active_predecessor_and_requires_history_confirma
         existing_alignment: None,
         requested_alignment: Alignment::Unaligned,
         before: vec![Relation {
+            summary_selector: None,
             kind: DecisionRelationKind::Revision,
             target: "old".into(),
             summary: None,
         }],
         after: vec![Relation {
+            summary_selector: None,
             kind: DecisionRelationKind::Revision,
             target: "old".into(),
             summary: None,

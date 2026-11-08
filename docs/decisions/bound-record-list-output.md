@@ -6,7 +6,7 @@ alignment: aligned
 createdAt: 2026-09-08T06:47:16Z
 purpose: 让大型记录集合可先按筛选概览定位，再读取少量近期对象。
 background: 默认全量多行列表会随集合增长占用终端与 agent 上下文，且旧记录优先降低近期对象可发现性。
-decision: Decision 与 Investigation 在查询时从同一索引快照聚合筛选概览，默认显示近期有界单行结果，并以 detail 显式展开。
+decision: Decision 与 Investigation 从同一索引快照聚合筛选概览，并以有界近期窗口支持定位。
 tags:
   - decision-records
   - investigation-report
@@ -29,7 +29,7 @@ relations: []
 ## 决策
 
 - 采用: Decision 与 Investigation 的 list query 从同一次已加载的完整索引 snapshot 聚合全局筛选 facets；不读取 Markdown、不改写索引，也不把这些统计持久化到 metadata。
-- 采用: 默认列表按领域时间降序并以 ID 稳定打破平局，只返回有界的近期窗口和紧凑单行；显式 limit、offset 和领域筛选负责继续定位。
-- 采用: `--detail` 只改变展示密度，在同一筛选、排序和分页窗口中保留原有多行字段；完整正文继续由 `show` 读取。
-- 采用: 默认 facets preview 自身必须有界，并明确区分完整索引的 `Index filters`、本次 `Applied filters` 与分页后的 `Latest matches`。
+- 采用: 默认列表按领域时间降序并以 ID 稳定打破平局，只返回有界的近期窗口；显式 limit、offset 和领域筛选负责继续定位。
+- 采用: 结果保留同一筛选、排序和分页窗口中的字段；完整正文继续由 `show` 读取。原生 CLI 的具体呈现以领域操作契约为准。
+- 采用: 筛选概览、实际筛选与分页结果分别表达，不把局部窗口误认为完整集合。
 - 不采用: 为这项列表显示优化新增 entries-derived metadata、通用 facet 框架、无限列表模式或目录分片。

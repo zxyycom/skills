@@ -1,14 +1,18 @@
-### Case INVESTIGATION-RELATION-SUMMARY-CLI-NEW-001: CLI new binds relation summaries after selector resolution and preserves equals
+### Case INVESTIGATION-RELATION-SUMMARY-CLI-NEW-001: CLI new 为目标绑定 Unicode 摘要
 
 Tests:
-- `test:c87dfebfbb73418754ac0c9ff419c43e33f37d47316b91f501f256e73c1ab678`
+- `test:0bddbe9c9fcbb28ded7d96dadd1281e9b002e535f616d35c0a19bacafe726b9f`
+- `test:8ae4b9c86c67ca0b3bab4514adf8401d805dd6354173b9df723ef946b87861b0`
+- `test:9d2f1b4a01893e829832bf167dcc05efe07e0d68e9ef08fbcae09e3e758b48c7`
+- `test:f754be834cb65b05e14d5fe9f01e5dc01c2258895b6d098d0d7d0cec7642c443`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- `new` 的 relation 与 relation-summary target 分别按 ID-first/name selector 解析，再将 summary 绑定完整 relation set 中唯一 target；summary-only 无效，summary 只按首个 `=` 分隔。
+- new 可为关系目标绑定合法摘要，并以 Unicode 码点计算摘要长度；不能仅提供无关系的摘要，且 relation 与 summary 的目标须各自解析后绑定。
 
 Proves:
-- relation 使用 name、summary 使用标准 ID 时仍绑定同一 target，并保留正文中的后续 `=`。
-- 没有 `--relation` 的 summary-only 调用以 CLI 参数错误退出且不创建 candidate。
+- 真实 CLI 将以目标名称传入的 40 个非 BMP 码点摘要写入候选；41 个码点时失败且未创建候选。
+- relation 使用名称、summary 使用完整 ID 时正确绑定并保留值中的 =；反向使用完整 ID 与名称时，空白值省略、边缘换行 trim、内部换行和不存在日期 ID 拒绝。
+- 只传 relation-summary 不传 relation 时真实 CLI 失败，新候选不存在，已有候选字节与目录项保持。

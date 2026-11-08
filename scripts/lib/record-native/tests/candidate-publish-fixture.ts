@@ -1,13 +1,15 @@
 import { createHash } from "node:crypto";
 import { zipSync, strToU8 } from "fflate";
 import type { assembleCandidateRelease } from "../candidate-release.ts";
+import { nativeBuildRecipePaths } from "../candidate-build-recipe.ts";
 
 export const commit = "a".repeat(40);
 export const hash = "b".repeat(64);
 export function fixture(
   privateCandidate = false,
   runtimeVersion = "1.0.0",
-  malformedSchema = false
+  malformedSchema = false,
+  retiredSdk = false
 ): ReturnType<typeof assembleCandidateRelease> {
   const assets: ReturnType<typeof assembleCandidateRelease>["assets"] = [];
   const schemas = {
@@ -68,6 +70,9 @@ export function fixture(
       [`${role}/references/${schema}`]:
         schemas[role as keyof typeof schemas].toString(),
       [`${role}/scripts/update-skill.ts`]: "fixture",
+      ...(retiredSdk && role === "decision-records"
+        ? { [`${role}/scripts/decision-records-sdk/cli.d.mts`]: "retired" }
+        : {}),
       [`${role}/package.json`]: "{}",
       [`${role}/pnpm-lock.yaml`]: "lock"
     });
@@ -90,23 +95,92 @@ export function fixture(
       }
     };
   }
+  const provenance = {
+    buildRevision: commit,
+    pendingBaseRevision: commit,
+    pendingMatchesBase: true,
+    buildDeliveryHash: hash,
+    sourceHash: hash,
+    currentDeliveryHash: hash,
+    recipeHashes: Object.fromEntries(
+      nativeBuildRecipePaths.map((name) => [name, "d".repeat(64)])
+    ),
+    sourceFiles: [],
+    buildDeliveryFiles: [],
+    skillInputHashes: {},
+    platforms: Object.fromEntries(
+      ["x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc"].map((target) => [
+        target,
+        {
+          schemaVersion: 1 as const,
+          runtimeVersion,
+          sourceHash: hash,
+          target: target as
+            | "x86_64-unknown-linux-gnu"
+            | "x86_64-pc-windows-msvc",
+          toolchain: { rustc: "fixture", cargo: "fixture" },
+          environment: {
+            platform: "fixture",
+            architecture: "x64",
+            kernel: "fixture",
+            glibc: null
+          },
+          assets: []
+        }
+      ])
+    ),
+    assetHashes: {}
+  };
+  const runtimeAssets = ["decision-records", "investigation-report"].flatMap(
+    (role) =>
+      ["x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc"].map(
+        (target) =>
+          assets.find(
+            (item) =>
+              item.asset.name === `${role}-${runtimeVersion}-${target}.zip`
+          )!.asset
+      )
+  );
+  const proof = Buffer.from(
+    `${JSON.stringify({ schemaVersion: 1, buildRevision: commit, runtimeVersion, source: { sha256: hash, files: [] }, buildDelivery: { sha256: hash, files: [] }, recipe: provenance.recipeHashes, platforms: provenance.platforms, assets: runtimeAssets }, null, 2)}\n`
+  );
+  assets.push({
+    asset: {
+      name: `record-native-build-${runtimeVersion}.json`,
+      byteLength: proof.length,
+      sha256: createHash("sha256").update(proof).digest("hex")
+    },
+    bytes: proof
+  });
+  const recovery = Buffer.from(
+    zipSync(
+      Object.fromEntries([
+        [
+          `record-native-build-${runtimeVersion}.json`,
+          [proof, { level: 9, mtime: new Date(1980, 0, 1) }]
+        ],
+        ...runtimeAssets.map((entry) => [
+          entry.name,
+          [
+            assets.find((item) => item.asset.name === entry.name)!.bytes,
+            { level: 9, mtime: new Date(1980, 0, 1) }
+          ]
+        ])
+      ])
+    )
+  );
+  assets.unshift({
+    asset: {
+      name: `record-native-recovery-${runtimeVersion}.zip`,
+      byteLength: recovery.length,
+      sha256: createHash("sha256").update(recovery).digest("hex")
+    },
+    bytes: recovery
+  });
   return {
     manifest: { schemaVersion: 1, skills },
     assets,
     schemas,
-    provenance: {
-      buildRevision: commit,
-      pendingBaseRevision: commit,
-      pendingMatchesBase: true,
-      buildDeliveryHash: hash,
-      sourceHash: hash,
-      currentDeliveryHash: hash,
-      recipeHashes: {},
-      sourceFiles: [],
-      buildDeliveryFiles: [],
-      skillInputHashes: {},
-      platforms: {},
-      assetHashes: {}
-    }
+    provenance
   };
 }

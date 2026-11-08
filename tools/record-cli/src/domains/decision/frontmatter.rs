@@ -60,6 +60,9 @@ fn decode_frontmatter(
     } = projection_fields(map)?;
     let tags = parse_tags(&map[&Yaml::String("tags".into())])?;
     let relations = parse_relations(&map[&Yaml::String("relations".into())])?;
+    if relations.iter().any(|relation| relation.target == id) {
+        return Err("decision relation cannot target itself".into());
+    }
     Ok(Frontmatter {
         id,
         title,

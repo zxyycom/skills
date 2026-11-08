@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RELATION-GRAPH-SELF-001: relation graph rejects a self target
 
 Tests:
-- `test:248ccd6348ca32137b5564106918b0d81f2455926985338e0b52c378a5dc6058`
+- `test:4e572abfeea52b35c3c4bffc062551f60a2a20ffd64dd908e460bd7d795d107a`
 
 Tags:
 - `investigation-report`
@@ -10,4 +10,4 @@ Contract:
 - 报告不能把关系指向自身。
 
 Proves:
-- 自环返回 self-target 诊断。
+- 有效调查关系基线成功；仅将 target 改为自身后图验证拒绝，不断言诊断文本。

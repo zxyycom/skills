@@ -1,14 +1,13 @@
-### Case DECISION-REALLOCATION-TRANSACTION-001: Evolve 建立闭合稀疏重划并独立对齐后继
+### Case DECISION-REALLOCATION-TRANSACTION-001: 稀疏重划提交与前序归档
 
 Tests:
-- `test:5dc242ba177151a8a43719e3ae379c90fdbe71c48168728b591c5e594df7e44a`
+- `test:9bffb128cdc9fc093743a4dac03e6087f745c4c52f29483675891bfb3842e484`
 
 Tags:
 - `decision-records`
 
 Contract:
-- `evolve` 必须用候选各自声明的连通稀疏重划关系，同时归档多个活动前序，并分别建立和确认全部后继。
+- evolve 接受连通稀疏多前序多后继重划，归档活动前序并分别确认后继 alignment。
 
 Proves:
-- 一个后继承接两个前序、另一个只承接其中一个前序时，两个前序都归档且关系保持稀疏。
-- 两个后继分别保存 aligned 与 unaligned，最终严格关系检查通过。
+- 原生操作先拒绝只选择一个后继并保留索引和两个活动前序；选择完整两个后继后提交，两个前序归档、后继 alignment 各异，索引保留 2+1 条稀疏边及各边摘要，最终图验证成功。

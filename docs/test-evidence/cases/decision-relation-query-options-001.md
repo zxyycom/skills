@@ -1,13 +1,13 @@
-### Case DECISION-RELATION-QUERY-OPTIONS-001: 关系查询选项拒绝重复出现
+### Case DECISION-RELATION-QUERY-OPTIONS-001: 关系查询拒绝重复单值选项
 
 Tests:
-- `test:0cc9f34e1ee45f53e72cc89c667309944978263f30974784b4f793aa164929f5`
+- `test:a29dee226594bd95180764b87f9223fc904007c3cdbf1ee5f0946b80fc026e69`
 
 Tags:
 - `decision-records`
 
 Contract:
-- `list` 与 `search` 的单值 `--related-to`、`--direction`、`--relation-type` 各自至多出现一次，不能由后一个值静默覆盖前一个值。
+- list 与 search 的单值 related-to、direction、relation-type 不能被重复值静默覆盖。
 
 Proves:
-- 两个命令对三种关系查询选项的每一种重复出现均以参数错误码 `2` 退出，不写 stdout，并指出重复的选项。
+- 真实原生 CLI 对 list 重复 related-to、search 重复 direction、list 重复 relation-type 各退出 2 并返回 invalid-arguments，无领域目录写入。两个命令使用共享选项解析；没有逐命令穷举。

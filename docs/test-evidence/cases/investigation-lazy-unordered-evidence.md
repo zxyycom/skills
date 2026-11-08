@@ -1,13 +1,14 @@
-### Case INVESTIGATION-LAZY-EVIDENCE-001: 乱序构图保持关系证据顺序
+### Case INVESTIGATION-LAZY-EVIDENCE-001: 合法发布图的关系证据稳定
 
 Tests:
-- `test:afbdda94ef2785cb1fa769979ad107c5b9ae44439ac84a9a566e82ddf0d7fe51`
+- `test:4796ddd444cc0857d2adcbcb360f3393332643a602d2e159b91ed4296a473db5`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 不同输入边序不改变关系证据的稳定目标顺序、tuple 归并与摘要。
+- 合法发布图的记录输入顺序不改变关系筛选结果及证据的目标顺序和摘要。
 
 Proves:
-- 正序与逆序条目/关系投影均返回按 target 排序的两条归并证据和原摘要。
+- IR 真实 CLI 对正序和逆序记录构造的发布索引返回相同结果；归并记录的两条 filterRelations 按目标排序并保留对应摘要。
+- 原生发布索引要求关系数组唯一且已排序，旧内部 context 可接受逆序关系数组的承诺不再适用；错误聚合不属于此 Case。

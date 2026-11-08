@@ -1,13 +1,13 @@
-### Case INVESTIGATION-RESOURCE-ROOT-001: resource root must be a directory when reports declare resources
+### Case INVESTIGATION-RESOURCE-ROOT-001: 有引用时资源根必须为目录
 
 Tests:
-- `test:b4924e7dea80ca6f9830b4aa35e299acd83e436b659977ebb92fb7191d80b5ae`
+- `test:f305d1446702243fdb39186c40af0f8221d5bc2bdc605fc0da5ab58834fa4f48`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 存在资源声明时 `_resources` 必须是目录。
+- 报告声明资源时 _resources 根必须为目录。
 
 Proves:
-- 文件形式的资源根返回 must-be-directory 诊断。
+- full check 在 _resources 为普通文件时返回 resource-invalid；恢复目录及资源文件后检查通过。

@@ -1,13 +1,13 @@
-### Case DECISION-LIST-ALL-001: List all 返回两种生命周期及完整时间
+### Case DECISION-LIST-ALL-001: List all 包含两种生命周期
 
 Tests:
-- `test:fcb3e05e67b6b0aea8a13c821a4e81adbc663842d2bf82e288db1bf30823266d`
+- `test:26655a9287d408cd499fafc8e9492a3834e06e55501ce449bd9d2552ff49a70e`
 
 Tags:
 - `decision-records`
 
 Contract:
-- `--status all` 返回活动与归档记录及其明确 alignment；`--full-time` 保留完整 `createdAt` 时间戳。
+- `list --status all` 返回活动和归档记录。
 
 Proves:
-- 真实内存 list 投影与 renderer 输出两个 ID、active/aligned、archived/unaligned 和两个带时区的 fixture 时间戳，且不含 unknown 或 null。
+- 真实原生 CLI 在含两种状态的索引上执行 `--status all --json`，结果状态同时包含 active 与 archived。旧文本 renderer 的 `--full-time` 格式不属于现行原生输出契约；该节点未断言 alignment 或时间格式。

@@ -54,12 +54,20 @@ fn private_fixture_preflight_and_committed_relation_then_unchanged() {
         groups: vec![RelationGroup {
             source: "same".into(),
             relations: vec![Relation {
+                summary_selector: Some("260827-old".into()),
                 kind: InvestigationRelationKind::Supplement,
                 target: "old".into(),
-                summary: None,
+                summary: Some(" reason ".into()),
             }],
         }],
     };
+    operation.groups[0].relations[0].summary_selector = Some("260826-old".into());
+    assert!(crate::transaction::preflight(&root, &mut operation).is_err());
+    assert_eq!(
+        std::fs::read(collection.join("investigation-index.json")).unwrap(),
+        index_bytes
+    );
+    operation.groups[0].relations[0].summary_selector = Some("260827-old".into());
     let preview = crate::transaction::preflight(&root, &mut operation).unwrap();
     assert_eq!(preview.writes.len(), 2);
     assert_eq!(
@@ -71,6 +79,7 @@ fn private_fixture_preflight_and_committed_relation_then_unchanged() {
     assert!(result.changed && result.committed);
     let written = std::fs::read_to_string(collection.join("same.md")).unwrap();
     assert!(written.contains("260827-old"));
+    assert!(written.contains("summary: \"reason\""));
     assert!(written.contains("Body unchanged."));
     let written_index = crate::index::parse_index(
         &std::fs::read(collection.join("investigation-index.json")).unwrap(),
@@ -80,6 +89,12 @@ fn private_fixture_preflight_and_committed_relation_then_unchanged() {
     assert_eq!(
         written_index.index().entries["260828-same"].relations[0].target,
         "260827-old"
+    );
+    assert_eq!(
+        written_index.index().entries["260828-same"].relations[0]
+            .summary
+            .as_deref(),
+        Some("reason")
     );
     let result = crate::transaction::run_transaction(&root, &mut operation);
     assert!(result.errors.is_empty(), "{:?}", result.errors);

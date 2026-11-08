@@ -1,13 +1,13 @@
-### Case INVESTIGATION-CURRENT-INDEX-FAILURES-001: Current 加载保留外部边界失败
+### Case INVESTIGATION-CURRENT-INDEX-FAILURES-001: 列表区分缺失索引与成功结果
 
 Tests:
-- `test:69a29d8c416296b41b2c854c065acad2914f3432212f133966e869afb913e254`
+- `test:374eb23f94f7ae8c430bd8dcdf9ee6859c44860d388b083d1a14d14094d997b6`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- Current 加载不能将坏索引、不兼容 definition、缺失索引、取消或不安全来源解释为合法成功。
+- 调查列表缺失发布索引时不得返回合法空集合。
 
 Proves:
-- 非法 JSON、definition 不符、缺失索引、已取消信号和正式来源 symlink 均失败，缺失索引保留 index-missing 诊断。
+- 真实 JSON CLI 在有效索引返回条目，使用缺失索引的目录时返回 index-not-found。

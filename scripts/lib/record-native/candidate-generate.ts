@@ -90,14 +90,30 @@ async function attachPreparedModules(
   )?.data;
   if (!manifestBytes)
     throw new Error("frozen candidate input missing: package.json");
-  const manifest = JSON.parse(manifestBytes.toString("utf8"));
+  const manifest: unknown = JSON.parse(manifestBytes.toString("utf8"));
+  const manifestDependencies = v.parse(
+    v.object({ devDependencies: v.record(v.string(), v.string()) }),
+    manifest
+  ).devDependencies;
   const lockBytes = delivery.find(
     (file) => file.path === "pnpm-lock.yaml"
   )?.data;
   if (!lockBytes)
     throw new Error("frozen candidate input missing: pnpm-lock.yaml");
-  const lock = parseYaml(lockBytes.toString("utf8"));
-  const dependencies = lock?.importers?.["."]?.devDependencies;
+  const lock: unknown = parseYaml(lockBytes.toString("utf8"));
+  const dependencies = v.parse(
+    v.object({
+      importers: v.object({
+        ".": v.object({
+          devDependencies: v.record(
+            v.string(),
+            v.object({ specifier: v.string(), version: v.string() })
+          )
+        })
+      })
+    }),
+    lock
+  ).importers["."].devDependencies;
   for (const name of [
     "@ast-grep/cli",
     "fast-glob",
@@ -113,8 +129,8 @@ async function attachPreparedModules(
     await verifyPreparedDependency(
       modules,
       name,
-      dependencies?.[name],
-      manifest.devDependencies?.[name]
+      dependencies[name],
+      manifestDependencies[name]
     );
   }
   await fs.symlink(
@@ -130,6 +146,40 @@ export async function generatePrivateNativeCandidate(
   snapshot: NativeCandidateSnapshot,
   runtimeVersion: string,
   nodeModules: string
+): Promise<Prepared> {
+  return await generateNativeCandidate(
+    stage,
+    snapshot,
+    runtimeVersion,
+    nodeModules,
+    false
+  );
+}
+
+/** Formal skill archives are copied from the captured pending snapshot without transformation. */
+export async function generateFormalNativeCandidate(
+  stage: string,
+  snapshot: NativeCandidateSnapshot,
+  runtimeVersion: string,
+  nodeModules: string
+): Promise<Prepared> {
+  if (runtimeVersion === "0.1.0")
+    throw new Error("private runtime cannot be formal");
+  return await generateNativeCandidate(
+    stage,
+    snapshot,
+    runtimeVersion,
+    nodeModules,
+    true
+  );
+}
+
+async function generateNativeCandidate(
+  stage: string,
+  snapshot: NativeCandidateSnapshot,
+  runtimeVersion: string,
+  nodeModules: string,
+  formal: boolean
 ): Promise<Prepared> {
   const delivery = await readStagedDelivery(stage, snapshot.deliveryHash);
   if (digestNativeSource(delivery) !== snapshot.deliveryHash)
@@ -160,6 +210,7 @@ export async function generatePrivateNativeCandidate(
   await fs.writeFile(
     path.join(root, "candidate-input.json"),
     JSON.stringify({
+      formal,
       runtimeVersion,
       sourceHash: snapshot.sourceHash,
       deliveryHash: snapshot.deliveryHash,

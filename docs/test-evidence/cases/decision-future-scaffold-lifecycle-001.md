@@ -1,13 +1,13 @@
-### Case DECISION-FUTURE-SCAFFOLD-LIFECYCLE-001: 未来关系不抹去候选结构而发布仍验闭合
+### Case DECISION-FUTURE-SCAFFOLD-LIFECYCLE-001: 未来关系候选可发现但不能提前发布
 
 Tests:
-- `test:a0f502134fb1ef4dbe05f290a0b02ddd9573309a977020e29bb323bccd5412bf`
+- `test:c81af33136634b16a1baa5a94d42c5bffb480929737ebc869d8e05bf7b5f315c`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 候选 scaffold 只验关系语法，正式 publish 必须验证目标存在与最终闭合，bodyReady 不代替该证明。
+- 候选可声明未来关系，但 body-ready 不替代正式发布的目标与完整图校验。
 
 Proves:
-- 通过 API 创建指向未来完整 ID 的候选，补齐自身正文后 show-candidate 仍 scaffoldValid/bodyReady 为 true；publish preflight 因目标不存在而失败，来源原字节不变且不生成正式索引。
+- body-ready 候选带未来目标仍被发现并有目标 warning；原生 publish 预检指出目标、拒绝提交，候选字节不变且不生成索引。此节点直接写入候选 fixture，创建入口独立由 candidate boundaries Case 承接。

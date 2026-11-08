@@ -1,13 +1,13 @@
-### Case DECISION-SELECTED-VALID-BASELINE-DELETION-001: Selected sync 不将合法基线成员删除误作读取失败
+### Case DECISION-SELECTED-VALID-BASELINE-DELETION-001: Selected sync 接受所选已知来源删除
 
 Tests:
-- `test:0149b67809feb81b3836816a7233c797ad6846d24709539e81fe7ca5ad9b4e68`
+- `test:3d7ed27a8dbc8f22a7661346022083a7e8daf0af93519861725cbe452f4fd98c`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 只传播真实基线采集/解析失败；合法已解析基线中的已知来源位置缺失按所选删除处理，仍验完整组合图并保持未读发布条目。
+- selected sync 对已知所选来源位置缺失支持删除。
 
 Proves:
-- 删除所选正式成员后 selected sync 成功移除该索引条目，同时完整保留未选归档条目；缺成员诊断没有触发错误的baseline-failure早退。
+- DR 局部同步完成身份更正后，删除已知路径并选中该 ID，操作成功提交。

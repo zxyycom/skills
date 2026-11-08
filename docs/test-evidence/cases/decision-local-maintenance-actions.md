@@ -1,13 +1,13 @@
-### Case DECISION-LOCAL-MAINTENANCE-ACTIONS-001: 普通生命周期与关系操作沿用发布基线
+### Case DECISION-LOCAL-MAINTENANCE-ACTIONS-001: 候选丢弃隔离未选正式正文
 
 Tests:
-- `test:ff7186cb5b4515fb9c118ad75f8e90243d881411b38acf0dbb62aa280e46b5ce`
+- `test:bd61f36aa09436cb6a8f2b7c9b647fed5e6f732ef0824b3f6943055bc474424c`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 普通 publish/evolve（无删除）、set-relations、archive 和 reactivate 使用发布图与必要来源，不验收无关当前正文。
+- 普通候选 discard 使用发布索引，不替未选正式正文证明当前性。
 
 Proves:
-- 无关 B 坏源存在时上述操作按序成功，演进关系与 A 归档结果准确，B 坏源不变且全集 check 仍失败。
+- 未选正式正文损坏时带该正式目标关系的候选仍可丢弃，未选正文和正式索引字节不变。

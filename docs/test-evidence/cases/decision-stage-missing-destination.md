@@ -1,13 +1,13 @@
 ### Case DECISION-STAGE-MISSING-DESTINATION-001: 暂存不将缺失新位置冒充同步删除
 
 Tests:
-- `test:132513b93009882ee8ec58b87bace3f8990df606386df1954b3bfcc127c4b27b`
+- `test:c1ed0c7ba2efd8b1517c3d2c6ac413d24d85a540b2a0880560d62923f51481c4`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 工作区发布投影仍含选中 ID 时，新位置缺失不得被解释为已同步删除。
+- 发布投影仍指向所选 ID 时，缺失当前来源不得冒充已同步删除。
 
 Proves:
-- 发布移动后移除新位置，domain/all 都失败并保持原 pending tree，不误清旧位置。
+- 已发布路径移动但新位置缺失时，all/domain 均失败且 pending 条目不变。

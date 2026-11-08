@@ -1,13 +1,13 @@
-### Case DECISION-EVOLVE-ALIGNMENT-CONFIRMATION-001: Evolve 拒绝已建立后继的错误对齐确认
+### Case DECISION-EVOLVE-ALIGNMENT-CONFIRMATION-001: 已建立后继的 alignment 确认
 
 Tests:
-- `test:11422e590a2d2633863a00bd43a4c613e9a2b3a507d37153d4c4da43130492cf`
+- `test:c4f68b6f910843204ea7ed757acb56c82e9282aac5777faf3e8824884a418f21`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 选择已建立后继时，`--successor` 中的 alignment 只能确认记录现有对齐状态，不能借关系事务改写对齐。
+- 已建立后继被选择时其 alignment 只能确认现状，不能借 evolve 改写。
 
 Proves:
-- 纯生命周期准备对与 established 记录现状不一致的 alignment 返回明确错误，且结果不含 changes。
+- 扩充分组时对既有 aligned 后继错误确认 unaligned，预检拒绝且索引不变；改为 aligned 后提交成功，最终索引保留 aligned。

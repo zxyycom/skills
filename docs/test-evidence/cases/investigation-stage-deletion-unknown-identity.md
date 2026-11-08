@@ -1,13 +1,13 @@
 ### Case INVESTIGATION-STAGE-DELETION-UNKNOWN-IDENTITY-001: 局部删除不发现未知位置的未同步身份
 
 Tests:
-- `test:90283be5f409843f815ae1e3ff4be67ea6fa3cade01330575e029afc96adf2d7`
+- `test:3c17c60e7fc532b4845e02492c2f2b6d71feed66d78ac5159c0bf645fe115d72`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- stage 删除只核对发布声明和已知受管位置，未知 W 位置重现由显式全量 check/sync 发现。
+- domain stage 删除仅处理已知位置，不把未知 W 位置的来源自动纳入 pending。
 
 Proves:
-- 发布索引删除后同 ID 在未知位置重现，stage 不读该正文且只暂存已知旧路径删除；全量 check 报不同步，sync 将该 ID 重新发布在实际位置。
+- 真实 Git 中 W 索引删除 ID、已知旧路径不存在而未知路径重现同 ID：stage 暂存旧路径删除，未知路径不纳入 pending 且原字节保持。节点不计数文件读取，也未执行全量 check/sync。

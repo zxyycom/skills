@@ -136,6 +136,11 @@ fn parse_evolve(args: &Args) -> Result<MutationCommand, ArgumentError> {
         return Err(ArgumentError("--delete-recorded requires --discard".into()));
     }
     let successors = parse_successors(args)?;
+    if successors.is_empty() {
+        return Err(ArgumentError(
+            "evolve requires at least one successor".into(),
+        ));
+    }
     let rel = parse_relation_override(args)?;
     Ok(MutationCommand::Decision(DecisionCommand::Evolve {
         successors,

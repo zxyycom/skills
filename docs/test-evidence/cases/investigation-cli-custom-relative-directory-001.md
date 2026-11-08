@@ -1,13 +1,13 @@
 ### Case INVESTIGATION-CLI-CUSTOM-RELATIVE-DIRECTORY-001: 跨工作区使用工作区内相对调查目录
 
 Tests:
-- `test:a3f02c42e94cd967e4181afe5442c36af05d992c36e656f0576ce80975e5e978`
+- `test:1be2551068f1dbd2f5f6f17176cd1d5aa098007c969e0a9a208a3ec7b937b00d`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 跨工作区调用时显式提供 `--root`，领域目录始终使用解析后位于工作区内的相对 `--investigations-dir`。
+- 调查命令可通过工作区 root 与相对 investigations-dir 定位非默认集合。
 
 Proves:
-- 进程位于其他目录时，`--root <workspace> --investigations-dir docs/investigations` 的 `check` 成功验证目标集合。
+- 真实 CLI rename preflight 指定私有 root 与相对 investigations 目录成功，结果包含预期资源迁移计划。

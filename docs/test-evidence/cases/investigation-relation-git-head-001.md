@@ -1,13 +1,13 @@
-### Case INVESTIGATION-RELATION-GIT-HEAD-001: 全量检查仅提示尚未进入 Git HEAD 的直接前序
+### Case INVESTIGATION-RELATION-GIT-HEAD-001: 检查只提示未记录的直接前序
 
 Tests:
-- `test:23f5d1a320741f3b7d9093c065e08866b6c8d9a3c18ab926acc79882425d11ba`
+- `test:37d9787b9574a618d832c32f5b08aefec7839a092a6f760a0323de047671d989`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 默认全量检查只对尚未进入 Git HEAD 的直接前序关系给出独立调查演进复核提示。
+- 检查历史 warning 只针对尚未进入固定 Git HEAD 的直接前序。
 
 Proves:
-- 三层关系中，只有以 `first-unrecorded.md` 和 `second-unrecorded.md` 为 target 的未进入 Git HEAD 直接关系产生提示；以 `recorded.md` 为 target 的 HEAD 内直接关系不提示，且不合成 `source.md` 指向 `first-unrecorded.md` 的间接关系提示。
+- 真实 Git 中 A 已记录、B→A、C→未记录 B；检查历史函数仅给 C→B 一条 warning，不生成间接关系提示。

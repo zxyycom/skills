@@ -1,16 +1,15 @@
 ### Case RECORD-SEARCH-ZERO-001: 完整零命中及生效预算回显
 
 Tests:
-- `test:00054adcfebc8a11e773ae782aa714354c5e1ce93387fa57cb00f37644c4721a`
-- `test:0694f9d7a615b3db1062cb4cbd68641e51cf1726425d88e18d923955c88d44a0`
 - `test:5a19c30cd50d868072baab139ffa1f33364f69702e9178ca299a771d4939e267`
+- `test:f8b0772cfc1840c342361e4225f2475a8e1bc4c9244cce50fe9cb5b38e1de645`
 
 Tags:
 - `record-search`
 
 Contract:
-- 成功空集具有 exact 0、returned 0 和完整扫描/结果；metadata 预览不适用，content 预览完整。
+- 成功的 DR 空搜索结果有精确零计数与完整覆盖；metadata 预览不适用，content 预览完整。
 
 Proves:
-- 两个领域和共享收集器完整空集不被错误标记为截断，metadata previewsComplete=null，content 为 true。
-- 结果保存生效默认资源预算、返回预算与对应来源。
+- 真实 CLI 查询未索引词得到 exact 0/returned 0、扫描与结果完整，content 预览完整并回显 20 条默认上限；metadata 预览为 null。
+- 共享文件搜索另独立核对完整零命中与生效预算。

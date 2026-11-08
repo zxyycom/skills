@@ -1,14 +1,13 @@
 ### Case INV-SEARCH-METADATA-001: 元数据保留精确全集计数并标记隐藏返回
 
 Tests:
-- `test:13527f5cef61ad9c21f24fbe8f63399afbc2ce9e5f7adb6b3c2e80f9ab2229ff`
+- `test:045ca118cdb50dc7cd62c08d5230734cbd8e026b3e21144f29aa83e99afdd2b4`
 
 Tags:
 - `record-search`
 
 Contract:
-- Investigation metadata 全量匹配后限量返回，扫描完整、matched 精确，只有隐藏命中才标记 max-records。
+- Investigation metadata 全量匹配后限量返回，并区分精确匹配数与实际返回数。
 
 Proves:
-- 两条命中限量一条时 matched=2、returned=1、scanComplete=true、resultsComplete=false、previewsComplete=null，并只报告返回限制。
-- limit 恰好等于命中数时返回完整，不产生截断 warning。
+- 两条命中限量一条时 matched=2、returned=1、scanComplete=true、resultsComplete=false、previewsComplete=null，返回 max-records 原因。

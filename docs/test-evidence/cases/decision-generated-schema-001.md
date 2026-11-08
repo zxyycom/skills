@@ -1,14 +1,16 @@
-### Case DECISION-GENERATED-SCHEMA-001: 生成决策 Schema 与运行时索引 Schema 一致
+### Case DECISION-GENERATED-SCHEMA-001: 决策索引 Schema 与原生 CLI 验收关键字段
 
 Tests:
-- `test:81dee7360836cfb49ad3fca65ffd2f0d7d2c353f3194152a91032debd5efc0c3`
+- `test:4d2e3199bed9cd8bfa4623a8b3c1e917c7481ca1f535ade9c271cdc2681670ac`
+- `test:6fbc0939c89a2005c740acbe31c2db39e4f471d16564f534b9a22553d468b2de`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 分发的决策索引 JSON Schema 必须与维护源码中的运行时 Schema 保持完全一致。
+- 决策索引须携带非空 name 与明确 alignment；active/aligned 和 archived/unaligned 是合法状态。
 
 Proves:
-- 分发 Schema 与运行时 Schema 逐结构相同，并保留 schemaVersion 4、definitionVersion 11、状态的 name 和 alignment 字段约束。
-- Ajv 以分发 Schema 接受包含 active/aligned 与 archived/unaligned 的当前 fixture index，拒绝两种生命周期的 alignment:null/缺失以及 name 缺失、空串或纯空白。
+- Node AJV 测试直接加载 `tools/record-contracts/schemas/decision-index.schema.json`，接受两种有效状态，拒绝缺失或 null alignment、缺失或空 name。
+- 真实原生 CLI 对同类有效输入成功；四种非法输入均以退出码 1 和 `invalid-index` 拒绝。
+- 该证据不声明原生业务验证与 JSON Schema 对全部输入等价，也不验证纯空白 name。

@@ -1,14 +1,13 @@
-### Case INVESTIGATION-RENAME-LEGACY-PATH-001: legacy ID 迁移可保留既有 sourcePath
+### Case INVESTIGATION-RENAME-LEGACY-PATH-001: 候选同路径更新 legacy 身份
 
 Tests:
-- `test:b8e12910f551649e3b2aea661470f8810fc5069b7bd2d8694c8cb827103e8e61`
+- `test:57ab1cf9db8328e4923e957ecde429e9a6bef4a5b75e93e423ca2113285d42c7`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- legacy Investigation 以同名 target 迁移为 dated ID 时，即使 name/sourcePath 保持不变，也必须更新 ID、关系、owner 和正式索引；不得把同路径误判为旧身份残留。
+- 旧候选同名迁移到日期 ID 时，即使 locator 不变也须更新声明身份。
 
 Proves:
-- report 仍位于原 sourcePath，但 frontmatter、dependent relation 和索引全部使用新 dated ID。
-- 旧 owner 消失，新 ID owner 存在。
+- 真实候选 old 重命名为 261106-old 后提交，原 locator 内容声明新 ID。

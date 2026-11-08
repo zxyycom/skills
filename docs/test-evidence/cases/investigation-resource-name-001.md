@@ -1,13 +1,13 @@
-### Case INVESTIGATION-RESOURCE-NAME-001: resource ID whitelist accepts report-owned names and rejects structural hazards
+### Case INVESTIGATION-RESOURCE-NAME-001: 调查索引拒绝资源路径穿越
 
 Tests:
-- `test:1f3c882378a9e723a5fd1c0abddb14ea46bf36ac4ba6bbf8d033b53e44611d89`
+- `test:45f8d1ac72065e376f8df03fba4a2547bcb71b8dcbbb9e0ff76f4c6614844ad7`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 资源 ID 使用 extensionless Investigation ID 前缀，并拒绝路径穿越等结构风险。
+- 调查索引不得接纳资源 ID 中的路径穿越。
 
 Proves:
-- 合法 owner 资源 ID 通过，穿越目标无效。
+- 合法索引先通过，将 resourceIds 改成 report/../secret 后解析失败。

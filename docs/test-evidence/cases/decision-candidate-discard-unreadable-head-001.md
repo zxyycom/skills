@@ -1,14 +1,13 @@
 ### Case DECISION-CANDIDATE-DISCARD-UNREADABLE-HEAD-001: Discard 在 Git HEAD 不可读取时零写入失败
 
 Tests:
-- `test:1ac3b563c2fed342bef5b1bc5a7c1ce34ec229f6eb0fab33f6820c2504ddc04e`
+- `test:3beb638ca84dc0e18d245a7f89e0c4a5e7324c927193c5ca5289f8cffd9ade60`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 完整 candidate 的 discard 需要判定其是否已进入 Git `HEAD`；Git `HEAD` 不能读取时，CLI 必须在删除前失败，不能将该异常当作未记录 candidate。
+- 未确认删除候选时 Git HEAD 无法读取必须在删除前失败。
 
 Proves:
-- 已提交 candidate 的引用被破坏后，discard 返回 Git HEAD 检查错误。
-- candidate 原文和正式索引逐字节不变。
+- 候选提交后损坏当前 Git ref，discard 失败且未提交变化，候选和正式索引保持原字节。

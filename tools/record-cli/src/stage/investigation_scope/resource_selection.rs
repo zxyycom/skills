@@ -24,6 +24,7 @@ pub(super) fn select_resources(
         direct_paths,
         resource_scopes,
     } = resource_scope(index_path, base, workspace)?;
+    validate_owner_directories(root, &resource_root, &owner_scopes)?;
     let workspace_resources = git::list_repository_workspace_files(root.path(), &resource_scopes)
         .map_err(IndexStageError::Git)?;
     for path in &direct_paths {
@@ -51,6 +52,22 @@ pub(super) fn select_resources(
         all_resource_paths,
         file_mode,
     })
+}
+
+/// Git pathspec enumeration can silently omit a symlink at the resource root
+/// or owner boundary, so inspect these directory components explicitly.
+fn validate_owner_directories(
+    root: &Root,
+    resource_root: &RelativePath,
+    owner_scopes: &[PathBuf],
+) -> Result<(), IndexStageError> {
+    for path in
+        std::iter::once(resource_root.as_path()).chain(owner_scopes.iter().map(PathBuf::as_path))
+    {
+        let relative = RelativePath::new(path).map_err(IndexStageError::Source)?;
+        source::directory_exists(root, &relative).map_err(IndexStageError::Source)?;
+    }
+    Ok(())
 }
 
 /// Path scope derived from selected owners and direct references before any Git reads.

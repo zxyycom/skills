@@ -80,6 +80,8 @@ quick 须满足总墙钟 < 30s、P90 < 10s、mean < 5s；其他范围只报告�
 
 普通检查的工作树输入与 release 制品输入分别核对：普通命令从项目根运行并依自身契约读取材料，原生材料检查在适用范围内从磁盘选择；release prepare 捕获一次 Git `pending` 快照，默认 Git 实现将其映射到 index。因此 release 通过不证明未暂存 skill 改动已进入制品。
 
+release 打包只写入本次独占新建的 `dist/skill-release/package-*/packages`，在整个打包期间保留上级目录的独占权，不会清空 `dist` 或既有 staging。CI 使用 `SKILL_RELEASE_STAGE=package-<run-id>-<attempt>` 固定本次输出并按该确切路径交接；名称非法或目录已存在时写前失败。未指定时使用唯一新目录，直接 `pack:skills` 也采用同一规则并输出实际路径。
+
 release DAG 固定为环境前置通过后：
 
 1. `release:skill-prepare` 解析基线 revision，一次捕获 pending snapshot、hash、版本和 version issues。捕获或解析失败为 unavailable；存在版本问题仍完成 prepare。

@@ -1,13 +1,13 @@
-### Case INVESTIGATION-CLI-SYNC-001: CLI sync-index writes a missing derived index
+### Case INVESTIGATION-CLI-SYNC-001: 全量同步预检与损坏索引重建
 
 Tests:
-- `test:30b3c7f35a75867597fb949a3e694f085cd9ee617cd533a24129711edf7f0a18`
+- `test:fed4491bac9a037ab05fa2c031fc29254b6127153d2342da02331fa7a2e69203`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 直接调用的源码 CLI 入口 `sync-index` 能从合法报告源重建缺失的派生 index。
+- 全量调查同步可从合法来源重建损坏的派生索引；预检不发布。
 
 Proves:
-- index 缺失时命令成功、stderr 为空，stdout 报告同步成功，且 index 文件被创建并包含报告 entry。
+- 私有文件 fixture 以 broken 索引启动，预检返回 previewed 且索引原字节不变；正式同步成功写入并提交索引。

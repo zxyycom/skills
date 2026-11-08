@@ -1,16 +1,14 @@
-### Case RECORD-SELECTED-SOURCE-SAFETY-001: 局部来源安全与fresh表示保护
+### Case RECORD-SELECTED-SOURCE-SAFETY-001: Decision 局部来源安全与编码边界
 
 Tests:
-- `test:a70423865ce37b6b1956b593e5d09f1bca882f65da8e0d666c8ca840bbae0e9e`
-- `test:cc44ecab0849e5fb7e5dcc4c982b13c3646dcd1502de77511d25e2c3edcec3d8`
+- `test:876f7605ffddd4b33d5c9ae5808e14c1a2001ccc30ce6d7d730e437f28efe96d`
+- `test:ddc6bc32caf655dc4e099bea61603c6cf6a1b4b8cdf8a06cf0ee7a8180daabab`
 
 Tags:
 - `decision-records`
-- `investigation-report`
 
 Contract:
-- 所选正文仍须安全普通文件和严格UTF8，独立fresh不得用准备阶段证明代替当前字节与表示。
+- Decision selected sync 只接受安全普通文件与严格 UTF-8 来源。
 
 Proves:
-- 所选symlink、非法UTF8、准备后mode变化均拒绝，index维持原字节。
-- fresh mode漂移保留外部修改后的mode，不恢复覆盖。
+- 真实 CLI 普通来源控制成功；所选路径替换为外部 symlink 或非法 UTF-8 时，分别以安全/编码类诊断拒绝，索引不变。

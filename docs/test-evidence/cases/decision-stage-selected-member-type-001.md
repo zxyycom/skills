@@ -1,13 +1,13 @@
 ### Case DECISION-STAGE-SELECTED-MEMBER-TYPE-001: Stage 拒绝指向决策根外的选择 symlink 且不写入 pending
 
 Tests:
-- `test:946f14db4e885cd73f5d348e563d3ab4f6254e8c63319b8d10a534d6462b2a17`
+- `test:c1ed0c7ba2efd8b1517c3d2c6ac413d24d85a540b2a0880560d62923f51481c4`
 
 Tags:
 - `decision-records`
 
 Contract:
-- stage 选择的 ID 必须对应普通非符号链接 Markdown 来源；不安全来源不得写入 pending。
+- stage 所选来源必须是安全的非 symlink 文件。
 
 Proves:
-- 真实 stage 拒绝所选外部 symlink，返回 regular non-symlink 诊断；pending tree、外部字节及 symlink 保持不变，不支持 symlink 的平台跳过。
+- Unix 上所选新位置是指向外部文件的 symlink 时，all/domain 均失败；pending 条目、外部文件字节及 symlink 保持。

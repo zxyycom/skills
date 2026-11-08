@@ -67,7 +67,7 @@ relations:
 
 ### 因果链：208 个前序 × 每份 3 次串行 Git
 
-领域入口 [validation-history.ts](../../tools/investigation-report/src/records/validation/validation-history.ts) 去重关系目标并加载 HEAD 索引后，在 `readRecordedPredecessors` 中逐份 `await repository.readRevisionFile(revision, target)`。共享入口 [git-revision.ts](../../tools/shared/src/version-control/git/revision/git-revision.ts) 每次解析 revision、查询 tree、读取 blob，对应 `rev-parse → ls-tree → cat-file`。
+领域入口 [validation-history.ts](https://github.com/zxyycom/skills/blob/a88af9bc029a1539c3abe57f69d752e4d39a868e/tools/investigation-report/src/records/validation/validation-history.ts) 去重关系目标并加载 HEAD 索引后，在 `readRecordedPredecessors` 中逐份 `await repository.readRevisionFile(revision, target)`。共享入口 [git-revision.ts](../../tools/shared/src/version-control/git/revision/git-revision.ts) 每次解析 revision、查询 tree、读取 blob，对应 `rev-parse → ls-tree → cat-file`。
 
 | Git 类别 | 整个 check 次数 | 整个 check 累计生命周期 | 其中前序循环次数 |
 | --- | ---: | ---: | ---: |

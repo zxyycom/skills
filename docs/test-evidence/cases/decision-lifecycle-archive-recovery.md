@@ -1,13 +1,13 @@
 ### Case DECISION-LIFECYCLE-ARCHIVE-RECOVERY-001: 归档与再启用保留创建身份
 
 Tests:
-- `test:bec72ca5163aa1c73e59abc1d3d77761064a7861c2f807a07f5a6ea22bc65c4f`
+- `test:4fa76af79117b1b83c33c41bd8b88e55bf882b708ad8127c8a0eb0a35780688b`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 归档及再启用需有效索引与显式 alignment 确认，并保留 createdAt。
+- 归档与再启用保留创建身份，并由 reactivate 显式选择 alignment。
 
 Proves:
-- 坏 JSON 索引阻断 archive 且保留现场；显式同步后 archive 保留 aligned/createdAt，缺确认的 reactivate 零改动，确认后查询与严格检查通过且 createdAt 不变。
+- 真实 CLI 归档后索引保留 createdAt；指定 aligned 再启用后索引恢复 active 与原 createdAt。

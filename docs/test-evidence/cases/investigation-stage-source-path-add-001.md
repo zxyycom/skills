@@ -1,14 +1,13 @@
 ### Case INVESTIGATION-STAGE-SOURCE-PATH-ADD-001: 按索引位置暂存新增报告并按 ID 收集资源
 
 Tests:
-- `test:f71a966b90e78aefe8de2907d60269643c64536c1d45d8ad8237e97fbb755e81`
+- `test:254b741c592ab9047df47c96fd959aa77a863b700412e6daa10a4207f380befd`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 按[调查报告暂存契约](../../../skills/investigation-report/references/investigation-report-contract.md#待提交快照)，`stage --scope domain` 使用工作区调查索引的 `sourcePath` 定位新增报告；路径相对调查根目录，资源 owner 由完整 Investigation ID 确定。
+- domain scope 从工作区索引的 sourcePath 定位新增报告，按完整 ID 包含其受管 owner 资源。
 
 Proves:
-- 文件名不同于 ID 的新增报告成功进入 Git 暂存区，内容声明所选 ID；`_resources/<完整 ID>/` 下的资源一并新增。
-- 暂存差异仅包含所选报告和资源，调查索引没有暂存差异。
+- 真实 Git 中语义路径的新增报告与所选 owner 资源进入 pending；索引 pending 不变、未选报告 pending 保留。

@@ -1,14 +1,14 @@
 ### Case RECORD-SEARCH-FALLBACK-001: 发布索引不可用时明确失败
 
 Tests:
-- `test:20c586ae93b58ba4ed0cbf155137da3cd62d44144bc15dc20f15407d6dc961b4`
-- `test:49e1994720374660546d8291f5bac26dbbf1fd801e16f0ae22f8a1d2fe4abb4f`
+- `test:f8b0772cfc1840c342361e4225f2475a8e1bc4c9244cce50fe9cb5b38e1de645`
+- `test:fd65ce18c71f88b9a16472c41b676428c87785cb9588e3c542b5b7e4b32d0532`
 
 Tags:
 - `record-search`
 
 Contract:
-- content 必须加载发布索引，不隐式重建来源。
+- content 查询要求已发布索引，不隐式重建来源。
 
 Proves:
-- 两域缺索引返回错误且不生成成功搜索元信息，索引仍不存在。
+- DR 真实 CLI 缺索引时返回 index-not-found、无 searchInfo 且不创建索引；IR 真实 CLI 缺索引亦报操作失败、不制造 searchInfo。

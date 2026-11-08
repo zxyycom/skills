@@ -1,13 +1,13 @@
-### Case DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001: Evolve CLI 拒绝重复关系覆盖目标
+### Case DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001: 关系覆盖拒绝重复目标
 
 Tests:
-- `test:64290b7bbf28bf8315b51eae578d5b28b786378e575afe11d940f0395919e11a`
+- `test:0eb416053745392aa788afdaf7afae9ca3f98c37557502cfd1b5e4cf62c6e2e3`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 完整关系覆盖中，同一直接前序目标只能出现一次，即使调用方为它声明不同关系类型也不能重复。
+- 完整关系覆盖中，同一直接前序目标不能重复，即使声明不同关系类型。
 
 Proves:
-- 两个 `--relation` 使用不同类型但指向同一路径时，源码 CLI 入口在参数解析期退出 `2` 并报告重复直接前序目标。
+- 原生共享关系计划以两个不同 kind 指向同一目标，返回 DuplicateTarget；此证据不声称真实 CLI 的退出码或错误文本。

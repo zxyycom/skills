@@ -1,14 +1,14 @@
-### Case DECISION-BATCH-NAMES-001: 暂存与选择性同步保留混合名字选择及错误
+### Case DECISION-BATCH-NAMES-001: 选择性同步拒绝重复输入，Stage 支持带后缀 name
 
 Tests:
-- `test:e1669aaa360c3de1f3e2dd7e700ae3cf890e1edde28ff16cc238ada3b315a913`
+- `test:5e1ac9d0e819b43f19f0357bee8d09f38b09f59988180e4f2e8f8dc22ef9d4fd`
+- `test:d72eaec4ac757fd360c0ade4dfcb5083f1e22858afb914bbaecc4380c1b029f7`
 
 Tags:
 - `selector`
 
 Contract:
-- stage 与 selected sync 通过真实 CLI 按完整 ID 或唯一名字定位，重复选择与缺失目标准确失败且保持既有持久状态。
+- stage 可按唯一 name 和 Markdown 后缀选择；selected sync 拒绝重复与非法选择输入。
 
 Proves:
-- Git fixture 的混合 ID/name 通过 selected sync 预演与真实 stage index，pending 索引包含全部后继 entry，工作区发布索引字节不变。
-- 同一 ID 的双 selector 与标准 ID miss 分别使实际 stage 和 sync-index CLI 退出 1；stage 的 pending tree 与工作区发布索引保持原样。
+- 真实 Git 中 stage 接受 record.MD 并分 scope 暂存；selected sync 选择输入检查同时报告非法与重复项。

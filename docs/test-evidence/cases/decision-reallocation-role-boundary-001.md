@@ -1,13 +1,13 @@
-### Case DECISION-REALLOCATION-ROLE-BOUNDARY-001: Evolve 拒绝重划角色重叠
+### Case DECISION-REALLOCATION-ROLE-BOUNDARY-001: 重划图的角色边界
 
 Tests:
-- `test:4e44f9fdb626ea28da8ca91f6d821ad66de3291b7f9697f5458b171b34881bfd`
+- `test:7b51c6051faa3cf1fc1d60e8b03cdc2957686f8099d43631b1ae0db5eacc288f`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 单次重划不得把同一个 Decision ID 同时作为所选后继和直接前序，避免把两代关系折叠进一个事件。
+- 单一重划事件中不得把同一 ID 同时作为前序和后继。
 
 Proves:
-- 纯事务准备对选择既有重划后继、同时让新候选指向它的输入返回 error、exitCode=1 和 successor/predecessor 角色重叠诊断，且不产生 changes。
+- 原生索引图测试在原前序增加重划边导致角色重叠并拒绝该图；未断言具体错误原因或事务写入。

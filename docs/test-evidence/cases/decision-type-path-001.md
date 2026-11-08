@@ -1,13 +1,13 @@
-### Case DECISION-TYPE-PATH-001: 稳定 ID、标签与来源路径不变量
+### Case DECISION-TYPE-PATH-001: Decision 身份与生命周期路径约束
 
 Tests:
-- `test:23680526b667755ee89f15444ef88deb59392a0976dc9175950e03be0ebfd7d6`
+- `test:1562e0ec86731ee6252e448882419a3cdcb464f96d79214ba4414bb54f792569`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 决策类型以 extensionless Decision ID 承担稳定身份；`sourcePath` 独立承载 Markdown 位置并与生命周期位置保持一致。
+- 已建立决策的身份与 sourcePath 分离，状态须与物理路径一致。
 
 Proves:
-- 类型和路径辅助函数拒绝不符合稳定 ID 或物理布局的值，并保留可序列化的标签和来源路径。
+- 合法 active 正文以语义路径 record.md 投影出 name；放到 archive 路径被拒绝。

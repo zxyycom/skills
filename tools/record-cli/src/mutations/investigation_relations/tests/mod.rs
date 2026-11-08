@@ -7,6 +7,7 @@ fn changes_only_selected_relation_and_validates_before() {
         action: ReviewAction::Replace,
         before: vec![],
         after: vec![Relation {
+            summary_selector: None,
             kind: InvestigationRelationKind::Supplement,
             target: "260827-old".into(),
             summary: None,

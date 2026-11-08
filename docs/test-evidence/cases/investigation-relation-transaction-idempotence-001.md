@@ -1,13 +1,13 @@
-### Case INVESTIGATION-RELATION-TRANSACTION-IDEMPOTENCE-001: set-relations is idempotent and leaves unrelated report fields unchanged
+### Case INVESTIGATION-RELATION-TRANSACTION-IDEMPOTENCE-001: 无变化关系准备仍核对来源
 
 Tests:
-- `test:421d9a7f79e3b6b99b1f41cb32e255b2dcc8c85994f64bdc0c0f609db19b1dba`
+- `test:bfeb56dfc2efab1323f5d832e4d5c213155437c4bdfd7b2334f716c55a48e279`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 同一最终关系重复写入返回 unchanged，且不改写无关报告字段。
+- 无关系变化的准备不写来源、保留索引投影，但仍拒绝与索引修订不匹配的来源。
 
 Proves:
-- 第二次调用不改变报告字节，title 仍保留。
+- unchanged review 产生空 edits 并保持索引状态；相同 review 传入已漂移正文时返回 StaleSource。

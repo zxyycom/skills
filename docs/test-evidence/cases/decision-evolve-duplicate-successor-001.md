@@ -1,13 +1,13 @@
-### Case DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001: Evolve CLI 拒绝重复后继成员
+### Case DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001: Evolve 拒绝重复后继
 
 Tests:
-- `test:55313386b087603eaf548628548abdc1a5f51c34a7e8c5926f994d0f9a946409`
+- `test:a6ec5a4bef400102ce36865106ade68e4ef6d8ab41757e2153db216e418ae608`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 一次 evolve 的完整 successor 集合中，每个规范决策路径只能出现一次。
+- 一次 evolve 的 successor 集合中每个规范身份只能出现一次。
 
 Proves:
-- 同一路径重复提供两个 `--successor` 时，源码 CLI 入口在参数边界退出 `2` 并报告重复后继路径。
+- 真实原生 CLI 使用相同 selector 声明两个不同 alignment 的 successor，退出 2、invalid-arguments 且未创建领域目录；此节点不覆盖不同别名解析为同一身份。

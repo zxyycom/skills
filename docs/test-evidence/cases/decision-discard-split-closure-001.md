@@ -1,13 +1,13 @@
 ### Case DECISION-DISCARD-SPLIT-CLOSURE-001: Discard 拒绝会打开拆分闭包的后继
 
 Tests:
-- `test:e35b9f857b8e91b50546c91c70c6c7cb6bfef32a82beec86aa5006aee0ccae6c`
+- `test:dc7422c5be88f63a3e3728be2d66b6caef154677b8e8f56e83c0490c53a7e679`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 已建立拆分关系必须始终保有至少两个直接拆分后继；direct discard 不能删除其中一个后继而留下开放拆分。
+- direct discard 不能删除拆分后继而留下开放拆分图。
 
 Proves:
-- 纯生命周期准备拒绝删除闭合拆分的一个后继，返回最终关系图一致性错误且结果不含 changes。
+- 两个活动后继指向同一归档拆分前序时，丢弃其中一个失败且两个后继与索引保持原字节。

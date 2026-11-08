@@ -1,8 +1,12 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import * as v from "valibot";
 import { candidateLock } from "./candidate-lock.ts";
 import { buildSourceRuntimeArtifacts } from "../generation/runtime/source-runtime.ts";
-import { githubRepository } from "../project.ts";
+import {
+  nativeUpdaterEntry,
+  nativeUpdaterResources
+} from "../generation/native-updater-entry.ts";
 import { readSkillPackageIdentityFromMarkdown } from "../../../tools/skill-package/src/version.ts";
 import {
   nativeRoles,
@@ -14,22 +18,21 @@ import { digestNativeSource } from "./capture.ts";
 import type { SkillPackageFile } from "../skill-package/skill-package-hash.ts";
 
 const root = process.cwd();
-const sourcePath = "tools/skill-updater/src/native/cli.ts";
-const modulePath = "./runtime/tools/skill-updater/src/native/cli.ts";
-const resource = {
-  sourcePath: "tools/skill-updater/src/native/legacy-manifests.json",
-  outputPath:
-    "scripts/runtime/tools/skill-updater/src/native/legacy-manifests.json"
-};
-type Encoded = { path: string; data: string };
-type Input = {
-  runtimeVersion: string;
-  sourceHash: string;
-  deliveryHash: string;
-  source: Encoded[];
-  delivery: Encoded[];
-  skills: Record<NativeRole, Encoded[]>;
-};
+const encoded = v.object({ path: v.string(), data: v.string() });
+const inputSchema = v.object({
+  formal: v.optional(v.boolean()),
+  runtimeVersion: v.string(),
+  sourceHash: v.string(),
+  deliveryHash: v.string(),
+  source: v.array(encoded),
+  delivery: v.array(encoded),
+  skills: v.object({
+    "decision-records": v.array(encoded),
+    "investigation-report": v.array(encoded)
+  })
+});
+type Encoded = v.InferOutput<typeof encoded>;
+type Input = v.InferOutput<typeof inputSchema>;
 function decode(files: Encoded[]): SkillPackageFile[] {
   return files.map((file) => ({
     path: file.path,
@@ -41,25 +44,6 @@ function required(files: readonly SkillPackageFile[], name: string): Buffer {
   if (!item) throw new Error(`frozen candidate input missing: ${name}`);
   return item.data;
 }
-function entry(role: NativeRole, bootstrap: boolean): string {
-  const config = {
-    releaseAssetName: `${role}-native.zip`,
-    releaseManifestAssetName: "skill-release-manifest.json",
-    repo: githubRepository,
-    skillName: role,
-    sourcePath: `skills/${role}`
-  };
-  return `import { runNativeUpdaterCli } from ${JSON.stringify(modulePath)};
-import { pathToFileURL } from "node:url";
-import path from "node:path";
-const config = ${JSON.stringify(config)};
-export async function run(argv: readonly string[] = process.argv.slice(2)): Promise<number> {
-  return await runNativeUpdaterCli(config, ${JSON.stringify(role)}, import.meta.url, argv, ${bootstrap});
-}
-if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) {
-  try { process.exitCode = await run(); } catch (error) { console.error(error instanceof Error ? error.message : String(error)); process.exitCode = 1; }
-}`;
-}
 async function generated(
   role: NativeRole,
   bootstrap: boolean
@@ -68,16 +52,10 @@ async function generated(
   const artifacts = await buildSourceRuntimeArtifacts({
     workspaceRoot: root,
     skillName,
-    entries: [
-      {
-        sourcePath,
-        outputName: bootstrap ? `${role}.ts` : "update-skill.ts",
-        body: entry(role, bootstrap)
-      }
-    ],
+    entries: [nativeUpdaterEntry(role, bootstrap)],
     rebuildCommand: "private native candidate generation",
     nodeEngine: ">=24.18",
-    resources: [resource]
+    resources: nativeUpdaterResources
   });
   return artifacts.map((artifact) => ({
     path: path
@@ -85,6 +63,57 @@ async function generated(
       .replaceAll("\\", "/"),
     data: Buffer.from(artifact.content)
   }));
+}
+async function prepareRole(
+  input: Input,
+  role: NativeRole,
+  delivery: readonly SkillPackageFile[],
+  original: SkillPackageFile[]
+) {
+  const skillInputHash = digestNativeSource(original);
+  const identity = readSkillPackageIdentityFromMarkdown(
+    required(original, "SKILL.md").toString("utf8")
+  );
+  if (identity.name !== role || identity.version === null)
+    throw new Error(`invalid frozen skill identity: ${role}`);
+  const schemaName =
+    role === "decision-records"
+      ? "decision-index.schema.json"
+      : "investigation-index.schema.json";
+  const schema = required(
+    delivery,
+    `tools/record-contracts/schemas/${schemaName}`
+  );
+  const runtime = await generated(role, false);
+  const lock = candidateLock(
+    required(runtime, "package.json"),
+    required(original, "pnpm-lock.yaml")
+  );
+  const files = input.formal
+    ? original
+    : [
+        ...runtime,
+        { path: "pnpm-lock.yaml", data: lock },
+        { path: `references/${schemaName}`, data: schema },
+        {
+          path: "native-runtime.json",
+          data: Buffer.from(
+            `${JSON.stringify({ schemaVersion: 1, role, runtimeVersion: input.runtimeVersion, sourceHash: input.sourceHash, targets: nativeTargets }, null, 2)}\n`
+          )
+        },
+        {
+          path: "SKILL.md",
+          data: Buffer.from(
+            `---\nname: ${role}\ndescription: Private native candidate for isolated verification only.\nmetadata:\n  version: "${identity.version + 1}"\n---\n\n# Private candidate: ${role}\n\n仅供隔离验收，不是正式 skill。使用安装后的原生程序 bin/${role}；运行 --help 查看命令。依赖须显式安装；业务不回退至 TypeScript。\n`
+          )
+        }
+      ];
+  return {
+    files,
+    schema,
+    skillInputHash,
+    installer: await generated(role, true)
+  };
 }
 async function prepare(input: Input) {
   const source = decode(input.source),
@@ -95,44 +124,11 @@ async function prepare(input: Input) {
   let bootstrap: SkillPackageFile[] = [];
   for (const role of nativeRoles) {
     const original = decode(input.skills[role]);
-    skillInputHashes[role] = digestNativeSource(original);
-    const identity = readSkillPackageIdentityFromMarkdown(
-      required(original, "SKILL.md").toString("utf8")
-    );
-    if (identity.name !== role || identity.version === null)
-      throw new Error(`invalid frozen skill identity: ${role}`);
-    const schemaName =
-      role === "decision-records"
-        ? "decision-index.schema.json"
-        : "investigation-index.schema.json";
-    const schema = required(
-      delivery,
-      `tools/record-contracts/schemas/${schemaName}`
-    );
-    schemas[role] = schema;
-    const runtime = await generated(role, false);
-    const lock = candidateLock(
-      required(runtime, "package.json"),
-      required(original, "pnpm-lock.yaml")
-    );
-    filesBySkill.set(role, [
-      ...runtime,
-      { path: "pnpm-lock.yaml", data: lock },
-      { path: `references/${schemaName}`, data: schema },
-      {
-        path: "native-runtime.json",
-        data: Buffer.from(
-          `${JSON.stringify({ schemaVersion: 1, role, runtimeVersion: input.runtimeVersion, sourceHash: input.sourceHash, targets: nativeTargets }, null, 2)}\n`
-        )
-      },
-      {
-        path: "SKILL.md",
-        data: Buffer.from(
-          `---\nname: ${role}\ndescription: Private native candidate for isolated verification only.\nmetadata:\n  version: "${identity.version + 1}"\n---\n\n# Private candidate: ${role}\n\n仅供隔离验收，不是正式 skill。使用安装后的原生程序 bin/${role}；运行 --help 查看命令。依赖须显式安装；业务不回退至 TypeScript。\n`
-        )
-      }
-    ]);
-    const installer = await generated(role, true);
+    const prepared = await prepareRole(input, role, delivery, original);
+    filesBySkill.set(role, prepared.files);
+    schemas[role] = prepared.schema;
+    skillInputHashes[role] = prepared.skillInputHash;
+    const { installer } = prepared;
     if (bootstrap.length === 0)
       bootstrap = [
         ...installer,
@@ -146,7 +142,9 @@ async function prepare(input: Input) {
         {
           path: "README.md",
           data: Buffer.from(
-            "# Private native installer\n\n仅供隔离验收。显式安装 bootstrap 锁定依赖后，运行对应 scripts/<role>.ts，必须传入 --target-dir。原生业务安装后可直接运行；独立目标 updater 使用前须在目标目录按自身 lock 显式安装依赖。\n"
+            input.formal
+              ? "# Native record installer\n\n显式安装 bootstrap 锁定依赖后，运行对应 scripts/<role>.ts，并指定 --target-dir 与 --release-tag。原生业务安装后可直接运行；独立目标 updater 使用前须在目标目录按自身 lock 显式安装依赖。\n"
+              : "# Private native installer\n\n仅供隔离验收。显式安装 bootstrap 锁定依赖后，运行对应 scripts/<role>.ts，必须传入 --target-dir。原生业务安装后可直接运行；独立目标 updater 使用前须在目标目录按自身 lock 显式安装依赖。\n"
           )
         }
       ];
@@ -190,9 +188,10 @@ async function prepare(input: Input) {
     bootstrap: encode(result.bootstrap)
   };
 }
-const input = JSON.parse(
+const rawInput: unknown = JSON.parse(
   await fs.readFile(path.join(root, "candidate-input.json"), "utf8")
-) as Input;
+);
+const input = v.parse(inputSchema, rawInput);
 await fs.writeFile(
   path.join(root, "candidate-output.json"),
   JSON.stringify(await prepare(input)),

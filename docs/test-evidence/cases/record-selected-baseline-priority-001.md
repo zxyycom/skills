@@ -1,16 +1,15 @@
-### Case RECORD-SELECTED-BASELINE-PRIORITY-001: 严格 baseline 与 selector 的失败阶段保持
+### Case RECORD-SELECTED-BASELINE-PRIORITY-001: Selected sync 选择器诊断
 
 Tests:
-- `test:e2f537955f5a4c7ed72b32ccda11ab5b547f4071992fea2887dcb3a39191d344`
-- `test:fe8b3d3fe922b8f0a48047fa82011594f5692091140286ded314ede04bf57d88`
+- `test:5e1ac9d0e819b43f19f0357bee8d09f38b09f59988180e4f2e8f8dc22ef9d4fd`
+- `test:b9d37870c1b11ff24c9bd2c0dcb9df5d5240aa21ce1d2a242eafac1c07ac198d`
 
 Tags:
 - `decision-records`
 - `investigation-report`
 
 Contract:
-- selected sync 先验 baseline 结构/字段，selector 解析后由 native baseline 门槛验 canonical；首次读取失败不得重试后吞掉原错误。
+- selected sync 对无效、重复和未命中选择器保留可定位诊断。
 
 Proves:
-- 两域 API/CLI 对合法非 canonical JSON 与未知 selector 返回 selector-not-found；已知 selector 仍拒绝非 canonical。坏 JSON/字段优先 baseline 失败，不被 selector 盖过，持久字节不变。
-- EACCES baseline 读取只尝试一次/入口，保留 access-denied，不降级或变为 selector 错误。
+- 共同选择器层聚合无效及重复输入；DR/IR 未命中输入保留 target 顺序与恢复提示。

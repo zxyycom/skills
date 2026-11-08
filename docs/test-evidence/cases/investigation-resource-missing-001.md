@@ -1,13 +1,13 @@
-### Case INVESTIGATION-RESOURCE-MISSING-001: referenced missing resources are errors and unreferenced visible resources are warnings
+### Case INVESTIGATION-RESOURCE-MISSING-001: 候选引用资源缺失阻断 readiness
 
 Tests:
-- `test:b2b51994d24d9f1db29280c7307b73726d680f30214daa84222af1741382b1bc`
+- `test:0deb551bad25d25b014365ae465bfcc4710bd89f634721cbc851376ef4643e24`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 被引用资源缺失是阻断错误，完全未引用的可见资源只产生 warning。
+- 候选报告引用的 owner 资源必须存在。
 
 Proves:
-- 缺失引用的错误同时包含 `_resources/owner-report/missing.txt` 与 does not exist，未引用资源进入 warnings。
+- 真实文件存在时 resource readiness 成立；删除资源文件后 readiness 失败并报告缺失。

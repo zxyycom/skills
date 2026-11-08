@@ -1,15 +1,14 @@
-### Case INVESTIGATION-CLI-SELECTED-SYNC-001: CLI selected sync publishes by default and keeps --preflight zero-write
+### Case INVESTIGATION-CLI-SELECTED-SYNC-001: 调查选择同步保留未选修订
 
 Tests:
-- `test:91ad5d7686de762058bbaefab626f503e3d44cbef1630a317bb1db34eac3697b`
+- `test:b57fb8c86345ac03e9f0f5bd132527c69b17a5974afa552b5ed24e5d8866437f`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- Investigation `sync-index --select` 默认在合法发布基线上验证所选已知路径与必要依赖，发布完整组合 projection；未读来源当前性不检查，`--preflight` 同范围零写入。
+- 选择同步从可信发布索引更新所选来源，并保留未选来源修订。
 
 Proves:
-- 无关未选来源变化不阻断局部同步，index 保持原字节且结果明确未选条目沿用发布基线；合法所选来源变化的 `--preflight` 成功、明确尚未发布且 index 保持原字节。
-- `--write` 触发用法错误退出，stdout 为空且 index 保持原字节。
-- 原始 `.md` name selector 与解析后的标准日期 ID 同时出现在结果文本；完整 projection 字节等于 full sync。
+- 预检报告所选 checked ID 和 previewed；执行后未选正文虽变化，其完整索引状态与 source revision 仍等于基线。
+- 同时选择旧 ID 和同路径的新 ID 后，旧 entry 消失、新 entry 的 sourcePath 保持 same.md，未选状态仍不变。

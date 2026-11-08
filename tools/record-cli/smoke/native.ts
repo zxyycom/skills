@@ -66,7 +66,7 @@ function cli(name: string, args: string[], expected = 0) {
 const git = (...args: string[]) => run("git", args);
 try {
   for (const name of ["decision-records", "investigation-report"]) {
-    assert.match(run(binary(name), ["--version"]), /0\.1\.0/);
+    assert.match(run(binary(name), ["--version"]), /0\.2\.0/);
     assert.match(run(binary(name), ["--help"]), /Usage:/);
   }
   const created = cli("decision-records", [

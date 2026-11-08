@@ -161,24 +161,21 @@ impl Preparation<'_> {
         let mut targets = HashSet::new();
         for edge in override_edges {
             let target = resolve(self.ids, &edge.target)?.to_owned();
+            if let Some(selector) = &edge.summary_selector
+                && resolve(self.ids, selector)? != target
+            {
+                return Err(fail(
+                    "relation-summary",
+                    "summary target differs from relation target",
+                ));
+            }
             if !targets.insert(target.clone()) {
                 return Err(fail("duplicate-target", target));
             }
-            let summary = edge.summary.as_ref().and_then(|v| {
-                let s = v.js_trim();
-                if s.is_empty() {
-                    None
-                } else {
-                    Some(s.to_owned())
-                }
-            });
-            if summary
-                .as_ref()
-                .is_some_and(|s| s.contains(['\r', '\n']) || s.chars().count() > 40)
-            {
-                return Err(fail("relation-summary", "invalid summary"));
-            }
+            let summary =
+                crate::mutations::decision_relations::normalize_summary(edge.summary.as_deref())?;
             after.push(Relation {
+                summary_selector: None,
                 kind: edge.kind,
                 target,
                 summary,

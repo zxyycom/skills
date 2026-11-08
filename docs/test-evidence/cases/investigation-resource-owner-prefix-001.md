@@ -1,13 +1,13 @@
 ### Case INVESTIGATION-RESOURCE-OWNER-PREFIX-001: resource references use report IDs rather than topic paths or report indexes
 
 Tests:
-- `test:6a5b0bb59de52d61a6e42130095b01d8d596a271a29f1fab47c88735bc3017f4`
+- `test:4e572abfeea52b35c3c4bffc062551f60a2a20ffd64dd908e460bd7d795d107a`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 资源 ID 使用 extensionless Investigation ID 作为 owner 前缀，不使用路径或索引位置。
+- 调查资源 ID 的 owner 前缀必须由对应 owner 报告直接声明。
 
 Proves:
-- 资源 owner ID 可反推为 extensionless 的报告 ID。
+- consumer 声明 230101-old/asset.png 时，索引图要求 230101-old 报告也声明该资源；补充声明后图通过。

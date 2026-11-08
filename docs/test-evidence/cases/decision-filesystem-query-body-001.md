@@ -1,13 +1,13 @@
-### Case DECISION-FILESYSTEM-QUERY-BODY-001: 查询正文拒绝非普通决策文件
+### Case DECISION-FILESYSTEM-QUERY-BODY-001: Show 拒绝符号链接决策正文
 
 Tests:
-- `test:351e3f68402a39a97f57999668e6ae4cd97a16cd4d46452ae3702ac5468ef5c7`
+- `test:ddc6bc32caf655dc4e099bea61603c6cf6a1b4b8cdf8a06cf0ee7a8180daabab`
 
 Tags:
 - `decision-records`
 
 Contract:
-- `show` 读取已索引正文前必须重新确认目标为普通非符号链接文件。
+- show 读取所选正文时须拒绝符号链接。
 
 Proves:
-- `show` 对目录和指向决策目录外文件的符号链接均返回读取失败，unsafe source 与外部路径的 readFile 调用计数均为零，且外部文件内容保持不变。
+- 真实 CLI 同一普通正文 show 成功；替换成指向外部文件的 symlink 后返回安全错误，外部内容与索引保持。

@@ -1,14 +1,13 @@
-### Case DECISION-EVOLVE-DISCARD-SPLIT-CLOSURE-001: Evolve 用完整拆分闭包替换被 discard 的后继
+### Case DECISION-EVOLVE-DISCARD-SPLIT-CLOSURE-001: 删除后继后保留最终拆分闭合
 
 Tests:
-- `test:7a483b020b13d8af2dda1be56bfd6fc9fba9ff50c82ce53a0a67692c51666e36`
+- `test:c4f68b6f910843204ea7ed757acb56c82e9282aac5777faf3e8824884a418f21`
 
 Tags:
 - `decision-records`
 
 Contract:
-- discard 与 evolve 都在同一最终关系图上接受操作；evolve 可以删除一个已建立的拆分后继，只要其余被选后继和新候选共同构成完整闭包。
+- evolve 与 discard 应在同一最终图校验；删除拆分后继后剩余直接后继仍须形成完整事件。
 
 Proves:
-- evolve 同时删除一个拆分后继并建立替代后继后，索引不再含被删除 ID，替代后继保留正确拆分关系。
-- 最终 Decision Records 校验通过，证明最终图仍是闭合拆分。
+- 先建立三个拆分后继，再选择其余两个并删除第三个；真实事务成功删除第三个来源与索引项，其余两条边保留且最终图验证成功。此节点不包含同时建立替代候选的场景。

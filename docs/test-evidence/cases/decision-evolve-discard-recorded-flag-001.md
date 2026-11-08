@@ -1,15 +1,14 @@
-### Case DECISION-EVOLVE-DISCARD-RECORDED-FLAG-001: Evolve discard 参数在无需历史基线时准备删除与建立
+### Case DECISION-EVOLVE-DISCARD-RECORDED-FLAG-001: 确认后删除已记录目标
 
 Tests:
-- `test:9716aaa6fdffd6f3f0d925278242789f94101b1e901a0f6d58c0bc9ddd8561e8`
-- `test:cf199beb47b15e0c523864903cebdb103449715d0fd2cf12bcacead20508704d`
+- `test:9109869a5094b2240c8b089cf150f7b372f9c15cbc75693355d687bba15b3242`
+- `test:ffc5a670666b8e5ab8c7d5bb9daace6bde475cba68489791b6ec277bfec0b2c8`
 
 Tags:
 - `decision-records`
 
 Contract:
-- evolve discard 的 delete-recorded 参数确认删除目标；最终关系为空且无其他历史义务时，领域准备不要求历史基线，并可同时计划删除与后继建立。
+- 删除已记录目标必须明确确认；无其他关系时，可与空关系后继建立同次提交。
 
 Proves:
-- 真实 argv 解析保留 deleteRecorded=true、keepUnrecordedHistory=false 与来源关系覆盖；领域判断 requiresHistory=false，传入 null 基线仍成功，精确产生删除 intermediate 和建立 active successor 两项 changes，最终关系为空。
-- 既有非 Git FS CLI 入口承接来源空关系下的实际删除、后继建立与索引更新。
+- Git 基线未确认时预检要求 delete-recorded；独立 Git fixture 显式确认后同次删除正式来源与索引项、建立 active 空关系后继。此节点不验证 CLI 参数 renderer。

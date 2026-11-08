@@ -1,15 +1,13 @@
-### Case RECORD-DIAGNOSTIC-SYSTEM-RENDERING-001: 两域系统证据安全渲染
+### Case RECORD-DIAGNOSTIC-SYSTEM-RENDERING-001: Git 失败不透出子进程 stderr
 
 Tests:
-- `test:4587cb0a7749c5a3e17dc9b6d5b103db7c075d6e0738a121907c706f7913bfdf`
-- `test:9e5af32740f990629bfbc55478971aae64c3511967041b5857eac62f947ae5e0`
+- `test:459520c2533f7f1ea9b9adcafbd31ab8a0f4e52ec87c232894cdbec635fb24a6`
 
 Tags:
-- `decision-records`
 - `investigation-report`
 
 Contract:
-- 两域诊断输出保留系统证据的定位和独立字段，同时净化自由文本中的敏感内容和控制字符。
+- Git 子进程失败诊断不得直接泄露其 stderr 中可能包含的凭据。
 
 Proves:
-- DR 输出与 IR 历史诊断 renderer 分别保留长路径、系统分类、操作和 detail；控制字符不能注入输出，provider token 被净化。
+- 真实 IR stage CLI 使用假 Git：假进程在 stderr 输出无害 token sentinel 并失败，标准输出和标准错误都不含该 sentinel，JSON 失败信息保留受控的工作区发现失败原因。DR 与 IR 共用 Git 工作区发现错误处理，但此节点只直接执行 IR；不证明任意错误自由文本均被净化。

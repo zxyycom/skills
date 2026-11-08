@@ -1,14 +1,13 @@
-### Case INVESTIGATION-SEARCH-SCOPE-001: search 排除非正式文件并拒绝缺失索引
+### Case INVESTIGATION-SEARCH-SCOPE-001: 搜索缺失索引不伪造结果
 
 Tests:
-- `test:09e6e3b3d93625852dee08d7f3b3602d85a138628bd41f610a6e56c2e127743e`
+- `test:fd65ce18c71f88b9a16472c41b676428c87785cb9588e3c542b5b7e4b32d0532`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- content 只搜索发布范围内的报告 Markdown，不包含候选、资源或索引文件；缺索引必须明确失败。
+- 缺失索引时 content 搜索明确失败，不报告成功搜索信息。
 
 Proves:
-- 只存在于 candidate、资源或索引字节的词均返回 status=ok、空 entries 与精确 matched=0。
-- 删除索引后搜索失败，不创建索引文件。
+- 真实 CLI 搜索返回 index-not-found、operation failure，searchInfo 为 null。

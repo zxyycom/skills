@@ -46,6 +46,7 @@ fn input_with_relations(decision_domain: bool, targets: &[&str]) -> NewInput {
             *relations = targets
                 .iter()
                 .map(|target| Relation {
+                    summary_selector: None,
                     kind: DecisionRelationKind::Revision,
                     target: (*target).into(),
                     summary: None,
@@ -61,6 +62,7 @@ fn input_with_relations(decision_domain: bool, targets: &[&str]) -> NewInput {
             relations: targets
                 .iter()
                 .map(|target| Relation {
+                    summary_selector: None,
                     kind: InvestigationRelationKind::Supplement,
                     target: (*target).into(),
                     summary: None,

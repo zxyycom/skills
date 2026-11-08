@@ -1,7 +1,7 @@
 ### Case DECISION-SPLIT-CLOSURE-001: 严格关系检查拒绝开放拆分
 
 Tests:
-- `test:28b6bea5e4620950575efc0c04be0901008e2def6781eaa3f903885d6a5f7334`
+- `test:d0e8607153957bc765119ffa5bbdf0deed94952e55c77dc41bd158408293c76f`
 
 Tags:
 - `decision-records`
@@ -10,4 +10,4 @@ Contract:
 - 已建立关系图中的拆分必须形成至少两个指向同一直接前序的后继。
 
 Proves:
-- 真实内存 Markdown 解析及领域图校验对只有一个直接后继的已建立拆分返回至少需要两个直接拆分后继的诊断。
+- 以原生索引图将一条修订边改为拆分边，只有一个后继时图校验失败；该节点不检查具体诊断文本。

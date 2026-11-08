@@ -5,7 +5,7 @@ description: >-
   以一份可独立复核的报告保存一轮形成时的背景、依据、结果和边界，
   并用稳定 Investigation ID、tags 和直接前序关系维护分类与认识演进。
 metadata:
-  version: "98"
+  version: "99"
 ---
 
 # Investigation Report
@@ -28,7 +28,7 @@ metadata:
 | 创建、编辑或结构审阅 | 先读固定契约的[身份与集合](references/investigation-report-contract.md#身份与集合)、[报告边界与有效演进](references/investigation-report-contract.md#报告边界与有效演进)、[报告正文与候选准备](references/investigation-report-contract.md#报告正文与候选准备)。涉及关系或资源时，再读该契约对应章节。 |
 | 创建候选、发布、同步、调整关系、删除、更正身份或暂存 | 先读 [CLI 操作前提](references/cli-operations.md#操作前提)，再读所选操作章节及其链接的领域规则；命令参数用 `help <command>` 获取。 |
 | 首次候选集合、工具或索引异常、写入中断 | 按[维护恢复](references/maintenance-recovery.md)的实际状态分流，只处理诊断声明的范围。 |
-| 修改 CLI、SDK 或测试实现 | 从源码项目的维护入口读取实现与验证约束，再读取所改公开行为对应的契约；这些实现材料不是普通记录维护的前置。 |
+| 修改 CLI 或测试实现 | 从源码项目的维护入口读取实现与验证约束，再读取所改公开行为对应的契约；这些实现材料不是普通记录维护的前置。 |
 
 索引精确机器结构由 [Schema](references/investigation-index.schema.json) 承接。整体审阅某一层契约时完整读取该层；普通任务沿上述路径按需展开。
 
@@ -120,30 +120,25 @@ agent 在当前授权范围内，自行审查证据、报告边界、资源与�
 
 ## 工具运行前置
 
-运行下文公开 `.ts` CLI/import 或自更新入口时，使用 Node.js `>=24.18` 的原生类型擦除。
-依赖沿 Node 正常解析，可复用宿主兼容版本，不要求本地 `node_modules` 或与锁文件精确版本一致。
-依赖缺失、实际不兼容或需要复现随包基线时，使用随包 `package.json` 固定的 pnpm 显式安装：
+业务 CLI 为原生程序，支持 Linux x64（Ubuntu 22.04 / glibc 2.35 基线）和 Windows x64 MSVC；不提供领域 TypeScript SDK，也不在失败时回退旧后端。首次安装或旧版升级须使用独立 `record-native-installer.zip` 引导器，显式选择目标目录；安装步骤和支持范围以引导包说明为准。解压引导包并在引导包目录按其锁文件显式安装依赖，然后运行 `node scripts/investigation-report.ts --target-dir "<skill-directory>"`；可先加 `--check` 检查，按提示确认安装。旧版受管文件和用户定制发生冲突时停止，不自行覆盖或删除。安装成功后运行本 skill 下 `bin/investigation-report`（Windows 为 `bin/investigation-report.exe`），业务调用无需 Node 或安装依赖。
+
+## CLI 入口
+
+在**目标工作区根目录**使用实际安装位置的程序绝对路径：
+
+```text
+<skill绝对路径>/bin/investigation-report help <command>
+<skill绝对路径>/bin/investigation-report [global-options] <command> [command-options]
+```
+
+Windows 使用对应 `.exe`；根据 shell 规则引用包含空格的路径。当前目录默认是工作区根；从其他目录调用时在 command 前传 `--root <workspace-root>`，自定义集合用工作区内相对 `--investigations-dir`。help 不读取集合状态。项目提供维护短命令时优先使用该入口。合法 Unicode 文本受支持；孤立 UTF-16 代理项明确报错，不静默替换。
+
+## 自更新
+
+更新使用本 skill 的 `node scripts/update-skill.ts`；Node.js `>=24.18` 和 updater 依赖是安装更新前置，而非业务 CLI 前置。需要独立安装或修复依赖时显式运行：
 
 ```bash
 pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
 ```
 
-运行、import、help 和检查不自动安装。安装副本中的 `scripts/runtime/tools/` 可直接修改，无需构建；
-更新会覆盖正式包中的同路径定制文件。领域操作的其他前置仍由各自操作契约承接。
-
-## CLI 入口
-
-在**目标工作区根目录**执行，用实际安装位置的脚本绝对路径调用：
-
-```text
-node <skill绝对路径>/scripts/check-investigations.ts help <command>
-node <skill绝对路径>/scripts/check-investigations.ts [global-options] <command> [command-options]
-```
-
-当前目录默认就是工作区根。若从 skill 安装目录或其他目录调用，显式在 command 前提供 `--root <workspace-root>`；自定义集合使用工作区内相对 `--investigations-dir`。help 不读取集合状态。项目已提供维护短命令时优先使用该入口。
-
-## 自更新
-
-在本 skill 目录运行 `node scripts/update-skill.ts`，运行前置与依赖修复见[工具运行前置](#工具运行前置)。
-运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。
-更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。
+先用 `node scripts/update-skill.ts --check` 检查，按授权执行更新；成功要求程序、Schema、入口与说明匹配。失败先查看诊断和现场，不假定完整回滚；损坏时重新获取引导器或完整 skill 并按说明恢复。更新会覆盖受管文件，不自动安装依赖。两个 skill 独立安装和更新。

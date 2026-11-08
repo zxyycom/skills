@@ -1,13 +1,13 @@
-### Case INVESTIGATION-REPORT-FRONTMATTER-001: validation enforces report frontmatter fields and canonical ordering
+### Case INVESTIGATION-REPORT-FRONTMATTER-001: 调查 frontmatter 校验身份与结构
 
 Tests:
-- `test:3580b0874965bde34937a5a136fb0e4fd489daa5cc23dd49492ab3d867134661`
+- `test:efff6796aede05e0c9c88297117d5574a05f230ae84122a7cb6dbc7fc5b82273`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 每份报告使用固定顺序的规范 frontmatter；relations 空集必须使用字节 `[]`，必填标量不得含控制字符。
+- 调查报告 frontmatter 必须匹配声明身份并遵守规范结构。
 
 Proves:
-- 独立字面 Markdown 的规范 frontmatter 通过；调换字段、`relations:` 空值或 `\r` 标量各产生领域诊断。
+- 规范样例通过；期望 ID 不符、插入额外字段以及不带引号的标题均被拒绝。

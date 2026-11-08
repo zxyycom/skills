@@ -6,7 +6,7 @@ alignment: aligned
 createdAt: 2026-10-20T03:28:09Z
 purpose: 让单个 skill 可独立安装、直接运行和修改源码，同时保留唯一维护源与可核对分发边界。
 background: 单文件内联制品隐藏模块关系并要求修改后重新构建，标准 Node 类型擦除和独立包依赖可消除这条反馈障碍。
-decision: 以包内 TS 模块闭包分发领域工具与 updater，独立 pnpm 锁定安装保底，允许标准 Node 解析复用宿主兼容依赖。
+decision: 适用 skill 以包内 TS 模块闭包分发领域工具与 updater；两域记录工具以原生 CLI 独立交付。
 tags:
   - build-portability
   - build-reproducibility
@@ -27,7 +27,7 @@ relations:
 
 ## 目的
 
-- 让独立 skill 的实现可直接阅读、运行和调整，业务修改无需回到维护仓库重新构建。
+- 让采用 TS 业务运行时的独立 skill 可直接阅读、运行和调整实现，业务修改无需回到维护仓库重新构建。
 - 保持单 skill 的独立获取、版本、更新与安装边界，避免把宿主工程变成分发工具的受管对象。
 - 保留唯一维护源、可安全导入及可重建核对的完整交付契约。
 
@@ -40,6 +40,8 @@ relations:
 
 ## 决策
 
+以下 TS 业务分发适用于仍采用 TS 运行时的 skill。`skills/decision-records/` 和 `skills/investigation-report/` 改为独立原生业务 CLI，Node 仅用于安装更新及仓库调度；两域不提供 TS SDK。具体身份与安装边界见[源码分发](../tooling-distribution.md)。
+
 - 采用: 领域工具、updater 及可达共享源码按 TS 模块结构复制到各 skill；第三方依赖不内联。公开 CLI 和程序化入口使用 TS，包内业务修改由 Node 直接加载生效，不引入消费者转译器或 Bun 前置。
 - 采用: `tools/` 保持维护源码 owner，`scripts/build/` 适配器组合入口和资源，共享同步器计算联合闭包。生成头追溯维护源码和重建入口，不写时间戳或本机绝对路径；仓库生成副本不成为第二维护源，安装副本允许直接修改但更新会覆盖正式同路径文件。
 - 采用: 每 skill 的独立 manifest 声明 Node engine、固定 pnpm 与实际依赖，锁文件提供 frozen 独立安装的保底路径；不默认提供 workspace 配置，只为已确认的依赖要求添加必要配置。
@@ -47,18 +49,10 @@ relations:
 - 采用: 公开模块仅在主入口运行时执行 CLI；普通导入不执行命令、不修改退出状态、不产生文件或网络副作用。语法限制纳入类型检查，模块位置、Node API、资源、native/optional 能力与消费者类型解析仍以真实 Node 入口证明。
 - 采用: 已建立的程序化接口继续保留必要声明闭包，机器契约继续从领域结构真源派生 Schema；公开面不自动扩展到复制后的内部源码目录。
 
-### 两域公开接口与声明单源
+### Task Graph 公开接口与声明单源
 
-- 采用: 对 `skills/task-graph/` 与 `skills/decision-records/`，各自 `tools/<tool-name>/src/cli.ts` 的公开导出是命令行与程序化导入的共同接口事实源。
-  - Decision Records 的明确 `export type` 同样由该源决定。
-  - 不另设 SDK 实现、手工类型清单、独立声明源或第二套接口版本管理。
-- 采用: 两域声明由 TypeScript 从实现机械发出，只分发从 CLI 声明入口可达的必要声明闭包，并剔除 internal 成员。
-  - 根声明只承接公开值及明确公开类型的签名，不把存储、锁、runtime 探测或测试注入变成公开接口。
-  - 声明消费不要求安装实现内部依赖。
-- 采用: `scripts/task-graph.d.mts` 与 `scripts/decision-records.d.mts` 分别配套本 skill 的公开 TS 入口，包内声明树承接其可达拆分模块。
-  - 它们都是维护源码的生成产物，与运行时一起通过各域 `sync:*` 写入、`check:*` 重建核对。
-  - 复制后的内部 TS 源码可读可改，不因此自动成为兼容性承诺。
-- 不采用: 脱离实际公开导出而仅在声明中提供便捷工厂，或建立 SDK registry。
+- `skills/task-graph/` 以 `tools/task-graph/src/cli.ts` 的公开导出作为命令行和程序化导入的共同接口事实源，声明由 TypeScript 从实现机械发出，只分发入口可达的必要声明闭包，内部成员不构成公开面。
+- `scripts/task-graph.d.mts` 与公开 TS 入口共同通过 `sync:*` 写入、`check:*` 重建核对；不另设 SDK 实现或脱离实际导出的声明。
 
 ### 完整交付核对
 

@@ -1,13 +1,13 @@
-### Case INVESTIGATION-CLI-RELATION-FILTER-001: CLI rejects repeated relation query options
+### Case INVESTIGATION-CLI-RELATION-FILTER-001: 关系筛选单值选项拒绝重复
 
 Tests:
-- `test:6f81cafbbeaa30b1fc652b7d099bafd9d57468110d9a6c1c64a347aceda000bb`
+- `test:d330ff4c896bee34d730f18f090082dab989def46ddba030792d4310b042563b`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- `list` 与 `search` 的 `--related-to`、`--direction` 和 `--relation-type` 各只接受一次，重复参数不得被忽略或改变为无筛选查询。
+- list/search 的关系筛选单值参数不可重复。
 
 Proves:
-- 两个命令对每个重复关系查询参数返回参数错误、退出码 `2` 且不写 stdout。
+- 真实 IR CLI 的 list 重复 related-to 或 relation-type、search 重复 direction 均返回 invalid-arguments 且未创建集合。

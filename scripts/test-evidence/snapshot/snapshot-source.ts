@@ -48,8 +48,6 @@ async function trackedSourceFiles(
     .filter(
       (entry) =>
         entry.startsWith("tools/record-cli/") ||
-        entry ===
-          "tools/investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md" ||
         /\.(?:[cm]?[jt]s|json|rs|toml|lock)$/u.test(entry)
     )
     .sort();

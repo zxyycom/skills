@@ -1,13 +1,14 @@
 ### Case INVESTIGATION-EMPTY-INDEX-SYNC-001: sync-index accepts an existing empty index but not a new empty collection
 
 Tests:
-- `test:ee7b94be8ad9b11939d45521b7b09e4c66ffebfc678d101dc6953499dcf39516`
+- `test:45888f4359c72798faa9e13af30018a605a7c5c4704e35fb2cb9c42e1fddfa56`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 已建立集合删除到空索引后可同步；全新空目录不能由 sync-index 初始化为空集合。
+- 无索引的新空调查目录不能作为已建立集合；已有合法空索引可进行 check 与 sync-index。
 
 Proves:
-- 已有空索引同步成功；无索引空目录返回至少一份报告诊断。
+- 真实 CLI 对无索引空目录的 check 与 sync-index 均返回 empty-collection 且不创建索引。
+- 写入规范序列化的合法空索引后，两命令均成功；不外推非规范序列化字节的 current 状态。

@@ -1,14 +1,13 @@
-### Case DECISION-RENAME-ESTABLISHED-001: 建立记录 rename 保留日期并重建索引
+### Case DECISION-RENAME-ESTABLISHED-001: 建立记录 rename 保留日期并移动来源
 
 Tests:
-- `test:869b2b9ccf686a1fbf3e2dad2de41a0f0a96e27cc2c23fe1b5259d00f5963dc6`
+- `test:b03b2ac4a8adc80acda16605b6e7078ee4e2f503f68186b1127493e1053e00a4`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 已建立 legacy Decision rename 使用 `createdAt` 的 UTC 日期形成新 ID，并在同一事务移动 sourcePath 和重建完整索引。
+- 正式决策改名保留原建立日期并移动来源。
 
 Proves:
-- rename 后新文件使用目标 name basename，旧 sourcePath 不再存在。
-- 正文仅改写 id；索引 entry 仅改写派生 name/sourcePath，其余 metadata 与正文不变，严格检查通过。
+- 新目标日期不匹配时预检失败；按 name 改名提交后旧路径消失，新正文含原日期的新 ID 并保留标题注释。

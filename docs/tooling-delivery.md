@@ -54,15 +54,16 @@ Git 调用 hook 时会注入当前 worktree 的 `GIT_DIR`、`GIT_INDEX_FILE` 等
 
 ### 聚合发布流水线
 
-`.github/workflows/package-skills.yml` 使用同一受测 revision，按两类产品门禁组织流水线：
+`.github/workflows/package-skills.yml` 使用同一受测 revision，按产品门禁组织流水线：
 
 | Job | 范围与责任 |
 | --- | --- |
 | `package`（Ubuntu） | 固定工具链下的完整 release Gate，覆盖全仓质量、结构、类型、Case/index、联合同步、事件基线版本/hash 与全部 skill 打包；上传 `skills` artifact。 |
 | `video-windows`（Windows） | 依赖 `package`，checkout 其输出的 `tested_revision`，下载同次 workflow 的 `skills` artifact，以 `accept:video-windows` 验收视频源码和其中的实际视频 zip。 |
-| `publish` | 同时依赖 `package` 与 `video-windows`，保留既有发布触发条件；任一门禁失败、取消或缺失成功结果均不能发布整批 skills。 |
+| `native-build`（Ubuntu 22.04 / Windows 2022） | 同 revision 的冻结原生源码构建两个平台资产并上传，发布前核对来源与身份。 |
+| `publish` | 同时依赖 `package`、`video-windows` 与 `native-build`，保留既有发布触发条件；任一门禁失败、取消或缺失成功结果均不能发布整批 skills。 |
 
-两个产品门禁覆盖每次现有 PR、main push 和手动打包 workflow，包括仅修改共享依赖或其他 skill 的情形。必需验收保持实际执行，不以路径过滤或成功跳过替代。Windows 视频失败也阻断未改动 skill 的聚合发布，以沿用一条发布链；取舍见[平台验收决策](decisions/require-windows-video-acceptance-for-aggregate-release.md)。
+产品门禁覆盖每次现有 PR、main push 和手动打包 workflow，包括仅修改共享依赖或其他 skill 的情形。必需验收保持实际执行，不以路径过滤或成功跳过替代。Windows 视频失败也阻断未改动 skill 的聚合发布，以沿用一条发布链；取舍见[平台验收决策](decisions/require-windows-video-acceptance-for-aggregate-release.md)。
 
 Linux `package` 复用本地稳定入口：
 
@@ -70,7 +71,7 @@ Linux `package` 复用本地稳定入口：
 2. 在同一 package job 安装 SCC 4.0.0，并在运行门禁前精确探测版本；函数指标无需额外分析器。
 3. Checkout 后先确认非空、非全零的事件基线在本次仓库历史中可解析；不可解析时明确失败，不能把 force-push 前的基线悄悄替换成 `HEAD`。随后运行 `bun run check --tag release --cold --baseline-ref <event-baseline>`，在唯一 Gate aggregate 内完成前置检查、相对事件基线的独立版本校验和全部 skill 打包；只有事件未提供有效基线时省略该参数，release Gate 才回退 `HEAD`。
 4. 运行 `bun run hash:skills --github-output --baseline-ref <event-baseline>`，重复廉价版本校验并输出本次聚合 hash；该步骤位于已经通过的 release 终结 Check 之后，不能绕过发布版本门禁。
-5. 上传全部 `dist/*` 作为保留 7 天的 `skills` workflow artifact，供当前 workflow 的 Windows 验收、发布或短期 PR 核对使用。两类门禁均成功的 `main` 构建才进入发布 job；发布器对照远端资产的名称、大小和 SHA-256 digest，完全一致时不执行远端写入，从而在先前含 skill 改动的构建失败后由下一次成功构建补发。
+5. 上传本次 run 独占的 `dist/skill-release/package-<run-id>-<attempt>/packages/*` 作为保留 7 天的 `skills` workflow artifact，供当前 workflow 的 Windows 验收、发布或短期 PR 核对使用。全部门禁均成功的 `main` 构建才进入发布 job；发布器对照远端资产的名称、大小和 SHA-256 digest，完全一致时不执行远端写入，从而在先前含 skill 改动的构建失败后由下一次成功构建补发。
 6. package job 失败且存在 Gate invocation 时，额外上传保留 3 天的机器结果、progress 与命令 transcript，供定位失败 Check；不上传可复用 cache。若事件基线已不可解析，可在 `main` 手动触发 `workflow_dispatch` 重新验证并重新发布当前制品；它不会恢复已丢失的历史基线比较。
 
 Windows 组合入口、独立安装与测试维护见[视频工具维护](../tools/video-understanding/README.md#windows-开发与制品验收)。该入口须消费同次 Linux 打包的原 zip；重新打包或工作树副本属于不同的验收对象。
@@ -81,8 +82,8 @@ fixture 的证明范围限于实际断言的入口、路径、资源、配置、
 
 维护者在首次配置或 workflow job 身份变化后完成以下核对：
 
-1. 取得当前平台上 `package`、`video-windows` 的实际 check 身份与受测 revision。
-2. 将二者同时设为远端 ruleset／分支保护的必需检查，验证失败、取消或缺少成功结果时均阻止 PR 合并。
+1. 取得当前平台上 `package`、`video-windows`、`native-build` 的实际 check 身份与受测 revision。
+2. 将各项同时设为远端 ruleset／分支保护的必需检查，验证失败、取消或缺少成功结果时均阻止 PR 合并。
 3. 保存实际配置与阻断证据。尚未配置、权限或平台能力不足时，明确报告远端保护未证明生效，等待授权或配置后再核对；本地验收通过不能声明 PR 已受保护。
 
 YAML 的 job 依赖约束发布；远端合并保护以本节生效核对为准，本地测试和文档声明不代替该证据。
@@ -90,8 +91,8 @@ YAML 的 job 依赖约束发布；远端合并保护以本节生效核对为准�
 ### 发布职责与输入
 
 1. workflow YAML 只承接触发条件、权限、job 依赖和运行时准备，不实现发布事务。
-2. `scripts/publish-skills.ts` 是薄 CLI 入口，[发布实现](../scripts/lib/publishing/publish-skills.ts)是唯一发布事务 owner，承接输入、资产、Git/`gh` 边界、GitHub 响应和发布顺序。
-3. 发布 job 从仓库根目录调用 `bun run publish:skills -- <rolling|snapshot>`。CLI 从 `dist/` 读取 zip 与 manifest，并要求 `GH_TOKEN`、`GITHUB_SHA` 和 `PACKAGE_HASH`；输入或资产无效时，在执行 Git 或 GitHub 命令前失败。
+2. 发布实现承接输入、资产、Git/`gh` 边界、GitHub 响应和发布顺序；以实际 workflow 的调用入口为准。
+3. 发布 job 从显式制品输入组装并校验 skill 包、原生平台资产和 manifest，并要求相应环境身份；输入或资产无效时，在执行 Git 或 GitHub 命令前失败。
 
 ### 发布触发与结果
 
@@ -102,14 +103,25 @@ YAML 的 job 依赖约束发布；远端合并保护以本节生效核对为准�
 | `pull_request` | 不发布 Release；只保留短期 workflow artifact。 |
 | `main` push 且当前制品与远端资产不同 | 更新 `skills-latest` 的 tag 与完整资产集，并把该滚动 Release 标记为 GitHub Latest。 |
 | `main` push 且当前制品与远端资产相同 | 发布 job 只读核对后跳过远端写入。 |
-| `main` 上的 `workflow_dispatch`，`publish_snapshot=false` | 核对并按需同步当前制品到 `skills-latest`，不创建历史快照。 |
-| `main` 上的 `workflow_dispatch`，`publish_snapshot=true` | 核对并按需同步 `skills-latest`，再为当前聚合 hash 创建或核对一个不可变快照。 |
-| 非 `main` 分支上的 `workflow_dispatch` | 不发布 Release；只保留短期 workflow artifact。 |
+| `main` 上的 `workflow_dispatch`，未选择线上验收且 `publish_snapshot=false` | 核对并按需同步当前制品到 `skills-latest`，不创建历史快照。 |
+| `main` 上的 `workflow_dispatch`，未选择线上验收且 `publish_snapshot=true` | 核对并按需同步 `skills-latest`，再为当前聚合 hash 创建或核对一个不可变快照。 |
+| 任意分支的 `workflow_dispatch`，同时指定线上验收参数 | 不发布 Release；通过前置门禁后对指定 Release 和 revision 做隔离验收。 |
+| 非 `main` 分支上的 `workflow_dispatch`，未选择线上验收 | 不发布 Release；只保留短期 workflow artifact。 |
 
 ### 发布一致性
 
-`skills-latest` 是正式滚动发布入口和 GitHub Latest，updater 默认读取该 Release。更新已有滚动 Release 时先覆盖各 skill zip，最后覆盖 manifest；全部当前资产可用后才删除不再属于当前制品的旧资产并更新 Release 元数据，使失败后的后续运行能够重新同步。updater 会拒绝 zip 版本与 manifest 不一致的制品，不会把发布中断产生的混合资产写入本地 skill。
+`skills-latest` 是正式滚动发布入口和 GitHub Latest，updater 默认读取该 Release。更新已有滚动 Release 时先准备并核对当前资产，退役两个记录 skill 的旧名，最后发布 manifest；完整资产可用后更新 Release 元数据，使失败后的后续运行能够重新同步。updater 会拒绝 zip 版本与 manifest 不一致的制品，不会把发布中断产生的混合资产写入本地 skill。
 
 滚动发布的无变化判断以完整资产清单、字节数和 GitHub 提供的 SHA-256 digest 为准，不以本次 push 的 Git diff 或 Release tag 所指提交为准；缺失 digest 时保守地重新同步。这样失败构建遗留的待发布内容可由后续成功构建恢复。
 
 不可变快照 tag 使用聚合 hash 前 12 位：`skills-<hash12>`。相同制品只对应一个快照；同名快照已存在时，发布脚本逐项核对资产名称、字节数和 GitHub 提供的 SHA-256 digest，一致则复用，任一字段缺失或不同则失败且不修改快照。显式 `--release-tag` 只用于仍被保留的不可变快照或历史 Release。
+
+### 固定线上隔离验收
+
+手动 workflow 可同时填写 `accept_release_id` 和 `accept_revision`，分别为正整数 Release ID 与完整小写提交 hash。两者必须成对且格式有效，否则输入验证失败。该模式在 package、native-build 和 video-windows 成功后，在 Linux 和 Windows 的隔离目录验收指定线上 Release 和 revision，跳过发布；不是发布操作，也不证明真实用户目录安装。普通发布不填写这两个参数。
+
+### 原生记录资产与安装
+
+两个记录 skill 使用 `<skill>-native.zip`，其旧名不随原生 release 提供，旧 updater 因缺资产在覆盖前失败。四个角色／目标运行时 ZIP 和 `record-native-installer.zip` 与包描述符、manifest 的角色、版本、目标、源码摘要和资产 hash 交叉校验。首次安装或受支持旧版升级使用引导器显式目标目录；同版本修复与后续升级由原生 updater 处理。激活失败或清理未完成应按实际诊断恢复，不将部分安装当成成功。真实 release 和用户目录安装须有相应授权；本地构建或私有验收不证明上线。
+
+正式发布还保存 `record-native-build-0.2.0.json` 和 `record-native-recovery-0.2.0.zip`：前者记录原构建 revision、Rust 输入清单、构建 recipe、平台及工具链与四个运行时 ZIP 的身份；后者包含证明及四个原始运行时 ZIP。发布器先上传并回读验证恢复包，再上传运行时。中断后依据固定资产 ID 和 digest 核验并复用原字节，即使压缩器后来变化也不重打；未知同名冲突会拒绝，而非覆盖猜测。此恢复不依赖仅保留七天的 CI artifact。具体调用与复用条件以 workflow 和发布实现为准，远端实际状态仍须另验。

@@ -1,13 +1,13 @@
 ### Case DECISION-CONFIGURED-RELATIVE-DIRECTORY-001: 相对决策目录从 workspace 根解析
 
 Tests:
-- `test:36a71c73a6a837d3ac625ae2e2c7e38dbaf9ab2b1fbc192a32ecf1df534cf967`
+- `test:e20cd326c2892c0898cf5bdabfcab764770420b5e3eb48ad1dc8e015da363bd5`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 相对 decisionsDir 必须以 workspace 根为解析基准，并保持工作区相对索引路径。
+- 自定义相对决策目录下的索引定位以工作区为根。
 
 Proves:
-- API 扫描定位配置目录，报告规范相对 index 路径，CLI check 成功。
+- 真实 selected sync 的失败结果对 custom/decisions 给出工作区相对 indexRelativePath。

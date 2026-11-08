@@ -56,6 +56,22 @@ export function verifyAssetContents(
       });
     validateCandidateSchema(role, packageZip, schemas[role]);
     const contents = extractNativeArchive(packageZip);
+    if (
+      [...contents.keys()].some((name) => {
+        const relative = name.slice(role.length + 1);
+        return (
+          /^scripts\/(?:decision-records(?:-sdk\/|\.ts$|\.d\.mts$)|check-investigations(?:\.ts$|\.d\.mts$))/i.test(
+            relative
+          ) ||
+          /^scripts\/runtime\/tools\/(?:decision-records|investigation-report|record-operations|index-runtime)\//.test(
+            relative
+          ) ||
+          /(?:^|\/)(?:bin|node_modules)\//.test(relative) ||
+          /\.(?:exe|dll|so|dylib)$/i.test(relative)
+        );
+      })
+    )
+      throw new Error(`retired SDK or binary in source package: ${role}`);
     const skillText = new TextDecoder("utf-8", { fatal: true }).decode(
       contents.get(`${role}/SKILL.md`)
     );

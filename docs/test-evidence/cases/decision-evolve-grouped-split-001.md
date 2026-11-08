@@ -1,13 +1,13 @@
-### Case DECISION-EVOLVE-GROUPED-SPLIT-001: Evolve 为闭合拆分的每个后继保存独立摘要
+### Case DECISION-EVOLVE-GROUPED-SPLIT-001: 闭合拆分各后继保留独立摘要
 
 Tests:
-- `test:0e920c20211d6cdddb6b5f07dc5991559926e80a0158b182e18e8f515496ffac`
+- `test:b770d083e5425c18302bee8766c0d49b62f8dfd1affddc705457963dcfa35922`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 闭合拆分的完整 successor 集合可以在一次 `evolve` 事务中为每个 source 完整替换关系，并让同一 predecessor 的边保存不同摘要。
+- 闭合拆分可在一次 evolve 中为各后继分别提供完整关系与摘要。
 
 Proves:
-- 等号形式和分开的 option 形式都能绑定到各自分组；committed review 显示两组摘要，两个已建立后继分别保留自己的完整拆分边，严格检查通过；移除一个摘要时，review 完整显示两个 source 的 before/after 和未变关系。
+- 原生 evolve 为两个候选分组同一前序的拆分关系；提交后索引中两条边分别保留不同摘要，trace 保留首条摘要。此节点不验证 CLI option 形式或重复移除摘要的 review。

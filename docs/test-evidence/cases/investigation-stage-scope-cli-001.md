@@ -1,13 +1,13 @@
-### Case INVESTIGATION-STAGE-SCOPE-CLI-001: CLI stage exposes the scope contract and rejects an invalid scope
+### Case INVESTIGATION-STAGE-SCOPE-CLI-001: stage 拒绝无效或重复 scope
 
 Tests:
-- `test:0accbb5ff76a1166e3c41ade178d8b77a374dde26c2c4d5d9d75453c13441292`
+- `test:d330ff4c896bee34d730f18f090082dab989def46ddba030792d4310b042563b`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- CLI stage 公开 --scope，非法或重复的 scope 值按无效输入处理。
+- stage scope 必须是合法单值。
 
 Proves:
-- help 含 `--scope <scope>`；`--scope everything` 返回退出码 2；重复 `--scope` 以用法诊断拒绝。
+- 真实 IR CLI 对未知 scope 和重复 scope 均返回 invalid-arguments，未创建集合。

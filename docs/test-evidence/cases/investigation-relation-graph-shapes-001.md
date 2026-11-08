@@ -1,13 +1,13 @@
-### Case INVESTIGATION-RELATION-GRAPH-SHAPES-001: relation graph accepts independent ordinary merge and split shapes
+### Case INVESTIGATION-RELATION-GRAPH-SHAPES-001: 调查普通关系与环校验
 
 Tests:
-- `test:bdc132e3fcd974a9a02f2e6feee337bf5e53045adc4be29330dde54a80a3a7fe`
+- `test:4e572abfeea52b35c3c4bffc062551f60a2a20ffd64dd908e460bd7d795d107a`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 关系图接受独立报告、普通单前序、纯归并和闭合拆分形状。
+- 合法普通前序关系可构成调查关系图；形成环的关系不能接纳。
 
 Proves:
-- 合法普通、归并和双后继拆分集合不产生错误。
+- 两个调查状态间的复查关系通过且保留一条出边；加入反向关系后图校验失败。

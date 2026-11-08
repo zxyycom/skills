@@ -14,7 +14,7 @@
 
 | scope | 写入与保留 |
 | --- | --- |
-| `all`（默认） | 原子组合所选发布投影与正式 Markdown；未选条目沿用 pending，而非 HEAD。 |
+| `all`（默认） | 组合所选发布投影与正式 Markdown；未选条目沿用 pending，而非 HEAD。 |
 | `index` | 只刷新所选发布投影及来源 revision；payload 验收限于本次消费或修改的索引文件，不读取工作区正文。调用方负责配套领域暂存与正文验证。 |
 | `domain` | 只刷新所选正式 Markdown，保留 pending 索引原字节（即使损坏）或缺失状态。 |
 
@@ -24,18 +24,14 @@ domain 的身份解析与旧位置收集分别进行：
 
 - 合法可用的 P 索引补充**所有所选 ID** 的旧 sourcePath，即使 H/W 已有该 ID；所选 canonical pending 路径的 header 始终读取并核对。
 - 仅 P 索引自身读取或解析失败可容错，且须由独立 H/W/canonical locator 足够定位所选；否则先恢复可信定位。该例外不覆盖已定位所选旧正文的读取、身份或路径失败。
-- 成功读取的 P 索引原始字节纳入独立写前复核；使用其定位后扩大内容选集也须证明扩展有效。P 索引的原字节、mode/OID 或缺失状态保持，不因定位消费而改写。
+- 使用 P 索引定位后扩大内容选集须证明扩展有效。P 索引的原字节、mode/OID 或缺失状态保持，不因定位消费而改写。
 
 HEAD 与工作区发布索引必须合法；index／all 还验证 pending 索引，并要求存在的三方索引具有相同集合 metadata、sourceRevision.metadata 与 definition。HEAD 正式集合确为空且 pending 无索引时从空发布基底组合；已有历史正式成员却缺索引时显式恢复。已有 HEAD 索引而 pending 将其删除时，index／all 提示先恢复该删除。坏基线不隐式重建全部 HEAD 正文。
 
 `all`／`domain` 的所选现存正文须符合工作区发布投影；合法手改先同步。index／all 的最终合成图必须合法，必要依赖缺失时提示补选，不自动夹带未选对象。domain 只证明领域文件范围，不证明 pending 索引与正文已配套。stage 核对所选已知受管位置，未知位置的未同步身份重现由显式 check／sync 发现。
 
-## 独立验证与 pending 保护
+## pending 保护与结果
 
-未变化条目的现有 Git index 标志保持；变化条目的标志按 Git 对目标的更新处理。
+stage 合成所选记录和索引内容，通过 `hash-object` 与一次 `update-index --index-info` 交给 Git 管理锁；写前检查路径祖先／后代冲突，避免 Git 更新驱逐未选项。它保留未选 pending，包括 staged 删除；不使用 HEAD/pending CAS，也不承诺并发隔离或独立写后验收。调用方应顺序操作，并按结果核对所选范围与保留内容。
 
-操作核对 scope 所需来源、成员、工作区索引、HEAD 与完整受管 pending 身份；写前独立重新核对可变事实，写后验收实际目标并保护范围外状态。HEAD、pending 或其他受保护事实发生冲突时停止。按 scope 验收 payload：`index` 只验收所需索引内容，其余 pending 成员以完整路径、文件模式与对象 ID 保护身份；`all`／`domain` 只读取本次所选正文及必要定位索引的 payload；关系依赖由索引验证，不读取未选依赖正文。所需读取失败或保护范围漂移时停止，未变化结果也须通过保护检查。
-
-原子更新以完整 Git 路径、mode 和 OID 保留未选 pending（含 staged 删除）；所有 scope 对未选 payload 均只保证身份保持，不证明内容即时可读或指纹有效。`index` 的配套正文验证由调用方负责，`all`／`domain` 独立验收所选正文。可连续 stage A、stage B，再修改 A 并重选 A；B 始终保留原 pending。索引 JSON 可规范化序列化，未选条目含义保持。
-
-结果报告实际写入路径、保留范围及调用方责任；成功只证明所选 scope。
+`index` 的正文和资源配套验证由调用方负责；`domain` 不证明索引配套。索引 JSON 可规范化序列化，未选条目含义保持。失败时保留现场，检查结果与 Git pending；pending 不是工作区备份。

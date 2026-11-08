@@ -1,7 +1,7 @@
 ### Case DECISION-INDEX-PURPOSE-001: 目的元数据不可省略
 
 Tests:
-- `test:e4aa7e57f47a08aca15dd855c773dc7effa52f1b2d487e350cf35a8d96102080`
+- `test:f849833056c7db08c851f0024c5fae21afe226dda6e8bb519f8db436c4c594d1`
 
 Tags:
 - `decision-records`
@@ -10,4 +10,4 @@ Contract:
 - 目的元数据不可省略。
 
 Proves:
-- 来源缺少 purpose 时严格检查报告缺失字段。
+- 原生 frontmatter parser 拒绝从有效来源样例中单独移除 purpose 的变体。

@@ -1,14 +1,13 @@
-### Case DECISION-RENAME-PREFLIGHT-001: preflight 零写入且 legacy candidate 显式选日期
+### Case DECISION-RENAME-PREFLIGHT-001: Rename preflight 不写所选正文或新路径
 
 Tests:
-- `test:74b79b67662eb95808e9010266d2eacd44fb58f8e2e03452dccb283b706b5479`
+- `test:6251dc1300265d603e7385cb11b54fd6b8a390125da3796c7feadbc30d032684`
 
 Tags:
 - `decision-records`
 
 Contract:
-- rename preflight 不得写入；legacy Decision candidate 的 name target 必须失败为 `date-required`，完整 dated target 才能明确迁移日期。
+- rename preflight 只预览写集，不修改所选正文或建立新路径。
 
 Proves:
-- preflight 成功和日期不匹配 target 后，原 Markdown 与 index 字节均保持不变，新目标不存在。
-- legacy candidate 的 name target 返回 `rename-date-required`，完整 dated target 成功。
+- 真实 CLI 预检报告计划索引变化与目标路径，原正文不变且目标不存在；随后真实 rename 成功。

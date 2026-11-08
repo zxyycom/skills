@@ -1,13 +1,13 @@
 ### Case DECISION-STAGE-SCOPE-INDEX-001: stage --scope index writes only the derived index projection
 
 Tests:
-- `test:1223577c6a08dbc18f78c7193aedb47c209f96125d3ba92e3f050b980d3bc8e9`
+- `test:a0f7e8d91d7cab17bf5ef5c757033826305a9f83f591226e2057905066410af4`
 
 Tags:
 - `decision-records`
 
 Contract:
-- stage --scope index 只把所选记录的派生索引投影写入 pending，不写正式 Decision Markdown。
+- index scope 只更新所选索引投影，不暂存正文。
 
 Proves:
-- 真实 CLI 的 index 步骤暂存路径只有 decision-index.json，不夹带已修改的正式 Markdown。
+- 真实 Git 中所选 A 标题取工作区，未选 B 保留 pending 版本，结果仅修改索引路径；工作区索引与无关 pending 保持。

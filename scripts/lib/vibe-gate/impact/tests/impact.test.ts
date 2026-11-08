@@ -1,4 +1,3 @@
-import "./inputs/impact-decision-operation-inputs.test.ts";
 import "./impact-failures.test.ts";
 import "./impact-toolchain.test.ts";
 import "./impact-proof.test.ts";
@@ -16,4 +15,3 @@ import "./inputs/impact-markdown-publication.test.ts";
 import "./inputs/impact-check-responsibilities.test.ts";
 
 import "./inputs/impact-generated-inputs.test.ts";
-import "./inputs/impact-rename-inputs.test.ts";

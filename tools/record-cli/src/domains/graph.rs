@@ -72,7 +72,20 @@ fn validate_acyclic(
         }
     }
     if count != nodes.len() {
-        return Err(IndexError::Domain("relations contain a cycle".into()));
+        let residual: Vec<&str> = remaining
+            .iter()
+            .filter_map(|(&id, &degree)| (degree > 0).then_some(id))
+            .collect();
+        let sample = residual
+            .iter()
+            .take(5)
+            .copied()
+            .collect::<Vec<_>>()
+            .join(", ");
+        let suffix = if residual.len() > 5 { ", ..." } else { "" };
+        return Err(IndexError::Domain(format!(
+            "relations contain a cycle; residual nodes (up to five): {sample}{suffix}; inspect their relations to locate the cycle"
+        )));
     }
     Ok(())
 }
@@ -88,5 +101,43 @@ fn sort_edges(outgoing: &mut Edges, incoming: &mut Edges) {
     };
     for edges in outgoing.values_mut().chain(incoming.values_mut()) {
         edges.sort_by_key(&key);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn deep_graph_is_stack_safe_and_cycle_diagnostics_are_bounded() {
+        let mut entries: BTreeMap<String, Vec<Relation>> = (0..12_000)
+            .map(|n| (format!("node-{n:05}"), vec![]))
+            .collect();
+        for n in 1..12_000 {
+            entries
+                .get_mut(&format!("node-{n:05}"))
+                .unwrap()
+                .push(Relation {
+                    relation_type: "test".into(),
+                    target: format!("node-{:05}", n - 1),
+                    summary: None,
+                });
+        }
+        assert!(build_graph(entries.iter()).is_ok());
+        entries.get_mut("node-11990").unwrap().push(Relation {
+            relation_type: "test".into(),
+            target: "node-11999".into(),
+            summary: None,
+        });
+        let error = match build_graph(entries.iter()) {
+            Err(error) => error.to_string(),
+            Ok(_) => panic!("cycle accepted"),
+        };
+        assert!(error.contains("relations contain a cycle"));
+        assert!(error.contains("residual nodes (up to five)"));
+        assert!(error.contains("node-00000"));
+        assert!(error.contains("node-00004"));
+        assert!(!error.contains("node-00005"));
+        assert!(error.contains("..."));
+        assert!(error.contains("inspect their relations"));
     }
 }

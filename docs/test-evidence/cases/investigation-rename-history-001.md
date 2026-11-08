@@ -1,14 +1,13 @@
-### Case INVESTIGATION-RENAME-HISTORY-001: recorded report 与 candidate 使用各自确认 flag
+### Case INVESTIGATION-RENAME-HISTORY-001: 已记录候选 rename 须确认
 
 Tests:
-- `test:ccf304482a66d04825d67635dff2585271d08519a3de59f0c0408d60aed3faf0`
+- `test:a3aa7a386c422674fea73eae9c5da2e54dc24e0d53d77d795d109ca099e88d2e`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 已进入 Git HEAD 的 formal report 与 candidate rename 分别要求 `--rename-recorded-report` 或 `--rename-recorded-candidate`，确认只适用于当前工作树。
+- 已进入 Git HEAD 的候选 rename 必须使用候选专属确认。
 
 Proves:
-- 无 flag 的 formal 和 candidate rename 分别返回对应 attention。
-- 使用对应 flag 后两种 rename 都成功。
+- 真实 Git 中无确认和仅正式报告确认均拒绝；提供 rename-recorded-candidate 后提交。

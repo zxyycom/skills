@@ -36,10 +36,7 @@ test("selected generated prerequisites union consumer skills without unrelated d
   assert.deepEqual(resolveSelectedRuntimeSkills(["skill-updater"]), [
     "ai-ready-docs"
   ]);
-  assert.deepEqual(
-    resolveSelectedRuntimeSkills(["record-reader-distribution"]),
-    ["decision-records", "investigation-report"]
-  );
+  assert.deepEqual(resolveSelectedRuntimeSkills(["record-rust"]), []);
   assert.deepEqual(
     resolveSelectedRuntimeSkills(["mcpshell", "test-evidence", "mcpshell"]),
     ["mcpshell-workspace-tools", "test-evidence-review"]
@@ -68,8 +65,8 @@ test("selected Definition passes only required consumer skills to the generation
     },
     {
       scope: "selected",
-      selectionScopes: ["record-reader-distribution"],
-      expected: ["decision-records", "investigation-report"]
+      selectionScopes: ["record-rust"],
+      expected: []
     },
     {
       scope: "selected",

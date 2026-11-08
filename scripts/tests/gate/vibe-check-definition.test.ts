@@ -19,7 +19,7 @@ test("gate Definition keeps the complete catalog and incremental selection", () 
   const definition = createGateDefinition([], {
     activeToolIds: ["repository-code"]
   });
-  assert.equal(gateCheckIds().length, 74);
+  assert.equal(gateCheckIds().length, 63);
   assert.deepEqual(
     definition.checks.map(({ checkId }) => checkId),
     gateCheckIds()
@@ -73,7 +73,7 @@ test("gate Definition keeps scheduler, output, and release DAG contracts", () =>
     release.scheduler.resourceCapacities,
     releaseGateResourceCapacities
   );
-  assert.equal(releaseRequiredCheckIds.length, 71);
+  assert.equal(releaseRequiredCheckIds.length, 60);
   assert.deepEqual(
     release.checks.find(({ checkId }) => checkId === "release:skill-prepare")
       ?.dependsOn,

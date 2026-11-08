@@ -1,13 +1,13 @@
 ### Case DECISION-STAGE-METADATA-COMPATIBILITY-001: 暂存拒绝不兼容集合revision
 
 Tests:
-- `test:a868d80666de8d87dcc49a8ce889e37b2efda85050e658072810bb6bb464fcc4`
+- `test:209cd28edb2af1907658f2657c31b736598267a873c504290b608ccad2617548`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 三方已存在索引的集合 metadata、sourceRevision.metadata 与 definition 必须兼容，不能局部合并不兼容集合。
+- pending 和工作区索引的集合 revision metadata 不兼容时 index/all 不能组合投影。
 
 Proves:
-- 合法 pending JSON 的集合 revision 与工作区不同时，index/all 均报告 metadata 不兼容且 pending tree 不变。
+- 真实 Git 中 pending 索引的 sourceRevision.metadata 不同时，index 与 all 均失败且 pending 条目不变。

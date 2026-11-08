@@ -1,13 +1,13 @@
 ### Case DECISION-DISCARD-FINAL-INDEX-001: 删除末条保留合法空索引
 
 Tests:
-- `test:6f6ec493e75b239ab87675189ffd77044b1c5c0fec41ab1c67ef3a2d6aa2e5c9`
+- `test:b03b2ac4a8adc80acda16605b6e7078ee4e2f503f68186b1127493e1053e00a4`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 删除末条正式记录仍留下可查询且可继续发布的合法空索引。
+- 删除末条正式记录仍留下可解析且可继续发布的合法空索引。
 
 Proves:
-- discard 后索引 entries 为空且 list 成功；随后创建并发布新候选可从该空索引继续维护。
+- 删除唯一 active 正式记录后，原生索引 parser 读回空 entries；随后真实 CLI 发布 body-ready 候选成功，读回索引包含该新 ID。本节点不验证 list 输出。

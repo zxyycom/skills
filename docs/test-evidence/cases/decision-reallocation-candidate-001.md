@@ -1,13 +1,13 @@
-### Case DECISION-REALLOCATION-CANDIDATE-001: 候选重划关系保持前瞻性
+### Case DECISION-REALLOCATION-CANDIDATE-001: 重划候选可前瞻声明未来目标
 
 Tests:
-- `test:e16c5df993c07ada4df97bcf023444e9437ba8537f300d87cb0b95354931dd9f`
+- `test:c81af33136634b16a1baa5a94d42c5bffb480929737ebc869d8e05bf7b5f315c`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 单个候选可预先声明重划关系，但完整多对多形状只在建立或修订事务及已建立图中校验。
+- 单个候选可前瞻声明重划关系；发布仍须验证完整目标与事件。
 
 Proves:
-- 来源扫描器与领域关系校验器解析内存 Markdown 后，单条重划关系的候选不产生 sourceErrors、仍以 candidate 计数，前序保持 active。
+- 原生候选发现接受仅有一条指向未来 ID 的重划关系、保留 body-ready 并发 warning；发布预检拒绝缺失目标，原字节不变且不创建索引。此节点不独立证明目标存在但多对多规模不完整时的预检。

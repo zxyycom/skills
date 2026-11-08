@@ -28,150 +28,6 @@ const repositoryValidationInputs = [
   "docs/{tooling.md,skills}",
   "scripts/**/{auto-push.ts,setup-git-hooks.js,setup-repository.js,task-graph.js,lint.ts,vibe-check.test.ts}"
 ];
-const recordOperationInputs = ["tools/record-operations/src/**"];
-const decisionRecordInputs = [
-  "tools/decision-records/src/{index,records,scan}/**",
-  "tools/decision-records/src/**/{application-result,index,list-facets,markdown,projection,record,relation-*,scan*,types,decision-{history-{baseline,sources},index-*,location,metadata*,path,record-lookup,source-{revision,dependencies,path-safety},state-*,timestamp,trace-admission,validation}}.ts",
-  "tools/decision-records/src/query/decision-query-context.ts",
-  "tools/decision-records/src/transactions/decision-strict-preparation.ts"
-];
-const decisionQueryInputs = [
-  "tools/decision-records/src/query/**",
-  "tools/decision-records/src/**/decision-query*.ts",
-  "tools/decision-records/src/**/decision-selected-sync.ts"
-];
-const decisionMaintenanceInputs = [
-  "tools/decision-records/src/{candidates,lifecycle,maintenance,rename,transactions}/**",
-  "tools/decision-records/src/relations/transactions/**",
-  "tools/decision-records/src/**/decision-{candidate*,collection*,discard*,lifecycle*,maintenance*,rename*,relation-*,strict-preparation,transaction*}.ts",
-  "tools/decision-records/src/**/decision-source-membership.ts"
-];
-const decisionStageInputs = [
-  "tools/decision-records/src/staging/**",
-  "tools/decision-records/src/**/decision-stage*.ts"
-];
-const decisionCliInputs = [
-  "tools/decision-records/src/cli/**",
-  "tools/decision-records/src/**/cli*.ts"
-];
-const investigationRecordInputs = [
-  "tools/investigation-report/src/{collection,index,records,resources}/**",
-  "tools/investigation-report/src/**/{cli-io,collection-mutation-lock,diagnostics,investigation-*,markdown*,options,relation-context,relation-summary,relation-validation,report*,resource*,timestamp,types,validation*}.ts"
-];
-const investigationQueryInputs = [
-  "tools/investigation-report/src/query/**",
-  "tools/investigation-report/src/**/{index-staleness,list-*,query*,selected-sync,trace-output}.ts"
-];
-const investigationMaintenanceInputs = [
-  "tools/investigation-report/src/{candidates,discard,publication,rename,transactions}/**",
-  "tools/investigation-report/src/**/{candidate*,discard*,local-publication,publish*,relation-review*,relation-transaction*,rename*,strict-preparation,transaction-files}.ts"
-];
-const investigationStageInputs = [
-  "tools/investigation-report/src/staging/**",
-  "tools/investigation-report/src/**/staging*.ts"
-];
-const investigationCliInputs = [
-  "tools/investigation-report/src/cli/**",
-  "tools/investigation-report/src/**/cli*.ts"
-];
-const decisionTestSupportInputs = [
-  "tools/decision-records/tests/{support,support-record-fixture,support-git-fixture,domain-fixture}.ts",
-  "tools/decision-records/tests/support/{support,support-record-fixture,support-git-fixture,domain-fixture}.ts",
-  "tools/decision-records/tests/fixtures/**",
-  "tools/decision-records/tests/queries/snapshot-fixture.ts"
-];
-const investigationTestSupportInputs = [
-  "tools/investigation-report/tests/**/{fixture-support,collection-support,git-support}.ts"
-];
-const decisionRecordTestInputs = [
-  ...decisionTestSupportInputs,
-  "tools/decision-records/tests/**/source-frontmatter-reuse.test.ts",
-  "tools/decision-records/tests/**/{metadata,body-field-validation,type-path-invariants,record-guards,layout-index,relation-validation,trace-event-admission,state-snapshot,source-discovery,scan-index-reuse,trace-admission-complexity}.test.ts",
-  "tools/decision-records/tests/**/{record-guards,metadata}/**",
-  "tools/decision-records/tests/checks/record-and-established-graph.ts"
-];
-const decisionQueryTestInputs = [
-  ...decisionTestSupportInputs,
-  "tools/decision-records/tests/**/{index-maintenance,list-facets,queries,cli-output-trace,query-snapshot,query-loaded-snapshot,canonical-sync-cost,relation-filter-complexity,index-schema,search-metadata-window,discovery-dependencies,acquisition-safety,sync-preflight-lock,selected-local-contract}.test.ts",
-  "tools/decision-records/tests/queries/{domain-support,snapshot-fixture,support,queries-*.test}.ts",
-  "tools/decision-records/tests/**/{index-maintenance,lazy-relation-graph}/**",
-  "tools/decision-records/tests/queries/search/search-metadata-window-fixture.ts",
-  "tools/decision-records/tests/**/support-local-contracts.ts",
-  "tools/decision-records/tests/checks/query-and-index-projection.ts",
-  "tools/record-operations/tests/**/{query-contract,sync-selection-contract,selected-source-safety,reader-fixture}.ts"
-];
-const decisionMaintenanceTestInputs = [
-  ...decisionTestSupportInputs,
-  "tools/decision-records/tests/**/{activation-archive,candidate-lifecycle,candidate-scaffold,candidate-operations,evolution,lifecycle-relations,relation-maintenance,rename,transaction-recovery,unrecorded-history,filesystem-boundaries,batch-lookup,batch-lookup-cost,first-establishment,reallocation-member-complexity,successor-relation-overrides,local-operation-contracts,candidate-transaction-boundaries,record-shared-transactions,transaction-boundaries,transaction-creation-modes,transaction-strict-preparation}.test.ts",
-  "tools/decision-records/tests/relations/reallocation-fixture.ts",
-  "tools/decision-records/tests/**/native-creation-mode-probe.ts",
-  "tools/decision-records/tests/**/support-local-contracts.ts",
-  "tools/decision-records/tests/**/{activation-archive,candidate-lifecycle,candidate-scaffold,candidate-operations,evolution,lifecycle-relations,relation-maintenance,rename,transaction-recovery,unrecorded-history,filesystem-boundaries,localize-record-operations}/**",
-  "tools/decision-records/tests/checks/lifecycle-and-recovery.ts",
-  "tools/shared/tests/record-stage-evidence.ts",
-  "tools/record-operations/tests/**/{candidate-contract,domain-transaction-contract,transaction-creation-modes}.ts"
-];
-const decisionStageTestInputs = [
-  ...decisionTestSupportInputs,
-  "tools/decision-records/tests/{stage,stage-sources,stage-index-payload,local-stage-contracts}.test.ts",
-  "tools/decision-records/tests/staging/{stage,stage-sources,stage-index-payload,local-stage-contracts}.test.ts",
-  "tools/decision-records/tests/**/support-local-contracts.ts",
-  "tools/shared/tests/record-stage-evidence.ts",
-  "tools/decision-records/tests/**/stage/**"
-];
-const decisionCliTestInputs = [
-  ...decisionTestSupportInputs,
-  "tools/decision-records/tests/**/cli-{args,stage-contract,batch-selection,search-metadata-window}.test.ts",
-  "tools/decision-records/tests/**/cli-args/**",
-  "tools/decision-records/tests/**/{stage,queries}/support.ts",
-  "tools/decision-records/tests/**/{search-metadata-window-fixture,reallocation-fixture}.ts",
-  "tools/decision-records/tests/queries/{domain-support,snapshot-fixture}.ts",
-  "tools/decision-records/tests/**/support-local-contracts.ts",
-  "tools/decision-records/tests/**/search-{relations,modes,metadata}.test.ts",
-  "tools/decision-records/tests/**/configured-decision-directory.test.ts",
-  "tools/decision-records/tests/checks/cli-contract.ts"
-];
-const investigationRecordTestInputs = [
-  ...investigationTestSupportInputs,
-  "tools/investigation-report/tests/**/{candidate,candidate-timestamp,candidate-read-context,candidate-resource-root,parsing-directory,resources,relations,history-prefix-contract,history-pathspec-batching,batch-source-discovery}.test.ts",
-  "tools/investigation-report/tests/checks/collection-and-resources.ts",
-  "tools/investigation-report/tests/cli/cli-support.ts"
-];
-const investigationQueryTestInputs = [
-  ...investigationTestSupportInputs,
-  "tools/investigation-report/tests/query/index/index-fixture.ts",
-  "tools/investigation-report/tests/**/{index-{query,search,selectors,state,reader},selector-batch-cost,current-index,list-facets,acquisition-contract,identity-membership,candidate-read-failure,snapshot-check-contract,trace-output,relation-context,relation-order,relation-dedup,selected-local-contract}.test.ts",
-  "tools/investigation-report/tests/relation-context-support.ts",
-  "tools/investigation-report/tests/checks/index-and-query.ts",
-  "tools/record-operations/tests/selected-source-safety.ts"
-];
-const investigationMaintenanceTestInputs = [
-  ...investigationTestSupportInputs,
-  "tools/investigation-report/tests/publication/publish-support.ts",
-  "tools/investigation-report/tests/**/native-creation-mode-probe.ts",
-  "tools/investigation-report/tests/**/{rename-resource-fixture,phase-verification-support}.ts",
-  "tools/investigation-report/tests/**/{transaction*,relation-review,discard*,publish,rename*,resource-phase-verification,strict-preparation,candidate-discard-transaction,local-publication,execution-entry-contract}.test.ts",
-  "tools/investigation-report/tests/fixtures/rename-noop/**",
-  "tools/investigation-report/tests/checks/transactional-maintenance.ts",
-  "tools/record-operations/tests/**/{domain-transaction-contract,transaction-creation-modes}.ts"
-];
-const investigationStageTestInputs = [
-  ...investigationTestSupportInputs,
-  "tools/investigation-report/tests/**/{staging*,local-stage-contract,phase-facts-contract,resource-*-contract,batch-stage-selectors}.test.ts",
-  "tools/investigation-report/tests/**/{resource-phase-test-support,index-fixture}.ts",
-  "tools/shared/tests/record-stage-evidence.ts",
-  "tools/investigation-report/tests/fixtures/staging-source-path/**",
-  "tools/investigation-report/tests/checks/pending-stage.ts"
-];
-const investigationCliTestInputs = [
-  ...investigationTestSupportInputs,
-  "tools/investigation-report/tests/**/cli-*.ts",
-  "tools/investigation-report/tests/checks/cli-contract.ts",
-  "tools/investigation-report/tests/**/{discovery-dependencies,candidate-operations,result-integrity,index-relations,search-info}.test.ts",
-  "tools/investigation-report/tests/**/{publish-support,resource-phase-test-support,index-fixture}.ts",
-  "tools/record-operations/tests/**/{query-contract,candidate-contract,sync-selection-contract}.ts"
-];
-
 const searchOutputInputs = [
   "tools/shared/src/file-text-search/record-search-output.ts",
   "skills/{decision-records,investigation-report}/scripts/runtime/tools/shared/src/file-text-search/record-search-output.ts"
@@ -196,8 +52,6 @@ function toolScope(
     );
   return { kind, files, additionalInputs };
 }
-
-const recordRuntimeInputs = [...domainRuntimeInputs, ...recordOperationInputs];
 
 // files is the shared domain boundary. Additional inputs keep command/receipt
 // dependencies complete without turning them into locally selected metric files.
@@ -305,6 +159,7 @@ export const gateToolScopes = {
   "record-rust": toolScope(
     [
       "tools/record-cli/**",
+      "tools/record-contracts/**",
       "scripts/prepare-record-native.ts",
       "scripts/record-native-cli.ts",
       "scripts/lib/record-native/**"
@@ -312,95 +167,19 @@ export const gateToolScopes = {
     [
       ...commonGateInputPatterns,
       "scripts/lib/skill-package/**",
+      "tools/{decision-records,investigation-report,record-operations}/{src,api,tests}/**",
       "tools/skill-package/**",
-      "tools/shared/**",
-      "tools/investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md"
+      "tools/shared/**"
     ]
-  ),
-  "record-operations": toolScope(recordOperationInputs, domainRuntimeInputs),
-  "record-operations-tests": toolScope([
-    "tools/record-operations/tests/**/{transaction.test,transaction-contract,transaction-creation-contract,transaction-fixture,transaction-verification-contract,reader-batch.test,reader-snapshot.test,reader-worker-runtime.test,reader-fixture,source-acquisition.test,run}.ts",
-    "tools/record-operations/tests/checks/*.ts"
-  ]),
-  "record-reader-distribution": toolScope(
-    ["skills/{decision-records,investigation-report}/scripts/**"],
-    commonGateInputPatterns,
-    "material"
-  ),
-  "decision-record": toolScope(decisionRecordInputs, recordRuntimeInputs),
-  "decision-query": toolScope(decisionQueryInputs, recordRuntimeInputs),
-  "decision-maintenance": toolScope(
-    decisionMaintenanceInputs,
-    recordRuntimeInputs
-  ),
-  "decision-stage": toolScope(decisionStageInputs, recordRuntimeInputs),
-  "decision-cli": toolScope(decisionCliInputs, recordRuntimeInputs),
-  "decision-test-catalog": toolScope(["tools/decision-records/tests/run.ts"]),
-  "decision-record-tests": toolScope(decisionRecordTestInputs),
-  "decision-query-tests": toolScope(decisionQueryTestInputs),
-  "decision-maintenance-tests": toolScope(decisionMaintenanceTestInputs),
-  "decision-stage-tests": toolScope(decisionStageTestInputs),
-  "decision-cli-tests": toolScope(decisionCliTestInputs),
-  "investigation-record-tests": toolScope(investigationRecordTestInputs),
-  "investigation-query-tests": toolScope(investigationQueryTestInputs),
-  "investigation-maintenance-tests": toolScope(
-    investigationMaintenanceTestInputs
-  ),
-  "investigation-stage-tests": toolScope(investigationStageTestInputs),
-  "investigation-cli-tests": toolScope(investigationCliTestInputs),
-  "decision-distribution-tests": toolScope([
-    ...decisionTestSupportInputs,
-    "tools/decision-records/tests/**/{generated-artifacts,search-info,cli-node-protocol,cli-query-parity,cli-reallocation}.test.ts",
-    "tools/decision-records/tests/relations/reallocation-fixture.ts",
-    "tools/decision-records/tests/queries/domain-support.ts",
-    "tools/decision-records/tests/checks/public-distribution.ts"
-  ]),
-  "decision-distribution": toolScope(
-    [
-      "tools/decision-records/api/**",
-      "skills/decision-records/**",
-      "!skills/decision-records/scripts/runtime/tools/shared/src/file-text-search/record-search-output.ts"
-    ],
-    domainRuntimeInputs,
-    "declarations"
   ),
   "decision-collection": toolScope(
     ["docs/decisions/**"],
-    domainRuntimeInputs,
+    commonGateInputPatterns,
     "material"
-  ),
-  "investigation-record": toolScope(
-    investigationRecordInputs,
-    recordRuntimeInputs
-  ),
-  "investigation-query": toolScope(
-    investigationQueryInputs,
-    recordRuntimeInputs
-  ),
-  "investigation-maintenance": toolScope(
-    investigationMaintenanceInputs,
-    recordRuntimeInputs
-  ),
-  "investigation-stage": toolScope(
-    investigationStageInputs,
-    recordRuntimeInputs
-  ),
-  "investigation-cli": toolScope(investigationCliInputs, recordRuntimeInputs),
-  "investigation-test-catalog": toolScope([
-    "tools/investigation-report/tests/run.ts"
-  ]),
-  "investigation-distribution": toolScope(
-    [
-      "tools/investigation-report/api/**",
-      "skills/investigation-report/**",
-      "!skills/investigation-report/scripts/runtime/tools/shared/src/file-text-search/record-search-output.ts"
-    ],
-    domainRuntimeInputs,
-    "declarations"
   ),
   "investigation-collection": toolScope(
     ["docs/investigations/**"],
-    domainRuntimeInputs,
+    commonGateInputPatterns,
     "material"
   ),
   "test-evidence-project": toolScope(["scripts/test-evidence/**"]),

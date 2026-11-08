@@ -1,13 +1,13 @@
 ### Case DECISION-SEARCH-CURRENT-IDENTITY-001: Decision 非命中身份仍核对
 
 Tests:
-- `test:c276c3346e953b8116d98f3344d1d0ceb3a865c638df20d917e6e10d6b2f5444`
+- `test:f8b0772cfc1840c342361e4225f2475a8e1bc4c9244cce50fe9cb5b38e1de645`
 
 Tags:
 - `record-search`
 
 Contract:
-- 安全读取后的同份文本在匹配前核对身份，不要求完整正文或其他 metadata 语义验证。
+- content 在匹配前核对所选当前来源的声明身份。
 
 Proves:
-- 非命中文件身份错误仍失败；未改变身份的非完整语义文本不被额外拒绝。
+- 真实 CLI 先成功读取所选当前正文；将 ID 改成其他值且查询词不再命中时，仍以身份错误失败。

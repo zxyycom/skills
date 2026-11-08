@@ -1,13 +1,13 @@
-### Case DECISION-PUBLISHED-QUERY-NO-SOURCE-001: 发布查询不读取或发现 Markdown
+### Case DECISION-PUBLISHED-QUERY-NO-SOURCE-001: Metadata search 使用发布索引
 
 Tests:
-- `test:df37a0bf80b4e6833f744f0fce2060085a6d73baa643da596a4718b7b5abc2d0`
+- `test:3793ebbf9de41d2ef23dcbddb7638a31c75bf238b2e7ebe3a6880a42c531218b`
 
 Tags:
 - `decision-records`
 
 Contract:
-- list、trace 与 metadata search 只查询按实际依赖验证的发布索引，source 固定标识未核对当前来源的发布快照，正常来源状态没有 warning。
+- metadata search 使用发布索引，不要求读取当前 Markdown。
 
 Proves:
-- 拦截 Markdown readFile、安全 FileHandle open 与目录 readdir 时三个入口仍成功、来源固定且无 warning，二者次数均零；同条件 show 只尝试读取一个目标并失败。
+- 真实 CLI 对非法 UTF-8 当前正文仍返回索引记录，缺索引时失败。

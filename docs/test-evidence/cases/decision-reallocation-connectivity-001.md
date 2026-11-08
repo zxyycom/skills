@@ -1,13 +1,13 @@
-### Case DECISION-REALLOCATION-CONNECTIVITY-001: Evolve 拒绝不连通重划图
+### Case DECISION-REALLOCATION-CONNECTIVITY-001: 重划图拒绝不闭合的断连组件
 
 Tests:
-- `test:9074d9c270b1d7f90f2441d13a92e7286432ba2a9110689b13be5881f2afb0c3`
+- `test:7b51c6051faa3cf1fc1d60e8b03cdc2957686f8099d43631b1ae0db5eacc288f`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 单次重划的后继—前序二部图必须连通，互不相连的关系属于独立事务。
+- 重划事件由连通且满足多前序、多后继约束的组件构成。
 
 Proves:
-- 纯事务准备对彼此不共享端点的两条一对一重划边返回 error、exitCode=1 和二部图须连通的诊断，且不产生 changes。
+- 原生索引图测试将有效稀疏图改为互不相连的两条一对一边，验证拒绝该图；不声称已区分连通性与各组件规模不足的错误原因。

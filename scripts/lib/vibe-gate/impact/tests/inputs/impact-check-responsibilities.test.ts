@@ -5,8 +5,7 @@ import path from "node:path";
 import { defineCheck, defineConfig } from "@zxyycom/vibe-check";
 import {
   semanticGateChecks,
-  createSemanticGateCheck,
-  type SemanticGateCheck
+  createSemanticGateCheck
 } from "../../../checks/semantic.ts";
 import {
   createPackageScriptCheck,
@@ -23,42 +22,6 @@ import {
   publishFixtureReceipts,
   withImpactFixture
 } from "../impact-test-support.ts";
-
-test("domain test aggregates stay owned by their real catalog consumers without fallback", async () => {
-  await withImpactFixture(async (fixture) => {
-    for (const input of [
-      "tools/decision-records/tests/run.ts",
-      "tools/investigation-report/tests/run.ts"
-    ]) {
-      const plan = await prepareChangedFixtureActivation(fixture, input);
-      assert.equal(plan.kind, "incremental", input);
-      assert.deepEqual(plan.snapshot.unclassifiedPaths, [], input);
-      for (const checkId of [
-        "script:test:check",
-        "script:check:test-evidence-catalog"
-      ])
-        assert.equal(
-          plan.decisions.find((item) => item.checkId === checkId)?.action,
-          "execute",
-          `${input}: ${checkId}`
-        );
-      for (const checkId of [
-        "test:decision-records:record-and-established-graph",
-        "test:decision-records:query-and-index-projection",
-        "test:decision-records:lifecycle-and-recovery",
-        "test:decision-records:cli-contract",
-        "test:investigation-report:index-and-query",
-        "test:investigation-report:transactional-maintenance",
-        "test:investigation-report:cli-contract"
-      ])
-        assert.equal(
-          plan.decisions.find((item) => item.checkId === checkId)?.action,
-          "reuse",
-          `${input}: ${checkId}`
-        );
-    }
-  });
-});
 
 test("Test Evidence project checks own their adapter tree without widening core or unrelated script inputs", async () => {
   await withImpactFixture(async (fixture) => {
@@ -102,36 +65,6 @@ test("Test Evidence project checks own their adapter tree without widening core 
         "reuse",
         checkId
       );
-  });
-});
-
-test("Decision record acquisition checks own strict preparation and their current source CLI closure", async () => {
-  const consumer: SemanticGateCheck | undefined = semanticGateChecks.find(
-    ({ checkId }) =>
-      checkId === "test:decision-records:record-and-established-graph"
-  );
-  assert.ok(consumer);
-  assert.equal(
-    consumer.dependsOn?.includes("script:check:skill-updaters") ?? false,
-    false
-  );
-  await withImpactFixture(async (fixture) => {
-    for (const input of [
-      "tools/decision-records/src/transactions/decision-strict-preparation.ts",
-      "tools/decision-records/src/cli.ts",
-      "tools/decision-records/src/query/sync/decision-query-sync.ts",
-      "tools/decision-records/src/maintenance/decision-maintenance-context.ts",
-      "tools/decision-records/src/staging/decision-stage-prepare.ts",
-      "tools/shared/src/file-text-search/index.ts"
-    ]) {
-      const plan = await prepareChangedFixtureActivation(fixture, input);
-      assert.equal(
-        plan.decisions.find((item) => item.checkId === consumer.checkId)
-          ?.action,
-        "execute",
-        input
-      );
-    }
   });
 });
 
@@ -187,64 +120,6 @@ test("type-aware checks own conservative generated TypeScript inputs without wid
   });
 });
 
-test("shared readers and transactions own their tests and both generated worker installations", async () => {
-  await withImpactFixture(async (fixture) => {
-    for (const input of [
-      "tools/record-operations/tests/reader/reader-batch.test.ts",
-      "tools/record-operations/tests/transactions/transaction.test.ts",
-      "tools/record-operations/tests/source-acquisition.test.ts",
-      "skills/decision-records/scripts/runtime/tools/record-operations/src/reader/reader-worker.ts",
-      "skills/investigation-report/scripts/runtime/tools/record-operations/src/reader/reader-worker.ts"
-    ]) {
-      const plan = await prepareChangedFixtureActivation(fixture, input);
-      assert.equal(
-        plan.decisions.find(
-          ({ checkId }) => checkId === "test:record-operations:shared-contract"
-        )?.action,
-        "execute",
-        input
-      );
-      for (const checkId of [
-        "test:decision-records:lifecycle-and-recovery",
-        "test:investigation-report:transactional-maintenance"
-      ])
-        assert.equal(
-          plan.decisions.find((item) => item.checkId === checkId)?.action,
-          "reuse",
-          `${input}: ${checkId}`
-        );
-    }
-  });
-});
-
-test("moved investigation CLI scenarios own their test inputs without rerunning index or transaction checks", async () => {
-  await withImpactFixture(async (fixture) => {
-    for (const input of [
-      "tools/investigation-report/tests/collection/discovery-dependencies.test.ts",
-      "tools/investigation-report/tests/candidates/candidate-operations.test.ts",
-      "tools/investigation-report/tests/transactions/result-integrity.test.ts"
-    ]) {
-      const plan = await prepareChangedFixtureActivation(fixture, input);
-      assert.equal(
-        plan.decisions.find(
-          ({ checkId }) => checkId === "test:investigation-report:cli-contract"
-        )?.action,
-        "execute",
-        input
-      );
-      for (const checkId of [
-        "test:investigation-report:index-and-query",
-        "test:investigation-report:transactional-maintenance"
-      ])
-        assert.equal(
-          plan.decisions.find((item) => item.checkId === checkId)?.action,
-          "reuse",
-          `${input}: ${checkId}`
-        );
-    }
-  });
-});
-
 test("catalog proof retains leaf removal but ignores unread helper content", async () => {
   await withImpactFixture(async (fixture) => {
     for (const [input, expected] of [
@@ -282,7 +157,6 @@ test("generated consumers cannot execute before the unified generation provider 
     "gate-generated-prerequisite-",
     async (directory) => {
       const consumerIds = [
-        "test:record-operations:shared-contract",
         "test:test-evidence:public-boundary",
         "test:lightweight-judgment:request-and-response"
       ];

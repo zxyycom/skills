@@ -1,15 +1,13 @@
 ### Case INVESTIGATION-QUERY-SOURCE-PATH-001: index and show resolve a report id independently from its semantic sourcePath
 
 Tests:
-- `test:8e14ad1cc2c3db77677dda12da406a9bc2bb51cc5a71335ab110d61714e126f0`
+- `test:d2f29b2b4a4e5053b2f3f2c4358cde771ef56387619f414a6a44d57eb8931d18`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 正式 Investigation ID 由 frontmatter 声明，索引以该 ID 为 key 保存独立 sourcePath；`show` 必须通过新鲜索引定位语义 filename 后回读同一 ID。
+- show 使用索引的 sourcePath 定位当前报告，而不根据 ID 拼接 basename。
 
 Proves:
-- basename 为 `semantic-finding.md` 且 frontmatter ID 为 `stable-report` 的正式 Markdown 可同步为唯一的 `stable-report` entry。
-- 该 entry 投影 `semantic-finding.md` sourcePath，`show stable-report` 返回仍声明同一纯 ID 的 Markdown。
-- 同 ID 改用 `renamed-finding.md` 后旧索引的 sourcePath 不再可供 `show` 解析；同步重建只更新该 entry 的 sourcePath。
+- 索引 ID 保持 260101-one、sourcePath 改为 semantic.md，删除原 ID 文件名后 show 仍返回语义路径中的相同正文。

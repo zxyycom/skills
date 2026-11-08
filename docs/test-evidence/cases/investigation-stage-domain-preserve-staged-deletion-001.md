@@ -1,14 +1,15 @@
 ### Case INVESTIGATION-STAGE-DOMAIN-PRESERVE-STAGED-DELETION-001: stage --scope domain keeps unrelated staged deletions when staging another report
 
 Tests:
-- `test:d89f8c88666a1266ab975ece86836beb7fb80304afddfb79ab7e0793bee86881`
+- `test:20ad9f1001408d13e8eb929189f5535672bd3c836d4b0162e88ad6020e39cf32`
+- `test:ea0eabe85fd39b11c9b53b83ceec8027faf220675694bdaceee5ea66749e892d`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- domain scope 的替换目标从当前 pending 范围出发；无关路径已暂存的删除保持删除，HEAD 内容不得在后续 domain 暂存中重新进入。
+- domain stage 不恢复未选路径的 staged 删除。
 
 Proves:
-- 先以 domain 暂存 removed 报告及其 owner 资源删除，再以 domain 暂存 kept 报告；pending 中 removed 报告与资源仍为删除，kept 报告正常更新且 writtenPaths 只含 kept。
-- preservedPendingPaths 明确报告两个相对 HEAD 的未选 staged 删除路径，不只包含仍存在的 pending 文件。
+- 共享 Git 发布测试先暂存 tracked 文件删除并保留工作区文件，发布另一选择后删除仍在、工作区文件不变。
+- 真实 IR domain stage 使用同一 SourcePublication 并保留未选 pending；本组合不声称 IR fixture 本身包含 staged 删除。

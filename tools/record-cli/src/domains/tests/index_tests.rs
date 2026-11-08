@@ -22,6 +22,12 @@ fn validates_both_domains_and_rejects_corruption() {
     assert!(parse_index(&bytes(&dr), &decision::Definition).is_err());
     let mut ir = envelope("investigations", "240229-report", investigation());
     assert!(parse_index(&bytes(&ir), &investigation::Definition).is_ok());
+    let mut old_definition = ir.clone();
+    old_definition["definitionVersion"] = json!(10);
+    assert!(parse_index(&bytes(&old_definition), &investigation::Definition).is_err());
+    let mut nonempty_metadata = ir.clone();
+    nonempty_metadata["metadata"] = json!({"unexpected":"value"});
+    assert!(parse_index(&bytes(&nonempty_metadata), &investigation::Definition).is_err());
     ir["entries"]["240229-report"]["resourceIds"] = json!(["report/../secret"]);
     assert!(parse_index(&bytes(&ir), &investigation::Definition).is_err());
 }
@@ -53,6 +59,10 @@ fn decision_graph_checks_archival_and_complete_events() {
     v["entries"]["240229-record"]["relations"] = json!([{"type":"修订","target":"230101-old"}]);
     let snapshot = QuerySnapshot::new(parse_index(&bytes(&v), &decision::Definition).unwrap());
     assert!(snapshot.graph(&decision::Definition).is_ok());
+    v["entries"]["240229-record"]["relations"][0]["target"] = json!("240229-record");
+    let snapshot = QuerySnapshot::new(parse_index(&bytes(&v), &decision::Definition).unwrap());
+    assert!(snapshot.graph(&decision::Definition).is_err());
+    v["entries"]["240229-record"]["relations"][0]["target"] = json!("230101-old");
     v["entries"]["230101-old"]["status"] = json!("active");
     v["entries"]["230101-old"]["sourcePath"] = json!("old.md");
     let snapshot = QuerySnapshot::new(parse_index(&bytes(&v), &decision::Definition).unwrap());
@@ -93,6 +103,25 @@ fn reallocation_component_requires_both_roles_and_two_sides() {
     v["entries"]["240301-next"]["relations"] = json!([{"type":"重划","target":"230101-old-a"}]);
     let snapshot = QuerySnapshot::new(parse_index(&bytes(&v), &decision::Definition).unwrap());
     assert!(snapshot.graph(&decision::Definition).is_ok());
+    let mut one_predecessor = v.clone();
+    one_predecessor["entries"]["240229-record"]["relations"] =
+        json!([{"type":"重划","target":"230101-old-a"}]);
+    let mut mixed = v.clone();
+    mixed["entries"]["240229-record"]["relations"] =
+        json!([{"type":"重划","target":"230101-old-a"},{"type":"修订","target":"230101-old-b"}]);
+    let mut crossed_roles = v.clone();
+    crossed_roles["entries"]["230101-old-a"]["relations"] =
+        json!([{"type":"重划","target":"230101-old-b"}]);
+    let mut disconnected = v.clone();
+    disconnected["entries"]["240229-record"]["relations"] =
+        json!([{"type":"重划","target":"230101-old-a"}]);
+    disconnected["entries"]["240301-next"]["relations"] =
+        json!([{"type":"重划","target":"230101-old-b"}]);
+    for invalid in [one_predecessor, mixed, crossed_roles, disconnected] {
+        let snapshot =
+            QuerySnapshot::new(parse_index(&bytes(&invalid), &decision::Definition).unwrap());
+        assert!(snapshot.graph(&decision::Definition).is_err());
+    }
     v["entries"]["240301-next"]["relations"] = json!([]);
     let snapshot = QuerySnapshot::new(parse_index(&bytes(&v), &decision::Definition).unwrap());
     assert!(snapshot.graph(&decision::Definition).is_err());
@@ -117,6 +146,17 @@ fn graph_validates_relations_and_resource_owners() {
             .len(),
         1
     );
+    v["entries"]["240229-report"]["relations"][0]["target"] = json!("240229-report");
+    let snapshot = QuerySnapshot::new(parse_index(&bytes(&v), &investigation::Definition).unwrap());
+    assert!(snapshot.graph(&investigation::Definition).is_err());
+    v["entries"]["240229-report"]["relations"][0]["target"] = json!("230101-old");
+    v["entries"]["230101-old"]["formedAt"] = json!("2025-01-01T00:00:00Z");
+    let snapshot = QuerySnapshot::new(parse_index(&bytes(&v), &investigation::Definition).unwrap());
+    assert!(snapshot.graph(&investigation::Definition).is_err());
+    v["entries"]["230101-old"]["formedAt"] = json!("2023-01-01T00:00:00Z");
+    v["entries"]["240229-report"]["resourceIds"] = json!(["220101-missing/asset.png"]);
+    let snapshot = QuerySnapshot::new(parse_index(&bytes(&v), &investigation::Definition).unwrap());
+    assert!(snapshot.graph(&investigation::Definition).is_err());
     v["entries"]["240229-report"]["resourceIds"] = json!(["230101-old/asset.png"]);
     let snapshot = QuerySnapshot::new(parse_index(&bytes(&v), &investigation::Definition).unwrap());
     assert!(snapshot.graph(&investigation::Definition).is_err());
@@ -146,5 +186,67 @@ fn resolves_dated_ids_and_detects_ambiguous_names() {
     assert_eq!(
         resolve_selector(&entries, "240302-report", |x| x),
         Err(SelectorError::NotFound)
+    );
+}
+
+#[test]
+fn successive_reallocation_events_remain_separate_at_shared_historical_records() {
+    use crate::index::QuerySnapshot;
+    let mut v = envelope("decisions", "240101-old-a", decision());
+    for (id, name, status, relations) in [
+        ("240101-old-a", "old-a", "archived", json!([])),
+        ("240101-old-b", "old-b", "archived", json!([])),
+        (
+            "240201-mid-a",
+            "mid-a",
+            "archived",
+            json!([{"type":"重划","target":"240101-old-a"},{"type":"重划","target":"240101-old-b"}]),
+        ),
+        (
+            "240201-mid-b",
+            "mid-b",
+            "archived",
+            json!([{"type":"重划","target":"240101-old-a"},{"type":"重划","target":"240101-old-b"}]),
+        ),
+        (
+            "240301-new-a",
+            "new-a",
+            "active",
+            json!([{"type":"重划","target":"240201-mid-a"},{"type":"重划","target":"240201-mid-b"}]),
+        ),
+        (
+            "240301-new-b",
+            "new-b",
+            "active",
+            json!([{"type":"重划","target":"240201-mid-a"},{"type":"重划","target":"240201-mid-b"}]),
+        ),
+    ] {
+        let mut state = decision();
+        state["name"] = json!(name);
+        state["status"] = json!(status);
+        state["sourcePath"] = json!(if status == "archived" {
+            format!("archive/{id}.md")
+        } else {
+            format!("{id}.md")
+        });
+        state["relations"] = relations;
+        v["entries"][id] = state;
+        v["sourceRevision"]["entries"][id] = json!(format!("sha256:{}", "a".repeat(64)));
+    }
+    let snapshot = QuerySnapshot::new(parse_index(&bytes(&v), &decision::Definition).unwrap());
+    let graph = snapshot.graph(&decision::Definition).unwrap();
+    assert_eq!(graph.outgoing("240201-mid-a").len(), 2);
+    assert_eq!(graph.incoming("240201-mid-a").len(), 2);
+    assert!(
+        graph
+            .outgoing("240201-mid-a")
+            .iter()
+            .all(|edge| edge.target.starts_with("240101-old"))
+    );
+    assert!(
+        graph
+            .incoming("240201-mid-a")
+            .iter()
+            .all(|edge| edge.source.starts_with("240301-new"))
     );
 }

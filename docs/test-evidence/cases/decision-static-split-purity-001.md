@@ -1,13 +1,13 @@
-### Case DECISION-STATIC-SPLIT-PURITY-001: 严格关系检查拒绝不纯拆分后继
+### Case DECISION-STATIC-SPLIT-PURITY-001: 拆分后继不得混入其他关系
 
 Tests:
-- `test:c8454be4624f741c0601a2055a44f2982836f3352e18954bc2c3b996b31dba06`
+- `test:903d91097b3fae84e188a150e21fc63bdb6f74f1a0f4b8f4aa37d67f22d625fa`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 拆分后继必须恰好保存一条指向同一前序的拆分关系，不能同时混入其他直接关系。
+- 拆分后继的关系集只能包含一条拆分边。
 
 Proves:
-- 真实内存 Markdown 解析及领域图校验对后继混合拆分与修订关系返回拆分后继关系集不纯诊断。
+- 原生 evolve 预检在一个后继同时包含拆分和修订边时给出 invalid split relations，持久索引不变；该节点通过真实事务图检查而非旧内存扫描 API。

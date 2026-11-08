@@ -32,6 +32,8 @@ fn investigation_foreign_resource_requires_pending_match_only_for_all_scope() {
     git(root, &["config", "core.filemode", "false"]);
     let old = include_str!("../fixtures/git-stage/foreign-resource/report.md");
     let new = doc("New title");
+    let owner = doc("Owner title").replace("240229-report", "240229-owner");
+    fs::write(root.join("owner.md"), owner.as_bytes()).unwrap();
     fs::create_dir_all(root.join("_resources/240229-owner")).unwrap();
     fs::copy(
         Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -56,10 +58,14 @@ fn investigation_foreign_resource_requires_pending_match_only_for_all_scope() {
             "--",
             "_resources",
             "report.md",
+            "owner.md",
             "investigation-index.json",
         ],
     );
     git(root, &["commit", "-qm", "foreign owner baseline"]);
+    git(root, &["rm", "--cached", "--", "owner.md"]);
+    assert!(root.join("owner.md").exists());
+    assert!(git(root, &["ls-files", "--", "owner.md"]).is_empty());
     fs::write(
         root.join("_resources/240229-owner/file.txt"),
         b"worktree owner\n",
@@ -97,7 +103,8 @@ fn investigation_foreign_resource_requires_pending_match_only_for_all_scope() {
         git(root, &["show", ":_resources/240229-owner/file.txt"]),
         b"pending owner\n"
     );
-    assert!(!root.join("owner.md").exists());
+    assert_eq!(fs::read(root.join("owner.md")).unwrap(), owner.as_bytes());
+    assert!(git(root, &["ls-files", "--", "owner.md"]).is_empty());
     fs::write(
         root.join("_resources/240229-owner/file.txt"),
         b"pending owner\n",
@@ -118,7 +125,8 @@ fn investigation_foreign_resource_requires_pending_match_only_for_all_scope() {
         !all.updated_paths
             .contains(&PathBuf::from("_resources/240229-owner/file.txt"))
     );
-    assert!(!root.join("owner.md").exists());
+    assert_eq!(fs::read(root.join("owner.md")).unwrap(), owner.as_bytes());
+    assert!(git(root, &["ls-files", "--", "owner.md"]).is_empty());
 }
 #[test]
 fn investigation_all_stages_deleted_owner_tree_when_directory_is_missing() {

@@ -1,13 +1,13 @@
-### Case INVESTIGATION-LIST-RELATION-ERRORS-001: 关系名称歧义与索引失败保持原优先级
+### Case INVESTIGATION-LIST-RELATION-ERRORS-001: 列表拒绝缺失关系目标
 
 Tests:
-- `test:8839ba019121cf38937de6de2d6003840ce25e1349656d24b06dadc390408793`
+- `test:8f7d4e88a44f15b8b43b3150b2746fd965c22ba80c1d50679402762dcf9fe1ad`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 关系 selector 必须在同一合法快照内唯一解析；其他过滤为空不能消除歧义，索引加载失败先于 selector 处理。
+- 列表关系 selector 找不到目标时不能退化为无关系筛选的成功结果。
 
 Proves:
-- 两个日期 ID 共享 name 时，即使 tag 零命中仍返回歧义；输入加载失败时保留 index-missing，不报告名称歧义。
+- 调查列表投影在有效快照与 tag 条件下设置不存在的 related-to 时返回错误。

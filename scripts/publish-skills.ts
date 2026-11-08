@@ -1,3 +1,4 @@
-import { runPublishSkills } from "./lib/publishing/publish-skills.ts";
-
-process.exitCode = await runPublishSkills();
+console.error(
+  "Retired TypeScript skill publisher cannot publish native releases; use the native release workflow."
+);
+process.exitCode = 1;

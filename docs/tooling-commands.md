@@ -14,9 +14,9 @@
 | `bun run fix` | 依次运行覆盖 `scripts/` 与 `tools/` 的 `lint:fix` 与 `format`，用于安全地修复维护源码 |
 | `bun run validate` | 校验全部 skill 的结构、frontmatter、正文、资源目录、版本和主仓库配置；不校验链接 |
 | `bun run hash:skills` | 从 Git `pending` 快照临时计算 package hash，并校验内容变化的 skill 已相对 `--baseline-ref` 提升 `SKILL.md` 中的 `metadata.version` |
-| `bun run pack:skills` | 从版本管理 `pending` 快照生成每个 skill 的 zip 和 release manifest |
+| `bun run pack:skills` | 从版本管理 `pending` 快照在独占 `dist/skill-release/package-*` 中生成每个 skill 的 zip 和 release manifest，输出实际路径，不清空根 `dist` |
 | `bun run accept:video-windows -- --artifact <absolute-zip>` | Windows 视频验收组合入口：运行视频源码测试，再对显式 zip 进行仓库外独立安装和分发验收；不替代完整 Gate |
-| `bun run publish:skills -- <rolling\|snapshot>` | 供发布 workflow 校验 `dist/` 制品并执行滚动发布或不可变快照事务；需要 GitHub Actions 提供的 `GH_TOKEN`、`GITHUB_SHA` 和 `PACKAGE_HASH` |
+| `bun run publish:skills -- <rolling\|snapshot> <stage-marker>` | 供发布 workflow 校验所指冻结候选制品并执行滚动发布或不可变快照事务；需要 GitHub Actions 提供的 `GH_TOKEN`、`GITHUB_SHA` 和 `PACKAGE_HASH` |
 | `bun run setup-hooks` | 配置当前 worktree 的 `core.hooksPath`，并在 POSIX 文件系统恢复 hook 可执行权限 |
 | `bun run setup-repository` | 配置当前 worktree hook，并确认当前项目的主 worktree 可作为默认 task-graph root |
 | `bun run check [--diagnostic-log]` | 默认 quick：执行 [Catalog 与选择](gate-execution.md#catalog-与选择)列出的六项公共基线，强制快速性能预算；不采集全局指纹或读写 receipt，不代替代码质量与领域校验。 |
@@ -46,7 +46,7 @@
 | `bun run test-evidence -- <arguments>` | 校验、同步和查询显式测试证据 case |
 | `bun run validate-skill -- <skill-directory>` | 校验单个 skill 的可移植结构 |
 
-项目内 agent、维护说明和日常人工操作使用上表入口。除 task-graph 外，每个入口直接委托对应 `skills/*/scripts/` 生成 CLI；参数、输出、退出状态和事务逻辑仍由该领域 CLI 定义。只有以下场景直接调用 `tools/` 源码或 `skills/*/scripts/` 完整路径：
+项目内 agent、维护说明和日常人工操作使用上表入口。Decision Records 和 Investigation Report 经 Node 轻量调度器调用已准备的原生程序；先运行 `bun run prepare:record-native`，可用 `bun run prepare:record-native -- --check` 核对。其他入口除 task-graph 外委托对应 `skills/*/scripts/` 生成 CLI；参数、输出、退出状态和事务逻辑仍由该领域 CLI 定义。只有以下场景直接调用 `tools/` 源码或 `skills/*/scripts/` 完整路径：
 
 1. 验证工具源码与生成制品的一致性。
 2. 调试 package 入口或领域 CLI 实现。
@@ -78,7 +78,7 @@ task-graph 短命令另外承担项目 root 选择。省略 `--root` 时，它�
 | Decision Records | `test:decision-records-cli` | `sync:decision-records-cli` | `check:decision-records-cli`、`check:decisions` |
 | Skill Validator | `test:skill-validator` | `sync:skill-validator` | `check:skill-validator` |
 | Investigation Report | `test:investigation-report-check` | `sync:investigation-report-check` | `check:investigation-report-check`、`check:investigations` |
-| Record Rust 候选 | `prepare:record-native`、`test:record-native-runtime`、`test:record-rust`、`test:record-delivery`、`smoke:record-rust`（构建前置见[候选维护](../tools/record-cli/README.md#构建与调用)） | — | `bun run check -- --scope record-rust` |
+| Record 原生 CLI | `prepare:record-native`、`test:record-native-runtime`、`test:record-rust`、`test:record-delivery`、`smoke:record-rust`（构建前置见[原生维护](../tools/record-cli/README.md#构建与调用)） | — | `bun run check -- --scope record-rust` |
 | Task Graph | `test:task-graph-cli` | `sync:task-graph-cli` | `check:task-graph-cli`、`check:task-graph-index` |
 | Test Evidence | `test:test-evidence-cli`、`test:test-evidence-project` | `sync:test-evidence-cli`、`sync:test-evidence-catalog` | `check:test-evidence-cli`、`check:test-evidence-catalog` |
 | Skill Updater | `test:skill-updater` | `sync:skill-updaters` | `check:skill-updaters` |

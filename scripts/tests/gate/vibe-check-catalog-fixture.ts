@@ -9,6 +9,11 @@ export const expectedSemanticChecks: readonly (readonly [
     "./tools/record-cli/delivery/delivery.test.ts"
   ],
   [
+    "test:record-rust:contracts",
+    "node",
+    "./tools/record-contracts/tests/schema.test.ts"
+  ],
+  [
     "test:record-rust:runtime",
     "node",
     "./scripts/lib/record-native/tests/runtime.test.ts"
@@ -60,66 +65,6 @@ export const expectedSemanticChecks: readonly (readonly [
     "test:change-plan:public-distribution",
     "bun",
     "./tools/change-plan/tests/checks/public-distribution.ts"
-  ],
-  [
-    "test:record-operations:shared-contract",
-    "bun",
-    "./tools/record-operations/tests/checks/shared-contract.ts"
-  ],
-  [
-    "test:decision-records:record-and-established-graph",
-    "bun",
-    "./tools/decision-records/tests/checks/record-and-established-graph.ts"
-  ],
-  [
-    "test:decision-records:query-and-index-projection",
-    "bun",
-    "./tools/decision-records/tests/checks/query-and-index-projection.ts"
-  ],
-  [
-    "test:decision-records:lifecycle-and-recovery",
-    "bun",
-    "./tools/decision-records/tests/checks/lifecycle-and-recovery.ts"
-  ],
-  [
-    "test:decision-records:pending-stage",
-    "bun",
-    "./tools/decision-records/tests/staging/stage.test.ts"
-  ],
-  [
-    "test:decision-records:cli-contract",
-    "bun",
-    "./tools/decision-records/tests/checks/cli-contract.ts"
-  ],
-  [
-    "test:decision-records:public-distribution",
-    "bun",
-    "./tools/decision-records/tests/checks/public-distribution.ts"
-  ],
-  [
-    "test:investigation-report:collection-and-resources",
-    "bun",
-    "./tools/investigation-report/tests/checks/collection-and-resources.ts"
-  ],
-  [
-    "test:investigation-report:index-and-query",
-    "bun",
-    "./tools/investigation-report/tests/checks/index-and-query.ts"
-  ],
-  [
-    "test:investigation-report:transactional-maintenance",
-    "bun",
-    "./tools/investigation-report/tests/checks/transactional-maintenance.ts"
-  ],
-  [
-    "test:investigation-report:pending-stage",
-    "bun",
-    "./tools/investigation-report/tests/checks/pending-stage.ts"
-  ],
-  [
-    "test:investigation-report:cli-contract",
-    "bun",
-    "./tools/investigation-report/tests/checks/cli-contract.ts"
   ],
   [
     "test:task-graph:index-and-projection",
@@ -207,7 +152,6 @@ export const expectedSemanticPrerequisites: ReadonlyMap<
   string,
   readonly string[]
 > = new Map([
-  ["test:record-operations:shared-contract", ["script:check:skill-updaters"]],
   ["test:test-evidence:public-boundary", ["script:check:skill-updaters"]],
   [
     "test:lightweight-judgment:request-and-response",
@@ -224,14 +168,5 @@ export const expectedSemanticPrerequisites: ReadonlyMap<
     ["script:check:skill-updaters"]
   ],
   ["test:change-plan:public-distribution", ["script:check:skill-updaters"]],
-  [
-    "test:decision-records:public-distribution",
-    ["script:check:skill-updaters"]
-  ],
-  ["test:investigation-report:cli-contract", ["script:check:skill-updaters"]],
-  [
-    "test:investigation-report:collection-and-resources",
-    ["script:check:skill-updaters"]
-  ],
   ["test:task-graph:public-distribution", ["script:check:skill-updaters"]]
 ]);

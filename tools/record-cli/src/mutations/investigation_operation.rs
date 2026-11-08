@@ -1,5 +1,4 @@
-//! Investigation relation operation. Call only against isolated candidates until
-//! transaction and platform acceptance is complete; it is not CLI wiring.
+//! Investigation relation operation.
 use super::{
     contract::{InvestigationRelationKind, Relation, RelationGroup, ReviewAction, SourceReview},
     investigation_relations::{self, PreparedReplacement},

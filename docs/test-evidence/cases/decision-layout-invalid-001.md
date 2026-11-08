@@ -1,13 +1,13 @@
-### Case DECISION-LAYOUT-INVALID-001: 扫描器拒绝无效物理布局
+### Case DECISION-LAYOUT-INVALID-001: 拒绝状态与归档路径不匹配
 
 Tests:
-- `test:34f322fc10fb5eba4ce011fc03a2f2539412a849d50d04d24e01e7438ab2192d`
+- `test:1562e0ec86731ee6252e448882419a3cdcb464f96d79214ba4414bb54f792569`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 扫描器必须同时拒绝状态与物理 sourcePath 不匹配、根目录嵌套目录以及跨位置重复 Decision ID。
+- 正式决策状态与 sourcePath 所在生命周期位置必须一致。
 
 Proves:
-- 断言三类输入分别产生 status/sourcePath、unsupported nested directory 和 duplicate ID 诊断。
+- active 正文以 archive 路径解析失败。

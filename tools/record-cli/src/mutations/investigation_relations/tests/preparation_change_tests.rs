@@ -48,6 +48,7 @@ fn selected_relation_is_written_into_domain_validated_index_without_reading_unse
         action: ReviewAction::Replace,
         before: vec![],
         after: vec![Relation {
+            summary_selector: None,
             kind: InvestigationRelationKind::Supplement,
             target: "260827-old".into(),
             summary: None,

@@ -1,13 +1,13 @@
-### Case INVESTIGATION-CLI-UNKNOWN-INPUT-001: 旧命令与旧参数按普通未知输入失败
+### Case INVESTIGATION-CLI-UNKNOWN-INPUT-001: JSON 命令拒绝未知选项
 
 Tests:
-- `test:3dbd7baee50842b3cad36dea67ef27a342c496b9df777d1bd8c5d7c2833fb0b9`
+- `test:6e47f8cda3c29049a6d3c915454f4c20fe67bb4cc28b7a38cdd5d44d6ef55fe9`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 被移除的旧命令与旧参数只得到普通未知命令或未知选项结果，以参数错误退出码结束；实现与诊断不保留兼容别名、弃用分支或迁移专用提示。
+- 调查查询和写入命令在 JSON 模式下拒绝未知选项并返回用法错误。
 
 Proves:
-- 未知命令与未知选项调用都以退出码 `2` 结束、stdout 为空，stderr 只包含普通未知输入诊断，不出现弃用或迁移文案。
+- 真实 investigation-report 的 list、new 遇未知选项均退出 2，stdout 是唯一 version 2 错误对象，code 为 invalid-arguments。

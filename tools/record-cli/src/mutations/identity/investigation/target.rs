@@ -28,3 +28,21 @@ pub(super) fn target_identity(target: &str, formed_at: &str) -> Result<String, T
     }
     Ok(target_id)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn investigation_rename_target_uses_formed_at_utc_date() {
+        let formed = "2026-11-07T00:30:00+02:00";
+        assert_eq!(target_identity("new", formed).unwrap(), "261106-new");
+        assert_eq!(
+            target_identity("261106-new.MD", formed).unwrap(),
+            "261106-new"
+        );
+        assert_eq!(
+            target_identity("261107-new", formed).unwrap_err().code,
+            "date-mismatch"
+        );
+    }
+}

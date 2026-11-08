@@ -1,13 +1,13 @@
-### Case IR-INDEX-PAYLOAD-PRESERVATION-001: index保留未选部分暂存表示与删除
+### Case IR-INDEX-PAYLOAD-PRESERVATION-001: 索引保留未选投影与删除
 
 Tests:
-- `test:44a32fc7f0bcb51ad84c93aa8601da57ab8eabc5673bed2e263c047f16211fa6`
+- `test:377f869a34af709f3f1366295acf1d3e0190cb773fe725973ce69f242045e849`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- IR index scope只刷新所选发布投影，不刷新未选pending来源的部分字节、模式、删除状态或未选索引含义。
+- index scope 只刷新所选发布投影，并保留未选 staged 删除。
 
 Proves:
-- 未选partial pending及可执行模式、另一个staged删除保持原entries；preservedPendingPaths包含二者，未选索引条目仍为旧投影。
+- 真实 Git 中未选 beta 保留 pending 投影，另一个未选 staged 删除仍缺失且列入 preservedPendingPaths。

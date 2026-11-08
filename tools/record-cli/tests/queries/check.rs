@@ -47,12 +47,44 @@ fn decision_check_cli_reports_source_and_index_state_not_index_only() {
     assert_eq!(value["ok"], true);
     assert_eq!(value["result"]["summary"]["activeCount"], 1);
     assert_eq!(value["result"]["indexState"], "current");
+    let index_path = dir.join("decision-index.json");
+    let valid_index = fs::read(&index_path).unwrap();
+    let mut obsolete: Value = serde_json::from_slice(&valid_index).unwrap();
+    obsolete["definitionVersion"] = json!(10);
+    fs::write(&index_path, serde_json::to_vec(&obsolete).unwrap()).unwrap();
+    let rejected = run();
+    assert_eq!(rejected.status.code(), Some(1));
+    let failure: Value = serde_json::from_slice(&rejected.stdout).unwrap();
+    assert_eq!(failure["ok"], false);
+    assert_eq!(failure["error"]["code"], "index-not-current");
+    assert_eq!(failure["result"]["formalCount"], 1);
+    assert!(
+        failure["error"]["message"]
+            .as_str()
+            .unwrap()
+            .contains("definition identity")
+    );
+    fs::write(&index_path, valid_index).unwrap();
     fs::write(dir.join("one.md"), format!("{text}\nChanged.\n")).unwrap();
     let fail = run();
     assert!(!fail.status.success());
     let value: Value = serde_json::from_slice(&fail.stdout).unwrap();
     assert_eq!(value["ok"], false);
     assert_eq!(value["error"]["code"], "index-not-current");
+    let invalid = text.replace("alignment: unaligned", "alignment: null");
+    fs::write(dir.join("one.md"), &invalid).unwrap();
+    let before = fs::read(dir.join("decision-index.json")).unwrap();
+    for command in ["check", "sync-index"] {
+        let out = Command::new(env!("CARGO_BIN_EXE_decision-records"))
+            .args([command, "--json", "--root", root.path().to_str().unwrap()])
+            .output()
+            .unwrap();
+        assert!(!out.status.success());
+        let value: Value = serde_json::from_slice(&out.stdout).unwrap();
+        assert_eq!(value["ok"], false);
+        assert_eq!(fs::read(dir.join("one.md")).unwrap(), invalid.as_bytes());
+        assert_eq!(fs::read(dir.join("decision-index.json")).unwrap(), before);
+    }
 }
 
 #[test]
@@ -135,9 +167,10 @@ fn investigation_bom_remains_invalid_for_formal_check_and_sync() {
     let root = tempfile::tempdir().unwrap();
     let dir = root.path().join("docs/investigations");
     fs::create_dir_all(&dir).unwrap();
-    let source = include_str!(
-        "../../../investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md"
-    );
+    let source = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/fixtures/investigation-same.md"
+    ));
     let path = dir.join("same.md");
     let run = |command: &str| {
         Command::new(env!("CARGO_BIN_EXE_investigation-report"))

@@ -111,10 +111,9 @@ function validateResumeReceipt(
     throw new Error("native receipt file modes do not match bundle");
   assertFileModePolicy(options.files, modes);
   const pending = receipt(options, plan, stage, modes);
-  const completed = JSON.parse(pending.toString("utf8")) as Record<
-    string,
-    unknown
-  >;
+  const completed: unknown = JSON.parse(pending.toString("utf8"));
+  if (!v.is(v.object({ state: v.string() }), completed))
+    throw new Error("invalid generated native cleanup receipt");
   completed.state = "complete";
   const complete = Buffer.from(`${JSON.stringify(completed, null, 2)}\n`);
   const state = result.output.state;

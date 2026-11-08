@@ -11,7 +11,7 @@ use crate::mutations::{
 };
 use crate::{
     domains::{
-        self, JsTrim,
+        self,
         decision::{self, Definition},
     },
     index,
@@ -65,6 +65,7 @@ fn kind(s: &str) -> Result<DecisionRelationKind, TxError> {
 }
 fn relation(r: &domains::Relation) -> Result<Relation<DecisionRelationKind>, TxError> {
     Ok(Relation {
+        summary_selector: None,
         kind: kind(&r.relation_type)?,
         target: r.target.clone(),
         summary: r.summary.clone(),

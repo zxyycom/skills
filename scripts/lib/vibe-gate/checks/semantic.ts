@@ -37,6 +37,16 @@ export const semanticGateChecks = [
     }
   },
   {
+    checkId: "test:record-rust:contracts",
+    toolIds: ["record-rust"],
+    requiredTag: undefined,
+    displayName: "Record native published schema contracts",
+    command: {
+      command: "node",
+      args: ["--test", "./tools/record-contracts/tests/schema.test.ts"]
+    }
+  },
+  {
     checkId: "test:record-rust:runtime",
     toolIds: ["record-rust"],
     requiredTag: undefined,
@@ -46,12 +56,17 @@ export const semanticGateChecks = [
       args: [
         "--test",
         "./scripts/lib/record-native/tests/candidate-publish.test.ts",
+        "./scripts/lib/record-native/tests/candidate-publish-github.test.ts",
+        "./scripts/lib/record-native/tests/candidate-publish-recovery.test.ts",
         "./scripts/lib/record-native/tests/candidate-generate.test.ts",
         "./scripts/lib/record-native/tests/candidate-package.test.ts",
         "./scripts/lib/record-native/tests/ci-bootstrap-first-target.test.ts",
         "./scripts/lib/record-native/tests/ci-bootstrap-lock.test.ts",
         "./scripts/lib/record-native/tests/ci-bootstrap-source.test.ts",
         "./scripts/lib/record-native/tests/ci-frozen.test.ts",
+        "./scripts/lib/record-native/tests/ci-release-evidence.test.ts",
+        "./scripts/lib/record-native/tests/ci-release-reuse.test.ts",
+        "./scripts/lib/record-native/tests/ci-release-workflow.test.ts",
         "./scripts/lib/record-native/tests/runtime.test.ts"
       ]
     }
@@ -197,221 +212,6 @@ export const semanticGateChecks = [
     displayName: "Change Plan public distribution",
     requiredTag: undefined,
     command: bunTest("./tools/change-plan/tests/checks/public-distribution.ts")
-  },
-  {
-    checkId: "test:record-operations:shared-contract",
-    toolIds: [
-      "record-operations",
-      "record-operations-tests",
-      "record-reader-distribution"
-    ],
-    dependsOn: ["script:check:skill-updaters"],
-    generationSkillNames: ["decision-records", "investigation-report"],
-    displayName: "Record Operations shared transactions and readers",
-    requiredTag: undefined,
-    command: bunTest(
-      "./tools/record-operations/tests/checks/shared-contract.ts"
-    )
-  },
-  {
-    checkId: "test:decision-records:record-and-established-graph",
-    // The current acquisition regression includes a real source sync-index
-    // call. Its CLI module closure remains an input while that node is here.
-    toolIds: [
-      "decision-record-tests",
-      "decision-record",
-      "decision-query",
-      "decision-maintenance",
-      "decision-stage",
-      "decision-cli",
-      "file-text-search",
-      "relation-graph"
-    ],
-    displayName: "Decision Records record and established graph",
-    requiredTag: undefined,
-    command: bunTest(
-      "./tools/decision-records/tests/checks/record-and-established-graph.ts"
-    )
-  },
-  {
-    checkId: "test:decision-records:query-and-index-projection",
-    toolIds: [
-      "decision-query-tests",
-      "decision-record",
-      "decision-query",
-      "decision-maintenance",
-      "decision-stage",
-      "decision-cli",
-      "file-text-search",
-      "relation-graph"
-    ],
-    displayName: "Decision Records query and index projection",
-    requiredTag: undefined,
-    command: bunTest(
-      "./tools/decision-records/tests/checks/query-and-index-projection.ts"
-    )
-  },
-  {
-    checkId: "test:decision-records:lifecycle-and-recovery",
-    toolIds: [
-      "decision-maintenance-tests",
-      "decision-record",
-      "decision-query",
-      "decision-maintenance",
-      "decision-stage",
-      "decision-cli",
-      "file-text-search",
-      "relation-graph"
-    ],
-    displayName: "Decision Records lifecycle and recovery",
-    requiredTag: undefined,
-    command: bunTest(
-      "./tools/decision-records/tests/checks/lifecycle-and-recovery.ts"
-    )
-  },
-  {
-    checkId: "test:decision-records:pending-stage",
-    toolIds: [
-      "decision-stage-tests",
-      "decision-record",
-      "decision-stage",
-      "relation-graph"
-    ],
-    displayName: "Decision Records pending stage",
-    requiredTag: undefined,
-    command: bunTest("./tools/decision-records/tests/staging/stage.test.ts")
-  },
-  {
-    checkId: "test:decision-records:cli-contract",
-    toolIds: [
-      "decision-cli-tests",
-      "decision-record",
-      "decision-query",
-      "decision-maintenance",
-      "decision-stage",
-      "decision-cli",
-      "file-text-search",
-      "record-search-output",
-      "relation-graph"
-    ],
-    displayName: "Decision Records source CLI contract",
-    requiredTag: undefined,
-    command: bunTest("./tools/decision-records/tests/checks/cli-contract.ts")
-  },
-  {
-    checkId: "test:decision-records:public-distribution",
-    toolIds: [
-      "decision-distribution-tests",
-      "decision-record",
-      "decision-query",
-      "decision-maintenance",
-      "decision-stage",
-      "decision-cli",
-      "decision-distribution",
-      "file-text-search",
-      "record-search-output",
-      "relation-graph"
-    ],
-    dependsOn: ["script:check:skill-updaters"],
-    generationSkillNames: ["decision-records"],
-    displayName: "Decision Records public distribution",
-    requiredTag: undefined,
-    command: bunTest(
-      "./tools/decision-records/tests/checks/public-distribution.ts"
-    )
-  },
-  {
-    checkId: "test:investigation-report:collection-and-resources",
-    toolIds: [
-      "investigation-record-tests",
-      "investigation-record",
-      "investigation-maintenance",
-      "investigation-query",
-      "investigation-stage",
-      "investigation-cli",
-      "investigation-distribution",
-      "file-text-search",
-      "relation-graph"
-    ],
-    dependsOn: ["script:check:skill-updaters"],
-    generationSkillNames: ["investigation-report"],
-    displayName: "Investigation Report collection and resources",
-    requiredTag: undefined,
-    command: bunTest(
-      "./tools/investigation-report/tests/checks/collection-and-resources.ts"
-    )
-  },
-  {
-    checkId: "test:investigation-report:index-and-query",
-    toolIds: [
-      "investigation-query-tests",
-      "investigation-record",
-      "investigation-query",
-      "investigation-maintenance",
-      "investigation-stage",
-      "file-text-search",
-      "relation-graph"
-    ],
-    displayName: "Investigation Report index and query",
-    requiredTag: undefined,
-    command: bunTest(
-      "./tools/investigation-report/tests/checks/index-and-query.ts"
-    )
-  },
-  {
-    checkId: "test:investigation-report:transactional-maintenance",
-    toolIds: [
-      "investigation-maintenance-tests",
-      "investigation-record",
-      "investigation-query",
-      "investigation-maintenance",
-      "file-text-search",
-      "relation-graph"
-    ],
-    displayName: "Investigation Report transactional maintenance",
-    requiredTag: undefined,
-    command: bunTest(
-      "./tools/investigation-report/tests/checks/transactional-maintenance.ts"
-    )
-  },
-  {
-    checkId: "test:investigation-report:pending-stage",
-    toolIds: [
-      "investigation-stage-tests",
-      "investigation-record",
-      "investigation-query",
-      "investigation-maintenance",
-      "investigation-stage",
-      "file-text-search",
-      "relation-graph"
-    ],
-    displayName: "Investigation Report pending stage",
-    requiredTag: undefined,
-    command: bunTest(
-      "./tools/investigation-report/tests/checks/pending-stage.ts"
-    )
-  },
-  {
-    checkId: "test:investigation-report:cli-contract",
-    dependsOn: ["script:check:skill-updaters"],
-    generationSkillNames: ["investigation-report"],
-    toolIds: [
-      "investigation-cli-tests",
-      "investigation-record",
-      "investigation-query",
-      "investigation-maintenance",
-      "investigation-stage",
-      "investigation-cli",
-      "investigation-distribution",
-      "file-text-search",
-      "record-search-output",
-      "relation-graph"
-    ],
-    displayName: "Investigation Report CLI contract",
-    requiredTag: undefined,
-    command: bunTest(
-      "./tools/investigation-report/tests/checks/cli-contract.ts"
-    )
   },
   {
     checkId: "test:task-graph:index-and-projection",

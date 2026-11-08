@@ -1,49 +1,20 @@
 #!/usr/bin/env node
 /*
- * Synced TypeScript runtime; repository maintenance edits tools/skill-updater/src/index.ts.
+ * Synced TypeScript runtime; repository maintenance edits tools/skill-updater/src/native/cli.ts.
  * Installed skill copies may be edited directly; updates overwrite matching files.
  * Repository: https://github.com/zxyycom/skills
- * Source path: tools/skill-updater/src/index.ts
- * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/skill-updater/src/index.ts
+ * Source path: tools/skill-updater/src/native/cli.ts
+ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/skill-updater/src/native/cli.ts
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-// Release manifest asset: https://github.com/zxyycom/skills/releases/latest/download/skill-release-manifest.json
-// Release asset: https://github.com/zxyycom/skills/releases/latest/download/investigation-report.zip
+import { runNativeUpdaterCli } from "./runtime/tools/skill-updater/src/native/cli.ts";
+import { pathToFileURL } from "node:url";
 import path from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
-import type { UpdaterConfig } from "./runtime/tools/skill-updater/src/types.ts";
-export type { UpdaterConfig } from "./runtime/tools/skill-updater/src/types.ts";
-
-export const skillUpdaterConfig: Readonly<UpdaterConfig> = Object.freeze({
-  "releaseAssetName": "investigation-report.zip",
-  "releaseManifestAssetName": "skill-release-manifest.json",
-  "repo": "zxyycom/skills",
-  "skillName": "investigation-report",
-  "sourcePath": "skills/investigation-report"
-});
-
-export async function runSkillUpdaterCli(
-  argv: readonly string[] = process.argv.slice(2)
-): Promise<number> {
-  let runtime: typeof import("./runtime/tools/skill-updater/src/index.ts");
-  const skillDirectory = fileURLToPath(new URL("../", import.meta.url));
-  const installCommand = 'pnpm --dir ' + JSON.stringify(skillDirectory) + ' install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated';
-  try {
-    // Load the complete updater before any package files can be overwritten.
-    runtime = await import("./runtime/tools/skill-updater/src/index.ts");
-  } catch (error) {
-    const diagnostic = error instanceof Error ? error.message : String(error);
-    throw new Error('Unable to load skill updater runtime: ' + diagnostic + '\nRestore compatible dependencies explicitly:\n  ' + installCommand + '\nIf runtime files or the manifest/lockfile are damaged, re-obtain this skill and retry. No installation was attempted.', { cause: error });
-  }
-  return await runtime.runSkillUpdaterCli(skillUpdaterConfig, import.meta.url, argv);
+const config = {"releaseAssetName":"investigation-report-native.zip","releaseManifestAssetName":"skill-release-manifest.json","repo":"zxyycom/skills","skillName":"investigation-report","sourcePath":"skills/investigation-report"};
+export async function run(argv: readonly string[] = process.argv.slice(2)): Promise<number> {
+  return await runNativeUpdaterCli(config, "investigation-report", import.meta.url, argv, false);
 }
-
-if (process.argv[1] !== undefined && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) {
-  try {
-    process.exitCode = await runSkillUpdaterCli();
-  } catch (error) {
-    console.error(error instanceof Error ? error.message : String(error));
-    process.exitCode = 1;
-  }
+if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) {
+  try { process.exitCode = await run(); } catch (error) { console.error(error instanceof Error ? error.message : String(error)); process.exitCode = 1; }
 }

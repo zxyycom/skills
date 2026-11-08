@@ -1,13 +1,13 @@
 ### Case INVESTIGATION-STAGE-DOMAIN-TREE-001: stage --scope domain writes the report and its complete owner resource tree
 
 Tests:
-- `test:04f890231f4e62763b910e09aaa4f2242f7da600660ef89639b2b0c79cc5ccbf`
+- `test:ea0eabe85fd39b11c9b53b83ceec8027faf220675694bdaceee5ea66749e892d`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- domain scope 覆盖所选报告的完整 owner 资源树，成员取工作区、pending 与 HEAD 并集。
+- domain scope 选中报告及其受管理 owner 资源，保留未选 pending 并忽略 Git 排除的资源。
 
 Proves:
-- 引用成员修改、未引用与嵌套新增都进入 pending；索引与未选报告保持零变化。
+- 真实 Git 中暂存报告、资源修改、新增及删除，保留执行位、未选 pending 和被忽略文件；domain 保留旧索引投影。

@@ -1,14 +1,13 @@
 ### Case DECISION-RENAME-HISTORY-001: 已记录 Decision 需要 rename 专属确认
 
 Tests:
-- `test:22914a00b0fe5f520566cfa409510577bb9254e4c51378cfa668d2230c65acd0`
+- `test:1c465af311b52c0329fe899ef38272b8b71b9a6eceb98f0d4396c120cfc4445d`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 进入 Git HEAD 的 Decision identity 仅可由 `--rename-recorded-decision` 明确确认当前工作树 rename，且不重写历史。
+- 已记录的候选改名须显式确认。
 
 Proves:
-- 缺少确认时 CLI 返回 rename 专属 flag 提示且 source 不变。
-- 带确认 flag 的同一 rename 成功。
+- 已提交候选未确认时拒绝且原字节不变，诊断提示专用确认参数；确认后改名提交。

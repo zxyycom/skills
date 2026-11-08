@@ -253,3 +253,21 @@ pub struct RewriteImpact {
     pub established_relations: usize,
     pub resource_references: usize,
 }
+
+#[cfg(test)]
+mod selector_contract_tests {
+    use super::*;
+    #[test]
+    fn identity_selector_requires_exact_dated_id_and_rejects_ambiguous_names() {
+        let locators = std::collections::BTreeMap::from([
+            ("240101-example".into(), ("first.md".into(), false)),
+            ("250101-example".into(), ("second.md".into(), true)),
+        ]);
+        assert_eq!(
+            select_identity(&locators, "240101-example.MD").unwrap(),
+            ("240101-example".into(), "first.md".into(), false)
+        );
+        assert!(select_identity(&locators, "example").is_err());
+        assert!(select_identity(&locators, "260101-example").is_err());
+    }
+}

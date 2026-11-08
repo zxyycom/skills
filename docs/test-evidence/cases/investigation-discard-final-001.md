@@ -1,14 +1,13 @@
-### Case INVESTIGATION-DISCARD-FINAL-001: discard removes a final report and confirmed owner resources
+### Case INVESTIGATION-DISCARD-FINAL-001: 删除 owner 资源须显式确认
 
 Tests:
-- `test:1c5ecd840d37fda63aaab098a2f188145151cea5cabcdb6ef1992b597324cda7`
+- `test:8a884f3dd1b301d3859f85fb1080bd595a8f8476648854f1111291159ab846eb`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 删除有 owner-prefix 资源的报告必须显式确认资源删除；成功删除最后一份已建立报告后，派生空索引仍可被完整检查和列表查询使用。
+- 调查报告删除计划必须显式确认所拥有资源的删除。
 
 Proves:
-- 未确认资源删除时无写入并给出参数提示；确认后报告及资源消失，且没有遗留 tombstone。
-- 完整 check 成功且 list 返回空集合。
+- 纯计划对未确认资源删除返回 ResourceDeletionNotConfirmed；两种确认均提供后计划包含 owned_resources。

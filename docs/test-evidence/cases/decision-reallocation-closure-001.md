@@ -1,13 +1,13 @@
-### Case DECISION-REALLOCATION-CLOSURE-001: Evolve 要求重划分量的完整后继集合
+### Case DECISION-REALLOCATION-CLOSURE-001: 重划扩充选择完整后继集合
 
 Tests:
-- `test:8a05ce72ab31ca432d5d89b4ddd7afaae990301b9c1f7b4d76c3719787ec3f39`
+- `test:9bffb128cdc9fc093743a4dac03e6087f745c4c52f29483675891bfb3842e484`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 重划关系的建立或修订必须选择最终连通分量中的全部已建立后继。
+- 修改重划事件须选择其最终连通分量的全部后继。
 
 Proves:
-- 前面存在不相交重划分量时，目标分量含第三个已建立后继而仅选择原来两个，纯事务准备返回 error、exitCode=1，诊断指出遗漏的 Decision ID，且不产生 changes。
+- 已建立两后继重划后，新增第三后继而遗漏一个既有后继，预检失败且索引字节不变；选全两个既有后继后提交，新增边写入索引且最终图有效。此节点不测试此前不相交分量。

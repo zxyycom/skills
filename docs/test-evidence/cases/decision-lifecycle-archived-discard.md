@@ -1,13 +1,13 @@
 ### Case DECISION-LIFECYCLE-ARCHIVED-DISCARD-001: 丢弃归档记录删除路径与索引身份
 
 Tests:
-- `test:2dac2ba45be515fd63d31c13502e3de6117a2af7f47da0acf7417023ef03a7ab`
+- `test:6a6cade9052da091bc088374814e80fac3f43d55140d254537bd36c554fc8b48`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 显式确认的归档记录丢弃同时移除来源与对应 ID-keyed 索引条目。
+- 无引用归档记录可显式丢弃，来源与正式索引身份一同移除。
 
 Proves:
-- 归档后 discard --delete-recorded 成功，归档路径不存在，字面 ID use-markdown-establishment 不在索引中，剩余集合严格检查通过。
+- 真实 CLI 归档后 discard 成功，归档来源消失，索引不再含该唯一身份。

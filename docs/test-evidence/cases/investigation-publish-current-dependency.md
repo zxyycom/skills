@@ -1,13 +1,13 @@
-### Case INVESTIGATION-PUBLISH-CURRENT-DEPENDENCY-001: 发布保留未选依赖的当前正文
+### Case INVESTIGATION-PUBLISH-CURRENT-DEPENDENCY-001: 发布使用未选依赖的索引声明
 
 Tests:
-- `test:41e72406a4792dbcaa0ab77c49ebffbe804020a6fc560a869639a7a9752f1f0c`
+- `test:3184a8685cabc846e131c44302af75558d6e6d6c833e25defd62be36e3d7272f`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 普通发布按当前产品投影契约维护关系，不把未选正式依赖的正文锁定为准备时字节。
+- 普通发布使用未选正式依赖的发布索引，不以其当前正文健康作为门禁。
 
 Proves:
-- beforePublish 改未选依赖正文后普通 writer 成功发布候选，关系索引正确，依赖当前字节保留，原候选位置退出。
+- 依赖正文缺失、损坏、过期以及 Unix 符号链接四种 fixture 均通过预检和发布，未引用资源字节保留。

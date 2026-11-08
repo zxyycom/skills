@@ -232,7 +232,7 @@ pub fn normalize_relations(
         let summary = match &relation.summary {
             Some(value) => {
                 let trimmed = value.js_trim();
-                if value.contains(['\r', '\n']) || trimmed.chars().count() > 40 {
+                if trimmed.contains(['\r', '\n']) || trimmed.chars().count() > 40 {
                     return Err(NormalizeError::InvalidSummary(relation.target.clone()));
                 }
                 if trimmed.is_empty() {
@@ -244,6 +244,7 @@ pub fn normalize_relations(
             None => None,
         };
         normalized.push(Relation {
+            summary_selector: None,
             kind: relation.kind,
             target: relation.target.clone(),
             summary,

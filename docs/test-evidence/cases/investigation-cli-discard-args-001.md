@@ -1,13 +1,13 @@
-### Case INVESTIGATION-CLI-DISCARD-ARGS-001: CLI discard rejects malformed investigation IDs as argument errors
+### Case INVESTIGATION-CLI-DISCARD-ARGS-001: discard 拒绝路径式 selector
 
 Tests:
-- `test:1f816f4f7028bc188a905be8bb4ca56c34bd1690b8876dcb94e003c20da506d3`
+- `test:93f1b9ae68c701fc2e8d337dcb58b27c2cd3997ff0081bd2e8ed67755ab27f1a`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- CLI 的非法 Investigation ID 是调用参数错误，不是领域操作失败。
+- discard 不把路径式输入当作可删除的报告身份。
 
 Proves:
-- 同进程源码 CLI 在空根对 `./report.md` 返回 status 2、空 stdout 和 ID 格式诊断，根目录仍为空。
+- 已有合法候选时，真实 CLI 以 ../outside 调用返回 selector 错误且退出 1，已有候选字节与目录项保持。

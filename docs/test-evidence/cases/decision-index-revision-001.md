@@ -1,14 +1,13 @@
-### Case DECISION-INDEX-REVISION-001: 索引 revision 跟踪标签和 sourcePath
+### Case DECISION-INDEX-REVISION-001: 严格检查检测来源漂移
 
 Tests:
-- `test:3598fbcab3c521a280ff716c30720f5ae71928df69d416afb45ee3f1508db12a`
+- `test:398e9d0f7d82933d4600f613a50fa29cf9016eccf39ca0dc81e15d0e6d53b0be`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 标签或 sourcePath 变化必须使持久索引 revision 失效；只有重建后才接受新快照。
+- 正式正文变化后严格 check 应发现已发布 revision 不再当前。
 
 Proves:
-- 真实 Markdown tags 改动使严格验证失败；同步后持久索引保留排序的新 tags。
-- 来源改为 semantic-current.md 后再次报告 out of sync；同步后同一 ID 的索引 sourcePath 更新为新位置。
+- 真实 CLI 对当前索引和正文先成功；正文追加内容后 check 失败并报告 index-not-current。

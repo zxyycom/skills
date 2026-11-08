@@ -12,6 +12,7 @@ fn candidate(id: &str) -> InvestigationCandidate {
 fn batch_targets_may_refer_to_selected_candidates_but_graph_validation_is_required() {
     let mut first = candidate("first");
     first.relations.push(Relation {
+        summary_selector: None,
         kind: InvestigationRelationKind::Supplement,
         target: "second".into(),
         summary: None,

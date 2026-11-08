@@ -1,13 +1,15 @@
-### Case INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001: index state projects strict empty metadata and sourcePath
+### Case INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001: 调查索引 metadata 与 sourcePath
 
 Tests:
-- `test:d1eb5a540d7286eff01c09db699e5079a232464e1d3b7d60070fc9ec01d01f68`
+- `test:254b741c592ab9047df47c96fd959aa77a863b700412e6daa10a4207f380befd`
+- `test:45f8d1ac72065e376f8df03fba4a2547bcb71b8dcbbb9e0ff76f4c6614844ad7`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 报告索引 metadata 必须严格为空；entry 直接保存 state，且可回读其中的 sourcePath。
+- 调查索引 metadata 为严格空对象，entry 的 sourcePath 独立于 ID 用于定位报告。
 
 Proves:
-- 真实来源准备、Markdown 解析、state 构建及索引序列化在内存中产生 metadata 为 `{}` 的 JSON；报告 entry 直接保存 `report.md` sourcePath、没有 wrapper 或持久 query values，公开 schema 也声明并要求该字段。
+- 原生解析对有效空 metadata 索引成功、非空 metadata 拒绝。
+- 真实 Git domain stage 使用索引中的语义文件名 new-location.md 定位所选 ID，并暂存该文件与该 ID 的 owner 资源。

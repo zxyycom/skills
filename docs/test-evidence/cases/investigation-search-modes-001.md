@@ -1,14 +1,13 @@
-### Case INVESTIGATION-SEARCH-MODES-001: search 以匹配模式和结构筛选检索正式 Markdown
+### Case INVESTIGATION-SEARCH-MODES-001: 搜索 all 与 phrase 的跨段边界
 
 Tests:
-- `test:626e4c5f7cc89ad6b8340dba7f22c98d80e6b8961ad49db5c0b91159d8d4f218`
+- `test:9815a50e99136096dbc2182a7348b6f9a194ba58f70ce292c5639ca58ca6d845`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- Investigation search 只在正式报告 Markdown 中提供 all、any、phrase 文本匹配，并能与 tag、formedAt 范围和直接 relation type 结构筛选组合；结果保持 Investigation ID 与 sourcePath 身份分离。
+- 搜索匹配的 all 模式可跨段聚合词，phrase 模式不能跨段拼接。
 
 Proves:
-- 默认 all、phrase 与带结构筛选的 any 查询均返回匹配的正式 Investigation ID。
-- 匹配结果投影语义 sourcePath 并附带至少一个正文预览。
+- 纯匹配器在两个文本段中以大小写及 NFKC 归一化命中 all；同样分段不构成 phrase 命中。

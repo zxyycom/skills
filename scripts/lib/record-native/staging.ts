@@ -6,6 +6,7 @@ import path from "node:path";
 import { assertNativeRelativePaths } from "../../../tools/skill-package/src/native-paths.ts";
 import { digestNativeSource, type NativeCandidateSnapshot } from "./capture.ts";
 import { packSkillPackageSnapshot } from "../skill-package/skill-package-release.ts";
+import type { SkillPackageSnapshot } from "../skill-package/skill-package-hash.ts";
 
 async function ensureOwnedParent(directory: string): Promise<void> {
   try {
@@ -17,6 +18,37 @@ async function ensureOwnedParent(directory: string): Promise<void> {
   const info = await fs.lstat(directory);
   if (!info.isDirectory() || info.isSymbolicLink())
     throw new Error(`staging parent must be a regular directory: ${directory}`);
+}
+
+/** Allocate an exclusive package stage without removing any existing output. */
+export async function createReleasePackageStage(
+  workspaceRoot: string,
+  name?: string
+): Promise<string> {
+  if (name !== undefined && !/^package-[A-Za-z0-9_-]{1,80}$/u.test(name))
+    throw new Error("release stage name must be a package-prefixed safe leaf");
+  const root = path.resolve(workspaceRoot);
+  await assertRuntimeDirectory(root);
+  const dist = path.join(root, "dist");
+  const parent = path.join(dist, "skill-release");
+  await ensureOwnedParent(dist);
+  await ensureOwnedParent(parent);
+  if (name === undefined) return fs.mkdtemp(path.join(parent, "package-"));
+  const stage = path.join(parent, name);
+  await fs.mkdir(stage);
+  return stage;
+}
+
+/** Pack only into a directory this invocation created exclusively. */
+export async function packIsolatedSkillSnapshot(
+  snapshot: SkillPackageSnapshot,
+  workspaceRoot: string,
+  name?: string
+) {
+  const stage = await createReleasePackageStage(workspaceRoot, name);
+  // Keep the exclusive stage root for the full operation: the legacy packer
+  // replaces only this invocation's child, never the ownership claim itself.
+  return packSkillPackageSnapshot(snapshot, path.join(stage, "packages"));
 }
 
 /** Write a candidate snapshot to a new owned staging directory, never the dist root. */

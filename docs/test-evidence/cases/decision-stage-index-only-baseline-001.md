@@ -1,13 +1,13 @@
 ### Case DECISION-STAGE-INDEX-ONLY-BASELINE-001: Stage 从仅派生索引的 revision 基线建立决策
 
 Tests:
-- `test:198e0460a9294b60faca6049edd7136223936b1a2a5b3b204ccfbd2ac1e07722`
+- `test:d72eaec4ac757fd360c0ade4dfcb5083f1e22858afb914bbaecc4380c1b029f7`
 
 Tags:
 - `decision-records`
 
 Contract:
-- HEAD 只有合法空发布索引时，stage 可选择工作区已发布的新对象并刷新 pending。
+- HEAD 只有合法空索引时可暂存新发布对象。
 
 Proves:
-- 真实 Git stage 从仅有空索引的 HEAD 成功暂存所选正文和新索引 entry。
+- 真实 Git 中 HEAD 只有空索引，CLI index scope 暂存所选新 entry，随后 domain 暂存其正文。

@@ -49,6 +49,7 @@ impl<T: Copy> RelationEvents<T> {
             return Err(ArgumentError("duplicate relation target".into()));
         }
         self.edges.push(Relation {
+            summary_selector: None,
             kind: kind(ty)?,
             target: target.to_owned(),
             summary: None,
@@ -72,16 +73,48 @@ impl<T: Copy> RelationEvents<T> {
         if self.clear && (!self.edges.is_empty() || !self.summaries.is_empty()) {
             return Err(ArgumentError("clear-relations cannot be combined".into()));
         }
-        for edge in &mut self.edges {
-            edge.summary = self.summaries.remove(&edge.target);
-        }
-        if !self.summaries.is_empty() {
-            return Err(ArgumentError(
-                "relation summary has no matching target".into(),
-            ));
+        for (selector, text) in self.summaries {
+            let exact = self.edges.iter().position(|edge| {
+                selector_without_extension(&edge.target) == selector_without_extension(&selector)
+            });
+            let matches: Vec<_> = self
+                .edges
+                .iter()
+                .enumerate()
+                .filter(|(_, edge)| selector_name(&edge.target) == selector_name(&selector))
+                .map(|(index, _)| index)
+                .collect();
+            let index = match (exact, matches.as_slice()) {
+                (Some(index), _) => index,
+                (None, [index]) => *index,
+                _ => {
+                    return Err(ArgumentError(
+                        "relation summary has no unambiguous matching target".into(),
+                    ));
+                }
+            };
+            let edge = &mut self.edges[index];
+            if edge.summary.is_some() {
+                return Err(ArgumentError("duplicate relation summary".into()));
+            }
+            if edge.target != selector {
+                edge.summary_selector = Some(selector);
+            }
+            edge.summary = Some(text);
         }
         Ok(self.edges)
     }
+}
+
+fn selector_without_extension(selector: &str) -> &str {
+    selector
+        .get(selector.len().saturating_sub(3)..)
+        .filter(|suffix| suffix.eq_ignore_ascii_case(".md"))
+        .map_or(selector, |_| &selector[..selector.len() - 3])
+}
+
+fn selector_name(selector: &str) -> &str {
+    crate::domains::name_from_id(selector_without_extension(selector))
 }
 
 pub(super) fn relations<T: Copy>(

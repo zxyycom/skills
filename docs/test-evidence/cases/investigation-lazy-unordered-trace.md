@@ -1,13 +1,15 @@
-### Case INVESTIGATION-LAZY-TRACE-001: 乱序构图保持追踪事件与预算选择
+### Case INVESTIGATION-LAZY-TRACE-001: 追溯排序责任与预算边界
 
 Tests:
-- `test:7bbb915a0ae4d6ab8ece56755bacf497d1bdab3ee40ffbb35829ed834170f91f`
+- `test:19e6feaeb3a2bbd0b45dfe37e7a215dda6e42fc624fae2ca41f36b0a7fed63d0`
+- `test:8ad09f135902ceb10e7afd2f94bbfbd10c422906f74101b2e94a7e79c44bd1b0`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 图边无需全量排序，trace 仍须在各方向、深度与预算下给出确定的成员、完整事件和截断边界。
+- 调查 trace 在事件与 frontier 排序中使用与 UTF-16 兼容的文本顺序，并保留预算边界。
 
 Proves:
-- 明确的拆分预算不足返回完整三成员 blockedEvent；216 组方向、深度、记录预算及 anchor 组合在乱序投影上与正序得到相同完整 trace 结果。
+- 共用 comparator 单元测试区分非 BMP 与 BMP 私用区的 UTF-16 顺序；调查 trace 投影节点返回确定的拆分 blockedEvent 与 frontier。
+- IR 投影按源码使用共用 trace selector 与 comparator；本组合不声称对原有全部方向、深度和预算排列做了等价枚举。

@@ -50,9 +50,10 @@ fn investigation_full_check_rebuilds_sources_and_reports_unreferenced_resources(
     let dir = tempfile::tempdir().unwrap();
     let collection = dir.path().join("investigations");
     std::fs::create_dir(&collection).unwrap();
-    let text = include_str!(
-        "../../../../../investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md"
-    );
+    let text = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/fixtures/investigation-same.md"
+    ));
     let id = "260828-same";
     std::fs::write(collection.join("same.md"), text).unwrap();
     let parsed = domains::investigation::parse_established(text.as_bytes(), id, "same.md").unwrap();
@@ -83,6 +84,28 @@ fn investigation_full_check_rebuilds_sources_and_reports_unreferenced_resources(
             .formal_count,
         1
     );
+    for invalid in ["unknown.txt", "nested"] {
+        let path = collection.join(invalid);
+        if invalid == "nested" {
+            std::fs::create_dir(&path).unwrap();
+        } else {
+            std::fs::write(&path, b"unknown").unwrap();
+        }
+        assert!(investigation(&root, "investigations", &[]).is_err());
+        if invalid == "nested" {
+            std::fs::remove_dir(path).unwrap();
+        } else {
+            std::fs::remove_file(path).unwrap();
+        }
+    }
+    let index_path = collection.join("investigation-index.json");
+    let original_index = std::fs::read(&index_path).unwrap();
+    let mut tampered: serde_json::Value = serde_json::from_slice(&original_index).unwrap();
+    tampered["entries"][id]["title"] = serde_json::json!("Different projected title");
+    std::fs::write(&index_path, serde_json::to_vec(&tampered).unwrap()).unwrap();
+    let error = investigation(&root, "investigations", &[]).unwrap_err();
+    assert_eq!(error.code, "index-not-current");
+    std::fs::write(&index_path, original_index).unwrap();
     std::fs::create_dir(collection.join("_resources")).unwrap();
     let checked = investigation(&root, "investigations", &[]).unwrap();
     assert!(checked.warnings.is_empty());
@@ -94,6 +117,15 @@ fn investigation_full_check_rebuilds_sources_and_reports_unreferenced_resources(
             .warnings
             .iter()
             .any(|warning| warning.contains("orphan/file.txt"))
+    );
+    std::fs::create_dir(collection.join("_resources/..bad")).unwrap();
+    std::fs::write(collection.join("_resources/..bad/file"), b"unreferenced").unwrap();
+    let checked = investigation(&root, "investigations", &[]).unwrap();
+    assert!(
+        checked
+            .warnings
+            .iter()
+            .any(|warning| warning.contains("unreferenced visible resource: ..bad/file"))
     );
     let selected = investigation(&root, "investigations", &[id.into()]).unwrap();
     assert_eq!(selected.scope, "selected");
@@ -109,9 +141,10 @@ fn investigation_formal_resource_missing_fails_then_present_passes() {
     std::fs::create_dir_all(collection.join("_resources/260828-same")).unwrap();
     let text = format!(
         "{}\n## 随附资源\n- [evidence](./_resources/260828-same/file.txt)\n",
-        include_str!(
-            "../../../../../investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md"
-        )
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/fixtures/investigation-same.md"
+        ))
     );
     let id = "260828-same";
     std::fs::write(collection.join("same.md"), &text).unwrap();
@@ -143,11 +176,27 @@ fn investigation_formal_resource_missing_fails_then_present_passes() {
             .code,
         "resource-invalid"
     );
-    std::fs::write(
-        collection.join("_resources/260828-same/file.txt"),
-        b"fixture",
-    )
-    .unwrap();
+    let resource = collection.join("_resources/260828-same/file.txt");
+    std::fs::create_dir(&resource).unwrap();
+    assert_eq!(
+        investigation(&root, "investigations", &[])
+            .unwrap_err()
+            .code,
+        "resource-invalid"
+    );
+    std::fs::remove_dir(&resource).unwrap();
+    std::fs::remove_dir(collection.join("_resources/260828-same")).unwrap();
+    std::fs::remove_dir(collection.join("_resources")).unwrap();
+    std::fs::write(collection.join("_resources"), b"not a directory").unwrap();
+    assert_eq!(
+        investigation(&root, "investigations", &[])
+            .unwrap_err()
+            .code,
+        "resource-invalid"
+    );
+    std::fs::remove_file(collection.join("_resources")).unwrap();
+    std::fs::create_dir_all(collection.join("_resources/260828-same")).unwrap();
+    std::fs::write(&resource, b"fixture").unwrap();
     let checked = investigation(&root, "investigations", &[]).unwrap();
     assert_eq!(checked.formal_count, 1);
     assert!(checked.warnings.is_empty());
@@ -271,9 +320,10 @@ fn investigation_selected_discovery_limits_decoding_to_identity_headers_and_sele
     let dir = tempfile::tempdir().unwrap();
     let collection = dir.path().join("investigations");
     std::fs::create_dir(&collection).unwrap();
-    let selected = include_str!(
-        "../../../../../investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md"
-    );
+    let selected = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/fixtures/investigation-same.md"
+    ));
     let selected_path = collection.join("same.md");
     std::fs::write(&selected_path, selected).unwrap();
     let unrelated = collection.join("other.md");
@@ -329,9 +379,10 @@ fn investigation_selected_moved_index_locator_does_not_decode_other_body() {
     let dir = tempfile::tempdir().unwrap();
     let collection = dir.path().join("investigations");
     std::fs::create_dir(&collection).unwrap();
-    let text = include_str!(
-        "../../../../../investigation-report/tests/fixtures/rename-noop/docs/investigations/same.md"
-    );
+    let text = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/fixtures/investigation-same.md"
+    ));
     let id = "260828-same";
     let state = domains::investigation::parse_established(text.as_bytes(), id, "old.md")
         .unwrap()

@@ -1,13 +1,13 @@
-### Case DECISION-SPLIT-OMISSION-001: Evolve 在写入前拒绝遗漏既有拆分后继
+### Case DECISION-SPLIT-OMISSION-001: 拆分扩充拒绝遗漏既有后继
 
 Tests:
-- `test:f042f664751ec9612ea438f9e82f2ae1a8789852bbd0c213a39b35c07c9fe921`
+- `test:c4f68b6f910843204ea7ed757acb56c82e9282aac5777faf3e8824884a418f21`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 拆分事务的显式 successor 集合必须等于事务后的全部直接拆分后继，不能遗漏任一既有成员。
+- 拆分扩充须显式选择最终事件的全部直接后继。
 
 Proves:
-- 纯生命周期准备对遗漏既有拆分后继返回选择不完整领域诊断，指出缺失成员，且结果不含 changes。
+- 原生预检在两既有拆分后继中只选一个并新增第三个时拒绝，索引与两份旧来源字节不变。

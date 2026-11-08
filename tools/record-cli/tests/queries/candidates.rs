@@ -1,6 +1,45 @@
 use super::*;
 
 #[test]
+fn decision_candidate_self_relation_is_not_readable_or_ready() {
+    use std::{fs, process::Command};
+    let root = tempfile::tempdir().unwrap();
+    let directory = root.path().join("docs/decisions");
+    fs::create_dir_all(&directory).unwrap();
+    let text = "---\ntitle: Example\nid: 260101-one\nstatus: candidate\nalignment: null\ncreatedAt: null\npurpose: Purpose\nbackground: Background\ndecision: Decision\ntags: [test]\nrelations:\n  - type: 修订\n    target: 260101-one\n---\n\n## 目的\nPurpose\n## 背景\nBackground\n## 决策\n- 采用: Choice\n";
+    fs::write(directory.join("260101-one.md"), text).unwrap();
+    assert!(decision::parse_candidate(text.as_bytes(), "260101-one").is_err());
+    let run = |args: &[&str]| {
+        Command::new(env!("CARGO_BIN_EXE_decision-records"))
+            .args(args)
+            .args(["--root", root.path().to_str().unwrap(), "--json"])
+            .output()
+            .unwrap()
+    };
+    for args in [&["check"][..], &["show-candidate", "260101-one"][..]] {
+        let result = run(args);
+        assert!(!result.status.success());
+        let response: Value = serde_json::from_slice(&result.stdout).unwrap();
+        assert_eq!(response["ok"], false);
+    }
+    let result = run(&["candidates"]);
+    assert!(result.status.success());
+    let response: Value = serde_json::from_slice(&result.stdout).unwrap();
+    assert!(response["result"]["records"].as_array().unwrap().is_empty());
+    assert!(String::from_utf8_lossy(&result.stderr).contains("cannot target itself"));
+    let duplicate = text.replace(
+        "target: 260101-one\n",
+        "target: 260102-other\n  - type: 替代\n    target: 260102-other\n",
+    );
+    fs::write(directory.join("260101-one.md"), &duplicate).unwrap();
+    assert!(decision::parse_candidate(duplicate.as_bytes(), "260101-one").is_err());
+    let result = run(&["show-candidate", "260101-one"]);
+    assert!(!result.status.success());
+    let response: Value = serde_json::from_slice(&result.stdout).unwrap();
+    assert_eq!(response["ok"], false);
+}
+
+#[test]
 fn candidate_header_distinguishes_bad_scaffold_duplicate_identity_and_surrogate() {
     use record_cli::domains::{decision, investigation};
     assert_eq!(
@@ -299,4 +338,33 @@ fn investigation_candidate_empty_section_keeps_identity_and_line_diagnostic() {
     let expected = "260101-one:14 section \"调查目的\" must not be empty";
     assert!(items[0].errors.iter().any(|error| error == expected));
     assert!(warnings.iter().any(|warning| warning == expected));
+}
+
+#[test]
+fn investigation_candidate_resource_owner_matches_id_not_prefix() {
+    use std::fs;
+    let root = tempfile::tempdir().unwrap();
+    let dir = root.path().join("docs/investigations");
+    fs::create_dir_all(dir.join("_resources/260101-one-more")).unwrap();
+    let text = "---\ntitle: \"Title\"\nid: \"260101-one\"\nformedAt: \"2026-01-01T00:00:00Z\"\nquestion: \"Question\"\ntags:\n  - \"topic\"\nrelations: []\n---\n\n## 形成时背景\n背景\n\n## 调查目的\n目的\n\n## 调查范围与依据\n范围\n\n## 调查结果与边界\n结果\n";
+    fs::write(dir.join("_candidate.260101-one"), text).unwrap();
+    fs::write(
+        dir.join("_candidate.260101-one-more"),
+        text.replace("260101-one", "260101-one-more"),
+    )
+    .unwrap();
+    fs::write(
+        dir.join("_resources/260101-one-more/unreferenced.txt"),
+        b"resource",
+    )
+    .unwrap();
+    let handle = record_cli::source::open_root(root.path()).unwrap();
+    let (items, _) = iq::candidates(&handle, "docs/investigations", None).unwrap();
+    let one = items.iter().find(|item| item.id == "260101-one").unwrap();
+    let longer = items
+        .iter()
+        .find(|item| item.id == "260101-one-more")
+        .unwrap();
+    assert!(one.readiness.resource_ready);
+    assert!(!longer.readiness.resource_ready);
 }

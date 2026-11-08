@@ -1,14 +1,13 @@
 ### Case DECISION-CANDIDATE-DISCARD-INVALID-001: Discard 拒绝生命周期或正文无效的候选
 
 Tests:
-- `test:4311a94697d265533268429a3adaf4942eb8ba2271c9588ba9a154ec2736c873`
+- `test:8e21466c1d5a2df4866174d35e4997ebd67ba3f64f0ab61e2fd08c310e077fb4`
 
 Tags:
 - `decision-records`
 
 Contract:
-- Discard 只接受生命周期字段与必需正文均完整合法的可审核候选。
+- discard 要求候选生命周期字段及必需正文结构合法。
 
 Proves:
-- 带非空 alignment、非空 createdAt 或缺少必需正文的 candidate 均返回不可审核诊断。
-- 每次拒绝都保留目标 Markdown 与正式索引的原始内容。
+- candidate 的 alignment 非空、createdAt 非空或缺少决策章节时均拒绝丢弃，来源及正式索引原字节保持。

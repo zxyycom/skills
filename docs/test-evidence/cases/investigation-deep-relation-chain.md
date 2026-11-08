@@ -1,13 +1,13 @@
 ### Case INVESTIGATION-DEEP-RELATION-CHAIN-001: 调查图合法深链与晚期环
 
 Tests:
-- `test:7f30fe24cd69b724b9e9405eace1346b0ca6770f8b7984547f9a22203911b4ad`
+- `test:c9d3f93b4ce3bcbcb8913e64fff0f63f8feb61c2d5159de6c567237f143ef1a2`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 同formedAt的普通复查链合法，结构循环仍形成领域诊断。
+- 关系图共享构建器应能处理长链，并拒绝结构循环。
 
 Proves:
-- 12000节点同时间复查链无错误；末端指回三节点闭环时保留完整领域cycle诊断。
+- 共享图构建器直接处理 12000 节点链；末端形成循环时拒绝并产生有界残余节点诊断。调查领域图调用此构建器；该节点不单独执行调查 CLI 或证明完整环成员。

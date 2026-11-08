@@ -1,13 +1,13 @@
-### Case INVESTIGATION-LOCAL-PUBLISH-001: 发布沿用未选来源的发布投影
+### Case INVESTIGATION-LOCAL-PUBLISH-001: 发布不要求未选正式正文健康
 
 Tests:
-- `test:b0121425b9cc047a4bbeb1e8c9af0f46b5c00b7463184b0fe9de310835e1260b`
+- `test:3184a8685cabc846e131c44302af75558d6e6d6c833e25defd62be36e3d7272f`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 普通 publish 验证发布图、候选及必要依赖，未选无关来源沿用发布投影；显式同步仍承担全集来源验收。
+- 普通 publish 以发布索引为基底，不读取未选正式正文作为来源健康门禁。
 
 Proves:
-- 无关正文损坏、资源缺失时 publish 不读取这些 payload 并建立选中候选；其原发布条目与来源 revision 保持，显式全量同步仍失败。
+- 未选正式正文缺失、损坏、过期及 Unix 符号链接时预检与发布均成功，未引用资源保留。

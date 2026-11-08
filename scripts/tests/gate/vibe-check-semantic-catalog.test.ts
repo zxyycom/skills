@@ -206,6 +206,7 @@ test("semantic commands retain native store, version-control and retired perform
       .map(({ checkId }) => checkId),
     [
       "test:record-rust:delivery",
+      "test:record-rust:contracts",
       "test:record-rust:runtime",
       "test:task-graph:native-store"
     ]

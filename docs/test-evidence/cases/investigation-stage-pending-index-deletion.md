@@ -1,13 +1,15 @@
 ### Case INVESTIGATION-STAGE-PENDING-INDEX-DELETION-001: 拒绝以已删除的 pending 索引组合
 
 Tests:
-- `test:4d86601fce54018f38571bf89ec07d6d0b50339b6349e050575aee58c02ca713`
+- `test:377f869a34af709f3f1366295acf1d3e0190cb773fe725973ce69f242045e849`
+- `test:a922ab01cf4dbcc8346297d66392fa2dd18a8caf226b9994394f524b9ff42f77`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- HEAD 索引存在但 pending 索引被删除时，index/all 不从 HEAD 重建组合基底，必须先显式恢复删除。
+- index scope 不得从 HEAD 重建已在 pending 删除的索引。
 
 Proves:
-- 删除 pending 索引后 index 返回恢复诊断，完整 staged entries 在失败前后不变。
+- Decision definition 的真实 Git fixture 在 HEAD 有索引而 pending 删除时，共享 stage_index 返回失败，pending 全部 entries 与工作区索引字节不变。
+- IR definition 的独立真实 Git fixture 调用同一 stage_index，所选投影刷新并保留未选 pending；本 Case 组合共享失败分支与 IR 接线证据，不宣称执行了 IR 删除故障 fixture。

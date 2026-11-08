@@ -65,6 +65,8 @@ fn unrecorded_relation_reports_target_reason_and_explicit_confirmation() {
     )
     .unwrap();
     let before = std::fs::read(collection.join("decision-index.json")).unwrap();
+    let old_before = std::fs::read(collection.join("old.md")).unwrap();
+    let candidate_before = std::fs::read(collection.join("new.md")).unwrap();
     let error = preflight(&root, &mut operation("new")).err().unwrap();
     assert_eq!(error.code, "evolution");
     assert_eq!(error.diagnostics.len(), 1);
@@ -87,6 +89,32 @@ fn unrecorded_relation_reports_target_reason_and_explicit_confirmation() {
         before
     );
     assert!(!collection.join("archive").exists());
+    assert_eq!(
+        std::fs::read(collection.join("old.md")).unwrap(),
+        old_before
+    );
+    assert_eq!(
+        std::fs::read(collection.join("new.md")).unwrap(),
+        candidate_before
+    );
+    let mut confirmed = operation("new");
+    confirmed.keep_unrecorded_history = true;
+    let outcome = run_transaction(&root, &mut confirmed);
+    assert!(
+        outcome.committed && outcome.errors.is_empty(),
+        "{:?}",
+        outcome.errors
+    );
+    assert!(!collection.join("old.md").exists());
+    assert!(collection.join("archive/old.md").exists());
+    let index: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(collection.join("decision-index.json")).unwrap())
+            .unwrap();
+    assert_eq!(index["entries"]["261105-old"]["status"], "archived");
+    assert_eq!(
+        index["entries"]["261106-new"]["relations"][0]["target"],
+        "261105-old"
+    );
 }
 
 #[test]

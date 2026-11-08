@@ -108,11 +108,6 @@ test("CLI lists discoverable capability scopes without constructing or executing
     0
   );
   assert.deepEqual(effects, []);
-  for (const group of [
-    "gate-tests",
-    "task-graph",
-    "decision-stage",
-    "mcpshell"
-  ])
+  for (const group of ["gate-tests", "task-graph", "record-rust", "mcpshell"])
     assert.ok(information.join("\n").includes(group), group);
 });

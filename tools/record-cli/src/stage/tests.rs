@@ -72,6 +72,26 @@ fn compose_preserves_pending_unselected_and_refreshes_add_delete() {
         ])
     );
     assert_eq!(result.index().source_revision.entries["c"], "p-c");
+    let pending_without_b = index(&[("a", "p-a")], "same");
+    let work_with_b = index(&[("a", "w-a"), ("b", "w-b")], "same");
+    let bytes = compose_index(
+        &Definition,
+        StageScope::Index,
+        IndexInputs {
+            head: Some(&p),
+            worktree: &work_with_b,
+            pending: Some(&pending_without_b),
+        },
+        &["a".into()],
+    )
+    .unwrap()
+    .unwrap();
+    let result = crate::index::parse_index(&bytes, &Definition).unwrap();
+    assert_eq!(
+        result.index().entries,
+        BTreeMap::from([("a".into(), serde_json::json!("w-a"))])
+    );
+    assert!(!result.index().source_revision.entries.contains_key("b"));
 }
 #[test]
 fn compose_rejects_collection_change_and_pending_deletion() {

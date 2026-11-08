@@ -76,7 +76,11 @@ async function verifyStage(
     throw new Error("stage source differs from pending snapshot");
   await readStagedDelivery(stage, snapshot.deliveryHash);
 }
-async function readPrepared(stage: string, snapshot: NativeCandidateSnapshot) {
+async function readPrepared(
+  stage: string,
+  snapshot: NativeCandidateSnapshot,
+  formal: boolean
+) {
   const output = v.parse(
     workerSchema,
     await readJson(
@@ -109,7 +113,16 @@ async function readPrepared(stage: string, snapshot: NativeCandidateSnapshot) {
     const description = asset(name, bytes);
     if (description.sha256 !== output.packages[role]?.asset.sha256)
       throw new Error(`candidate source archive changed: ${role}`);
-    const entry = extractNativeArchive(bytes).get(`${role}/SKILL.md`);
+    const contents = extractNativeArchive(bytes);
+    if (
+      formal &&
+      (contents.size !== original.length ||
+        original.some(
+          (file) => !contents.get(`${role}/${file.path}`)?.equals(file.data)
+        ))
+    )
+      throw new Error(`formal package differs from pending snapshot: ${role}`);
+    const entry = contents.get(`${role}/SKILL.md`);
     if (!entry) throw new Error(`candidate skill entry missing: ${role}`);
     const identity = readSkillPackageIdentityFromMarkdown(
       new TextDecoder("utf-8", { fatal: true }).decode(entry)
@@ -185,12 +198,28 @@ function pendingRevision() {
     pendingMatchesBase: pendingDiff.status === 0
   };
 }
-async function main(args: string[]): Promise<void> {
-  const [stageArg, linux, windows, version, revision, ...extra] = args;
-  if (!stageArg || !linux || !windows || !version || !revision || extra.length)
+function parseArguments(args: string[]) {
+  const formal = args[0] === "--formal";
+  const [stageArg, linux, windows, version, revision, recovery, ...extra] =
+    formal ? args.slice(1) : args;
+  if (
+    !stageArg ||
+    !linux ||
+    !windows ||
+    !version ||
+    !revision ||
+    extra.length ||
+    (!formal && recovery !== undefined) ||
+    (recovery !== undefined && !path.isAbsolute(recovery))
+  )
     throw new Error(
       "Usage: node <stage>/delivery/scripts/build/assemble-native-candidate.ts <stage> <linux-artifact-dir> <windows-artifact-dir> <runtime-version> <revision>"
     );
+  return { formal, stageArg, linux, windows, version, revision, recovery };
+}
+async function main(args: string[]): Promise<void> {
+  const { formal, stageArg, linux, windows, version, revision, recovery } =
+    parseArguments(args);
   const stage = path.resolve(stageArg);
   const expectedModule = path.join(
     stage,
@@ -205,7 +234,7 @@ async function main(args: string[]): Promise<void> {
     );
   const snapshot = await captureNativeCandidateSnapshot(process.cwd());
   await verifyStage(stage, snapshot);
-  const prepared = await readPrepared(stage, snapshot);
+  const prepared = await readPrepared(stage, snapshot, formal);
   const baseManifest = await readJson(
     path.join(stage, "skills/skill-release-manifest.json")
   );
@@ -236,6 +265,8 @@ async function main(args: string[]): Promise<void> {
   );
   const pending = pendingRevision();
   const release = assembleCandidateRelease({
+    formal,
+    recoveryBytes: recovery ? await fs.readFile(recovery) : undefined,
     snapshot,
     prepared,
     baseManifest,

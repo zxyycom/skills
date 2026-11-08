@@ -1,14 +1,13 @@
-### Case DECISION-EVOLVE-UNSUPPORTED-MULTI-001: Evolve 拒绝未获策略支持的普通多后继形状
+### Case DECISION-EVOLVE-UNSUPPORTED-MULTI-001: Evolve 拒绝无关的多后继
 
 Tests:
-- `test:de05ae7f2517ecbd422bd2f70ebe0effd67a947ab9c1e1e97911a8ecddcf7cc5`
+- `test:44fc39c07a38a803bde5f6d09931f173baa1bf4f046c36c6ae2ab93be53abed6`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 空关系或普通非拆分关系不能组成未经定义的多后继事务；闭合拆分及重划按各自策略校验。
-
+- 非拆分、非重划的关系形状只能选择一个后继。
 
 Proves:
-- 纯事务准备对两个空关系候选返回 error、exitCode=1 和闭合拆分策略诊断，且不产生 changes；此入口不覆盖合法重划策略。
+- 两个空关系候选同时被选中时，原生预检拒绝，两个候选字节保留且无索引创建。此节点不穷举普通关系与事件混合。

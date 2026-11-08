@@ -1,4 +1,4 @@
-import type { assembleCandidateRelease } from "./candidate-release.ts";
+import type { NativeRole } from "../../../tools/skill-package/src/native-release-manifest.ts";
 import type { PublishedAsset } from "../publishing/publish-skills-types.ts";
 import { prepareCandidatePublish } from "./candidate-publish-validation.ts";
 import { candidateReleaseNotes } from "./candidate-publish-notes.ts";
@@ -7,6 +7,25 @@ import {
   publishSnapshot,
   type PublishContext
 } from "./candidate-publish-flow.ts";
+export type CandidatePublishInput = Readonly<{
+  manifest: unknown;
+  assets: readonly Readonly<{
+    asset: Readonly<{ name: string; byteLength: number; sha256: string }>;
+    bytes: Uint8Array;
+  }>[];
+  schemas: Readonly<Record<NativeRole, Uint8Array>>;
+  provenance: Readonly<{
+    pendingMatchesBase: boolean;
+    pendingBaseRevision: string;
+    buildRevision: string;
+    sourceHash: string;
+    sourceFiles: readonly string[];
+    buildDeliveryHash: string;
+    buildDeliveryFiles: readonly string[];
+    recipeHashes: Readonly<Record<string, string>>;
+    platforms: unknown;
+  }>;
+}>;
 export type CandidatePublishAsset = Readonly<{
   name: string;
   bytes: Uint8Array;
@@ -50,7 +69,7 @@ export type CandidatePublishResult = Readonly<{
 /** Validates every local byte before the first remote operation. No dist enumeration. */
 export async function publishCandidateRelease(
   input: {
-    release: ReturnType<typeof assembleCandidateRelease>;
+    release: CandidatePublishInput;
     mode: "rolling" | "snapshot";
     commit: string;
     packageHash: string;

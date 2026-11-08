@@ -5,6 +5,54 @@ fn conditional_publication_preserves_other_pending_and_worktree() {
     use record_cli::git::publish::{PendingFile, PendingUpdate, replace_selected};
     let dir = fixture();
     let root = dir.path();
+    fs::write(root.join("deleted"), b"worktree sentinel\n").unwrap();
+    git(root, &["add", "--", "deleted"]);
+    git(
+        root,
+        &[
+            "commit",
+            "-qm",
+            "tracked sentinel",
+            "--only",
+            "--",
+            "deleted",
+        ],
+    );
+    git(root, &["rm", "--cached", "--", "deleted"]);
+    let oid = String::from_utf8(git(root, &["rev-parse", ":selected"])).unwrap();
+    let oid = oid.trim();
+    git(
+        root,
+        &[
+            "update-index",
+            "--add",
+            "--cacheinfo",
+            "100755",
+            oid,
+            "other-executable",
+        ],
+    );
+    git(
+        root,
+        &[
+            "update-index",
+            "--add",
+            "--cacheinfo",
+            "120000",
+            oid,
+            "other-symlink",
+        ],
+    );
+    let untouched_modes = git(
+        root,
+        &[
+            "ls-files",
+            "--stage",
+            "--",
+            "other-executable",
+            "other-symlink",
+        ],
+    );
     git(root, &["update-index", "--skip-worktree", "unselected"]);
     let before_flags = git(root, &["ls-files", "-v", "--", "unselected"]);
     let before_other = git(root, &["show", ":unselected"]);
@@ -28,6 +76,24 @@ fn conditional_publication_preserves_other_pending_and_worktree() {
         before_flags
     );
     assert_eq!(fs::read(root.join("selected")).unwrap(), b"worktree\n");
+    assert_eq!(
+        fs::read(root.join("deleted")).unwrap(),
+        b"worktree sentinel\n"
+    );
+    assert!(git(root, &["ls-files", "--", "deleted"]).is_empty());
+    assert_eq!(
+        git(
+            root,
+            &[
+                "ls-files",
+                "--stage",
+                "--",
+                "other-executable",
+                "other-symlink"
+            ]
+        ),
+        untouched_modes
+    );
     assert!(!root.join(".git/index.lock").exists());
 }
 #[test]
@@ -280,4 +346,62 @@ fn publication_allows_textual_prefix_without_component_conflict() {
     .unwrap();
     assert_eq!(git(root, &["show", ":a"]), b"a");
     assert_eq!(git(root, &["show", ":ab/file"]), b"other pending\n");
+}
+
+#[cfg(unix)]
+#[test]
+fn selected_executable_only_change_updates_mode_once() {
+    use record_cli::{
+        git::{
+            core_file_mode,
+            publish::{PendingFile, PendingUpdate, replace_selected},
+            workspace_file_mode,
+        },
+        source::{ExpectedFile, RelativePath, capture, open_root},
+    };
+    use std::os::unix::fs::PermissionsExt;
+    let dir = fixture();
+    let root = dir.path();
+    git(root, &["config", "core.filemode", "true"]);
+    fs::write(root.join("selected"), b"pending\n").unwrap();
+    fs::set_permissions(root.join("selected"), fs::Permissions::from_mode(0o755)).unwrap();
+    let before = String::from_utf8(git(root, &["ls-files", "--stage", "--", "selected"])).unwrap();
+    let snapshot = read_selected(root, &[PathBuf::from("selected")]).unwrap();
+    let pending = read_pending(root).unwrap();
+    let handle = open_root(root).unwrap();
+    let ExpectedFile::Present(source) =
+        capture(&handle, &RelativePath::new("selected").unwrap()).unwrap()
+    else {
+        panic!("missing fixture")
+    };
+    assert!(core_file_mode(root).unwrap());
+    let mode = workspace_file_mode(&handle, &source, &pending, true).unwrap();
+    assert_eq!(mode, 0o100755);
+    let update = [PendingUpdate {
+        path: PathBuf::from("selected"),
+        file: Some(PendingFile {
+            mode,
+            bytes: source.bytes,
+        }),
+    }];
+    assert_eq!(
+        replace_selected(root, &snapshot, &update)
+            .unwrap()
+            .changed_paths,
+        vec![PathBuf::from("selected")]
+    );
+    let after = String::from_utf8(git(root, &["ls-files", "--stage", "--", "selected"])).unwrap();
+    assert!(before.starts_with("100644 "));
+    assert!(after.starts_with("100755 "));
+    assert_eq!(
+        before.split_whitespace().nth(1),
+        after.split_whitespace().nth(1)
+    );
+    let fresh = read_selected(root, &[PathBuf::from("selected")]).unwrap();
+    assert!(
+        replace_selected(root, &fresh, &update)
+            .unwrap()
+            .changed_paths
+            .is_empty()
+    );
 }

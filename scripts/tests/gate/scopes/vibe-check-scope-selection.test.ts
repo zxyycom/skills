@@ -42,8 +42,19 @@ test("selected scopes execute only the necessary set subscriptions and dependenc
       hasCode: true
     },
     {
-      scopes: ["decision-stage-tests"],
-      additional: ["test:decision-records:pending-stage"],
+      scopes: ["record-rust"],
+      additional: [
+        "script:test:check",
+        "script:check:decisions",
+        "script:check:investigations",
+        "script:check:test-evidence-catalog",
+        "test:record-rust:delivery",
+        "test:record-rust:contracts",
+        "test:record-rust:runtime",
+        "test:record-rust:format",
+        "test:record-rust:clippy",
+        "test:record-rust:cargo"
+      ],
       hasCode: true
     },
     {
@@ -156,7 +167,10 @@ test("selected scopes execute only the necessary set subscriptions and dependenc
               assert.equal(result.kind, "completed");
               if (result.kind !== "completed")
                 throw new Error("missing terminal facts");
-              assert.equal(result.snapshot.checks.length, 74);
+              assert.equal(
+                result.snapshot.checks.length,
+                gateCheckIds().length
+              );
               for (const { checkId, outcome } of result.snapshot.checks)
                 assert.equal(
                   outcome.status,
@@ -196,7 +210,10 @@ test("selected scopes execute only the necessary set subscriptions and dependenc
       assert.equal(summary.selection.eligible, expected.length);
       assert.equal(summary.selection.execute, expected.length);
       assert.equal(summary.selection.reuse, 0);
-      assert.equal(summary.selection.disabled, 74 - expected.length);
+      assert.equal(
+        summary.selection.disabled,
+        gateCheckIds().length - expected.length
+      );
       assert.deepEqual(summary.selection.requestedScopes, scopes);
       assert.deepEqual(summary.selection.eligibleCheckIds.toSorted(), expected);
       assert.deepEqual(summary.selection.executedCheckIds.toSorted(), expected);

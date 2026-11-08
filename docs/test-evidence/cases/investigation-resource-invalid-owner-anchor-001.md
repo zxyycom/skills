@@ -1,13 +1,13 @@
 ### Case INVESTIGATION-RESOURCE-INVALID-OWNER-ANCHOR-001: owner report must exist for a report-owned resource
 
 Tests:
-- `test:43fadcebbd6a3054d8b5d63cef8635dc983daff3bdc8a261cbb8cbc775cbc1d9`
+- `test:4e572abfeea52b35c3c4bffc062551f60a2a20ffd64dd908e460bd7d795d107a`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 资源 ID 声明的 owner report 必须存在。
+- 调查索引资源 ID 的 owner report 必须存在。
 
 Proves:
-- 资源归属校验器从引用映射识别缺失 owner report，并返回包含资源 ID 与 owner ID 的错误。
+- 完整有效索引中将 consumer 的 resourceId 指向不存在的 owner 后，原生图校验失败。

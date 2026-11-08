@@ -1,14 +1,13 @@
-### Case DECISION-EVOLVE-DISCARD-REFERENCE-001: Evolve 删除不自动维护未选候选引用
+### Case DECISION-EVOLVE-DISCARD-REFERENCE-001: 删除不自动改写未选候选
 
 Tests:
-- `test:06ee516386792b1fcd6ffee8e0f7c5d9ea9dd0f053e4a5108c511eca98e93b7f`
+- `test:18c042b1249b872ffda1f29bcd991ee2e4f97a3762bef802bb689cb699a6de10`
 
 Tags:
 - `decision-records`
 
 Contract:
-- evolve 删除验证最终发布图与显式所选后继；未选候选引用由未来发布诊断。
+- 未选候选不随删除自动改写，之后发布须重新校验目标。
 
 Proves:
-- 存在未选候选指向删除目标时，evolve 建立所选后继并删除目标，未选候选字节保持。
-- 随后发布未选候选因失效 target 失败，候选内容仍保持。
+- 同次事务删除目标时未选引用候选字节不变；随后该候选发布预检失败、来源与索引字节不变。

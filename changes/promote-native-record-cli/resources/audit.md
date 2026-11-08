@@ -9,14 +9,14 @@ B 阶段按现行承诺与实际节点对照，见 [B 阶段验收对照](b-acce
 | 已核对对象 | 事实及实施影响 |
 | --- | --- |
 | [根命令](../../../package.json)、两域 skill 与生成器 | 正式业务入口仍是 TS；DR 源版本 109、IR 98。准备期要保留可用入口，C 才同步启用新说明 |
-| [DR Schema](../../../tools/decision-records/src/index/decision-index-json-schema.ts)、[IR Schema](../../../tools/investigation-report/src/index/investigation-index-json-schema.ts) | Schema 构造依赖旧领域定义；退出 SDK 前需移交数据源，不能先删旧工具 |
+| [DR Schema](https://github.com/zxyycom/skills/blob/a88af9bc029a1539c3abe57f69d752e4d39a868e/tools/decision-records/src/index/decision-index-json-schema.ts)、[IR Schema](https://github.com/zxyycom/skills/blob/a88af9bc029a1539c3abe57f69d752e4d39a868e/tools/investigation-report/src/index/investigation-index-json-schema.ts) | Schema 构造依赖旧领域定义；退出 SDK 前需移交数据源，不能先删旧工具 |
 | [通用索引 Schema](../../../tools/index-runtime/src/schemas.ts)、[源码边界](../../../docs/tooling-distribution.md#源码与依赖边界) | Index Runtime 仍有其他消费者；新纯数据格式源需明确跨域 owner，并同步现有结构源规范 |
 | [基础 manifest](../../../tools/skill-package/src/release-manifest.ts) | schemaVersion 1 的每个 skill 只投影 version，额外 native 字段被忽略；可在独立模块消费扩展，避免改变所有通用 updater 闭包 |
 | [updater 编排](../../../tools/skill-updater/src/index.ts)、[下载](../../../tools/skill-updater/src/release.ts) | 先比版本，再加载固定资产名，下载/校验完成后才计划和安装；版本相等会直接成功，原生路径需独立 readiness 判断 |
 | [安装实现](../../../tools/skill-updater/src/installation.ts) | 写文件不设置原生 executable bit；只覆盖、不退役旧文件。现有普通恢复能力不等于原生激活/清理协议 |
 | [打包](../../../scripts/lib/skill-package/skill-package-release.ts) | 打包入口先递归清空传入输出目录；正式 caller 当前传根 dist。接入原生制品前必须隔离输出，保护已有证据/构建 |
-| [发布编排](../../../scripts/lib/publishing/publish-skills.ts)、[资产收集](../../../scripts/lib/publishing/publish-skills-assets.ts) | 当前收集 dist 根 ZIP，rolling 先包后 manifest 再删旧资产；需要显式本轮资产清单和两个旧名 ZIP 的退出顺序 |
-| [原生维护](../../../tools/record-cli/README.md)、[候选交付](../../../tools/record-cli/delivery/README.md)、[CI](../../../.github/workflows/record-cli-candidate.yml) | 目前仅候选，Linux 与 Windows 的既有验证范围不同，正式 skill/updater 未接线；B 阶段必须补真实两平台交付证据 |
+| [发布编排](https://github.com/zxyycom/skills/blob/a88af9bc029a1539c3abe57f69d752e4d39a868e/scripts/lib/publishing/publish-skills.ts)、[资产收集](https://github.com/zxyycom/skills/blob/a88af9bc029a1539c3abe57f69d752e4d39a868e/scripts/lib/publishing/publish-skills-assets.ts) | 当前收集 dist 根 ZIP，rolling 先包后 manifest 再删旧资产；需要显式本轮资产清单和两个旧名 ZIP 的退出顺序 |
+| [原生维护](../../../tools/record-cli/README.md)、[候选交付](../../../tools/record-cli/delivery/README.md)、[CI](https://github.com/zxyycom/skills/blob/a88af9bc029a1539c3abe57f69d752e4d39a868e/.github/workflows/record-cli-candidate.yml) | 目前仅候选，Linux 与 Windows 的既有验证范围不同，正式 skill/updater 未接线；B 阶段必须补真实两平台交付证据 |
 
 这是接线和设计审计，不是完整消费者闭包或格式等价性审计。实际 import/导出、fixture、Gate、Case 和共享依赖清单由 1.1/1.7 完成，不能以本表直接批准删除；Schema 与 Rust 之间的全部语义差异也仍须按 1.1 核对。
 

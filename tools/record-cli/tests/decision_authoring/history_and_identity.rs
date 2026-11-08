@@ -126,6 +126,7 @@ fn legacy_name_ambiguity_rejects_every_selector_role_without_writes() {
             }
             "target" => {
                 op.relations = DecisionRelationOverride::All(vec![Relation {
+                    summary_selector: None,
                     kind: DecisionRelationKind::Revision,
                     target: "foo.md".into(),
                     summary: None,

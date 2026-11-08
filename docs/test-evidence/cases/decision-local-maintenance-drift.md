@@ -1,13 +1,13 @@
-### Case DECISION-LOCAL-MAINTENANCE-DRIFT-001: 所选来源漂移使普通维护零写入失败
+### Case DECISION-LOCAL-MAINTENANCE-DRIFT-001: 改写正式引用者前核对来源当前性
 
 Tests:
-- `test:f732b4f9d7db5003bfd6aba76d29eb86a2fdd68c47b04683f8088ba0564b77cd`
+- `test:ace078cbf203c835d7f02c733fb568d9c7c20c08e23edfc125fcbdd8e2b575fc`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 普通维护不得以发布投影掩盖所选来源当前指纹或投影漂移。
+- 普通维护对需要实际改写的正式来源检查当前性，不以发布索引掩盖未同步编辑。
 
 Proves:
-- A 未同步正文变更使 mark-aligned 失败并提示同步；当前正文和索引均未修改。
+- rename 的正式引用者正文未同步变化时预检失败；恢复正文后才成功。

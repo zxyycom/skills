@@ -1,14 +1,13 @@
 ### Case INVESTIGATION-RENAME-CANDIDATE-001: candidate rename preflight 保持零写入
 
 Tests:
-- `test:7ca0488b532b534b78f5087237e8f5ef0c74ebede0421d33583595dda3a8b975`
+- `test:e06b9f36fcea339561836d2509411bc1559f02bfa2db7956bfec7aa33d4450ab`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- candidate rename 使用 formedAt UTC 日期形成 target ID；preflight 使用同一计划但不写入 candidate。
+- 候选 rename 的预检只读，正式执行才移动候选位置。
 
 Proves:
-- preflight 后 candidate 原字节保持不变。
-- 执行后 candidate locator 和 frontmatter ID 都迁移为 formedAt 同日的新 identity。
+- 真实 CLI 预检报告旧名、新名及 preflight 阶段，原候选仍存在；正式执行后旧位置不存在且新位置存在。

@@ -23,8 +23,8 @@ import { compareText, sha256 } from "./impact-values.ts";
 
 const maximumSnapshotFileCount = 20_000;
 const maximumSnapshotBytes = 536_870_912;
-const narrowedDomainInputPattern =
-  /^tools\/(?:decision-records|investigation-report)\/(?:src|tests)\//u;
+const retiredRecordSdkPath =
+  /^tools\/(?:decision-records|investigation-report|record-operations)\/(?:src|api|tests)\//u;
 
 type SnapshotFileKind =
   | "directory"
@@ -335,19 +335,6 @@ export async function captureGateWorkspaceSnapshot(
   const missingMarkdownPaths = new Set(
     membership.filesForRegion("missing-markdown-ownership")
   );
-  // The narrowed domains must have their own reviewed capability owner. A
-  // repository-wide formatter/typechecker region is not a semantic input proof.
-  const domainCapabilityPaths = new Set(
-    Object.entries(gateToolInputs)
-      .filter(
-        ([toolId]) =>
-          toolId.startsWith("decision-") || toolId.startsWith("investigation-")
-      )
-      .flatMap(
-        ([, patterns]) =>
-          membership.filesForRegion(JSON.stringify(patterns)) ?? []
-      )
-  );
   const unclassifiedPaths = files
     .filter(
       (file) =>
@@ -356,9 +343,9 @@ export async function captureGateWorkspaceSnapshot(
           !(file.kind === "missing" && missingMarkdownPaths.has(file.path))) ||
         file.kind === "symlink" ||
         file.kind === "unsupported" ||
-        (file.kind !== "directory" &&
-          narrowedDomainInputPattern.test(file.path) &&
-          !domainCapabilityPaths.has(file.path))
+        (file.kind !== "missing" &&
+          file.kind !== "directory" &&
+          retiredRecordSdkPath.test(file.path))
     )
     .map((file) => file.path);
   return {

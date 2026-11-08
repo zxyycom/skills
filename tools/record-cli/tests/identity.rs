@@ -90,5 +90,13 @@ mod cli;
 #[path = "identity/established.rs"]
 mod established;
 
+#[path = "identity/candidate_discard.rs"]
+mod candidate_discard;
+#[path = "identity/candidate_publication.rs"]
+mod candidate_publication;
+#[path = "identity/formal_lifecycle.rs"]
+mod formal_lifecycle;
+#[path = "identity/formal_rename.rs"]
+mod formal_rename;
 #[path = "identity/pending.rs"]
 mod pending;

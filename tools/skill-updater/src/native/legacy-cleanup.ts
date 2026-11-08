@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import * as v from "valibot";
 import { inspectLegacyBackups, removeLegacyBackups } from "./legacy-backups.ts";
 import {
   readTargetFile,
@@ -21,13 +22,7 @@ export async function cleanupLegacy(
   options: LegacyTransactionOptions,
   existing: FileState
 ): Promise<void> {
-  const complete = JSON.parse(existing.bytes.toString("utf8")) as Record<
-    string,
-    unknown
-  >;
-  const pending = complete.state === "cleanup-pending";
-  complete.state = "complete";
-  const completeBytes = Buffer.from(`${JSON.stringify(complete, null, 2)}\n`);
+  const { pending, completeBytes } = completeReceipt(existing.bytes);
   await rejectUnknownRetiredFiles(root, options);
   const stageFiles = await inspectLegacyBackups(
     stage,
@@ -55,6 +50,24 @@ export async function cleanupLegacy(
     completeBytes,
     options.recoveryProof
   );
+}
+
+function completeReceipt(bytes: Buffer): {
+  pending: boolean;
+  completeBytes: Buffer;
+} {
+  const complete: unknown = JSON.parse(bytes.toString("utf8"));
+  if (
+    !v.is(
+      v.object({ state: v.picklist(["cleanup-pending", "complete"]) }),
+      complete
+    )
+  )
+    throw new Error("invalid native cleanup receipt");
+  const pending = complete.state === "cleanup-pending";
+  complete.state = "complete";
+  const completeBytes = Buffer.from(`${JSON.stringify(complete, null, 2)}\n`);
+  return { pending, completeBytes };
 }
 
 async function retireVerifiedFiles(

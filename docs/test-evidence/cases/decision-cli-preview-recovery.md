@@ -1,14 +1,13 @@
-### Case DECISION-CLI-PREVIEW-RECOVERY-001: 决策全量预演恢复边界与严格检查分离
+### Case DECISION-CLI-PREVIEW-RECOVERY-001: 决策全量同步预检与恢复写入分离
 
 Tests:
-- `test:8346d9340820bdeef7e806ab79c63d896136f1e074cad82ac66786db1c78e161`
+- `test:dd8167ee60e946904db658bf49899dae20f47daa6ae28a5676281d84a7688e27`
 
 Tags:
 - `decision-records`
 
 Contract:
-- Decision 全量 sync preflight 对合法来源采用正式同步的恢复条件，selected 仍要求可信 baseline，check 不放宽。
+- 全量 sync 预检不写入，可从合法来源恢复损坏或缺失索引。
 
 Proves:
-- 缺失、损坏或旧 schema 索引的全量预演成功并声明未发布，索引仍保持原有或缺失状态；check 和 selected preflight 拒绝。
-- 正式同步才恢复完整规范字节；current preflight 成功显示 up to date，而非待发布。
+- Decision 全量操作对坏索引预检不改字节，正式同步写入；再预检显示 unchanged，删除索引后正式同步重新建立。

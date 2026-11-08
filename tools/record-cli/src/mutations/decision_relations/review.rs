@@ -18,6 +18,7 @@ pub(super) fn resolve_groups(
             .iter()
             .map(|edge| {
                 Ok(Relation {
+                    summary_selector: None,
                     kind: kind(&edge.relation_type)?,
                     target: edge.target.clone(),
                     summary: edge.summary.clone(),
@@ -48,34 +49,38 @@ fn resolve_edges(
     let mut targets = HashSet::new();
     let mut after = Vec::new();
     for edge in edges {
-        let (target, _) =
-            domains::resolve_selector(&baseline.index().entries, &edge.target, |s| &s.name)
-                .map_err(|e| fail("target-selector", format!("{e:?}")))?;
-        if !targets.insert(target.to_owned()) {
+        let target = resolved_target(baseline, edge)?;
+        if !targets.insert(target.clone()) {
             return Err(fail("duplicate-target", target));
         }
-        let summary = match &edge.summary {
-            Some(value) => {
-                let text = value.js_trim();
-                if text.contains(['\r', '\n']) || text.chars().count() > 40 {
-                    return Err(fail(
-                        "relation-summary",
-                        "summary must be single-line and at most 40 code points",
-                    ));
-                }
-                if text.is_empty() {
-                    None
-                } else {
-                    Some(text.to_owned())
-                }
-            }
-            None => None,
-        };
+        let summary = normalize_summary(edge.summary.as_deref())?;
         after.push(Relation {
+            summary_selector: None,
             kind: edge.kind,
-            target: target.to_owned(),
+            target,
             summary,
         });
     }
     Ok(after)
+}
+
+fn resolved_target(
+    baseline: &crate::index::ValidatedIndex<domains::decision::DecisionState>,
+    edge: &Relation<DecisionRelationKind>,
+) -> Result<String, TxError> {
+    let (target, _) =
+        domains::resolve_selector(&baseline.index().entries, &edge.target, |s| &s.name)
+            .map_err(|e| fail("target-selector", format!("{e:?}")))?;
+    if let Some(selector) = &edge.summary_selector {
+        let (summary_target, _) =
+            domains::resolve_selector(&baseline.index().entries, selector, |s| &s.name)
+                .map_err(|e| fail("relation-summary", format!("{e:?}")))?;
+        if summary_target != target {
+            return Err(fail(
+                "relation-summary",
+                "summary target differs from relation target",
+            ));
+        }
+    }
+    Ok(target.to_owned())
 }

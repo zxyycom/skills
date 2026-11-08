@@ -59,12 +59,17 @@ fn help_arguments(domain: Domain, command: &str) -> &'static str {
         (
             "evolve",
             None,
-            "[--successor ALIGNMENT=SELECTOR]... [--discard SELECTOR] [--delete-recorded] [--keep-unrecorded-history] [--preflight] [relation options]",
+            "--successor ALIGNMENT=SELECTOR [--successor ALIGNMENT=SELECTOR]... [--discard SELECTOR] [--delete-recorded] [--keep-unrecorded-history] [--preflight] [--source SELECTOR] [--relation TYPE=SELECTOR] [--relation-summary SELECTOR=TEXT] [--clear-relations]",
+        ),
+        (
+            "list",
+            Some(Domain::Decision),
+            "[--tag TAG]... [--status active|archived|all] [--alignment aligned|unaligned|all] [--created-from TIMESTAMP] [--created-to TIMESTAMP] [--related-to SELECTOR] [--direction both|predecessors|successors] [--relation-type TYPE] [--limit N] [--offset N] [--detail]",
         ),
         (
             "list",
             None,
-            "[--tag TAG]... [--related-to SELECTOR] [--direction both|predecessors|successors] [--relation-type TYPE] [--limit N] [--offset N] [--detail] [domain filters]",
+            "[--tag TAG]... [--related-to SELECTOR] [--direction both|predecessors|successors] [--relation-type TYPE] [--limit N] [--offset N] [--detail]",
         ),
         ("mark-aligned", None, "SELECTOR"),
         (
@@ -95,8 +100,13 @@ fn help_arguments(domain: Domain, command: &str) -> &'static str {
         ),
         (
             "search",
+            Some(Domain::Decision),
+            "TEXT [--in content|metadata] [--match all|any|phrase] [--tag TAG]... [--status active|archived|all] [--alignment aligned|unaligned|all] [--related-to SELECTOR] [--direction both|predecessors|successors] [--relation-type TYPE] [--limit N]",
+        ),
+        (
+            "search",
             None,
-            "TEXT [--in content|metadata] [--match all|any|phrase] [--tag TAG]... [relation filters] [--limit N]",
+            "TEXT [--in content|metadata] [--match all|any|phrase] [--tag TAG]... [--related-to SELECTOR] [--direction both|predecessors|successors] [--relation-type TYPE] [--limit N]",
         ),
         (
             "set-relations",
@@ -133,11 +143,16 @@ pub(super) fn print_help(domain: Domain, topic: Option<&str>) {
     if let Some(command) = topic {
         let arguments = help_arguments(domain, command);
         println!(
-            "Usage: {executable} {command} {arguments} [--root PATH] [{directory} PATH] [--json]\n\nNative candidate: use only with an isolated fixture; it is not a production entry point."
+            "Usage: {executable} {command} {arguments} [--root PATH] [{directory} PATH] [--json]"
         );
+        if command == "new" {
+            println!(
+                "Relations identify predecessors; summaries explain each selected relation. The new scaffold can be valid before its body is ready for publication."
+            );
+        }
     } else {
         println!(
-            "Usage: {executable} <command> [options]\n\nCommands: {}\n\nUse '{executable} help <command>' for arguments. Global options: --root PATH, {directory} PATH, --json, --help, --version.\nNative candidate: use only with an isolated fixture; it is not a production entry point.",
+            "Usage: {executable} <command> [options]\n\nCommands: {}\n\nUse '{executable} help <command>' for arguments. Global options: --root PATH, {directory} PATH, --json, --help, --version.",
             command_names(domain).join(", ")
         );
     }

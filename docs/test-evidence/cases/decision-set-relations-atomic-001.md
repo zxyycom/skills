@@ -1,16 +1,13 @@
-### Case DECISION-SET-RELATIONS-ATOMIC-001: set-relations 多来源单一事务且失败零写入
+### Case DECISION-SET-RELATIONS-ATOMIC-001: 多来源关系替换预检和共同提交
 
 Tests:
-- `test:9eb1556c468e1d0d3ea8ca8bcd2d47faae36023a55510314ac55411d79aa8c82`
-- `test:aeef6d08bc41ac9bb81aef93c32da15cdfdf9afc24745d20a76f8becabfb58d7`
-- `test:bcb877908c9ca5ba87a1e682bfca212e305aae1141612a4370982c0ce2dc3b7a`
+- `test:2d033f93c248543b7e887279526dea7b766521e53b28c1d4276de8e72e7d79de`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 多个 `--source` 分组在同一请求中形成单一事务；任一来源解析失败或最终图非法时整体不写入。
+- 多来源关系分组作为单次请求处理；来源选择失败时不得写入其他来源或索引。
 
 Proves:
-- 真实同进程 CLI 的双来源 replacement 成功共同更新索引；后续来源解析不存在时拒绝并保留来源与索引字节。
-- 纯生命周期准备对关系目标仍为 active 的非法图返回 target must be archived，且结果不含 changes。
+- 真实 CLI 的第二组 source 不存在时失败，两个正式来源与索引字节保持；同 fixture 两个合法来源一起提交后，索引中两组均保存所选关系。此节点不声称提交中途失败支持全文件回滚。

@@ -25,10 +25,6 @@ test("incremental Gate selects write and canonical consumer tests for their leav
         "script:test:index-runtime"
       ],
       [
-        "tools/decision-records/tests/queries/canonical-sync-cost.test.ts",
-        "test:decision-records:query-and-index-projection"
-      ],
-      [
         "scripts/lib/vibe-gate/impact/tests/impact-write-canonical-inputs.test.ts",
         "script:test:check"
       ]

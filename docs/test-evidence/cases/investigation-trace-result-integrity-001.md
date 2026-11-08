@@ -1,13 +1,13 @@
-### Case INVESTIGATION-TRACE-RESULT-INTEGRITY-001: 追溯拒绝缺失成员的发布图
+### Case INVESTIGATION-TRACE-RESULT-INTEGRITY-001: 拆分预算结果的成员一致性
 
 Tests:
-- `test:e9144de73a3685f9d54beacff2b33990872f79ab7c9fb0abf579f3b0a6a66c71`
+- `test:8ad09f135902ceb10e7afd2f94bbfbd10c422906f74101b2e94a7e79c44bd1b0`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- trace 成功时 trace/context 互斥且并集精确等于 entries；非法完整图失败。
+- 追溯预算拒绝完整拆分时，已接纳成员与 entries 保持一致。
 
 Proves:
-- 合法图的完整成员严格相等；将已发布关系 target 改为不存在的 ID 后，trace 返回领域失败而非遗漏成员的成功 envelope。
+- 调查拆分预算不足的结果仅含 anchor traceId、空 contextIds，entries 恰含该 anchor，并返回完整 blockedEvent。

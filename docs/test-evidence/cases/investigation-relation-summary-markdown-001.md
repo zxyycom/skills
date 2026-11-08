@@ -1,14 +1,15 @@
-### Case INVESTIGATION-RELATION-SUMMARY-MARKDOWN-001: relation summary Markdown accepts only normalized optional short text
+### Case INVESTIGATION-RELATION-SUMMARY-MARKDOWN-001: 报告关系摘要的规范序列化
 
 Tests:
-- `test:0493fd24ea2fbf07b9d6ca95acd649a372e20cb847a5c18ff071e0ab612c023a`
+- `test:6b1d90b11e911a5582c4be9c11b3134cb3bba661c15e7ce30083c05451b19004`
+- `test:b19a043472206c16231990677aaaa8ecd2dcb6b756ca5af3109ff7ad11536fc7`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- Markdown relation 的 key 顺序为 `type`、`target`、可选 `summary`；持久 summary 必须已规范化、单行且最多 40 个 Unicode 码点，旧无摘要 relation 保持合法。
+- 来源摘要先 trim，空值省略，非空必须单行且最多 40 个 Unicode 码点；写入关系时保留规范字段顺序。
 
 Proves:
-- 40 个非 BMP 码点可解析并保持 relation 对象投影；41 个码点、转义换行和首尾空白持久值被拒绝。
-- 删除 summary 行后的历史关系仍按原 type/target 读取。
+- 来源解析与正式状态投影均保留 trim 后摘要并省略空白摘要；内部换行和 41 个非 BMP 码点拒绝，40 个通过。
+- 关系替换写出 type、target、summary 顺序及摘要文本；非法关系类型被拒绝。

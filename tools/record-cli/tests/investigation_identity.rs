@@ -333,3 +333,6 @@ fn malformed_head_index_never_becomes_empty_history() {
 
 #[path = "investigation_identity/cli_resources.rs"]
 mod cli_resources;
+
+#[path = "investigation_identity/owner_scope_contracts.rs"]
+mod owner_scope_contracts;

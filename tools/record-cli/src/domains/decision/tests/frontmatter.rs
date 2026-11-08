@@ -1,5 +1,27 @@
 use super::parse_frontmatter;
 const SAMPLE: &str = "---\ntitle: Decision title\nid: 240229-record\nstatus: candidate\nalignment: null\ncreatedAt: null\npurpose: Purpose text\nbackground: Background text\ndecision: Decision text\ntags: [tag]\nrelations: []\n---\n\n## 目的\n";
+
+#[test]
+fn decision_frontmatter_rejects_missing_invalid_and_removed_fields() {
+    assert!(parse_frontmatter(SAMPLE.as_bytes(), "240229-record").is_ok());
+    for source in [
+        SAMPLE.replace("title: Decision title", "title: Ab"),
+        SAMPLE.replace("purpose: Purpose text\n", ""),
+        SAMPLE.replace("tags: [tag]", "tags: []"),
+        SAMPLE.replace("tags: [tag]", "tags: [Bad_Tag]"),
+        SAMPLE.replace("tags: [tag]", "tags: [z, a]"),
+        SAMPLE.replace("tags: [tag]", "tags: [tag, tag]"),
+        SAMPLE.replace("tags: [tag]\n", ""),
+        SAMPLE.replace("relations: []", "relations: []\ndomain: removed"),
+        SAMPLE.replace("relations: []", "relations: []\ndomains: [removed]"),
+        SAMPLE.replace("relations: []", "relations: []\nextra: removed"),
+    ] {
+        assert!(
+            parse_frontmatter(source.as_bytes(), "240229-record").is_err(),
+            "{source}"
+        );
+    }
+}
 #[test]
 fn local_rewrite_preserves_bom_crlf_comments_anchors_and_unselected_multiline() {
     let input = "\u{feff}---\r\ntitle: 'Decision title' # title comment\r\nid: 240229-record\r\nstatus: candidate # status comment\r\nalignment: null # alignment comment\r\ncreatedAt: null # timestamp comment\r\npurpose: &p >-\r\n  Purpose text\r\nbackground: *p\r\ndecision: Decision text\r\ntags: &tags [tag] # anchor stays\r\nrelations: [] # relation comment\r\n---\r\n\r\n## 目的\r\n正文\r\n";
@@ -286,6 +308,42 @@ fn candidate_body_keeps_scaffold_and_readiness_separate() {
             .is_empty()
     );
 }
+
+#[test]
+fn decision_adopted_value_requires_supported_marker_and_same_line_content() {
+    let body = |line: &str| format!("## 目的\n目的\n## 背景\n背景\n## 决策\n{line}\n");
+    for marker in ["-", "*", "+"] {
+        for colon in [":", "："] {
+            let valid = super::assess_body(&body(&format!("{marker} 采用{colon} 选择")), false);
+            assert!(
+                valid.body_ready && valid.scaffold_errors.is_empty(),
+                "{marker}{colon}: {valid:?}"
+            );
+            for value in ["", "  ", "\n选择"] {
+                let invalid =
+                    super::assess_body(&body(&format!("{marker} 采用{colon}{value}")), false);
+                assert!(
+                    !invalid.body_ready
+                        && invalid
+                            .scaffold_errors
+                            .iter()
+                            .any(|error| error.contains("采用")),
+                    "{marker}{colon}{value:?}: {invalid:?}"
+                );
+            }
+        }
+    }
+    for unsupported in ["• 采用: 选择", "- 采用; 选择"] {
+        let invalid = super::assess_body(&body(unsupported), false);
+        assert!(
+            !invalid.body_ready
+                && invalid
+                    .scaffold_errors
+                    .iter()
+                    .any(|error| error.contains("采用"))
+        );
+    }
+}
 #[test]
 fn reads_yaml_and_rejects_duplicate_keys_and_bad_lifecycle() {
     let parsed = parse_frontmatter(SAMPLE.as_bytes(), "240229-record").unwrap();
@@ -311,4 +369,26 @@ fn reads_yaml_and_rejects_duplicate_keys_and_bad_lifecycle() {
         .is_err()
     );
     assert!(parse_frontmatter(SAMPLE.as_bytes(), "other").is_err());
+}
+
+#[test]
+fn established_decision_requires_explicit_alignment_for_active_and_archived() {
+    for (status, alignment) in [
+        ("active", "aligned"),
+        ("active", "unaligned"),
+        ("archived", "aligned"),
+        ("archived", "unaligned"),
+    ] {
+        let valid = SAMPLE
+            .replace("status: candidate", &format!("status: {status}"))
+            .replace("alignment: null", &format!("alignment: {alignment}"))
+            .replace("createdAt: null", "createdAt: 2024-02-29T00:00:00Z");
+        assert!(parse_frontmatter(valid.as_bytes(), "240229-record").is_ok());
+        for invalid in [
+            valid.replace(&format!("alignment: {alignment}"), "alignment: null"),
+            valid.replace(&format!("alignment: {alignment}\n"), ""),
+        ] {
+            assert!(parse_frontmatter(invalid.as_bytes(), "240229-record").is_err());
+        }
+    }
 }

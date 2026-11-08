@@ -167,6 +167,22 @@ pub struct DirectorySnapshot {
     pub path: RelativePath,
     pub members: Vec<DirectoryMember>,
 }
+/// Check only the directory itself without enumerating unrelated members.
+pub fn directory_exists(root: &Root, path: &RelativePath) -> Result<bool, SourceError> {
+    let metadata = match root.directory.symlink_metadata(path.as_path()) {
+        Ok(metadata) => metadata,
+        Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(false),
+        Err(error) => return Err(error.into()),
+    };
+    if metadata.file_type().is_symlink() {
+        return Err(SourceError::Symlink(path.0.clone()));
+    }
+    if !metadata.is_dir() {
+        return Err(SourceError::NonRegular(path.0.clone()));
+    }
+    Ok(true)
+}
+
 pub fn enumerate_directory(
     root: &Root,
     path: &RelativePath,
@@ -272,6 +288,18 @@ mod tests {
         );
         assert!(RelativePath::new("../record").is_err());
         assert!(RelativePath::new("a/../record").is_err());
+    }
+    #[cfg(unix)]
+    #[test]
+    fn directory_boundary_does_not_enumerate_unrelated_names() {
+        use std::os::unix::ffi::OsStringExt;
+        let temp = tempfile::tempdir().unwrap();
+        std::fs::create_dir(temp.path().join("resources")).unwrap();
+        let unrelated = std::ffi::OsString::from_vec(vec![0xff]);
+        std::fs::write(temp.path().join("resources").join(unrelated), b"unselected").unwrap();
+        let root = open_root(temp.path()).unwrap();
+        assert!(directory_exists(&root, &RelativePath::new("resources").unwrap()).unwrap());
+        assert!(!directory_exists(&root, &RelativePath::new("absent").unwrap()).unwrap());
     }
     #[test]
     fn captures_tree_members() {

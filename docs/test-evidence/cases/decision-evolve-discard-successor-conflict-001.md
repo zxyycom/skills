@@ -1,13 +1,13 @@
-### Case DECISION-EVOLVE-DISCARD-SUCCESSOR-CONFLICT-001: Evolve 拒绝同时 discard 和选择同一后继
+### Case DECISION-EVOLVE-DISCARD-SUCCESSOR-CONFLICT-001: Evolve 拒绝删除同一后继
 
 Tests:
-- `test:dddf55e2948eda62c3093dd7d587e4da9547fbb6487fe23d50b975d36100b04f`
+- `test:75c6229410dd053e583578775f6f176c74e12440f41ac89fdecac96cbf89eeb4`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 同一关系图计划不能同时 upsert 一个 Decision ID 并删除它；`evolve --discard` 的目标不能出现在 successor 集合。
+- 同一计划不能既选择又删除相同 Decision ID。
 
 Proves:
-- 纯 selector 解析与生命周期准备拒绝同时 upsert/discard 同一 ID，返回冲突领域错误且不产生 changes。
+- 原生操作以名称选候选、完整 ID 删除同一候选，预检返回 discard 错误，候选字节不变且未创建索引。

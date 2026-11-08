@@ -2,6 +2,7 @@ use super::*;
 
 fn edge(target: &str, summary: Option<&str>) -> Relation<u8> {
     Relation {
+        summary_selector: None,
         kind: 1,
         target: target.into(),
         summary: summary.map(str::to_owned),
@@ -20,11 +21,17 @@ fn groups_replace_completely_but_unmentioned_source_is_preserved() {
     let selected = vec![source("a", false), source("b", true)];
     let replacement = Replacement::Groups(vec![RelationGroup {
         source: "a".into(),
-        relations: vec![edge("previous", None)],
+        relations: vec![edge("new", None)],
     }]);
     let planned = plan_relations(&selected, &replacement).unwrap();
     assert_eq!(planned[0].action, ReviewAction::Replace);
-    assert_eq!(planned[0].after[0].summary, None);
+    assert_eq!(planned[0].after, vec![edge("new", None)]);
+    assert!(
+        planned[0]
+            .after
+            .iter()
+            .all(|edge| edge.target != "previous")
+    );
     assert_eq!(planned[1].action, ReviewAction::Establish);
     assert_eq!(planned[1].before, planned[1].after);
 }
@@ -61,7 +68,13 @@ fn rejects_unknown_and_duplicate_resolved_sources_or_targets() {
     assert!(matches!(
         plan_relations(
             &selected,
-            &Replacement::All(vec![edge("x", None), edge("x", Some("two"))])
+            &Replacement::All(vec![
+                edge("x", None),
+                Relation {
+                    kind: 2,
+                    ..edge("x", Some("two"))
+                }
+            ])
         ),
         Err(RelationPlanError::DuplicateTarget { .. })
     ));
@@ -81,6 +94,7 @@ fn review_json_keeps_domain_edge_names_and_omits_absent_summary() {
         action: ReviewAction::Establish,
         before: vec![],
         after: vec![Relation {
+            summary_selector: None,
             kind: DecisionRelationKind::Revision,
             target: "b".into(),
             summary: None,

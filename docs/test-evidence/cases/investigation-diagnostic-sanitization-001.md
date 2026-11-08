@@ -1,13 +1,13 @@
-### Case INVESTIGATION-DIAGNOSTIC-SANITIZATION-001: investigation diagnostics sanitize external failure details
+### Case INVESTIGATION-DIAGNOSTIC-SANITIZATION-001: Git 失败不泄露子进程 stderr
 
 Tests:
-- `test:8f153b82600cfe4662dc01b37a7ee753bb7b6a0da9e5930b3ee74c508c0b3745`
+- `test:459520c2533f7f1ea9b9adcafbd31ab8a0f4e52ec87c232894cdbec635fb24a6`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- Investigation Report 的系统错误 detail 只输出经净化的受控信息，不泄露 token 或绝对路径，也不传播换行或无限长度文本。
+- Git 子进程失败的外部 stderr 不得直接泄露到调查 CLI 输出。
 
 Proves:
-- 含 Git token、绝对路径、换行和超长内容的外部 Error 经诊断和 renderer 后均不泄露 token，detail 无换行且最多 500 字符；generic reason 也会经同一净化边界。
+- Unix 私有 Git fixture 中假 Git 实际运行并向 stderr 写入无害模拟 token 后失败；真实 stage JSON 调用失败，stdout 和 stderr 均不含该 token，并保留 Git 失败提示。

@@ -1,13 +1,13 @@
-### Case INVESTIGATION-INDEX-QUERY-001: List 按近期时间与 ID tie-break 排序并组合 AND tags
+### Case INVESTIGATION-INDEX-QUERY-001: 调查列表时间顺序与 tag 筛选
 
 Tests:
-- `test:983c40e1ba7119f4e2a9345e566710ccdc6525c8f0d0bad53da78a6a94ce9b54`
+- `test:8f7d4e88a44f15b8b43b3150b2746fd965c22ba80c1d50679402762dcf9fe1ad`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 报告 list 按 formedAt instant 倒序排列，时间相同时用 Investigation ID 升序稳定打破平局；重复 tag 条件使用 AND。
+- 列表按 formedAt 倒序，tag 筛选不改变全量 facets。
 
 Proves:
-- 两个 tag 条件只返回同时具有两者的报告，最新报告在前，相同形成时间的两项按 ID 升序。
+- 固定快照中较新的报告排在第一；按 blue tag 只返回匹配报告且全量 record_count 仍为二。

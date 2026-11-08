@@ -1,5 +1,4 @@
 //! Full Decision sync built on the same stage-local source collector as check.
-//! No production wiring is implied by this isolated candidate operation.
 use crate::mutations::check::{DecisionStage, decision_stage};
 use crate::mutations::sync::full_sync;
 use crate::{
@@ -31,7 +30,15 @@ fn failure(code: &str, message: impl Into<String>) -> TxError {
     TxError::new(code, message)
 }
 fn map_error(error: crate::mutations::check::CheckError) -> TxError {
-    failure(error.code, format!("{}: {}", error.path, error.message))
+    let hint = if error.partial.is_some() {
+        "; run decision-records check for detailed source diagnostics"
+    } else {
+        ""
+    };
+    failure(
+        error.code,
+        format!("{}: {}{hint}", error.path, error.message),
+    )
 }
 impl DecisionSyncOperation {
     fn stage(&self, root: &Root) -> Result<DecisionStage, TxError> {

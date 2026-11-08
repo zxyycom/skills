@@ -1,16 +1,13 @@
-### Case INVESTIGATION-BUNDLED-PARITY-001: CLI exposes only report-level commands and rejects old topic options
+### Case INVESTIGATION-BUNDLED-PARITY-001: 调查写命令帮助与参数接线
 
 Tests:
-- `test:e1aa9062a509a9dea911c9ce62ca8aef60b232a38155876a29e1d7fe42de7f98`
+- `test:4c54b319cfd5f3f86ab21eb8099d63c88c1dd72f0996a55773184212f7ae8d17`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 直接调用的源码 CLI 入口的帮助仅公开当前报告级命令；search 公开文本与匹配模式入口，sync-index 公开局部 `--select`、未选当前性未检查和 `--preflight` 而不保留 `--write`，旧 topic 筛选和 list 的 retired text 参数不属于当前接口。
+- Investigation 写入命令帮助和参数解析应反映其领域支持的选项。
 
 Proves:
-- 顶层帮助成功且只写 stdout，列出报告级命令而不列出 `--category`。
-- search 帮助公开 `[text]` 位置入口和 `--match <mode>`。
-- sync-index 帮助公开 `--select <name-or-id>` 局部更新、未选来源当前性未检查与 `--preflight`；同进程源码 CLI 的 `sync-index --write` 以用法错误退出并报告 `unknown option '--write'`。
-- `list --category` 与 `list --text` 都以用法错误退出，且前者 stdout 为空、错误输出包含对应未知选项诊断。
+- 真实程序的 publish help 公开多 selector 与 preflight、discard help 公开 delete-owned-resources；解析器接纳这些领域选项并拒绝 Decision 专属 alignment。

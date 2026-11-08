@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-ACTION-COMMIT-001: 候选改名删除不制造正式索引
 
 Tests:
-- `test:f1009061130bb438d6fc79f558b3e2673fa23e34b97c49f405eec1d13e3ac50b`
+- `test:2ca385e8f555a6015e0b130fe50e5a9744a40c64a7951ef0a927aa45115373dc`
 
 Tags:
 - `decision-records`
@@ -10,4 +10,4 @@ Contract:
 - 候选 rename/discard 沿用实际动作提交点，不为事务统一发布正式索引。
 
 Proves:
-- 真缺索引工作区候选改名和删除均成功且变化生效，操作前后始终没有 decision-index.json。
+- 无正式索引的私有集合中，原生事务先改名再丢弃唯一候选，均已提交；各步骤后均无 decision-index.json，删除后候选文件不存在。

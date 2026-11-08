@@ -1,13 +1,13 @@
-### Case INVESTIGATION-CANDIDATE-MIGRATION-001: 允许跨日与 legacy 同名，不隐式迁移
+### Case INVESTIGATION-CANDIDATE-MIGRATION-001: 跨日同名候选与关系选择歧义
 
 Tests:
-- `test:3d2f0232e4d609c165c6cc13e43da9a54ace13249a44748306dc782703645548`
+- `test:e69da66b29e094f28020d5e95e6ee239f428954736cf573b63f004d407c2a9e1`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 完整日期 ID 和目标路径唯一；name 可以重复，新建不要求先迁移旧记录。
+- 不同日期的同名候选可分别建立；按名称引用存在歧义时不得静默选择。
 
 Proves:
-- legacy 同名仍成功创建 canonical 日期 ID 候选，旧来源字节不变；同完整 ID 重试失败，跨日再次创建成功。
+- 调查领域分别在两个日期创建 foo 均成功，随后以 foo.MD 作为关系 target 的创建失败且未变更。

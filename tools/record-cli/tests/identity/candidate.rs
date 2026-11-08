@@ -134,6 +134,18 @@ fn decision_candidate_only_collection_does_not_create_an_index() {
     assert!(out.committed);
     assert!(base.join("renamed.md").exists());
     assert!(!base.join("decision-index.json").exists());
+    op.selector = "renamed".into();
+    op.action = Action::Discard {
+        confirm_recorded: false,
+    };
+    let discarded = transaction::run_transaction(&root, &mut op);
+    assert!(
+        discarded.committed && discarded.errors.is_empty(),
+        "{:?}",
+        discarded.errors
+    );
+    assert!(!base.join("renamed.md").exists());
+    assert!(!base.join("decision-index.json").exists());
 }
 #[test]
 fn decision_candidate_reusing_historical_formal_id_requires_confirmation() {

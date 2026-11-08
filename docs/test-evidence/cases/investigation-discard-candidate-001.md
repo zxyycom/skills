@@ -1,13 +1,13 @@
-### Case INVESTIGATION-DISCARD-CANDIDATE-001: 候选删除的明确范围与历史确认
+### Case INVESTIGATION-DISCARD-CANDIDATE-001: 未就绪候选的显式删除
 
 Tests:
-- `test:77772d8c81aafe29a1e06d173e3231e598db080dd236e47328714ab5718c202b`
+- `test:ad74713b84803d52e15fb3e2e900e7298f5c042d38c9a5c05c3d898f9926d0d0`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 统一 discard 只删除所选候选与授权 owner 树，不自动保护或改写未选候选引用；已进入 HEAD 的目标须确认。
+- 候选正文未完成且有未引用 owner 资源时，允许显式授权删除该候选。
 
 Proves:
-- 未选消费者候选引用不阻断目标删除且自身保留；Git 已记录的候选需要确认，确认后只删除目标和 owner 树，正式正文不变。
+- 带 delete-owned-resources 的调用成功并提交，候选路径退出。

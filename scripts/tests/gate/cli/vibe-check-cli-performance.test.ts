@@ -112,7 +112,7 @@ test("CLI enforces only quick budgets including entry and late report overhead",
       );
       assert.equal(summary.nativeResult.aggregate, "passed", mode);
       const eligible =
-        mode === "quick" || mode === "late" ? 6 : mode === "release" ? 74 : 71;
+        mode === "quick" || mode === "late" ? 6 : mode === "release" ? 63 : 60;
       assert.deepEqual(
         summary.selection,
         {
@@ -120,7 +120,7 @@ test("CLI enforces only quick budgets including entry and late report overhead",
           eligible,
           execute: eligible,
           reuse: 0,
-          disabled: 74 - eligible
+          disabled: 63 - eligible
         },
         mode
       );

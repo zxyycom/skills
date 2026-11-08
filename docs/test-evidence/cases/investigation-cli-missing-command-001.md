@@ -1,14 +1,13 @@
-### Case INVESTIGATION-CLI-MISSING-COMMAND-001: 缺少命令时渲染顶层帮助并按参数错误结束
+### Case INVESTIGATION-CLI-MISSING-COMMAND-001: 缺少命令与显式帮助的退出状态
 
 Tests:
-- `test:c46f1d65ec90a4ba8b99a4b32cdf5e9d91c2ad0bf042a0d37a4cb84fed6241c5`
+- `test:2dfd48c79c1d1110d13aa7a23dbfae990286309490720cb51802b13bd7fc659b`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 省略 command 时，CLI 渲染顶层 help 且不读取集合状态，以参数错误退出码结束；`help` 命令仍以成功退出码渲染顶层 help。
+- 省略 command 按参数错误结束；显式 help 不要求有效工作区。
 
 Proves:
-- 空 argv 以退出码 `2` 结束，stdout 为空，stderr 呈现顶层命令说明与 `help [command]` 入口。
-- `help` 以退出码 `0` 输出同一顶层说明，未执行任何领域命令。
+- 真实程序空 argv 退出 2 且产生 stdout；显式 help 和指定不存在 root 的 help 均成功。

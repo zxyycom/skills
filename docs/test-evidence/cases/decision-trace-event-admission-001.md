@@ -1,9 +1,7 @@
 ### Case DECISION-TRACE-EVENT-ADMISSION-001: Decision Trace 原子接纳关系事件
 
 Tests:
-- `test:32ca9e1c00fe41bb4045e5cdd5aafad912bb5ff5efb307a4409a6415b00ef076`
-- `test:b284980dc4bce81314b172f19af07ff88f199f4f8ca5d618a3ef0da59e7f1dd4`
-- `test:e9111654edd7f74770843241cad251263f96c1fc5f6b56911888c1ced5b45f8c`
+- `test:f0cf375cd2958a20e91d5962ba51cb0ac8a945a0890248239213e105381bdefb`
 
 Tags:
 - `decision-records`
@@ -12,5 +10,5 @@ Contract:
 - Decision Trace 必须把完整拆分、纯归并和稀疏重划事件作为原子接纳单元；未直接跨越的同事件成员只作为 context。
 
 Proves:
-- 预算足够时，拆分、纯归并和稀疏重划均保留直接成员，且把非直接成员投影到 contextIds。
-- 预算不能容纳完整事件时，只保留 anchor，不部分接纳任何成员，并返回 event kind、完整 recordIds 与最小 requiredMaxRecords。
+- 原生真实 Decision 索引图对拆分、纯归并和稀疏重划分别验证：预算不足时只保留 anchor、context 为空，blockedEvent 返回事件类型、完整成员及所需预算。
+- 预算足够且只遍历一层时，直接邻居进入 trace，事件其他成员进入 context；节点验证领域查询投影，不声称 CLI 呈现。

@@ -1,13 +1,13 @@
-### Case DECISION-REALLOCATION-HISTORY-BOUNDARY-001: Evolve 区分先后重划事件
+### Case DECISION-REALLOCATION-HISTORY-BOUNDARY-001: 相继重划区分共享历史记录的角色
 
 Tests:
-- `test:3f452bc3e5212dd1e42597cfbc32899b7ecb3e3b6d2beac0c5e7acb652ce74e1`
+- `test:025374744dd94acec46a154e4f4e555d828f0be04637abab0c1e17172d65924b`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 后续重划已归档的早先后继时，闭合计算必须区分同一 Decision ID 在早先事件中的后继角色和后来事件中的前序角色。
+- 后一次重划可将早先事件的后继作为前序，不能把两次事件合并为角色冲突。
 
 Proves:
-- 纯已建立关系图一致性检查通过，并将早先与后来的事件分别投影为各自完整 predecessor/successor 集合，不要求跨事件混选。
+- 两次完整 2×2 重划的索引图可通过验证；共享中间记录各有两条前代 outgoing 和后代 incoming 边。该节点未断言 trace 事件呈现或 mutation 选择集。

@@ -1,13 +1,13 @@
 ### Case DECISION-SEARCH-FALLBACK-001: 发布范围内读取当前正文
 
 Tests:
-- `test:be47b8b23d77fcd974b344d780ba5861cd11440813143f9e1b19efa7b02989bb`
+- `test:f8b0772cfc1840c342361e4225f2475a8e1bc4c9244cce50fe9cb5b38e1de645`
 
 Tags:
 - `decision-records`
 
 Contract:
-- content 按发布范围读取当前文本，不检查全集新鲜度。
+- content 按发布索引范围读取当前正文，不隐式同步索引。
 
 Proves:
-- 新正文词返回已有 Decision ID，stderr 无降级提示，索引字节不变。
+- 真实 CLI 在已索引正文手改后命中新正文词，保留原索引字节；缺索引时失败，不生成成功 searchInfo。

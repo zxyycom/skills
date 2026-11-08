@@ -1,15 +1,15 @@
-### Case INVESTIGATION-RENAME-FORMAL-001: formal rename 闭合关系资源和索引
+### Case INVESTIGATION-RENAME-FORMAL-001: 正式 owner 更名迁移共享资源
 
 Tests:
-- `test:e5124446ed5444ecc9cfa4e67ebc337f4b50a42be68561412266b31b9a7b36fa`
+- `test:1be2551068f1dbd2f5f6f17176cd1d5aa098007c969e0a9a208a3ec7b937b00d`
+- `test:bfc8a2107b179a5b9d77513e890c07bc7f9c82ffabb7f10f65a2dc1ad21bb9de`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- formal Investigation rename 必须在同一事务更新 formal/candidate relation、受管 resource link、owner tree、report sourcePath 与正式索引。
+- 正式报告 rename 改写所选身份的正式引用并迁移受管资源。
 
 Proves:
-- 旧 report 和 owner 路径消失，新 owner 文件、candidate/formal relation 与资源链接都使用新 ID。
-- formal、candidate 与索引 relation 在改写 target 时逐字保留各自 summary。
-- 正式索引只投影新 ID/sourcePath，严格同步检查通过。
+- 真实文件 fixture 的 rename 已提交，新 owner 资源字节保持，其他报告链接指向新 owner；同 fixture 中仍被共享的资源不能 discard。
+- 另一正式报告引用旧 ID 时，先拒绝 discard；rename 提交后该报告的关系 target 改为新 ID，旧报告路径退出。

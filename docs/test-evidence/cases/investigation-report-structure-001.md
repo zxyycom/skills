@@ -1,13 +1,13 @@
-### Case INVESTIGATION-REPORT-STRUCTURE-001: validation enforces one report with fixed core and optional resource section
+### Case INVESTIGATION-REPORT-STRUCTURE-001: 报告核心正文的就绪边界
 
 Tests:
-- `test:6a9db07c48423a95ae0e04a5d3d9eb924ba229da8ca320c8774f51b12225580a`
+- `test:631231617ba3f42b37e3446d8546e6d93389636e4582f4983997eee4757e4e06`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 每个 Markdown 是一份报告，前四个 H2 固定；可选随附资源在第五位，附加语义 H2 仅可位于核心或资源之后，fence 内标题不参与结构识别。
+- 已建立报告的必需正文节不能为空，候选可以保留未就绪正文。
 
 Proves:
-- Markdown 解析器拒绝旧无 frontmatter 内容；核心后或资源后附加章节以及 fenced 标题通过；插入核心、资源之前或非规范资源标题各被拒绝。
+- 四个非空正文节通过，移除背景正文后正式模式报告错误，而候选模式不报告该正文错误。

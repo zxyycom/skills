@@ -1,13 +1,13 @@
 ### Case INVESTIGATION-LOCAL-DRAFT-001: 缺索引的已有正式集合必须显式恢复
 
 Tests:
-- `test:ef0287e5c381a5ebcda555a4c4c758b9643e62b1a1e6d2fde252db472e915652`
+- `test:cdbbe1727809431145c0d2a70dfb54b66bd95d0c6b8d5ce190d9dcc4cbae5b5f`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 真正缺索引且已有正式成员时，new 与 show-candidate 不隐式读取正式 header 或建立空基线。
+- 已有正式成员但发布索引缺失时，候选资源查询不能隐式建立空基线。
 
 Proves:
-- 无关正式来源有合法 header 但正文非法时，new 与 show-candidate 返回错误，正式来源的 fs.open 计数为零。
+- 正式正文移位而资源仍在时，删除发布索引后候选查询返回错误。

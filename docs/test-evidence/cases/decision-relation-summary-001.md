@@ -1,14 +1,14 @@
 ### Case DECISION-RELATION-SUMMARY-001: Relation summary normalization preserves the Unicode boundary
 
 Tests:
-- `test:ad7dc17dc2a5018a5ec16bebdfc941537952ea1c57d5e8c803e2634d36f9b196`
+- `test:41aa45138aa39be3212f03df6301535766ab5eae796833cbcbbfa9a93c9251d9`
 
 Tags:
 - `decision-records`
 
 Contract:
-- Relation summary input trims whitespace, omits blank values, permits at most 40 Unicode code points, and rejects physical line breaks without truncation.
+- Relation summary 输入先 trim，空值省略；非空值须为单行且至多 40 个 Unicode 码点，超限不截断。
 
 Proves:
-- Blank input, including whitespace around a physical line break, is omitted before line validation; a trimmed value retains text after the first CLI separator.
-- Forty astral Unicode code points pass, while forty-one and multiline input fail.
+- 真实 Decision CLI `new` 将仅含换行/空白的摘要省略；边缘换行和空白被 trim 后，40 个 emoji 保留在创建的正文中。
+- trim 后仍有内部换行、或 41 个 emoji 的摘要被拒绝；此节点不覆盖关系修改命令。

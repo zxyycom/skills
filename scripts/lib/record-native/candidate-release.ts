@@ -1,10 +1,14 @@
+import { validatePlatform, type PlatformInput } from "./candidate-platform.ts";
+export { validatePlatformSourceEvidence } from "./candidate-platform.ts";
 import { verifyNativeBuildRecipe } from "./candidate-build-recipe.ts";
 import type { SkillPackageFile } from "../skill-package/skill-package-hash.ts";
 import { schemaFile, validateCandidateSchema } from "./candidate-schemas.ts";
 import { extractNativeArchive } from "../../../tools/skill-updater/src/native/archive.ts";
 import { readSkillPackageVersion } from "../skill-package/skill-package-hash.ts";
 import { createHash } from "node:crypto";
+import { isDeepStrictEqual } from "node:util";
 import * as v from "valibot";
+import { zipSync } from "fflate";
 import {
   nativeRoles,
   nativeTargets,
@@ -19,36 +23,6 @@ import {
 import { digestNativeSource, type NativeCandidateSnapshot } from "./capture.ts";
 
 type Prepared = ReturnType<typeof prepareCandidateSourcePackages>;
-type PlatformInput = Readonly<{
-  revision: string;
-  sourceFiles: readonly string[];
-  sourceHash: string;
-  buildDelivery: { sha256: string; files: string[] };
-  metadata: unknown;
-  archives: Readonly<Record<NativeRole, Uint8Array>>;
-}>;
-const hash = v.pipe(v.string(), v.regex(/^[a-f0-9]{64}$/));
-const reportSchema = v.object({
-  schemaVersion: v.literal(1),
-  runtimeVersion: v.string(),
-  sourceHash: hash,
-  target: v.picklist(nativeTargets),
-  toolchain: v.object({ rustc: v.string(), cargo: v.string() }),
-  environment: v.object({
-    platform: v.string(),
-    architecture: v.string(),
-    kernel: v.string(),
-    glibc: v.nullable(v.string())
-  }),
-  assets: v.array(
-    v.object({
-      role: v.picklist(nativeRoles),
-      name: v.string(),
-      byteLength: v.number(),
-      sha256: hash
-    })
-  )
-});
 function asset(name: string, bytes: Uint8Array) {
   return {
     name,
@@ -56,62 +30,6 @@ function asset(name: string, bytes: Uint8Array) {
     sha256: createHash("sha256").update(bytes).digest("hex")
   };
 }
-function validatePlatformBaseline(
-  report: v.InferOutput<typeof reportSchema>,
-  target: NativeTarget
-): void {
-  const expectedPlatform =
-    target === "x86_64-pc-windows-msvc" ? "win32" : "linux";
-  if (
-    report.environment.platform !== expectedPlatform ||
-    report.environment.architecture !== "x64" ||
-    !report.environment.kernel ||
-    (expectedPlatform === "linux"
-      ? report.environment.glibc !== "2.35"
-      : report.environment.glibc !== null) ||
-    !report.toolchain.rustc.startsWith("rustc 1.98.1 ") ||
-    !report.toolchain.rustc.includes(`host: ${target}`) ||
-    !report.toolchain.cargo.startsWith("cargo 1.98.1 ")
-  )
-    throw new Error(`candidate platform baseline mismatch: ${target}`);
-}
-function validatePlatform(
-  input: PlatformInput,
-  target: NativeTarget,
-  snapshot: NativeCandidateSnapshot,
-  version: string,
-  revision: string
-): v.InferOutput<typeof reportSchema> {
-  const report = v.parse(reportSchema, input.metadata);
-  if (
-    input.revision !== revision ||
-    report.target !== target ||
-    report.runtimeVersion !== version ||
-    report.sourceHash !== snapshot.sourceHash ||
-    input.sourceHash !== snapshot.sourceHash ||
-    JSON.stringify(input.sourceFiles) !==
-      JSON.stringify(snapshot.source.map((file) => file.path))
-  )
-    throw new Error(`candidate platform provenance mismatch: ${target}`);
-  validatePlatformBaseline(report, target);
-  for (const role of nativeRoles) {
-    const name = `${role}-${version}-${target}.zip`;
-    const entries = report.assets.filter(
-      (item) => item.role === role && item.name === name
-    );
-    const actual = asset(name, input.archives[role]);
-    if (
-      entries.length !== 1 ||
-      entries[0]?.byteLength !== actual.byteLength ||
-      entries[0]?.sha256 !== actual.sha256
-    )
-      throw new Error(`candidate platform asset mismatch: ${role} ${target}`);
-  }
-  if (report.assets.length !== nativeRoles.length)
-    throw new Error(`candidate platform asset set is invalid: ${target}`);
-  return report;
-}
-
 function validateOtherArchives(
   snapshot: NativeCandidateSnapshot,
   versions: Record<string, { version: number }>,
@@ -147,6 +65,21 @@ function validateOtherArchives(
   });
 }
 
+function verifyFormalPackages(input: CandidateReleaseInput): void {
+  for (const role of nativeRoles) {
+    const files = input.snapshot.skills.filesBySkill.get(role);
+    const contents = extractNativeArchive(input.prepared.packages[role].bytes);
+    if (
+      !files ||
+      contents.size !== files.length ||
+      files.some(
+        (file) => !contents.get(`${role}/${file.path}`)?.equals(file.data)
+      )
+    )
+      throw new Error(`formal package differs from pending snapshot: ${role}`);
+  }
+}
+
 function runtimeAssets(
   archives: Record<NativeRole, Record<NativeTarget, Uint8Array>>,
   version: string
@@ -172,56 +105,6 @@ function verifySnapshot(
     throw new Error("candidate snapshot digest changed");
 }
 
-/** Bind the platform's comparison record and source list to the pending snapshot. */
-export function validatePlatformSourceEvidence(input: {
-  source: unknown;
-  comparison: unknown;
-  snapshot: NativeCandidateSnapshot;
-  version: string;
-  revision: string;
-  target: NativeTarget;
-}): {
-  source: { sha256: string; files: string[] };
-  buildDelivery: { sha256: string; files: string[] };
-} {
-  const source = v.parse(
-    v.strictObject({ sha256: hash, files: v.array(v.string()) }),
-    input.source
-  );
-  const comparison = v.parse(
-    v.object({
-      revision: v.string(),
-      delivery: v.object({ sha256: hash, files: v.array(v.string()) }),
-      versions: v.array(v.string()),
-      sources: v.array(v.object({ sha256: hash, files: v.array(v.string()) }))
-    }),
-    input.comparison
-  );
-  const index = comparison.versions.indexOf(input.version);
-  if (
-    comparison.revision !== input.revision ||
-    index < 0 ||
-    comparison.versions.length !== comparison.sources.length ||
-    new Set(comparison.versions).size !== comparison.versions.length
-  )
-    throw new Error(
-      `candidate platform revision or version missing: ${input.target}`
-    );
-  const selected = comparison.sources[index];
-  if (
-    !selected ||
-    source.sha256 !== selected.sha256 ||
-    source.sha256 !== input.snapshot.sourceHash ||
-    JSON.stringify(source.files) !== JSON.stringify(selected.files) ||
-    JSON.stringify(source.files) !==
-      JSON.stringify(input.snapshot.source.map((file) => file.path))
-  )
-    throw new Error(
-      `candidate platform source evidence differs: ${input.target}`
-    );
-  return { source, buildDelivery: comparison.delivery };
-}
-
 function buildCandidateManifestParts(
   input: CandidateReleaseInput,
   versions: Record<string, { version: number }>
@@ -235,7 +118,9 @@ function buildCandidateManifestParts(
   for (const role of nativeRoles) {
     if (
       !versions[role] ||
-      input.prepared.versions[role] <= versions[role].version
+      (input.formal
+        ? input.prepared.versions[role] !== versions[role].version
+        : input.prepared.versions[role] <= versions[role].version)
     )
       throw new Error(
         `candidate version must exceed the legacy package: ${role}`
@@ -277,10 +162,31 @@ type CandidateReleaseInput = {
   platforms: Readonly<Record<NativeTarget, PlatformInput>>;
   otherArchives: Readonly<Record<string, Uint8Array>>;
   buildRecipe: readonly SkillPackageFile[];
+  formal?: boolean;
+  recoveryBytes?: Uint8Array;
 };
+
+function verifyFrozenSchemas(
+  input: CandidateReleaseInput
+): Record<NativeRole, Uint8Array> {
+  const schemas = {} as Record<NativeRole, Uint8Array>;
+  for (const role of nativeRoles) {
+    const name = `tools/record-contracts/schemas/${schemaFile(role)}`;
+    const source = input.snapshot.delivery.find((file) => file.path === name);
+    if (!source) throw new Error(`frozen schema missing: ${role}`);
+    validateCandidateSchema(
+      role,
+      input.prepared.packages[role].bytes,
+      source.data
+    );
+    schemas[role] = source.data;
+  }
+  return schemas;
+}
 
 export function assembleCandidateRelease(input: CandidateReleaseInput) {
   verifySnapshot(input.snapshot, input.revision);
+  if (input.formal) verifyFormalPackages(input);
   if (!/^[a-f0-9]{40,64}$/.test(input.pendingBaseRevision))
     throw new Error("invalid pending base revision");
   const recipeHashes = verifyNativeBuildRecipe(
@@ -314,18 +220,7 @@ export function assembleCandidateRelease(input: CandidateReleaseInput) {
     input,
     base.skills
   );
-  const schemas = {} as Record<NativeRole, Uint8Array>;
-  for (const role of nativeRoles) {
-    const name = `tools/record-contracts/schemas/${schemaFile(role)}`;
-    const source = input.snapshot.delivery.find((file) => file.path === name);
-    if (!source) throw new Error(`frozen schema missing: ${role}`);
-    validateCandidateSchema(
-      role,
-      input.prepared.packages[role].bytes,
-      source.data
-    );
-    schemas[role] = source.data;
-  }
+  const schemas = verifyFrozenSchemas(input);
   const manifest = { schemaVersion: 1, skills };
   verifyCandidatePackageManifest(
     manifest,
@@ -340,6 +235,8 @@ export function assembleCandidateRelease(input: CandidateReleaseInput) {
     ...nativeRoles.map((role) => input.prepared.packages[role]),
     ...runtimeAssets(targetArchives, input.runtimeVersion)
   ];
+  if (input.formal)
+    addFormalRecovery(input, recipeHashes, reports, targetArchives, assets);
   const provenance = {
     buildRevision: input.revision,
     pendingBaseRevision: input.pendingBaseRevision,
@@ -365,3 +262,72 @@ export function assembleCandidateRelease(input: CandidateReleaseInput) {
 }
 
 export { writeCandidateRelease } from "./candidate-release-output.ts";
+
+function addFormalRecovery(
+  input: CandidateReleaseInput,
+  recipeHashes: Record<string, string>,
+  reports: Record<string, unknown>,
+  targetArchives: Record<NativeRole, Record<NativeTarget, Uint8Array>>,
+  assets: { asset: ReturnType<typeof asset>; bytes: Uint8Array }[]
+): void {
+  const buildProof = {
+    schemaVersion: 1,
+    buildRevision: input.revision,
+    runtimeVersion: input.runtimeVersion,
+    source: {
+      sha256: input.snapshot.sourceHash,
+      files: input.snapshot.source.map((file) => file.path)
+    },
+    buildDelivery: input.platforms[nativeTargets[0]].buildDelivery,
+    recipe: recipeHashes,
+    platforms: reports,
+    assets: runtimeAssets(targetArchives, input.runtimeVersion).map(
+      (item) => item.asset
+    )
+  };
+  const proofName = `record-native-build-${input.runtimeVersion}.json`;
+  const oldMembers = input.recoveryBytes
+    ? extractNativeArchive(input.recoveryBytes)
+    : undefined;
+  const oldProof = oldMembers?.get(proofName);
+  if (
+    oldMembers &&
+    (!oldProof ||
+      !isDeepStrictEqual(JSON.parse(oldProof.toString("utf8")), buildProof))
+  )
+    throw new Error("reused runtime recovery provenance differs");
+  const bytes =
+    oldProof ?? Buffer.from(`${JSON.stringify(buildProof, null, 2)}\n`);
+  assets.push({ asset: asset(proofName, bytes), bytes });
+  const runtime = runtimeAssets(targetArchives, input.runtimeVersion);
+  const generatedRecovery = Buffer.from(
+    zipSync(
+      Object.fromEntries([
+        [proofName, [bytes, { level: 9, mtime: new Date(1980, 0, 1) }]],
+        ...runtime.map((item) => [
+          item.asset.name,
+          [item.bytes, { level: 9, mtime: new Date(1980, 0, 1) }]
+        ])
+      ])
+    )
+  );
+  if (
+    oldMembers &&
+    (oldMembers.size !== runtime.length + 1 ||
+      runtime.some(
+        (item) =>
+          !oldMembers.get(item.asset.name)?.equals(Buffer.from(item.bytes))
+      ))
+  )
+    throw new Error("reused runtime recovery members differ");
+  const recovery = input.recoveryBytes
+    ? Buffer.from(input.recoveryBytes)
+    : generatedRecovery;
+  assets.unshift({
+    asset: asset(
+      `record-native-recovery-${input.runtimeVersion}.zip`,
+      recovery
+    ),
+    bytes: recovery
+  });
+}

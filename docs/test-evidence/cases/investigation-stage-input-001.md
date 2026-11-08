@@ -1,13 +1,13 @@
-### Case INVESTIGATION-STAGE-INPUT-001: stage --scope index rejects invalid or duplicate Investigation IDs
+### Case INVESTIGATION-STAGE-INPUT-001: stage 拒绝重复 selector
 
 Tests:
-- `test:4d7c8a91b1f0200f8a2c0b8435b6e4e1e325dfbf8c47982cef4062dcecdd8ec2`
+- `test:d330ff4c896bee34d730f18f090082dab989def46ddba030792d4310b042563b`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- `stage --scope index` 拒绝重复选择、路径式标识与带首尾空白的 Investigation selector。
+- stage 不接受重复 selector。
 
 Proves:
-- stage 纯准备函数对重复 ID、路径、`./` 和首尾空白 ID 按输入顺序返回 duplicate/invalid 诊断，结果为 invalid-options、changed=false。
+- 真实 IR CLI 以相同 selector 重复请求时返回 invalid-arguments，未创建集合。

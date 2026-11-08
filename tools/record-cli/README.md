@@ -1,6 +1,6 @@
-# 记录工具 Rust CLI 候选维护
+# Record CLI 维护
 
-本目录是 Decision Records 和 Investigation Report 的共同原生候选：一个 Cargo package 和 `decision-records`、`investigation-report` 两个可执行文件。内部 library 供两个入口组合，不承诺 Rust SDK。候选独立于生产入口；当前仓库维护命令、skill 分发、打包和 updater 继续使用现行 TypeScript 实现。不要用候选操作真实记录或安装到用户环境。
+本目录是 Decision Records 和 Investigation Report 的唯一业务运行时：一个 Cargo package 和两个独立可执行文件。内部 library 不是公开 Rust SDK；两个 skill 独立分发，程序化消费者使用 CLI JSON，不提供领域 TypeScript SDK。
 
 ## 构建与调用
 
@@ -18,22 +18,18 @@ bun run check -- --scope record-rust
 
 具体命令和选项以二进制 `help <command>` 为入口，`--root` 指向工作区，领域目录选项为工作区相对路径。验证写操作须使用独立私有 fixture 和真实 Git 状态，不以示例目录指向真实记录。`smoke:record-rust` 默认读取 `tools/record-cli/target/release` 下的两个可执行文件，并自行创建私有 Git fixture；若构建时指定了 `--target` 或其他目标目录，通过环境变量 `RECORD_CLI_BIN_DIR` 指向包含两个可执行文件的 release 目录。`test:record-rust` 运行 Cargo 全 target 测试及 ignored 节点；scope 还包含格式、clippy、离线交付和项目代码质量检查。quick 不要求 Rust 工具链。执行命令不意味着目标平台或所有行为已经验收。
 
-## 隔离的仓库候选运行时
+## 仓库运行时
 
-可显式运行 `bun run prepare:record-native` 在被忽略的 `.local/record-cli/` 准备当前工作树源码对应的本机候选，使用 `bun run prepare:record-native -- --check` 只读核对来源、目标及两个程序的摘要。候选调度入口为 `node scripts/record-native-cli.ts <decision-records|investigation-report> [args...]`；不会自动构建或下载。原有生产短命令仍未切换。准备在独占 generation 中保留构建与旧 generation，不自动清理；只按自身状态确认后处理。
+`bun run prepare:record-native` 在被忽略的 `.local/record-cli/` 准备本机程序，`bun run prepare:record-native -- --check` 只读核对来源、目标与摘要。仓库短命令由仅依赖 Node 内置模块的调度器调用已准备程序并透传参数、stdio 和退出码；不会自动下载、构建或回退旧后端。安装后的 skill 直接调用各自 `bin/` 中的原生程序。
 
 ## 契约与责任
 
-[共同原生候选决策](../../docs/decisions/261106-isolate-shared-native-record-candidate.md)记录方向和理由；该决策的对齐状态以决策记录为准。领域规则和现行操作分别由 [Decision Records](../../skills/decision-records/SKILL.md)、[Investigation Report](../../skills/investigation-report/SKILL.md) 承接；[共同操作模型](../record-operations/model.md)定义共享事务责任。共享代码负责安全来源、索引、Git 和事务，领域代码各自负责解析、身份、关系与生命周期。两域随包索引 JSON Schema 的纯数据源为 [`tools/record-contracts/`](../record-contracts/README.md)；通用外壳和领域校验继续由 Index Runtime 及各领域 definition 负责，Rust 类型与 Schema 均不取代领域规则。
-
-[候选机器协议](protocol.md)承接 JSON 通道、两域 trace 例外、逐命令结果与恢复事实，并定义[文件事务边界](protocol.md#文件与事务边界)；调用者应以实际测试范围判断验收证据。
-
-候选采用[顺序本地运行时方向](../../docs/decisions/261107-rust-record-candidate-sequential-local-runtime.md)：预检不保存执行凭据，正式执行重新读取准备一次；已有文件用成熟库原子替换，新建以 `create_new` 防止覆盖，初始化失败可留下部分新文件。实际及未知写入如实报告，不能报作成功回滚。stage 只有在可证明历史为空时才能采用空基线：缺失 DR HEAD 索引且路径无法区分候选与正式记录时应停止并恢复可信基线，不读取未选正文推定身份。安全与竞争保证以真实平台及测试证据为限，不承诺对非合作进程的跨文件原子隔离。
+领域行为由 [Decision Records](../../skills/decision-records/SKILL.md) 和 [Investigation Report](../../skills/investigation-report/SKILL.md) 承接；[共同操作模型](../record-operations/model.md)说明责任边界，[机器协议](protocol.md)定义 JSON、结果和顺序本地运行的文件与恢复边界。`tools/record-contracts/schemas/` 是两域索引纯数据 Schema 的来源，不是 SDK。合法 Unicode 文本受支持，孤立 UTF-16 代理项明确拒绝。
 
 ## 源码导航
 
-维护 CLI 参数时，从 [`src/cli/arguments/`](src/cli/arguments/) 下的 query 或 mutation 入口查找；身份和事务结果映射位于 [`src/cli/output/`](src/cli/output/)。同步索引的两域适配与共享规划位于 [`src/mutations/sync/`](src/mutations/sync/)；决策生命周期的规则、准备和操作位于 [`src/mutations/decision/lifecycle/`](src/mutations/decision/lifecycle/)，多个操作共用的历史处理位于 [`src/mutations/decision/history.rs`](src/mutations/decision/history.rs)。这些路径是候选内部维护入口，不是公共 Rust SDK 契约。
+参数位于 [`src/cli/arguments/`](src/cli/arguments/)，输出映射位于 [`src/cli/output/`](src/cli/output/)；同步索引及生命周期实现位于 `src/mutations/`。内部模块不构成公开 SDK。
 
 ## 交付与验证边界
 
-[离线交付入口](delivery/README.md)只对私有 fixture 构建、安装和恢复；[性能方法](benchmarks/README.md)定义私有数据和新进程测量；制品不提交 Git。Linux 原生验收目标是 Ubuntu 22.04 x64 glibc 2.35（`x86_64-unknown-linux-gnu`）。Windows x64 MSVC CI 独立构建两个 release 可执行文件，并在私有 Git fixture 运行 `smoke:record-rust`，覆盖启动、决策读写与缺失记录 JSON、调查资源目录重命名和保留未选暂存的 stage；它不运行 Windows 全套测试，也不证明发布或全部行为的原生资格。候选 CI、Case 和性能报告须分别以实际 revision、环境、测试节点与结果为依据。离线结果不证明正式发布、线上更新或真实用户安装；生产切换与发布另需授权。
+正式支持 Linux x64 Ubuntu 22.04 / glibc 2.35 和 Windows x64 MSVC；平台与发布证明以实际 revision、构建、资产和测试结果为准。源码包与原生二进制分别发布并绑定身份；[源码分发](../../docs/tooling-distribution.md)与[发布操作](../../docs/tooling-delivery.md)承接交付。离线 fixture 不证明正式发布、线上更新或真实用户安装。

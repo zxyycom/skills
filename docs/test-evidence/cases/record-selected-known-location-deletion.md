@@ -1,16 +1,14 @@
-### Case RECORD-SELECTED-KNOWN-LOCATION-DELETION-001: 已知位置缺失按删除且不发现未知移动
+### Case RECORD-SELECTED-KNOWN-LOCATION-DELETION-001: 已知位置缺失可按选择删除
 
 Tests:
-- `test:32fdea0169626076e47f1a31a626f4b4e8bf75b6c2e51ff2dfce8554a64dfdcf`
-- `test:7407040124314e6e92e6ee7a9b5e1c14c1405a447f0774fc39ca038da626f71f`
+- `test:3a5759b0158f12b0628f60a4862798cb3899859c9f1e2ea9eedadbca3a1765fd`
+- `test:3d7ed27a8dbc8f22a7661346022083a7e8daf0af93519861725cbe452f4fd98c`
 
 Tags:
 - `decision-records`
-- `investigation-report`
 
 Contract:
-- selected sync 只定位baseline已知路径；未知新selector无已读定位依据时失败，已知路径缺失按所选删除而不推断未知移动。
+- selected sync 从已知位置处理删除，身份更正须同选旧新 ID。
 
 Proves:
-- 未知新ID明确要求full sync，正式index字节不变。
-- 将source移动至未知路径后只选旧ID会移除旧条目，未知位置文件原样保留，不声称重新发现该对象。
+- 共同投影层接纳显式选择的删除和身份更正；DR 集成节点提交已知来源删除，并验证同选旧新后身份与路径。

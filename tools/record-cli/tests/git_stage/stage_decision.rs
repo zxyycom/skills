@@ -154,6 +154,7 @@ fn decision_source_scopes_stage_selected_document_and_preserve_unrelated() {
     assert!(result.changed_paths.contains(&PathBuf::from("record.md")));
     assert_eq!(git(root, &["show", ":record.md"]), source.as_bytes());
 }
+
 #[test]
 fn decision_all_scope_stages_selected_deletion_without_touching_other_pending() {
     use record_cli::{
@@ -180,6 +181,10 @@ fn decision_all_scope_stages_selected_deletion_without_touching_other_pending() 
         serde_json::to_vec(&new).unwrap(),
     )
     .unwrap();
+    let replacement = fs::read_to_string(raw_document("decision.md"))
+        .unwrap()
+        .replace("240229-record", "240229-replacement");
+    fs::write(root.join("240229-replacement.md"), &replacement).unwrap();
     let result = stage_decisions(
         &open_root(root).unwrap(),
         &RelativePath::new("decision-index.json").unwrap(),
@@ -193,8 +198,20 @@ fn decision_all_scope_stages_selected_deletion_without_touching_other_pending() 
     let index: Value =
         serde_json::from_slice(&git(root, &["show", ":decision-index.json"])).unwrap();
     assert_eq!(index["entries"], json!({}));
+    assert!(
+        git(
+            root,
+            &["ls-files", "--stage", "-z", "--", "240229-replacement.md"]
+        )
+        .is_empty()
+    );
+    assert_eq!(
+        fs::read_to_string(root.join("240229-replacement.md")).unwrap(),
+        replacement
+    );
     assert_eq!(git(root, &["show", ":unselected"]), b"other pending\n");
 }
+
 #[test]
 fn decision_all_selects_dated_pending_only_locator_without_scanning_other_blobs() {
     use record_cli::{
@@ -233,6 +250,7 @@ fn decision_all_selects_dated_pending_only_locator_without_scanning_other_blobs(
     );
     assert_eq!(git(root, &["show", ":unselected"]), b"other pending\n");
 }
+
 #[test]
 fn decision_all_uses_pending_index_to_remove_third_old_location() {
     use record_cli::{
@@ -306,6 +324,7 @@ fn decision_all_uses_pending_index_to_remove_third_old_location() {
     assert_eq!(git(root, &["show", ":record.md"]), doc.as_bytes());
     assert_eq!(git(root, &["show", ":unselected"]), b"other pending\n");
 }
+
 #[test]
 fn decision_all_resolves_pending_only_name_from_selected_payload() {
     use record_cli::{

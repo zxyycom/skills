@@ -1,4 +1,4 @@
-//! Decision relation replacement in an isolated candidate workspace.
+//! Decision relation replacement.
 use super::{
     contract::{DecisionRelationKind, Relation, RelationGroup, ReviewAction, SourceReview},
     sync::selected_sync::{Entry, SelectedUpdate, build_validated_selected},
@@ -14,6 +14,18 @@ use std::collections::{HashMap, HashSet};
 mod projection;
 mod review;
 mod sources;
+
+pub(super) fn normalize_summary(value: Option<&str>) -> Result<Option<String>, TxError> {
+    let Some(value) = value else { return Ok(None) };
+    let text = value.js_trim();
+    if text.contains(['\r', '\n']) || text.chars().count() > 40 {
+        return Err(fail(
+            "relation-summary",
+            "summary must be single-line and at most 40 code points",
+        ));
+    }
+    Ok((!text.is_empty()).then(|| text.to_owned()))
+}
 
 pub struct DecisionRelationsOperation {
     pub collection: RelativePath,

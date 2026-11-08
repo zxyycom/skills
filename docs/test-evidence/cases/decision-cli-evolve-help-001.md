@@ -1,14 +1,13 @@
-### Case DECISION-CLI-EVOLVE-HELP-001: Evolve 帮助公开后继与完整关系选择
+### Case DECISION-CLI-EVOLVE-HELP-001: Evolve 帮助公开后继与清空关系选项
 
 Tests:
-- `test:f88abdb59e3bac33c3dba67d8b087d5e0997c1aa4370c4fdddcc3811ba3ba223`
+- `test:420d14768d535213189f03a210a58c05df48bf71092cebc6c8fddb6a59e09ad4`
 
 Tags:
 - `decision-records`
 
 Contract:
-- Evolve 帮助必须公开重复 successor、完整关系覆盖和显式空关系选择，且不再公开旧单后继 alignment 参数。
+- Evolve 帮助应使 successor 和显式清空关系选项可发现。
 
 Proves:
-- `evolve --help` 包含 `--successor`、`--clear-relations` 与完整最终关系集语义。
-- 帮助不包含旧 `--alignment <value>` 参数。
+- 真实原生 evolve 帮助包含 --successor 和 --clear-relations；此节点未验证每条帮助语义和已移除参数。

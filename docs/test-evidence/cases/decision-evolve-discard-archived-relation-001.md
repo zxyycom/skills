@@ -1,13 +1,13 @@
-### Case DECISION-EVOLVE-DISCARD-ARCHIVED-RELATION-001: Evolve discard 接受合法的无关 archived 最终关系
+### Case DECISION-EVOLVE-DISCARD-ARCHIVED-RELATION-001: 删除目标时可保留无关归档关系
 
 Tests:
-- `test:cf76aebf1cab36cc5bea09a7dd718ffb57fd946762471df84cf23b202a62bf76`
+- `test:18c042b1249b872ffda1f29bcd991ee2e4f97a3762bef802bb689cb699a6de10`
 
 Tags:
 - `decision-records`
 
 Contract:
-- `evolve --discard` 不增加删除专属的前序边界；只要最终图合法，后继可指向合法 archived 前序。
+- 删除目标不禁止后继引用其他合法已归档前序。
 
 Proves:
-- 事务删除目标并保留调用方选择的 archived 最终关系。
+- 同次事务删除独立目标，保留指向旧归档前序的关系并建立后继；归档来源字节保持。

@@ -1,14 +1,14 @@
 ### Case DECISION-SPLIT-TRANSACTION-001: Evolve 闭合拆分并独立对齐后继
 
 Tests:
-- `test:a63a5dd91a6c958ca5e2507fa0240d15eaa6df169e7cec83e80badbb8c320adf`
+- `test:cdd381ca2767d63b88354b24db736f19333dfa4793665895f3270f98aa8daf5c`
 
 Tags:
 - `decision-records`
 
 Contract:
-- Evolve 必须在一次闭合事务中归档一个活动粗决策、建立至少两个完整后继，并让每个后继独立保存整条决策的 alignment；committed relationReview 覆盖全部显式后继来源。
+- Evolve 的闭合拆分建立完整后继集合、归档活动前序，并为后继分别保存 alignment 与拆分关系；预检 review 标识各后继。
 
 Proves:
-- committed review 分别列出两个 establish source；粗前序被归档，与拆分无关的活动记录不受候选来源关系影响。
-- 两个后继分别成为 aligned 和 unaligned，拥有同一次建立时间，并各自只保存一条指向同一粗前序的拆分关系；从粗前序按 successors 方向能够追踪到两个后继。
+- 单后继预检失败且旧索引与前序保持；添加第二个后继后，预检 review 包含两个后继 ID，正式执行成功并归档前序。
+- 读回索引中两后继均为 active，分别为 unaligned/aligned，且各有一条指向原前序的拆分边；节点不声称 postverify review、相同建立时间或 trace 呈现。

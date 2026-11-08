@@ -21,7 +21,7 @@ import {
 import type { GateWorkspaceSnapshot } from "./impact-snapshot.ts";
 import { compareText, sha256 } from "./impact-values.ts";
 
-export const gateImpactContractVersion = "project-tool-receipts-v11";
+export const gateImpactContractVersion = "project-tool-receipts-v12";
 
 export type GateCheckImpactContract = Readonly<{
   checkId: string;
@@ -31,12 +31,7 @@ export type GateCheckImpactContract = Readonly<{
 }>;
 
 const semanticCheckContractVersions: Readonly<Record<string, string>> = {
-  "test:record-rust:runtime": "8",
-  "test:decision-records:record-and-established-graph": "3",
-  "test:decision-records:query-and-index-projection": "3",
-  "test:decision-records:lifecycle-and-recovery": "3",
-  "test:investigation-report:index-and-query": "2",
-  "test:investigation-report:transactional-maintenance": "2"
+  "test:record-rust:runtime": "11"
 };
 
 export const baseGateImpactContracts: readonly GateCheckImpactContract[] =
@@ -61,9 +56,7 @@ export const baseGateImpactContracts: readonly GateCheckImpactContract[] =
         checkId: check.checkId,
         dependsOn: "dependsOn" in check ? (check.dependsOn ?? []) : [],
         toolIds: check.toolIds,
-        version:
-          semanticCheckContractVersions[check.checkId] ??
-          (check.checkId.startsWith("test:decision-records:") ? "2" : "1")
+        version: semanticCheckContractVersions[check.checkId] ?? "1"
       }))
   ]);
 

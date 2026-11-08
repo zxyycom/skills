@@ -1,7 +1,7 @@
 ### Case DECISION-INDEX-TITLE-LENGTH-001: 来源标题遵守长度契约
 
 Tests:
-- `test:f251179c6e54bed81be7aef84d8e3f5d688427b57b07bd659f1f26602f5b5b5a`
+- `test:f849833056c7db08c851f0024c5fae21afe226dda6e8bb519f8db436c4c594d1`
 
 Tags:
 - `decision-records`
@@ -10,4 +10,4 @@ Contract:
 - 来源标题遵守长度契约。
 
 Proves:
-- 两字符标题被严格检查以 4–100 长度诊断拒绝。
+- 原生 frontmatter parser 对有效样例成功，而仅将标题变为两字符时拒绝；节点不断言具体诊断文本。
