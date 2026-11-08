@@ -1,0 +1,837 @@
+{
+  "purpose": "Transient survey evidence, not a permanent coverage ledger",
+  "status": "settled: 32 domain-command rows have static source and at least one actual representative; branches are not exhaustive",
+  "entries": [
+    {
+      "domain": "DR",
+      "command": "archive",
+      "source": "tools/record-cli/src/mutations/decision/lifecycle/operation/archive.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "d-archive-recorded-check",
+            "d-archive-override"
+          ]
+        }
+      ],
+      "branches_tested": "未记录历史拒绝及显式确认后实际归档。",
+      "branches_not_tested": "已提交前序的 archive 未测。"
+    },
+    {
+      "domain": "DR",
+      "command": "candidates",
+      "source": "tools/record-cli/src/queries/decision/candidates.rs",
+      "static_status": "读取源码路径/契约，详见 queries/coverage.md",
+      "dynamic_status": "实际调用，具体通过与预期失败各见样本 oracle",
+      "dynamic_evidence": [
+        {
+          "file": "queries/samples.jsonl",
+          "select": {
+            "domain": "dr",
+            "scenarios": [
+              "candidate-1-all",
+              "candidate-250-all",
+              "candidate-32-all",
+              "n1200-candidates-empty",
+              "n32-candidates-empty",
+              "n5000-candidates-empty"
+            ]
+          },
+          "samples": 16
+        }
+      ],
+      "branches_tested": "空候选及 C1/32/250 列举。",
+      "branches_not_tested": "损坏、依赖、重名未测。"
+    },
+    {
+      "domain": "DR",
+      "command": "check",
+      "source": "tools/record-cli/src/mutations/check/decision.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "d-check-full",
+            "d-check-after-selected",
+            "d-check-after-full"
+          ]
+        }
+      ],
+      "branches_tested": "全量 check；DR 不支持 selected。",
+      "branches_not_tested": "安全/损坏失败未穷举。"
+    },
+    {
+      "domain": "DR",
+      "command": "discard",
+      "source": "tools/record-cli/src/mutations/identity/decision/phase.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "d-discard-formal",
+            "d-discard-candidate",
+            "d-discard-formal-clean",
+            "d-discard-candidate-corrected"
+          ]
+        }
+      ],
+      "branches_tested": "候选及正式删除。",
+      "branches_not_tested": "已记录目标确认删除及被引用拒绝未测。"
+    },
+    {
+      "domain": "DR",
+      "command": "evolve",
+      "source": "tools/record-cli/src/mutations/authoring/decision/mod.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "d-evolve-preflight",
+            "d-evolve-write"
+          ]
+        }
+      ],
+      "branches_tested": "单后继预检与实际发布。",
+      "branches_not_tested": "多后继闭合、组合删除和前序归档未测。"
+    },
+    {
+      "domain": "DR",
+      "command": "list",
+      "source": "tools/record-cli/src/queries/decision/list.rs",
+      "static_status": "读取源码路径/契约，详见 queries/coverage.md",
+      "dynamic_status": "实际调用，具体通过与预期失败各见样本 oracle",
+      "dynamic_evidence": [
+        {
+          "file": "queries/samples.jsonl",
+          "select": {
+            "domain": "dr",
+            "scenarios": [
+              "dr-list-active",
+              "dr-list-archived",
+              "dr-list-unaligned",
+              "global-json-before-command",
+              "list-tag-date",
+              "list-tag-datetime-retry",
+              "n1200-list-empty",
+              "n1200-list-page",
+              "n250-list-empty",
+              "n250-list-page",
+              "n32-list-empty",
+              "n32-list-page",
+              "n5000-list-empty",
+              "n5000-list-page"
+            ]
+          },
+          "samples": 36
+        },
+        {
+          "file": "graphs/ordinary-results.json",
+          "select": {
+            "argv0_basename": "decision-records",
+            "argv_contains": "list"
+          }
+        }
+      ],
+      "branches_tested": "页面/空页、tag/RFC3339、关系筛选、状态筛选。",
+      "branches_not_tested": "多标签、detail、复杂 facets 未单独测；关系筛选见图切面。"
+    },
+    {
+      "domain": "DR",
+      "command": "mark-aligned",
+      "source": "tools/record-cli/src/mutations/decision/lifecycle/operation/mark_aligned.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "d-mark-aligned"
+          ]
+        }
+      ],
+      "branches_tested": "unaligned 到 aligned 实写。",
+      "branches_not_tested": "非法状态未穷举。"
+    },
+    {
+      "domain": "DR",
+      "command": "new",
+      "source": "tools/record-cli/src/mutations/authoring/mod.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "d-new",
+            "d-new",
+            "d-new-candidate-identity",
+            "d-new-candidate-corrected",
+            "d-new-noop",
+            "d-new-evolve"
+          ]
+        }
+      ],
+      "branches_tested": "真实候选创建。",
+      "branches_not_tested": "冲突及全部参数组合未测；preflight-alignment 仍创建。"
+    },
+    {
+      "domain": "DR",
+      "command": "publish",
+      "source": "tools/record-cli/src/mutations/authoring/decision/collection.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "d-publish-preflight",
+            "d-publish-write"
+          ]
+        }
+      ],
+      "branches_tested": "预检零写与实际发布。",
+      "branches_not_tested": "前序自动归档未测。"
+    },
+    {
+      "domain": "DR",
+      "command": "reactivate",
+      "source": "tools/record-cli/src/mutations/decision/lifecycle/operation/reactivate.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "d-reactivate-preflight",
+            "d-reactivate-write"
+          ]
+        }
+      ],
+      "branches_tested": "预检及正式状态转换。",
+      "branches_not_tested": "非法状态未穷举。"
+    },
+    {
+      "domain": "DR",
+      "command": "rename",
+      "source": "tools/record-cli/src/mutations/identity/decision/phase.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "d-rename-noop",
+            "d-rename-preflight",
+            "d-rename-history-refusal",
+            "d-rename-formal",
+            "d-rename-candidate",
+            "d-rename-preflight-clean",
+            "d-rename-recorded-refusal",
+            "d-rename-formal-clean",
+            "d-rename-candidate-corrected",
+            "d-rename-candidate-noop",
+            "d-rename-true-noop"
+          ]
+        }
+      ],
+      "branches_tested": "正式预检/实写/历史门禁、候选更名、真正 no-op。",
+      "branches_not_tested": "更广引用重写、并发及 pending 组合未测。"
+    },
+    {
+      "domain": "DR",
+      "command": "search",
+      "source": "tools/record-cli/src/queries/decision/search.rs",
+      "static_status": "读取源码路径/契约，详见 queries/coverage.md",
+      "dynamic_status": "实际调用，具体通过与预期失败各见样本 oracle",
+      "dynamic_evidence": [
+        {
+          "file": "queries/samples.jsonl",
+          "select": {
+            "domain": "dr",
+            "scenarios": [
+              "dr-content-limit-rejected",
+              "metadata-all",
+              "metadata-any",
+              "metadata-nfkc",
+              "metadata-phrase",
+              "n1200-content-hit",
+              "n1200-content-miss",
+              "n1200-metadata-hit",
+              "n1200-metadata-miss",
+              "n250-content-hit",
+              "n250-content-miss",
+              "n250-metadata-hit",
+              "n250-metadata-miss",
+              "n32-content-hit",
+              "n32-content-miss",
+              "n32-metadata-hit",
+              "n32-metadata-miss",
+              "n5000-content-hit",
+              "n5000-content-miss",
+              "n5000-metadata-hit",
+              "n5000-metadata-miss",
+              "search-blank"
+            ]
+          },
+          "samples": 58
+        }
+      ],
+      "branches_tested": "metadata 命中/未命中、多匹配模式；content 命中/未命中。",
+      "branches_not_tested": "关系摘要、复杂筛选与长多词预览未单独测。"
+    },
+    {
+      "domain": "DR",
+      "command": "set-relations",
+      "source": "tools/record-cli/src/mutations/decision_relations.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "d-relations-noop",
+            "d-relations-preflight",
+            "d-relations-write"
+          ]
+        }
+      ],
+      "branches_tested": "no-op、预检、正式实写。",
+      "branches_not_tested": "批量、复杂闭合和非法输入未穷举。"
+    },
+    {
+      "domain": "DR",
+      "command": "show",
+      "source": "tools/record-cli/src/queries/decision/show.rs",
+      "static_status": "读取源码路径/契约，详见 queries/coverage.md",
+      "dynamic_status": "实际调用，具体通过与预期失败各见样本 oracle",
+      "dynamic_evidence": [
+        {
+          "file": "queries/samples.jsonl",
+          "select": {
+            "domain": "dr",
+            "scenarios": [
+              "n1200-show-id",
+              "n1200-show-name",
+              "n250-show-id",
+              "n250-show-name",
+              "n32-show-id",
+              "n32-show-name",
+              "n5000-show-id",
+              "n5000-show-name",
+              "show-not-found"
+            ]
+          },
+          "samples": 23
+        }
+      ],
+      "branches_tested": "ID/name 及不存在错误。",
+      "branches_not_tested": "stale、非法 UTF-8、路径安全、重名未测。"
+    },
+    {
+      "domain": "DR",
+      "command": "show-candidate",
+      "source": "tools/record-cli/src/queries/decision/candidates.rs",
+      "static_status": "读取源码路径/契约，详见 queries/coverage.md",
+      "dynamic_status": "实际调用，具体通过与预期失败各见样本 oracle",
+      "dynamic_evidence": [
+        {
+          "file": "queries/samples.jsonl",
+          "select": {
+            "domain": "dr",
+            "scenarios": [
+              "candidate-1-show-id",
+              "candidate-1-show-name",
+              "candidate-250-show-id",
+              "candidate-250-show-name",
+              "candidate-32-show-id",
+              "candidate-32-show-name"
+            ]
+          },
+          "samples": 18
+        }
+      ],
+      "branches_tested": "C1/32/250 的 ID/name 读取。",
+      "branches_not_tested": "大正文、非法 selector 未测。"
+    },
+    {
+      "domain": "DR",
+      "command": "stage",
+      "source": "tools/record-cli/src/stage/decision_scope.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "d-stage-index",
+            "d-stage-domain",
+            "d-stage-all",
+            "d-stage-index-verified",
+            "d-stage-domain-verified",
+            "d-stage-all-verified"
+          ]
+        },
+        {
+          "file": "writes/scale.jsonl",
+          "select": {
+            "argv0_basename": "decision-records",
+            "argv_contains": "stage"
+          }
+        },
+        {
+          "file": "writes/unselected-audit.jsonl",
+          "select": {
+            "domain": "d"
+          }
+        }
+      ],
+      "branches_tested": "all/index/domain 各实际写入与选中/未选后验，K 扩大及 P=2003 的保护审计；P=503/1003/2003 的 timing 仅 DR index no-op。",
+      "branches_not_tested": "unborn、缺失 HEAD 索引、路径冲突及故障未测；不证明并发。"
+    },
+    {
+      "domain": "DR",
+      "command": "sync-index",
+      "source": "tools/record-cli/src/mutations/sync/decision_sync.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "d-sync-full-current",
+            "d-sync-full-preflight",
+            "d-sync-selected-current",
+            "d-sync-selected-preflight",
+            "d-sync-selected-write",
+            "d-sync-full-write",
+            "d-stage-index-prepare-sync",
+            "d-stage-domain-prepare-sync",
+            "d-stage-all-prepare-sync"
+          ]
+        }
+      ],
+      "branches_tested": "full/selected，预检/实写/current no-op。",
+      "branches_not_tested": "新增/删除身份、损坏基线及未选损坏未测。"
+    },
+    {
+      "domain": "DR",
+      "command": "trace",
+      "source": "tools/record-cli/src/queries/decision/trace.rs",
+      "static_status": "两域图、事件、选择/frontier 源码已读，详见 graphs/coverage.md",
+      "dynamic_status": "实际调用，查 case/fixture/domain 和 expected",
+      "dynamic_evidence": [
+        {
+          "file": "graphs/trace_results.jsonl",
+          "select": {
+            "domain": "decisions"
+          }
+        },
+        {
+          "file": "graphs/ordinary-results.json",
+          "select": {
+            "argv0_basename": "decision-records",
+            "argv_contains": "trace"
+          }
+        },
+        {
+          "files": [
+            "graphs/realloc-3-results.json",
+            "graphs/realloc-50-results.json",
+            "graphs/realloc-250-results.json"
+          ]
+        }
+      ],
+      "branches_tested": "拆分及复杂事件、深度和预算 frontier、普通宽分支；DR 重划。",
+      "branches_not_tested": "图的错误 schema、孤立 ID、自环、环及目标状态/时间错误未动态枚举；稠密重划未测。"
+    },
+    {
+      "domain": "IR",
+      "command": "candidates",
+      "source": "tools/record-cli/src/queries/investigation/candidates.rs",
+      "static_status": "读取源码路径/契约，详见 queries/coverage.md",
+      "dynamic_status": "实际调用，具体通过与预期失败各见样本 oracle",
+      "dynamic_evidence": [
+        {
+          "file": "queries/samples.jsonl",
+          "select": {
+            "domain": "ir",
+            "scenarios": [
+              "candidate-1-all",
+              "candidate-250-all",
+              "candidate-32-all",
+              "n1200-candidates-empty",
+              "n32-candidates-empty",
+              "n5000-candidates-empty"
+            ]
+          },
+          "samples": 16
+        }
+      ],
+      "branches_tested": "空候选及 C1/32/250 列举。",
+      "branches_not_tested": "损坏、依赖、重名未测；IR 资源 owner/ignore 未测。"
+    },
+    {
+      "domain": "IR",
+      "command": "check",
+      "source": "tools/record-cli/src/mutations/check/investigation.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "i-check-full",
+            "i-check-selected",
+            "i-check-after-selected",
+            "i-check-after-full"
+          ]
+        },
+        {
+          "file": "writes/history-edges.jsonl",
+          "select": {
+            "argv0_basename": "investigation-report",
+            "argv_contains": "check"
+          }
+        }
+      ],
+      "branches_tested": "全量及 selected check。",
+      "branches_not_tested": "selected 失效索引回退、未选损坏及资源损坏未测。"
+    },
+    {
+      "domain": "IR",
+      "command": "discard",
+      "source": "tools/record-cli/src/mutations/identity/investigation/phase.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "i-discard-formal",
+            "i-discard-candidate"
+          ]
+        }
+      ],
+      "branches_tested": "候选及正式删除；IR 候选资源显式删除。",
+      "branches_not_tested": "已记录目标确认、正式 owner 资源及被引用拒绝未测。"
+    },
+    {
+      "domain": "IR",
+      "command": "list",
+      "source": "tools/record-cli/src/queries/investigation/list.rs",
+      "static_status": "读取源码路径/契约，详见 queries/coverage.md",
+      "dynamic_status": "实际调用，具体通过与预期失败各见样本 oracle",
+      "dynamic_evidence": [
+        {
+          "file": "queries/samples.jsonl",
+          "select": {
+            "domain": "ir",
+            "scenarios": [
+              "global-json-before-command",
+              "list-tag-date",
+              "list-tag-datetime-retry",
+              "n1200-list-empty",
+              "n1200-list-page",
+              "n250-list-empty",
+              "n250-list-page",
+              "n32-list-empty",
+              "n32-list-page",
+              "n5000-list-empty",
+              "n5000-list-page"
+            ]
+          },
+          "samples": 27
+        },
+        {
+          "file": "graphs/ordinary-results.json",
+          "select": {
+            "argv0_basename": "investigation-report",
+            "argv_contains": "list"
+          }
+        }
+      ],
+      "branches_tested": "页面/空页、tag/RFC3339、关系筛选。",
+      "branches_not_tested": "多标签、detail、复杂 facets 未单独测；关系筛选见图切面。"
+    },
+    {
+      "domain": "IR",
+      "command": "new",
+      "source": "tools/record-cli/src/mutations/authoring/mod.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "i-new",
+            "i-new-candidate-identity",
+            "i-new-noop"
+          ]
+        }
+      ],
+      "branches_tested": "真实候选创建。",
+      "branches_not_tested": "冲突及资源 readiness 未测。"
+    },
+    {
+      "domain": "IR",
+      "command": "publish",
+      "source": "tools/record-cli/src/mutations/authoring/investigation_publish/collection.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "i-publish-preflight",
+            "i-publish-write"
+          ]
+        }
+      ],
+      "branches_tested": "预检零写与实际发布。",
+      "branches_not_tested": "多候选与资源引用 publish 未测。"
+    },
+    {
+      "domain": "IR",
+      "command": "rename",
+      "source": "tools/record-cli/src/mutations/identity/investigation/phase.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "i-rename-noop",
+            "i-rename-preflight",
+            "i-rename-history-refusal",
+            "i-rename-formal",
+            "i-rename-candidate",
+            "i-rename-candidate-noop",
+            "i-rename-true-noop"
+          ]
+        }
+      ],
+      "branches_tested": "正式预检/实写/历史门禁、候选更名、真正 no-op；IR 候选资源移动。",
+      "branches_not_tested": "正式 owner 资源与引用改写及并发未测。"
+    },
+    {
+      "domain": "IR",
+      "command": "search",
+      "source": "tools/record-cli/src/queries/investigation/search.rs",
+      "static_status": "读取源码路径/契约，详见 queries/coverage.md",
+      "dynamic_status": "实际调用，具体通过与预期失败各见样本 oracle",
+      "dynamic_evidence": [
+        {
+          "file": "queries/samples.jsonl",
+          "select": {
+            "domain": "ir",
+            "scenarios": [
+              "metadata-all",
+              "metadata-any",
+              "metadata-nfkc",
+              "metadata-phrase",
+              "n1200-content-hit",
+              "n1200-content-miss",
+              "n1200-metadata-hit",
+              "n1200-metadata-miss",
+              "n250-content-hit",
+              "n250-content-miss",
+              "n250-metadata-hit",
+              "n250-metadata-miss",
+              "n32-content-hit",
+              "n32-content-miss",
+              "n32-metadata-hit",
+              "n32-metadata-miss",
+              "n5000-content-hit",
+              "n5000-content-miss",
+              "n5000-metadata-hit",
+              "n5000-metadata-miss",
+              "search-blank"
+            ]
+          },
+          "samples": 55
+        }
+      ],
+      "branches_tested": "metadata 命中/未命中、多匹配模式；content 命中/未命中，IR 高规模预算拒绝。",
+      "branches_not_tested": "关系摘要、复杂筛选与长多词预览未单独测；IR N5000 为预算拒绝。"
+    },
+    {
+      "domain": "IR",
+      "command": "set-relations",
+      "source": "tools/record-cli/src/mutations/investigation_relations.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "i-relations-noop",
+            "i-relations-preflight",
+            "i-relations-write"
+          ]
+        }
+      ],
+      "branches_tested": "no-op、预检、正式实写。",
+      "branches_not_tested": "批量、复杂闭合和非法输入未穷举。"
+    },
+    {
+      "domain": "IR",
+      "command": "show",
+      "source": "tools/record-cli/src/queries/investigation/show.rs",
+      "static_status": "读取源码路径/契约，详见 queries/coverage.md",
+      "dynamic_status": "实际调用，具体通过与预期失败各见样本 oracle",
+      "dynamic_evidence": [
+        {
+          "file": "queries/samples.jsonl",
+          "select": {
+            "domain": "ir",
+            "scenarios": [
+              "n1200-show-id",
+              "n1200-show-name",
+              "n250-show-id",
+              "n250-show-name",
+              "n32-show-id",
+              "n32-show-name",
+              "n5000-show-id",
+              "n5000-show-name",
+              "show-not-found"
+            ]
+          },
+          "samples": 23
+        }
+      ],
+      "branches_tested": "ID/name 及不存在错误。",
+      "branches_not_tested": "stale、非法 UTF-8、路径安全、重名未测。"
+    },
+    {
+      "domain": "IR",
+      "command": "show-candidate",
+      "source": "tools/record-cli/src/queries/investigation/candidates.rs",
+      "static_status": "读取源码路径/契约，详见 queries/coverage.md",
+      "dynamic_status": "实际调用，具体通过与预期失败各见样本 oracle",
+      "dynamic_evidence": [
+        {
+          "file": "queries/samples.jsonl",
+          "select": {
+            "domain": "ir",
+            "scenarios": [
+              "candidate-1-show-id",
+              "candidate-1-show-name",
+              "candidate-250-show-id",
+              "candidate-250-show-name",
+              "candidate-32-show-id",
+              "candidate-32-show-name"
+            ]
+          },
+          "samples": 18
+        }
+      ],
+      "branches_tested": "C1/32/250 的 ID/name 读取。",
+      "branches_not_tested": "大正文、非法 selector 未测；IR 资源 owner 未测。"
+    },
+    {
+      "domain": "IR",
+      "command": "stage",
+      "source": "tools/record-cli/src/stage/investigation_scope.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "i-stage-index",
+            "i-stage-domain",
+            "i-stage-all",
+            "i-stage-index-verified",
+            "i-stage-domain-verified",
+            "i-stage-all-verified",
+            "i-stage-domain-owner"
+          ]
+        },
+        {
+          "file": "writes/scale.jsonl",
+          "select": {
+            "argv0_basename": "investigation-report",
+            "argv_contains": "stage"
+          }
+        },
+        {
+          "file": "writes/unselected-audit.jsonl",
+          "select": {
+            "domain": "i"
+          }
+        }
+      ],
+      "branches_tested": "all/index/domain 各实际写入与选中/未选后验，K 扩大及 P=2003 的保护审计；IR 含 owner；三档 P timing 未在 IR 测。",
+      "branches_not_tested": "unborn、缺失 HEAD 索引、外部资源、二进制大资源及故障未测。"
+    },
+    {
+      "domain": "IR",
+      "command": "sync-index",
+      "source": "tools/record-cli/src/mutations/sync/investigation_sync.rs",
+      "static_status": "源码路径/契约已读，详见 writes/coverage.md",
+      "dynamic_status": "实际调用，按 label 区分预期正常、拒绝与研究者错误",
+      "dynamic_evidence": [
+        {
+          "file": "writes/wide.jsonl",
+          "labels": [
+            "i-sync-full-current",
+            "i-sync-full-preflight",
+            "i-sync-selected-current",
+            "i-sync-selected-preflight",
+            "i-sync-selected-write",
+            "i-sync-full-write",
+            "i-stage-index-prepare-sync",
+            "i-stage-domain-prepare-sync",
+            "i-stage-all-prepare-sync"
+          ]
+        }
+      ],
+      "branches_tested": "full/selected，预检/实写/current no-op。",
+      "branches_not_tested": "新增/删除身份、损坏基线及未选损坏未测。"
+    },
+    {
+      "domain": "IR",
+      "command": "trace",
+      "source": "tools/record-cli/src/queries/investigation/trace.rs",
+      "static_status": "两域图、事件、选择/frontier 源码已读，详见 graphs/coverage.md",
+      "dynamic_status": "实际调用，查 case/fixture/domain 和 expected",
+      "dynamic_evidence": [
+        {
+          "file": "graphs/trace_results.jsonl",
+          "select": {
+            "domain": "investigations"
+          }
+        },
+        {
+          "file": "graphs/ordinary-results.json",
+          "select": {
+            "argv0_basename": "investigation-report",
+            "argv_contains": "trace"
+          }
+        },
+        {
+          "files": [
+            "graphs/resource-0-results.json",
+            "graphs/resource-30-results.json",
+            "graphs/resource-500-results.json",
+            "graphs/resource-2000-results.json",
+            "graphs/resource-2000-guarded.json"
+          ]
+        }
+      ],
+      "branches_tested": "拆分及复杂事件、深度和预算 frontier、普通宽分支；IR 资源 owner 图。",
+      "branches_not_tested": "图的错误 schema、孤立 ID、自环、环及目标状态/时间错误未动态枚举；共享资源和无效 owner 未测。"
+    }
+  ],
+  "path_base": "All dynamic evidence file paths are relative to this report resource owner directory; rows select exact labels/scenarios; details in each domain coverage.md.",
+  "selection_convention": "Selectors domain/scenario match exact JSON values; scenarios and labels mean membership. argv0_basename matches basename(argv[0]), argv_contains means exact array member. files without selectors retain all rows. Data with a label recorded on repeated attempts must be interpreted with exit and errors."
+}

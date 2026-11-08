@@ -1,0 +1,73 @@
+{
+  "candidate_trees": {
+    "1": {
+      "files": 2,
+      "tree_sha256": "784d7b66ac9ed165f79848b52a285e468da6abca67da9f635939a425dff1c011",
+      "method": "sorted relative path: u64be(path byte length), utf8 path, u64be(content length), content bytes"
+    },
+    "32": {
+      "files": 64,
+      "tree_sha256": "d1770d81af30e2de52d791d6dd351be1ce2669c7cd3988e95db11bedde73e3c4",
+      "method": "sorted relative path: u64be(path byte length), utf8 path, u64be(content length), content bytes"
+    },
+    "250": {
+      "files": 500,
+      "tree_sha256": "ff4f7e21866f1793b325861b5dcb0292a2582403cd1d873ff10634eb359582d1",
+      "method": "sorted relative path: u64be(path byte length), utf8 path, u64be(content length), content bytes"
+    }
+  },
+  "fixture_indexes_after": {
+    "32": {
+      "dr": {
+        "sha256": "2ac549f8c6b7d6dfa3b2c3b4024ada35ff37ec4429ee017d605b5d5f1afa4b25",
+        "same_as_start": true
+      },
+      "ir": {
+        "sha256": "bfcadc6b48e71478b01751fda98e7371453db8a9278381bc15b4a93fa217279c",
+        "same_as_start": true
+      }
+    },
+    "250": {
+      "dr": {
+        "sha256": "0cff23e719ac10c36c9d270ac4c6b2cc3f3b005f20f655a074c64f6c34a6833c",
+        "same_as_start": true
+      },
+      "ir": {
+        "sha256": "c80a830b1e9a17e534aaecb534497180d30240dfeaa18277f2990e39006093e8",
+        "same_as_start": true
+      }
+    },
+    "1200": {
+      "dr": {
+        "sha256": "3eb687ef49e48625621c63e391e35815c68e266fac058ff6ecd6b1cdb5f4616e",
+        "same_as_start": true
+      },
+      "ir": {
+        "sha256": "1a9c82527986f0820963cd14e79125d8ad767c6625ca6b1d52b3da84eb0116ca",
+        "same_as_start": true
+      }
+    },
+    "5000": {
+      "dr": {
+        "sha256": "0c6b66fa1f5513157f82af8ec82997e384de9b62198b14669131fa23a0786169",
+        "same_as_start": true
+      },
+      "ir": {
+        "sha256": "259c48ebe84e92acebd03eca8cf01167de9e02bc5d38cf26160469f88740d797",
+        "same_as_start": true
+      }
+    }
+  },
+  "assets_after": {
+    "dr": {
+      "sha256": "42bdfe5113c4a6ffa404efa54eb68f42a42003a92f51e3529b5ddd5ef8fe2a6b",
+      "same_as_start": true
+    },
+    "ir": {
+      "sha256": "1e1aa4a14553239e2cbe22723d738ee53b3dc46b53ba9a355add3825c453ab20",
+      "same_as_start": true
+    }
+  },
+  "limitations": "Index-only guard does not prove every fixture source unchanged. No process isolation beyond coordinated slot.",
+  "guarded_at_utc": "2026-11-08T06:26:10.779864+00:00"
+}

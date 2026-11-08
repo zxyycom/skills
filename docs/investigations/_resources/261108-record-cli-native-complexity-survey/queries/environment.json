@@ -1,0 +1,65 @@
+{
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "head": "c1161cf1db52cf2de9ba5e0829808e18ebdccf19",
+  "assets": {
+    "dr": {
+      "sha256": "42bdfe5113c4a6ffa404efa54eb68f42a42003a92f51e3529b5ddd5ef8fe2a6b",
+      "version": "decision-records 0.1.0"
+    },
+    "ir": {
+      "sha256": "1e1aa4a14553239e2cbe22723d738ee53b3dc46b53ba9a355add3825c453ab20",
+      "version": "investigation-report 0.1.0"
+    }
+  },
+  "fixtures": {
+    "32": {
+      "manifest": {
+        "version": 1,
+        "count": 32,
+        "width": 4,
+        "depth": 4
+      },
+      "index_sha256": {
+        "dr": "2ac549f8c6b7d6dfa3b2c3b4024ada35ff37ec4429ee017d605b5d5f1afa4b25",
+        "ir": "bfcadc6b48e71478b01751fda98e7371453db8a9278381bc15b4a93fa217279c"
+      }
+    },
+    "250": {
+      "manifest": {
+        "version": 1,
+        "count": 250,
+        "width": 8,
+        "depth": 8
+      },
+      "index_sha256": {
+        "dr": "0cff23e719ac10c36c9d270ac4c6b2cc3f3b005f20f655a074c64f6c34a6833c",
+        "ir": "c80a830b1e9a17e534aaecb534497180d30240dfeaa18277f2990e39006093e8"
+      }
+    },
+    "1200": {
+      "manifest": {
+        "version": 1,
+        "count": 1200,
+        "width": 8,
+        "depth": 8
+      },
+      "index_sha256": {
+        "dr": "3eb687ef49e48625621c63e391e35815c68e266fac058ff6ecd6b1cdb5f4616e",
+        "ir": "1a9c82527986f0820963cd14e79125d8ad767c6625ca6b1d52b3da84eb0116ca"
+      }
+    },
+    "5000": {
+      "manifest": {
+        "version": 1,
+        "count": 5000,
+        "width": 8,
+        "depth": 8
+      },
+      "index_sha256": {
+        "dr": "0c6b66fa1f5513157f82af8ec82997e384de9b62198b14669131fa23a0786169",
+        "ir": "259c48ebe84e92acebd03eca8cf01167de9e02bc5d38cf26160469f88740d797"
+      }
+    }
+  },
+  "policy": "3 repetitions low cost; 1 at n5000 and 1 for IR candidate budget; 30s timeout; no P95, no warmup; sequential new processes; filesystem cache uncontrolled"
+}

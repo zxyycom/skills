@@ -1,0 +1,230 @@
+{
+  "creation_seconds": 0.0002079779515042901,
+  "index_bytes": 705,
+  "index_sha256": "82f7ed1276b31642d270c157a6819a4896db4faf0422749dc68146759fa9334f",
+  "source_bytes": 369,
+  "asset_sha256": "1e1aa4a14553239e2cbe22723d738ee53b3dc46b53ba9a355add3825c453ab20",
+  "rows": [
+    {
+      "resource_count": 0,
+      "argv": [
+        "/workspace/skills/dist/record-cli-perf-261107-main/assets/investigation-report",
+        "sync-index",
+        "--json",
+        "--root",
+        "/workspace/skills/dist/record-native-survey-20261108/graphs/resource-0"
+      ],
+      "elapsed_ms": 9.728,
+      "stdout_bytes": 369,
+      "stderr_bytes": 0,
+      "stdout_sha": "f87adc17ed29be6597a351504a03d81a9ef2544741cb13da5c0e737f253f7495",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "resource_count": 0,
+      "argv": [
+        "/workspace/skills/dist/record-cli-perf-261107-main/assets/investigation-report",
+        "check",
+        "--json",
+        "--root",
+        "/workspace/skills/dist/record-native-survey-20261108/graphs/resource-0"
+      ],
+      "elapsed_ms": 8.589,
+      "stdout_bytes": 333,
+      "stderr_bytes": 0,
+      "stdout_sha": "cf1d9e533ba631bdb5f7da9de6979da43980873b304cfcef5c2fbdeef32f1083",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "resource_count": 0,
+      "argv": [
+        "/workspace/skills/dist/record-cli-perf-261107-main/assets/investigation-report",
+        "trace",
+        "260101-record-00000",
+        "--direction",
+        "both",
+        "--depth",
+        "all",
+        "--max-records",
+        "1",
+        "--json",
+        "--root",
+        "/workspace/skills/dist/record-native-survey-20261108/graphs/resource-0"
+      ],
+      "elapsed_ms": 1.591,
+      "stdout_bytes": 414,
+      "stderr_bytes": 0,
+      "stdout_sha": "8b45ae509ebd86e3a582ffbb0016d950db7ba21de3a0cb172121ce4eaf96819d",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "resource_count": 0,
+      "argv": [
+        "/workspace/skills/dist/record-cli-perf-261107-main/assets/investigation-report",
+        "trace",
+        "260101-record-00000",
+        "--direction",
+        "both",
+        "--depth",
+        "all",
+        "--max-records",
+        "1",
+        "--json",
+        "--root",
+        "/workspace/skills/dist/record-native-survey-20261108/graphs/resource-0"
+      ],
+      "elapsed_ms": 1.695,
+      "stdout_bytes": 414,
+      "stderr_bytes": 0,
+      "stdout_sha": "8b45ae509ebd86e3a582ffbb0016d950db7ba21de3a0cb172121ce4eaf96819d",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "resource_count": 0,
+      "argv": [
+        "/workspace/skills/dist/record-cli-perf-261107-main/assets/investigation-report",
+        "trace",
+        "260101-record-00000",
+        "--direction",
+        "both",
+        "--depth",
+        "all",
+        "--max-records",
+        "1",
+        "--json",
+        "--root",
+        "/workspace/skills/dist/record-native-survey-20261108/graphs/resource-0"
+      ],
+      "elapsed_ms": 1.504,
+      "stdout_bytes": 414,
+      "stderr_bytes": 0,
+      "stdout_sha": "8b45ae509ebd86e3a582ffbb0016d950db7ba21de3a0cb172121ce4eaf96819d",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "resource_count": 0,
+      "argv": [
+        "/workspace/skills/dist/record-cli-perf-261107-main/assets/investigation-report",
+        "list",
+        "--related-to",
+        "260101-record-00000",
+        "--limit",
+        "1",
+        "--json",
+        "--root",
+        "/workspace/skills/dist/record-native-survey-20261108/graphs/resource-0"
+      ],
+      "elapsed_ms": 1.534,
+      "stdout_bytes": 545,
+      "stderr_bytes": 0,
+      "stdout_sha": "9bbf1f7cce72fd927d782a06b7b4c55eb6fa530d837f91b2841c510661b99cd2",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "resource_count": 0,
+      "argv": [
+        "/workspace/skills/dist/record-cli-perf-261107-main/assets/investigation-report",
+        "list",
+        "--related-to",
+        "260101-record-00000",
+        "--limit",
+        "1",
+        "--json",
+        "--root",
+        "/workspace/skills/dist/record-native-survey-20261108/graphs/resource-0"
+      ],
+      "elapsed_ms": 1.51,
+      "stdout_bytes": 545,
+      "stderr_bytes": 0,
+      "stdout_sha": "9bbf1f7cce72fd927d782a06b7b4c55eb6fa530d837f91b2841c510661b99cd2",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "resource_count": 0,
+      "argv": [
+        "/workspace/skills/dist/record-cli-perf-261107-main/assets/investigation-report",
+        "list",
+        "--related-to",
+        "260101-record-00000",
+        "--limit",
+        "1",
+        "--json",
+        "--root",
+        "/workspace/skills/dist/record-native-survey-20261108/graphs/resource-0"
+      ],
+      "elapsed_ms": 1.329,
+      "stdout_bytes": 545,
+      "stderr_bytes": 0,
+      "stdout_sha": "9bbf1f7cce72fd927d782a06b7b4c55eb6fa530d837f91b2841c510661b99cd2",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "resource_count": 0,
+      "argv": [
+        "/workspace/skills/dist/record-cli-perf-261107-main/assets/investigation-report",
+        "list",
+        "--tag",
+        "nonexistent",
+        "--limit",
+        "1",
+        "--json",
+        "--root",
+        "/workspace/skills/dist/record-native-survey-20261108/graphs/resource-0"
+      ],
+      "elapsed_ms": 1.476,
+      "stdout_bytes": 505,
+      "stderr_bytes": 0,
+      "stdout_sha": "00792f9eaea3bb07762be925de30e84cc7e02d5413633bc75d200971a0dc98d3",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "resource_count": 0,
+      "argv": [
+        "/workspace/skills/dist/record-cli-perf-261107-main/assets/investigation-report",
+        "list",
+        "--tag",
+        "nonexistent",
+        "--limit",
+        "1",
+        "--json",
+        "--root",
+        "/workspace/skills/dist/record-native-survey-20261108/graphs/resource-0"
+      ],
+      "elapsed_ms": 1.34,
+      "stdout_bytes": 505,
+      "stderr_bytes": 0,
+      "stdout_sha": "00792f9eaea3bb07762be925de30e84cc7e02d5413633bc75d200971a0dc98d3",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "resource_count": 0,
+      "argv": [
+        "/workspace/skills/dist/record-cli-perf-261107-main/assets/investigation-report",
+        "list",
+        "--tag",
+        "nonexistent",
+        "--limit",
+        "1",
+        "--json",
+        "--root",
+        "/workspace/skills/dist/record-native-survey-20261108/graphs/resource-0"
+      ],
+      "elapsed_ms": 1.319,
+      "stdout_bytes": 505,
+      "stderr_bytes": 0,
+      "stdout_sha": "00792f9eaea3bb07762be925de30e84cc7e02d5413633bc75d200971a0dc98d3",
+      "exit": 0,
+      "stderr": ""
+    }
+  ]
+}

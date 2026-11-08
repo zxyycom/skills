@@ -1,0 +1,81 @@
+{
+  "nodes": 500,
+  "edges": 500,
+  "creation_seconds": 0.04715588304679841,
+  "source_bytes": 212750,
+  "index_bytes": 319757,
+  "index_sha": "1a19bfe6cf467c01a38b39d6a145b7f7f10ef92d18368dfa38b1cd5605fee114",
+  "asset_sha": "42bdfe5113c4a6ffa404efa54eb68f42a42003a92f51e3529b5ddd5ef8fe2a6b",
+  "rows": [
+    {
+      "argv": [
+        "/workspace/skills/dist/record-cli-perf-261107-main/assets/decision-records",
+        "sync-index",
+        "--json",
+        "--root",
+        "/workspace/skills/dist/record-native-survey-20261108/graphs/realloc-250"
+      ],
+      "elapsed_ms": 22.686,
+      "exit": 0,
+      "stdout_bytes": 401,
+      "stderr": "",
+      "stdout_sha": "141650604ffc14f881eb6c50fb62e176f46ac0d6f328cd1ea8113fd349c7a83c"
+    },
+    {
+      "argv": [
+        "/workspace/skills/dist/record-cli-perf-261107-main/assets/decision-records",
+        "check",
+        "--json",
+        "--root",
+        "/workspace/skills/dist/record-native-survey-20261108/graphs/realloc-250"
+      ],
+      "elapsed_ms": 22.9,
+      "exit": 0,
+      "stdout_bytes": 10426,
+      "stderr": "",
+      "stdout_sha": "d0650d75a973da2c58960e5481a4f81e044f9b2757edaed4d7d51799a9714523"
+    },
+    {
+      "argv": [
+        "/workspace/skills/dist/record-cli-perf-261107-main/assets/decision-records",
+        "trace",
+        "260101-prev-00000",
+        "--direction",
+        "successors",
+        "--depth",
+        "1",
+        "--max-records",
+        "499",
+        "--json",
+        "--root",
+        "/workspace/skills/dist/record-native-survey-20261108/graphs/realloc-250"
+      ],
+      "elapsed_ms": 5.024,
+      "exit": 0,
+      "stdout_bytes": 10801,
+      "stderr": "",
+      "stdout_sha": "4ae56b60d62384ebf5703dbcfffe5f7f62f81c78a57db89c86031f488911ed78"
+    },
+    {
+      "argv": [
+        "/workspace/skills/dist/record-cli-perf-261107-main/assets/decision-records",
+        "trace",
+        "260101-prev-00000",
+        "--direction",
+        "successors",
+        "--depth",
+        "1",
+        "--max-records",
+        "500",
+        "--json",
+        "--root",
+        "/workspace/skills/dist/record-native-survey-20261108/graphs/realloc-250"
+      ],
+      "elapsed_ms": 6.373,
+      "exit": 0,
+      "stdout_bytes": 168537,
+      "stderr": "",
+      "stdout_sha": "2df197afec5722eaaf661d3ff0225e1559db5cbb3b215d5ce81e71f3c9dfd2bb"
+    }
+  ]
+}
