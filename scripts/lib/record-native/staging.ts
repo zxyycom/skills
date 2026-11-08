@@ -1,3 +1,5 @@
+import * as v from "valibot";
+import { treeDigest } from "../../../tools/record-cli/delivery/build.ts";
 import { assertRuntimeDirectory } from "./runtime.ts";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -23,6 +25,9 @@ export async function stageNativeCandidateInputs(
   snapshot: NativeCandidateSnapshot
 ): Promise<string> {
   assertNativeRelativePaths(snapshot.source.map((file) => file.path));
+  assertNativeRelativePaths(snapshot.delivery.map((file) => file.path));
+  if (digestNativeSource(snapshot.delivery) !== snapshot.deliveryHash)
+    throw new Error("native delivery snapshot digest changed");
   if (digestNativeSource(snapshot.source) !== snapshot.sourceHash)
     throw new Error("native source snapshot digest changed");
   const root = path.resolve(workspaceRoot);
@@ -52,6 +57,59 @@ export async function stageNativeCandidateInputs(
     `${JSON.stringify({ sha256: snapshot.sourceHash, files: snapshot.source.map((file) => file.path) }, null, 2)}\n`,
     { flag: "wx" }
   );
+  const delivery = path.join(stage, "delivery");
+  await fs.mkdir(delivery);
+  for (const file of snapshot.delivery) {
+    const output = path.join(delivery, ...file.path.split("/"));
+    await fs.mkdir(path.dirname(output), { recursive: true });
+    await fs.writeFile(output, file.data, { flag: "wx" });
+  }
+  const deliveryWritten = await Promise.all(
+    snapshot.delivery.map(async (file) => ({
+      path: file.path,
+      data: await fs.readFile(path.join(delivery, ...file.path.split("/")))
+    }))
+  );
+  if (digestNativeSource(deliveryWritten) !== snapshot.deliveryHash)
+    throw new Error(`staged delivery source changed: ${stage}`);
+  await fs.writeFile(
+    path.join(stage, "delivery-files.json"),
+    `${JSON.stringify({ sha256: snapshot.deliveryHash, files: snapshot.delivery.map((file) => file.path) }, null, 2)}\n`,
+    { flag: "wx" }
+  );
   await packSkillPackageSnapshot(snapshot.skills, path.join(stage, "skills"));
   return stage;
+}
+
+/** Recheck the exact frozen delivery tree immediately before source generation. */
+export async function readStagedDelivery(
+  stage: string,
+  expectedHash: string
+): Promise<readonly { path: string; data: Buffer }[]> {
+  const directory = path.join(stage, "delivery");
+  await assertRuntimeDirectory(directory);
+  const metadata: unknown = JSON.parse(
+    await fs.readFile(path.join(stage, "delivery-files.json"), "utf8")
+  );
+  const parsed = v.safeParse(
+    v.strictObject({ sha256: v.string(), files: v.array(v.string()) }),
+    metadata
+  );
+  const actual = await treeDigest(directory);
+  if (
+    !parsed.success ||
+    parsed.output.sha256 !== expectedHash ||
+    parsed.output.sha256 !== actual.sha256 ||
+    JSON.stringify(parsed.output.files) !== JSON.stringify(actual.files)
+  )
+    throw new Error("staged delivery differs from its frozen manifest");
+  const files = await Promise.all(
+    actual.files.map(async (name) => ({
+      path: name,
+      data: await fs.readFile(path.join(directory, ...name.split("/")))
+    }))
+  );
+  if (digestNativeSource(files) !== actual.sha256)
+    throw new Error("staged delivery changed while reading");
+  return files;
 }

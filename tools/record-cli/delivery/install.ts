@@ -65,17 +65,27 @@ export interface InstallOptions {
   ) => void;
 }
 
+export function candidatePathsOverlap(
+  source: string,
+  destination: string,
+  paths: Pick<typeof path, "relative" | "isAbsolute" | "sep"> = path
+): boolean {
+  const within = (parent: string, child: string): boolean => {
+    const relative = paths.relative(parent, child);
+    return (
+      !paths.isAbsolute(relative) &&
+      relative !== ".." &&
+      !relative.startsWith(`..${paths.sep}`)
+    );
+  };
+  return within(source, destination) || within(destination, source);
+}
+
 async function validateFixture(
   source: string,
   destination: string
 ): Promise<void> {
-  const relative = path.relative(source, destination);
-  const inverse = path.relative(destination, source);
-  if (
-    !relative ||
-    (!relative.startsWith(`..${path.sep}`) && relative !== "..") ||
-    (!inverse.startsWith(`..${path.sep}`) && inverse !== "..")
-  ) {
+  if (candidatePathsOverlap(source, destination)) {
     throw new Error("source and destination overlap");
   }
   if (

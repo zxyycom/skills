@@ -34,7 +34,7 @@ export async function cleanupLegacy(
     options.files,
     options.legacy,
     completeBytes,
-    pending
+    { requireAll: pending, recoveryProof: options.recoveryProof }
   );
   await retireVerifiedFiles(root, plan.retire, options.legacy);
   const temporary = path.join(stage, "complete-receipt");
@@ -52,7 +52,8 @@ export async function cleanupLegacy(
     stage,
     options.files,
     options.legacy,
-    completeBytes
+    completeBytes,
+    options.recoveryProof
   );
 }
 

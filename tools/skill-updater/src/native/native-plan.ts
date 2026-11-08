@@ -1,3 +1,6 @@
+import fs from "node:fs/promises";
+import * as v from "valibot";
+import { validateRecoveryPath } from "./legacy-resume.ts";
 import { assertNativeDirectory } from "./directory.ts";
 import path from "node:path";
 import { assertNativeRelativePaths } from "../../../skill-package/src/native-paths.ts";
@@ -69,6 +72,28 @@ async function classifyPaths(
   };
 }
 
+async function assertNoPendingRecovery(
+  root: string,
+  bytes: Buffer
+): Promise<void> {
+  const raw: unknown = JSON.parse(
+    new TextDecoder("utf-8", { fatal: true }).decode(bytes)
+  );
+  const parsed = v.safeParse(v.object({ backup: v.string() }), raw);
+  if (!parsed.success) throw new Error("invalid native recovery receipt");
+  const stage = validateRecoveryPath(root, parsed.output.backup);
+  try {
+    await fs.lstat(stage);
+  } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "ENOENT")
+      return;
+    throw error;
+  }
+  throw new Error(
+    "native cleanup pending; resume before starting another update"
+  );
+}
+
 /** Read-only fresh or previously verified native plan. No receipt alone authorizes a deletion. */
 export async function planNativeHandoff(input: {
   target: string;
@@ -85,6 +110,8 @@ export async function planNativeHandoff(input: {
   const previous = previousReceipt
     ? await verifyInstalledNativeEvidence(root, input.role, input.platform)
     : [];
+  if (previousReceipt)
+    await assertNoPendingRecovery(root, previousReceipt.bytes);
   const old = previous.map((file) => file.path);
   if (previousReceipt) {
     old.push(receiptPath);

@@ -99,6 +99,7 @@ type WriteRequest = Readonly<{
   old: FileState | null;
   backup: string | null;
   written: Written[];
+  createdDirectories: Set<string>;
 }>;
 
 async function writeOne(request: WriteRequest): Promise<void> {
@@ -112,7 +113,9 @@ async function writeOne(request: WriteRequest): Promise<void> {
     bytes: Buffer.from(file.data),
     mode: stat.mode & 0o777
   };
-  await replaceTargetFile(root, file.path, temporary, old);
+  await replaceTargetFile(root, file.path, temporary, old, (directory) =>
+    request.createdDirectories.add(directory)
+  );
   written.push({ name: file.path, before: old, installed: staged, backup });
   const installed = await readTargetFile(root, file.path);
   if (!sameFileState(installed, staged))
@@ -131,30 +134,34 @@ type Activation = Readonly<{
   plan: LegacyHandoffPlan;
   files: readonly SkillFile[];
   modes: ReadonlyMap<string, number>;
+  rootCreated: boolean;
+  createdDirectories: Set<string>;
 }>;
 
-async function prepareActivation(
+type ActivationPolicy = Readonly<{
+  allowEqual: boolean;
+  plan: (root: string, names: readonly string[]) => Promise<LegacyHandoffPlan>;
+}>;
+
+async function createActivationStage(
+  root: string,
   options: LegacyTransactionOptions
-): Promise<Activation> {
-  const root = path.resolve(options.target);
-  const { names, entry } = validateTransactionOptions(options);
-  const plan = await planLegacyHandoff(root, options.role, options.legacy, [
-    ...names,
-    receiptPath
-  ]);
-  if (!(await options.confirm(plan)))
-    throw new Error("native handoff cancelled before writes");
-  const fresh = await planLegacyHandoff(root, options.role, options.legacy, [
-    ...names,
-    receiptPath
-  ]);
-  if (JSON.stringify(fresh) !== JSON.stringify(plan))
-    throw new Error("native handoff plan changed after confirmation");
+): Promise<{
+  stage: string;
+  modes: Map<string, number>;
+  rootCreated: boolean;
+}> {
   const stage = await fs.mkdtemp(
     path.join(path.dirname(root), `.${path.basename(root)}.native-`)
   );
   let modes: Map<string, number>;
   try {
+    if (options.recoveryProof)
+      await fs.writeFile(
+        path.join(stage, "native-previous-proof.zip"),
+        options.recoveryProof,
+        { flag: "wx", mode: 0o600 }
+      );
     modes = await probeModes(stage, options.files);
     assertFileModePolicy(options.files, modes);
   } catch (error) {
@@ -163,12 +170,50 @@ async function prepareActivation(
       { cause: error }
     );
   }
+  let rootCreated = false;
+  try {
+    await fs.mkdir(root);
+    rootCreated = true;
+  } catch (error) {
+    if (!(error instanceof Error && "code" in error && error.code === "EEXIST"))
+      throw error;
+  }
+  return { stage, modes, rootCreated };
+}
+
+async function prepareActivation(
+  options: LegacyTransactionOptions,
+  policy: ActivationPolicy
+): Promise<Activation> {
+  const root = path.resolve(options.target);
+  const { names, entry } = validateTransactionOptions(
+    options,
+    policy.allowEqual
+  );
+  const plan = await policy.plan(root, [...names, receiptPath]);
+  if (!(await options.confirm(plan)))
+    throw new Error("native handoff cancelled before writes");
+  const fresh = await policy.plan(root, [...names, receiptPath]);
+  if (JSON.stringify(fresh) !== JSON.stringify(plan))
+    throw new Error("native handoff plan changed after confirmation");
+  const { stage, modes, rootCreated } = await createActivationStage(
+    root,
+    options
+  );
   const files = [
     ...options.files.filter((file) => file.path !== "SKILL.md"),
     { path: receiptPath, data: receipt(options, plan, stage, modes) },
     entry
   ];
-  return { root, stage, plan, files, modes };
+  return {
+    root,
+    stage,
+    plan,
+    files,
+    modes,
+    rootCreated,
+    createdDirectories: new Set()
+  };
 }
 
 async function verifiedOriginal(
@@ -214,13 +259,30 @@ async function applyActivationFile(
     file,
     old: original,
     backup,
-    written
+    written,
+    createdDirectories: context.createdDirectories
   });
   if (
     file.path !== receiptPath &&
     written.at(-1)?.installed.mode !== modes.get(file.path)
   )
     throw new Error(`installed file mode differs from receipt: ${file.path}`);
+}
+
+async function removeCreatedDirectories(context: Activation): Promise<void> {
+  for (const directory of [...context.createdDirectories].sort(
+    (a, b) => b.length - a.length
+  )) {
+    try {
+      await fs.rmdir(directory);
+    } catch (error) {
+      if (
+        !(error instanceof Error && "code" in error && error.code === "ENOENT")
+      )
+        throw error;
+    }
+  }
+  if (context.rootCreated) await fs.rmdir(context.root);
 }
 
 async function applyActivationFiles(
@@ -240,6 +302,7 @@ async function applyActivationFiles(
         { cause: error }
       );
     try {
+      await removeCreatedDirectories(context);
       await fs.rm(stage, { recursive: true });
     } catch (cleanupError) {
       throw new Error(
@@ -255,10 +318,11 @@ async function applyActivationFiles(
 }
 
 /** Caller must supply a complete verified bundle, explicit confirmation and final-path validator. */
-export async function activateLegacyBundle(
-  options: LegacyTransactionOptions
+export async function activateWithPolicy(
+  options: LegacyTransactionOptions,
+  policy: ActivationPolicy
 ): Promise<void> {
-  const context = await prepareActivation(options);
+  const context = await prepareActivation(options, policy);
   const { root, stage, plan } = context;
   const written = await applyActivationFiles(context, options);
   try {
@@ -270,4 +334,15 @@ export async function activateLegacyBundle(
       cause: error
     });
   }
+}
+
+/** Caller supplies the trusted legacy manifest and a verified incoming bundle. */
+export async function activateLegacyBundle(
+  options: LegacyTransactionOptions
+): Promise<void> {
+  return await activateWithPolicy(options, {
+    allowEqual: false,
+    plan: async (root, names) =>
+      await planLegacyHandoff(root, options.role, options.legacy, names)
+  });
 }

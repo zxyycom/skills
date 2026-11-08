@@ -8,7 +8,8 @@ import type { LegacyManifest } from "./legacy-plan.ts";
 function expectedBackups(
   files: readonly SkillFile[],
   legacy: LegacyManifest,
-  complete: Buffer
+  complete: Buffer,
+  recoveryProof?: Buffer
 ) {
   const ordered = [
     ...files.filter((file) => file.path !== "SKILL.md"),
@@ -24,6 +25,11 @@ function expectedBackups(
     byteLength: complete.length,
     sha256: createHash("sha256").update(complete).digest("hex")
   });
+  if (recoveryProof)
+    expected.set("native-previous-proof.zip", {
+      byteLength: recoveryProof.length,
+      sha256: createHash("sha256").update(recoveryProof).digest("hex")
+    });
   return expected;
 }
 
@@ -33,14 +39,19 @@ export async function inspectLegacyBackups(
   files: readonly SkillFile[],
   legacy: LegacyManifest,
   complete: Buffer,
-  requireAll = false
+  options: Readonly<{ requireAll?: boolean; recoveryProof?: Buffer }> = {}
 ): Promise<string[]> {
   await assertNativeDirectory(stage);
-  const expected = expectedBackups(files, legacy, complete);
+  const expected = expectedBackups(
+    files,
+    legacy,
+    complete,
+    options.recoveryProof
+  );
   const names = await fs.readdir(stage);
   for (const name of names)
     await verifyBackupFile(stage, name, expected.get(name));
-  if (requireAll) assertRequiredBackups(expected, names);
+  if (options.requireAll) assertRequiredBackups(expected, names);
   return names;
 }
 
@@ -77,12 +88,22 @@ export async function removeLegacyBackups(
   stage: string,
   files: readonly SkillFile[],
   legacy: LegacyManifest,
-  complete: Buffer
+  complete: Buffer,
+  recoveryProof?: Buffer
 ): Promise<void> {
-  const names = await inspectLegacyBackups(stage, files, legacy, complete);
+  const names = await inspectLegacyBackups(stage, files, legacy, complete, {
+    recoveryProof
+  });
+  names.sort(
+    (a, b) =>
+      Number(a === "native-previous-proof.zip") -
+      Number(b === "native-previous-proof.zip")
+  );
   for (const name of names) {
     // Reinspect before each unlink; unknown or modified entries remain intact.
-    await inspectLegacyBackups(stage, files, legacy, complete);
+    await inspectLegacyBackups(stage, files, legacy, complete, {
+      recoveryProof
+    });
     await fs.unlink(path.join(stage, name));
   }
   await fs.rmdir(stage);

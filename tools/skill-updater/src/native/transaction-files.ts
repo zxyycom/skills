@@ -39,13 +39,18 @@ export function sameFileState(
   return left.mode === right.mode && left.bytes.equals(right.bytes);
 }
 
-async function ensureParents(root: string, name: string): Promise<void> {
+async function ensureParents(
+  root: string,
+  name: string,
+  onCreated?: (directory: string) => void
+): Promise<void> {
   const parts = name.split("/").slice(0, -1);
   let current = root;
   for (const part of parts) {
     current = path.join(current, part);
     try {
       await fs.mkdir(current);
+      onCreated?.(current);
     } catch (error) {
       if (
         !(error instanceof Error && "code" in error && error.code === "EEXIST")
@@ -63,9 +68,10 @@ export async function replaceTargetFile(
   root: string,
   name: string,
   staged: string,
-  expected: FileState | null
+  expected: FileState | null,
+  onCreated?: (directory: string) => void
 ): Promise<void> {
-  await ensureParents(root, name);
+  await ensureParents(root, name, onCreated);
   const current = await readTargetFile(root, name);
   if (!sameFileState(current, expected))
     throw new Error(`target changed before replacement: ${name}`);

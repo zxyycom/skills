@@ -31,7 +31,29 @@ test(
         "src/main.rs": "staged\n"
       }))
         await fs.writeFile(path.join(source, name), content);
-      runGit(repositoryRoot, ["add", "tools/record-cli"]);
+      await fs.mkdir(
+        path.join(repositoryRoot, "tools/record-contracts/schemas"),
+        { recursive: true }
+      );
+      const schema = path.join(
+        repositoryRoot,
+        "tools/record-contracts/schemas/index.json"
+      );
+      await fs.writeFile(schema, "staged schema");
+      await fs.mkdir(path.join(repositoryRoot, "scripts/lib"), {
+        recursive: true
+      });
+      await fs.writeFile(
+        path.join(repositoryRoot, "scripts/lib/oxc-config.ts"),
+        "staged config"
+      );
+      runGit(repositoryRoot, [
+        "add",
+        "scripts/lib/oxc-config.ts",
+        "tools/record-cli",
+        "tools/record-contracts"
+      ]);
+      await fs.writeFile(schema, "worktree schema");
       await fs.writeFile(path.join(source, "src/main.rs"), "worktree\n");
       const captured = await captureNativeCandidateSnapshot(repositoryRoot);
       assert.equal(
@@ -40,6 +62,17 @@ test(
           "SKILL.md"
         ).toString(),
         alphaStaged
+      );
+      assert.equal(
+        fileData(captured.delivery, "scripts/lib/oxc-config.ts").toString(),
+        "staged config"
+      );
+      assert.equal(
+        fileData(
+          captured.delivery,
+          "tools/record-contracts/schemas/index.json"
+        ).toString(),
+        "staged schema"
       );
       assert.equal(
         fileData(captured.source, "src/main.rs").toString(),
@@ -51,6 +84,17 @@ test(
       );
       await fs.writeFile(path.join(source, "src/main.rs"), "restaged\n");
       runGit(repositoryRoot, ["add", "tools/record-cli/src/main.rs"]);
+      assert.equal(
+        fileData(captured.delivery, "scripts/lib/oxc-config.ts").toString(),
+        "staged config"
+      );
+      assert.equal(
+        fileData(
+          captured.delivery,
+          "tools/record-contracts/schemas/index.json"
+        ).toString(),
+        "staged schema"
+      );
       assert.equal(
         fileData(captured.source, "src/main.rs").toString(),
         "staged\n"

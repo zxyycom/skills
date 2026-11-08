@@ -11,7 +11,7 @@ import {
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { installCandidate } from "./install.ts";
+import { candidatePathsOverlap, installCandidate } from "./install.ts";
 import { treeDigest } from "./build.ts";
 import { assetName, hostTarget, parseManifest, sha256 } from "./manifest.ts";
 
@@ -149,9 +149,49 @@ test("install verifies bytes and rolls back actual replacements while preserving
   }
 });
 
+test("candidate path overlap distinguishes Windows volumes from nested directories", () => {
+  const paths = path.win32;
+  const source = "D:\\a\\skills\\assets";
+  assert.equal(
+    candidatePathsOverlap(source, "C:\\Users\\runner\\Temp\\fixture", paths),
+    false
+  );
+  assert.equal(candidatePathsOverlap(source, source, paths), true);
+  assert.equal(candidatePathsOverlap(source, `${source}\\child`, paths), true);
+  assert.equal(candidatePathsOverlap(`${source}\\child`, source, paths), true);
+  assert.equal(
+    candidatePathsOverlap(source, "D:\\a\\skills\\assets-other", paths),
+    false
+  );
+  assert.equal(
+    candidatePathsOverlap(source, "D:\\a\\skills\\..fixture", paths),
+    false
+  );
+  assert.equal(
+    candidatePathsOverlap(
+      "\\\\server\\one\\assets",
+      "\\\\server\\two\\fixture",
+      paths
+    ),
+    false
+  );
+});
+
 test("invalid identity, corruption and unsafe destination fail before writes", async () => {
   const { root, source, destination } = await fixture();
   try {
+    await assert.rejects(
+      installCandidate({ source, destination: source, version: "1.0.0" }),
+      /source and destination overlap/
+    );
+    await assert.rejects(
+      installCandidate({ source: root, destination, version: "1.0.0" }),
+      /source and destination overlap/
+    );
+    await assert.rejects(
+      installCandidate({ source, destination: root, version: "1.0.0" }),
+      /source and destination overlap/
+    );
     await assert.rejects(
       installCandidate({ source, destination, version: "2.0.0" }),
       /mismatch/

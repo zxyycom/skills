@@ -27,6 +27,7 @@ const digest = v.pipe(v.string(), v.regex(/^[a-f0-9]{64}$/));
 const evidenceSchema = v.strictObject({
   revision: v.pipe(v.string(), v.regex(/^[a-f0-9]{40,64}$/)),
   versions: v.tuple([v.literal("0.1.0"), v.literal("0.1.1")]),
+  delivery: v.strictObject({ sha256: digest, files: v.array(v.string()) }),
   sources: v.tuple([
     v.strictObject({ sha256: digest, files: v.array(v.string()) }),
     v.strictObject({ sha256: digest, files: v.array(v.string()) })
@@ -37,6 +38,8 @@ export function compareEvidence(first: unknown, second: unknown): void {
   const a = v.parse(evidenceSchema, first);
   const b = v.parse(evidenceSchema, second);
   if (a.revision !== b.revision) throw new Error("platform revisions differ");
+  if (JSON.stringify(a.delivery) !== JSON.stringify(b.delivery))
+    throw new Error("platform delivery source differs");
   for (const index of [0, 1] as const) {
     if (JSON.stringify(a.sources[index]) !== JSON.stringify(b.sources[index]))
       throw new Error(`platform source differs for ${a.versions[index]}`);
@@ -108,6 +111,10 @@ async function build(): Promise<void> {
       path.join(dest, "source-files.json")
     );
     await copyFile(
+      path.join(stage, "delivery-files.json"),
+      path.join(dest, "delivery-files.json")
+    );
+    await copyFile(
       path.join(stage, `native-${target}.json`),
       path.join(dest, "native.json")
     );
@@ -131,7 +138,7 @@ async function build(): Promise<void> {
   }
   await writeFile(
     path.join(output, "comparison.json"),
-    `${JSON.stringify({ revision: revision.stdout.trim(), versions, sources }, null, 2)}\n`,
+    `${JSON.stringify({ revision: revision.stdout.trim(), versions, delivery: { sha256: first.deliveryHash, files: first.delivery.map((file) => file.path) }, sources }, null, 2)}\n`,
     { flag: "wx" }
   );
   const verify = spawnSync(

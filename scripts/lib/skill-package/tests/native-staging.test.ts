@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { stageNativeCandidateInputs } from "../../record-native/staging.ts";
+import {
+  readStagedDelivery,
+  stageNativeCandidateInputs
+} from "../../record-native/staging.ts";
 import { buildStagedNativeCandidate } from "../../record-native/build.ts";
 import { readPendingSkillPackageSnapshot } from "../skill-package-hash.ts";
 import {
@@ -29,6 +32,9 @@ test(
       const snapshot = {
         skills: await readPendingSkillPackageSnapshot(repositoryRoot),
         source,
+        delivery: [{ path: "package.json", data: Buffer.from("pending") }],
+        deliveryHash:
+          "5005a0b2d0dad32b9b87ff1bf95d312d0e557b6dd7af62b793dc940fc7d2b580",
         sourceHash:
           "85d408aa404d16262b16a143dd0895adf62d1a6e6dee0781bcbe3db07bf25f63"
       };
@@ -37,6 +43,21 @@ test(
       assert.equal(
         await fs.readFile(path.join(stage, "source/src/main.rs"), "utf8"),
         "staged\n"
+      );
+      assert.equal(
+        await fs.readFile(path.join(stage, "delivery/package.json"), "utf8"),
+        "pending"
+      );
+      assert.equal(
+        (
+          await readStagedDelivery(stage, snapshot.deliveryHash)
+        )[0]?.data.toString(),
+        "pending"
+      );
+      await fs.writeFile(path.join(stage, "delivery/package.json"), "changed");
+      await assert.rejects(
+        readStagedDelivery(stage, snapshot.deliveryHash),
+        /differs from its frozen manifest/
       );
       assert.equal(
         await fs.readFile(path.join(dist, "sentinel"), "utf8"),
@@ -78,6 +99,9 @@ test(
       const snapshot = {
         skills: await readPendingSkillPackageSnapshot(repositoryRoot),
         source,
+        delivery: [{ path: "package.json", data: Buffer.from("pending") }],
+        deliveryHash:
+          "5005a0b2d0dad32b9b87ff1bf95d312d0e557b6dd7af62b793dc940fc7d2b580",
         sourceHash:
           "85d408aa404d16262b16a143dd0895adf62d1a6e6dee0781bcbe3db07bf25f63"
       };

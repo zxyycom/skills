@@ -13,6 +13,7 @@ export type LegacyTransactionOptions = Readonly<{
   files: readonly SkillFile[];
   runtimeVersion: string;
   sourceHash: string;
+  recoveryProof?: Buffer;
   confirm: (plan: LegacyHandoffPlan) => Promise<boolean>;
   validatePrepared: (target: string) => Promise<void>;
 }>;
@@ -70,7 +71,10 @@ export async function rejectUnknownRetiredFiles(
     );
 }
 
-export function validateTransactionOptions(options: LegacyTransactionOptions): {
+export function validateTransactionOptions(
+  options: LegacyTransactionOptions,
+  allowEqual = false
+): {
   names: string[];
   entry: SkillFile;
 } {
@@ -85,7 +89,9 @@ export function validateTransactionOptions(options: LegacyTransactionOptions): {
   if (
     identity.name !== options.role ||
     identity.version === null ||
-    identity.version <= options.legacy.version
+    (allowEqual
+      ? identity.version < options.legacy.version
+      : identity.version <= options.legacy.version)
   )
     throw new Error(
       "native skill identity must be newer than the legacy installation"

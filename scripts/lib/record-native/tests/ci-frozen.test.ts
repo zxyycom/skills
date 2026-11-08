@@ -6,6 +6,7 @@ test("cross-platform frozen inputs require matching revision and each private ve
   const a = {
     revision: "a".repeat(40),
     versions: ["0.1.0", "0.1.1"],
+    delivery: { sha256: "3".repeat(64), files: ["package.json"] },
     sources: [
       { sha256: "1".repeat(64), files: ["Cargo.toml"] },
       { sha256: "2".repeat(64), files: ["Cargo.toml"] }
@@ -14,6 +15,9 @@ test("cross-platform frozen inputs require matching revision and each private ve
   assert.doesNotThrow(() => compareEvidence(a, structuredClone(a)));
   const wrongRevision = { ...a, revision: "b".repeat(40) };
   assert.throws(() => compareEvidence(a, wrongRevision), /revisions differ/);
+  const wrongDelivery = structuredClone(a);
+  wrongDelivery.delivery.sha256 = "4".repeat(64);
+  assert.throws(() => compareEvidence(a, wrongDelivery), /delivery source/);
   const wrongB = structuredClone(a);
   wrongB.sources[1]!.sha256 = "3".repeat(64);
   assert.throws(() => compareEvidence(a, wrongB), /0.1.1/);

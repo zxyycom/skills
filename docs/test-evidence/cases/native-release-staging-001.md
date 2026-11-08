@@ -10,5 +10,5 @@ Contract:
 - 原生候选输入暂存不能清除或覆盖已有 dist 输出；源码摘要不匹配时不能产生成功准备结果。
 
 Proves:
-- 私有 Git fixture 的源码和当前基础 skill 包写入新 staging，已有 dist sentinel 保持不变。
+- 私有 Git fixture 的源码、冻结生成输入和当前基础 skill 包写入新 staging，已有 dist sentinel 保持不变。
 - 摘要错配被拒绝且 sentinel 仍保持；此测试不证明正式原生资产或发布链路。

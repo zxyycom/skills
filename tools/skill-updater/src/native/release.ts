@@ -6,6 +6,7 @@ import {
 } from "../../../skill-package/src/native-release-manifest.ts";
 import { prepareNativeBundle } from "./bundle.ts";
 import type { SkillFile } from "../types.ts";
+import type { NativeEvidenceInput } from "./installed-evidence.ts";
 
 type ReleaseAsset = Readonly<{ name: string; url: string }>;
 type NativeReleaseInput = Readonly<{
@@ -93,10 +94,10 @@ async function downloadAsset(
   return await boundedBody(response, limit);
 }
 
-/** Consume one previously resolved release, without changing local files. */
-export async function loadNativeReleaseBundle(
+/** Download and verify one release while retaining its evidence for installation. */
+export async function loadNativeReleaseEvidence(
   input: NativeReleaseInput
-): Promise<SkillFile[]> {
+): Promise<NativeEvidenceInput> {
   const data = await downloadAsset(input, MANIFEST, 1024 * 1024);
   const manifest: unknown = JSON.parse(
     new TextDecoder("utf-8", { fatal: true }).decode(data)
@@ -112,5 +113,23 @@ export async function loadNativeReleaseBundle(
     release.native.targets[input.target].name,
     MAX_ASSET
   );
-  return prepareNativeBundle({ ...input, manifest, packageZip, runtimeZip });
+  prepareNativeBundle({ ...input, manifest, packageZip, runtimeZip });
+  return {
+    role: input.role,
+    target: input.target,
+    manifestBytes: data,
+    packageZip,
+    runtimeZip
+  };
+}
+
+/** Consume one previously resolved release, without changing local files. */
+export async function loadNativeReleaseBundle(
+  input: NativeReleaseInput
+): Promise<SkillFile[]> {
+  const evidence = await loadNativeReleaseEvidence(input);
+  const manifest: unknown = JSON.parse(
+    new TextDecoder("utf-8", { fatal: true }).decode(evidence.manifestBytes)
+  );
+  return prepareNativeBundle({ ...evidence, manifest });
 }

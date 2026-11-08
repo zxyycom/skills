@@ -59,16 +59,34 @@ const resumeMetadataSchema = v.object({
   )
 });
 
-function validateRecoveryPath(root: string, backup: string): string {
+function platformPath(value: string): string {
+  return process.platform === "win32" ? value.toLowerCase() : value;
+}
+
+export function validateRecoveryPath(root: string, backup: string): string {
   const stage = path.resolve(backup);
   const prefix = `.${path.basename(root)}.native-`;
   if (
-    path.dirname(stage) !== path.dirname(root) ||
-    !path.basename(stage).startsWith(prefix) ||
+    platformPath(path.dirname(stage)) !== platformPath(path.dirname(root)) ||
+    !platformPath(path.basename(stage)).startsWith(platformPath(prefix)) ||
     stage !== backup
   )
     throw new Error("invalid native recovery directory");
   return stage;
+}
+
+function recoveryPlan(options: LegacyTransactionOptions): LegacyHandoffPlan {
+  const included = new Set([
+    ...options.files.map((file) => file.path),
+    receiptPath
+  ]);
+  return {
+    add: [],
+    replace: [],
+    retire: Object.keys(options.legacy.files)
+      .filter((name) => !included.has(name))
+      .sort()
+  };
 }
 
 function validateResumeReceipt(
@@ -82,14 +100,7 @@ function validateResumeReceipt(
   const result = v.safeParse(resumeMetadataSchema, parsed);
   if (!result.success) throw new Error("invalid native cleanup receipt");
   const stage = validateRecoveryPath(root, result.output.backup);
-  const included = new Set(options.files.map((file) => file.path));
-  const plan = {
-    add: [],
-    replace: [],
-    retire: Object.keys(options.legacy.files)
-      .filter((name) => !included.has(name))
-      .sort()
-  };
+  const plan = recoveryPlan(options);
   const modes = new Map(
     result.output.files.map((file) => [file.path, file.mode])
   );
@@ -116,12 +127,13 @@ function validateResumeReceipt(
 }
 
 /** Resume only after re-verifying the selected bundle and the known legacy manifest. */
-export async function resumeLegacyCleanup(
-  options: LegacyTransactionOptions
+export async function resumeWithPolicy(
+  options: LegacyTransactionOptions,
+  allowEqual: boolean
 ): Promise<void> {
   const root = path.resolve(options.target);
   await assertNativeDirectory(root);
-  validateTransactionOptions(options);
+  validateTransactionOptions(options, allowEqual);
   const saved = await readTargetFile(root, receiptPath);
   if (!saved) throw new Error("native cleanup receipt is missing");
   const { stage, plan, modes, complete, state } = validateResumeReceipt(
@@ -146,13 +158,10 @@ export async function resumeLegacyCleanup(
     await verifyActivatedFiles(root, options.files, modes);
     return;
   }
-  await inspectLegacyBackups(
-    stage,
-    options.files,
-    options.legacy,
-    complete,
-    state === "cleanup-pending"
-  );
+  await inspectLegacyBackups(stage, options.files, options.legacy, complete, {
+    requireAll: state === "cleanup-pending",
+    recoveryProof: options.recoveryProof
+  });
   if (!(await options.confirm(plan)))
     throw new Error("native cleanup cancelled before writes");
   await options.validatePrepared(root);
@@ -161,4 +170,11 @@ export async function resumeLegacyCleanup(
   if (!sameFileState(saved, fresh))
     throw new Error("native receipt changed after confirmation");
   await cleanupLegacy(root, stage, plan, options, saved);
+}
+
+/** Resume a trusted legacy handoff with the fixed legacy version policy. */
+export async function resumeLegacyCleanup(
+  options: LegacyTransactionOptions
+): Promise<void> {
+  await resumeWithPolicy(options, false);
 }

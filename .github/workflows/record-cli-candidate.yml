@@ -67,10 +67,12 @@ jobs:
           path: |
             dist/record-cli-frozen-ci/comparison.json
             dist/record-cli-frozen-ci/private-verification.log
+            dist/record-cli-frozen-ci/0.1.0/delivery-files.json
             dist/record-cli-frozen-ci/0.1.0/source-files.json
             dist/record-cli-frozen-ci/0.1.0/native.json
             dist/record-cli-frozen-ci/0.1.0/decision-records-0.1.0-x86_64-unknown-linux-gnu.zip
             dist/record-cli-frozen-ci/0.1.0/investigation-report-0.1.0-x86_64-unknown-linux-gnu.zip
+            dist/record-cli-frozen-ci/0.1.1/delivery-files.json
             dist/record-cli-frozen-ci/0.1.1/source-files.json
             dist/record-cli-frozen-ci/0.1.1/native.json
             dist/record-cli-frozen-ci/0.1.1/decision-records-0.1.1-x86_64-unknown-linux-gnu.zip
@@ -145,10 +147,12 @@ jobs:
           path: |
             dist/record-cli-frozen-ci/comparison.json
             dist/record-cli-frozen-ci/private-verification.log
+            dist/record-cli-frozen-ci/0.1.0/delivery-files.json
             dist/record-cli-frozen-ci/0.1.0/source-files.json
             dist/record-cli-frozen-ci/0.1.0/native.json
             dist/record-cli-frozen-ci/0.1.0/decision-records-0.1.0-x86_64-pc-windows-msvc.zip
             dist/record-cli-frozen-ci/0.1.0/investigation-report-0.1.0-x86_64-pc-windows-msvc.zip
+            dist/record-cli-frozen-ci/0.1.1/delivery-files.json
             dist/record-cli-frozen-ci/0.1.1/source-files.json
             dist/record-cli-frozen-ci/0.1.1/native.json
             dist/record-cli-frozen-ci/0.1.1/decision-records-0.1.1-x86_64-pc-windows-msvc.zip

@@ -100,32 +100,42 @@ async function verifyMembers(
   assertFileModePolicy(files, modes);
 }
 
-/** Reconstruct ownership from the installed, release-verified bundle and current bytes.
- * This cooperative local evidence is not a signature against an actor able to rewrite it all. */
-export async function verifyInstalledNativeEvidence(
-  root: string,
-  role: NativeRole,
-  target: NativeTarget
-): Promise<SkillFile[]> {
-  const manifestBytes = await requiredFile(root, evidencePaths[0]!);
-  const packageZip = await requiredFile(root, evidencePaths[1]!);
-  const runtimeZip = await requiredFile(root, evidencePaths[2]!);
-  const manifest: unknown = JSON.parse(utf8.decode(manifestBytes));
-  const release = parseNativeReleasePair(manifest)[role];
-  const files = prepareBundleWithEvidence({
-    role,
-    target,
-    manifestBytes,
-    packageZip,
-    runtimeZip
-  });
-  const saved: unknown = JSON.parse(
-    utf8.decode(await requiredFile(root, receiptPath))
-  );
+function verifyReceiptMembers(
+  files: readonly SkillFile[],
+  records: ReadonlyMap<string, ReceiptRecord>
+): void {
+  const modes = new Map<string, number>();
+  for (const file of files) {
+    const record = records.get(file.path);
+    if (
+      !record ||
+      record.byteLength !== file.data.byteLength ||
+      record.sha256 !== digest(file.data)
+    )
+      throw new Error(
+        `installed native receipt member differs from verified bundle: ${file.path}`
+      );
+    modes.set(file.path, record.mode);
+  }
+  assertFileModePolicy(files, modes);
+}
+
+/** Verify retained package identity and its receipt without treating receipt as authority. */
+export function proveEvidenceReceipt(
+  input: NativeEvidenceInput,
+  receiptBytes: Uint8Array
+): {
+  files: SkillFile[];
+  records: ReadonlyMap<string, ReceiptRecord>;
+} {
+  const manifest: unknown = JSON.parse(utf8.decode(input.manifestBytes));
+  const release = parseNativeReleasePair(manifest)[input.role];
+  const files = prepareBundleWithEvidence(input);
+  const saved: unknown = JSON.parse(utf8.decode(receiptBytes));
   const parsed = v.safeParse(receiptSchema, saved);
   if (
     !parsed.success ||
-    parsed.output.role !== role ||
+    parsed.output.role !== input.role ||
     parsed.output.runtimeVersion !== release.native.runtimeVersion ||
     parsed.output.sourceHash !== release.native.sourceHash
   )
@@ -138,6 +148,25 @@ export async function verifyInstalledNativeEvidence(
     throw new Error(
       "installed native receipt member set differs from verified bundle"
     );
+  verifyReceiptMembers(files, records);
+  return { files, records };
+}
+
+/** Reconstruct ownership from the installed, release-verified bundle and current bytes.
+ * This cooperative local evidence is not a signature against an actor able to rewrite it all. */
+export async function verifyInstalledNativeEvidence(
+  root: string,
+  role: NativeRole,
+  target: NativeTarget
+): Promise<SkillFile[]> {
+  const manifestBytes = await requiredFile(root, evidencePaths[0]!);
+  const packageZip = await requiredFile(root, evidencePaths[1]!);
+  const runtimeZip = await requiredFile(root, evidencePaths[2]!);
+  const receiptBytes = await requiredFile(root, receiptPath);
+  const { files, records } = proveEvidenceReceipt(
+    { role, target, manifestBytes, packageZip, runtimeZip },
+    receiptBytes
+  );
   await verifyMembers(root, files, records);
   return files;
 }

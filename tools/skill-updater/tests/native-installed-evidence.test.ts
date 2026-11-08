@@ -5,13 +5,71 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { planNativeHandoff } from "../src/native/native-plan.ts";
-import { strToU8, zipSync } from "fflate";
+import { activateNativeBundle } from "../src/native/native-transaction.ts";
+import { resumeNativeCleanup } from "../src/native/native-resume.ts";
+import { strToU8, unzipSync, zipSync } from "fflate";
 import {
   prepareBundleWithEvidence,
   verifyInstalledNativeEvidence
 } from "../src/native/installed-evidence.ts";
 
-test("installed release evidence and current files jointly prove native ownership", async () => {
+async function failSecondBackup(action: () => Promise<void>): Promise<number> {
+  const original = fs.unlink;
+  let removed = 0;
+  try {
+    fs.unlink = async (...args: Parameters<typeof fs.unlink>) => {
+      if (
+        path.basename(String(args[0])).startsWith("backup-") &&
+        ++removed === 2
+      )
+        throw new Error("fixture cleanup failure");
+      return await original(...args);
+    };
+    await assert.rejects(action, /cleanup pending/);
+  } finally {
+    fs.unlink = original;
+  }
+  return removed;
+}
+
+async function writeEvidenceFixture(
+  root: string,
+  files: readonly { path: string; data: Buffer }[],
+  role: string,
+  hash: string
+) {
+  const records = [];
+  for (const file of files) {
+    const filename = path.join(root, file.path);
+    await fs.mkdir(path.dirname(filename), { recursive: true });
+    const mode = file.path.startsWith("bin/") ? 0o755 : 0o644;
+    await fs.writeFile(filename, file.data, { mode });
+    await fs.chmod(filename, mode);
+    records.push({
+      path: file.path,
+      byteLength: file.data.length,
+      sha256: createHash("sha256").update(file.data).digest("hex"),
+      mode: (await fs.stat(filename)).mode & 0o777
+    });
+  }
+  const receipt = {
+    schemaVersion: 1,
+    state: "complete",
+    backup: path.join(
+      path.dirname(root),
+      `.${path.basename(root)}.native-finished`
+    ),
+    role,
+    runtimeVersion: "0.1.0",
+    sourceHash: hash,
+    files: records
+  };
+  const receiptPath = path.join(root, ".record-native-receipt.json");
+  await fs.writeFile(receiptPath, JSON.stringify(receipt));
+  return { records, receipt, receiptPath };
+}
+
+function nativeFixture() {
   const role = "decision-records";
   const target = "x86_64-unknown-linux-gnu";
   const hash = "a".repeat(64);
@@ -29,7 +87,8 @@ test("installed release evidence and current files jointly prove native ownershi
           '---\nname: decision-records\nmetadata:\n  version: "110"\n---\n',
         "native-runtime.json": JSON.stringify(descriptor),
         "references/decision-index.schema.json": "{}",
-        "scripts/update-skill.ts": "fixture"
+        "scripts/update-skill.ts": "fixture",
+        "scripts/old-native.txt": "owned"
       }).map(([name, value]) => [`${role}/${name}`, strToU8(value)])
     )
   );
@@ -72,8 +131,197 @@ test("installed release evidence and current files jointly prove native ownershi
     packageZip,
     runtimeZip
   });
+  return {
+    role,
+    target,
+    hash,
+    packageZip,
+    runtimeZip,
+    asset,
+    manifestBytes,
+    files
+  } as const;
+}
+
+test("installed release evidence and current files jointly prove native ownership", async () => {
+  const {
+    role,
+    target,
+    hash,
+    packageZip,
+    runtimeZip,
+    asset,
+    manifestBytes,
+    files
+  } = nativeFixture();
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "native-evidence-"));
   try {
+    const destination = path.join(root, "fresh");
+    const request = {
+      role,
+      target,
+      destination,
+      manifestBytes,
+      packageZip,
+      runtimeZip,
+      confirm: async () => true,
+      validatePrepared: async () => {}
+    } as const;
+    const failedDestination = path.join(root, "failed-fresh");
+    await assert.rejects(
+      () =>
+        activateNativeBundle({
+          ...request,
+          destination: failedDestination,
+          validatePrepared: async () => {
+            throw new Error("fixture failure");
+          }
+        }),
+      /changes restored/
+    );
+    await assert.rejects(fs.lstat(failedDestination), { code: "ENOENT" });
+    const existingEmpty = path.join(root, "existing-empty");
+    await fs.mkdir(existingEmpty);
+    await assert.rejects(
+      () =>
+        activateNativeBundle({
+          ...request,
+          destination: existingEmpty,
+          validatePrepared: async () => {
+            throw new Error("fixture failure");
+          }
+        }),
+      /changes restored/
+    );
+    assert.deepEqual(await fs.readdir(existingEmpty), []);
+    await activateNativeBundle(request);
+    await assert.rejects(
+      () =>
+        activateNativeBundle({
+          ...request,
+          validatePrepared: async () => {
+            throw new Error("fixture failure");
+          }
+        }),
+      /changes restored/
+    );
+    assert.equal(
+      (await verifyInstalledNativeEvidence(destination, role, target)).length,
+      files.length
+    );
+    await fs.writeFile(path.join(destination, "sentinel"), "untouched");
+    await activateNativeBundle(request);
+    assert.equal(
+      await fs.readFile(path.join(destination, "sentinel"), "utf8"),
+      "untouched"
+    );
+    assert.equal(
+      (await verifyInstalledNativeEvidence(destination, role, target)).length,
+      files.length
+    );
+    const nextContents = unzipSync(packageZip);
+    delete nextContents[`${role}/scripts/old-native.txt`];
+    nextContents[`${role}/SKILL.md`] = strToU8(
+      '---\nname: decision-records\nmetadata:\n  version: "111"\n---\n'
+    );
+    const nextZip = zipSync(nextContents);
+    const nextManifest = JSON.parse(manifestBytes.toString("utf8"));
+    nextManifest.skills[role].version = 111;
+    nextManifest.skills[role].native.package = asset(
+      `${role}-native.zip`,
+      nextZip
+    );
+    const nextRequest = {
+      ...request,
+      packageZip: nextZip,
+      manifestBytes: Buffer.from(JSON.stringify(nextManifest))
+    };
+    await assert.rejects(
+      () =>
+        activateNativeBundle({
+          ...nextRequest,
+          validatePrepared: async () => {
+            await fs.writeFile(
+              path.join(destination, "scripts/old-native.txt"),
+              "changed"
+            );
+          }
+        }),
+      /cleanup pending/
+    );
+    const pending = JSON.parse(
+      await fs.readFile(
+        path.join(destination, ".record-native-receipt.json"),
+        "utf8"
+      )
+    );
+    assert.equal(pending.state, "cleanup-pending");
+    const proofPath = path.join(pending.backup, "native-previous-proof.zip");
+    const proof = await fs.readFile(proofPath);
+    await fs.unlink(proofPath);
+    await assert.rejects(
+      () => resumeNativeCleanup(nextRequest),
+      /proof is missing/
+    );
+    await fs.writeFile(proofPath, proof);
+    await assert.rejects(
+      () => resumeNativeCleanup(nextRequest),
+      /retired file changed/
+    );
+    await fs.writeFile(
+      path.join(destination, "scripts/old-native.txt"),
+      "owned"
+    );
+    await resumeNativeCleanup(nextRequest);
+    await assert.rejects(
+      fs.lstat(path.join(destination, "scripts/old-native.txt")),
+      { code: "ENOENT" }
+    );
+    await assert.rejects(fs.lstat(pending.backup), { code: "ENOENT" });
+    assert.equal(
+      await fs.readFile(path.join(destination, "sentinel"), "utf8"),
+      "untouched"
+    );
+    nextContents[`${role}/SKILL.md`] = strToU8(
+      '---\nname: decision-records\nmetadata:\n  version: "112"\n---\n'
+    );
+    const thirdZip = zipSync(nextContents);
+    nextManifest.skills[role].version = 112;
+    nextManifest.skills[role].native.package = asset(
+      `${role}-native.zip`,
+      thirdZip
+    );
+    const thirdRequest = {
+      ...request,
+      packageZip: thirdZip,
+      manifestBytes: Buffer.from(JSON.stringify(nextManifest))
+    };
+    const removed = await failSecondBackup(() =>
+      activateNativeBundle(thirdRequest)
+    );
+    const partial = JSON.parse(
+      await fs.readFile(
+        path.join(destination, ".record-native-receipt.json"),
+        "utf8"
+      )
+    );
+    assert.equal(partial.state, "complete");
+    assert.ok(removed >= 2);
+    assert.ok(
+      (
+        await fs.stat(path.join(partial.backup, "native-previous-proof.zip"))
+      ).isFile()
+    );
+    await assert.rejects(
+      () => activateNativeBundle(thirdRequest),
+      /cleanup pending/
+    );
+    await resumeNativeCleanup(thirdRequest);
+    await assert.rejects(fs.lstat(partial.backup), { code: "ENOENT" });
+    assert.equal(
+      await fs.readFile(path.join(destination, "sentinel"), "utf8"),
+      "untouched"
+    );
     const freshPlan = await planNativeHandoff({
       target: root,
       role,
@@ -82,30 +330,12 @@ test("installed release evidence and current files jointly prove native ownershi
     });
     assert.equal(freshPlan.retire.length, 0);
     assert.ok(freshPlan.add.includes("SKILL.md"));
-    const records = [];
-    for (const file of files) {
-      const filename = path.join(root, file.path);
-      await fs.mkdir(path.dirname(filename), { recursive: true });
-      const mode = file.path.startsWith("bin/") ? 0o755 : 0o644;
-      await fs.writeFile(filename, file.data, { mode });
-      await fs.chmod(filename, mode);
-      records.push({
-        path: file.path,
-        byteLength: file.data.length,
-        sha256: createHash("sha256").update(file.data).digest("hex"),
-        mode: (await fs.stat(filename)).mode & 0o777
-      });
-    }
-    const receipt = {
-      schemaVersion: 1,
-      state: "complete",
+    const { records, receipt, receiptPath } = await writeEvidenceFixture(
+      root,
+      files,
       role,
-      runtimeVersion: "0.1.0",
-      sourceHash: hash,
-      files: records
-    };
-    const receiptPath = path.join(root, ".record-native-receipt.json");
-    await fs.writeFile(receiptPath, JSON.stringify(receipt));
+      hash
+    );
     assert.equal(
       (await verifyInstalledNativeEvidence(root, role, target)).length,
       files.length
