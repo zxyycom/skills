@@ -300,3 +300,6 @@ fn decision_query_rejects_invalid_tag_and_duplicate_relation_filters() {
         assert!(!root.path().join("docs").exists());
     }
 }
+
+#[path = "cli_entry/multi_source.rs"]
+mod multi_source;

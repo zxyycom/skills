@@ -19,9 +19,11 @@ node tools/record-cli/benchmarks/fixtures.ts <新目录名> <条数> [宽度] [�
 在最终稳定源码上，通过公开 delivery 入口新建隔离 release 快照并生成 manifest：
 
 ```bash
-node tools/record-cli/delivery/cli.ts build <新构建名> 0.2.0
+node tools/record-cli/delivery/cli.ts build <新构建名> 0.2.1
 node tools/record-cli/benchmarks/run.ts <fixture名> dist/<构建名>/assets <新运行名> 20 <非零随机种子>
 ```
+
+命令中的版本须与所选源码的 Cargo 版本一致；隔离构建结果与正式发布、平台验收分别交付。
 
 运行名必须新建；失败产物不覆盖或自动清理。每个场景两端各一次预热，之后按记录的种子随机交错；正式报告至少每臂每场景 20 个样本，按中位数和 nearest-rank P95 汇总。少样本只用于方法初测，不当作分布结论。每次调用是独立的新 Node CLI 或 release 原生 CLI 进程，墙钟从启动到完整收集输出；没有 `cargo run`、额外 Bun 启动或常驻多请求。同步每样本的复制、索引删除和写后验证在计时之外；输出的逐次命令、退出状态、stdout/stderr 字节数与哈希以及时序保存在 JSONL。
 

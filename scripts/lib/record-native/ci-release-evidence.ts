@@ -4,7 +4,7 @@ const digest = v.pipe(v.string(), v.regex(/^[a-f0-9]{64}$/));
 const fileList = v.strictObject({ sha256: digest, files: v.array(v.string()) });
 const evidence = v.strictObject({
   revision: v.pipe(v.string(), v.regex(/^[a-f0-9]{40,64}$/)),
-  versions: v.tuple([v.literal("0.2.0")]),
+  versions: v.tuple([v.literal("0.2.1")]),
   delivery: fileList,
   sources: v.tuple([fileList])
 });

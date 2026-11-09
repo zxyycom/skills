@@ -7,6 +7,9 @@ import {
   nativeTargets
 } from "../../../tools/skill-package/src/native-release-manifest.ts";
 
+const runtimeVersion = "0.2.1";
+const recoveryName = `record-native-recovery-${runtimeVersion}.zip`;
+const proofName = `record-native-build-${runtimeVersion}.json`;
 const hash = v.pipe(v.string(), v.regex(/^[a-f0-9]{64}$/));
 const identity = v.strictObject({ sha256: hash, files: v.array(v.string()) });
 const asset = v.strictObject({
@@ -17,7 +20,7 @@ const asset = v.strictObject({
 const provenanceSchema = v.strictObject({
   schemaVersion: v.literal(1),
   buildRevision: v.pipe(v.string(), v.regex(/^[a-f0-9]{40,64}$/)),
-  runtimeVersion: v.literal("0.2.0"),
+  runtimeVersion: v.literal(runtimeVersion),
   source: identity,
   buildDelivery: identity,
   recipe: v.record(v.string(), hash),
@@ -86,7 +89,9 @@ function validateBuildRecipeAndAssets(
 }
 
 function runtimeNames(role: (typeof nativeRoles)[number]): string[] {
-  return nativeTargets.map((target) => `${role}-0.2.0-${target}.zip`);
+  return nativeTargets.map(
+    (target) => `${role}-${runtimeVersion}-${target}.zip`
+  );
 }
 
 /** Verify a durable first-upload bundle and every already published member. */
@@ -100,9 +105,7 @@ export function validateRuntimeRecovery(
   if (!Number.isSafeInteger(input.recoveryId) || input.recoveryId <= 0)
     throw new Error("invalid recovery asset ID");
   const recovery = input.remoteAssets.filter(
-    (item) =>
-      item.id === input.recoveryId &&
-      item.name === "record-native-recovery-0.2.0.zip"
+    (item) => item.id === input.recoveryId && item.name === recoveryName
   );
   const recoveryBytes = input.downloaded.get(input.recoveryId);
   if (
@@ -114,13 +117,10 @@ export function validateRuntimeRecovery(
   )
     throw new Error("published recovery identity mismatch");
   const members = extractNativeArchive(recoveryBytes);
-  const proofBytes = members.get("record-native-build-0.2.0.json");
+  const proofBytes = members.get(proofName);
   if (!proofBytes) throw new Error("recovery provenance missing");
   const previous = validateBuildIdentity(proofBytes, input);
-  const names = [
-    "record-native-build-0.2.0.json",
-    ...previous.assets.map((item) => item.name)
-  ].sort();
+  const names = [proofName, ...previous.assets.map((item) => item.name)].sort();
   if (JSON.stringify([...members.keys()].sort()) !== JSON.stringify(names))
     throw new Error("recovery member set differs");
   const entries = [
@@ -186,9 +186,7 @@ export function validateRuntimeReuse(input: {
   downloaded: ReadonlyMap<number, Uint8Array>;
 }): BuildProvenance {
   const proof = input.remoteAssets.filter(
-    (item) =>
-      item.id === input.provenanceId &&
-      item.name === "record-native-build-0.2.0.json"
+    (item) => item.id === input.provenanceId && item.name === proofName
   );
   const proofAsset = proof[0];
   const proofBytes = input.downloaded.get(input.provenanceId);

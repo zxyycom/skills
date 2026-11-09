@@ -14,6 +14,18 @@
 
 成功 `trace --json` 不套 envelope：DR 带 `source`，IR 带 `warnings` 且 warning 同时写 stderr；两域均保留各自原有字段、类型、顺序、缺省及预算语义。失败 trace 使用失败 envelope，不将其说成旧版同形。`version` 是CLI envelope 版本，不是索引 schema 版本；version 2 移除不再产生事实的验证与恢复状态字段，成功 trace 的特殊形状不变。实现入口为 [protocol.rs](src/protocol.rs) 和 [输出映射](src/cli/output.rs)。
 
+## Investigation 多来源查询
+
+IR `list` / `search` 启用配置时，结果对象为 `{key, sources}`：`key` 是本次选中的来源组，`sources` 按配置数组顺序保留每源结果。
+
+| 来源项 | 字段 |
+| --- | --- |
+| 所有来源 | `root`、`investigationsDir`、`ok`。 |
+| `ok: true` | `result` 原样承载对应单源 DTO。 |
+| `ok: false` | `error`；有相应事实时提供 `diagnostics`、`partial`。 |
+
+全部来源成功时按通用成功规则输出；任一源失败时退出码为 1，失败 envelope 的 `result` 仍承载完整的 `{key, sources}`，普通失败的错误及部分结果输出至 stderr。来源结果结构见 [multi_source.rs](src/cli/multi_source.rs)；逐源参数、覆盖解释与 `show` 回读方式见 [IR CLI 多来源配置](../../skills/investigation-report/references/cli-operations.md#多来源配置)。
+
 ## 命令结果和信息归属
 
 表中字段是定位和验收的代表性信息，不是可替代源码的完整 JSON Schema。具体字段、序列化名及可选条件以列出的 Rust DTO/输出映射为准；对应领域规则与兼容验收材料是预期的独立来源。覆盖目标是保留用户依赖的程序化信息，而非把未使用的 TS SDK 签名机械转成 CLI。不能由任一源码声明单独推断所有旧新分支已等价。旧领域细粒度字段及其验收来源见[兼容验收清单](compatibility.md)。

@@ -12,10 +12,20 @@ import {
   validateRuntimeReuse
 } from "./ci-release-reuse.ts";
 import { extractNativeArchive } from "../../../tools/skill-updater/src/native/archive.ts";
-import { nativeTargets } from "../../../tools/skill-package/src/native-release-manifest.ts";
+import {
+  nativeRoles,
+  nativeTargets
+} from "../../../tools/skill-package/src/native-release-manifest.ts";
 import { createReusedReleaseDirectory } from "./ci-release-output.ts";
 
 const repo = "repos/zxyycom/skills";
+const runtimeVersion = "0.2.1";
+const recoveryName = `record-native-recovery-${runtimeVersion}.zip`;
+const proofName = `record-native-build-${runtimeVersion}.json`;
+const runtimePrefixes = nativeRoles.map((role) => `${role}-${runtimeVersion}-`);
+const runtimeNames = nativeRoles.flatMap((role) =>
+  nativeTargets.map((target) => `${role}-${runtimeVersion}-${target}.zip`)
+);
 function gh(args: string[]): Buffer {
   const result = spawnSync("gh", ["api", "--hostname", "github.com", ...args], {
     maxBuffer: 128 * 1024 * 1024,
@@ -44,18 +54,14 @@ function readPublishedAssets() {
       gh([`${repo}/releases/tags/skills-latest`]).toString("utf8")
     ) as unknown
   );
-  const recovery = release.assets.filter(
-    (item) => item.name === "record-native-recovery-0.2.0.zip"
-  );
-  const proof = release.assets.filter(
-    (item) => item.name === "record-native-build-0.2.0.json"
-  );
+  const recovery = release.assets.filter((item) => item.name === recoveryName);
+  const proof = release.assets.filter((item) => item.name === proofName);
   if (recovery.length > 1 || proof.length > 1)
     throw new Error("ambiguous published provenance");
   if (recovery.length === 0 && proof.length === 0) {
     if (
       release.assets.some((item) =>
-        /^(decision-records|investigation-report)-0\.2\.0-/.test(item.name)
+        runtimePrefixes.some((prefix) => item.name.startsWith(prefix))
       )
     )
       throw new Error("runtime exists without durable recovery evidence");
@@ -63,11 +69,9 @@ function readPublishedAssets() {
   }
   const selected = release.assets.filter(
     (item) =>
-      item.name === "record-native-recovery-0.2.0.zip" ||
-      item.name === "record-native-build-0.2.0.json" ||
-      /^(decision-records|investigation-report)-0\.2\.0-(x86_64-unknown-linux-gnu|x86_64-pc-windows-msvc)\.zip$/.test(
-        item.name
-      )
+      item.name === recoveryName ||
+      item.name === proofName ||
+      runtimeNames.includes(item.name)
   );
   const downloaded = new Map<number, Uint8Array>();
   for (const item of selected)
@@ -103,19 +107,19 @@ async function writeReusedAssets(
   for (const target of nativeTargets) {
     const dir = path.join(output, target);
     await mkdir(dir);
-    const version = path.join(dir, "0.2.0");
+    const version = path.join(dir, runtimeVersion);
     await mkdir(version);
     const comparison = {
       revision: provenance.buildRevision,
-      versions: ["0.2.0"],
+      versions: [runtimeVersion],
       delivery: provenance.buildDelivery,
       sources: [provenance.source]
     };
     for (const [name, value] of [
       ["comparison.json", comparison],
-      ["0.2.0/source-files.json", provenance.source],
-      ["0.2.0/delivery-files.json", provenance.buildDelivery],
-      ["0.2.0/native.json", provenance.platforms[target]]
+      [`${runtimeVersion}/source-files.json`, provenance.source],
+      [`${runtimeVersion}/delivery-files.json`, provenance.buildDelivery],
+      [`${runtimeVersion}/native.json`, provenance.platforms[target]]
     ] as const)
       await writeFile(
         path.join(dir, name),
@@ -141,13 +145,14 @@ async function main(): Promise<void> {
   if (!recovered) {
     if (process.env.GITHUB_OUTPUT)
       await appendFile(process.env.GITHUB_OUTPUT, "reuse=false\n");
-    console.log("No published 0.2.0 runtime; build inputs required.");
+    console.log(
+      `No published ${runtimeVersion} runtime; build inputs required.`
+    );
     return;
   }
   const { release, recovery, proof, downloaded, members } = recovered;
   const proofBytes =
-    members?.get("record-native-build-0.2.0.json") ??
-    (proof[0] && downloaded.get(proof[0].id));
+    members?.get(proofName) ?? (proof[0] && downloaded.get(proof[0].id));
   if (!proofBytes) throw new Error("build provenance missing");
   const raw = JSON.parse(Buffer.from(proofBytes).toString("utf8")) as unknown;
   const head = v.parse(

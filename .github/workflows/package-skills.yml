@@ -316,7 +316,7 @@ jobs:
           REUSE_RECOVERY: ${{ steps.reuse.outputs.recovery }}
         run: |
           set -euo pipefail
-          node scripts/build/native-record-candidate.ts --formal 0.2.0 "$PWD/node_modules" "$PWD/release-stage.txt"
+          node scripts/build/native-record-candidate.ts --formal 0.2.1 "$PWD/node_modules" "$PWD/release-stage.txt"
           stage=$(cat release-stage.txt)
           linux="$PWD/evidence/linux"
           windows="$PWD/evidence/windows"
@@ -326,7 +326,7 @@ jobs:
             windows="$PWD/dist/record-cli-reused-release/x86_64-pc-windows-msvc"
             build_revision="$BUILD_REVISION"
           fi
-          args=(--formal "$stage" "$linux" "$windows" 0.2.0 "$build_revision")
+          args=(--formal "$stage" "$linux" "$windows" 0.2.1 "$build_revision")
           if [ "$REUSE_RECOVERY" = true ]; then
             args+=("$PWD/dist/record-cli-reused-release/recovery.zip")
           fi

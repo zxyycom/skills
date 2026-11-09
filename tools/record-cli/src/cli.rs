@@ -37,6 +37,9 @@ pub struct QueryInvocation {
     pub root: String,
     pub directory: String,
     pub json: bool,
+    pub config: Option<String>,
+    pub key: Option<String>,
+    pub explicit_location: bool,
     pub command: Query,
 }
 #[derive(Debug)]
@@ -52,6 +55,7 @@ pub mod arguments;
 mod decision_identity;
 mod help;
 mod investigation_identity;
+mod multi_source;
 mod mutation;
 mod output;
 
@@ -68,7 +72,13 @@ use output::{
 
 fn global_argument_width(argument: &std::ffi::OsStr) -> usize {
     let bytes = argument.as_encoded_bytes();
-    for option in ["--root", "--decisions-dir", "--investigations-dir"] {
+    for option in [
+        "--root",
+        "--decisions-dir",
+        "--investigations-dir",
+        "--config",
+        "--key",
+    ] {
         if bytes == option.as_bytes() {
             return 2;
         }
@@ -205,6 +215,21 @@ pub fn main_entry(domain: Domain) -> i32 {
 }
 
 fn dispatch_query(command: &str, json: bool, invocation: QueryInvocation) -> i32 {
+    if let Query::Investigation(ref query) = invocation.command
+        && matches!(
+            query,
+            InvestigationQueryCommand::List { .. } | InvestigationQueryCommand::Search { .. }
+        )
+        && !invocation.explicit_location
+    {
+        match multi_source::load(invocation.config.as_deref(), invocation.key.as_deref()) {
+            Ok(Some(sources)) => {
+                return multi_source::dispatch(command, json, sources, query.clone());
+            }
+            Ok(None) => {}
+            Err(error) => return print_error(command, json, error, 1),
+        }
+    }
     let root = match crate::source::open_root(std::path::Path::new(&invocation.root)) {
         Ok(root) => root,
         Err(error) => {

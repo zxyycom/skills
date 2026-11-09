@@ -11,6 +11,7 @@ import { command, hash, unpack } from "./ci-bootstrap-process.ts";
 import { nativeRoles } from "../../../tools/skill-package/src/native-release-manifest.ts";
 
 const repo = "repos/zxyycom/skills";
+const runtimeVersion = "0.2.1";
 const schema = v.object({
   id: v.number(),
   tag_name: v.literal("skills-latest"),
@@ -86,7 +87,7 @@ async function verifyInstallation(
   );
   assert.equal(
     command(binary, ["--version"], destination).toString().trim(),
-    `${role} 0.2.0`
+    `${role} ${runtimeVersion}`
   );
   command(
     "pnpm",
@@ -120,7 +121,7 @@ async function verifyInstallation(
   );
   assert.equal(
     command(binary, ["--version"], destination).toString().trim(),
-    `${role} 0.2.0`
+    `${role} ${runtimeVersion}`
   );
   assert.equal(
     await fs.readFile(path.join(destination, "sentinel.txt"), "utf8"),
@@ -185,7 +186,7 @@ async function main(): Promise<void> {
     "record-native-installer.zip",
     ...nativeRoles.flatMap((role) => [
       `${role}-native.zip`,
-      `${role}-0.2.0-${target}.zip`
+      `${role}-${runtimeVersion}-${target}.zip`
     ])
   ];
   const assets = downloadReleaseAssets(release, names);

@@ -800,7 +800,7 @@
       "NATIVE-LEGACY-PREFLIGHT-001": "sha256:9e0f59982a9794468c3628667bdfd9a9795214b055ee1b292ce58c8f352b0132",
       "NATIVE-LEGACY-ROLLBACK-001": "sha256:aa36e4d129dc4bda27a27e690539c8d950ffce96eb231281e07582692388ba30",
       "NATIVE-MISSING-MEMBER-REPAIR-001": "sha256:f66aa25c2102c779c2ef511b9b9c655a1363c8b3f8fa98aaf9ea683fb80d1514",
-      "NATIVE-PUBLISHER-RECOVERY-001": "sha256:1e4c8d4e707420c63ac5fe5f579d4cc26edc471d6e2723066d51e39a95821bbf",
+      "NATIVE-PUBLISHER-RECOVERY-001": "sha256:a2ed9b5d42eaa1ae88d8114a1a5e4fa8083564a6087b24e1d599a15cbb7784c1",
       "NATIVE-RECORD-AUTHOR-CREATE-001": "sha256:c2186c63aa5589a21d55ce30d6f59954819fc7b0cde4407119c9679ffde15230",
       "NATIVE-RECORD-AUTHOR-PUBLISH-001": "sha256:8c320601e9c14e83773801596feab88ead1909cb126f16369b6a2572b80827ec",
       "NATIVE-RECORD-CLI-CONTRACT-001": "sha256:cbc15ca970383dcc27eb1d6aae6aa5561e32f5f5ae7ed181a7d67135385b7d38",
@@ -831,6 +831,14 @@
       "NATIVE-RECORD-INVESTIGATION-IDENTITY-001": "sha256:7364c07440ede304cf2abbe431b37183c4cad7ccc25e95ebfc6e98427de3c769",
       "NATIVE-RECORD-IR-MARKDOWN-001": "sha256:c76c0def71f12ecc8552cf1d8d972d499cea13fe7705e08ed3fc8abc164cbf18",
       "NATIVE-RECORD-IR-PARTIAL-FAILURE-001": "sha256:957266ace770b70871c07b98c5f6a5c23c3a4c93e87121fa5d2867ab3e619a46",
+      "NATIVE-RECORD-MULTI-SOURCE-CONFIG-001": "sha256:63fabb3d594760f406540257dc00b81666ae3e788d75792776f8c83a8dc71893",
+      "NATIVE-RECORD-MULTI-SOURCE-CONFIG-ERROR-001": "sha256:587a45d1bc4891d9116d2e688cae3e911f5a6a4462649ab75a70b8052352c4ba",
+      "NATIVE-RECORD-MULTI-SOURCE-FAILURE-001": "sha256:576d85c47dcfff059c946fa8d87a94c395586067b11cd464b668fe36fbb6c6d2",
+      "NATIVE-RECORD-MULTI-SOURCE-ISOLATION-001": "sha256:f085a865274b48a2851eec7926ca3466e368d1a893ae751f7846269b0aa16e3f",
+      "NATIVE-RECORD-MULTI-SOURCE-LOCAL-001": "sha256:af3a3d79c0ad2c695466bb949bfcdab46601eeef622a5f8bac8bc750458c61ae",
+      "NATIVE-RECORD-MULTI-SOURCE-ORDER-001": "sha256:e0ce458c1a72617f6ff12b1a72e2771846a50c3f066a093352e9ac1cd5e2f11a",
+      "NATIVE-RECORD-MULTI-SOURCE-PREVIEW-001": "sha256:2a831fb0bfc92d7cabc782a798bdcd38bad4959c41a9ee06ab7d81db9d977a8c",
+      "NATIVE-RECORD-MULTI-SOURCE-SHOW-001": "sha256:f8fb4d21356ad44f5de17d3a33974158c51b0af34ac8a3314d24bfc81db7f3da",
       "NATIVE-RECORD-MUTATION-CHECK-001": "sha256:621ff228289614a41d83aa7811d31c8751afc95eadcf22a98c676c59f1f7381d",
       "NATIVE-RECORD-MUTATION-FULL-SYNC-001": "sha256:2185279f86ff61330a16370a67e1afe83aec8689b3ce5177fd4b414e9be2a8c5",
       "NATIVE-RECORD-MUTATION-IDENTITY-001": "sha256:130ef0eea0e224388dac4068c10743674b0ab66c00ce144a1f6e16e81783cb3c",
@@ -925,9 +933,10 @@
       "RECORD-COST-CASE-030": "sha256:1606630d08867d5a381af091ebdfe613d204a491fbf45a956b31c27f15e2f977",
       "RECORD-DIAGNOSTIC-SYSTEM-RENDERING-001": "sha256:8084e33d78111b8f3b378335435f3fb5f71f1ba9aeaf6670b0d4a058336d823b",
       "RECORD-HISTORY-INDEX-001": "sha256:0df4b56083423a6b24f23bf2055d890f104a97908420da77c77d8fcdfaed3855",
-      "RECORD-NATIVE-RELEASE-EVIDENCE-001": "sha256:aee8e021892550cf6ed2d69c4ed3ff2b76851f0bf29907df013827bebbceee7a",
+      "RECORD-NATIVE-RELEASE-EVIDENCE-001": "sha256:fcccfb42c0ba0202ac78ebf6dbac61d42c01b14e58fd6712b0d9a2cbdf6d8164",
       "RECORD-NATIVE-RELEASE-PREPARE-001": "sha256:55e83946137b4619b1655fdab23e2971b4ffe24dafb1c837045bda8d5dcbe2c7",
-      "RECORD-NATIVE-RELEASE-REUSE-001": "sha256:e559d31a89492bb7eb1fab022f473f6cb2db8b6262ed07cc0c12bd8b8413d72d",
+      "RECORD-NATIVE-RELEASE-RECOVERY-001": "sha256:a8b43c85335ff94895e81bcdf7c9878d536511332ac8ce7a61135c96a07fce57",
+      "RECORD-NATIVE-RELEASE-REUSE-001": "sha256:364e82b4f74e406632b5051ecd7ec6dfd2456915d8880d79fdfd801f0ff3e991",
       "RECORD-NATIVE-RELEASE-WORKFLOW-001": "sha256:57972bea3a88ea24106917b1a4c9c99670dc53eb1c7b82004b1083bf26ba4cc0",
       "RECORD-QUERY-DEPENDENCIES-001": "sha256:d11aba91bcdc1bfff934cc240465d7a473203843f0e34d7ac96ccf1487c878e9",
       "RECORD-SEARCH-BUDGET-001": "sha256:cd6394db7b2ed1a211d0350e9d786b07f357816f4dce539b8357a8ace2a6a141",
@@ -9874,6 +9883,94 @@
         "test:1c41042855ea1d97e66a4f67cc3bd95694c492f33fc494c21403def1bd326c1b"
       ]
     },
+    "NATIVE-RECORD-MULTI-SOURCE-CONFIG-001": {
+      "title": "本地配置按组选择及相对路径定位",
+      "sourcePath": "cases/native-record-multi-source-config.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:e3f290d3bdf784d2340ee4ccaf8e2cd30e9fa2a0fca582f77099782ddaeb0766"
+      ]
+    },
+    "NATIVE-RECORD-MULTI-SOURCE-CONFIG-ERROR-001": {
+      "title": "非法或显式缺失配置不回退",
+      "sourcePath": "cases/native-record-multi-source-config-error.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:960ce86d086bb5d037af6139b4ab6517d48b2a19aaa311195ffb2dce32020cf8"
+      ]
+    },
+    "NATIVE-RECORD-MULTI-SOURCE-FAILURE-001": {
+      "title": "首源失败仍保留后续查询结果",
+      "sourcePath": "cases/native-record-multi-source-failure.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:b00460d364575863b5ca633ecd5269db69b952f8c354618cdccc00a8639917d4"
+      ]
+    },
+    "NATIVE-RECORD-MULTI-SOURCE-ISOLATION-001": {
+      "title": "来源组选项与旧入口隔离",
+      "sourcePath": "cases/native-record-multi-source-isolation.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:ee8267e2511def0fbb91a6d01129c16541dd32c8cd854f282a2ce48290fbd078"
+      ]
+    },
+    "NATIVE-RECORD-MULTI-SOURCE-LOCAL-001": {
+      "title": "默认配置仅属于调用目录",
+      "sourcePath": "cases/native-record-multi-source-local.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:ec13216c44ff0594b5612b852efbb218509c540ff7af22bb9742ff75b98fddd9"
+      ]
+    },
+    "NATIVE-RECORD-MULTI-SOURCE-ORDER-001": {
+      "title": "多源查询保留顺序、重复身份及每源窗口",
+      "sourcePath": "cases/native-record-multi-source-order.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:5ab90863a800391c931fd1ca05fcaf5e3798f64c9bb3310ea5d873321f243fa9"
+      ]
+    },
+    "NATIVE-RECORD-MULTI-SOURCE-PREVIEW-001": {
+      "title": "多源成功与失败输出保留原始预览编码",
+      "sourcePath": "cases/native-record-multi-source-preview.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:e58e00b0e9c2781427e18c7b8f80d8409fc4bf6c5e000a92e4c1bb3754e891a2"
+      ]
+    },
+    "NATIVE-RECORD-MULTI-SOURCE-SHOW-001": {
+      "title": "返回来源定位可定向回读重复 ID",
+      "sourcePath": "cases/native-record-multi-source-show.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:05dc785996bf06280ce358ee193cdaf74706c5789a5508aa9558e8336e629a6a"
+      ]
+    },
     "NATIVE-RECORD-MUTATION-CHECK-001": {
       "title": "双域来源检查与错误聚合",
       "sourcePath": "cases/native-record-mutation-check.md",
@@ -10913,7 +11010,7 @@
       ]
     },
     "RECORD-NATIVE-RELEASE-EVIDENCE-001": {
-      "title": "双平台来源证据比较",
+      "title": "双平台来源与交付证据比较",
       "sourcePath": "cases/record-native-release-evidence.md",
       "tags": [],
       "testIds": [
@@ -10928,6 +11025,16 @@
       ],
       "testIds": [
         "test:ee64c48f3fbbb5db7cb5476eb86b3e5746b13369d7cd2ffe19e83e42e4ed5bf3"
+      ]
+    },
+    "RECORD-NATIVE-RELEASE-RECOVERY-001": {
+      "title": "不完整发布恢复及原字节校验",
+      "sourcePath": "cases/record-native-release-recovery.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:de7a24c298e038eef3ac69a0db89cd521d34599f68044f19e7ffaa60bfaafb8b"
       ]
     },
     "RECORD-NATIVE-RELEASE-REUSE-001": {

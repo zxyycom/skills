@@ -5,7 +5,7 @@ description: >-
   以一份可独立复核的报告保存一轮形成时的背景、依据、结果和边界，
   并用稳定 Investigation ID、tags 和直接前序关系维护分类与认识演进。
 metadata:
-  version: "101"
+  version: "102"
 ---
 
 # Investigation Report
@@ -37,10 +37,11 @@ metadata:
 | 准确 Investigation ID 或唯一 name | `show <selector>` |
 | tags、形成时间或直接关系 | `list` |
 | 主题、概念、原因或正文措辞 | `search <text>` |
+| 多个仓库或目录中的正式报告 | 按[多来源配置](references/cli-operations.md#多来源配置)逐源运行 `list` 或 `search`。 |
 | 认识演进 | `trace <selector>` |
 | 尚未建立的候选 | `candidates` → `show-candidate <selector>` |
 
-查询后使用返回的完整 ID 继续操作。正式查询与候选查询分别进行；`list`、`trace` 和 metadata 搜索反映发布快照，需要当前正文用 `show`，当前文本发现用默认 content 搜索。
+查询后使用返回的完整 ID 继续操作；多来源结果还需保留所属来源的定位参数。正式查询与候选查询分别进行；`list`、`trace` 和 metadata 搜索反映发布快照，需要当前正文用 `show`，当前文本发现用默认 content 搜索。
 
 ## 工作流程
 

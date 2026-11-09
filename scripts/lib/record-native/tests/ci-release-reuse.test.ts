@@ -36,7 +36,7 @@ test("reused runtime creates a missing dist but never replaces an existing outpu
     await fs.rm(root, { recursive: true, force: true });
   }
 });
-test("reuse requires the pinned evidence and every published runtime byte", () => {
+function runtimeFixture() {
   const recipe = Object.fromEntries(
     nativeBuildRecipePaths.map((name) => [name, "d".repeat(64)])
   );
@@ -45,7 +45,7 @@ test("reuse requires the pinned evidence and every published runtime byte", () =
   const remoteAssets: RemoteAsset[] = [];
   const assets = nativeRoles.flatMap((role) =>
     nativeTargets.map((target) => {
-      const name = `${role}-0.2.0-${target}.zip`;
+      const name = `${role}-0.2.1-${target}.zip`;
       const bytes = Buffer.from(name);
       const id = downloaded.size + 1;
       downloaded.set(id, bytes);
@@ -62,7 +62,7 @@ test("reuse requires the pinned evidence and every published runtime byte", () =
     JSON.stringify({
       schemaVersion: 1,
       buildRevision: "b".repeat(40),
-      runtimeVersion: "0.2.0",
+      runtimeVersion: "0.2.1",
       source,
       buildDelivery: source,
       recipe,
@@ -75,10 +75,15 @@ test("reuse requires the pinned evidence and every published runtime byte", () =
   downloaded.set(99, provenance);
   remoteAssets.push({
     id: 99,
-    name: "record-native-build-0.2.0.json",
+    name: "record-native-build-0.2.1.json",
     size: provenance.length,
     digest: `sha256:${hash(provenance)}`
   });
+  return { recipe, source, downloaded, remoteAssets, assets, provenance };
+}
+
+test("reuse requires the pinned evidence and every published runtime byte", () => {
+  const { recipe, source, downloaded, remoteAssets } = runtimeFixture();
   const input = {
     provenanceId: 99,
     source,
@@ -110,10 +115,27 @@ test("reuse requires the pinned evidence and every published runtime byte", () =
       )
     })
   );
+  // Equal-size damage distinguishes byte hashing from size-only checks, and
+  // each role/target must be verified rather than only the first runtime.
+  for (const asset of remoteAssets.filter((entry) => entry.id !== 99)) {
+    const damaged = Uint8Array.from(downloaded.get(asset.id)!);
+    damaged[0] = damaged[0]! ^ 1;
+    assert.throws(() =>
+      validateRuntimeReuse({
+        ...input,
+        downloaded: new Map(downloaded).set(asset.id, damaged)
+      })
+    );
+  }
+});
+
+test("recovery accepts absent or partial publication but rejects conflicting published bytes", () => {
+  const { recipe, source, downloaded, remoteAssets, assets, provenance } =
+    runtimeFixture();
   // A failed first publication may have uploaded any strict prefix of runtime assets,
   // without uploading the separate proof. The recovery ZIP was uploaded first.
   const entries: Record<string, Uint8Array> = {
-    "record-native-build-0.2.0.json": provenance
+    "record-native-build-0.2.1.json": provenance
   };
   for (const item of assets) {
     const remote = remoteAssets.find((entry) => entry.name === item.name)!;
@@ -122,11 +144,11 @@ test("reuse requires the pinned evidence and every published runtime byte", () =
   const recoveryBytes = zipSync(entries);
   const recovery = {
     id: 100,
-    name: "record-native-recovery-0.2.0.zip",
+    name: "record-native-recovery-0.2.1.zip",
     size: recoveryBytes.length,
     digest: `sha256:${hash(recoveryBytes)}`
   };
-  for (let count = 0; count <= 4; count++) {
+  for (const count of [0, 1, assets.length]) {
     const partial = [
       recovery,
       ...remoteAssets.filter((item) => item.id <= count)
@@ -142,7 +164,7 @@ test("reuse requires the pinned evidence and every published runtime byte", () =
       downloaded: partialBytes
     });
     assert.equal(recovered.buildRevision, "b".repeat(40));
-    if (count) {
+    if (count === 1) {
       const conflict = partial.map((item) =>
         item.id === 1 ? { ...item, digest: `sha256:${"f".repeat(64)}` } : item
       );
@@ -174,13 +196,10 @@ test("reuse requires the pinned evidence and every published runtime byte", () =
   assert.throws(() =>
     validateRuntimeRecovery({ ...recoveryInput, downloaded: invalidRecovery })
   );
-  const wrongProof = new Map(recoveryInput.downloaded).set(
-    99,
-    Buffer.from("modified")
-  );
+  const damagedProof = Uint8Array.from(provenance);
+  damagedProof[0] = damagedProof[0]! ^ 1;
+  const wrongProof = new Map(recoveryInput.downloaded).set(99, damagedProof);
   assert.throws(() =>
     validateRuntimeRecovery({ ...recoveryInput, downloaded: wrongProof })
   );
-  downloaded.set(1, Buffer.from("wrong"));
-  assert.throws(() => validateRuntimeReuse(input));
 });

@@ -1,10 +1,10 @@
 # 调查报告 CLI 操作契约
 
-本文件服务调用者：解释操作前提、影响范围、结果与失败边界。查询先读来源表，再按所用命令补读搜索或追溯小节；写入先读“操作前提”，再读本次操作章节及其链接的领域规则。精确参数和默认值查 `help <command>`；报告内容与质量由 [SKILL.md](../SKILL.md)及[固定契约](investigation-report-contract.md)承接。
+本文件服务调用者：解释操作前提、影响范围、结果与失败边界。查询先读“查询与结果解释”的来源表，再按所用命令补读多来源配置、搜索或追溯小节；写入先读“操作前提”，再读本次操作章节及其链接的领域规则。精确参数和默认值查 `help <command>`；报告内容与质量由 [SKILL.md](../SKILL.md)及[固定契约](investigation-report-contract.md)承接。
 
 ## 定位与选择
 
-在目标工作区根目录调用原生程序绝对路径，或使用项目提供的维护入口。从其他目录调用时，在 command 前显式传 `--root <workspace-root>`。`--investigations-dir` 是工作区内相对集合路径，默认 `docs/investigations`；同一任务始终使用同一集合根。
+调用原生程序绝对路径，或使用项目提供的维护入口。单集合操作默认以调用时当前目录为工作区，调查目录为 `docs/investigations`；从其他目录调用时，在 command 前显式传 `--root <workspace-root>`。`--investigations-dir` 指定工作区内相对集合路径，同一任务使用明确的集合根。`list`、`search` 另支持下方[多来源配置](#多来源配置)。
 
 selector 移除一次大小写不敏感的末尾 `.md` 后，标准日期 ID 只精确匹配完整 ID，其余输入精确查 name。零项失败，多项报告歧义，一项收敛为完整 ID。路径只进入明确的定位参数；后续操作优先使用返回的完整日期 ID。
 
@@ -28,6 +28,50 @@ legacy ID 的字面值也是 name 查询键，与日期 ID 同名时，`foo` 和
 show 安全读取来源，核对读取内容的 frontmatter ID 与所选身份，并严格解码 UTF-8；越界、路径替换或非法 UTF-8 失败。返回完整正文，不受搜索/preview 预算限制。
 
 `list` 与 `search` 只查正式报告。按需筛选和展开列表窗口；空页只说明本次条件和窗口无结果。重复 tags 为 AND，形成时间边界包含端点。关系条件和其他筛选取交集；`--related-to` 的方向相对目标解释，type 与 target 同用时须命中同一条边。
+
+### 多来源配置
+
+仅 `list`、`search` 读取来源组配置：选定 key 后，按其来源数组顺序分别执行现有单源查询，再按来源分组返回原结果。其他查询及写命令不读取配置。
+
+#### 配置发现与选择
+
+默认配置为**调用时当前目录**下的 `.local/.investigation-report.local.json`，不向上查找，也不随 `--root` 改变。`--config PATH` 可显式选择配置文件，相对路径以调用目录为基准；`--key KEY` 选择来源组，省略时使用 `defaultKey`。
+
+```json
+{
+  "defaultKey": "related",
+  "sources": {
+    "related": [
+      {"root": "..", "investigationsDir": "research/reports"},
+      {"root": "../../shared-lib", "investigationsDir": "notes/investigations"}
+    ]
+  }
+}
+```
+
+每个 `sources[key]` 是非空有序来源数组，每源都明确提供 `root` 与 `investigationsDir`：
+
+- `root` 可为绝对路径；相对路径以**配置文件所在目录**为基准。因此上述默认配置中的 `"root": ".."` 指调用时当前目录。
+- `investigationsDir` 是该源 root 内的安全相对路径，可使用项目自己的调查目录。
+
+配置与原单源定位按以下规则选择：
+
+| 调用状态 | 行为 |
+| --- | --- |
+| 显式传 `--root` 或 `--investigations-dir` | 使用原单源查询，不读取配置；与 `--key`、`--config` 互斥。 |
+| 默认配置不存在，且未传 `--key` 或 `--config` | 使用原单源查询。 |
+| 显式请求的配置缺失、已有配置非法、`defaultKey` 无效或选中 key 未知 | 明确失败。 |
+| help / version | 不读取配置。 |
+
+#### 逐源结果与回读
+
+各源独立应用筛选、`limit`、适用的 `offset` 和预算，保留单源顺序与覆盖；不跨来源排序、去重、分页或汇总覆盖。search 仍不提供 offset 分页。
+
+结果按 `sources` 分组保留各源 `root`、`investigationsDir`、`ok` 和原结果。逐源解释上方来源表；搜索还须分别检查各源的 `searchInfo.coverage`，不能以某源的覆盖推断其他源。
+
+任一来源失败后继续查询其余来源，整体退出码为 1。`--json` 失败 envelope 的 `result` 仍包含全部来源结果和错误；普通失败按既有协议在 stderr 给出错误及部分结果。
+
+读取命中报告时，用其所属来源的定位参数和完整 ID：`show <id> --root <root> --investigations-dir <investigationsDir>`。`show` 不接受 `--key` 或 `--config`。
 
 ### 搜索
 

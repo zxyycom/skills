@@ -28,7 +28,7 @@ async function main(): Promise<void> {
     );
   const snapshot = await captureNativeCandidateSnapshot(root);
   const stage = await stageNativeCandidateInputs(root, snapshot);
-  const version = "0.2.0";
+  const version = "0.2.1";
   await buildStagedNativeCandidate(root, stage, version);
   const target = hostTarget();
   const smoke = spawnSync(

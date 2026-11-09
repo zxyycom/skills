@@ -30,9 +30,7 @@ pub fn parse_query(domain: Domain, argv: &[String]) -> Result<QueryInvocation, A
     let ParsedArguments { values, positional } = parse_arguments(domain, command, argv)?;
     validate_presence(command, &values, &positional)?;
     let get = |key: &str| values.get(key).and_then(|v| v.first()).cloned();
-    let root = get("root").unwrap_or_else(|| ".".into());
-    let directory =
-        get(domain.directory_option()).unwrap_or_else(|| domain.default_directory().into());
+    let location = parse_location(domain, &values)?;
     let QueryFilters {
         tags,
         relation,
@@ -52,9 +50,40 @@ pub fn parse_query(domain: Domain, argv: &[String]) -> Result<QueryInvocation, A
     }
     .build(command)?;
     Ok(QueryInvocation {
+        root: location.root,
+        directory: location.directory,
+        json: values.contains_key("json"),
+        config: get("config"),
+        key: get("key"),
+        explicit_location: location.explicit,
+        command,
+    })
+}
+
+struct Location {
+    root: String,
+    directory: String,
+    explicit: bool,
+}
+
+fn parse_location(
+    domain: Domain,
+    values: &HashMap<String, Vec<String>>,
+) -> Result<Location, ArgumentError> {
+    let explicit_location =
+        values.contains_key("root") || values.contains_key(domain.directory_option());
+    if explicit_location && (values.contains_key("key") || values.contains_key("config")) {
+        return Err(ArgumentError(
+            "--root/--investigations-dir conflict with --key/--config".into(),
+        ));
+    }
+    let get = |key: &str| values.get(key).and_then(|v| v.first()).cloned();
+    let root = get("root").unwrap_or_else(|| ".".into());
+    let directory =
+        get(domain.directory_option()).unwrap_or_else(|| domain.default_directory().into());
+    Ok(Location {
         root,
         directory,
-        json: values.contains_key("json"),
-        command,
+        explicit: explicit_location,
     })
 }

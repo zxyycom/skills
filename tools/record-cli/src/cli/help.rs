@@ -145,6 +145,11 @@ pub(super) fn print_help(domain: Domain, topic: Option<&str>) {
         println!(
             "Usage: {executable} {command} {arguments} [--root PATH] [{directory} PATH] [--json]"
         );
+        if domain == Domain::Investigation && matches!(command, "list" | "search") {
+            println!(
+                "Multi-source options: [--config PATH] [--key KEY] (conflict with --root and --investigations-dir)."
+            );
+        }
         if command == "new" {
             println!(
                 "Relations identify predecessors; summaries explain each selected relation. The new scaffold can be valid before its body is ready for publication."

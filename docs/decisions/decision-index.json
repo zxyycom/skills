@@ -174,6 +174,7 @@
       "261107-rust-record-candidate-cooperative-file-safety": "sha256:165763b9a9fa04f5324b0ba9608cfe5ece2ad256ee3c6745365b824797690bdf",
       "261107-rust-record-candidate-sequential-local-runtime": "sha256:1399b913a6474fb29517d118e64eb1465b4a24313aa5811b1c23e7e4569f95a3",
       "261108-share-record-index-json-contracts": "sha256:11b9d29d6cce583f076862bf6759d9c6c5ceeca04c47079fc27667c67fb38594",
+      "261109-query-investigations-from-local-source-groups": "sha256:417ad3e373598ade6b465c8d63ab6d6275710f425e11398f65bb9f2096d23f09",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -4010,6 +4011,22 @@
           "target": "package-current-index-json-schema"
         }
       ]
+    },
+    "261109-query-investigations-from-local-source-groups": {
+      "name": "query-investigations-from-local-source-groups",
+      "sourcePath": "261109-query-investigations-from-local-source-groups.md",
+      "title": "按本地来源组逐源查询调查报告",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-11-09T09:07:35Z",
+      "purpose": "以少量配置复用单集合查询，支持跨仓库发现调查报告。",
+      "background": "经常需要跨仓库检索，但全局索引与合并语义会增加不必要的维护成本。",
+      "decision": "从调用目录本地配置选择来源组，逐源执行并保留原结果，不建立全局查询语义。",
+      "tags": [
+        "investigation-report",
+        "query-composition"
+      ],
+      "relations": []
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",
