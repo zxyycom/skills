@@ -11,7 +11,7 @@ import {
   syncGeneratedFile
 } from "./generated-file.ts";
 
-test("native skill ignore rules exclude installed runtime state but preserve distributable files", async () => {
+test("native skill ignore rules exclude binaries and preserve other files", async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "native-skill-ignore-"));
   try {
     const environment = { ...process.env };
@@ -35,13 +35,13 @@ test("native skill ignore rules exclude installed runtime state but preserve dis
         ...[
           `bin/${role}`,
           `bin/${role}.exe`,
-          ".record-native-receipt.json",
-          ".record-native-evidence/runtime.zip",
           "node_modules/package/index.js"
         ].map((name) => `${prefix}/${name}`)
       );
       visiblePaths.push(
         ...[
+          ".record-native-receipt.json",
+          ".record-native-evidence/runtime.zip",
           ".gitignore",
           "SKILL.md",
           "native-runtime.json",

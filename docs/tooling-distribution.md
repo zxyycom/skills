@@ -35,13 +35,13 @@
 - 公开 TS 模块可导入而不执行 CLI、修改退出状态或产生文件和网络副作用；作为主模块运行时才进入 CLI。消费者使用 Node 原生类型擦除，无需 Bun、tsx 或构建工具。静态语法约束见[编码规范](coding-style.md#4-用类型表达领域含义)，运行兼容性仍由真实 Node smoke 验证。
 - 仓库维护修改 `tools/` 源码 owner 后运行对应 `sync:*`；安装者可直接修改包内 TS，无需构建，但更新会覆盖正式制品中的同路径定制。生成头标明维护源码、skill 来源与同步命令，不写时间戳或本机绝对路径。
 
-两域原生 skill 的 `native-runtime.json` 绑定角色、原生版本、源码摘要和平台；ZIP 与独立二进制由发布 manifest 的长度与 SHA-256 绑定。源码、skill、资产须来自同一冻结发布身份。各 skill 首次安装及旧版升级使用 `record-native-installer.zip` 显式引导，后续由各自原生 updater 准备并验证资产后激活；业务不依赖 Node，不提供旧 TS SDK 或回退。Linux x64 基线为 Ubuntu 22.04 / glibc 2.35，Windows 为 x64 MSVC。引导和更新检查用户定制及受管旧文件，失败按诊断保留现场；不能将多文件激活说成原子事务。其余 skill 仍按本节的 TS 路径分发。
+两域原生 skill 的 `native-runtime.json` 绑定角色、原生版本、源码摘要和平台；ZIP 与独立二进制由发布 manifest 的长度与 SHA-256 绑定。源码、skill、资产须来自同一冻结发布身份。独立安装器显式选择目标，skill 内 updater 默认自身目录；当前包覆盖、版本检查及失败恢复契约见 [Skill Updater](../tools/skill-updater/README.md#原生记录-skill)。业务 CLI 不依赖 Node。Linux x64 基线为 Ubuntu 22.04 / glibc 2.35，Windows 为 x64 MSVC。其余 skill 仍按本节的 TS 路径分发。
 
 ### 随包清单与 Git 忽略
 
 每个 skill 随包提供独立 `package.json`、`pnpm-lock.yaml` 与 `.gitignore`。manifest 声明实际源码闭包的依赖、Node engine 和固定 pnpm；同步器维护 manifest 与忽略规则，锁文件由维护者显式刷新。
 
-原生记录 skill（`decision-records`、`investigation-report`）另按 skill 根目录限定三个 Git 忽略路径：`bin/`、`.record-native-receipt.json` 和 `.record-native-evidence/`，分别承接平台程序、安装状态和恢复证据。分发源码与运行时描述符继续纳入版本管理；宿主项目其他目录遵循其适用的 Git 规则。
+原生记录 skill（`decision-records`、`investigation-report`）的 `bin/` 在 skill 根目录下被 Git 忽略，承接平台程序。分发源码与运行时描述符继续纳入版本管理；宿主项目其他目录遵循其适用的 Git 规则。
 
 ### 依赖安装与恢复
 

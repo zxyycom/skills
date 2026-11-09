@@ -17,7 +17,13 @@
 9. release 查询、manifest 和 zip 下载共用同次运行解析的凭据；来源、降级和恢复方式见 [GitHub 认证](#github-认证)。
 10. 普通更新失败会尝试用本次临时备份恢复已覆盖文件，并移除本次新增文件；此行为不保证进程被终止、系统崩溃或回滚本身失败时自动恢复。更新与依赖安装期间暂停领域操作，失败后核对当前文件状态再重试。
 
-公开 TS 入口可被导入而不执行 CLI、下载或安装依赖。公共 exports 是 `skillUpdaterConfig`、`UpdaterConfig` 类型和返回退出码的 `runSkillUpdaterCli(argv)`。调用时先加载完整 updater 模块图，再进行覆盖；静态加载完成的模块允许本次运行更新其自身 TS 文件，后续运行使用新内容。
+公开 TS 入口可被导入而不执行 CLI、下载或安装依赖。普通 TS updater 的公共 exports 是 `skillUpdaterConfig`、`UpdaterConfig` 类型和返回退出码的 `runSkillUpdaterCli(argv)`；原生记录 skill 的安装器与 updater 入口导出 `run(argv)`。调用时先加载完整 updater 模块图，再进行覆盖；静态加载完成的模块允许本次运行更新其自身 TS 文件，后续运行使用新内容。
+
+## 原生记录 skill
+
+`decision-records` 和 `investigation-report` 的独立安装器要求显式 `--target-dir`；skill 内 updater 默认自身目录。两者以目标 `SKILL.md` 身份和版本判断安装，以 release manifest 选择当前角色、平台及版本；`--check` 只比较版本，不下载 ZIP，也不验证文件完整性。普通 import 和 help 不请求网络。
+
+需要安装或更新时，下载并校验 manifest 绑定的包和平台程序，列出新增和覆盖文件后统一确认（`--yes` 跳过交互）。仅覆盖包内路径，保留其他本地文件；安装器可显式覆盖重装同版本。使用本次临时 staging 和备份，验证程序及说明后最后启用 `SKILL.md`。普通失败尝试恢复；恢复不完整时保留备份并报告路径。临时清理失败时，诊断区分已安装与已恢复的文件状态，保留主失败并列出残留路径。多文件覆盖不保证原子性或崩溃自动恢复。安装成功不保存安装级账本或资产副本。
 
 ## GitHub 认证
 

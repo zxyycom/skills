@@ -2,18 +2,8 @@ import type { NativeRole } from "../../../tools/skill-package/src/native-release
 import { githubRepository } from "../project.ts";
 
 export const nativeUpdaterSource = "tools/skill-updater/src/native/cli.ts";
-export const nativeSkillGitIgnorePatterns = [
-  "/bin/",
-  "/.record-native-receipt.json",
-  "/.record-native-evidence/"
-] as const;
-export const nativeUpdaterResources = [
-  {
-    sourcePath: "tools/skill-updater/src/native/legacy-manifests.json",
-    outputPath:
-      "scripts/runtime/tools/skill-updater/src/native/legacy-manifests.json"
-  }
-];
+export const nativeSkillGitIgnorePatterns = ["/bin/"] as const;
+export const nativeUpdaterResources: readonly never[] = [];
 
 /** Both bootstrap and installed entries call the same native updater engine. */
 export function nativeUpdaterEntry(role: NativeRole, bootstrap: boolean) {

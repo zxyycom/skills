@@ -74,7 +74,7 @@ content 与 metadata 搜索都需要合法发布索引；content 只匹配发布
 
 ## 工具恢复
 
-确认当前平台受支持且 `bin/decision-records`（Windows 为 `.exe`）存在并可执行。安装不完整时按独立 `record-native-installer.zip` 引导器或 skill 自带 updater 的诊断恢复匹配的二进制、Schema 与说明；Node 和依赖仅用于安装更新。无法恢复时保留来源并停止维护。
+确认当前平台受支持且 `bin/decision-records`（Windows 为 `.exe`）存在并可执行。安装不完整时使用独立 `record-native-installer.zip` 显式覆盖重装匹配的二进制、Schema 与说明；Node 和依赖仅用于安装更新。无法恢复时保留来源并停止维护。
 
 ## 恢复验收
 

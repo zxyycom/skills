@@ -1,6 +1,5 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import * as v from "valibot";
 import {
   nativeTargets,
   type NativeRole
@@ -19,41 +18,6 @@ import {
   syncSourceRuntimeArtifacts,
   type SourceRuntimeFacts
 } from "./source-runtime.ts";
-
-const legacySchema = v.object({
-  skills: v.record(
-    v.string(),
-    v.object({ files: v.record(v.string(), v.unknown()) })
-  )
-});
-
-async function retiredRuntimePaths(role: NativeRole): Promise<string[]> {
-  const legacy = v.parse(
-    legacySchema,
-    JSON.parse(
-      await fs.readFile(
-        path.join(
-          rootDir,
-          "tools/skill-updater/src/native/legacy-manifests.json"
-        ),
-        "utf8"
-      )
-    )
-  );
-  const old = legacy.skills[role];
-  if (!old) throw new Error(`legacy paths unavailable: ${role}`);
-  const retiredPaths = Object.keys(old.files).filter((name) =>
-    /^scripts\/(?:decision-records(?:-sdk\/|\.ts$|\.d\.mts$)|check-investigations(?:\.ts$|\.d\.mts$))/.test(
-      name
-    )
-  );
-  retiredPaths.push(
-    role === "decision-records"
-      ? "scripts/decision-records.mjs"
-      : "scripts/check-investigations.mjs"
-  );
-  return retiredPaths;
-}
 
 /** 同步原生 skill 的更新入口、运行时描述符、索引 Schema 与随包配置。 */
 export async function syncNativeSkillRuntime(
@@ -114,7 +78,9 @@ export async function syncNativeSkillRuntime(
       sourcePath: schemaPath
     }
   );
-  const retiredPaths = await retiredRuntimePaths(role);
+  const retiredPaths = [
+    "scripts/runtime/tools/skill-updater/src/native/legacy-manifests.json"
+  ];
   return await syncSourceRuntimeArtifacts(artifacts, {
     mode,
     skillName: role,

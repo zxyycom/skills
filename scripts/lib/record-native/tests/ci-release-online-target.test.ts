@@ -10,14 +10,14 @@ const installation = pathToFileURL(
   path.resolve("tools/skill-updater/src/installation.ts")
 ).href;
 
-test("online bootstrap uses an empty fresh target and preserves a legacy sentinel", async () => {
+test("online bootstrap uses an empty fresh target and preserves an existing sentinel", async () => {
   const temp = await fs.mkdtemp(path.join(os.tmpdir(), "online-first-target-"));
   try {
-    for (const legacy of [false, true]) {
-      const target = path.join(temp, legacy ? "legacy" : "fresh");
-      const script = path.join(temp, `${legacy ? "legacy" : "fresh"}.mjs`);
-      const log = path.join(temp, `${legacy ? "legacy" : "fresh"}.log`);
-      if (legacy) {
+    for (const existing of [false, true]) {
+      const target = path.join(temp, existing ? "existing" : "fresh");
+      const script = path.join(temp, `${existing ? "existing" : "fresh"}.mjs`);
+      const log = path.join(temp, `${existing ? "existing" : "fresh"}.log`);
+      if (existing) {
         await fs.mkdir(target);
         await fs.writeFile(
           path.join(target, "SKILL.md"),
@@ -35,8 +35,8 @@ test("online bootstrap uses an empty fresh target and preserves a legacy sentine
         assert.deepEqual(args.slice(-2), ["--release-tag", "skills-latest"]);
         const destination = args[args.indexOf("--target-dir") + 1];
         const state = await localSkillState(destination, "decision-records");
-        assert.equal(state.state, ${JSON.stringify(legacy ? "versioned" : "unversioned")});
-        assert.equal((await fs.readdir(destination)).includes("sentinel.txt"), ${legacy});
+        assert.equal(state.state, ${JSON.stringify(existing ? "versioned" : "unversioned")});
+        assert.equal((await fs.readdir(destination)).includes("sentinel.txt"), ${existing});
         await fs.appendFile(${JSON.stringify(log)}, args[0] + "\\n");
         if (args[0] === "--check") process.exitCode = 1;
         else {
@@ -45,7 +45,7 @@ test("online bootstrap uses an empty fresh target and preserves a legacy sentine
         }
       `
       );
-      await installOnlineTarget(target, legacy, script, temp);
+      await installOnlineTarget(target, existing, script, temp);
       assert.equal(await fs.readFile(log, "utf8"), "--check\n--yes\n");
       assert.equal(
         await fs.readFile(path.join(target, "sentinel.txt"), "utf8"),

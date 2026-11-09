@@ -122,7 +122,7 @@ YAML 的 job 依赖约束发布；远端合并保护以本节生效核对为准�
 
 ### 原生记录资产与安装
 
-两个记录 skill 使用 `<skill>-native.zip`，其旧名不随原生 release 提供，旧 updater 因缺资产在覆盖前失败。四个角色／目标运行时 ZIP 和 `record-native-installer.zip` 与包描述符、manifest 的角色、版本、目标、源码摘要和资产 hash 交叉校验。首次安装或受支持旧版升级使用引导器显式目标目录；同版本修复与后续升级由原生 updater 处理。激活失败或清理未完成应按实际诊断恢复，不将部分安装当成成功。真实 release 和用户目录安装须有相应授权；本地构建或私有验收不证明上线。
+两个记录 skill 使用 `<skill>-native.zip`。四个角色／目标运行时 ZIP 和 `record-native-installer.zip` 与包描述符、manifest 的角色、版本、目标、源码摘要和资产 hash 交叉校验。首次安装与同版本重装由独立安装器显式选择目标，后续更新使用 skill 内入口；版本检查、覆盖与失败处置由 [Skill Updater](../tools/skill-updater/README.md#原生记录-skill) 承接。真实 release 和用户目录安装须有相应授权；本地构建或私有验收不证明上线。
 
 正式发布保存 `record-native-build-<runtimeVersion>.json` 和 `record-native-recovery-<runtimeVersion>.zip`，版本取自本次冻结源码。前者记录原构建 revision、Rust 输入清单、构建 recipe、平台及工具链与四个运行时 ZIP 的身份；后者包含证明及四个原始运行时 ZIP。
 

@@ -1685,6 +1685,23 @@
       ],
       "title": "Rust 记录 CLI 公开入口复杂度与成本普查"
     },
+    "261109-native-updater-relocated-complete-receipt": {
+      "formedAt": "2026-11-09T10:37:25Z",
+      "name": "native-updater-relocated-complete-receipt",
+      "question": "为何完整安装的决策与调查 Skill 搬迁后检查升级会报 invalid native recovery directory，修复应保留什么恢复边界？",
+      "relations": [],
+      "resourceIds": [
+        "261109-native-updater-relocated-complete-receipt/accept-current-overlay.mjs",
+        "261109-native-updater-relocated-complete-receipt/reproduce.sh"
+      ],
+      "sourcePath": "261109-native-updater-relocated-complete-receipt.md",
+      "tags": [
+        "compatibility",
+        "native-cli",
+        "skill-updater"
+      ],
+      "title": "原生 Skill 搬迁后被已完成回执的恢复路径阻断"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -2418,6 +2435,7 @@
       "261108-investigation-stage-owner-symlink": "sha256:1d63de3e825abb9a1d3a27c18f764b42ba8bad766139bfdbfc45d6d34ab019f7",
       "261108-native-relation-summary-input": "sha256:0a269b60d2532137e68c399c390eec82313935128c7b09776ed6162ef7791d93",
       "261108-record-cli-native-complexity-survey": "sha256:e7e72b79940d6d7c2fc0cb672cf39943a56a34946e5b12f56159c31fd6d6a797",
+      "261109-native-updater-relocated-complete-receipt": "sha256:e4a7ee4b92853caa86e8147864e8088d4ea9e13ac01b634acd71e44aa929468c",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:512b8f0c5b6466034d7d851032bf41af7413a227bdd19c62959fc2ad343d495c",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

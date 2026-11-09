@@ -22,4 +22,4 @@ node --test tools/record-cli/delivery/delivery.test.ts
 
 上述私有 fixture 命令只验证离线候选，不构成正式发布或线上安装证明。正式 skill 源码包与平台原生程序是独立资产；发布时绑定来源、版本、目标与摘要。正式流程、持久恢复资产和线上隔离验收见[发布操作](../../../docs/tooling-delivery.md#原生记录资产与安装)。
 
-首次安装和旧版升级通过引导器显式选择目标；后续更新与恢复以 skill 入口和实际诊断为准。hash 不单独证明来源；真实用户目录安装及远端发布仍须各自授权。
+首次安装和同版本重装通过独立安装器显式选择目标；后续更新与失败处置见 [Skill Updater](../../skill-updater/README.md#原生记录-skill)。hash 不单独证明来源；真实用户目录安装及远端发布仍须各自授权。

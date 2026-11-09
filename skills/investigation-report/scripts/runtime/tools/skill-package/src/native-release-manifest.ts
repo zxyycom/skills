@@ -55,17 +55,19 @@ const nativeEntry = v.object({
   version: skillVersionSchema,
   native: extension
 });
-export type NativeRelease = v.InferOutput<typeof nativeEntry>;
+type DeepReadonly<T> = { readonly [K in keyof T]: DeepReadonly<T[K]> };
+export type NativeRelease = DeepReadonly<v.InferOutput<typeof nativeEntry>>;
+export type NativeReleasePair = Readonly<Record<NativeRole, NativeRelease>>;
 
-/** Parse the raw manifest: the generic manifest parser deliberately drops extensions. */
-export function parseNativeRelease(
-  input: unknown,
-  role: NativeRole
-): NativeRelease {
+function nativeEntries(input: unknown): Readonly<Record<string, unknown>> {
   const base = v.safeParse(skillReleaseManifestSchema, input);
   if (!base.success) throw new Error("invalid base skill release manifest");
-  const raw = input as { skills: Record<string, unknown> };
-  const parsed = v.safeParse(nativeEntry, raw.skills[role]);
+  return v.parse(v.object({ skills: v.record(v.string(), v.unknown()) }), input)
+    .skills;
+}
+
+function parseNativeEntry(raw: unknown, role: NativeRole): NativeRelease {
+  const parsed = v.safeParse(nativeEntry, raw);
   if (!parsed.success)
     throw new Error(`invalid native release metadata: ${role}`);
   const value = parsed.output;
@@ -90,6 +92,14 @@ export function parseNativeRelease(
   if (new Set(names).size !== names.length)
     throw new Error("duplicate native asset name");
   return value;
+}
+
+/** Parse the raw manifest: the generic manifest parser deliberately drops extensions. */
+export function parseNativeRelease(
+  input: unknown,
+  role: NativeRole
+): NativeRelease {
+  return parseNativeEntry(nativeEntries(input)[role], role);
 }
 
 const descriptor = v.strictObject({
@@ -122,11 +132,16 @@ export function parseNativeRuntimeDescriptor(
 }
 
 /** Validate the two independently versioned skills against one native build. */
-export function parseNativeReleasePair(
-  input: unknown
-): Record<NativeRole, NativeRelease> {
-  const decision = parseNativeRelease(input, "decision-records");
-  const investigation = parseNativeRelease(input, "investigation-report");
+export function parseNativeReleasePair(input: unknown): NativeReleasePair {
+  const entries = nativeEntries(input);
+  const decision = parseNativeEntry(
+    entries["decision-records"],
+    "decision-records"
+  );
+  const investigation = parseNativeEntry(
+    entries["investigation-report"],
+    "investigation-report"
+  );
   const left = decision.native;
   const right = investigation.native;
   if (

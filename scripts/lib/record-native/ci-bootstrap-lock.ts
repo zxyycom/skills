@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
 import { command } from "./ci-bootstrap-process.ts";
 
 /** Require an OS access error against the locked file, not merely an arbitrary updater failure. */
@@ -116,27 +115,11 @@ try {
 /** Exercise the real updater against an OS-locked, already installed A executable. */
 export async function verifyWindowsLockedUpgrade(input: {
   binary: string;
-  bootstrap: string;
   destination: string;
   updater: { run(args: string[]): Promise<number> };
 }): Promise<void> {
-  const { binary, bootstrap, destination, updater } = input;
-  const evidence = await import(
-    pathToFileURL(
-      path.join(
-        bootstrap,
-        "scripts/runtime/tools/skill-updater/src/native/installed-evidence.ts"
-      )
-    ).href
-  );
-  const installed = await evidence.verifyInstalledNativeEvidence(
-    destination,
-    "decision-records",
-    "x86_64-pc-windows-msvc"
-  );
-  const receipt = await fs.readFile(
-    path.join(destination, ".record-native-receipt.json")
-  );
+  const { binary, destination, updater } = input;
+  const installed = await fs.readFile(binary);
   const parent = path.dirname(destination);
   const priorNames = (await fs.readdir(parent)).sort();
   await withReadOnlyWindowsLock(binary, async () => {
@@ -148,7 +131,6 @@ export async function verifyWindowsLockedUpgrade(input: {
       (error: unknown) => isLockedFileFailure(error, binary)
     );
     await assert.rejects(updater.run(["--yes"]), (error: unknown) => {
-      assert.match(error instanceof Error ? error.message : "", /restored/);
       assert.ok(
         isLockedFileFailure(error, binary),
         "updater failed without an OS sharing error on the locked executable"
@@ -156,18 +138,7 @@ export async function verifyWindowsLockedUpgrade(input: {
       console.log("Observed Windows updater sharing failure:", error);
       return true;
     });
-    assert.deepEqual(
-      await fs.readFile(path.join(destination, ".record-native-receipt.json")),
-      receipt
-    );
-    assert.deepEqual(
-      await evidence.verifyInstalledNativeEvidence(
-        destination,
-        "decision-records",
-        "x86_64-pc-windows-msvc"
-      ),
-      installed
-    );
+    assert.deepEqual(await fs.readFile(binary), installed);
     assert.deepEqual((await fs.readdir(parent)).sort(), priorNames);
     assert.equal(
       await fs.readFile(path.join(destination, "sentinel.txt"), "utf8"),

@@ -4,8 +4,6 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import * as v from "valibot";
-import { captureNativeCandidateSnapshot } from "./capture.ts";
-import { legacyTargets } from "./ci-bootstrap-fixture.ts";
 import { installOnlineTarget } from "./ci-release-online-target.ts";
 import { command, hash, unpack } from "./ci-bootstrap-process.ts";
 import { nativeRoles } from "../../../tools/skill-package/src/native-release-manifest.ts";
@@ -76,7 +74,7 @@ async function verifyInstallation(
 ): Promise<void> {
   await installOnlineTarget(
     destination,
-    kind === "legacy",
+    kind === "existing",
     path.join(bootstrap, "scripts", `${role}.ts`),
     temp
   );
@@ -113,10 +111,17 @@ async function verifyInstallation(
     { cwd: destination, env: process.env }
   );
   if (check.error) throw check.error;
-  assert.equal(check.status, 1);
+  assert.equal(check.status, 0);
   command(
     process.execPath,
-    [updater, "--yes", "--release-tag", "skills-latest"],
+    [
+      path.join(bootstrap, "scripts", `${role}.ts`),
+      "--target-dir",
+      destination,
+      "--yes",
+      "--release-tag",
+      "skills-latest"
+    ],
     destination
   );
   assert.equal(
@@ -128,7 +133,7 @@ async function verifyInstallation(
     "keep"
   );
   console.log(
-    `PASS ${role} ${kind}: real release installation and missing binary repair`
+    `PASS ${role} ${kind}: real release installation and explicit same-version reinstall`
   );
 }
 
@@ -204,18 +209,14 @@ async function main(): Promise<void> {
     ],
     bootstrap
   );
-  const old = await legacyTargets(
-    root,
-    temp,
-    await captureNativeCandidateSnapshot(root)
-  );
   for (const role of nativeRoles) {
-    for (const [kind, destination] of [
-      ["legacy", old[role]],
-      ["fresh", path.join(temp, `fresh-${role}`)]
-    ] as const) {
-      await verifyInstallation(role, kind, destination, bootstrap, temp);
-    }
+    await verifyInstallation(
+      role,
+      "fresh",
+      path.join(temp, `fresh-${role}`),
+      bootstrap,
+      temp
+    );
   }
   const after = load();
   assert.equal(after.id, release.id);

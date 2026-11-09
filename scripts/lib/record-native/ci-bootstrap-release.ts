@@ -1,3 +1,4 @@
+import { parseNativeReleasePair } from "../../../tools/skill-package/src/native-release-manifest.ts";
 import fs from "node:fs/promises";
 import path from "node:path";
 import * as v from "valibot";
@@ -162,12 +163,13 @@ export async function versions(
     ])
   );
   const manifest = { schemaVersion: 1, skills };
+  const releases = parseNativeReleasePair(manifest);
   for (const role of nativeRoles)
     for (const target of nativeTargets)
       prepareNativeBundle({
         role,
         target,
-        manifest,
+        release: releases[role],
         packageZip: prepared.packages[role].bytes,
         runtimeZip: archives[role][target]
       });

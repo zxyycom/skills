@@ -1,10 +1,5 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
-import { command } from "../ci-bootstrap-process.ts";
-import { extractLegacyTar } from "../ci-bootstrap-fixture.ts";
 import { privateBootstrapSuccessor } from "../ci-bootstrap-source.ts";
 import {
   digestNativeSource,
@@ -50,7 +45,7 @@ function fixture(): NativeCandidateSnapshot {
   };
 }
 
-test("private bootstrap successor changes only the explicit Rust and skill versions", () => {
+test("private bootstrap successor changes Rust and skill versions and preserves A", () => {
   const a = fixture();
   const b = privateBootstrapSuccessor(a);
   assert.notEqual(a.sourceHash, b.sourceHash);
@@ -79,23 +74,4 @@ test("private bootstrap successor changes only the explicit Rust and skill versi
     () => privateBootstrapSuccessor(bad),
     /invalid successor source/
   );
-});
-
-test("legacy archive extraction handles a destination with spaces and Unicode", async () => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "native archive "));
-  try {
-    const source = path.join(root, "source");
-    const destination = path.join(root, "目标 destination");
-    await fs.mkdir(source);
-    await fs.mkdir(destination);
-    await fs.writeFile(path.join(source, "legacy.txt"), "legacy fixture\n");
-    const archive = command("tar", ["-cf", "-", "legacy.txt"], source);
-    extractLegacyTar(archive, destination);
-    assert.equal(
-      await fs.readFile(path.join(destination, "legacy.txt"), "utf8"),
-      "legacy fixture\n"
-    );
-  } finally {
-    await fs.rm(root, { recursive: true, force: true });
-  }
 });

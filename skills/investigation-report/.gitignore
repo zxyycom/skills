@@ -4,5 +4,3 @@ node_modules/
 npm-debug.log*
 pnpm-debug.log*
 /bin/
-/.record-native-receipt.json
-/.record-native-evidence/

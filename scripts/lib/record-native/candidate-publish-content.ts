@@ -50,7 +50,7 @@ export function verifyAssetContents(
       prepareNativeBundle({
         role,
         target,
-        manifest,
+        release,
         packageZip,
         runtimeZip: requireBytes(release.native.targets[target].name)
       });

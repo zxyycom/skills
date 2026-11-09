@@ -5,7 +5,6 @@ import { captureNativeCandidateSnapshot } from "./capture.ts";
 import { privateBootstrapSuccessor } from "./ci-bootstrap-source.ts";
 import { compareEvidence } from "./ci-frozen.ts";
 import { command, json, unpack } from "./ci-bootstrap-process.ts";
-import { legacyTargets } from "./ci-bootstrap-fixture.ts";
 import { versions, mockedRelease } from "./ci-bootstrap-release.ts";
 import { verifyScenarios } from "./ci-bootstrap-scenarios.ts";
 
@@ -52,14 +51,13 @@ async function run(): Promise<void> {
     ],
     bootstrap
   );
-  const legacy = await legacyTargets(root, temp, snapshot);
   process.chdir(temp);
   process.env.NODE_OPTIONS = "";
   process.env.GITHUB_TOKEN = "fixture-token";
   globalThis.fetch = mockedRelease(a);
-  await verifyScenarios(temp, bootstrap, legacy, a, b);
+  await verifyScenarios(temp, bootstrap, a, b);
   console.log(
-    `PASS Windows private bootstrap A/B (mock release, real historical inputs): ${temp}`
+    `PASS Windows private bootstrap A/B (mock release, relocated installation): ${temp}`
   );
   process.chdir(root);
   await fs.rm(temp, { recursive: true });

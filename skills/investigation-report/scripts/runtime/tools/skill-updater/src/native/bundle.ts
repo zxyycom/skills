@@ -10,7 +10,6 @@
 import { readSkillPackageIdentityFromMarkdown } from "../../../skill-package/src/version.ts";
 import { assertNativeRelativePaths } from "../../../skill-package/src/native-paths.ts";
 import {
-  parseNativeReleasePair,
   parseNativeRuntimeDescriptor,
   verifyNativeAsset,
   type NativeRole,
@@ -61,16 +60,16 @@ function readSkillFiles(
   return files;
 }
 
-/** Validate the selected role and target from one raw release before producing files. */
+/** Validate the selected role and target from one validated release before producing files. */
 export function prepareNativeBundle(input: {
   role: NativeRole;
   target: NativeTarget;
-  manifest: unknown;
+  release: NativeRelease;
   packageZip: Uint8Array;
   runtimeZip: Uint8Array;
 }): SkillFile[] {
   const { role, target } = input;
-  const release = parseNativeReleasePair(input.manifest)[role];
+  const { release } = input;
   verifyNativeAsset(release.native.package, input.packageZip);
   verifyNativeAsset(release.native.targets[target], input.runtimeZip);
   const files = readSkillFiles(role, input.packageZip, release);

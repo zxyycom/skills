@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "113"
+  version: "114"
 ---
 
 # Decision Records
@@ -109,7 +109,15 @@ agent 在委托范围内自行完成语义审查与采用判断。“已确认�
 
 ## 工具运行前置
 
-业务 CLI 为原生程序，支持 Linux x64（Ubuntu 22.04 / glibc 2.35 基线）和 Windows x64 MSVC；不提供领域 TypeScript SDK，也不在失败时回退旧后端。首次安装或旧版升级须使用独立 `record-native-installer.zip` 引导器，显式选择目标目录；安装步骤和支持范围以引导包说明为准。解压引导包并在引导包目录按其锁文件显式安装依赖，然后运行 `node scripts/decision-records.ts --target-dir "<skill-directory>"`；可先加 `--check` 检查，按提示确认安装。旧版受管文件和用户定制发生冲突时停止，不自行覆盖或删除。安装成功后运行本 skill 下 `bin/decision-records`（Windows 为 `bin/decision-records.exe`），业务调用无需 Node 或安装依赖。
+业务 CLI 为原生程序，支持 Linux x64（glibc 2.35 及以上）和 Windows x64 MSVC；业务调用无需 Node。
+
+首次安装或同版本重装：
+
+1. 解压 `record-native-installer.zip`，进入解压后的引导包目录，按该包锁文件显式安装依赖。
+2. 运行 `node scripts/decision-records.ts --target-dir "<skill-directory>"`，按提示确认覆盖包内同路径文件；其余本地文件保留。
+3. 安装后使用安装目标内的程序，按下节的绝对路径入口调用；Windows 使用 `.exe`。
+
+安装器或 updater 的 `--check` 只比较版本，不验证文件完整性。
 
 ## CLI 入口
 
@@ -124,7 +132,7 @@ Windows 使用对应 `.exe`；根据 shell 规则引用包含空格的路径。�
 
 ## 自更新
 
-更新使用本 skill 的 `node scripts/update-skill.ts`；Node.js `>=24.18` 和 updater 依赖是安装更新前置，而非业务 CLI 前置。需要独立安装或修复依赖时显式运行：
+在本 skill 目录运行 `node scripts/update-skill.ts`。Node.js `>=24.18` 和 updater 依赖是安装更新前置，而非业务 CLI 前置。需要独立安装或修复依赖时显式运行：
 
 ```bash
 pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated

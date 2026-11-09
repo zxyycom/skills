@@ -6,14 +6,14 @@ import { test } from "node:test";
 import { localSkillState } from "../../../../tools/skill-updater/src/installation.ts";
 import { installFirstCandidate } from "../ci-bootstrap-scenarios.ts";
 
-test("fresh bootstrap uses an empty target while legacy keeps its sentinel before activation", async () => {
+test("fresh bootstrap uses an empty target while existing keeps its sentinel before activation", async () => {
   const temp = await fs.mkdtemp(
     path.join(os.tmpdir(), "bootstrap-first-target-")
   );
   try {
-    for (const legacy of [false, true]) {
-      const target = path.join(temp, legacy ? "legacy" : "fresh");
-      if (legacy) {
+    for (const existing of [false, true]) {
+      const target = path.join(temp, existing ? "existing" : "fresh");
+      if (existing) {
         await fs.mkdir(target);
         await fs.writeFile(
           path.join(target, "SKILL.md"),
@@ -26,9 +26,9 @@ test("fresh bootstrap uses an empty target while legacy keeps its sentinel befor
           const mode = args[0];
           calls.push(mode ?? "");
           const state = await localSkillState(target, "decision-records");
-          assert.equal(state.state, legacy ? "versioned" : "unversioned");
+          assert.equal(state.state, existing ? "versioned" : "unversioned");
           const contents = await fs.readdir(target);
-          assert.equal(contents.includes("sentinel.txt"), legacy);
+          assert.equal(contents.includes("sentinel.txt"), existing);
           if (mode === "--check") return 1;
           assert.equal(mode, "--yes");
           await fs.writeFile(
@@ -38,7 +38,7 @@ test("fresh bootstrap uses an empty target while legacy keeps its sentinel befor
           return 0;
         }
       };
-      await installFirstCandidate(target, legacy, entry);
+      await installFirstCandidate(target, existing, entry);
       assert.deepEqual(calls, ["--check", "--yes"]);
       assert.equal(
         await fs.readFile(path.join(target, "sentinel.txt"), "utf8"),

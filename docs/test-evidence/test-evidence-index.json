@@ -773,7 +773,6 @@
       "MCPSHELL-BRIDGE-RUNTIME-003": "sha256:c6826ca9aa1a2ca76dddb4a2b7e8d46c596cbdb27ad339f64b294b0d9f23876a",
       "MCPSHELL-BRIDGE-SHELL-001": "sha256:e7d4fad77c6c3e0835afb51c9cc30ffe61776491048b6e8debfb580c8f4f88f1",
       "MCPSHELL-BRIDGE-SHELL-002": "sha256:54dfbf839a6686cf12ede129b5388db6f6e35552fb548906f61bc784fc9a53c1",
-      "NATIVE-ACTIVATION-EVIDENCE-001": "sha256:e4a5de68c963ca671d93a24e309e25457abed0d929d157c86478d91f80146088",
       "NATIVE-ARCHIVE-SAFETY-001": "sha256:df320bfbbb487ad2998260c8db0f386b0fb91db4bdd98375d7601797fa752423",
       "NATIVE-BUILD-FROZEN-INPUT-001": "sha256:96ddee98a05553a49680ffb0c8a66bb7ba220cff76f82db2ea104e9ff9371a59",
       "NATIVE-BUNDLE-IDENTITY-001": "sha256:4e5c180342f608a6a58580f6b361cf36bee95f8db60138fae6f84f3859701d7d",
@@ -781,9 +780,8 @@
       "NATIVE-CANDIDATE-PACKAGE-001": "sha256:6cc9bc6c24bb45da7742efb6ab5c721e6d3a0a22c8be1e4d0057464a131e24e6",
       "NATIVE-CANDIDATE-PATH-OVERLAP-001": "sha256:b3c287ec124da6ba138c5eb23d71d006def517e860bb369d734083f56ea5072f",
       "NATIVE-CANDIDATE-PUBLISH-001": "sha256:9bf178f7dec84cddeaecd31154b57f22688e8a4090e0a0a0c460f741650d9644",
-      "NATIVE-CI-BOOTSTRAP-FIRST-TARGET-001": "sha256:d6289b3869b09248835cd402194b63104c45beac443851b4ac39ff178f69da53",
-      "NATIVE-CI-BOOTSTRAP-SUCCESSOR-001": "sha256:07d77dd63c58ee099e26fbf4355da14d72acd6c560fa17b480b8b7572ab64ee8",
-      "NATIVE-CI-LEGACY-ARCHIVE-PATH-001": "sha256:a75c8e6f20deb4f0349f9fa58cb8737389abc425c0793695d8044d1ce8cdf437",
+      "NATIVE-CI-BOOTSTRAP-FIRST-TARGET-001": "sha256:e2383af2a46cc66ef8f2f8b21c0ac40e16f1cb20a08b169be3e3e1c375fc2d85",
+      "NATIVE-CI-BOOTSTRAP-SUCCESSOR-001": "sha256:f3bade58a997d17721f6cc825e73b93639e886565f1b04fb7efd59be69e64202",
       "NATIVE-CI-ONLINE-HARNESS-REVISION-001": "sha256:194415fd82d0f53a178c3bcbe5b9d779790726f5050be279a08be9856da7ed87",
       "NATIVE-CI-RELEASE-REUSE-OUTPUT-001": "sha256:3b13c3eddbc9ea8ff82ddecc469d49add7f5e24e0a700ee10407e7ea0c491e08",
       "NATIVE-CI-SOURCE-CONSISTENCY-001": "sha256:6b66b10a8972eff8aab2cd8ffb2c01f9192cf91edbae6a879e69600c157248e9",
@@ -791,15 +789,12 @@
       "NATIVE-DISPATCH-PROTOCOL-001": "sha256:0329d3c8a9c299cfe9587b02534b83c90478aed16c0d9b27ec82f92176bc33d9",
       "NATIVE-EXPLICIT-DEPENDENCY-VALIDATION-001": "sha256:6cd35be2b616084218f278c1f149985548f3667fdb70a2c963631e05f6148b18",
       "NATIVE-FROZEN-GENERATION-001": "sha256:74a2b7854a138b03c562597a7b1c100a034a791287ffa9ae6800cfc8e78b8ff5",
-      "NATIVE-INSTALLED-EVIDENCE-001": "sha256:73be3e4b7233141c6a865893d4e8273083655d073f7963c1bd699d3be3c7e9d5",
-      "NATIVE-LEGACY-ACTIVATION-001": "sha256:a39bb51f0cdc8b494443e95071a1b81540b59219966af156a236515491490dbd",
-      "NATIVE-LEGACY-CLEANUP-001": "sha256:6640b0683c138c816e716b9fc7c864a0b3ea8c0d67cf5f4696a2be5a227d9b25",
-      "NATIVE-LEGACY-CONCURRENT-ROLLBACK-001": "sha256:38813ba9cda0b04a590cae73346a4076274c5369da90d82389f2fd3ac9de48dd",
-      "NATIVE-LEGACY-CONFIRMATION-001": "sha256:fc0b2a3fc06494f7a110682b86fc5e2609a2c77e39799e0aef49ec629d96cdfb",
-      "NATIVE-LEGACY-HANDOFF-001": "sha256:d4ff544721f9144d4dfcc63ac77b3c8b6c88d9d4ce35d52bd0384e5e45f4d695",
-      "NATIVE-LEGACY-PREFLIGHT-001": "sha256:9e0f59982a9794468c3628667bdfd9a9795214b055ee1b292ce58c8f352b0132",
-      "NATIVE-LEGACY-ROLLBACK-001": "sha256:aa36e4d129dc4bda27a27e690539c8d950ffce96eb231281e07582692388ba30",
-      "NATIVE-MISSING-MEMBER-REPAIR-001": "sha256:f66aa25c2102c779c2ef511b9b9c655a1363c8b3f8fa98aaf9ea683fb80d1514",
+      "NATIVE-OVERLAY-ACTIVATION-001": "sha256:d1cd4336f0d1c718fab478d57f870b1f55d0fc06947722bce656fd07f25c78c7",
+      "NATIVE-OVERLAY-BACKUP-001": "sha256:347a44291f011d7b4f899730fbbe4dc1f5ad70e6804140400e17da9feee88f6c",
+      "NATIVE-OVERLAY-CLEANUP-001": "sha256:9e24fc2d6c5f5ea165f32ca9105e1dc325628426e6f0ce82350fb914b371ad57",
+      "NATIVE-OVERLAY-LINK-001": "sha256:75047cf6ba6470355962ad8d518ab62790726ec0b7b4ee6485374ad549524aca",
+      "NATIVE-OVERLAY-NESTED-001": "sha256:6adb7b358bdaf29383262f8d9ea436e5a7ebdb2b0a56b2116a99b8b7a56bd73a",
+      "NATIVE-OVERLAY-ROLLBACK-001": "sha256:fb8a8320dfdd6fb60ee323234c08eb9d51e57ca79c562faf5eaf454e72ae13bd",
       "NATIVE-PUBLISHER-RECOVERY-001": "sha256:a2ed9b5d42eaa1ae88d8114a1a5e4fa8083564a6087b24e1d599a15cbb7784c1",
       "NATIVE-RECORD-AUTHOR-CREATE-001": "sha256:c2186c63aa5589a21d55ce30d6f59954819fc7b0cde4407119c9679ffde15230",
       "NATIVE-RECORD-AUTHOR-PUBLISH-001": "sha256:8c320601e9c14e83773801596feab88ead1909cb126f16369b6a2572b80827ec",
@@ -860,16 +855,22 @@
       "NATIVE-RECORD-TXN-PARTIAL-001": "sha256:2cfaaf1d430c01b029b799c7663a5a875c7dacbd61f388bd5103b951eb162e79",
       "NATIVE-RECORD-TXN-RESOURCE-MOVE-001": "sha256:ca6e2b78c070c0641ea68f8715b3f3f201d4ae2cecb6ad545c84af042d47f8ca",
       "NATIVE-RELEASE-CAPTURE-001": "sha256:6492d6149c1da6de794399f669c8a5157bfac744dd34b221540ea55b27e08071",
-      "NATIVE-RELEASE-FETCH-001": "sha256:d3906fc52991537de52ef8c5ee8273af8b446d0a77c3a430993ff7dda9fd77f3",
-      "NATIVE-RELEASE-MANIFEST-001": "sha256:005ba546a263f024c0043dd4c52b2cdcee94073a64bbf6b0ff68860fd1c323ce",
+      "NATIVE-RELEASE-FETCH-001": "sha256:4909737f435f4e0ab9bfc68ce9a26a3abd394c60c24d20b5f4d14aedbeeb20c7",
+      "NATIVE-RELEASE-MANIFEST-001": "sha256:231e40aefc0207b1871b2d7715330d1f99700ec42a9080867ceeebc588d5dd37",
       "NATIVE-RELEASE-STAGING-001": "sha256:0c6f6499eeda94cfdd878ec2595dd452ced674a9cc83f7230e3bbb13e223a8c1",
       "NATIVE-REPOSITORY-RUNTIME-001": "sha256:5d7e44848f2fef79b7f988f3bc80b994ad649f835223cdd6e07fba3a531ab741",
       "NATIVE-RUNTIME-ALIAS-001": "sha256:7ea82f6647faf8e9128104cf41759113e58e028709d727400791d6219cdfdd39",
       "NATIVE-RUNTIME-GATE-INPUT-001": "sha256:8ba3e0d761f56ef826280a30e1e2ffd9ad86734099a40e07d6fe45ff7bb9d43d",
       "NATIVE-RUNTIME-SCAN-EXCLUSION-001": "sha256:9c1d0cb3b2bb07d421ca3ae29c491687b47082be706a159f113595e8c87897d7",
-      "NATIVE-SKILL-GIT-IGNORE-001": "sha256:1120ef7c8ec0463264fdc5d1bb5e5d05157efb4bf58b1108222ec2623587769b",
+      "NATIVE-SKILL-GIT-IGNORE-001": "sha256:b9b61e13e7ce0f79e00f11cd10ef273b185921f9f66598fed758967ed9578ae6",
       "NATIVE-SOURCE-DIRECTORY-BOUNDARY-001": "sha256:647ca2db3781b37bc83ae41e58d32e19f9f88a1eb8ccef30c2e33be9d439edf2",
       "NATIVE-SOURCE-ORDER-001": "sha256:f5c682823090eb643fcb72ed65506f61d1f4a921662b1aa72e98bc572553cc49",
+      "NATIVE-UPDATER-CLI-CHECK-001": "sha256:49e29db3bbfca1407bc7bf9424e21dc394459faea6d06b9c6e12d90c8bda73e0",
+      "NATIVE-UPDATER-CLI-CONFIRM-001": "sha256:b3dc753064aaee8b4e0f0ca97f5efb85a3da9d41ef4d3e2a9766ce121c4eb79c",
+      "NATIVE-UPDATER-CLI-INSTALL-001": "sha256:88fd6e7a6906418aebe0734b6041871fac555464e2defbf2b6239cc7cdea9494",
+      "NATIVE-UPDATER-CLI-REINSTALL-001": "sha256:df2b58cf8b277a1d5ea52ea402c3348913d22a50978c2f17bc67d985e95737ff",
+      "NATIVE-UPDATER-CLI-RELOCATE-001": "sha256:5ec99363f77929e674573070ea436c27111425777c1a2b360ad5e8e38bac920c",
+      "NATIVE-UPDATER-CLI-TARGET-001": "sha256:a87337b56933e00572e8fcb0e7cb1057eaf9455173ef0e9fd0e4b7ce1d576a09",
       "NOVEL-CARDS-AUTHOR-REVISION-022": "sha256:28d2edbc1eddaa6770dedaa7c7cc00f0d79c9c0f756f673a47d91090d850ee31",
       "NOVEL-CARDS-BATCH-INPUT-DIAGNOSTICS-037": "sha256:d635ed50035e17208bee01b3b159c9474f6597e57a7c483c864762b90cfbe755",
       "NOVEL-CARDS-BOM-PRESERVATION-032": "sha256:c9860626e3c772ccb1b13cbf74536f9027f7d6fbd7442ffd912a270f7234def5",
@@ -9178,16 +9179,6 @@
         "test:23d35d88f7a6242676cf1947db710bb37780cd39522b09192b2bf8a17b9caaa9"
       ]
     },
-    "NATIVE-ACTIVATION-EVIDENCE-001": {
-      "title": "原生新装与同版本激活的恢复",
-      "sourcePath": "cases/native-activation-evidence-001.md",
-      "tags": [
-        "repository-tooling"
-      ],
-      "testIds": [
-        "test:124d366059f0f4c06068bb6c060e43c519107018630249da8d7f4d419ecbc760"
-      ]
-    },
     "NATIVE-ARCHIVE-SAFETY-001": {
       "title": "原生归档解包前拒绝不安全成员",
       "sourcePath": "cases/native-archive-safety-001.md",
@@ -9266,8 +9257,8 @@
         "repository-tooling"
       ],
       "testIds": [
-        "test:3979af3e270a4cb4eae2cb248aa5b12425cdc4336f71a66932d5e77cd27f91c1",
-        "test:6e98b59342435a8dd18b978bc0a70cbb62163c638fa92b0fc75391899e3c3a03"
+        "test:5588479c4dbfb0648771fd9d010f43890ac5427ca748f82ca4a5c3bc768aff19",
+        "test:fdec41368c94371893da7a75dcf69a7fe07677e7b060e7c757fa89b37557f880"
       ]
     },
     "NATIVE-CI-BOOTSTRAP-SUCCESSOR-001": {
@@ -9277,17 +9268,7 @@
         "repository-tooling"
       ],
       "testIds": [
-        "test:0ef2d67c32bc7fc8966fedbb8cf0b1d61e62789e9301a5e2830208c6fbf4194d"
-      ]
-    },
-    "NATIVE-CI-LEGACY-ARCHIVE-PATH-001": {
-      "title": "旧版验收基线提取路径",
-      "sourcePath": "cases/native-ci-legacy-archive-path.md",
-      "tags": [
-        "repository-tooling"
-      ],
-      "testIds": [
-        "test:e775550c9c5b7ab99d527ff9101e242aaafc8b5785fdfcdb5b6ad798cdbb0aa5"
+        "test:d5917db4a53b18b84268528dd5c075e40e7554776fc0a5f0562a600acfbbdb00"
       ]
     },
     "NATIVE-CI-ONLINE-HARNESS-REVISION-001": {
@@ -9361,94 +9342,67 @@
         "test:f44a52056588d7e086dff0741dc5361981ccf7474f6f259ac001f7d1a857d419"
       ]
     },
-    "NATIVE-INSTALLED-EVIDENCE-001": {
-      "title": "原生退役归属依赖已验证包与当前文件",
-      "sourcePath": "cases/native-installed-evidence-001.md",
+    "NATIVE-OVERLAY-ACTIVATION-001": {
+      "title": "原生覆盖最后启用入口",
+      "sourcePath": "cases/native-overlay-activation-001.md",
       "tags": [
         "repository-tooling"
       ],
       "testIds": [
-        "test:124d366059f0f4c06068bb6c060e43c519107018630249da8d7f4d419ecbc760"
+        "test:2779d25c1ea8419063b696b321ce4378406af409aca3fc48dd6966d52c5469cf"
       ]
     },
-    "NATIVE-LEGACY-ACTIVATION-001": {
-      "title": "原生交接最后激活说明并清理已验证旧文件",
-      "sourcePath": "cases/native-legacy-activation-001.md",
+    "NATIVE-OVERLAY-BACKUP-001": {
+      "title": "回滚失败时保留原始备份",
+      "sourcePath": "cases/native-overlay-backup-001.md",
       "tags": [
         "repository-tooling"
       ],
       "testIds": [
-        "test:9ce2a16880402994e329372a97deb26667973fce696a32e9f5daeac82e6bda70"
+        "test:6c325434cab60448abf640e3c89f486c40034c0e4bab7945e737a870b10b0389",
+        "test:fabd43b98815d25f0250e04f530f7be49bb3056f55402401c631c76e7565a55e"
       ]
     },
-    "NATIVE-LEGACY-CLEANUP-001": {
-      "title": "激活后清理冲突保留现场",
-      "sourcePath": "cases/native-legacy-cleanup-pending-001.md",
+    "NATIVE-OVERLAY-CLEANUP-001": {
+      "title": "原生覆盖清理失败的状态诊断",
+      "sourcePath": "cases/native-overlay-cleanup-001.md",
       "tags": [
         "repository-tooling"
       ],
       "testIds": [
-        "test:5c56cb37b5df48a68afb887b2d84260d9fd316badc9347323df13ffb02762ea7"
+        "test:1ea0d1434cb12240f4dbe569ba632f33d04dbd402baccb93d8086283f33dff2b",
+        "test:5df8dd4ea94214d3f068c68ccba2506162dbd0863085cc97d5a3baf648a30a94",
+        "test:70ad221e381f2e56fdcd8b99fc75323e6e14b03eced24f54b9a505a20e5e3c1d"
       ]
     },
-    "NATIVE-LEGACY-CONCURRENT-ROLLBACK-001": {
-      "title": "回滚不覆盖并发更改",
-      "sourcePath": "cases/native-legacy-concurrent-rollback-001.md",
+    "NATIVE-OVERLAY-LINK-001": {
+      "title": "拒绝原生目标链接祖先",
+      "sourcePath": "cases/native-overlay-link-001.md",
       "tags": [
         "repository-tooling"
       ],
       "testIds": [
-        "test:9ea32b3dfe4b4fe2720e75869286e9b90b56ff050be823f1b187ac7c0f8e1c84"
+        "test:dffc3e5357ce667c897114cd3d09e4167824293925f893e20f23fd0a6c979711"
       ]
     },
-    "NATIVE-LEGACY-CONFIRMATION-001": {
-      "title": "旧版升级先验证版本与确认",
-      "sourcePath": "cases/native-legacy-confirmation-001.md",
+    "NATIVE-OVERLAY-NESTED-001": {
+      "title": "多级目标规划与失败清理",
+      "sourcePath": "cases/native-overlay-nested-001.md",
       "tags": [
         "repository-tooling"
       ],
       "testIds": [
-        "test:4b3f03792b0ba7d3e5327533283a3025ee6cf1a06e96edbda1e150890e9e7f43"
+        "test:5ca7bf26a0a657de5c9e33f3d211fc7115f3b124e30edaa8aa1c1e5ee5ab19a6"
       ]
     },
-    "NATIVE-LEGACY-HANDOFF-001": {
-      "title": "旧版交接计划保留定制与依赖",
-      "sourcePath": "cases/native-legacy-handoff-plan-001.md",
+    "NATIVE-OVERLAY-ROLLBACK-001": {
+      "title": "原生覆盖普通失败恢复",
+      "sourcePath": "cases/native-overlay-rollback-001.md",
       "tags": [
         "repository-tooling"
       ],
       "testIds": [
-        "test:f88665660489ea5ba2fb07bae2787e0591ca3ca1f28ce0d3d756ac95d0246fcb"
-      ]
-    },
-    "NATIVE-LEGACY-PREFLIGHT-001": {
-      "title": "旧安装冲突在写入前识别",
-      "sourcePath": "cases/native-legacy-preflight-001.md",
-      "tags": [
-        "repository-tooling"
-      ],
-      "testIds": [
-        "test:acc159f7a1f056375ba1b9c5f556a403be96a15cf74e40da47aab1e27aa9e9ab"
-      ]
-    },
-    "NATIVE-LEGACY-ROLLBACK-001": {
-      "title": "激活前失败恢复旧安装",
-      "sourcePath": "cases/native-legacy-rollback-001.md",
-      "tags": [
-        "repository-tooling"
-      ],
-      "testIds": [
-        "test:16921649cf92c3f71c32fbdf485d73e7375ca4884876631260de8f12014a2654"
-      ]
-    },
-    "NATIVE-MISSING-MEMBER-REPAIR-001": {
-      "title": "已证明成员的缺失修复",
-      "sourcePath": "cases/native-missing-member-repair-001.md",
-      "tags": [
-        "repository-tooling"
-      ],
-      "testIds": [
-        "test:4a854405c25f1f3259f09d3479ababad20998a8c0e16c98533748942fa9ad92a"
+        "test:f2668105ccac3e7da34d33c65e3450b89b8f2932b9e5c1182fb5b73f8e8465bf"
       ]
     },
     "NATIVE-PUBLISHER-RECOVERY-001": {
@@ -10351,7 +10305,7 @@
         "tooling"
       ],
       "testIds": [
-        "test:bee5e1794b5abc02c5240ff4cc3b7196b2958f3bba4d16f2756fa1fed350bea0"
+        "test:26929cd430d901fcdcf5f62f799e32d237c6fe902de4f25e88e9331e50e15147"
       ]
     },
     "NATIVE-SOURCE-DIRECTORY-BOUNDARY-001": {
@@ -10372,6 +10326,66 @@
       ],
       "testIds": [
         "test:248fc53ebe1ddac0c970bdddcfe47b40d9a1034b8cc9f835507d528c775832ab"
+      ]
+    },
+    "NATIVE-UPDATER-CLI-CHECK-001": {
+      "title": "原生版本检查只读",
+      "sourcePath": "cases/native-updater-cli-check-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:a5b8fcb03ba8a25cf4e241167710cf30ec49edcef01b12bd886de1af968eda07"
+      ]
+    },
+    "NATIVE-UPDATER-CLI-CONFIRM-001": {
+      "title": "未确认安装不写入",
+      "sourcePath": "cases/native-updater-cli-confirm-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:86d321829f76a7e4be87d3e9d31e05a72d2093c1ed9399ae4154447fd7eeaa61"
+      ]
+    },
+    "NATIVE-UPDATER-CLI-INSTALL-001": {
+      "title": "原生多级目标安装",
+      "sourcePath": "cases/native-updater-cli-install-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:82c79532d571247b6da9bce704ba55d7ecbb36e52748c9cb3fa250bfdef49475"
+      ]
+    },
+    "NATIVE-UPDATER-CLI-REINSTALL-001": {
+      "title": "同版本显式重装",
+      "sourcePath": "cases/native-updater-cli-reinstall-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:07596a0594e1b75d083d68ae936b60830de912cdfb876eb14a58da7060d71d1a"
+      ]
+    },
+    "NATIVE-UPDATER-CLI-RELOCATE-001": {
+      "title": "搬迁后的原生更新",
+      "sourcePath": "cases/native-updater-cli-relocate-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:a486793a52a6bca967d90f11c30ede16e529dfb9fd604b91a5765f155e618c6c"
+      ]
+    },
+    "NATIVE-UPDATER-CLI-TARGET-001": {
+      "title": "安装器要求明确目标",
+      "sourcePath": "cases/native-updater-cli-target-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:b30faa44c689eb542d3a563c381783c285ec20158b7f921773a94af29173fee4"
       ]
     },
     "NOVEL-CARDS-AUTHOR-REVISION-022": {

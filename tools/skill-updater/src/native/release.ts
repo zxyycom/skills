@@ -1,15 +1,16 @@
 import {
   selectNativeAsset,
   parseNativeReleasePair,
+  type NativeRelease,
+  type NativeReleasePair,
   type NativeRole,
   type NativeTarget
 } from "../../../skill-package/src/native-release-manifest.ts";
 import { prepareNativeBundle } from "./bundle.ts";
 import type { SkillFile } from "../types.ts";
-import type { NativeEvidenceInput } from "./installed-evidence.ts";
 
 type ReleaseAsset = Readonly<{ name: string; url: string }>;
-type NativeReleaseInput = Readonly<{
+export type NativeReleaseInput = Readonly<{
   repo: string;
   assets: readonly ReleaseAsset[];
   role: NativeRole;
@@ -94,15 +95,22 @@ async function downloadAsset(
   return await boundedBody(response, limit);
 }
 
-/** Download and verify one release while retaining its evidence for installation. */
-export async function loadNativeReleaseEvidence(
+/** Read the release manifest without downloading either archive. */
+export async function loadNativeManifest(
   input: NativeReleaseInput
-): Promise<NativeEvidenceInput> {
+): Promise<NativeReleasePair> {
   const data = await downloadAsset(input, MANIFEST, 1024 * 1024);
   const manifest: unknown = JSON.parse(
     new TextDecoder("utf-8", { fatal: true }).decode(data)
   );
-  const release = parseNativeReleasePair(manifest)[input.role];
+  return parseNativeReleasePair(manifest);
+}
+
+/** Download and verify the selected package and runtime against one manifest. */
+export async function loadNativeReleaseBundle(
+  input: NativeReleaseInput,
+  release: NativeRelease
+): Promise<SkillFile[]> {
   const packageZip = await downloadAsset(
     input,
     release.native.package.name,
@@ -113,23 +121,10 @@ export async function loadNativeReleaseEvidence(
     release.native.targets[input.target].name,
     MAX_ASSET
   );
-  prepareNativeBundle({ ...input, manifest, packageZip, runtimeZip });
-  return {
-    role: input.role,
-    target: input.target,
-    manifestBytes: data,
+  return prepareNativeBundle({
+    ...input,
+    release,
     packageZip,
     runtimeZip
-  };
-}
-
-/** Consume one previously resolved release, without changing local files. */
-export async function loadNativeReleaseBundle(
-  input: NativeReleaseInput
-): Promise<SkillFile[]> {
-  const evidence = await loadNativeReleaseEvidence(input);
-  const manifest: unknown = JSON.parse(
-    new TextDecoder("utf-8", { fatal: true }).decode(evidence.manifestBytes)
-  );
-  return prepareNativeBundle({ ...evidence, manifest });
+  });
 }

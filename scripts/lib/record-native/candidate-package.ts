@@ -231,7 +231,7 @@ export function verifyCandidatePackageManifest(
       prepareNativeBundle({
         role,
         target,
-        manifest: rawManifest,
+        release,
         packageZip: prepared.packages[role].bytes,
         runtimeZip: data
       });

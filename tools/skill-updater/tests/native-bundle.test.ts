@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import test from "node:test";
 import { strToU8, zipSync } from "fflate";
+import { parseNativeReleasePair } from "../../skill-package/src/native-release-manifest.ts";
 import { prepareNativeBundle } from "../src/native/bundle.ts";
 
 test("native bundle binds role, target, skill version and source before planning", () => {
@@ -77,7 +78,13 @@ test("native bundle binds role, target, skill version and source before planning
       }
     }
   };
-  const input = { role, target, manifest, packageZip, runtimeZip } as const;
+  const input = {
+    role,
+    target,
+    release: parseNativeReleasePair(manifest)[role],
+    packageZip,
+    runtimeZip
+  } as const;
   const files = prepareNativeBundle(input);
   assert.equal(
     files.find((file) => file.path === `bin/${role}`)?.data.toString(),
@@ -102,7 +109,7 @@ test("native bundle binds role, target, skill version and source before planning
     () =>
       prepareNativeBundle({
         ...input,
-        manifest: badManifest,
+        release: parseNativeReleasePair(badManifest)[role],
         packageZip: badPackage
       }),
     /descriptor/
@@ -120,7 +127,7 @@ test("native bundle binds role, target, skill version and source before planning
     () =>
       prepareNativeBundle({
         ...input,
-        manifest: versionManifest,
+        release: parseNativeReleasePair(versionManifest)[role],
         packageZip: wrongVersion
       }),
     /skill identity/
@@ -137,7 +144,7 @@ test("native bundle binds role, target, skill version and source before planning
     () =>
       prepareNativeBundle({
         ...input,
-        manifest: binaryManifest,
+        release: parseNativeReleasePair(binaryManifest)[role],
         runtimeZip: wrongBinary
       }),
     /selected binary/

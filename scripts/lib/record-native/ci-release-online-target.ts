@@ -1,14 +1,14 @@
 import { spawnSync } from "node:child_process";
 import { installFirstCandidate } from "./ci-bootstrap-scenarios.ts";
 
-/** Exercise the same check/install order for online fresh and legacy targets. */
+/** Exercise the same check/install order for online fresh and existing targets. */
 export async function installOnlineTarget(
   destination: string,
-  legacy: boolean,
+  existing: boolean,
   bootstrapEntry: string,
   workingDirectory: string
 ): Promise<void> {
-  await installFirstCandidate(destination, legacy, {
+  await installFirstCandidate(destination, existing, {
     async run(args) {
       const result = spawnSync(
         process.execPath,
