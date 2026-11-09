@@ -1289,7 +1289,8 @@
       "VIDEO-ARTIFACT-UPDATER-PRESERVATION-001": "sha256:4810c8b735a8cd366e52fe998bdb5df51f60d98c64ae9ff21e97deee5fb9baa3",
       "VIDEO-ASR-LANGUAGE-001": "sha256:7c7ae42b116f5316face78c4619c8f5ac3c0e6bfa27643581be14887f29e5382",
       "VIDEO-ASR-NATIVE-001": "sha256:6186c5174ca2a788491f4f187e560b7575a74259a095301617fe72ef1acd97d5",
-      "VIDEO-ASR-TAIL-001": "sha256:e43bd3c155e9df1c250eaa04d5d4833855cf97fba6f0329482ad8d06795a2fab",
+      "VIDEO-ASR-TAIL-001": "sha256:ace4aa66ee64b0e2d62aa23c9f83d181a7b5ad91149308be773acb4bb5ea9989",
+      "VIDEO-ASR-TAIL-002": "sha256:5d776a1a7ddce7a3bb71b9d55f2423b2a458806cf530677fd31d2c7389043a1d",
       "VIDEO-BOUNDED-PROJECTION-001": "sha256:3b3e4df6a8798492c7760b3c3a8b21ea4f46d05f925fff6cdd5bfd52f7d077ae",
       "VIDEO-CALIBRATION-VALIDATION-001": "sha256:39cdd4bf4fc396d61824d3911a3fd9aa459b86515ffb10988e5a9b7b1ed455b2",
       "VIDEO-CONFIGURATION-PRECEDENCE-001": "sha256:a886e16d0b0fefb60ef5df2da215cb5d9a9f2c321c7f55ef57072cec8b705b89",
@@ -1304,7 +1305,7 @@
       "VIDEO-MEDIA-TIME-001": "sha256:0452717706b9b0f8b7a83457e3e8c49d529ab274ea294835e7c289d3d9c7ddb5",
       "VIDEO-OCR-COORDINATES-001": "sha256:3160f9e1d6d5db88545f6f4e0a897b8efaae38ce49680cc61c40a27ff232f734",
       "VIDEO-OCR-LOCAL-RUNTIME-001": "sha256:35d66b6d1e03c7e1d7ab6e7144dcc38c2a8a10c4323eba3c732338f124f7d382",
-      "VIDEO-OCR-OBSERVATION-001": "sha256:e9874e7099f799db7044e6e8ba3fd66d95d814cb2bc1c49b214d69baf85028b9",
+      "VIDEO-OCR-OBSERVATION-001": "sha256:2f6bbfbefb003076bfcf9b46f3ef4003aecf0d23216da320d6abbe2b31156c3a",
       "VIDEO-OUTPUT-SAFETY-001": "sha256:a16957300b407e1f6e9d6c1519db31905ad49a56ce894722cc6cea1dc8e9de1e",
       "VIDEO-PHYSICAL-INSTALLATION-001": "sha256:e562a27f9074666464fe19c77d5a2a2cc6754bd1ce970d2b90ca1e6f6fd7cf61",
       "VIDEO-PORTABLE-RUNTIME-001": "sha256:00d04c796eb8f1b3678fdaa75b5e37cc0069635a9e27448a789eb8770f8d715e",
@@ -14626,16 +14627,26 @@
       ]
     },
     "VIDEO-ASR-TAIL-001": {
-      "title": "ASR 末端容差保持原始证据",
+      "title": "ASR 末端归一保持原始证据",
       "sourcePath": "cases/video-asr-tail.md",
       "tags": [
         "video-understanding"
       ],
       "testIds": [
-        "test:228b0f52279f80a438d540a9b34e42d66f3bcf62e867fddd68c913f4d100cf42",
-        "test:49ea1e034d1aaac49ab8d1b7bd1ff319aa7b85326ddc457170be94f141a6220f",
         "test:6f825a9ec2cd357d73707349b7211005e4e94dd786e50474cb1d404e52e7a01a",
         "test:804b831cc851b89b80e2063aa368ccc622dc282290859a9b39570da5cbfbb418"
+      ]
+    },
+    "VIDEO-ASR-TAIL-002": {
+      "title": "ASR 末端归一接纳边界",
+      "sourcePath": "cases/video-asr-tail-eligibility.md",
+      "tags": [
+        "video-understanding"
+      ],
+      "testIds": [
+        "test:24dc6b92888b3ef1b16b8bd8985bb10155b904c7bc283600ae821cd6ebd9522b",
+        "test:554b7b047dd19870618a0b109b466b70a7de16d113a386e7ab65786650fb0bcc",
+        "test:862cf215aa9527855cb53ffe375247ae894fd71ffcd684655b54f28d646ea373"
       ]
     },
     "VIDEO-BOUNDED-PROJECTION-001": {
