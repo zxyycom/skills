@@ -22,6 +22,7 @@ export type SourceRuntimeOptions = Readonly<{
   rebuildCommand: string;
   nodeEngine: string;
   additionalDependencies?: Readonly<Record<string, string>>;
+  additionalGitIgnorePatterns?: readonly string[];
   resources?: readonly Readonly<{ sourcePath: string; outputPath: string }>[];
 }>;
 
@@ -213,8 +214,15 @@ export async function buildSourceRuntimeArtifacts(
   );
   artifacts.push({
     path: path.join(skillRoot, ".gitignore"),
-    content:
-      "node_modules/\n.pnpm-store/\n.pnpm/\nnpm-debug.log*\npnpm-debug.log*\n"
+    content: [
+      "node_modules/",
+      ".pnpm-store/",
+      ".pnpm/",
+      "npm-debug.log*",
+      "pnpm-debug.log*",
+      ...(options.additionalGitIgnorePatterns ?? []),
+      ""
+    ].join("\n")
   });
   return artifacts.sort((a, b) => a.path.localeCompare(b.path));
 }

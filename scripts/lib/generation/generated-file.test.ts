@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -9,6 +10,65 @@ import {
   buildGeneratedDeclaration,
   syncGeneratedFile
 } from "./generated-file.ts";
+
+test("native skill ignore rules exclude installed runtime state but preserve distributable files", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "native-skill-ignore-"));
+  try {
+    const environment = { ...process.env };
+    for (const name of Object.keys(environment)) {
+      if (name.toUpperCase().startsWith("GIT_")) delete environment[name];
+    }
+    environment.GIT_CONFIG_GLOBAL = os.devNull;
+    environment.GIT_CONFIG_NOSYSTEM = "1";
+    execFileSync("git", ["init", "--quiet", root], { env: environment });
+    const ignoredPaths: string[] = [];
+    const visiblePaths = ["bin/project-tool", "other.exe"];
+    for (const role of ["decision-records", "investigation-report"]) {
+      const prefix = `.agents/skills/${role}`;
+      const destination = path.join(root, prefix);
+      await fs.mkdir(destination, { recursive: true });
+      await fs.copyFile(
+        new URL(`../../../skills/${role}/.gitignore`, import.meta.url),
+        path.join(destination, ".gitignore")
+      );
+      ignoredPaths.push(
+        ...[
+          `bin/${role}`,
+          `bin/${role}.exe`,
+          ".record-native-receipt.json",
+          ".record-native-evidence/runtime.zip",
+          "node_modules/package/index.js"
+        ].map((name) => `${prefix}/${name}`)
+      );
+      visiblePaths.push(
+        ...[
+          ".gitignore",
+          "SKILL.md",
+          "native-runtime.json",
+          "package.json",
+          "pnpm-lock.yaml",
+          "scripts/update-skill.ts",
+          "scripts/runtime/source.ts",
+          "references/index.schema.json",
+          "references/bin/example",
+          "references/example.exe"
+        ].map((name) => `${prefix}/${name}`)
+      );
+    }
+    const result = execFileSync(
+      "git",
+      ["-C", root, "-c", "core.excludesFile=", "check-ignore", "--stdin"],
+      {
+        input: [...ignoredPaths, ...visiblePaths].join("\n") + "\n",
+        encoding: "utf8",
+        env: environment
+      }
+    );
+    assert.deepEqual(result.trimEnd().split("\n").sort(), ignoredPaths.sort());
+  } finally {
+    await fs.rm(root, { recursive: true, force: true });
+  }
+});
 
 test("generated declarations normalize line endings and preserve the banner", async () => {
   const declarationTempRoot = await fs.mkdtemp(

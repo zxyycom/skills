@@ -37,9 +37,13 @@
 
 两域原生 skill 的 `native-runtime.json` 绑定角色、原生版本、源码摘要和平台；ZIP 与独立二进制由发布 manifest 的长度与 SHA-256 绑定。源码、skill、资产须来自同一冻结发布身份。各 skill 首次安装及旧版升级使用 `record-native-installer.zip` 显式引导，后续由各自原生 updater 准备并验证资产后激活；业务不依赖 Node，不提供旧 TS SDK 或回退。Linux x64 基线为 Ubuntu 22.04 / glibc 2.35，Windows 为 x64 MSVC。引导和更新检查用户定制及受管旧文件，失败按诊断保留现场；不能将多文件激活说成原子事务。其余 skill 仍按本节的 TS 路径分发。
 
-### 依赖安装与恢复
+### 随包清单与 Git 忽略
 
 每个 skill 随包提供独立 `package.json`、`pnpm-lock.yaml` 与 `.gitignore`。manifest 声明实际源码闭包的依赖、Node engine 和固定 pnpm；同步器维护 manifest 与忽略规则，锁文件由维护者显式刷新。
+
+原生记录 skill（`decision-records`、`investigation-report`）另按 skill 根目录限定三个 Git 忽略路径：`bin/`、`.record-native-receipt.json` 和 `.record-native-evidence/`，分别承接平台程序、安装状态和恢复证据。分发源码与运行时描述符继续纳入版本管理；宿主项目其他目录遵循其适用的 Git 规则。
+
+### 依赖安装与恢复
 
 已有兼容宿主依赖时可直接运行。Node 按标准模块规则解析，不按 manifest 范围选择版本；兼容性由支持范围和实际 API/行为契约判断，不以依赖来源、安装目录、本地 `node_modules` 或锁文件精确版本设额外门槛。native/optional 能力继续由领域 owner 声明和验证。
 

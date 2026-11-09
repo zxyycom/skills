@@ -4,6 +4,7 @@ import * as v from "valibot";
 import { candidateLock } from "./candidate-lock.ts";
 import { buildSourceRuntimeArtifacts } from "../generation/runtime/source-runtime.ts";
 import {
+  nativeSkillGitIgnorePatterns,
   nativeUpdaterEntry,
   nativeUpdaterResources
 } from "../generation/native-updater-entry.ts";
@@ -55,6 +56,7 @@ async function generated(
     entries: [nativeUpdaterEntry(role, bootstrap)],
     rebuildCommand: "private native candidate generation",
     nodeEngine: ">=24.18",
+    additionalGitIgnorePatterns: bootstrap ? [] : nativeSkillGitIgnorePatterns,
     resources: nativeUpdaterResources
   });
   return artifacts.map((artifact) => ({

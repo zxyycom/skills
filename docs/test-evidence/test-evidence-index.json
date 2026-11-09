@@ -859,6 +859,7 @@
       "NATIVE-RUNTIME-ALIAS-001": "sha256:7ea82f6647faf8e9128104cf41759113e58e028709d727400791d6219cdfdd39",
       "NATIVE-RUNTIME-GATE-INPUT-001": "sha256:8ba3e0d761f56ef826280a30e1e2ffd9ad86734099a40e07d6fe45ff7bb9d43d",
       "NATIVE-RUNTIME-SCAN-EXCLUSION-001": "sha256:9c1d0cb3b2bb07d421ca3ae29c491687b47082be706a159f113595e8c87897d7",
+      "NATIVE-SKILL-GIT-IGNORE-001": "sha256:1120ef7c8ec0463264fdc5d1bb5e5d05157efb4bf58b1108222ec2623587769b",
       "NATIVE-SOURCE-DIRECTORY-BOUNDARY-001": "sha256:647ca2db3781b37bc83ae41e58d32e19f9f88a1eb8ccef30c2e33be9d439edf2",
       "NATIVE-SOURCE-ORDER-001": "sha256:f5c682823090eb643fcb72ed65506f61d1f4a921662b1aa72e98bc572553cc49",
       "NOVEL-CARDS-AUTHOR-REVISION-022": "sha256:28d2edbc1eddaa6770dedaa7c7cc00f0d79c9c0f756f673a47d91090d850ee31",
@@ -10243,6 +10244,17 @@
       ],
       "testIds": [
         "test:0a01ab45309020b96f7b5d31f42d1dbbfbbf8586c1c2a4484784aca81b098fef"
+      ]
+    },
+    "NATIVE-SKILL-GIT-IGNORE-001": {
+      "title": "原生 skill 忽略本机安装产物并保留分发源码",
+      "sourcePath": "cases/native-skill-git-ignore-001.md",
+      "tags": [
+        "native-delivery",
+        "tooling"
+      ],
+      "testIds": [
+        "test:bee5e1794b5abc02c5240ff4cc3b7196b2958f3bba4d16f2756fa1fed350bea0"
       ]
     },
     "NATIVE-SOURCE-DIRECTORY-BOUNDARY-001": {

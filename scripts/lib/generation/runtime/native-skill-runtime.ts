@@ -9,6 +9,7 @@ import { captureNativeCandidateSnapshot } from "../../record-native/capture.ts";
 import { candidateLock } from "../../record-native/candidate-lock.ts";
 import { rootDir } from "../../project.ts";
 import {
+  nativeSkillGitIgnorePatterns,
   nativeUpdaterEntry,
   nativeUpdaterResources
 } from "../native-updater-entry.ts";
@@ -54,7 +55,7 @@ async function retiredRuntimePaths(role: NativeRole): Promise<string[]> {
   return retiredPaths;
 }
 
-/** Generate only the native updater, its explicit lock, descriptor, and canonical schema. */
+/** 同步原生 skill 的更新入口、运行时描述符、索引 Schema 与随包配置。 */
 export async function syncNativeSkillRuntime(
   role: NativeRole,
   mode: GeneratedFileMode,
@@ -78,6 +79,7 @@ export async function syncNativeSkillRuntime(
           ? "bun run sync:decision-records-cli"
           : "bun run sync:investigation-report-check",
       nodeEngine: ">=24.18",
+      additionalGitIgnorePatterns: nativeSkillGitIgnorePatterns,
       resources: nativeUpdaterResources
     },
     facts
