@@ -4,12 +4,12 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import * as v from "valibot";
+import { nativeRuntimeVersion } from "./capture.ts";
 import { installOnlineTarget } from "./ci-release-online-target.ts";
 import { command, hash, unpack } from "./ci-bootstrap-process.ts";
 import { nativeRoles } from "../../../tools/skill-package/src/native-release-manifest.ts";
 
 const repo = "repos/zxyycom/skills";
-const runtimeVersion = "0.2.1";
 const schema = v.object({
   id: v.number(),
   tag_name: v.literal("skills-latest"),
@@ -41,6 +41,14 @@ function revision(): string {
   if (!match?.[1]) throw new Error("cannot pin rolling revision");
   return match[1];
 }
+function runtimeVersionAtRevision(root: string, revision: string): string {
+  const data = command(
+    "git",
+    ["show", `${revision}:tools/record-cli/Cargo.toml`],
+    root
+  );
+  return nativeRuntimeVersion([{ path: "Cargo.toml", data }]);
+}
 function downloadReleaseAssets(
   release: v.InferOutput<typeof schema>,
   names: readonly string[]
@@ -70,7 +78,8 @@ async function verifyInstallation(
   kind: string,
   destination: string,
   bootstrap: string,
-  temp: string
+  temp: string,
+  runtimeVersion: string
 ): Promise<void> {
   await installOnlineTarget(
     destination,
@@ -169,6 +178,7 @@ async function main(): Promise<void> {
     throw new Error("usage: ci-release-online.ts <release-id> <revision>");
   const root = process.cwd();
   assert.equal(revision(), expectedRevision);
+  const runtimeVersion = runtimeVersionAtRevision(root, expectedRevision);
   const load = () =>
     v.parse(
       schema,
@@ -215,7 +225,8 @@ async function main(): Promise<void> {
       "fresh",
       path.join(temp, `fresh-${role}`),
       bootstrap,
-      temp
+      temp,
+      runtimeVersion
     );
   }
   const after = load();

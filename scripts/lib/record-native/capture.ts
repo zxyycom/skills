@@ -119,3 +119,5 @@ export function digestNativeSource(
       .update(file.data);
   return hash.digest("hex");
 }
+
+export { nativeRuntimeVersion } from "../../../tools/record-cli/delivery/version.ts";

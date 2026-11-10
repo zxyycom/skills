@@ -88,11 +88,26 @@ test("reuse requires the pinned evidence and every published runtime byte", () =
     provenanceId: 99,
     source,
     recipe,
+    runtimeVersion: "0.2.1",
     releaseId: 7,
     remoteAssets,
     downloaded
   };
   validateRuntimeReuse(input);
+  // A renamed proof cannot turn old bytes into the new source version.
+  assert.throws(
+    () =>
+      validateRuntimeReuse({
+        ...input,
+        runtimeVersion: "9.8.7",
+        remoteAssets: remoteAssets.map((item) =>
+          item.id === 99
+            ? { ...item, name: "record-native-build-9.8.7.json" }
+            : item
+        )
+      }),
+    /runtime version does not match frozen source/
+  );
   assert.throws(() =>
     validateRuntimeReuse({
       ...input,
@@ -158,6 +173,7 @@ test("recovery accepts absent or partial publication but rejects conflicting pub
     const recovered = validateRuntimeRecovery({
       source,
       recipe,
+      runtimeVersion: "0.2.1",
       releaseId: 7,
       recoveryId: 100,
       remoteAssets: partial,
@@ -172,6 +188,7 @@ test("recovery accepts absent or partial publication but rejects conflicting pub
         validateRuntimeRecovery({
           source,
           recipe,
+          runtimeVersion: "0.2.1",
           releaseId: 7,
           recoveryId: 100,
           remoteAssets: conflict,
@@ -183,6 +200,7 @@ test("recovery accepts absent or partial publication but rejects conflicting pub
   const recoveryInput = {
     source,
     recipe,
+    runtimeVersion: "0.2.1",
     releaseId: 7,
     recoveryId: 100,
     remoteAssets: [recovery, ...remoteAssets],

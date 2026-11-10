@@ -99,6 +99,7 @@ test("rolling upload verifies recovery before runtime and resumes from exact pub
     [...stored.values()].map((entry) => [entry.id, entry.bytes])
   );
   const recovered = validateRuntimeRecovery({
+    runtimeVersion: "0.2.1",
     releaseId: 17,
     recoveryId: stored.get("record-native-recovery-0.2.1.zip")!.id,
     source: { sha256: hash, files: [] },

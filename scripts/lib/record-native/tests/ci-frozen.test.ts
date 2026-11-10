@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { compareEvidence } from "../ci-frozen.ts";
+import { nativeRuntimeVersion } from "../capture.ts";
 
 test("cross-platform frozen inputs require matching revision and each private version", () => {
   const a = {
@@ -25,4 +26,36 @@ test("cross-platform frozen inputs require matching revision and each private ve
   wrongList.sources[0]!.files.push("extra");
   assert.throws(() => compareEvidence(a, wrongList), /0.1.0/);
   assert.throws(() => compareEvidence(a, {}));
+});
+
+test("formal runtime version comes from the frozen package manifest", () => {
+  const source = (content: string) => [
+    { path: "Cargo.toml", data: Buffer.from(content) }
+  ];
+  assert.equal(
+    nativeRuntimeVersion(
+      source(
+        '[package]\nname = "record-cli"\nversion = "4.5.6"\n[dependencies]\nversion = "1.0.0"\n'
+      )
+    ),
+    "4.5.6"
+  );
+  assert.equal(
+    nativeRuntimeVersion(source('[package]\nversion = "4.5.7"\n')),
+    "4.5.7"
+  );
+  assert.throws(() =>
+    nativeRuntimeVersion(source('[package]\nversion = "bad"\n'))
+  );
+  assert.throws(() =>
+    nativeRuntimeVersion(
+      source('[package]\nversion = "1.0.0"\nversion = "2.0.0"\n')
+    )
+  );
+  assert.throws(() =>
+    nativeRuntimeVersion(
+      source('[package]\nversion = "1.0.0"\nversion = "bad"\n')
+    )
+  );
+  assert.throws(() => nativeRuntimeVersion([]));
 });

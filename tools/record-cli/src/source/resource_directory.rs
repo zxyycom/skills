@@ -119,6 +119,37 @@ pub fn resource_member_kind(
     }
 }
 
+/// On Windows, distinguish a case-insensitive alias from a newly added name.
+/// Only matching ordinary files or directories with single-link identities are
+/// unambiguous; symlinks, multiple links and missing identities force refresh.
+#[cfg(windows)]
+pub fn same_single_link_member(root: &Root, a: &RelativePath, b: &RelativePath) -> bool {
+    let (Ok(a), Ok(b)) = (
+        root.directory.symlink_metadata(a.as_path()),
+        root.directory.symlink_metadata(b.as_path()),
+    ) else {
+        return false;
+    };
+    matches!((single_link_identity(&a), single_link_identity(&b)), (Some(a), Some(b)) if a == b)
+}
+
+/// An unavailable, linked, or unsupported member is never an alias proof.
+#[cfg(windows)]
+fn single_link_identity(metadata: &cap_std::fs::Metadata) -> Option<(MemberKind, u32, u64)> {
+    use cap_primitives::fs::_WindowsByHandle;
+    let kind = member_kind(metadata.file_type());
+    if !matches!(kind, MemberKind::File | MemberKind::Directory)
+        || _WindowsByHandle::number_of_links(metadata) != Some(1)
+    {
+        return None;
+    }
+    Some((
+        kind,
+        _WindowsByHandle::volume_serial_number(metadata)?,
+        _WindowsByHandle::file_index(metadata)?,
+    ))
+}
+
 #[cfg(test)]
 mod tests {
     use super::windows_identity;

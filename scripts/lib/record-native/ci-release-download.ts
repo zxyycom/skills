@@ -2,7 +2,10 @@ import { spawnSync } from "node:child_process";
 import { appendFile, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import * as v from "valibot";
-import { captureNativeCandidateSnapshot } from "./capture.ts";
+import {
+  captureNativeCandidateSnapshot,
+  nativeRuntimeVersion
+} from "./capture.ts";
 import {
   readNativeBuildRecipe,
   verifyNativeBuildRecipe
@@ -19,13 +22,6 @@ import {
 import { createReusedReleaseDirectory } from "./ci-release-output.ts";
 
 const repo = "repos/zxyycom/skills";
-const runtimeVersion = "0.2.1";
-const recoveryName = `record-native-recovery-${runtimeVersion}.zip`;
-const proofName = `record-native-build-${runtimeVersion}.json`;
-const runtimePrefixes = nativeRoles.map((role) => `${role}-${runtimeVersion}-`);
-const runtimeNames = nativeRoles.flatMap((role) =>
-  nativeTargets.map((target) => `${role}-${runtimeVersion}-${target}.zip`)
-);
 function gh(args: string[]): Buffer {
   const result = spawnSync("gh", ["api", "--hostname", "github.com", ...args], {
     maxBuffer: 128 * 1024 * 1024,
@@ -47,7 +43,15 @@ const releaseSchema = v.object({
   )
 });
 
-function readPublishedAssets() {
+function readPublishedAssets(runtimeVersion: string) {
+  const recoveryName = `record-native-recovery-${runtimeVersion}.zip`;
+  const proofName = `record-native-build-${runtimeVersion}.json`;
+  const runtimePrefixes = nativeRoles.map(
+    (role) => `${role}-${runtimeVersion}-`
+  );
+  const runtimeNames = nativeRoles.flatMap((role) =>
+    nativeTargets.map((target) => `${role}-${runtimeVersion}-${target}.zip`)
+  );
   const release = v.parse(
     releaseSchema,
     JSON.parse(
@@ -91,6 +95,7 @@ function readPublishedAssets() {
 
 async function writeReusedAssets(
   root: string,
+  runtimeVersion: string,
   provenance: ReturnType<typeof validateRuntimeReuse>,
   release: v.InferOutput<typeof releaseSchema>,
   recovery: v.InferOutput<typeof releaseSchema>["assets"],
@@ -141,7 +146,10 @@ async function writeReusedAssets(
 /** Recover only a pinned release's verified bytes; caller never follows an artifact search. */
 async function main(): Promise<void> {
   const root = process.cwd();
-  const recovered = readPublishedAssets();
+  const snapshot = await captureNativeCandidateSnapshot(root);
+  const runtimeVersion = nativeRuntimeVersion(snapshot.source);
+  const proofName = `record-native-build-${runtimeVersion}.json`;
+  const recovered = readPublishedAssets(runtimeVersion);
   if (!recovered) {
     if (process.env.GITHUB_OUTPUT)
       await appendFile(process.env.GITHUB_OUTPUT, "reuse=false\n");
@@ -161,12 +169,12 @@ async function main(): Promise<void> {
     }),
     raw
   );
-  const snapshot = await captureNativeCandidateSnapshot(root);
   const recipe = verifyNativeBuildRecipe(
     snapshot.delivery,
     readNativeBuildRecipe(root, head.buildRevision)
   );
   const common = {
+    runtimeVersion,
     source: {
       sha256: snapshot.sourceHash,
       files: snapshot.source.map((item) => item.path)
@@ -181,6 +189,7 @@ async function main(): Promise<void> {
     : validateRuntimeReuse({ ...common, provenanceId: proof[0]!.id });
   await writeReusedAssets(
     root,
+    runtimeVersion,
     provenance,
     release,
     recovery,

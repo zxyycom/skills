@@ -23,10 +23,11 @@ impl ResourceContext<'_> {
         part: &str,
         id: &str,
     ) -> Result<Option<MemberKind>, CommandError> {
-        let facts = self.observe_directory(directory)?;
+        self.refresh_missing_component(directory, part)?;
+        let path = RelativePath::new(directory.join(part))
+            .map_err(|e| CommandError::new("candidate-resource-read-failed", e.to_string()))?;
+        let facts = &self.directories[directory];
         if facts.exact.contains(part) {
-            let path = RelativePath::new(directory.join(part))
-                .map_err(|e| CommandError::new("candidate-resource-read-failed", e.to_string()))?;
             return source::resource_member_kind(self.root, &path)
                 .map_err(|e| CommandError::new("candidate-resource-read-failed", e.to_string()));
         }
@@ -40,6 +41,40 @@ impl ResourceContext<'_> {
             ));
         }
         Ok(None)
+    }
+    /// Refresh stale namespace observations when the requested name exists.
+    fn refresh_missing_component(
+        &mut self,
+        directory: &std::path::Path,
+        part: &str,
+    ) -> Result<(), CommandError> {
+        let path = RelativePath::new(directory.join(part))
+            .map_err(|e| CommandError::new("candidate-resource-read-failed", e.to_string()))?;
+        let facts = self.observe_directory(directory)?;
+        let listed = facts.exact.contains(part);
+        #[cfg(windows)]
+        let folded = facts.folded.get(&part.to_lowercase()).cloned();
+        // Directory timestamps can collide on filesystems with coarse clocks. A
+        // selected member absent from cached names may nevertheless exist.
+        if !listed
+            && source::resource_member_kind(self.root, &path)
+                .map_err(|e| CommandError::new("candidate-resource-read-failed", e.to_string()))?
+                .is_some()
+        {
+            #[cfg(windows)]
+            let same_alias = folded.as_ref().is_some_and(|actual| {
+                RelativePath::new(directory.join(actual)).is_ok_and(|actual_path| {
+                    source::same_single_link_member(self.root, &path, &actual_path)
+                })
+            });
+            #[cfg(not(windows))]
+            let same_alias = false;
+            if !same_alias {
+                self.directories.remove(directory);
+                self.observe_directory(directory)?;
+            }
+        }
+        Ok(())
     }
     fn observe_directory(
         &mut self,

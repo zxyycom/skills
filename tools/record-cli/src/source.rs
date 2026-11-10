@@ -184,6 +184,8 @@ pub fn directory_exists(root: &Root, path: &RelativePath) -> Result<bool, Source
 }
 
 mod resource_directory;
+#[cfg(windows)]
+pub use resource_directory::same_single_link_member;
 pub use resource_directory::{
     ResourceDirectoryVersion, resource_directory_version, resource_member_kind,
 };

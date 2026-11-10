@@ -1702,6 +1702,20 @@
       ],
       "title": "原生 Skill 搬迁后被已完成回执的恢复路径阻断"
     },
+    "261110-native-ci-version-and-directory-cache": {
+      "formedAt": "2026-11-10T04:30:45Z",
+      "name": "native-ci-version-and-directory-cache",
+      "question": "为何原生构建在 Linux 测试和 Windows 版本验收分别失败，修复证据与边界是什么？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "261110-native-ci-version-and-directory-cache.md",
+      "tags": [
+        "ci",
+        "record-cli",
+        "resource-cache"
+      ],
+      "title": "原生记录工具 CI 版本与目录缓存失败"
+    },
     "261110-native-full-check-io-costs": {
       "formedAt": "2026-11-10T02:22:06Z",
       "name": "native-full-check-io-costs",
@@ -2494,6 +2508,7 @@
       "261108-native-relation-summary-input": "sha256:0a269b60d2532137e68c399c390eec82313935128c7b09776ed6162ef7791d93",
       "261108-record-cli-native-complexity-survey": "sha256:e7e72b79940d6d7c2fc0cb672cf39943a56a34946e5b12f56159c31fd6d6a797",
       "261109-native-updater-relocated-complete-receipt": "sha256:e4a7ee4b92853caa86e8147864e8088d4ea9e13ac01b634acd71e44aa929468c",
+      "261110-native-ci-version-and-directory-cache": "sha256:b9f2373791efea90f7677a5b94c9585dcbab7eea70a498faec9c92403d7ccbd7",
       "261110-native-full-check-io-costs": "sha256:f17a175f5b1f5e7f1c1facb0218e5a23ecb84e9e09bddb4f9a4db8d8bd62c524",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:512b8f0c5b6466034d7d851032bf41af7413a227bdd19c62959fc2ad343d495c",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",

@@ -7,9 +7,6 @@ import {
   nativeTargets
 } from "../../../tools/skill-package/src/native-release-manifest.ts";
 
-const runtimeVersion = "0.2.1";
-const recoveryName = `record-native-recovery-${runtimeVersion}.zip`;
-const proofName = `record-native-build-${runtimeVersion}.json`;
 const hash = v.pipe(v.string(), v.regex(/^[a-f0-9]{64}$/));
 const identity = v.strictObject({ sha256: hash, files: v.array(v.string()) });
 const asset = v.strictObject({
@@ -20,7 +17,7 @@ const asset = v.strictObject({
 const provenanceSchema = v.strictObject({
   schemaVersion: v.literal(1),
   buildRevision: v.pipe(v.string(), v.regex(/^[a-f0-9]{40,64}$/)),
-  runtimeVersion: v.literal(runtimeVersion),
+  runtimeVersion: v.string(),
   source: identity,
   buildDelivery: identity,
   recipe: v.record(v.string(), hash),
@@ -38,6 +35,7 @@ const sha = (bytes: Uint8Array) =>
   createHash("sha256").update(bytes).digest("hex");
 
 type BuildInputs = {
+  runtimeVersion: string;
   source: { sha256: string; files: readonly string[] };
   recipe: Readonly<Record<string, string>>;
   releaseId: number;
@@ -50,6 +48,8 @@ function validateBuildIdentity(
     provenanceSchema,
     JSON.parse(Buffer.from(proofBytes).toString("utf8")) as unknown
   );
+  if (previous.runtimeVersion !== input.runtimeVersion)
+    throw new Error("runtime version does not match frozen source");
   if (!Number.isSafeInteger(input.releaseId) || input.releaseId <= 0)
     throw new Error("invalid pinned release ID");
   if (
@@ -78,7 +78,9 @@ function validateBuildRecipeAndAssets(
     throw new Error(
       "runtime recipe changed; a new runtime version is required"
     );
-  const names = nativeRoles.flatMap(runtimeNames).sort();
+  const names = nativeRoles
+    .flatMap((role) => runtimeNames(role, previous.runtimeVersion))
+    .sort();
   const assetNames = previous.assets.map((entry) => entry.name).sort();
   if (
     JSON.stringify(assetNames) !== JSON.stringify(names) ||
@@ -88,7 +90,10 @@ function validateBuildRecipeAndAssets(
     throw new Error("runtime provenance asset or platform set differs");
 }
 
-function runtimeNames(role: (typeof nativeRoles)[number]): string[] {
+function runtimeNames(
+  role: (typeof nativeRoles)[number],
+  runtimeVersion: string
+): string[] {
   return nativeTargets.map(
     (target) => `${role}-${runtimeVersion}-${target}.zip`
   );
@@ -104,6 +109,8 @@ export function validateRuntimeRecovery(
 ): BuildProvenance {
   if (!Number.isSafeInteger(input.recoveryId) || input.recoveryId <= 0)
     throw new Error("invalid recovery asset ID");
+  const recoveryName = `record-native-recovery-${input.runtimeVersion}.zip`;
+  const proofName = `record-native-build-${input.runtimeVersion}.json`;
   const recovery = input.remoteAssets.filter(
     (item) => item.id === input.recoveryId && item.name === recoveryName
   );
@@ -177,14 +184,14 @@ function verifyRecoveryMembers(
 }
 
 /** Verify reuse against immutable build inputs and actual bytes, not version names alone. */
-export function validateRuntimeReuse(input: {
-  provenanceId: number;
-  source: { sha256: string; files: readonly string[] };
-  recipe: Readonly<Record<string, string>>;
-  releaseId: number;
-  remoteAssets: readonly RemoteAsset[];
-  downloaded: ReadonlyMap<number, Uint8Array>;
-}): BuildProvenance {
+export function validateRuntimeReuse(
+  input: BuildInputs & {
+    provenanceId: number;
+    remoteAssets: readonly RemoteAsset[];
+    downloaded: ReadonlyMap<number, Uint8Array>;
+  }
+): BuildProvenance {
+  const proofName = `record-native-build-${input.runtimeVersion}.json`;
   const proof = input.remoteAssets.filter(
     (item) => item.id === input.provenanceId && item.name === proofName
   );

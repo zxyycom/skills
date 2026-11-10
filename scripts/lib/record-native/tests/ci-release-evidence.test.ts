@@ -11,6 +11,12 @@ const evidence = () => ({
 test("formal comparison binds revision and both complete file lists", () => {
   const first = evidence();
   compareReleaseEvidence(first, evidence());
+  const next = { ...evidence(), versions: ["9.8.7"] };
+  compareReleaseEvidence(next, next);
+  for (const invalid of ["01.2.3", "1.2", "latest", "1.2.3-rc.1"]) {
+    const malformed = { ...evidence(), versions: [invalid] };
+    assert.throws(() => compareReleaseEvidence(malformed, malformed));
+  }
   for (const group of ["sources", "delivery"] as const) {
     const changed = evidence();
     const identity =

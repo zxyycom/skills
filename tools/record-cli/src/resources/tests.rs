@@ -84,6 +84,18 @@ fn refreshed_namespace_and_selected_types_preserve_path_safety() {
             .iter()
             .any(|issue| issue.contains("actual path casing"))
     );
+    // A new exact spelling can coexist with the cached folded name on Unix.
+    std::fs::write(base.join("file.txt"), b"different").unwrap();
+    let directory = std::path::PathBuf::from("investigations/_resources/chosen");
+    let relative = RelativePath::new(&directory).unwrap();
+    context.directories.get_mut(&directory).unwrap().version =
+        source::resource_directory_version(&root, &relative).unwrap();
+    assert!(
+        context
+            .direct_issues(&["chosen/file.txt".into()])
+            .unwrap()
+            .is_empty()
+    );
     std::fs::write(base.join("new.txt"), b"x").unwrap();
     assert!(
         context
@@ -92,6 +104,10 @@ fn refreshed_namespace_and_selected_types_preserve_path_safety() {
             .is_empty()
     );
     symlink("File.txt", base.join("link.txt")).unwrap();
+    // Model a filesystem whose directory timestamp did not change: reuse the
+    // pre-link listing with the current version rather than relying on timing.
+    context.directories.get_mut(&directory).unwrap().version =
+        source::resource_directory_version(&root, &relative).unwrap();
     let issues = context.direct_issues(&["chosen/link.txt".into()]).unwrap();
     assert!(issues.iter().any(|issue| issue.contains("symbolic link")));
     std::fs::create_dir(base.join("sub")).unwrap();
@@ -100,4 +116,45 @@ fn refreshed_namespace_and_selected_types_preserve_path_safety() {
         .direct_issues(&["chosen/alias/file.txt".into()])
         .unwrap();
     assert!(issues.iter().any(|issue| issue.contains("symbolic link")));
+}
+
+#[cfg(windows)]
+#[test]
+fn case_mismatch_aliases_do_not_repeat_directory_enumeration() {
+    let workspace = tempfile::tempdir().unwrap();
+    let base = workspace.path().join("investigations/_resources/chosen");
+    std::fs::create_dir_all(&base).unwrap();
+    std::fs::write(base.join("Filename.txt"), b"x").unwrap();
+    let root = source::open_root(workspace.path()).unwrap();
+    let mut context = ResourceContext::open(&root, "investigations", true).unwrap();
+    for name in [
+        "filename.txt",
+        "FILENAME.txt",
+        "FileName.txt",
+        "fIlEnAmE.txt",
+    ] {
+        let issues = context.direct_issues(&[format!("chosen/{name}")]).unwrap();
+        assert!(
+            issues
+                .iter()
+                .any(|issue| issue.contains("actual path casing")),
+            "{issues:?}"
+        );
+    }
+    assert_eq!(context.directory_enumerations, 2);
+    for (name, child) in [
+        ("Chosen", "one.txt"),
+        ("CHOSEN", "two.txt"),
+        ("cHoSeN", "three.txt"),
+        ("chOSen", "four.txt"),
+    ] {
+        let issues = context.direct_issues(&[format!("{name}/{child}")]).unwrap();
+        assert!(
+            issues
+                .iter()
+                .any(|issue| issue.contains("actual path casing")),
+            "{issues:?}"
+        );
+    }
+    assert_eq!(context.directory_enumerations, 2);
 }

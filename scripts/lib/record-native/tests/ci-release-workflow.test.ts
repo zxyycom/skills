@@ -67,6 +67,19 @@ test("package job prepares the native runtime before its release Gate", () => {
   );
   assert.ok(fetch >= 0 && fetch < build && build < check);
   assert.match(steps[release]?.run ?? "", /--tag release/u);
+  const publish =
+    workflow.jobs.publish?.steps?.find(
+      (step) => step.name === "Prepare and assemble exact formal snapshot"
+    )?.run ?? "";
+  assert.match(
+    publish,
+    /nativeRuntimeVersion\(\(await captureNativeCandidateSnapshot\(process\.cwd\(\)\)\)\.source\)/u
+  );
+  assert.match(
+    publish,
+    /native-record-candidate\.ts --formal "\$runtime_version"/u
+  );
+  assert.match(publish, /"\$windows" "\$runtime_version" "\$build_revision"/u);
 });
 
 test("online acceptance checks out the tested harness independently of release identity", () => {

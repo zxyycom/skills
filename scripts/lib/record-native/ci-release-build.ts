@@ -1,7 +1,10 @@
 import { spawnSync } from "node:child_process";
 import { copyFile, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { captureNativeCandidateSnapshot } from "./capture.ts";
+import {
+  captureNativeCandidateSnapshot,
+  nativeRuntimeVersion
+} from "./capture.ts";
 import { stageNativeCandidateInputs } from "./staging.ts";
 import { buildStagedNativeCandidate } from "./build.ts";
 import { hostTarget } from "../../../tools/record-cli/delivery/manifest.ts";
@@ -28,7 +31,7 @@ async function main(): Promise<void> {
     );
   const snapshot = await captureNativeCandidateSnapshot(root);
   const stage = await stageNativeCandidateInputs(root, snapshot);
-  const version = "0.2.1";
+  const version = nativeRuntimeVersion(snapshot.source);
   await buildStagedNativeCandidate(root, stage, version);
   const target = hostTarget();
   const smoke = spawnSync(
@@ -39,6 +42,7 @@ async function main(): Promise<void> {
       stdio: "inherit",
       env: {
         ...process.env,
+        RECORD_CLI_EXPECTED_VERSION: version,
         RECORD_CLI_BIN_DIR: path.join(stage, "target", target, "release")
       }
     }

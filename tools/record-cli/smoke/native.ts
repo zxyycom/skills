@@ -4,12 +4,21 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { nativeRuntimeVersion } from "../delivery/version.ts";
 
 const directory = import.meta.dirname;
-const root = fs.mkdtempSync(path.join(os.tmpdir(), "record-cli-smoke-"));
 const bins = process.env.RECORD_CLI_BIN_DIR
   ? path.resolve(process.env.RECORD_CLI_BIN_DIR)
   : path.resolve(directory, "../target/release");
+const version =
+  process.env.RECORD_CLI_EXPECTED_VERSION ??
+  nativeRuntimeVersion([
+    {
+      path: "Cargo.toml",
+      data: fs.readFileSync(path.resolve(directory, "../Cargo.toml"))
+    }
+  ]);
+const root = fs.mkdtempSync(path.join(os.tmpdir(), "record-cli-smoke-"));
 const binary = (name: string) =>
   path.join(bins, name + (process.platform === "win32" ? ".exe" : ""));
 function run(command: string, args: string[], expected = 0) {
@@ -66,7 +75,7 @@ function cli(name: string, args: string[], expected = 0) {
 const git = (...args: string[]) => run("git", args);
 try {
   for (const name of ["decision-records", "investigation-report"]) {
-    assert.match(run(binary(name), ["--version"]), /0\.2\.2/);
+    assert.equal(run(binary(name), ["--version"]).trim(), `${name} ${version}`);
     assert.match(run(binary(name), ["--help"]), /Usage:/);
   }
   const created = cli("decision-records", [
