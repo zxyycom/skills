@@ -32,4 +32,6 @@ Linux 失败说明测试没有观察到预期符号链接，日志不足以确�
 
 本地 Linux 使用源码摘要 `2f556caf3107dfc9cddfd905d2cfad24c87ce985ee957168decdbb9f31b288d2` 的 0.2.3 候选：Cargo 全目标测试、24 项原生发布运行时测试、5 项离线交付测试和私有 fixture smoke 均通过。项目快照列出 1421 个本机实体且账本覆盖通过；Windows 条件编译节点不在 Linux 快照中，不以此声称 Windows 节点已运行。MSVC all-targets 交叉检查通过，存在测试模块 unused-import warning，不替代 Windows 原生运行。Windows 下缓存中的错误大小写别名仅在能证明同一单链接普通文件或目录时复用原目录事实，避免为每个别名重复枚举；身份未知或多链接时仍保守刷新。
 
-远端 CI 和发布结果仍待本次提交后实际验证，不将本地通过等同远端成功。
+首次修复提交 `c8bb5594` 的 [CI 运行 42757771504](https://github.com/zxyycom/skills/actions/runs/42757771504) 中，Linux 原 native 测试失败点及 formal build 已通过，package 通过；[Windows job 129636076647](https://github.com/zxyycom/skills/actions/runs/42757771504/job/129636076647) 的新目录大小写预算测试因 fixture 使用非法 owner `Chosen` 而失败，错误发生在路径合法性检查，不能据此认定生产目录缓存失败。测试改用合法 owner `chosen` 下的 `Nested` 目录和实际子文件，逐个先断言 ID 合法，仍分别检查文件与目录大小写及目录枚举预算。Linux 定向验证 8 个 ID 和 4 个资源测试通过；Windows 原生执行仍待下一次 CI。
+
+该后续改动仅涉及测试，保持原生版本 0.2.3；两个 skill 因随包描述符身份变化分别升至 117 和 106。新的本地源码摘要为 `39d05f0479080465d4fecd1fe0cf0d66f15cdb7f19543ca71bf08f9fae7531e0`，与上一段 0.2.3 本地候选的摘要区分。远端 CI 和发布结果仍待后续提交实际验证，不将本地通过等同远端成功。

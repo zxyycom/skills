@@ -125,6 +125,11 @@ fn case_mismatch_aliases_do_not_repeat_directory_enumeration() {
     let base = workspace.path().join("investigations/_resources/chosen");
     std::fs::create_dir_all(&base).unwrap();
     std::fs::write(base.join("Filename.txt"), b"x").unwrap();
+    let nested = base.join("Nested");
+    std::fs::create_dir(&nested).unwrap();
+    for child in ["one.txt", "two.txt", "three.txt", "four.txt"] {
+        std::fs::write(nested.join(child), b"x").unwrap();
+    }
     let root = source::open_root(workspace.path()).unwrap();
     let mut context = ResourceContext::open(&root, "investigations", true).unwrap();
     for name in [
@@ -133,7 +138,9 @@ fn case_mismatch_aliases_do_not_repeat_directory_enumeration() {
         "FileName.txt",
         "fIlEnAmE.txt",
     ] {
-        let issues = context.direct_issues(&[format!("chosen/{name}")]).unwrap();
+        let id = format!("chosen/{name}");
+        assert!(domains::investigation::valid_resource_id(&id), "{id}");
+        let issues = context.direct_issues(&[id]).unwrap();
         assert!(
             issues
                 .iter()
@@ -143,12 +150,14 @@ fn case_mismatch_aliases_do_not_repeat_directory_enumeration() {
     }
     assert_eq!(context.directory_enumerations, 2);
     for (name, child) in [
-        ("Chosen", "one.txt"),
-        ("CHOSEN", "two.txt"),
-        ("cHoSeN", "three.txt"),
-        ("chOSen", "four.txt"),
+        ("nested", "one.txt"),
+        ("NESTED", "two.txt"),
+        ("nEsTeD", "three.txt"),
+        ("neSTed", "four.txt"),
     ] {
-        let issues = context.direct_issues(&[format!("{name}/{child}")]).unwrap();
+        let id = format!("chosen/{name}/{child}");
+        assert!(domains::investigation::valid_resource_id(&id), "{id}");
+        let issues = context.direct_issues(&[id]).unwrap();
         assert!(
             issues
                 .iter()
