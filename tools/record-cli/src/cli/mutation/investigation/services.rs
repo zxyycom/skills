@@ -148,12 +148,14 @@ pub(super) fn publish(
     context: MutationContext<'_>,
     selectors: Vec<String>,
     preflight: bool,
+    resource_policy: &crate::resource_review::policy::Policy,
 ) -> i32 {
     let MutationContext {
         command,
         json,
         root,
         collection,
+        directory,
         ..
     } = context;
     let mut operation =
@@ -164,21 +166,41 @@ pub(super) fn publish(
     if preflight {
         match crate::transaction::preflight(&root, &mut operation) {
             Ok(plan) => {
+                let resource_review = crate::resource_review::review(
+                    &root,
+                    &directory,
+                    &plan.value.resource_refs,
+                    resource_policy,
+                    &Default::default(),
+                );
+                crate::cli::resource_review::print_info(&resource_review);
+                let mut warnings = plan.value.warnings;
+                warnings.extend(resource_review.warnings());
                 let review =
                     crate::mutations::relations::review(plan.value.review, ReviewPhase::Preflight);
-                let body = serde_json::json!({"preflight":true,"changed":false,"publishedIds":plan.value.ids,"relationReview":review,"warnings":plan.value.warnings});
-                emit_success(command, json, false, &body, &plan.value.warnings)
+                let body = serde_json::json!({"preflight":true,"changed":false,"publishedIds":plan.value.ids,"relationReview":review,"warnings":warnings,"resourceReview":resource_review});
+                emit_success(command, json, false, &body, &warnings)
             }
             Err(error) => print_transaction_error(command, json, error),
         }
     } else {
         let result = crate::transaction::run_transaction(&root, &mut operation);
         output_transaction_warnings(command, json, result, |prepared| {
+            let resource_review = crate::resource_review::review(
+                &root,
+                &directory,
+                &prepared.resource_refs,
+                resource_policy,
+                &Default::default(),
+            );
+            crate::cli::resource_review::print_info(&resource_review);
+            let mut warnings = prepared.warnings;
+            warnings.extend(resource_review.warnings());
             let review =
                 crate::mutations::relations::review(prepared.review, ReviewPhase::Prepared);
             (
-                serde_json::json!({"preflight":false,"publishedIds":prepared.ids,"relationReview":review,"warnings":prepared.warnings}),
-                prepared.warnings,
+                serde_json::json!({"preflight":false,"publishedIds":prepared.ids,"relationReview":review,"warnings":warnings,"resourceReview":resource_review}),
+                warnings,
             )
         })
     }

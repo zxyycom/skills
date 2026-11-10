@@ -29,39 +29,43 @@ show 安全读取来源，核对读取内容的 frontmatter ID 与所选身份�
 
 `list` 与 `search` 只查正式报告。按需筛选和展开列表窗口；空页只说明本次条件和窗口无结果。重复 tags 为 AND，形成时间边界包含端点。关系条件和其他筛选取交集；`--related-to` 的方向相对目标解释，type 与 target 同用时须命中同一条边。
 
-### 多来源配置
+### 统一配置
 
-仅 `list`、`search` 读取来源组配置：选定 key 后，按其来源数组顺序分别执行现有单源查询，再按来源分组返回原结果。其他查询及写命令不读取配置。
+所有业务命令共享同一配置模型；help/version 不读取配置。以 `--root` 选定的工作区（缺省调用目录）为基准，不向上查找，依次应用：
 
-#### 配置发现与选择
+1. 内置默认值。
+2. 项目配置 `.investigation-report.json`。
+3. 本地配置 `.local/.investigation-report.local.json`。
 
-默认配置为**调用时当前目录**下的 `.local/.investigation-report.local.json`，不向上查找，也不随 `--root` 改变。`--config PATH` 可显式选择配置文件，相对路径以调用目录为基准；`--key KEY` 选择来源组，省略时使用 `defaultKey`。
+对象按字段递归合并；数组整体替换，包括每个来源组的有序数组与资源压缩大小档位。`--config PATH` 在任意业务命令中选择显式配置，替代自动发现的项目／本地两层，再补内置默认值；相对路径以调用目录为准。`version` 可省略或为 1，其他顶层字段按需提供。
 
 ```json
 {
+  "version": 1,
   "defaultKey": "related",
   "sources": {
     "related": [
-      {"root": "..", "investigationsDir": "research/reports"},
-      {"root": "../../shared-lib", "investigationsDir": "notes/investigations"}
+      { "root": "..", "investigationsDir": "research/reports" },
+      { "root": "../../shared-lib", "investigationsDir": "notes/investigations" }
     ]
-  }
+  },
+  "resources": { "fileBytesWarn": 1048576 }
 }
 ```
 
-每个 `sources[key]` 是非空有序来源数组，每源都明确提供 `root` 与 `investigationsDir`：
+`defaultKey`、`sources`、`resources` 均按需提供。声明来源组时，合并后的 `defaultKey` 必须指向已有组；每组有非空名称和非空有序来源数组。每源明确提供 `root` 与安全相对 `investigationsDir`。来源 `root` 可绝对或相对，**相对路径在所属配置文件目录解析后再合并**；上述本地配置中的 `root: ".."` 指工作区，放在项目配置时应按其目录填写。
 
-- `root` 可为绝对路径；相对路径以**配置文件所在目录**为基准。因此上述默认配置中的 `"root": ".."` 指调用时当前目录。
-- `investigationsDir` 是该源 root 内的安全相对路径，可使用项目自己的调查目录。
+默认文件缺失使用剩余配置与内置值；显式文件缺失、不可读、非普通文件、超过 1 MiB、非法 JSON、未知字段、null 或非法策略明确失败。每层资源策略独立验证，后层不能遮盖非法项目策略。资源字段、默认提示线、预算及结果解释见[资源诊断](resource-review.md)。
 
-配置与原单源定位按以下规则选择：
+### 多来源配置
+
+只有 `list`、`search` 使用来源组：`--key KEY` 选择组，省略时使用配置的 `defaultKey`。选定后按来源数组顺序分别执行现有单源查询，再按来源分组返回原结果；其他命令不按来源组路由。
 
 | 调用状态 | 行为 |
 | --- | --- |
-| 显式传 `--root` 或 `--investigations-dir` | 使用原单源查询，不读取配置；与 `--key`、`--config` 互斥。 |
-| 默认配置不存在，且未传 `--key` 或 `--config` | 使用原单源查询。 |
-| 显式请求的配置缺失、已有配置非法、`defaultKey` 无效或选中 key 未知 | 明确失败。 |
-| help / version | 不读取配置。 |
+| 显式传 `--root` 或 `--investigations-dir` | 使用单源查询，仍读取该工作区或显式配置；仅与 `--key` 互斥，不与 `--config` 互斥。 |
+| 未显式定位，且无来源组 | 使用原单源查询；只有资源策略的配置不会自动开启多来源。 |
+| 未显式定位，且有合法来源组 | 按选中组逐源查询；显式 `--key` 未知时失败。 |
 
 #### 逐源结果与回读
 
@@ -71,7 +75,7 @@ show 安全读取来源，核对读取内容的 frontmatter ID 与所选身份�
 
 任一来源失败后继续查询其余来源，整体退出码为 1。`--json` 失败 envelope 的 `result` 仍包含全部来源结果和错误；普通失败按既有协议在 stderr 给出错误及部分结果。
 
-读取命中报告时，用其所属来源的定位参数和完整 ID：`show <id> --root <root> --investigations-dir <investigationsDir>`。`show` 不接受 `--key` 或 `--config`。
+读取命中报告时，用其所属来源的定位参数和完整 ID：`show <id> --root <root> --investigations-dir <investigationsDir>`。`show` 不接受 `--key`，可用 `--config` 选择同一配置模型。
 
 ### 搜索
 
@@ -118,7 +122,7 @@ show 安全读取来源，核对读取内容的 frontmatter ID 与所选身份�
 - 当前发生的调查传不含日期前缀的 name，省略 `--formed-at`，工具取一次当前 UTC 时间并派生完整 ID。已知形成时间或补录历史调查时显式提供；完整 ID 日期必须等于 formedAt 的 UTC 日。
 - 同日同名的完整 ID 或目标路径冲突零覆盖失败；跨日和 legacy 同名可以并存，不要求先迁移。新建固定使用 `_candidate.<完整 ID>`，发布保留该 ID 并使用对应正式 basename；以返回的真实路径继续操作。
 - 创建核对输入、可见身份冲突、集合安全和不覆盖条件；成功回显完整 ID、路径及 readiness，随后继续编辑该候选。readiness 未就绪不撤销创建；全局身份与关系冲突由正式发布门禁确认。
-- `show-candidate` 始终分别报告 `scaffoldValid`、`bodyReady`、`resourceReady`。结构合法但正文或资源未就绪仍可成功读取，语义审核和建立授权另外判断。
+- `show-candidate` 同时给出非阻断的[资源诊断](resource-review.md)，并始终分别报告 `scaffoldValid`、`bodyReady`、`resourceReady`。结构合法但正文或资源未就绪仍可成功读取，语义审核和建立授权另外判断。
 
 `new` 的完整关系 target ID 只验领域 ID 语法，目标可以后创建；target name 在候选与可见正式身份中必须唯一，零项或歧义失败。关系摘要 target 使用同一选择集合。
 

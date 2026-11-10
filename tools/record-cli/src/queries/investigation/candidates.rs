@@ -9,6 +9,10 @@ pub struct CandidateReadiness {
 }
 #[derive(Serialize)]
 pub struct Candidate {
+    #[serde(skip)]
+    pub(crate) blocked_resource_ids: Vec<String>,
+    #[serde(skip)]
+    pub(crate) resource_ids: Vec<String>,
     pub diagnostics: Vec<String>,
     pub id: String,
     pub path: String,
@@ -63,6 +67,8 @@ pub fn candidates(
 }
 
 struct CandidateObservation {
+    blocked_resource_ids: Vec<String>,
+    resource_ids: Vec<String>,
     markdown: String,
     body_ready: bool,
     resource_ready: bool,
@@ -77,7 +83,15 @@ fn inspect_candidate(
     let body = assessed.body;
     let document = assessed.document;
     owners.record(&source.id, &body.resource_ids);
-    let mut resource_errors = resources.direct_issues(&body.resource_ids)?;
+    let mut resource_errors = Vec::new();
+    let mut blocked_resource_ids = Vec::new();
+    for id in &body.resource_ids {
+        let issues = resources.direct_issues(std::slice::from_ref(id))?;
+        if !issues.is_empty() {
+            blocked_resource_ids.push(id.clone());
+        }
+        resource_errors.extend(issues);
+    }
     resource_errors.extend(owners.check(&body.resource_ids)?);
     let visible = resources.visible_owned(&source.id, &body.resource_ids)?;
     let resource_ready =
@@ -92,6 +106,8 @@ fn inspect_candidate(
     errors.sort_by(|a, b| compare_text(a, b));
     errors.dedup();
     Ok(CandidateObservation {
+        blocked_resource_ids,
+        resource_ids: body.resource_ids,
         markdown: document.markdown,
         body_ready: document.readiness.body_ready,
         resource_ready,
@@ -105,6 +121,8 @@ fn project_candidate(
     observation: CandidateObservation,
 ) -> Candidate {
     Candidate {
+        blocked_resource_ids: observation.blocked_resource_ids,
+        resource_ids: observation.resource_ids,
         diagnostics: vec![],
         id: source.id.clone(),
         path: root

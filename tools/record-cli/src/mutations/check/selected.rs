@@ -18,9 +18,12 @@ pub(super) fn selected_investigations(
     } = locate_indexed(root, &dir, directory, ids)?;
     discover_unresolved(root, &dir, directory, &requested, &mut found)?;
     let SourceValidation {
-        refs,
+        mut refs,
+        report_refs,
         mut diagnostics,
     } = validate_sources(ids, &found);
+    refs.sort();
+    refs.dedup();
     validate_resources(root, &dir, directory, &refs, &mut diagnostics)?;
     let mut checked_ids = ids.to_vec();
     checked_ids.sort_by(|a, b| a.encode_utf16().cmp(b.encode_utf16()));
@@ -40,7 +43,9 @@ pub(super) fn selected_investigations(
             coverage.result("selected-partial", found.len(), errors),
         ));
     }
-    Ok(coverage.result("selected", ids.len(), vec![]))
+    let mut result = coverage.result("selected", ids.len(), vec![]);
+    result.resource_refs = report_refs;
+    Ok(result)
 }
 
 struct SelectedCoverage {
@@ -56,6 +61,7 @@ impl SelectedCoverage {
         errors: Vec<String>,
     ) -> CheckResult {
         CheckResult {
+            resource_refs: BTreeMap::new(),
             scope,
             checked_ids: self.checked_ids,
             formal_count: self.formal_count,
@@ -91,10 +97,12 @@ fn validate_selection(ids: &[String]) -> Result<HashSet<String>, CheckError> {
 
 struct SourceValidation {
     refs: Vec<String>,
+    report_refs: crate::resource_review::ReportResources,
     diagnostics: Vec<CheckError>,
 }
 fn validate_sources(ids: &[String], found: &FoundSources) -> SourceValidation {
     let mut refs = Vec::new();
+    let mut report_refs = BTreeMap::new();
     let mut diagnostics = Vec::new();
     for id in ids {
         let Some((path, bytes)) = found.get(id) else {
@@ -116,7 +124,10 @@ fn validate_sources(ids: &[String], found: &FoundSources) -> SourceValidation {
             continue;
         }
         match domains::investigation::parse_established(bytes, id, path) {
-            Ok(parsed) => refs.extend(parsed.state.resource_ids),
+            Ok(parsed) => {
+                refs.extend(parsed.state.resource_ids.iter().cloned());
+                report_refs.insert(id.clone(), parsed.state.resource_ids);
+            }
             Err(e) => {
                 let code = if e.contains("unsupported-unpaired-surrogate") {
                     "unsupported-unpaired-surrogate"
@@ -127,9 +138,11 @@ fn validate_sources(ids: &[String], found: &FoundSources) -> SourceValidation {
             }
         }
     }
-    refs.sort();
-    refs.dedup();
-    SourceValidation { refs, diagnostics }
+    SourceValidation {
+        refs,
+        report_refs,
+        diagnostics,
+    }
 }
 
 fn validate_resources(

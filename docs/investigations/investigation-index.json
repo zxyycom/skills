@@ -1774,6 +1774,21 @@
       ],
       "title": "原生记录 CLI 性能回退与成本放大复核"
     },
+    "261110-rust-byte-literal-function-metrics-boundary": {
+      "formedAt": "2026-11-10T08:04:13Z",
+      "name": "rust-byte-literal-function-metrics-boundary",
+      "question": "为何资源诊断测试的短函数被门禁识别为 256 行，等价字节写法是否能恢复函数边界？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "261110-rust-byte-literal-function-metrics-boundary.md",
+      "tags": [
+        "function-metrics",
+        "record-rust",
+        "rust",
+        "tooling"
+      ],
+      "title": "Rust 测试字节字符写法与函数指标边界误计"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -2510,6 +2525,7 @@
       "261109-native-updater-relocated-complete-receipt": "sha256:e4a7ee4b92853caa86e8147864e8088d4ea9e13ac01b634acd71e44aa929468c",
       "261110-native-ci-version-and-directory-cache": "sha256:32ece96e13f74a86133f08224c1fc69558ad112b0364f6d9f0bd1952c6f74188",
       "261110-native-full-check-io-costs": "sha256:f17a175f5b1f5e7f1c1facb0218e5a23ecb84e9e09bddb4f9a4db8d8bd62c524",
+      "261110-rust-byte-literal-function-metrics-boundary": "sha256:ac2065a8b224e66cb0db544ea1ffc0fd0c27a74240d1ea6c25151ed12a7c8783",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:512b8f0c5b6466034d7d851032bf41af7413a227bdd19c62959fc2ad343d495c",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

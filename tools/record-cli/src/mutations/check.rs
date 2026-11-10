@@ -14,6 +14,8 @@ use std::collections::{BTreeMap, HashSet};
 #[derive(Clone, Debug, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CheckResult {
+    #[serde(skip)]
+    pub(crate) resource_refs: crate::resource_review::ReportResources,
     pub scope: &'static str,
     pub checked_ids: Vec<String>,
     pub formal_count: usize,

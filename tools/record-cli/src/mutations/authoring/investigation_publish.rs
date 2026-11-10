@@ -27,6 +27,7 @@ pub struct InvestigationPublishOperation {
     pub selectors: Vec<String>,
 }
 pub struct PreparedPublication {
+    pub(crate) resource_refs: crate::resource_review::ReportResources,
     pub ids: Vec<String>,
     pub review: Vec<SourceReview<InvestigationRelationKind>>,
     pub warnings: Vec<String>,
@@ -169,6 +170,7 @@ fn finish_publication(prepared: PublicationPrepared) -> Result<Plan<PreparedPubl
     let writes::CandidateWrites {
         final_index,
         mut writes,
+        selected_refs,
         ..
     } = candidates;
     let after_index =
@@ -180,6 +182,7 @@ fn finish_publication(prepared: PublicationPrepared) -> Result<Plan<PreparedPubl
     });
     Ok(Plan {
         value: PreparedPublication {
+            resource_refs: selected_refs.into_iter().collect(),
             ids: selected.into_iter().collect(),
             review,
             warnings,

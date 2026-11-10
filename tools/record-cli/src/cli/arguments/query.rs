@@ -72,9 +72,9 @@ fn parse_location(
 ) -> Result<Location, ArgumentError> {
     let explicit_location =
         values.contains_key("root") || values.contains_key(domain.directory_option());
-    if explicit_location && (values.contains_key("key") || values.contains_key("config")) {
+    if explicit_location && values.contains_key("key") {
         return Err(ArgumentError(
-            "--root/--investigations-dir conflict with --key/--config".into(),
+            "--root/--investigations-dir conflict with --key".into(),
         ));
     }
     let get = |key: &str| values.get(key).and_then(|v| v.first()).cloned();

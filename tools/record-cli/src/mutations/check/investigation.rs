@@ -73,6 +73,11 @@ pub(crate) fn investigation_stage(
 
 fn partial_result(dir: &RelativePath, initial: &initial::Initial) -> CheckResult {
     CheckResult {
+        resource_refs: initial
+            .states
+            .iter()
+            .map(|(id, state)| (id.clone(), state.resource_ids.clone()))
+            .collect(),
         scope: "all",
         checked_ids: initial.checked_ids.clone(),
         formal_count: initial.formal_count,

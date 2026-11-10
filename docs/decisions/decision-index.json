@@ -174,7 +174,9 @@
       "261107-rust-record-candidate-cooperative-file-safety": "sha256:165763b9a9fa04f5324b0ba9608cfe5ece2ad256ee3c6745365b824797690bdf",
       "261107-rust-record-candidate-sequential-local-runtime": "sha256:1399b913a6474fb29517d118e64eb1465b4a24313aa5811b1c23e7e4569f95a3",
       "261108-share-record-index-json-contracts": "sha256:11b9d29d6cce583f076862bf6759d9c6c5ceeca04c47079fc27667c67fb38594",
-      "261109-query-investigations-from-local-source-groups": "sha256:417ad3e373598ade6b465c8d63ab6d6275710f425e11398f65bb9f2096d23f09",
+      "261109-query-investigations-from-local-source-groups": "sha256:8214c2fffe9aaf5bbafa4ae34702d814d1e1ac8b9e39134890a8bd7182a9abf9",
+      "261110-bounded-investigation-resource-advisories": "sha256:26bcbc1bf73994f686654a8e574474db0a8027ea33db988a87e5eafcca286f5a",
+      "261110-preserve-source-query-boundaries-with-shared-config": "sha256:0fc232954c5d425a0bb48a64a4e5b5eb8d19a61ddc198ef550cb18547ba07279",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -4014,9 +4016,9 @@
     },
     "261109-query-investigations-from-local-source-groups": {
       "name": "query-investigations-from-local-source-groups",
-      "sourcePath": "261109-query-investigations-from-local-source-groups.md",
+      "sourcePath": "archive/261109-query-investigations-from-local-source-groups.md",
       "title": "按本地来源组逐源查询调查报告",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-11-09T09:07:35Z",
       "purpose": "以少量配置复用单集合查询，支持跨仓库发现调查报告。",
@@ -4027,6 +4029,45 @@
         "query-composition"
       ],
       "relations": []
+    },
+    "261110-bounded-investigation-resource-advisories": {
+      "name": "bounded-investigation-resource-advisories",
+      "sourcePath": "261110-bounded-investigation-resource-advisories.md",
+      "title": "用统一配置提供有界的调查资源提示",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-11-10T08:02:22Z",
+      "purpose": "让调查资料成本与重复风险在日常 CLI 中主动可见，而不把启发信号当作证据价值裁决。",
+      "background": "仅有文档提醒容易遗漏；资源确有重复大载荷，但完整观测、非文本证据与历史保真仍有独立价值。",
+      "decision": "在 investigation-report 中默认提供有预算的非阻断资源诊断，统一项目和本地配置，语义取舍仍由报告维护者负责。",
+      "tags": [
+        "investigation-report",
+        "resource-management",
+        "validation-boundaries"
+      ],
+      "relations": []
+    },
+    "261110-preserve-source-query-boundaries-with-shared-config": {
+      "name": "preserve-source-query-boundaries-with-shared-config",
+      "sourcePath": "261110-preserve-source-query-boundaries-with-shared-config.md",
+      "title": "统一配置下保持调查来源组逐源查询",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-11-10T08:43:22Z",
+      "purpose": "跨仓库发现继续复用单源语义，统一配置装载与来源组路由各守边界。",
+      "background": "来源查询原先独占本地配置；资源提示需要所有业务命令装载同一项目与本地设置，显式定位也须验证策略。",
+      "decision": "来源组仅路由 list/search，保留逐源结果与预算；配置发现交统一配置，显式定位只抑制路由。",
+      "tags": [
+        "investigation-report",
+        "query-composition"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "261109-query-investigations-from-local-source-groups",
+          "summary": "保留逐源查询，改由统一配置装载并分离显式定位"
+        }
+      ]
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",

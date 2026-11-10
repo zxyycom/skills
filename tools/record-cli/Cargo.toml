@@ -1,6 +1,6 @@
 [package]
 name = "record-cli"
-version = "0.2.3"
+version = "0.2.4"
 edition = "2024"
 rust-version = "1.98"
 publish = false
@@ -15,6 +15,9 @@ yaml-rust2 = "0.10"
 time = { version = "0.3", features = ["parsing", "formatting"] }
 cap-std = "4.0.3"
 cap-fs-ext = "4.0.3"
+content_inspector = "0.2.4"
+infer = { version = "0.22", default-features = false }
+zstd = { version = "0.13", default-features = false }
 
 tempfile = "3"
 sha1collisiondetection = "0.3.4"

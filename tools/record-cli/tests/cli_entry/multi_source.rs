@@ -253,26 +253,26 @@ fn source_group_options_are_isolated_from_explicit_locations_and_other_commands(
     let cwd = temp.path();
     for args in [
         vec!["list", "--root", ".", "--key", "related", "--json"],
+        vec!["show", "a", "--key", "related", "--json"],
         vec![
-            "list",
-            "--investigations-dir",
-            "research/reports",
-            "--config",
-            "absent",
+            "new",
+            "one",
+            "--title",
+            "Report title",
+            "--question",
+            "Question text",
+            "--tag",
+            "test",
+            "--key",
+            "related",
             "--json",
         ],
-        vec!["show", "a", "--key", "related", "--json"],
-        vec!["new", "--config", "absent", "--json"],
     ] {
         let output = invoke(cwd, &args);
         assert_eq!(output.status.code(), Some(2), "{args:?}");
         assert_eq!(parse(&output)["error"]["code"], "invalid-arguments");
     }
-    fs::write(
-        cwd.join(".local/.investigation-report.local.json"),
-        "invalid",
-    )
-    .unwrap();
+    // Explicit location suppresses group routing, not configuration validation.
     source(&cwd.join("first"), "docs/investigations", "root-only");
     source(cwd, "custom/reports", "dir-only");
     for (args, id) in [
@@ -285,6 +285,16 @@ fn source_group_options_are_isolated_from_explicit_locations_and_other_commands(
             "260101-dir-only",
         ),
     ] {
+        let config_root = if id == "260101-root-only" {
+            cwd.join("first")
+        } else {
+            cwd.to_path_buf()
+        };
+        fs::write(config_root.join(".investigation-report.json"), "invalid").unwrap();
+        let rejected = invoke(cwd, &args);
+        assert_eq!(rejected.status.code(), Some(1));
+        assert_eq!(parse(&rejected)["error"]["code"], "config-error");
+        fs::write(config_root.join(".investigation-report.json"), "{}").unwrap();
         let value = successful(&invoke(cwd, &args));
         assert_eq!(value["result"]["entries"][0]["id"], id);
         assert!(value["result"]["sources"].is_null());
@@ -292,9 +302,10 @@ fn source_group_options_are_isolated_from_explicit_locations_and_other_commands(
     source(cwd, "docs/investigations", "local");
     let shown = successful(&invoke(cwd, &["show", "260101-local", "--json"]));
     assert_eq!(shown["result"]["id"], "260101-local");
-    assert!(invoke(cwd, &["list", "--help"]).status.success());
-    assert!(invoke(cwd, &["--version"]).status.success());
 }
+
+#[path = "multi_source_layers.rs"]
+mod layers;
 
 #[test]
 fn content_preview_preserves_raw_utf16_in_success_and_partial_failure() {

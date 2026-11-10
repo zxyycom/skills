@@ -657,10 +657,20 @@
       "INVESTIGATION-STAGE-VERSION-CONTROL-001": "sha256:c236a83b609048bbc82eac2a9aca75b99124c0cee59233a12db2c6dd47d70dbe",
       "INVESTIGATION-TRACE-RESULT-INTEGRITY-001": "sha256:fcd486fbd48bdfbec99532285170cadceaa3b65de7f46a61256bfdbd2777de94",
       "INVESTIGATION-UNIFIED-DISCARD-CLASSIFICATION-001": "sha256:20b902fc6be0a1386a522284ca5dbaf69bb9c777499f3a91ba49c497f5771dc8",
+      "IR-CONFIG-INVALID-WRITE-GUARD-001": "sha256:1fd1ea3a846416b0444451f2746f6a32544be82ccfc1aa082cbaf0046a04a8a5",
       "IR-INDEX-PAYLOAD-PRESERVATION-001": "sha256:d1b53421e5d72719836778ef4528ce426072614a5718d35f8641347ca757a558",
       "IR-INDEX-PAYLOAD-SCOPE-001": "sha256:73e22cf69aaac28da2560532f7bf88f64c9bfdf643de64a972107ee5056909ff",
+      "IR-RESOURCE-CLI-SIGNALS-001": "sha256:0645fc9ae14338f43395fa6502ff8e7f9afbd4bde3982a64ab2677f20e52472b",
+      "IR-RESOURCE-COMPRESSION-COVERAGE-001": "sha256:7d737de44ea7384b6e3579c46db8d17a33a2f61d1e733f8897d53b8b12cecb8e",
+      "IR-RESOURCE-DUPLICATE-PROOF-001": "sha256:a40df4cef4ef0fcfdd2a852dd67194547e49c73a04369beeb2b83eedf9413350",
+      "IR-RESOURCE-METADATA-LIMITS-001": "sha256:6e5a9bf2c7ef782c809cf925e2eebe568b117de2be0c8ab46729d22657863e4a",
+      "IR-RESOURCE-PUBLICATION-ADVISORY-001": "sha256:c2f0ed058f2418b7efec228ddc12f8cdbbb6c879ac0a2c1998c0790610fd2b7d",
+      "IR-RESOURCE-READ-SAFETY-001": "sha256:06533cb95b05536dd0cc43776b424604230d698a7a935cb66979a8230f5894b8",
+      "IR-RESOURCE-SCAN-BUDGET-001": "sha256:61b8530d891ab755c4c7702dcd0f2416a179130749a093206fe3374d1fd33ea7",
+      "IR-RESOURCE-TYPE-DETECTION-001": "sha256:a2df544f91d9fc3650dc4bb38fd83b64260dd4966a2bd375bd147fc78c34ec3b",
       "IR-TRACE-FRONTIER-001": "sha256:8a034456429ed8c72deb68b6916d263d4fd3103bfe167f98caa1c6ea715cbe10",
       "IR-TRACE-REUSE-001": "sha256:7b585be1f605328646a082caf8a85a083a49c8cbaf31b24461380fa27b5a1ce1",
+      "IR-UNIFIED-CONFIG-PRECEDENCE-001": "sha256:0f8537cce0fc6b1a6546420ebd9e82c24f2438718043146a5626bf9ab23e6b11",
       "LIGHTWEIGHT-JUDGMENT-ADAPTER-001": "sha256:2c890b9ded02a468b7e8ee32dc843d03ce5b464762dd1b1333cd13bec363f35c",
       "LIGHTWEIGHT-JUDGMENT-ADAPTER-002": "sha256:9d9dbc9afdd328228b4db099460cb0155cd2563b85911f8b54c3174b7c75d3a5",
       "LIGHTWEIGHT-JUDGMENT-ADAPTER-003": "sha256:3b3876db10e3f965413dc02d99962f71fe56ee4a00e20685bbac61ee3d6692d5",
@@ -834,10 +844,10 @@
       "NATIVE-RECORD-INVESTIGATION-IDENTITY-001": "sha256:7364c07440ede304cf2abbe431b37183c4cad7ccc25e95ebfc6e98427de3c769",
       "NATIVE-RECORD-IR-MARKDOWN-001": "sha256:c76c0def71f12ecc8552cf1d8d972d499cea13fe7705e08ed3fc8abc164cbf18",
       "NATIVE-RECORD-IR-PARTIAL-FAILURE-001": "sha256:957266ace770b70871c07b98c5f6a5c23c3a4c93e87121fa5d2867ab3e619a46",
-      "NATIVE-RECORD-MULTI-SOURCE-CONFIG-001": "sha256:63fabb3d594760f406540257dc00b81666ae3e788d75792776f8c83a8dc71893",
+      "NATIVE-RECORD-MULTI-SOURCE-CONFIG-001": "sha256:95183c1f9f7911e1ca00d190ad6b2efde7414b82720691c1d4244e1a9a1892de",
       "NATIVE-RECORD-MULTI-SOURCE-CONFIG-ERROR-001": "sha256:587a45d1bc4891d9116d2e688cae3e911f5a6a4462649ab75a70b8052352c4ba",
       "NATIVE-RECORD-MULTI-SOURCE-FAILURE-001": "sha256:576d85c47dcfff059c946fa8d87a94c395586067b11cd464b668fe36fbb6c6d2",
-      "NATIVE-RECORD-MULTI-SOURCE-ISOLATION-001": "sha256:f085a865274b48a2851eec7926ca3466e368d1a893ae751f7846269b0aa16e3f",
+      "NATIVE-RECORD-MULTI-SOURCE-ISOLATION-001": "sha256:eaa6c9550303402fe08f2dc39a9cf4ad89726e609e74a7b2bda60e2ce97ed401",
       "NATIVE-RECORD-MULTI-SOURCE-LOCAL-001": "sha256:af3a3d79c0ad2c695466bb949bfcdab46601eeef622a5f8bac8bc750458c61ae",
       "NATIVE-RECORD-MULTI-SOURCE-ORDER-001": "sha256:e0ce458c1a72617f6ff12b1a72e2771846a50c3f066a093352e9ac1cd5e2f11a",
       "NATIVE-RECORD-MULTI-SOURCE-PREVIEW-001": "sha256:2a831fb0bfc92d7cabc782a798bdcd38bad4959c41a9ee06ab7d81db9d977a8c",
@@ -8030,6 +8040,18 @@
         "test:7fbbd2b1f22373914be0fe0bedcf421256d13cba024017aa55fe257837325939"
       ]
     },
+    "IR-CONFIG-INVALID-WRITE-GUARD-001": {
+      "title": "非法配置在写入前失败",
+      "sourcePath": "cases/investigation-config-invalid-write-guard.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:0c5e1b76a32a8bad335d3e3bfcbcff4906ca92f9fea7f756e58c4d9949752223",
+        "test:caaa2fb0c22dfb822b2c9cf0e6e2a90ce768b8b795641435fcbae255d55af615"
+      ]
+    },
     "IR-INDEX-PAYLOAD-PRESERVATION-001": {
       "title": "索引保留未选投影与删除",
       "sourcePath": "cases/investigation-index-payload-preservation.md",
@@ -8048,6 +8070,96 @@
       ],
       "testIds": [
         "test:ea0eabe85fd39b11c9b53b83ceec8027faf220675694bdaceee5ea66749e892d"
+      ]
+    },
+    "IR-RESOURCE-CLI-SIGNALS-001": {
+      "title": "候选查询自动暴露资源风险",
+      "sourcePath": "cases/investigation-resource-cli-signals.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:f49bd3b0d6ef2b67896978d6e546a6c68d74905679488ddd58f50170aa685567"
+      ]
+    },
+    "IR-RESOURCE-COMPRESSION-COVERAGE-001": {
+      "title": "内部重复启发值区分下限档位与抽样",
+      "sourcePath": "cases/investigation-resource-compression-coverage.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:46623df1942c9244665b848a8fd4e7839daef9d3c0680f4d3027f5e8e66cc2f5"
+      ]
+    },
+    "IR-RESOURCE-DUPLICATE-PROOF-001": {
+      "title": "采样相等不作为完整副本证明",
+      "sourcePath": "cases/investigation-resource-duplicate-proof.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:f3a970332d50efaac292e989df8c5327880cb368bb49647465eccbecf6281e6f"
+      ]
+    },
+    "IR-RESOURCE-METADATA-LIMITS-001": {
+      "title": "资源大小提示与数量上限保留已知覆盖",
+      "sourcePath": "cases/investigation-resource-metadata-limits.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:c7672d576fd374b661c55859165d14d4d84cccf24d5a25dabcfdef3c4748cd18"
+      ]
+    },
+    "IR-RESOURCE-PUBLICATION-ADVISORY-001": {
+      "title": "资源提示不改变发布及资源字节",
+      "sourcePath": "cases/investigation-resource-publication-advisory.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:ca78fed5310a77fc8fbc62ee45e295f227239c07e8e91b524a71016a2fc43680"
+      ]
+    },
+    "IR-RESOURCE-READ-SAFETY-001": {
+      "title": "资源诊断只读取安全且受管的引用",
+      "sourcePath": "cases/investigation-resource-read-safety.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:9922ee29491d70fa8a4820ce0f3fda2009ca0f44bb012c507f44b82ce4f07403",
+        "test:f49360f90a78963e481571b98229e49c2f17e07f78cf5bff66965be9bea4ee2f"
+      ]
+    },
+    "IR-RESOURCE-SCAN-BUDGET-001": {
+      "title": "不足覆盖与显式关闭分别表达",
+      "sourcePath": "cases/investigation-resource-scan-budget.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:38d74c20e42835dadfc5f2351c50d8284f562d3610615211da0bca5d881948de",
+        "test:75111452fd58122b5920ba5be30b513064a908633b017111b77c941a2e06b99d"
+      ]
+    },
+    "IR-RESOURCE-TYPE-DETECTION-001": {
+      "title": "库识别结果与未知编码分开处理",
+      "sourcePath": "cases/investigation-resource-type-detection.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:c49c2f5c1ccc86e5f3fdeb27a26fac2e9e4dcdd05eb0754c4f3fb8d0c27b9812"
       ]
     },
     "IR-TRACE-FRONTIER-001": {
@@ -8070,6 +8182,17 @@
       ],
       "testIds": [
         "test:5f19f3e5e0c354682d047be1ab0c97da576c458d76451c9297067f207dc880f6"
+      ]
+    },
+    "IR-UNIFIED-CONFIG-PRECEDENCE-001": {
+      "title": "统一配置按字段覆盖与显式替代",
+      "sourcePath": "cases/investigation-unified-config-precedence.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:6c218bfa19f4386dfa3ab398fb064633e35ae2a59079e8944d97307911a1daef"
       ]
     },
     "LIGHTWEIGHT-JUDGMENT-ADAPTER-001": {
@@ -9944,6 +10067,7 @@
         "record-rust"
       ],
       "testIds": [
+        "test:0847b8443954c4a4cf257f5f71c8374a4f5fce31c681320dd1d339d63e573efa",
         "test:e3f290d3bdf784d2340ee4ccaf8e2cd30e9fa2a0fca582f77099782ddaeb0766"
       ]
     },
@@ -9970,7 +10094,7 @@
       ]
     },
     "NATIVE-RECORD-MULTI-SOURCE-ISOLATION-001": {
-      "title": "来源组选项与旧入口隔离",
+      "title": "来源组路由与显式定位隔离",
       "sourcePath": "cases/native-record-multi-source-isolation.md",
       "tags": [
         "investigation-report",

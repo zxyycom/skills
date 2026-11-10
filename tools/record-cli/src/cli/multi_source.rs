@@ -1,120 +1,15 @@
 //! Thin, ordered wrapper around independent investigation queries.
+use super::investigation_config::Source;
 use crate::{
     protocol::CommandError,
     queries::investigation::{self, InvestigationQueryCommand, QueryResult},
 };
-use serde::{Deserialize, Serialize};
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
+use serde::Serialize;
+use std::path::Path;
 
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
-struct Config {
-    default_key: String,
-    sources: HashMap<String, Vec<ConfiguredSource>>,
-}
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
-struct ConfiguredSource {
-    root: String,
-    investigations_dir: String,
-}
-struct Source {
-    root: PathBuf,
-    directory: String,
-}
 pub(super) struct Sources {
-    key: String,
-    sources: Vec<Source>,
-}
-
-pub(super) fn load(
-    config: Option<&str>,
-    key: Option<&str>,
-) -> Result<Option<Sources>, CommandError> {
-    let cwd = std::env::current_dir().map_err(|e| config_error(e.to_string()))?;
-    let path = config.map_or_else(
-        || cwd.join(".local/.investigation-report.local.json"),
-        |p| cwd.join(p),
-    );
-    let Some(bytes) = read_config(&path, config.is_some() || key.is_some())? else {
-        return Ok(None);
-    };
-    let parsed: Config = serde_json::from_slice(&bytes)
-        .map_err(|e| config_error(format!("{}: {e}", path.display())))?;
-    validate_config(&parsed, &path)?;
-    select_sources(&parsed, key, &path).map(Some)
-}
-
-fn read_config(path: &Path, required: bool) -> Result<Option<Vec<u8>>, CommandError> {
-    match std::fs::read(path) {
-        Ok(bytes) => Ok(Some(bytes)),
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound && !required => Ok(None),
-        Err(error) => Err(config_error(format!("{}: {error}", path.display()))),
-    }
-}
-
-fn validate_config(parsed: &Config, path: &Path) -> Result<(), CommandError> {
-    if parsed.default_key.is_empty() || !parsed.sources.contains_key(&parsed.default_key) {
-        return Err(config_error(format!(
-            "{}: defaultKey must name an existing source group",
-            path.display()
-        )));
-    }
-    for (key, sources) in &parsed.sources {
-        if key.is_empty() || sources.is_empty() {
-            return Err(config_error(format!(
-                "{}: sources must have nonempty keys and groups (key: {key:?})",
-                path.display()
-            )));
-        }
-        for (index, source) in sources.iter().enumerate() {
-            if source.root.is_empty() {
-                return Err(config_error(format!(
-                    "{}: sources[{key:?}][{index}].root must not be empty",
-                    path.display()
-                )));
-            }
-            if let Err(error) = crate::source::RelativePath::new(&source.investigations_dir) {
-                return Err(config_error(format!(
-                    "{}: sources[{key:?}][{index}].investigationsDir: {error}",
-                    path.display()
-                )));
-            }
-        }
-    }
-    Ok(())
-}
-
-fn select_sources(
-    parsed: &Config,
-    key: Option<&str>,
-    path: &Path,
-) -> Result<Sources, CommandError> {
-    let selected = key.unwrap_or(&parsed.default_key);
-    let group = parsed.sources.get(selected).ok_or_else(|| {
-        config_error(format!(
-            "{}: unknown source key: {selected}",
-            path.display()
-        ))
-    })?;
-    let parent = path.parent().unwrap_or(Path::new("."));
-    let sources = group
-        .iter()
-        .map(|s| Source {
-            root: parent.join(&s.root),
-            directory: s.investigations_dir.clone(),
-        })
-        .collect();
-    Ok(Sources {
-        key: selected.to_owned(),
-        sources,
-    })
-}
-fn config_error(message: String) -> CommandError {
-    CommandError::new("config-error", message)
+    pub key: String,
+    pub sources: Vec<Source>,
 }
 
 #[derive(Serialize)]

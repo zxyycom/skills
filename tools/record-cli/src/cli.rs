@@ -54,10 +54,13 @@ impl std::error::Error for ArgumentError {}
 pub mod arguments;
 mod decision_identity;
 mod help;
+mod investigation_config;
 mod investigation_identity;
+mod investigation_query;
 mod multi_source;
 mod mutation;
 mod output;
+mod resource_review;
 
 pub use arguments::query::parse_query;
 use decision_identity::output_decision_identity;
@@ -215,21 +218,6 @@ pub fn main_entry(domain: Domain) -> i32 {
 }
 
 fn dispatch_query(command: &str, json: bool, invocation: QueryInvocation) -> i32 {
-    if let Query::Investigation(ref query) = invocation.command
-        && matches!(
-            query,
-            InvestigationQueryCommand::List { .. } | InvestigationQueryCommand::Search { .. }
-        )
-        && !invocation.explicit_location
-    {
-        match multi_source::load(invocation.config.as_deref(), invocation.key.as_deref()) {
-            Ok(Some(sources)) => {
-                return multi_source::dispatch(command, json, sources, query.clone());
-            }
-            Ok(None) => {}
-            Err(error) => return print_error(command, json, error, 1),
-        }
-    }
     let root = match crate::source::open_root(std::path::Path::new(&invocation.root)) {
         Ok(root) => root,
         Err(error) => {
@@ -249,13 +237,20 @@ fn dispatch_query(command: &str, json: bool, invocation: QueryInvocation) -> i32
                 Err(error) => print_error(command, json, error, 1),
             }
         }
-        Query::Investigation(query) => {
-            let trace = matches!(&query, InvestigationQueryCommand::Trace(_));
-            match crate::queries::investigation::run(&root, &invocation.directory, query) {
-                Ok(value) => emit_success(command, json, trace, &value, value.warnings()),
-                Err(error) => print_error(command, json, error, 1),
-            }
-        }
+        Query::Investigation(query) => investigation_query::dispatch(
+            ExecutionContext {
+                command,
+                json,
+                root: &root,
+            },
+            query,
+            investigation_query::Settings {
+                directory: &invocation.directory,
+                config: invocation.config.as_deref(),
+                key: invocation.key.as_deref(),
+                explicit_location: invocation.explicit_location,
+            },
+        ),
     }
 }
 

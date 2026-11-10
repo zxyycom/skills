@@ -145,9 +145,14 @@ pub(super) fn print_help(domain: Domain, topic: Option<&str>) {
         println!(
             "Usage: {executable} {command} {arguments} [--root PATH] [{directory} PATH] [--json]"
         );
+        if domain == Domain::Investigation {
+            println!(
+                "Configuration: [--config PATH], otherwise workspace .investigation-report.json then .local/.investigation-report.local.json. Resource advisories are non-blocking."
+            );
+        }
         if domain == Domain::Investigation && matches!(command, "list" | "search") {
             println!(
-                "Multi-source options: [--config PATH] [--key KEY] (conflict with --root and --investigations-dir)."
+                "Multi-source option: [--key KEY] (conflicts with --root and --investigations-dir); --config also selects resource settings."
             );
         }
         if command == "new" {
@@ -160,5 +165,10 @@ pub(super) fn print_help(domain: Domain, topic: Option<&str>) {
             "Usage: {executable} <command> [options]\n\nCommands: {}\n\nUse '{executable} help <command>' for arguments. Global options: --root PATH, {directory} PATH, --json, --help, --version.",
             command_names(domain).join(", ")
         );
+        if domain == Domain::Investigation {
+            println!(
+                "Configuration option: --config PATH. Project and local settings share one schema."
+            );
+        }
     }
 }

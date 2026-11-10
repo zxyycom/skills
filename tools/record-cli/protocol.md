@@ -16,6 +16,8 @@
 
 ## Investigation 多来源查询
 
+Investigation 的所有业务命令使用同一项目／本地配置，`--config` 选择显式配置文件；只有 `list` / `search` 可按来源组路由。配置读取与来源选择分别判断，help/version 不读取配置，精确发现与合并见 [统一配置](../../skills/investigation-report/references/cli-operations.md#统一配置)。
+
 IR `list` / `search` 启用配置时，结果对象为 `{key, sources}`：`key` 是本次选中的来源组，`sources` 按配置数组顺序保留每源结果。
 
 | 来源项 | 字段 |
@@ -50,6 +52,10 @@ rename 两域分别提供 `oldName` / `newName`、候选和正式关系改写计
 selected sync 和 stage 的多个 selector 诊断保留各自有序的 `target`、`reason`、`recovery` 及可证明的 scope、state、`causeCategory`、`operation`、`detail`；IR `reportCount` 仅在可信 baseline 已验证后提供。没有实际 I/O 错误细节时，`detail` 省略，不伪造 Node `realpath` 错误原文。
 
 调用者应逐分支检查结果而非依赖表中所有字段同时存在。例如 `errors` 在一个预检 DTO 中存在，不意味着每个提交或 selected 分支都提供同名字段。仓库内已核实调用包含维护命令和测试，仓库外安装副本、私有脚本和 SDK 调用不可由仓库搜索穷尽。
+
+### 调查资源诊断结果
+
+IR 的 `candidates`、`show-candidate`、`publish`（含预检）及成功 `check` 在结果对象中增加 `resourceReview`，保留原有 DTO 字段。结构化字段、信号与覆盖解释见[资源诊断契约](../../skills/investigation-report/references/resource-review.md)。诊断为只读、非阻断观察；配置错误在业务操作前失败。查询 warning 可仅在 review 和 stderr 中提供，不要求复制到原 DTO 的 warnings。
 
 ## 只读查询与选择性身份发现
 

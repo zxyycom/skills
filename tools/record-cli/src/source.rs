@@ -184,11 +184,13 @@ pub fn directory_exists(root: &Root, path: &RelativePath) -> Result<bool, Source
 }
 
 mod resource_directory;
+mod resource_file;
 #[cfg(windows)]
 pub use resource_directory::same_single_link_member;
 pub use resource_directory::{
     ResourceDirectoryVersion, resource_directory_version, resource_member_kind,
 };
+pub(crate) use resource_file::open_resource_file;
 
 pub fn enumerate_directory(
     root: &Root,

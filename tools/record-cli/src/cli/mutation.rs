@@ -291,6 +291,15 @@ pub(super) fn dispatch_mutation(
     };
     match invocation.command {
         MutationCommand::Decision(operation) => decision::run(context, operation),
-        MutationCommand::Investigation(operation) => investigation::run(context, operation),
+        MutationCommand::Investigation(operation) => {
+            let policy = match super::investigation_config::load(
+                context.root.path(),
+                invocation.config.as_deref(),
+            ) {
+                Ok(config) => config.policy,
+                Err(error) => return print_error(command, invocation.json, error, 1),
+            };
+            investigation::run(context, operation, policy)
+        }
     }
 }

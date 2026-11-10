@@ -93,8 +93,11 @@ fn parse_option(
 fn allowed_options(domain: Domain, command: &str) -> Vec<&'static str> {
     let mut allowed = vec!["root", "json"];
     allowed.push(domain.directory_option());
-    if domain == Domain::Investigation && matches!(command, "list" | "search") {
-        allowed.extend(["key", "config"]);
+    if domain == Domain::Investigation {
+        allowed.push("config");
+        if matches!(command, "list" | "search") {
+            allowed.push("key");
+        }
     }
     match command {
         "check" if domain == Domain::Investigation => allowed.extend(["id"]),

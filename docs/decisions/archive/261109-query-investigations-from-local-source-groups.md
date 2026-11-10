@@ -1,7 +1,7 @@
 ---
 title: 按本地来源组逐源查询调查报告
 id: 261109-query-investigations-from-local-source-groups
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-11-09T09:07:35Z
 purpose: 以少量配置复用单集合查询，支持跨仓库发现调查报告。
@@ -32,4 +32,4 @@ relations: []
 - 采用: 保留原单源入口和无默认配置时的原行为；显式请求缺失配置、未知 key 或已有非法配置时明确失败。显式单源定位与配置选择互斥，使调用者能够确定实际使用了哪种来源选择。
 - 采用: 来源失败后继续读取其他源，并如实交付整体失败及各源结果；命中报告仍按所属来源定位，通过原有 `show` 回读。配置只编排正式报告发现，不扩展到写操作或候选维护。
 
-配置选择、参数冲突、逐源结果和回读的现行操作契约由 [Investigation Report CLI](../../skills/investigation-report/references/cli-operations.md#多来源配置)承接。
+配置选择、参数冲突、逐源结果和回读的现行操作契约由 [Investigation Report CLI](../../../skills/investigation-report/references/cli-operations.md#多来源配置)承接。

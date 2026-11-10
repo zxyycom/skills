@@ -90,6 +90,7 @@ fn partial_error(dir: &RelativePath, scanned: super::sources::ScannedSources) ->
     let mut checked_ids: Vec<_> = all_ids.into_iter().collect();
     checked_ids.sort_by(|a, b| a.encode_utf16().cmp(b.encode_utf16()));
     let partial = CheckResult {
+        resource_refs: BTreeMap::new(),
         scope: "partial",
         checked_ids,
         formal_count: available_formal_count,

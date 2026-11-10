@@ -222,6 +222,7 @@ pub(super) fn scan_sources(
             .map(|e| format!("{}: {}", e.path, e.message))
             .collect();
         let partial = CheckResult {
+            resource_refs: BTreeMap::new(),
             scope: "partial",
             checked_ids,
             formal_count,

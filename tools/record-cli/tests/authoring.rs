@@ -28,5 +28,7 @@ mod ir_cli_contract;
 mod publication;
 #[path = "authoring/publication_freshness.rs"]
 mod publication_freshness;
+#[path = "authoring/resource_advisories.rs"]
+mod resource_advisories;
 #[path = "authoring/selectors.rs"]
 mod selectors;

@@ -2,7 +2,11 @@ use super::*;
 
 mod services;
 
-pub(super) fn run(context: MutationContext<'_>, operation: InvestigationCommand) -> i32 {
+pub(super) fn run(
+    context: MutationContext<'_>,
+    operation: InvestigationCommand,
+    policy: crate::resource_review::policy::Policy,
+) -> i32 {
     match operation {
         InvestigationCommand::Stage { selectors, scope } => {
             services::stage(context, selectors, scope)
@@ -31,7 +35,7 @@ pub(super) fn run(context: MutationContext<'_>, operation: InvestigationCommand)
         InvestigationCommand::Publish {
             selectors,
             preflight,
-        } => services::publish(context, selectors, preflight),
+        } => services::publish(context, selectors, preflight, &policy),
         intent @ (InvestigationCommand::Rename { .. } | InvestigationCommand::Discard { .. }) => {
             services::identity(context, intent)
         }

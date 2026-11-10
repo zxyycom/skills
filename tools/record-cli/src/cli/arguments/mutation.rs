@@ -24,6 +24,7 @@ pub enum MutationCommand {
 }
 #[derive(Debug)]
 pub struct MutationInvocation {
+    pub config: Option<String>,
     pub root: String,
     pub directory: String,
     pub json: bool,
@@ -218,6 +219,9 @@ fn allowed_options(domain: Domain, command: &str) -> Result<Vec<&'static str>, A
         Investigation => "investigations-dir",
     };
     let mut allowed = vec!["json", "root", directory];
+    if domain == Domain::Investigation {
+        allowed.push("config");
+    }
     allowed.extend_from_slice(options);
     Ok(allowed)
 }
@@ -294,6 +298,7 @@ pub fn parse_mutation(
         Domain::Investigation => investigation::parse(command, &args)?,
     };
     Ok(MutationInvocation {
+        config: args.one("config"),
         root,
         directory,
         json,

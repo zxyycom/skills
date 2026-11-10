@@ -142,6 +142,7 @@ impl DecisionSources {
             target,
             needs_write,
             result: CheckResult {
+                resource_refs: BTreeMap::new(),
                 scope: "all",
                 checked_ids,
                 formal_count,
@@ -161,6 +162,7 @@ impl DecisionSources {
 
 fn partial_result(dir: &RelativePath, scanned: &ScannedDecisions) -> CheckResult {
     CheckResult {
+        resource_refs: BTreeMap::new(),
         scope: "all",
         checked_ids: scanned.checked_ids.clone(),
         formal_count: scanned.states.len(),
