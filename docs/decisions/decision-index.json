@@ -174,10 +174,11 @@
       "261107-rust-record-candidate-cooperative-file-safety": "sha256:165763b9a9fa04f5324b0ba9608cfe5ece2ad256ee3c6745365b824797690bdf",
       "261107-rust-record-candidate-sequential-local-runtime": "sha256:1399b913a6474fb29517d118e64eb1465b4a24313aa5811b1c23e7e4569f95a3",
       "261108-share-record-index-json-contracts": "sha256:11b9d29d6cce583f076862bf6759d9c6c5ceeca04c47079fc27667c67fb38594",
-      "261109-query-investigations-from-local-source-groups": "sha256:8214c2fffe9aaf5bbafa4ae34702d814d1e1ac8b9e39134890a8bd7182a9abf9",
-      "261110-bounded-investigation-resource-advisories": "sha256:c74bbe0aebf5998940015b3980785b0f4c259fbd2036a081c872a9b643b3279a",
-      "261110-complete-resource-findings-with-bounded-preview": "sha256:b22aa350d5008497b92d39eecdac5f189c6c2ab326740aa56d060705fcb10f1d",
-      "261110-preserve-source-query-boundaries-with-shared-config": "sha256:55a7bfbc406b23ddd811f14300415adfe08eb59ef59abafd6cbb1932fecdc409",
+      "261109-query-investigations-from-local-source-groups": "sha256:5dc87c31d1fe3721000c34809596547eb045b30dd6caa799b4fd4d6c048cf9c2",
+      "261110-bounded-investigation-resource-advisories": "sha256:fb860030f4117a5622af93f93d9d4fdcec517f0cc7c4f90850975c3185747a29",
+      "261110-complete-resource-findings-with-bounded-preview": "sha256:565fa34d61f274d0e5b2529ff35f924fa4d9f5b8020425b38db6cfbd9a23fb1e",
+      "261110-compose-investigation-source-selection": "sha256:225e18bb09b0c39a50d72a3332d58067298a9d8ed59ab5a4a52926ceb574877c",
+      "261110-preserve-source-query-boundaries-with-shared-config": "sha256:00220fb866b0a3e0edba4e5ee4093b430725d1776599f21b7e6779ebc6c6b34d",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -4071,11 +4072,34 @@
         }
       ]
     },
+    "261110-compose-investigation-source-selection": {
+      "name": "compose-investigation-source-selection",
+      "sourcePath": "261110-compose-investigation-source-selection.md",
+      "title": "以可组合来源 key 统一调查访问与发现",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-11-10T13:17:54Z",
+      "purpose": "复用来源定义，让只读访问按源独立执行，并在帮助中直接发现选择范围。",
+      "background": "原来源组只编排 list/search，回读需搬运路径，来源组合重复且 key 对应关系不可直接发现。",
+      "decision": "key 表达可组合来源选择，只读逐源追加，写入限明确单源，帮助展示配置解析上下文。",
+      "tags": [
+        "cli-help",
+        "investigation-report",
+        "query-composition"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "261110-preserve-source-query-boundaries-with-shared-config",
+          "summary": "保留逐源语义与统一配置，扩展为可组合来源选择及读写路由"
+        }
+      ]
+    },
     "261110-preserve-source-query-boundaries-with-shared-config": {
       "name": "preserve-source-query-boundaries-with-shared-config",
-      "sourcePath": "261110-preserve-source-query-boundaries-with-shared-config.md",
+      "sourcePath": "archive/261110-preserve-source-query-boundaries-with-shared-config.md",
       "title": "统一配置下保持调查来源组逐源查询",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-11-10T08:43:22Z",
       "purpose": "跨仓库发现继续复用单源语义，统一配置装载与来源组路由各守边界。",

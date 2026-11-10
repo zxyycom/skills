@@ -5,7 +5,7 @@ description: >-
   以一份可独立复核的报告保存一轮形成时的背景、依据、结果和边界，
   并用稳定 Investigation ID、tags 和直接前序关系维护分类与认识演进。
 metadata:
-  version: "110"
+  version: "111"
 ---
 
 # Investigation Report
@@ -27,6 +27,7 @@ metadata:
 | 查找、阅读或内容审阅 | 按下方查询表选择入口；使用查询前读 [CLI 查询与结果解释](references/cli-operations.md#查询与结果解释)，以实际来源和覆盖解释结果。 |
 | 创建、编辑或结构审阅 | 先读固定契约的[身份与集合](references/investigation-report-contract.md#身份与集合)、[报告边界与有效演进](references/investigation-report-contract.md#报告边界与有效演进)、[报告正文与候选准备](references/investigation-report-contract.md#报告正文与候选准备)。涉及关系或资源时，再读该契约对应章节。 |
 | 创建候选、发布、同步、调整关系、删除、更正身份或暂存 | 先读 [CLI 操作前提](references/cli-operations.md#操作前提)，再读所选操作章节及其链接的领域规则；命令参数用 `help <command>` 获取。 |
+| 配置来源、组合 key 或理解帮助中的来源定位 | 读[来源配置与帮助](references/source-selection.md)，执行前按 [CLI 定位与选择](references/cli-operations.md#定位与选择)确认读写目标。 |
 | 首次候选集合、工具或索引异常、写入中断 | 按[维护恢复](references/maintenance-recovery.md)的实际状态分流，只处理诊断声明的范围。 |
 | 修改 CLI 或测试实现 | 从源码项目的维护入口读取实现与验证约束，再读取所改公开行为对应的契约；这些实现材料不是普通记录维护的前置。 |
 
@@ -37,11 +38,11 @@ metadata:
 | 准确 Investigation ID 或唯一 name | `show <selector>` |
 | tags、形成时间或直接关系 | `list` |
 | 主题、概念、原因或正文措辞 | `search <text>` |
-| 多个仓库或目录中的正式报告 | 按[多来源配置](references/cli-operations.md#多来源配置)逐源运行 `list` 或 `search`。 |
+| 多个仓库或目录中的报告 | 按 [CLI 定位与选择](references/cli-operations.md#定位与选择)选择 key，逐源执行相应只读命令。 |
 | 认识演进 | `trace <selector>` |
 | 尚未建立的候选 | `candidates` → `show-candidate <selector>` |
 
-查询后使用返回的完整 ID 继续操作；多来源结果还需保留所属来源的定位参数。正式查询与候选查询分别进行；`list`、`trace` 和 metadata 搜索反映发布快照，需要当前正文用 `show`，当前文本发现用默认 content 搜索。
+查询后使用返回的完整 ID 继续操作；多来源结果同时保留所属来源，按[逐源结果与回读](references/cli-operations.md#逐源结果与回读)继续读取或选择写入目标。正式查询与候选查询分别进行；`list`、`trace` 和 metadata 搜索反映发布快照，需要当前正文用 `show`，当前文本发现用默认 content 搜索。
 
 ## 工作流程
 
@@ -142,7 +143,7 @@ agent 在当前授权范围内，自行审查证据、报告边界、资源与�
 <skill绝对路径>/bin/investigation-report [global-options] <command> [command-options]
 ```
 
-Windows 使用对应 `.exe`；根据 shell 规则引用包含空格的路径。当前目录默认是工作区根；从其他目录调用时在 command 前传 `--root <workspace-root>`，自定义集合用工作区内相对 `--investigations-dir`。help 不读取集合状态。项目提供维护短命令时优先使用该入口。合法 Unicode 文本受支持；孤立 UTF-16 代理项明确报错，不静默替换。
+Windows 使用对应 `.exe`；根据 shell 规则引用包含空格的路径。当前目录默认是工作区根；从其他目录调用时在 command 前传 `--root <workspace-root>`，自定义集合用工作区内相对 `--investigations-dir`。help 附当前[来源信息与诊断](references/source-selection.md#帮助中的来源信息)。项目提供维护短命令时优先使用该入口。合法 Unicode 文本受支持；孤立 UTF-16 代理项明确报错，不静默替换。
 
 ## 自更新
 

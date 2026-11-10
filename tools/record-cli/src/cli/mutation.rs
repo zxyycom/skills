@@ -239,14 +239,24 @@ enum ContextError {
     Path(crate::source::SourceError),
 }
 
+struct WriteTarget {
+    root: std::path::PathBuf,
+    directory: String,
+}
+
+struct WriteSettings {
+    target: WriteTarget,
+    policy: Option<crate::resource_review::policy::Policy>,
+}
+
 fn prepare_context<'a>(
     command: &'a str,
     invocation: &crate::cli::arguments::mutation::MutationInvocation,
+    target: &WriteTarget,
 ) -> Result<MutationContext<'a>, ContextError> {
     use crate::{cli::arguments::mutation::MutationCommand, source::RelativePath};
-    let root = crate::source::open_root(std::path::Path::new(&invocation.root))
-        .map_err(ContextError::Source)?;
-    let collection = RelativePath::new(&invocation.directory).map_err(ContextError::Path)?;
+    let root = crate::source::open_root(&target.root).map_err(ContextError::Source)?;
+    let collection = RelativePath::new(&target.directory).map_err(ContextError::Path)?;
     let index_name = match &invocation.command {
         MutationCommand::Decision(_) => "decision-index.json",
         MutationCommand::Investigation(_) => "investigation-index.json",
@@ -261,7 +271,7 @@ fn prepare_context<'a>(
     Ok(MutationContext {
         command,
         json: invocation.json,
-        directory: invocation.directory.clone(),
+        directory: target.directory.clone(),
         root,
         collection,
         index_path,
@@ -269,12 +279,49 @@ fn prepare_context<'a>(
     })
 }
 
+fn resolve_write_target_and_policy(
+    invocation: &crate::cli::arguments::mutation::MutationInvocation,
+) -> Result<WriteSettings, crate::protocol::CommandError> {
+    use crate::cli::arguments::mutation::MutationCommand;
+    let mut target = WriteTarget {
+        root: std::path::PathBuf::from(&invocation.root),
+        directory: invocation.directory.clone(),
+    };
+    let policy = if matches!(invocation.command, MutationCommand::Investigation(_)) {
+        let config = super::investigation_config::load(&target.root, invocation.config.as_deref())?;
+        if let Some(key) = invocation.key.as_deref() {
+            let mut selected = config
+                .take_sources(Some(key))?
+                .expect("explicit source key");
+            if selected.sources.len() != 1 {
+                return Err(crate::protocol::CommandError::new(
+                    "config-error",
+                    "write requires exactly one source",
+                ));
+            }
+            let source = selected.sources.pop().expect("one source");
+            target = WriteTarget {
+                root: source.root,
+                directory: source.directory,
+            };
+        }
+        Some(config.policy)
+    } else {
+        None
+    };
+    Ok(WriteSettings { target, policy })
+}
+
 pub(super) fn dispatch_mutation(
     command: &str,
     invocation: crate::cli::arguments::mutation::MutationInvocation,
 ) -> i32 {
     use crate::cli::arguments::mutation::MutationCommand;
-    let context = match prepare_context(command, &invocation) {
+    let settings = match resolve_write_target_and_policy(&invocation) {
+        Ok(settings) => settings,
+        Err(error) => return print_error(command, invocation.json, error, 1),
+    };
+    let context = match prepare_context(command, &invocation, &settings.target) {
         Ok(context) => context,
         Err(error) => {
             let (code, error, exit) = match error {
@@ -291,15 +338,10 @@ pub(super) fn dispatch_mutation(
     };
     match invocation.command {
         MutationCommand::Decision(operation) => decision::run(context, operation),
-        MutationCommand::Investigation(operation) => {
-            let policy = match super::investigation_config::load(
-                context.root.path(),
-                invocation.config.as_deref(),
-            ) {
-                Ok(config) => config.policy,
-                Err(error) => return print_error(command, invocation.json, error, 1),
-            };
-            investigation::run(context, operation, policy)
-        }
+        MutationCommand::Investigation(operation) => investigation::run(
+            context,
+            operation,
+            settings.policy.expect("investigation policy"),
+        ),
     }
 }

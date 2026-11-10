@@ -4,29 +4,29 @@
 
 ## 通道与 envelope
 
-查询命令的普通成功输出为格式化 JSON 的结果对象；`--json` 成功输出为紧凑 JSON。除成功 trace 的特殊形状外，两者分别是结果对象本身和包含同一结果的 envelope，不能把整个对象的形状视为相同。普通失败的诊断输出至 stderr。
+查询命令的普通成功输出为格式化 JSON 的结果对象；`--json` 成功输出为紧凑 JSON。除直接单源成功 trace 的特殊形状外，两者分别是结果对象本身和包含同一结果的 envelope，不能把整个对象的形状视为相同。普通失败的诊断输出至 stderr。
 
 请求 `--json` 时，正常情况下 stdout 是单个 JSON 对象，stderr 承接警告或非协议诊断；退出码 0 为成功、1 为领域或系统失败、2 为参数错误。help 和 version 是独立的文本入口。解析器已识别 JSON 请求但无法判定命令时，失败对象的 `command` 可以为空字符串。输出自身发生序列化或 I/O 故障时不能假设一定得到可解析对象。
 
-除成功 trace 外，成功对象含 `version: 2`、`command`、`ok: true`、`result` 和 `diagnostics`；失败对象含 `version: 2`、`command`、`ok: false`、`error` 和 `diagnostics`，有实际可证明部分事实时还可含 `result`。`error` 包含 `code`、`message`，可带 `path`、`field`、`recovery`；诊断可带 `code`、`message`、`path`、`target`、`reason`、`recovery`、`causeCategory`、`operation` 和 `detail`。成功输出的诊断数组可以为空，warning 亦可能在结果内并写 stderr，不能只检查其中一个通道。失败时先读 `error` 和诊断，再读存在的部分结果；不得把 absent、`null`、空数组或 false 当成同一含义。仅在来源分支有相应事实时输出可选字段；明确未知的 `null` 保留为未知。
+除直接单源成功 trace 外，成功对象含 `version: 2`、`command`、`ok: true`、`result` 和 `diagnostics`；失败对象含 `version: 2`、`command`、`ok: false`、`error` 和 `diagnostics`，有实际可证明部分事实时还可含 `result`。`error` 包含 `code`、`message`，可带 `path`、`field`、`recovery`；诊断可带 `code`、`message`、`path`、`target`、`reason`、`recovery`、`causeCategory`、`operation` 和 `detail`。成功输出的诊断数组可以为空，warning 亦可能在结果内并写 stderr，不能只检查其中一个通道。失败时先读 `error` 和诊断，再读存在的部分结果；不得把 absent、`null`、空数组或 false 当成同一含义。仅在来源分支有相应事实时输出可选字段；明确未知的 `null` 保留为未知。
 
 诊断的 `path` 用于定位实际问题，可为平台显示的规范路径；它不等同于记录结果中表示逻辑来源的 `sourcePath`，调用者不应假定两者字面相同或采用相同的相对路径基准。
 
-成功 `trace --json` 不套 envelope：DR 带 `source`，IR 带 `warnings` 且 warning 同时写 stderr；两域均保留各自原有字段、类型、顺序、缺省及预算语义。失败 trace 使用失败 envelope，不将其说成旧版同形。`version` 是CLI envelope 版本，不是索引 schema 版本；version 2 移除不再产生事实的验证与恢复状态字段，成功 trace 的特殊形状不变。实现入口为 [protocol.rs](src/protocol.rs) 和 [输出映射](src/cli/output.rs)。
+直接单源成功 `trace --json` 不套 envelope：DR 带 `source`，IR 带 `warnings` 且 warning 同时写 stderr；两域均保留各自原有字段、类型、顺序、缺省及预算语义。IR 按 key 选择的 trace 使用下节来源结果结构，每源 result 保留原 trace 形状。失败 trace 使用失败 envelope。`version` 指 CLI envelope 版本，与索引 schema 版本独立；version 2 的字段兼容边界见[兼容验收清单](compatibility.md)。实现入口为 [protocol.rs](src/protocol.rs) 和 [输出映射](src/cli/output.rs)。
 
 ## Investigation 多来源查询
 
-Investigation 的所有业务命令使用同一项目／本地配置，`--config` 选择显式配置文件；只有 `list` / `search` 可按来源组路由。配置读取与来源选择分别判断，help/version 不读取配置，精确发现与合并见 [统一配置](../../skills/investigation-report/references/cli-operations.md#统一配置)。
-
-IR `list` / `search` 启用配置时，结果对象为 `{key, sources}`：`key` 是本次选中的来源组，`sources` 按配置数组顺序保留每源结果。
+IR 按来源 key 执行只读操作时，结果对象为 `{key, sources}`：`key` 是所选 key，`sources` 为按展开顺序排列的扁平数组。只展开为单源时也使用此结构。
 
 | 来源项 | 字段 |
 | --- | --- |
 | 所有来源 | `root`、`investigationsDir`、`ok`。 |
-| `ok: true` | `result` 原样承载对应单源 DTO。 |
+| `ok: true` | `result` 承载对应单源 DTO，含适用的 `resourceReview`；trace 保留其原结果形状。 |
 | `ok: false` | `error`；有相应事实时提供 `diagnostics`、`partial`。 |
 
-全部来源成功时按通用成功规则输出；任一源失败时退出码为 1，失败 envelope 的 `result` 仍承载完整的 `{key, sources}`，普通失败的错误及部分结果输出至 stderr。来源结果结构见 [multi_source.rs](src/cli/multi_source.rs)；逐源参数、覆盖解释与 `show` 回读方式见 [IR CLI 多来源配置](../../skills/investigation-report/references/cli-operations.md#多来源配置)。
+某源失败后继续后源。全部成功按通用成功规则输出，包括按 key 选择的 trace；任一源失败则退出 1，失败 envelope 的 `result` 仍承载全部 `{key, sources}`，普通失败的错误及部分结果写 stderr。
+
+来源选择与覆盖解释见 [CLI 定位与结果](../../skills/investigation-report/references/cli-operations.md#逐源结果与回读)，help 的文本上下文见[来源配置与帮助](../../skills/investigation-report/references/source-selection.md#帮助中的来源信息)。序列化实现为 [multi_source.rs](src/cli/multi_source.rs)。
 
 ## 命令结果和信息归属
 
@@ -74,6 +74,6 @@ IR 的 `candidates`、`show-candidate`、`publish`（含预检）及成功 `chec
 
 version 2 保留业务结果的信息粒度，以及适用的 `status`、`changed`、`committed`、`writtenPaths`、`unknownPaths`、`errors`；诊断按有证据的 `operation`、路径和原因区分失败步骤。`committed` 只表示适用操作的实际提交点已发生；计划身份、路径及 review 不能代替实际完成结果。`writtenPaths` 表示已知实际影响，不保证路径内容完整，也可以与 `unknownPaths` 重叠：例如新目标已创建但写入失败时，`changed: true` 是真实变化，内容仍未知。使用者应检查现场并对账。
 
-不再产生事实的 `verification`、`outcome` 恢复状态、`recoveryBackups`、`recoveryDirectories`、`cleanupErrors` 不以恒空或 NotRun 兼容壳保留；不能虚构 `rolled-back`、通过验收或 postverify relationReview。失败、结果未知和实际完成必须分别表达。成功 trace 保留原特殊形状。
+不再产生事实的 `verification`、`outcome` 恢复状态、`recoveryBackups`、`recoveryDirectories`、`cleanupErrors` 不以恒空或 NotRun 兼容壳保留；不能虚构 `rolled-back`、通过验收或 postverify relationReview。失败、结果未知和实际完成必须分别表达。直接单源成功 trace 保留原特殊形状。
 
 源文档和索引文本中的孤立 UTF-16 代理项被结构化拒绝，不静默替换；正常文字和完整 emoji 不受影响。预览按 UTF-16 code unit 截断时仍须保留原 JSON 输出契约，包括截断产生的转义代理项。安全和并发能力依实际平台与证据界定，不承诺非合作进程的跨文件原子隔离。

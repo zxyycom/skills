@@ -24,7 +24,10 @@ struct SourceResult {
 }
 
 enum SourceOutcome {
-    Success(Box<QueryResult>),
+    Success {
+        result: Box<QueryResult>,
+        review: Option<crate::resource_review::Review>,
+    },
     Failure(CommandError),
 }
 
@@ -34,6 +37,15 @@ struct SuccessView<'a> {
     root: &'a Path,
     investigations_dir: &'a str,
     ok: bool,
+    result: ReviewedResult<'a>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ReviewedResult<'a> {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    resource_review: &'a Option<crate::resource_review::Review>,
+    #[serde(flatten)]
     result: &'a QueryResult,
 }
 
@@ -53,11 +65,14 @@ struct FailureView<'a> {
 impl Serialize for SourceResult {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         match &self.outcome {
-            SourceOutcome::Success(result) => SuccessView {
+            SourceOutcome::Success { result, review } => SuccessView {
                 root: &self.source.root,
                 investigations_dir: &self.source.directory,
                 ok: true,
-                result,
+                result: ReviewedResult {
+                    result,
+                    resource_review: review,
+                },
             }
             .serialize(serializer),
             SourceOutcome::Failure(error) => FailureView {
@@ -82,11 +97,12 @@ pub(super) fn dispatch(
     json: bool,
     group: Sources,
     query: InvestigationQueryCommand,
+    policy: &crate::resource_review::policy::Policy,
 ) -> i32 {
     let sources = group
         .sources
         .into_iter()
-        .map(|source| run_source(source, &query))
+        .map(|source| run_source(source, &query, policy))
         .collect();
     let result = GroupResult {
         key: group.key,
@@ -95,16 +111,28 @@ pub(super) fn dispatch(
     output_group(command, json, &result)
 }
 
-fn run_source(source: Source, query: &InvestigationQueryCommand) -> SourceResult {
+fn run_source(
+    source: Source,
+    query: &InvestigationQueryCommand,
+    policy: &crate::resource_review::policy::Policy,
+) -> SourceResult {
     let outcome = crate::source::open_root(&source.root)
         .map_err(|error| CommandError::new("source-error", error.to_string()))
-        .and_then(|root| investigation::run(&root, &source.directory, query.clone()));
+        .and_then(|root| {
+            let value = investigation::run(&root, &source.directory, query.clone())?;
+            let review =
+                super::resource_review::review_query(&root, &source.directory, &value, policy);
+            Ok((value, review))
+        });
     let outcome = match outcome {
-        Ok(value) => {
+        Ok((value, review)) => {
             for warning in value.warnings() {
                 eprintln!("{}: {warning}", source.root.display());
             }
-            SourceOutcome::Success(Box::new(value))
+            SourceOutcome::Success {
+                result: Box::new(value),
+                review,
+            }
         }
         Err(error) => SourceOutcome::Failure(error),
     };

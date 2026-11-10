@@ -95,9 +95,7 @@ fn allowed_options(domain: Domain, command: &str) -> Vec<&'static str> {
     allowed.push(domain.directory_option());
     if domain == Domain::Investigation {
         allowed.push("config");
-        if matches!(command, "list" | "search") {
-            allowed.push("key");
-        }
+        allowed.push("key");
     }
     match command {
         "check" if domain == Domain::Investigation => allowed.extend(["id"]),

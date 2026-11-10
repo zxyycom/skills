@@ -25,6 +25,7 @@ pub enum MutationCommand {
 #[derive(Debug)]
 pub struct MutationInvocation {
     pub config: Option<String>,
+    pub key: Option<String>,
     pub root: String,
     pub directory: String,
     pub json: bool,
@@ -220,7 +221,7 @@ fn allowed_options(domain: Domain, command: &str) -> Result<Vec<&'static str>, A
     };
     let mut allowed = vec!["json", "root", directory];
     if domain == Domain::Investigation {
-        allowed.push("config");
+        allowed.extend(["config", "key"]);
     }
     allowed.extend_from_slice(options);
     Ok(allowed)
@@ -250,7 +251,8 @@ fn validate_options(domain: Domain, command: &str, args: &Args) -> Result<(), Ar
             return Err(ArgumentError(format!("--{key} may occur only once")));
         }
     }
-    validate_selectors(command, args)
+    validate_selectors(command, args)?;
+    validate_location(domain, args)
 }
 
 fn validate_selectors(command: &str, args: &Args) -> Result<(), ArgumentError> {
@@ -278,6 +280,15 @@ fn validate_selectors(command: &str, args: &Args) -> Result<(), ArgumentError> {
     Ok(())
 }
 
+fn validate_location(domain: Domain, args: &Args) -> Result<(), ArgumentError> {
+    if args.has("key") && (args.has("root") || args.has(domain.directory_option())) {
+        return Err(ArgumentError(
+            "--root/--investigations-dir conflict with --key".into(),
+        ));
+    }
+    Ok(())
+}
+
 pub fn parse_mutation(
     domain: Domain,
     argv: &[String],
@@ -299,6 +310,7 @@ pub fn parse_mutation(
     };
     Ok(MutationInvocation {
         config: args.one("config"),
+        key: args.one("key"),
         root,
         directory,
         json,

@@ -19,17 +19,15 @@ pub(super) fn dispatch(
         json,
         root,
     } = context;
-    let mut config = match investigation_config::load(root.path(), settings.config) {
+    let config = match investigation_config::load(root.path(), settings.config) {
         Ok(config) => config,
         Err(error) => return print_error(command, json, error, 1),
     };
-    if matches!(
-        &query,
-        InvestigationQueryCommand::List { .. } | InvestigationQueryCommand::Search { .. }
-    ) && !settings.explicit_location
-    {
+    if !settings.explicit_location {
         match config.take_sources(settings.key) {
-            Ok(Some(sources)) => return multi_source::dispatch(command, json, sources, query),
+            Ok(Some(sources)) => {
+                return multi_source::dispatch(command, json, sources, query, &config.policy);
+            }
             Ok(None) => {}
             Err(error) => return print_error(command, json, error, 1),
         }

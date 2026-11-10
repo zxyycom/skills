@@ -150,9 +150,9 @@ pub(super) fn print_help(domain: Domain, topic: Option<&str>) {
                 "Configuration: [--config PATH], otherwise workspace .investigation-report.json then .local/.investigation-report.local.json. Resource advisories are non-blocking."
             );
         }
-        if domain == Domain::Investigation && matches!(command, "list" | "search") {
+        if domain == Domain::Investigation {
             println!(
-                "Multi-source option: [--key KEY] (conflicts with --root and --investigations-dir); --config also selects resource settings."
+                "Source option: [--key KEY] (conflicts with --root and --investigations-dir); --config also selects resource settings."
             );
         }
         if command == "new" {

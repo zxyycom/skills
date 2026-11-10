@@ -50,6 +50,18 @@ pub(super) fn emit(
     )
 }
 
+pub(super) fn review_query(
+    root: &crate::source::Root,
+    directory: &str,
+    value: &crate::queries::investigation::QueryResult,
+    policy: &Policy,
+) -> Option<resource_review::Review> {
+    let Selection { reports, blocked } = selection(value)?;
+    let review = resource_review::review(root, directory, &reports, policy, &blocked);
+    print_review(&review);
+    Some(review)
+}
+
 struct Selection {
     reports: ReportResources,
     blocked: std::collections::BTreeSet<String>,

@@ -50,10 +50,13 @@ fn setup() -> tempfile::TempDir {
 fn successful(output: &Output) -> Value {
     assert!(
         output.status.success(),
-        "{}",
-        String::from_utf8_lossy(&output.stdout)
+        "stdout: {}\nstderr: {}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
     );
-    parse(output)
+    let value = parse(output);
+    assert_eq!(value["ok"], true, "{value}");
+    value
 }
 
 #[test]
@@ -209,17 +212,14 @@ fn invalid_or_explicitly_missing_configuration_never_falls_back_to_single_source
     let cwd = temp.path();
     // A valid fallback makes accidental silent fallback distinguishable from rejection.
     source(cwd, "docs/investigations", "fallback");
-    for invalid in [
+    fs::write(
+        cwd.join(".local/.investigation-report.local.json"),
         "invalid",
-        r#"{"defaultKey":"unknown","sources":{"related":[{"root":"..","investigationsDir":"research/reports"}]}}"#,
-        r#"{"defaultKey":"related","sources":{"related":[]}}"#,
-        r#"{"defaultKey":"related","sources":{"related":[{"root":"..","investigationsDir":"../escape"}]}}"#,
-    ] {
-        fs::write(cwd.join(".local/.investigation-report.local.json"), invalid).unwrap();
-        let output = invoke(cwd, &["list", "--json"]);
-        assert_eq!(output.status.code(), Some(1), "{invalid}");
-        assert_eq!(parse(&output)["error"]["code"], "config-error", "{invalid}");
-    }
+    )
+    .unwrap();
+    let output = invoke(cwd, &["list", "--json"]);
+    assert_eq!(output.status.code(), Some(1));
+    assert_eq!(parse(&output)["error"]["code"], "config-error");
     fs::remove_file(cwd.join(".local/.investigation-report.local.json")).unwrap();
     for args in [
         vec!["list", "--config", "absent", "--json"],
@@ -251,27 +251,10 @@ fn absent_cwd_configuration_uses_local_single_source_without_searching_parents()
 fn source_group_options_are_isolated_from_explicit_locations_and_other_commands() {
     let temp = setup();
     let cwd = temp.path();
-    for args in [
-        vec!["list", "--root", ".", "--key", "related", "--json"],
-        vec!["show", "a", "--key", "related", "--json"],
-        vec![
-            "new",
-            "one",
-            "--title",
-            "Report title",
-            "--question",
-            "Question text",
-            "--tag",
-            "test",
-            "--key",
-            "related",
-            "--json",
-        ],
-    ] {
-        let output = invoke(cwd, &args);
-        assert_eq!(output.status.code(), Some(2), "{args:?}");
-        assert_eq!(parse(&output)["error"]["code"], "invalid-arguments");
-    }
+    let args = ["list", "--root", ".", "--key", "related", "--json"];
+    let output = invoke(cwd, &args);
+    assert_eq!(output.status.code(), Some(2));
+    assert_eq!(parse(&output)["error"]["code"], "invalid-arguments");
     // Explicit location suppresses group routing, not configuration validation.
     source(&cwd.join("first"), "docs/investigations", "root-only");
     source(cwd, "custom/reports", "dir-only");
@@ -300,7 +283,10 @@ fn source_group_options_are_isolated_from_explicit_locations_and_other_commands(
         assert!(value["result"]["sources"].is_null());
     }
     source(cwd, "docs/investigations", "local");
-    let shown = successful(&invoke(cwd, &["show", "260101-local", "--json"]));
+    let shown = successful(&invoke(
+        cwd,
+        &["show", "260101-local", "--root", ".", "--json"],
+    ));
     assert_eq!(shown["result"]["id"], "260101-local");
 }
 
@@ -374,3 +360,15 @@ fn content_preview_preserves_raw_utf16_in_success_and_partial_failure() {
         assert_eq!(decoded_prefix, prefix);
     }
 }
+
+#[path = "multi_source_composite.rs"]
+mod composite;
+
+#[path = "multi_source_read_routing.rs"]
+mod read_routing;
+
+#[path = "multi_source_write_selection.rs"]
+mod write_selection;
+
+#[path = "multi_source_help_context.rs"]
+mod help_context;

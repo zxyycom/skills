@@ -849,13 +849,13 @@
       "NATIVE-RECORD-IR-MARKDOWN-001": "sha256:c76c0def71f12ecc8552cf1d8d972d499cea13fe7705e08ed3fc8abc164cbf18",
       "NATIVE-RECORD-IR-PARTIAL-FAILURE-001": "sha256:957266ace770b70871c07b98c5f6a5c23c3a4c93e87121fa5d2867ab3e619a46",
       "NATIVE-RECORD-MULTI-SOURCE-CONFIG-001": "sha256:95183c1f9f7911e1ca00d190ad6b2efde7414b82720691c1d4244e1a9a1892de",
-      "NATIVE-RECORD-MULTI-SOURCE-CONFIG-ERROR-001": "sha256:587a45d1bc4891d9116d2e688cae3e911f5a6a4462649ab75a70b8052352c4ba",
+      "NATIVE-RECORD-MULTI-SOURCE-CONFIG-ERROR-001": "sha256:1d798d5865f54a913fca2b4fda3adac28fe20064be743f4299f546dc3218d07a",
       "NATIVE-RECORD-MULTI-SOURCE-FAILURE-001": "sha256:576d85c47dcfff059c946fa8d87a94c395586067b11cd464b668fe36fbb6c6d2",
-      "NATIVE-RECORD-MULTI-SOURCE-ISOLATION-001": "sha256:eaa6c9550303402fe08f2dc39a9cf4ad89726e609e74a7b2bda60e2ce97ed401",
+      "NATIVE-RECORD-MULTI-SOURCE-ISOLATION-001": "sha256:8fb95fb01611cd8f91472f02485ca6a2b58587c79693cc4cff317d5c6c7bec70",
       "NATIVE-RECORD-MULTI-SOURCE-LOCAL-001": "sha256:af3a3d79c0ad2c695466bb949bfcdab46601eeef622a5f8bac8bc750458c61ae",
       "NATIVE-RECORD-MULTI-SOURCE-ORDER-001": "sha256:e0ce458c1a72617f6ff12b1a72e2771846a50c3f066a093352e9ac1cd5e2f11a",
       "NATIVE-RECORD-MULTI-SOURCE-PREVIEW-001": "sha256:2a831fb0bfc92d7cabc782a798bdcd38bad4959c41a9ee06ab7d81db9d977a8c",
-      "NATIVE-RECORD-MULTI-SOURCE-SHOW-001": "sha256:f8fb4d21356ad44f5de17d3a33974158c51b0af34ac8a3314d24bfc81db7f3da",
+      "NATIVE-RECORD-MULTI-SOURCE-SHOW-001": "sha256:36b5890b8c6249ecda7f97ea4b45906e3704ba71f910616b33b97c1b42d1d22a",
       "NATIVE-RECORD-MUTATION-CHECK-001": "sha256:621ff228289614a41d83aa7811d31c8751afc95eadcf22a98c676c59f1f7381d",
       "NATIVE-RECORD-MUTATION-FULL-SYNC-001": "sha256:2185279f86ff61330a16370a67e1afe83aec8689b3ce5177fd4b414e9be2a8c5",
       "NATIVE-RECORD-MUTATION-IDENTITY-001": "sha256:130ef0eea0e224388dac4068c10743674b0ab66c00ce144a1f6e16e81783cb3c",
@@ -876,8 +876,29 @@
       "NATIVE-RECORD-RESOURCE-WINDOWS-IDENTITY-001": "sha256:27c340b9c15aaebea2941a5b98ea9c2bbe40a35054f4b84ca4849bad9f52612e",
       "NATIVE-RECORD-SELECTOR-BATCH-001": "sha256:79debfbe602214f52a887079806815be656d86e188b13dbc4cd84e7d790dfbf1",
       "NATIVE-RECORD-SELECTOR-WORK-001": "sha256:996f413754e3bd717ed27e0e0294d0a4e7c500570b2420232a808d89bd1bfad3",
+      "NATIVE-RECORD-SOURCE-CANDIDATES-001": "sha256:cd2970e6a9083f85c58a06d8a5ecbcdeab2e4ff0180846132e1703b15d414532",
       "NATIVE-RECORD-SOURCE-CAPTURE-001": "sha256:c63467b011f754a84262fb5800caa12130e3c1011b347d0a8851fd5b87ca117e",
+      "NATIVE-RECORD-SOURCE-CHECK-001": "sha256:ee038ec81b99e7b200a3a4cbb6555d61a623d2ee46ad870846a30172cf688364",
+      "NATIVE-RECORD-SOURCE-COMPOSITION-001": "sha256:78a450b13a8d5e28aec7731e32790763efd9047b6925be0dc844ef68662122a8",
+      "NATIVE-RECORD-SOURCE-CONFIG-VALIDATION-001": "sha256:313d0e44bae871a47d671fa9b430a820b90bb69728380943b676789f183084a9",
+      "NATIVE-RECORD-SOURCE-DEEP-CHAIN-001": "sha256:38b08066c4f702e08cd446254b20f5dcf03980f9ed141c0a4efad8a72e15c564",
+      "NATIVE-RECORD-SOURCE-HELP-CONFIG-ERROR-001": "sha256:08c6efee3c529a08570dba2581f4bf7520db73cc0899c697e59b9bc84f2dca0d",
+      "NATIVE-RECORD-SOURCE-HELP-CONTEXT-001": "sha256:c85564cdaee25273aa485fbf96df63c6524d824f015e2d6df5fcd03c07c9a03b",
+      "NATIVE-RECORD-SOURCE-HELP-EXPLICIT-SELECTION-001": "sha256:8f8e354a87ec2848adcf7d2a0751d35c27cd62eba07b69d0ab8ada709be01aa6",
+      "NATIVE-RECORD-SOURCE-HELP-WRITE-SELECTION-001": "sha256:34c358800d0c63d13d0eef6d65276900dba350ce20018d6d43fedd917798812d",
+      "NATIVE-RECORD-SOURCE-INVALID-REFERENCES-001": "sha256:63b55ca0871b17a700d84d62029b4898de6d8c9b9e61fe7a520cf3407a2c581b",
+      "NATIVE-RECORD-SOURCE-NON-UTF8-WRITE-001": "sha256:caff0964536d4b17e5fafd65a24cde6b83e8e4f1ded8b3b8616f6c9baa153f83",
+      "NATIVE-RECORD-SOURCE-READ-ROUTING-001": "sha256:d8cde1ba90619b0098bff96fab827a4d8ae5fc675a2f70ccc5bd17528dd3c54e",
       "NATIVE-RECORD-SOURCE-REVISION-001": "sha256:a57504f373c0ea4f9adbcc21474724d6fde82d74a637c366f09b52cd5333ddd4",
+      "NATIVE-RECORD-SOURCE-ROOT-ALIASES-001": "sha256:bfcf1fe4a644bc152a756a505d9d8d593662188b0eba8f12061a0dd1d6f44aca",
+      "NATIVE-RECORD-SOURCE-ROOT-IDENTITY-001": "sha256:7431c7978c17208afddfe0ea552aafa18747530242935ad06b446dcc9f13872e",
+      "NATIVE-RECORD-SOURCE-SHARED-DAG-001": "sha256:86d9186c0bf0da8f493eeaea3f338c0ca78df1c9ac80a596dc9d5677d50596f0",
+      "NATIVE-RECORD-SOURCE-SHOW-CANDIDATE-001": "sha256:1d1a2421c3210a25633babe1fdca3e11e03003807d338b78256a51f8e260f968",
+      "NATIVE-RECORD-SOURCE-SYMLINK-WRITE-001": "sha256:7582b1d0d3daeb7e89a1e6350471e695ef407bb88faf4c6792e09430765f2604",
+      "NATIVE-RECORD-SOURCE-TRACE-001": "sha256:4395faa7147cb09a002608877f9457fac61068f9bde369c7c23379a440e39cf4",
+      "NATIVE-RECORD-SOURCE-WRITE-DEFAULT-001": "sha256:edc0f86005eeed91b5e10435cc7993a0144514dd061bc0711180d4f9ecc22946",
+      "NATIVE-RECORD-SOURCE-WRITE-REJECTION-001": "sha256:0fbac5bc7211bb63fff304d26eecf3edc746fee06b2d62557aefe2defac37541",
+      "NATIVE-RECORD-SOURCE-WRITE-SELECTION-001": "sha256:cc07cf3d77db739a28ff9e0b96af0aacc8106d49744f9fc9f57fc5fed75b1ba4",
       "NATIVE-RECORD-STAGE-OWNER-COMPONENT-001": "sha256:86ec9ed0cb3c45ad38f73836c45156328a4db4e218b1e90836164563d313a371",
       "NATIVE-RECORD-TXN-ATOMIC-001": "sha256:b182a4a1d0ede7ed9bcab00c887255748b698e8ac542d3a6ea116d8c726b17dc",
       "NATIVE-RECORD-TXN-OUTCOME-001": "sha256:069ef36019035b17ffe30d381943888551b50410efb9fd3df86796e541af9837",
@@ -10490,6 +10511,17 @@
         "test:40cf79fe82b27c293b73fc53ef44109ee8cd2595333c35386b447833c6f0e238"
       ]
     },
+    "NATIVE-RECORD-SOURCE-CANDIDATES-001": {
+      "title": "候选列表独立读取每源成员",
+      "sourcePath": "cases/native-record-source-candidates.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:b077e78dcd0aa5c3abff7436e4792291e764b1d08128756045dc3190f63bd9ef"
+      ]
+    },
     "NATIVE-RECORD-SOURCE-CAPTURE-001": {
       "title": "安全捕获选定源与受限文件系统操作",
       "sourcePath": "cases/native-record-source-capture.md",
@@ -10501,6 +10533,131 @@
         "test:ffb7164120fa784f1adfa243e552457feac2a5261409ac1bea96e3e16ff30147"
       ]
     },
+    "NATIVE-RECORD-SOURCE-CHECK-001": {
+      "title": "逐源体检报告成功和局部失败",
+      "sourcePath": "cases/native-record-source-check.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:e4e24e7dd00c50acb33ca0d76b02342e931cf1dc5c253a865bf1782cc18dcd77"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-COMPOSITION-001": {
+      "title": "合并配置后有序展开来源组合",
+      "sourcePath": "cases/native-record-source-composition.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:a01b3bb3610fc0b54eda73ae4b51e2ac19580ce5d5e4d7c21db053b44bf7464a"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-CONFIG-VALIDATION-001": {
+      "title": "非法来源设置在路由前失败",
+      "sourcePath": "cases/native-record-source-config-validation.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:bc9bccc489017ce2d988bf1103e3481cf3429e6c6fb33ce3738bd0a9c74dc9d7"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-DEEP-CHAIN-001": {
+      "title": "深引用链不导致进程栈溢出",
+      "sourcePath": "cases/native-record-source-deep-chain.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:4bf09886bc70d870512d6b6d98cd0de003df07ecec207956273783c472f8c21e"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-HELP-CONFIG-ERROR-001": {
+      "title": "坏配置不阻断帮助或伪装正常回退",
+      "sourcePath": "cases/native-record-source-help-config-error.md",
+      "tags": [
+        "cli-help",
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:98f5edd4837e0d22587fb93c81475078f4b4adb2bed16ce3cf189b544e5708c4"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-HELP-CONTEXT-001": {
+      "title": "帮助展示来源上下文而不读取索引",
+      "sourcePath": "cases/native-record-source-help-context.md",
+      "tags": [
+        "cli-help",
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:9235e87b32b0b8f853ac35e6aa8085560d29edff2fe524d273c4e70cd598a975"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-HELP-EXPLICIT-SELECTION-001": {
+      "title": "帮助尊重显式定位和配置替代",
+      "sourcePath": "cases/native-record-source-help-explicit-selection.md",
+      "tags": [
+        "cli-help",
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:c4b11c859587880d851c546b15d9d9cb97d1b6161daa5bf4c8c85e90ea21afd9"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-HELP-WRITE-SELECTION-001": {
+      "title": "写帮助反映实际单源选择规则",
+      "sourcePath": "cases/native-record-source-help-write-selection.md",
+      "tags": [
+        "cli-help",
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:86c7c4d14ea864c926d28b2354c372d1bb0573787b969589dae5136a96ac0054"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-INVALID-REFERENCES-001": {
+      "title": "非法来源引用指出定义位置",
+      "sourcePath": "cases/native-record-source-invalid-references.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:72f81512524935902a094c601d2c49244b050a05a1ac42f9eb4f21e2f4714505"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-NON-UTF8-WRITE-001": {
+      "title": "选源写入保持非 UTF-8 工作区身份",
+      "sourcePath": "cases/native-record-source-non-utf8-write.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:9c476c1da30d2e3a4d4eeab9c215c08270ae972a066f06083af038da870bcb28"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-READ-ROUTING-001": {
+      "title": "show 逐源回读同 ID 并保留部分成功",
+      "sourcePath": "cases/native-record-source-read-routing.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:a7e282dd523655c6f151ad6f2403e131beaf0c684f70919977b75376f32cd35f"
+      ]
+    },
     "NATIVE-RECORD-SOURCE-REVISION-001": {
       "title": "两域来源 revision 字节计算",
       "sourcePath": "cases/native-record-source-revision.md",
@@ -10510,6 +10667,105 @@
       "testIds": [
         "test:1d9828351c26a30f4f53836da4c066271d3eb82d2e87421bd3fe74e9d8399596",
         "test:d450556d26d89627e27522529305f48f79cf42186ad13dd1d0cb06c34b55acc7"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-ROOT-ALIASES-001": {
+      "title": "同根别名去重后允许写入",
+      "sourcePath": "cases/native-record-source-root-aliases.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:e42b8da583f71e102ab4de460095413a3a25440315a36ec67c420936c21e380d"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-ROOT-IDENTITY-001": {
+      "title": "不同工作区不能只按集合目录合并",
+      "sourcePath": "cases/native-record-source-root-identity.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:7416237cf49a9e37673529d0c15e6203b689000bcfd020f06256e03dbf1b316f"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-SHARED-DAG-001": {
+      "title": "共享引用图不发生指数展开",
+      "sourcePath": "cases/native-record-source-shared-dag.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:0710d929dad0efe87c0d79f2433bf2c0c126d38447bf411c9f2c6ece4edcb88b"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-SHOW-CANDIDATE-001": {
+      "title": "候选回读不跨来源消歧",
+      "sourcePath": "cases/native-record-source-show-candidate.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:873747e860a9a366016b8d32eb80c25b429cb350462bd8849bb2e228d01f3a05"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-SYMLINK-WRITE-001": {
+      "title": "选源写入保留符号链接父路径语义",
+      "sourcePath": "cases/native-record-source-symlink-write.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:4b597b34afa63dcac8252c6853a39bfda4088e0d3101c79db466e6cf904edd2f"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-TRACE-001": {
+      "title": "trace 不合并不同来源的关系图",
+      "sourcePath": "cases/native-record-source-trace.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:575c69d597ce735a61f5d476d7b20ba92c8cd4b7d13997308754634b8dcc8b85"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-WRITE-DEFAULT-001": {
+      "title": "未传 key 的写操作保持工作区单源",
+      "sourcePath": "cases/native-record-source-write-default.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:ef29e3bfad0dbabf96dfd7771cbfafc49ddf36e31cca32aa98a3ed43679a4829"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-WRITE-REJECTION-001": {
+      "title": "多源写入及预检失败不改现场",
+      "sourcePath": "cases/native-record-source-write-rejection.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:28bf6bde765044fb50f51cd021f1b6f8b344e4d5e91289f64a83835b030a8ad7"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-WRITE-SELECTION-001": {
+      "title": "显式单源 key 仅写对应来源",
+      "sourcePath": "cases/native-record-source-write-selection.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:3270b5fc5395ba4b397ed923fda04643615fa6883021edc8283cbb52c2d02dd0"
       ]
     },
     "NATIVE-RECORD-STAGE-OWNER-COMPONENT-001": {

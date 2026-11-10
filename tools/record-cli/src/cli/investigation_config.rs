@@ -1,4 +1,9 @@
-//! One investigation configuration, layered by workspace rather than command.
+#[path = "investigation_config_help.rs"]
+mod config_help;
+#[path = "investigation_config_graph.rs"]
+mod graph;
+pub(super) use config_help::HelpSelection;
+// One investigation configuration, layered by workspace rather than command.
 use crate::{protocol::CommandError, resource_review::policy::Policy};
 use serde::Deserialize;
 use std::{
@@ -12,26 +17,83 @@ use std::{
 struct Fragment {
     version: Option<u32>,
     default_key: Option<String>,
-    sources: Option<BTreeMap<String, Vec<ConfiguredSource>>>,
+    sources: Option<BTreeMap<String, serde_json::Value>>,
     resources: Option<serde_json::Value>,
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[serde(untagged)]
+enum Selection {
+    Group(Vec<Member>),
+    Single(ConfiguredSource),
+}
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum Member {
+    Reference(String),
+    Source(ConfiguredSource),
+}
+enum ResolvedMember {
+    Reference(String),
+    Source(Source),
+}
+
+#[derive(Deserialize)]
+#[serde(try_from = "serde_json::Value")]
 struct ConfiguredSource {
     root: String,
     investigations_dir: String,
 }
 
+impl TryFrom<serde_json::Value> for ConfiguredSource {
+    type Error = String;
+    fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
+        #[derive(Deserialize)]
+        #[serde(rename_all = "camelCase", deny_unknown_fields)]
+        struct Fields {
+            root: String,
+            investigations_dir: String,
+        }
+        if !value.is_object() {
+            return Err("source must be an object".into());
+        }
+        let fields: Fields = serde_json::from_value(value).map_err(|error| error.to_string())?;
+        Ok(Self {
+            root: fields.root,
+            investigations_dir: fields.investigations_dir,
+        })
+    }
+}
+
+#[derive(Clone, Eq, Ord, PartialEq, PartialOrd)]
+struct SourceIdentity {
+    root: PathBuf,
+    directory: PathBuf,
+}
+
+struct SourceGroup {
+    defined_in: PathBuf,
+    kind: GroupKind,
+    members: Vec<ResolvedMember>,
+}
+
+enum GroupKind {
+    Single,
+    Composite,
+}
+
+#[derive(Clone)]
 pub(super) struct Source {
     pub root: PathBuf,
     pub directory: String,
+    identity: SourceIdentity,
 }
 
 pub(super) struct Config {
     pub policy: Policy,
     default_key: Option<String>,
-    groups: BTreeMap<String, Vec<Source>>,
+    groups: BTreeMap<String, SourceGroup>,
+    paths: Vec<PathBuf>,
 }
 
 impl Config {
@@ -46,40 +108,17 @@ impl Config {
         }
         Ok(())
     }
-    pub fn take_sources(
-        &mut self,
-        key: Option<&str>,
-    ) -> Result<Option<super::multi_source::Sources>, CommandError> {
-        let Some(selected) = key.or(self.default_key.as_deref()) else {
-            return Ok(None);
-        };
-        let sources = self
-            .groups
-            .remove(selected)
-            .ok_or_else(|| error(format!("unknown source key: {selected}")))?;
-        Ok(Some(super::multi_source::Sources {
-            key: selected.to_owned(),
-            sources,
-        }))
-    }
 }
 
 pub(super) fn load(root: &Path, explicit: Option<&str>) -> Result<Config, CommandError> {
     let cwd = std::env::current_dir().map_err(|e| error(e.to_string()))?;
     let root = cwd.join(root);
-    let paths = explicit.map_or_else(
-        || {
-            vec![
-                root.join(".investigation-report.json"),
-                root.join(".local/.investigation-report.local.json"),
-            ]
-        },
-        |path| vec![cwd.join(path)],
-    );
+    let paths = config_paths(&root, &cwd, explicit);
     let mut config = Config {
         policy: Policy::default(),
         default_key: None,
         groups: BTreeMap::new(),
+        paths: paths.clone(),
     };
     let mut resources = serde_json::to_value(&config.policy).map_err(|e| error(e.to_string()))?;
     for path in paths {
@@ -90,7 +129,20 @@ pub(super) fn load(root: &Path, explicit: Option<&str>) -> Result<Config, Comman
     config.policy =
         serde_json::from_value(resources).map_err(|e| error(format!("resources: {e}")))?;
     config.validate()?;
+    config.validate_references()?;
     Ok(config)
+}
+
+fn config_paths(root: &Path, cwd: &Path, explicit: Option<&str>) -> Vec<PathBuf> {
+    explicit.map_or_else(
+        || {
+            vec![
+                root.join(".investigation-report.json"),
+                root.join(".local/.investigation-report.local.json"),
+            ]
+        },
+        |path| vec![cwd.join(path)],
+    )
 }
 
 fn read(path: &Path, required: bool) -> Result<Option<Fragment>, CommandError> {
@@ -173,23 +225,7 @@ fn apply(
         config.default_key = Some(key);
     }
     if let Some(groups) = fragment.sources {
-        let parent = path.parent().unwrap_or(Path::new("."));
-        for (key, group) in groups {
-            if key.is_empty() || group.is_empty() {
-                return Err(error(format!(
-                    "{}: sources require nonempty keys and groups",
-                    path.display()
-                )));
-            }
-            let sources = group
-                .into_iter()
-                .map(|s| {
-                    resolve_source(s, parent)
-                        .map_err(|e| error(format!("{}: {}", path.display(), e.message)))
-                })
-                .collect::<Result<Vec<_>, _>>()?;
-            config.groups.insert(key, sources);
-        }
+        apply_sources(config, groups, path)?;
     }
     if let Some(patch) = fragment.resources {
         merge(resources, patch);
@@ -202,15 +238,64 @@ fn apply(
         .map_err(|e| error(format!("{}: resources: {e}", path.display())))
 }
 
+fn apply_sources(
+    config: &mut Config,
+    groups: BTreeMap<String, serde_json::Value>,
+    path: &Path,
+) -> Result<(), CommandError> {
+    let parent = path.parent().unwrap_or(Path::new("."));
+    for (key, value) in groups {
+        let selection: Selection = serde_json::from_value(value).map_err(|e| {
+            error(format!("{}: sources.{key}: expected a source object or an array of source objects and key references: {e}", path.display()))
+        })?;
+        let (kind, group) = match selection {
+            Selection::Single(source) => (GroupKind::Single, vec![Member::Source(source)]),
+            Selection::Group(group) => (GroupKind::Composite, group),
+        };
+        if key.is_empty() || group.is_empty() {
+            return Err(error(format!(
+                "{}: sources require nonempty keys and groups",
+                path.display()
+            )));
+        }
+        let members = group
+            .into_iter()
+            .map(|member| match member {
+                Member::Reference(name) if !name.is_empty() => Ok(ResolvedMember::Reference(name)),
+                Member::Reference(_) => Err(error("source reference must not be empty")),
+                Member::Source(source) => {
+                    resolve_source(source, parent).map(ResolvedMember::Source)
+                }
+            })
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|e| error(format!("{}: sources.{key}: {}", path.display(), e.message)))?;
+        config.groups.insert(
+            key,
+            SourceGroup {
+                defined_in: path.to_path_buf(),
+                kind,
+                members,
+            },
+        );
+    }
+    Ok(())
+}
+
 fn resolve_source(source: ConfiguredSource, parent: &Path) -> Result<Source, CommandError> {
     if source.root.is_empty() {
         return Err(error("source root must not be empty"));
     }
-    crate::source::RelativePath::new(&source.investigations_dir)
+    let directory = crate::source::RelativePath::new(&source.investigations_dir)
         .map_err(|e| error(format!("source investigationsDir: {e}")))?;
+    let root = parent.join(source.root);
+    let identity = SourceIdentity {
+        root: std::fs::canonicalize(&root).unwrap_or_else(|_| root.clone()),
+        directory: directory.as_path().to_path_buf(),
+    };
     Ok(Source {
-        root: parent.join(source.root),
+        root,
         directory: source.investigations_dir,
+        identity,
     })
 }
 
@@ -235,47 +320,5 @@ fn error(message: impl Into<String>) -> CommandError {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use serde_json::json;
-
-    #[test]
-    fn invalid_layers_are_rejected_even_when_local_settings_override_them() {
-        let temp = tempfile::tempdir().unwrap();
-        std::fs::create_dir(temp.path().join(".local")).unwrap();
-        std::fs::write(
-            temp.path().join(".local/.investigation-report.local.json"),
-            json!({
-                "version": 1,
-                "resources": {
-                    "readBudgetBytes": 1024,
-                    "compressibility": {"bands": [{"minBytes": 65536, "maxCompressedRatio": 0.1}]},
-                    "binary": {"unknown": "warn"},
-                    "enabled": true
-                }
-            })
-            .to_string(),
-        )
-        .unwrap();
-        for invalid in [
-            json!({"resources":{"compressibility":{"bands":[]}}}),
-            json!({"resources":{"readBudgetBytes":0}}),
-            json!({"resources":{"binary":{"unknown":"error"}}}),
-            json!({"resources":{"enabled":null}}),
-            json!({"version":2}),
-            json!({"resources":{"unexpected":true}}),
-        ] {
-            std::fs::write(
-                temp.path().join(".investigation-report.json"),
-                invalid.to_string(),
-            )
-            .unwrap();
-            let error = match load(temp.path(), None) {
-                Ok(_) => panic!("accepted invalid configuration: {invalid}"),
-                Err(error) => error,
-            };
-            assert_eq!(error.code.as_ref(), "config-error");
-            assert!(error.message.contains(".investigation-report.json"));
-        }
-    }
-}
+#[path = "investigation_config_tests.rs"]
+mod tests;

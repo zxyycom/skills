@@ -121,19 +121,95 @@ fn read_arguments(
     // as after it. Move only those known globals, retaining their occurrences
     // so the common parser still enforces cardinality.
     if leading > 0 && leading < raw.len() {
-        raw[..=leading].rotate_right(1);
+        if raw[leading] == "help"
+            && raw
+                .get(leading + 1)
+                .is_some_and(|topic| !topic.starts_with("--"))
+        {
+            raw[..=leading + 1].rotate_right(2);
+        } else {
+            raw[..=leading].rotate_right(1);
+        }
     }
     Ok(raw)
 }
 
 fn help_topic(raw: &[String]) -> Option<&str> {
-    if raw.len() == 2 && raw[0] == "help" {
+    if raw.len() >= 2 && raw[0] == "help" && !raw[1].starts_with("--") {
         Some(raw[1].as_str())
     } else if raw.len() >= 2 && raw[1..].iter().any(|arg| arg == "--help") {
         Some(raw[0].as_str())
     } else {
         None
     }
+}
+
+fn help_option<'a>(raw: &'a [String], name: &str) -> Option<&'a str> {
+    let option = format!("--{name}");
+    raw.iter().enumerate().find_map(|(i, arg)| {
+        if arg == &option {
+            raw.get(i + 1)
+                .filter(|v| !v.starts_with("--"))
+                .map(String::as_str)
+        } else {
+            arg.strip_prefix(&format!("{option}="))
+        }
+    })
+}
+
+fn help_context(domain: Domain, raw: &[String]) {
+    if domain != Domain::Investigation {
+        return;
+    }
+    let value = |name| help_option(raw, name);
+    let cwd = match std::env::current_dir() {
+        Ok(path) => path,
+        Err(e) => {
+            println!("Source diagnostic: {e}");
+            return;
+        }
+    };
+    let root = cwd.join(value("root").unwrap_or("."));
+    let directory = value("investigations-dir").unwrap_or(domain.default_directory());
+    let config_path = value("config");
+    println!("\nSource context:");
+    if value("key").is_some() && (value("root").is_some() || value("investigations-dir").is_some())
+    {
+        println!("  Source diagnostic: --root/--investigations-dir conflict with --key");
+        return;
+    }
+    match investigation_config::load(&root, config_path) {
+        Ok(config) => config.describe(investigation_config::HelpSelection {
+            key: value("key"),
+            explicit: value("root").is_some() || value("investigations-dir").is_some(),
+            root: &root,
+            directory,
+            write: help_topic(raw).is_some_and(|topic| MUTATION_COMMANDS.contains(&topic)),
+        }),
+        Err(error) => print_help_config_error(&cwd, &root, config_path, error),
+    }
+}
+
+fn print_help_config_error(
+    cwd: &std::path::Path,
+    root: &std::path::Path,
+    config: Option<&str>,
+    error: crate::protocol::CommandError,
+) {
+    if let Some(path) = config {
+        println!("  Config: {}", cwd.join(path).display());
+    } else {
+        println!(
+            "  Config: {}",
+            root.join(".investigation-report.json").display()
+        );
+        println!(
+            "  Config: {}",
+            root.join(".local/.investigation-report.local.json")
+                .display()
+        );
+    }
+    println!("  Source diagnostic: {}", error.message);
 }
 
 fn handle_help(domain: Domain, raw: &[String]) -> Option<i32> {
@@ -150,10 +226,15 @@ fn handle_help(domain: Domain, raw: &[String]) -> Option<i32> {
     }
     if raw.is_empty() {
         print_help(domain, None);
+        help_context(domain, raw);
         return Some(2);
     }
-    if raw.first().is_some_and(|arg| arg == "--help") || raw == ["help"] {
+    if raw.first().is_some_and(|arg| arg == "--help")
+        || (raw.first().is_some_and(|arg| arg == "help")
+            && raw.get(1).is_none_or(|arg| arg.starts_with("--")))
+    {
         print_help(domain, None);
+        help_context(domain, raw);
         return Some(0);
     }
     let requested_help = help_topic(raw);
@@ -163,6 +244,7 @@ fn handle_help(domain: Domain, raw: &[String]) -> Option<i32> {
             return Some(2);
         }
         print_help(domain, Some(topic));
+        help_context(domain, raw);
         return Some(0);
     }
     None

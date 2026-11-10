@@ -26,6 +26,8 @@ bun run check -- --scope record-rust
 
 领域行为由 [Decision Records](../../skills/decision-records/SKILL.md) 和 [Investigation Report](../../skills/investigation-report/SKILL.md) 承接；[共同操作模型](../record-operations/model.md)说明责任边界，[机器协议](protocol.md)定义 JSON、结果和顺序本地运行的文件与恢复边界。`tools/record-contracts/schemas/` 是两域索引纯数据 Schema 的来源，不是 SDK。合法 Unicode 文本受支持，孤立 UTF-16 代理项明确拒绝。
 
+Investigation 的[来源配置与帮助](../../skills/investigation-report/references/source-selection.md)和 [CLI 操作契约](../../skills/investigation-report/references/cli-operations.md)分别承接配置展开及读写路由；维护来源选择时，按这两个 owner 核对行为与验证范围。
+
 ## 源码导航
 
 参数位于 [`src/cli/arguments/`](src/cli/arguments/)，输出映射位于 [`src/cli/output/`](src/cli/output/)；同步索引及生命周期实现位于 `src/mutations/`。内部模块不构成公开 SDK。

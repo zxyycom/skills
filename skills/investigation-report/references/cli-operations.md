@@ -1,16 +1,22 @@
 # 调查报告 CLI 操作契约
 
-本文件服务调用者：解释操作前提、影响范围、结果与失败边界。查询先读“查询与结果解释”的来源表，再按所用命令补读多来源配置、搜索或追溯小节；写入先读“操作前提”，再读本次操作章节及其链接的领域规则。精确参数和默认值查 `help <command>`；报告内容与质量由 [SKILL.md](../SKILL.md)及[固定契约](investigation-report-contract.md)承接。
+本文件服务调用者：解释命令的目标选择、操作前提、影响范围、结果与失败边界。先确认“定位与选择”，再读查询来源表或本次写操作章节；配置定义与帮助展示按需读[来源配置与帮助](source-selection.md)。精确参数和默认值查 `help <command>`；报告内容与质量由 [SKILL.md](../SKILL.md)及[固定契约](investigation-report-contract.md)承接。
 
 ## 定位与选择
 
-调用原生程序绝对路径，或使用项目提供的维护入口。单集合操作默认以调用时当前目录为工作区，调查目录为 `docs/investigations`；从其他目录调用时，在 command 前显式传 `--root <workspace-root>`。`--investigations-dir` 指定工作区内相对集合路径，同一任务使用明确的集合根。`list`、`search` 另支持下方[多来源配置](#多来源配置)。
+调用原生程序绝对路径，或使用项目提供的维护入口。默认工作区为调用目录，调查集合为 `docs/investigations`；从其他目录调用时，在 command 前传 `--root <workspace-root>`，自定义集合用工作区内相对 `--investigations-dir`。`--key KEY` 选择[命名来源](source-selection.md#来源定义与展开)，与上述显式定位互斥；两种定位均可配合 `--config`。
+
+| 操作与定位 | 执行目标 |
+| --- | --- |
+| 只读：`list`、`show`、`search`、`trace`、`candidates`、`show-candidate`、`check` | 显式定位时读取该单源；否则选择显式 key 或配置的 `defaultKey`，无来源配置则读取当前工作区。 |
+| 写操作及其 `--preflight`，显式 key | key 展开后须恰好一个来源；多源选择在写入前报错。 |
+| 写操作及其 `--preflight`，未传 key | 当前工作区或显式定位的单源；`defaultKey` 仅影响读取。 |
 
 selector 移除一次大小写不敏感的末尾 `.md` 后，标准日期 ID 只精确匹配完整 ID，其余输入精确查 name。零项失败，多项报告歧义，一项收敛为完整 ID。路径只进入明确的定位参数；后续操作优先使用返回的完整日期 ID。
 
 legacy ID 的字面值也是 name 查询键，与日期 ID 同名时，`foo` 和 `foo.md` 都可能歧义。只读时可从索引列表取得实际 sourcePath 后读取已知 Markdown；需要工具修改时，另在授权下恢复无歧义身份并显式同步。旧来源仍兼容，新建不以迁移旧来源为前置。
 
-`help [command]` 与 `<command> --help` 只显示帮助，不读取集合状态；省略 command 显示顶层帮助并以参数错误结束。
+`help [command]` 与 `<command> --help` 显示基础帮助及[来源信息](source-selection.md#帮助中的来源信息)。不传任何命令时显示顶层帮助并以参数错误结束。
 
 ## 查询与结果解释
 
@@ -29,53 +35,15 @@ show 安全读取来源，核对读取内容的 frontmatter ID 与所选身份�
 
 `list` 与 `search` 只查正式报告。按需筛选和展开列表窗口；空页只说明本次条件和窗口无结果。重复 tags 为 AND，形成时间边界包含端点。关系条件和其他筛选取交集；`--related-to` 的方向相对目标解释，type 与 target 同用时须命中同一条边。
 
-### 统一配置
+### 逐源结果与回读
 
-所有业务命令共享同一配置模型；help/version 不读取配置。以 `--root` 选定的工作区（缺省调用目录）为基准，不向上查找，依次应用：
+按 key 选择的只读操作依展开顺序独立执行。每源各自应用 selector、筛选、窗口和预算，保留原顺序、错误语义及覆盖；不同来源中的同 ID 分别返回。key 是来源选择器，各源记录和关系图独立。
 
-1. 内置默认值。
-2. 项目配置 `.investigation-report.json`。
-3. 本地配置 `.local/.investigation-report.local.json`。
+返回 `{key, sources}`，其中 `sources` 为有序扁平数组，每项保留 `root`、`investigationsDir`、`ok` 及该源结果或错误；key 只展开为单源时也使用此结构。任一源失败后继续后源，整体退出码为 1；`--json` 失败 envelope 的 `result` 仍包含全部来源结果，普通失败的错误及部分结果写 stderr。
 
-对象按字段递归合并；数组整体替换，包括每个来源组的有序数组与资源压缩大小档位。`--config PATH` 在任意业务命令中选择显式配置，替代自动发现的项目／本地两层，再补内置默认值；相对路径以调用目录为准。`version` 可省略或为 1，其他顶层字段按需提供。
+逐源按上方来源表解释结果，分别检查 search 的 `searchInfo.coverage`、trace 的遍历覆盖或 check 的检查范围。窗口、排序、记录去重与覆盖均不跨源汇总；search 不提供 offset 分页。
 
-```json
-{
-  "version": 1,
-  "defaultKey": "related",
-  "sources": {
-    "related": [
-      { "root": "..", "investigationsDir": "research/reports" },
-      { "root": "../../shared-lib", "investigationsDir": "notes/investigations" }
-    ]
-  },
-  "resources": { "fileBytesWarn": 1048576 }
-}
-```
-
-`defaultKey`、`sources`、`resources` 均按需提供。声明来源组时，合并后的 `defaultKey` 必须指向已有组；每组有非空名称和非空有序来源数组。每源明确提供 `root` 与安全相对 `investigationsDir`。来源 `root` 可绝对或相对，**相对路径在所属配置文件目录解析后再合并**；上述本地配置中的 `root: ".."` 指工作区，放在项目配置时应按其目录填写。
-
-默认文件缺失使用剩余配置与内置值；显式文件缺失、不可读、非普通文件、超过 1 MiB、非法 JSON、未知字段、null 或非法策略明确失败。每层资源策略独立验证，后层不能遮盖非法项目策略。资源字段、默认提示线、预算及结果解释见[资源诊断](resource-review.md)。
-
-### 多来源配置
-
-只有 `list`、`search` 使用来源组：`--key KEY` 选择组，省略时使用配置的 `defaultKey`。选定后按来源数组顺序分别执行现有单源查询，再按来源分组返回原结果；其他命令不按来源组路由。
-
-| 调用状态 | 行为 |
-| --- | --- |
-| 显式传 `--root` 或 `--investigations-dir` | 使用单源查询，仍读取该工作区或显式配置；仅与 `--key` 互斥，不与 `--config` 互斥。 |
-| 未显式定位，且无来源组 | 使用原单源查询；只有资源策略的配置不会自动开启多来源。 |
-| 未显式定位，且有合法来源组 | 按选中组逐源查询；显式 `--key` 未知时失败。 |
-
-#### 逐源结果与回读
-
-各源独立应用筛选、`limit`、适用的 `offset` 和预算，保留单源顺序与覆盖；不跨来源排序、去重、分页或汇总覆盖。search 仍不提供 offset 分页。
-
-结果按 `sources` 分组保留各源 `root`、`investigationsDir`、`ok` 和原结果。逐源解释上方来源表；搜索还须分别检查各源的 `searchInfo.coverage`，不能以某源的覆盖推断其他源。
-
-任一来源失败后继续查询其余来源，整体退出码为 1。`--json` 失败 envelope 的 `result` 仍包含全部来源结果和错误；普通失败按既有协议在 stderr 给出错误及部分结果。
-
-读取命中报告时，用其所属来源的定位参数和完整 ID：`show <id> --root <root> --investigations-dir <investigationsDir>`。`show` 不接受 `--key`，可用 `--config` 选择同一配置模型。
+回读某一命中，使用完整 ID 和所属来源的单源 key：`--key <single-key> show <id>`；也可显式传 `--root <root> --investigations-dir <investigationsDir> show <id>`。对组合 key 执行 `show <id>` 会逐源选择，某源无该 ID 的错误与其他源成功分别保留。写入按[定位与选择](#定位与选择)另选明确单源。
 
 ### 搜索
 
@@ -96,7 +64,7 @@ show 安全读取来源，核对读取内容的 frontmatter ID 与所选身份�
 
 ### 追溯演进
 
-`trace` 返回关系查询切片。默认双向、深度 5、最多 50 条记录；用 `--depth all` 或 `--max-records` 按需扩展。普通成功输出为格式化 JSON，`--json` 返回紧凑 JSON；成功 trace 使用其自身结果形状，不套通用 envelope。
+`trace` 返回关系查询切片。默认双向、深度 5、最多 50 条记录；用 `--depth all` 或 `--max-records` 按需扩展。普通成功输出为格式化 JSON，`--json` 返回紧凑 JSON；直接单源成功 trace 使用其自身结果形状，不套通用 envelope。按 key 选择时使用[逐源结果结构](#逐源结果与回读)，每源 result 保留原 trace 形状。
 
 - `traceIds` 为实际遍历成员；`contextIds` 只为闭合拆分或纯归并事件补入，不递归扩展。
 - entry 保留完整直接关系，target 可以在切片外；切片外边不是缺失证明。
@@ -238,6 +206,6 @@ CLI 同时说明上述覆盖边界。
 
 ## 结果与恢复
 
-退出码 0 表示成功，1 表示领域或系统失败，2 表示参数错误；warning 可同时出现在结果和 stderr。`--json` 通常返回 version 2 envelope，成功 `trace` 例外；具体字段按实际命令结果解释。
+退出码 0 表示成功，1 表示领域或系统失败，2 表示参数错误；warning 可同时出现在结果和 stderr。`--json` 通常返回 version 2 envelope，直接单源成功 `trace` 例外；具体字段按实际命令结果解释。
 
 预检只表示计划。失败不表示零写入：按存在的 `changed`、`committed`、`writtenPaths`、`unknownPaths` 和诊断检查现场；未知不等于未变化。新建独占目标但初始化失败可留下部分内容；已有文件替换保护旧内容，但多个文件不保证原子提交、CAS 或自动回滚。先保留现场与可信版本，按[维护恢复](maintenance-recovery.md#中断写入)对账，不直接重做操作。stage 使用 Git 的一次 index 更新保留未选 pending，不是工作区备份或并发隔离。

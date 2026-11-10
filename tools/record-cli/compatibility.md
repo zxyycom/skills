@@ -23,6 +23,10 @@
 
 搜索预算补充：DR content 的 `contextLines=1,maxFiles=20,maxMatchesPerFile=3,maxPreviewCharacters=12000`，未自定义资源限制时共同默认 `maxCandidateFiles=10000,maxFileBytes=2097152,maxTotalBytes=20971520`；IR content 分别为 `contextLines=1,maxFiles=limit,maxMatchesPerFile=3,maxPreviewCharacters=24000,maxCandidateFiles=2000,maxFileBytes=2097152,maxTotalBytes=20971520`。预算计算和超限语义仍以源码为准。
 
+## Investigation 来源配置兼容
+
+原有仅含内联来源对象的数组配置继续有效；直接定位的单源调用保持原结果形状。按 key 选择的结果采用[来源结果协议](protocol.md#investigation-多来源查询)，逐源保留上表所列业务信息。配置定义与展开规则见[来源配置契约](../../skills/investigation-report/references/source-selection.md)。
+
 ## 参数边界与 DR 写结果的精确承接
 
 本节 `.ts` 路径、类型和结果名称均指上述历史基线；同名 `src/` 根据 DR 或 IR 上下文分别位于 `tools/decision-records/` 或 `tools/investigation-report/`。它们用于复核原有语义，不是当前实现位置。
