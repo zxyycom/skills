@@ -68,7 +68,7 @@ impl Default for Policy {
             compressibility: Compression {
                 enabled: true,
                 full_file_bytes: 1_048_576,
-                sample_window_bytes: 65_536,
+                sample_window_bytes: 262_144,
                 sample_windows: 4,
                 bands: vec![
                     Band {

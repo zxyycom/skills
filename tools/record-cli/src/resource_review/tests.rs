@@ -41,7 +41,7 @@ fn compression_starts_at_64_kib_and_reports_full_or_sampled_coverage() {
     for (name, method, threshold, input) in [
         ("boundary.txt", CompressionMethod::Full, 0.10, 65536),
         ("middle.txt", CompressionMethod::Full, 0.15, 262144),
-        ("large.txt", CompressionMethod::Sampled, 0.20, 262144),
+        ("large.txt", CompressionMethod::Sampled, 0.20, 1048576),
     ] {
         let compression = find(name).compressibility.as_ref().unwrap();
         assert_eq!(compression.method, method);
@@ -50,6 +50,10 @@ fn compression_starts_at_64_kib_and_reports_full_or_sampled_coverage() {
         assert!(compression.compressed_ratio <= threshold);
     }
     assert!(observed.complete);
+    assert_eq!(
+        observed.read_budget_used_bytes,
+        8192 + 65536 + 262144 + 1048576
+    );
 }
 
 #[test]
@@ -89,19 +93,20 @@ fn disabled_review_does_not_inspect_missing_resources() {
 
 #[test]
 fn sampled_equal_prefixes_never_confirm_duplicate_files() {
-    let mut a = vec![0x61; 1048577];
+    let mut a = vec![0x61; 4194305];
     let mut b = a.clone();
     // Outside all four default windows: equal samples conceal a real difference.
-    a[100000] = 0x78;
-    b[100000] = 0x79;
+    a[500000] = 0x78;
+    b[500000] = 0x79;
     let (temp, refs) = fixture(&[("a.txt", a), ("b.txt", b)]);
     let policy = Policy {
-        read_budget_bytes: 524288,
+        read_budget_bytes: 2097152,
         ..Policy::default()
     };
     let observed = inspect(&temp, &refs, &policy);
     assert!(observed.duplicate_groups.is_empty());
     assert!(!observed.complete);
+    assert_eq!(observed.read_budget_used_bytes, 2097152);
     assert_eq!(observed.files.len(), 2);
     assert!(
         observed
@@ -113,7 +118,7 @@ fn sampled_equal_prefixes_never_confirm_duplicate_files() {
         observed
             .files
             .iter()
-            .all(|f| f.compressibility.as_ref().unwrap().input_bytes == 262144)
+            .all(|f| f.compressibility.as_ref().unwrap().input_bytes == 1048576)
     );
 }
 

@@ -48,7 +48,7 @@
 | `binary.archive`、`binary.executable`、`binary.unknown` | `warn` | `off` / `info` / `warn`。 |
 | `compressibility.enabled` | `true` | 布尔值。 |
 | `compressibility.fullFileBytes` | 1 MiB | 全文压缩上限，1 byte–16 MiB。 |
-| `compressibility.sampleWindowBytes` | 64 KiB | 单窗口大小，1 byte–1 MiB。 |
+| `compressibility.sampleWindowBytes` | 256 KiB | 单窗口大小，1 byte–1 MiB。 |
 | `compressibility.sampleWindows` | 4 | 均匀分布窗口数，2–16。 |
 | `compressibility.bands` | 见下表 | 非空数组，整体替换；按 `minBytes` 严格递增。 |
 
@@ -66,7 +66,7 @@
 
 文件按资源 ID 稳定排序；在 `maxFiles` 内通过不跟随符号链接的路径分量取得普通文件大小。候选中路径或版本控制可见性检查失败的引用仅记未完成，诊断不打开其载荷。元数据与内容分别取得，已观察到的大小漂移也记未完成；这不是跨文件原子快照。
 
-默认 64 KiB–1 MiB 的文本候选全文压缩，更大文件取首尾及均匀分布的四个 64 KiB 窗口。各窗口独立以 zstd level 1 压缩，按样本总字节汇总比例。相同大小的文件在预算足够时读取全文，复用于类型、压缩和副本比较；**采样相等不确认副本**。
+默认 64 KiB–1 MiB 的文本候选全文压缩，更大文件取首尾及均匀分布的四个 256 KiB 窗口，总采样量为 1 MiB，仍受单次共享读取预算约束。各窗口独立以 zstd level 1 压缩，按样本总字节汇总比例。相同大小的文件在预算足够时读取全文，复用于类型、压缩和副本比较；**采样相等不确认副本**。
 
 类型、压缩与副本比较共用读取预算，完整内容最多在本次预算内保留。预算耗尽、文件数超限、读取失败均保留未完成状态；可按报告局部重跑或调整预算。
 
