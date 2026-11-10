@@ -10,7 +10,7 @@ use crate::{
     source_revision::Domain,
     transaction::{Plan, TransactionOperation, TxError},
 };
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 
 #[derive(Clone, Debug)]
 struct Stage {
@@ -69,20 +69,25 @@ pub(crate) fn related(
     let mut result = selected_sync::related_events(&edges, anchors);
     // Reallocation is a connected bipartite event; expand only components
     // touched by an anchor, not every ordinary transitive graph neighbor.
-    let mut connected = anchors.clone();
-    loop {
-        let mut changed = false;
-        for (source, target, kind) in &edges {
-            if *kind == "重划" && (connected.contains(*source) || connected.contains(*target)) {
-                changed |= connected.insert((*source).into());
-                changed |= connected.insert((*target).into());
-            }
-        }
-        if !changed {
-            break;
+    let mut adjacency: HashMap<&str, Vec<&str>> = HashMap::new();
+    for (source, target, kind) in &edges {
+        if *kind == "重划" {
+            adjacency.entry(source).or_default().push(target);
+            adjacency.entry(target).or_default().push(source);
         }
     }
-    result.extend(connected);
+    let mut connected: HashSet<&str> = anchors.iter().map(String::as_str).collect();
+    let mut queue: VecDeque<&str> = anchors.iter().map(String::as_str).collect();
+    while let Some(id) = queue.pop_front() {
+        if let Some(neighbors) = adjacency.get(id) {
+            for &neighbor in neighbors {
+                if connected.insert(neighbor) {
+                    queue.push_back(neighbor);
+                }
+            }
+        }
+    }
+    result.extend(connected.into_iter().map(str::to_owned));
     result
 }
 impl SelectedDecisionSyncOperation {

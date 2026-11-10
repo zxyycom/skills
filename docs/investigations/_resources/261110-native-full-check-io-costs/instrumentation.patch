@@ -1,0 +1,104 @@
+--- baseline/src/bin/investigation-report.rs
++++ probe/src/bin/investigation-report.rs
+@@ -1,5 +1,4 @@
+ fn main() {
+-    std::process::exit(record_cli::cli::main_entry(
+-        record_cli::cli::Domain::Investigation,
+-    ));
++ let code=record_cli::cli::main_entry(record_cli::cli::Domain::Investigation);
++ record_cli::probe::dump();std::process::exit(code);
+ }
+--- baseline/src/git/command.rs
++++ probe/src/git/command.rs
+@@ -6,6 +6,7 @@
+     input: Option<&[u8]>,
+ ) -> Result<Vec<u8>, GitError> {
+     use std::process::{Command, Stdio};
++    let _probe=crate::probe::timer(format!("git:{}",args.first().unwrap_or(&"unknown")));
+     check_git_context()?;
+     let mut process = Command::new("git");
+     process
+--- baseline/src/lib.rs
++++ probe/src/lib.rs
+@@ -11,3 +11,5 @@
+ pub mod source_revision;
+ pub mod stage;
+ pub mod transaction;
++
++pub mod probe;
+--- baseline/src/mutations/check/investigation/initial.rs
++++ probe/src/mutations/check/investigation/initial.rs
+@@ -14,14 +14,21 @@
+     directory: &str,
+     rebuild: bool,
+ ) -> Result<Initial, CheckError> {
++    let phase=crate::probe::timer("phase:collection");
+     let mut collected = super::collection::collect_members(root, dir, directory)?;
++    drop(phase);
+     let members = std::mem::take(&mut collected.members);
++    let phase=crate::probe::timer("phase:sources");
+     let mut scanned = super::sources::scan(root, dir, members)?;
++    drop(phase);
++    let phase=crate::probe::timer("phase:resources");
+     review_resources(root, directory, &collected, &mut scanned)?;
++    drop(phase);
+     if !scanned.diagnostics.is_empty() {
+         return Err(partial_error(dir, scanned));
+     }
+     if !rebuild {
++        let _phase=crate::probe::timer("phase:history");
+         scanned
+             .warnings
+             .extend(super::investigation_history_warnings(
+--- baseline/src/mutations/check/investigation.rs
++++ probe/src/mutations/check/investigation.rs
+@@ -35,6 +35,7 @@
+         formal_count,
+         ..
+     } = initial;
++    let phase=crate::probe::timer("phase:index");
+     let IndexCheck {
+         index_path,
+         index_before,
+@@ -60,6 +61,7 @@
+         rebuild,
+     }
+     .verify()?;
++    drop(phase);
+     result.index_state = index_state;
+     result.index_path = index_path.as_path().to_string_lossy().replace('\\', "/");
+     result.index_checked = Some(true);
+--- baseline/src/probe.rs
++++ probe/src/probe.rs
+@@ -0,0 +1,13 @@
++use std::{collections::BTreeMap, sync::{Mutex, OnceLock}, time::Instant};
++#[derive(Default, serde::Serialize)]
++struct Stat { calls: u64, entries: u64, nanos: u128 }
++static STATS: OnceLock<Mutex<BTreeMap<String,Stat>>> = OnceLock::new();
++fn add(name: String, entries: u64, nanos: u128, calls: u64) {
++ let mut stats=STATS.get_or_init(||Mutex::new(BTreeMap::new())).lock().unwrap();
++ let stat=stats.entry(name).or_default();stat.calls+=calls;stat.entries+=entries;stat.nanos+=nanos;
++}
++pub struct Timer { name: String, start: Instant }
++pub fn timer(name: impl Into<String>) -> Timer { Timer { name: name.into(), start: Instant::now() } }
++impl Drop for Timer { fn drop(&mut self) { add(self.name.clone(),0,self.start.elapsed().as_nanos(),1); } }
++pub fn entries(name: String, count: usize) { add(name,count as u64,0,0); }
++pub fn dump() { let stats=STATS.get_or_init(||Mutex::new(BTreeMap::new())).lock().unwrap(); eprintln!("RECORD_PROBE {}",serde_json::to_string(&*stats).unwrap()); }
+--- baseline/src/source.rs
++++ probe/src/source.rs
+@@ -187,6 +187,7 @@
+     root: &Root,
+     path: &RelativePath,
+ ) -> Result<DirectorySnapshot, SourceError> {
++    let _probe=crate::probe::timer(format!("enumerate:{}",path.as_path().display()));
+     let metadata = root.directory.symlink_metadata(path.as_path())?;
+     if metadata.file_type().is_symlink() {
+         return Err(SourceError::Symlink(path.0.clone()));
+@@ -205,6 +206,7 @@
+         let kind = member_kind(item.file_type()?);
+         members.push(DirectoryMember { name, kind });
+     }
++    crate::probe::entries(format!("enumerate:{}",path.as_path().display()),members.len());
+     members.sort_by(|a, b| a.name.encode_utf16().cmp(b.name.encode_utf16()));
+     Ok(DirectorySnapshot {
+         path: path.clone(),

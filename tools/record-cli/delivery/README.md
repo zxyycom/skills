@@ -1,12 +1,12 @@
 # Record CLI 离线候选交付
 
-仅用于私有 fixture 验证；不接入现行 skill 包、updater 或 GitHub release，也不能安装到真实用户 skill 或记录目录。候选维护与平台证据边界见 [Record CLI 维护入口](../README.md)。需要 Node.js >=24.18、仓库依赖、冻结 Rust 工具链及已缓存的锁定 Cargo 依赖。
+本离线候选流程仅用于私有 fixture 验证；其产物不接入 skill 包、updater 或 GitHub release，也不能安装到真实用户 skill 或记录目录。候选维护与平台证据边界见 [Record CLI 维护入口](../README.md)。需要 Node.js >=24.18、仓库依赖、冻结 Rust 工具链及已缓存的锁定 Cargo 依赖。
 
 ```sh
-node tools/record-cli/delivery/cli.ts build record-cli-candidate-example 0.2.1
+node tools/record-cli/delivery/cli.ts build record-cli-candidate-example 0.2.2
 # 在独立临时测试目录中创建 .record-cli-fixture，内容严格为：
 # record-cli private fixture（后接一个换行）
-node tools/record-cli/delivery/cli.ts install dist/record-cli-candidate-example/assets <私有测试目录> 0.2.1
+node tools/record-cli/delivery/cli.ts install dist/record-cli-candidate-example/assets <私有测试目录> 0.2.2
 node --test tools/record-cli/delivery/delivery.test.ts
 ```
 

@@ -6,6 +6,7 @@ pub(super) struct Preparation<'a> {
     pub root: &'a Root,
     pub baseline: &'a index::ValidatedIndex<decision::DecisionState>,
     pub ids: &'a BTreeMap<String, Located>,
+    pub lookup: &'a domains::SelectorIndex<'a, Located>,
     pub candidates: &'a BTreeSet<String>,
     pub selection: &'a selection::Selection,
 }
@@ -160,9 +161,9 @@ impl Preparation<'_> {
         let mut after = Vec::new();
         let mut targets = HashSet::new();
         for edge in override_edges {
-            let target = resolve(self.ids, &edge.target)?.to_owned();
+            let target = resolve(self.lookup, &edge.target)?.to_owned();
             if let Some(selector) = &edge.summary_selector
-                && resolve(self.ids, selector)? != target
+                && resolve(self.lookup, selector)? != target
             {
                 return Err(fail(
                     "relation-summary",

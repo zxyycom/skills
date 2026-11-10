@@ -1,0 +1,57 @@
+{
+  "assets": {
+    "old": "ce2de7e7f59c0a9d2ecc993c7dbc9f9b7876a28f5fb58abacfab5d10f9bad3fa",
+    "candidate": "0d3c33d4876644c4f9e547c61ae20e10204e4ae1d95c806f347450eba9631b6b",
+    "wrapper": "fa25fb148fbdb962fa998e0a0e08041276c9082b5649b70a9ef1374f307ac46f",
+    "probe": "f37383e9884b9d98462389b4b7c25348083eecc470566d5a6c244a1978ca3b50"
+  },
+  "real_git": "/usr/bin/git",
+  "rows": [
+    {
+      "arm": "checkpoint",
+      "injected": false,
+      "exit": 0,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "warnings": [],
+      "formalCount": 376,
+      "batch_calls": 0,
+      "individual_catfile_calls": 0
+    },
+    {
+      "arm": "checkpoint",
+      "injected": true,
+      "exit": 0,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "warnings": [],
+      "formalCount": 376,
+      "batch_calls": 2,
+      "individual_catfile_calls": 501
+    },
+    {
+      "arm": "candidate",
+      "injected": false,
+      "exit": 0,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "warnings": [],
+      "formalCount": 376,
+      "batch_calls": 0,
+      "individual_catfile_calls": 0
+    },
+    {
+      "arm": "candidate",
+      "injected": true,
+      "exit": 0,
+      "stderr_bytes": 79,
+      "stderr_sha256": "df550164a516ed7e2b252210ed84d3e12faa22086345c4e58740d7e2a93bb4d3",
+      "warnings": [
+        "Investigation history unavailable: InvalidOutput(\"Git output budget exceeded\")"
+      ],
+      "formalCount": 376,
+      "batch_calls": 1,
+      "individual_catfile_calls": 251
+    }
+  ]
+}

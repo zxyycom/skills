@@ -180,20 +180,67 @@ pub enum SelectorError {
     NotFound,
     Ambiguous(Vec<String>),
 }
-/// A dated selector identifies exactly one ID; all other inputs match projected names.
-pub fn resolve_selector<'a, S>(
+/// Per-snapshot name lookup for operations resolving several selectors.
+pub(crate) struct SelectorIndex<'a, S> {
     entries: &'a std::collections::BTreeMap<String, S>,
-    selector: &str,
-    name: impl Fn(&S) -> &str,
-) -> Result<(&'a str, &'a S), SelectorError> {
-    let normalized = if selector
+    names: std::collections::HashMap<&'a str, Vec<&'a str>>,
+}
+
+impl<'a, S> SelectorIndex<'a, S> {
+    pub(crate) fn new(
+        entries: &'a std::collections::BTreeMap<String, S>,
+        name: impl Fn(&S) -> &str,
+    ) -> Self {
+        let mut names: std::collections::HashMap<&str, Vec<&str>> =
+            std::collections::HashMap::new();
+        for (id, state) in entries {
+            names.entry(name(state)).or_default().push(id);
+        }
+        Self { entries, names }
+    }
+
+    pub(crate) fn resolve(&self, selector: &str) -> Result<(&'a str, &'a S), SelectorError> {
+        let normalized = normalize_selector(selector);
+        if name_from_id(normalized) != normalized {
+            return self
+                .entries
+                .get_key_value(normalized)
+                .map(|(id, state)| (id.as_str(), state))
+                .ok_or(SelectorError::NotFound);
+        }
+        match self
+            .names
+            .get(normalized)
+            .map(Vec::as_slice)
+            .unwrap_or_default()
+        {
+            [] => Err(SelectorError::NotFound),
+            [id] => Ok((*id, &self.entries[*id])),
+            ids => Err(SelectorError::Ambiguous(
+                ids.iter().map(|id| (*id).to_owned()).collect(),
+            )),
+        }
+    }
+}
+
+fn normalize_selector(selector: &str) -> &str {
+    if selector
         .get(selector.len().saturating_sub(3)..)
         .is_some_and(|suffix| suffix.eq_ignore_ascii_case(".md"))
     {
         &selector[..selector.len() - 3]
     } else {
         selector
-    };
+    }
+}
+
+/// A dated selector identifies exactly one ID; all other inputs match projected names.
+pub fn resolve_selector<'a, S>(
+    entries: &'a std::collections::BTreeMap<String, S>,
+    selector: &str,
+    name: impl Fn(&S) -> &str,
+) -> Result<(&'a str, &'a S), SelectorError> {
+    let normalized = normalize_selector(selector);
     if name_from_id(normalized) != normalized {
         return entries
             .get_key_value(normalized)

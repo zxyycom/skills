@@ -3,6 +3,13 @@ use super::*;
 /// Candidate discovery classification is independent from full metadata/body validation.
 pub fn candidate_header(text: &str, source_path: &str) -> Result<(Option<String>, bool), String> {
     let fields = super::super::candidate_header_fields(text)?;
+    classify_header(fields, source_path)
+}
+
+pub(super) fn classify_header(
+    fields: Option<super::super::candidate_header::CandidateHeaderFields>,
+    source_path: &str,
+) -> Result<(Option<String>, bool), String> {
     let Some(header) = fields else {
         return Err(format!(
             "{source_path} cannot be safely classified: ambiguous Decision header identity/status"

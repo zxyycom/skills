@@ -10,7 +10,7 @@ pub fn list_workspace_files(
 ) -> Result<Vec<PathBuf>, GitError> {
     let prefix = worktree_prefix(root)?;
     let mut result = BTreeSet::new();
-    let patterns: Vec<String> = if scopes.is_empty() {
+    let mut patterns: Vec<String> = if scopes.is_empty() {
         vec![format!(":(top,literal){prefix}")]
     } else {
         scopes
@@ -18,22 +18,21 @@ pub fn list_workspace_files(
             .map(|scope| git_path(scope).map(|name| format!(":(top,literal){prefix}{name}")))
             .collect::<Result<_, _>>()?
     };
-    for pattern in patterns {
-        let bytes = command(
-            root,
-            &[
-                "ls-files",
-                "--cached",
-                "--others",
-                "--exclude-standard",
-                "-z",
-                "--full-name",
-                "--",
-                &pattern,
-            ],
-            None,
-        )?;
-        collect_workspace_listing(&bytes, &prefix, &mut result)?;
+    patterns.sort();
+    patterns.dedup();
+    for batch in pattern_batches(&patterns)? {
+        let args = [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--full-name",
+            "--",
+        ];
+        command_patterns(root, &args, batch, 256 * 1024 * 1024, |bytes| {
+            collect_workspace_listing(bytes, &prefix, &mut result)
+        })?;
     }
     Ok(result.into_iter().collect())
 }

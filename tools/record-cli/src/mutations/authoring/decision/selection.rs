@@ -8,12 +8,12 @@ pub(super) struct Selection {
 
 pub(super) fn resolve_selection(
     operation: &DecisionEvolutionOperation,
-    ids: &BTreeMap<String, Located>,
+    lookup: &domains::SelectorIndex<'_, Located>,
     candidates: &BTreeSet<String>,
 ) -> Result<Selection, TxError> {
     let mut selected = BTreeMap::new();
     for s in &operation.successors {
-        let id = resolve(ids, &s.selector)?.to_owned();
+        let id = resolve(lookup, &s.selector)?.to_owned();
         if selected.insert(id.clone(), s.alignment).is_some() {
             return Err(fail("duplicate-selection", id));
         }
@@ -24,7 +24,7 @@ pub(super) fn resolve_selection(
     let discarded = operation
         .discard
         .as_ref()
-        .map(|s| resolve(ids, s).map(str::to_owned))
+        .map(|s| resolve(lookup, s).map(str::to_owned))
         .transpose()?;
     if discarded
         .as_ref()
@@ -32,7 +32,7 @@ pub(super) fn resolve_selection(
     {
         return Err(fail("discard", "successor cannot also be discarded"));
     }
-    let group_map = resolve_relation_groups(&operation.relations, ids, &selected)?;
+    let group_map = resolve_relation_groups(&operation.relations, lookup, &selected)?;
     Ok(Selection {
         selected,
         discarded,
@@ -42,7 +42,7 @@ pub(super) fn resolve_selection(
 
 fn resolve_relation_groups(
     relations: &DecisionRelationOverride,
-    ids: &BTreeMap<String, Located>,
+    lookup: &domains::SelectorIndex<'_, Located>,
     selected: &BTreeMap<String, Alignment>,
 ) -> Result<BTreeMap<String, Vec<Relation<DecisionRelationKind>>>, TxError> {
     let mut group_map = BTreeMap::new();
@@ -59,7 +59,7 @@ fn resolve_relation_groups(
         }
         DecisionRelationOverride::Groups(groups) => {
             for group in groups {
-                let id = resolve(ids, &group.source)?.to_owned();
+                let id = resolve(lookup, &group.source)?.to_owned();
                 if !selected.contains_key(&id)
                     || group_map.insert(id, group.relations.clone()).is_some()
                 {

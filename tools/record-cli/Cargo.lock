@@ -340,13 +340,15 @@ checksum = "f8dcc9c7d52a811697d2151c701e0d08956f92b0e24136cf4cf27b57a6a0d9bf"
 
 [[package]]
 name = "record-cli"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "cap-fs-ext",
+ "cap-primitives",
  "cap-std",
  "libc",
  "serde",
  "serde_json",
+ "sha1collisiondetection",
  "sha2",
  "tempfile",
  "time",
@@ -433,6 +435,16 @@ dependencies = [
  "serde",
  "serde_core",
  "zmij",
+]
+
+[[package]]
+name = "sha1collisiondetection"
+version = "0.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1f606421e4a6012877e893c399822a4ed4b089164c5969424e1b9d1e66e6964b"
+dependencies = [
+ "digest",
+ "generic-array",
 ]
 
 [[package]]

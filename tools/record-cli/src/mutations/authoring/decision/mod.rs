@@ -90,8 +90,12 @@ struct Located {
     path: String,
     name: String,
 }
-fn resolve<'a>(ids: &'a BTreeMap<String, Located>, selector: &str) -> Result<&'a str, TxError> {
-    domains::resolve_selector(ids, selector, |item| &item.name)
+fn resolve<'a>(
+    lookup: &domains::SelectorIndex<'a, Located>,
+    selector: &str,
+) -> Result<&'a str, TxError> {
+    lookup
+        .resolve(selector)
         .map(|(id, _)| id)
         .map_err(|e| fail("selector", format!("{e:?}: {selector}")))
 }
@@ -144,12 +148,14 @@ impl DecisionEvolutionOperation {
             candidates,
             ..
         } = &collection;
-        let selection = selection::resolve_selection(self, ids, candidates)?;
+        let lookup = domains::SelectorIndex::new(ids, |item| &item.name);
+        let selection = selection::resolve_selection(self, &lookup, candidates)?;
         let prepared = successors::Preparation {
             operation: self,
             root,
             baseline,
             ids,
+            lookup: &lookup,
             candidates,
             selection: &selection,
         }

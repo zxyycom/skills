@@ -1,6 +1,6 @@
 # Record CLI 候选性能测量
 
-本方法不是性能结论或通过证明；应在最终稳定源码上隔离重建、核对和测量。
+本方法是迁移前的旧 Node CLI 与原生候选对照方法，不是性能结论或通过证明。`fixtures.ts` 和 `verify.ts` 硬编码同一源码树内的旧 Node CLI 入口；当前源码已移除这些入口，以下命令在当前仓库不能直接完成。需要对照时先为旧端与候选设计可验证的来源和依赖闭包并调整工具；历史方法和结果见 [性能复核](../../../docs/investigations/261110-native-full-check-io-costs.md)。下列命令描述旧方法，不是当前可运行验收流程。
 
 ## 输入与正确性
 
@@ -19,7 +19,7 @@ node tools/record-cli/benchmarks/fixtures.ts <新目录名> <条数> [宽度] [�
 在最终稳定源码上，通过公开 delivery 入口新建隔离 release 快照并生成 manifest：
 
 ```bash
-node tools/record-cli/delivery/cli.ts build <新构建名> 0.2.1
+node tools/record-cli/delivery/cli.ts build <新构建名> <所选源码的Cargo版本>
 node tools/record-cli/benchmarks/run.ts <fixture名> dist/<构建名>/assets <新运行名> 20 <非零随机种子>
 ```
 

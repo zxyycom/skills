@@ -67,7 +67,15 @@ fn recorded_history(
     };
     let historical = historical_index(&repository, &head, scope)?;
     let recorded = recorded_targets(&repository, &head, scope, historical.as_ref(), targets)?;
+    verify_head(&repository, &head)?;
     Ok(Some((head, recorded)))
+}
+
+fn verify_head(repository: &std::path::Path, head: &str) -> Result<(), String> {
+    match crate::git::probe_head(repository).map_err(|e| e.to_string())? {
+        crate::git::HeadState::Commit(current) if current == head => Ok(()),
+        _ => Err("HEAD changed during historical lookup".into()),
+    }
 }
 
 fn historical_index(
@@ -113,23 +121,65 @@ fn recorded_targets(
     targets: &BTreeSet<&String>,
 ) -> Result<HashSet<String>, String> {
     use crate::git;
-    let mut recorded = HashSet::new();
-    for &id in targets {
-        if let Some(state) = historical.and_then(|index| index.index().entries.get(id)) {
-            let path = scope.join(&state.source_path);
-            let (mode, bytes) = git::read_revision_file(repository, head, &path)
-                .map_err(|e| e.to_string())?
-                .ok_or_else(|| format!("historical source missing: {id}"))?;
-            let text = std::str::from_utf8(&bytes).map_err(|e| e.to_string())?;
-            if !matches!(mode, 0o100644 | 0o100755)
-                || domains::investigation::id_from_markdown(text).as_deref() != Some(id)
-            {
-                return Err(format!("historical identity unavailable: {id}"));
-            }
-            recorded.insert(id.clone());
+    let selected: Vec<_> = targets
+        .iter()
+        .filter_map(|&id| {
+            historical
+                .and_then(|index| index.index().entries.get(id))
+                .map(|state| (id, scope.join(&state.source_path)))
+        })
+        .collect();
+    let paths = selected
+        .iter()
+        .map(|(_, path)| path.clone())
+        .collect::<Vec<_>>();
+    let sources = match git::read_revision_files(repository, head, &paths) {
+        Ok(sources) => sources,
+        Err(batch_error) => {
+            verify_sources_individually(repository, head, &selected)?;
+            return Err(batch_error.to_string());
         }
+    };
+    let mut recorded = HashSet::new();
+    for (id, path) in selected {
+        verify_source(
+            id,
+            sources
+                .get(&path)
+                .map(|(mode, bytes)| (*mode, bytes.as_slice())),
+        )?;
+        recorded.insert(id.clone());
     }
     Ok(recorded)
+}
+
+fn verify_sources_individually(
+    repository: &std::path::Path,
+    head: &str,
+    selected: &[(&String, std::path::PathBuf)],
+) -> Result<(), String> {
+    for (id, path) in selected {
+        let source =
+            crate::git::read_revision_file(repository, head, path).map_err(|e| e.to_string())?;
+        verify_source(
+            id,
+            source
+                .as_ref()
+                .map(|(mode, bytes)| (*mode, bytes.as_slice())),
+        )?;
+    }
+    Ok(())
+}
+
+fn verify_source(id: &str, source: Option<(u32, &[u8])>) -> Result<(), String> {
+    let (mode, bytes) = source.ok_or_else(|| format!("historical source missing: {id}"))?;
+    let text = std::str::from_utf8(bytes).map_err(|e| e.to_string())?;
+    if !matches!(mode, 0o100644 | 0o100755)
+        || domains::investigation::id_from_markdown(text).as_deref() != Some(id)
+    {
+        return Err(format!("historical identity unavailable: {id}"));
+    }
+    Ok(())
 }
 
 #[cfg(test)]

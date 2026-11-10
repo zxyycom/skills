@@ -45,6 +45,9 @@ pub struct ResourceContext<'a> {
     git_members: Option<HashSet<String>>,
     git_by_owner: HashMap<String, Vec<String>>,
     checked: HashMap<String, bool>,
+    directories: HashMap<std::path::PathBuf, DirectoryFacts>,
+    #[cfg(test)]
+    directory_enumerations: usize,
 }
 impl<'a> ResourceContext<'a> {
     pub fn open(root: &'a Root, directory: &str, exists: bool) -> Result<Self, CommandError> {
@@ -72,7 +75,38 @@ impl<'a> ResourceContext<'a> {
             git_members,
             git_by_owner,
             checked: HashMap::new(),
+            directories: HashMap::new(),
+            #[cfg(test)]
+            directory_enumerations: 0,
         })
+    }
+}
+
+/// Names are indexed once per observed directory. The source listing is already
+/// UTF-16 sorted, so the first folded alias preserves diagnostic ordering.
+struct DirectoryFacts {
+    version: Option<source::ResourceDirectoryVersion>,
+    exact: HashSet<String>,
+    folded: HashMap<String, String>,
+}
+impl DirectoryFacts {
+    fn new(
+        listing: source::DirectorySnapshot,
+        version: Option<source::ResourceDirectoryVersion>,
+    ) -> Self {
+        let mut exact = HashSet::new();
+        let mut folded = HashMap::new();
+        for member in listing.members {
+            folded
+                .entry(member.name.to_lowercase())
+                .or_insert_with(|| member.name.clone());
+            exact.insert(member.name);
+        }
+        Self {
+            version,
+            exact,
+            folded,
+        }
     }
 }
 

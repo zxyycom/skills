@@ -48,24 +48,81 @@ fn recorded_history(
     let RecordedRevision { repo, scope, head } = revision;
     use crate::git::{self, HeadState};
     let historical = historical_index(&repo, &head, &scope)?;
-    let mut recorded = HashSet::new();
-    for target in targets {
-        // A verified source belongs to this fixed HEAD; warnings remain per relation.
-        if recorded.contains(*target) {
-            continue;
-        }
-        if let Some(state) = historical
-            .as_ref()
-            .and_then(|index| index.index().entries.get(*target))
-        {
-            verify_historical_source(&repo, &head, &scope, target, &state.source_path)?;
-            recorded.insert((*target).to_owned());
-        }
-    }
+    let recorded = recorded_targets(&repo, &head, &scope, historical.as_ref(), targets)?;
     match git::probe_head(&repo).map_err(|e| e.to_string())? {
         HeadState::Commit(current) if current == head => Ok(Some(recorded)),
         _ => Err("HEAD changed during historical lookup".into()),
     }
+}
+
+fn recorded_targets(
+    repo: &std::path::Path,
+    head: &str,
+    scope: &std::path::Path,
+    historical: Option<&crate::index::ValidatedIndex<domains::investigation::InvestigationState>>,
+    targets: &[&str],
+) -> Result<HashSet<String>, String> {
+    use crate::git;
+    let mut selected = Vec::new();
+    let mut seen = HashSet::new();
+    for target in targets {
+        if !seen.insert(*target) {
+            continue;
+        }
+        if let Some(state) = historical.and_then(|index| index.index().entries.get(*target)) {
+            selected.push((*target, scope.join(&state.source_path)));
+        }
+    }
+    let paths = selected
+        .iter()
+        .map(|(_, path)| path.clone())
+        .collect::<Vec<_>>();
+    let sources = match git::read_revision_files(repo, head, &paths) {
+        Ok(sources) => sources,
+        Err(batch_error) => {
+            verify_sources_individually(repo, head, &selected)?;
+            return Err(batch_error.to_string());
+        }
+    };
+    let mut recorded = HashSet::new();
+    for (target, path) in selected {
+        verify_source(
+            target,
+            sources
+                .get(&path)
+                .map(|(mode, bytes)| (*mode, bytes.as_slice())),
+        )?;
+        recorded.insert(target.to_owned());
+    }
+    Ok(recorded)
+}
+
+fn verify_sources_individually(
+    repo: &std::path::Path,
+    head: &str,
+    selected: &[(&str, std::path::PathBuf)],
+) -> Result<(), String> {
+    for (target, path) in selected {
+        let source = crate::git::read_revision_file(repo, head, path).map_err(|e| e.to_string())?;
+        verify_source(
+            target,
+            source
+                .as_ref()
+                .map(|(mode, bytes)| (*mode, bytes.as_slice())),
+        )?;
+    }
+    Ok(())
+}
+
+fn verify_source(target: &str, source: Option<(u32, &[u8])>) -> Result<(), String> {
+    let (mode, bytes) = source.ok_or_else(|| format!("historical source missing: {target}"))?;
+    let text = std::str::from_utf8(bytes).map_err(|e| e.to_string())?;
+    if !matches!(mode, 0o100644 | 0o100755)
+        || domains::investigation::id_from_markdown(text).as_deref() != Some(target)
+    {
+        return Err(format!("historical source identity unavailable: {target}"));
+    }
+    Ok(())
 }
 
 struct RecordedRevision {
@@ -93,28 +150,6 @@ fn recorded_revision(
         HeadState::Commit(head) => head,
     };
     Ok(Some(RecordedRevision { repo, scope, head }))
-}
-
-fn verify_historical_source(
-    repo: &std::path::Path,
-    head: &str,
-    scope: &std::path::Path,
-    target: &str,
-    source_path: &str,
-) -> Result<(), String> {
-    let path = scope.join(source_path);
-    let Some((mode, bytes)) =
-        crate::git::read_revision_file(repo, head, &path).map_err(|e| e.to_string())?
-    else {
-        return Err(format!("historical source missing: {target}"));
-    };
-    let text = std::str::from_utf8(&bytes).map_err(|e| e.to_string())?;
-    if !matches!(mode, 0o100644 | 0o100755)
-        || domains::investigation::id_from_markdown(text).as_deref() != Some(target)
-    {
-        return Err(format!("historical source identity unavailable: {target}"));
-    }
-    Ok(())
 }
 
 fn historical_index(

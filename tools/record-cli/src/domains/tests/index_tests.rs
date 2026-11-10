@@ -190,6 +190,34 @@ fn resolves_dated_ids_and_detects_ambiguous_names() {
 }
 
 #[test]
+fn batch_selectors_match_single_lookup_and_preserve_ambiguity_order() {
+    let entries = std::collections::BTreeMap::from([
+        ("230101-report".into(), "report"),
+        ("240101-report".into(), "report"),
+        ("240102-unique".into(), "unique"),
+    ]);
+    let lookup = super::SelectorIndex::new(&entries, |name| name);
+    for selector in ["unique.md", "240102-unique.MD"] {
+        assert_eq!(lookup.resolve(selector).unwrap().0, "240102-unique");
+    }
+    assert!(matches!(
+        lookup.resolve("missing"),
+        Err(SelectorError::NotFound)
+    ));
+    assert!(matches!(
+        lookup.resolve("240103-report"),
+        Err(SelectorError::NotFound)
+    ));
+    assert_eq!(
+        lookup.resolve("report"),
+        Err(SelectorError::Ambiguous(vec![
+            "230101-report".into(),
+            "240101-report".into()
+        ]))
+    );
+}
+
+#[test]
 fn successive_reallocation_events_remain_separate_at_shared_historical_records() {
     use crate::index::QuerySnapshot;
     let mut v = envelope("decisions", "240101-old-a", decision());
@@ -249,4 +277,24 @@ fn successive_reallocation_events_remain_separate_at_shared_historical_records()
             .iter()
             .all(|edge| edge.source.starts_with("240301-new"))
     );
+}
+
+#[test]
+fn batch_name_lookup_work_is_bounded_by_snapshot_not_selection_product() {
+    let entries: std::collections::BTreeMap<_, _> = (0..500)
+        .map(|i| (format!("record-{i:04}"), format!("name-{i:04}")))
+        .collect();
+    let projected = std::cell::Cell::new(0);
+    let lookup = super::SelectorIndex::new(&entries, |name| {
+        projected.set(projected.get() + 1);
+        name
+    });
+    for i in 0..500 {
+        let selector = format!("name-{i:04}.md");
+        assert_eq!(
+            lookup.resolve(&selector).unwrap().0,
+            format!("record-{i:04}")
+        );
+    }
+    assert_eq!(projected.get(), entries.len());
 }

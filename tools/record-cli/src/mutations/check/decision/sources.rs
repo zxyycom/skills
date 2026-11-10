@@ -123,7 +123,7 @@ impl SourceScan {
                 return Ok(());
             }
         };
-        let (id, candidate) = match domains::decision::candidate_header(text, &entry.path) {
+        let parsed = match domains::decision::ParsedSource::new(text, &entry.path) {
             Ok(value) => value,
             Err(e) => {
                 self.diagnostics
@@ -131,31 +131,25 @@ impl SourceScan {
                 return Ok(());
             }
         };
-        let Some(id) = id else {
-            self.diagnostics.push(error(
-                "source-invalid",
-                &entry.path,
-                "missing valid Decision ID",
-            ));
-            return Ok(());
-        };
+        let id = &parsed.id;
         if !self.all_ids.insert(id.clone()) {
             self.diagnostics
-                .push(error("duplicate-id", &entry.path, id));
+                .push(error("duplicate-id", &entry.path, id.clone()));
             return Ok(());
         }
-        if candidate {
-            self.candidate(&id, &entry.path, &file.bytes);
+        if parsed.candidate {
+            self.candidate(id, &entry.path, &parsed);
             return Ok(());
         }
-        self.established(&id, &entry.path, &file.bytes, text);
+        self.established(id, &entry.path, &parsed);
         Ok(())
     }
-    fn established(&mut self, id: &str, path: &str, bytes: &[u8], text: &str) {
-        if let Ok(front) = domains::decision::parse_frontmatter(bytes, id) {
-            self.summary_states.push((front.status, front.alignment));
+    fn established(&mut self, id: &str, path: &str, source: &domains::decision::ParsedSource<'_>) {
+        if let Ok(front) = &source.front {
+            self.summary_states
+                .push((front.status.clone(), front.alignment.clone()));
         }
-        let parsed = match domains::decision::parse_established(bytes, id, path) {
+        let parsed = match source.established_document(path) {
             Ok(parsed) => parsed,
             Err(e) => {
                 self.diagnostics.push(error("source-invalid", path, e));
@@ -164,13 +158,13 @@ impl SourceScan {
         };
         self.revisions.insert(
             id.to_owned(),
-            source_revision::fingerprint(Domain::Decision, id, path, text),
+            source_revision::fingerprint(Domain::Decision, id, path, source.text),
         );
         self.states.insert(id.to_owned(), parsed.state);
     }
-    fn candidate(&mut self, id: &str, path: &str, bytes: &[u8]) {
+    fn candidate(&mut self, id: &str, path: &str, source: &domains::decision::ParsedSource<'_>) {
         self.candidate_count += 1;
-        let candidate = match domains::decision::parse_candidate(bytes, id) {
+        let candidate = match source.candidate_document() {
             Ok(candidate) => candidate,
             Err(e) => {
                 self.diagnostics.push(error("candidate-invalid", path, e));

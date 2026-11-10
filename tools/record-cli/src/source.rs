@@ -183,6 +183,11 @@ pub fn directory_exists(root: &Root, path: &RelativePath) -> Result<bool, Source
     Ok(true)
 }
 
+mod resource_directory;
+pub use resource_directory::{
+    ResourceDirectoryVersion, resource_directory_version, resource_member_kind,
+};
+
 pub fn enumerate_directory(
     root: &Root,
     path: &RelativePath,

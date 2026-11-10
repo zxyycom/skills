@@ -137,14 +137,21 @@ fn build_index_batch(
     targets: Targets<'_>,
 ) -> Result<(Vec<u8>, Vec<PathBuf>), ReplacementFailure> {
     let oid_length = object_id_length(root)?;
+    let changed_targets: Vec<_> = targets
+        .into_iter()
+        .filter(|(path, target)| !unchanged(expected, path, target))
+        .collect();
+    let mut writer = ObjectWriter {
+        root,
+        oid_length,
+        objects: BTreeMap::new(),
+    };
+    writer.prepare(&changed_targets)?;
     let mut input = Vec::new();
     let mut changed = Vec::new();
-    for (path, target) in targets {
-        if unchanged(expected, &path, target) {
-            continue;
-        }
+    for (path, target) in changed_targets {
         let name = git_path(&path).map_err(|e| failed(FailureKind::Failed, e))?;
-        append_index_entry(root, &mut input, &name, target.as_ref(), oid_length)?;
+        writer.append(&mut input, &name, target.as_ref())?;
         changed.push(path);
     }
     Ok((input, changed))
@@ -176,32 +183,136 @@ fn unchanged(expected: &ContentSnapshot, path: &Path, target: &Option<PendingFil
         _ => false,
     }
 }
-fn append_index_entry(
-    root: &Path,
-    input: &mut Vec<u8>,
-    name: &str,
-    target: Option<&PendingFile>,
+struct ObjectWriter<'a> {
+    root: &'a Path,
     oid_length: usize,
-) -> Result<(), ReplacementFailure> {
-    match target {
-        Some(file) => {
-            let output = command(root, &["hash-object", "-w", "--stdin"], Some(&file.bytes))
-                .map_err(|e| failed(FailureKind::Failed, e))?;
-            let oid = std::str::from_utf8(&output)
-                .map_err(|e| failed(FailureKind::Failed, e))?
-                .trim();
-            if oid.len() != oid_length || !super::valid_oid(oid) {
-                return Err(failed(FailureKind::Failed, "invalid object ID"));
-            }
-            write!(input, "{:o} {}\t{}\0", file.mode, oid, name)
-                .map_err(|e| failed(FailureKind::Failed, e))?;
-        }
-        None => write!(input, "0 {}\t{}\0", "0".repeat(oid_length), name)
-            .map_err(|e| failed(FailureKind::Failed, e))?,
-    }
-    Ok(())
+    objects: BTreeMap<Vec<u8>, String>,
 }
+impl ObjectWriter<'_> {
+    fn prepare(
+        &mut self,
+        targets: &[(PathBuf, &Option<PendingFile>)],
+    ) -> Result<(), ReplacementFailure> {
+        let content = unique_content(targets);
+        let oids = prepare_objects(&content, |bytes| self.write_object(bytes))?;
+        self.objects = content
+            .into_iter()
+            .zip(oids)
+            .map(|(bytes, oid)| (bytes.to_vec(), oid))
+            .collect();
+        Ok(())
+    }
+
+    fn write_object(&self, bytes: &[u8]) -> Result<String, ReplacementFailure> {
+        let output = command(self.root, &["hash-object", "-w", "--stdin"], Some(bytes))
+            .map_err(|e| failed(FailureKind::Failed, e))?;
+        let oid = std::str::from_utf8(&output)
+            .map_err(|e| failed(FailureKind::Failed, e))?
+            .trim();
+        if oid.len() != self.oid_length || !super::valid_oid(oid) {
+            return Err(failed(FailureKind::Failed, "invalid object ID"));
+        }
+        Ok(oid.to_owned())
+    }
+
+    fn append(
+        &self,
+        input: &mut Vec<u8>,
+        name: &str,
+        target: Option<&PendingFile>,
+    ) -> Result<(), ReplacementFailure> {
+        match target {
+            Some(file) => write!(
+                input,
+                "{:o} {}\t{}\0",
+                file.mode, self.objects[&file.bytes], name
+            ),
+            None => write!(input, "0 {}\t{}\0", "0".repeat(self.oid_length), name),
+        }
+        .map_err(|e| failed(FailureKind::Failed, e))
+    }
+}
+/// Preserve the first selected occurrence of each identical payload.
+fn unique_content<'a>(targets: &'a [(PathBuf, &Option<PendingFile>)]) -> Vec<&'a [u8]> {
+    let mut seen = std::collections::BTreeSet::new();
+    let mut content = Vec::new();
+    for (_, target) in targets {
+        if let Some(file) = target.as_ref()
+            && seen.insert(file.bytes.as_slice())
+        {
+            content.push(file.bytes.as_slice());
+        }
+    }
+    content
+}
+
+/// Prepare independent immutable objects concurrently only when startup overhead is justified.
+fn prepare_objects(
+    content: &[&[u8]],
+    write: impl Fn(&[u8]) -> Result<String, ReplacementFailure> + Sync,
+) -> Result<Vec<String>, ReplacementFailure> {
+    if content.len() < 8 {
+        return content.iter().map(|bytes| write(bytes)).collect();
+    }
+    let mut outcomes = std::thread::scope(|scope| {
+        let mut workers = Vec::new();
+        let mut outcomes = Vec::new();
+        for worker in 0..4 {
+            let write = &write;
+            let handle = std::thread::Builder::new()
+                .spawn_scoped(scope, move || prepare_worker(content, worker, write));
+            match handle {
+                Ok(handle) => workers.push((worker, handle)),
+                Err(error) => {
+                    outcomes.push((worker, Err(failed(FailureKind::Failed, error))));
+                    break;
+                }
+            }
+        }
+        for (worker, handle) in workers {
+            match handle.join() {
+                Ok(results) => outcomes.extend(results),
+                Err(_) => outcomes.push((
+                    worker,
+                    Err(failed(
+                        FailureKind::Failed,
+                        "Git object preparation worker failed",
+                    )),
+                )),
+            }
+        }
+        outcomes
+    });
+    outcomes.sort_by_key(|(index, _)| *index);
+    outcomes.into_iter().map(|(_, result)| result).collect()
+}
+
+/// Prepare one worker's immutable objects and preserve each input position.
+fn prepare_worker(
+    content: &[&[u8]],
+    worker: usize,
+    write: &(impl Fn(&[u8]) -> Result<String, ReplacementFailure> + Sync),
+) -> Vec<(usize, Result<String, ReplacementFailure>)> {
+    (worker..content.len())
+        .step_by(4)
+        .map(|index| {
+            let result =
+                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| write(content[index])))
+                    .unwrap_or_else(|_| {
+                        Err(failed(
+                            FailureKind::Failed,
+                            "Git object preparation worker panicked",
+                        ))
+                    });
+            (index, result)
+        })
+        .collect()
+}
+
 /// Compare path components, not textual prefixes such as `a` and `ab`.
 fn paths_conflict(a: &Path, b: &Path) -> bool {
     a != b && (a.starts_with(b) || b.starts_with(a))
 }
+
+#[cfg(test)]
+mod tests;

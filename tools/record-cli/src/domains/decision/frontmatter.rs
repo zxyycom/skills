@@ -41,7 +41,7 @@ pub fn parse_frontmatter(bytes: &[u8], expected_id: &str) -> Result<Frontmatter,
     decode_frontmatter(map, expected_id, body)
 }
 
-fn decode_frontmatter(
+pub(super) fn decode_frontmatter(
     map: &YamlMap,
     expected_id: &str,
     body: String,
@@ -258,4 +258,34 @@ fn parse_relation_summary(value: Option<&Yaml>) -> Result<Option<String>, String
         _ => return Err("summary must be a string".into()),
     };
     Ok(summary)
+}
+
+/// One captured Decision source: classification and metadata share the YAML pass.
+pub(crate) struct ParsedSource<'a> {
+    pub(crate) text: &'a str,
+    pub(crate) id: String,
+    pub(crate) candidate: bool,
+    pub(crate) front: Result<Frontmatter, String>,
+}
+impl<'a> ParsedSource<'a> {
+    pub(crate) fn new(text: &'a str, path: &str) -> Result<Self, String> {
+        let parsed = super::super::candidate_header::header_and_document(text)?;
+        let (id, candidate) = super::candidate_header::classify_header(parsed.header, path)?;
+        let id = id.ok_or("missing valid Decision ID")?;
+        let front = if let Some(document) = parsed.document {
+            document
+                .yaml
+                .as_hash()
+                .ok_or_else(|| "frontmatter must be a mapping".to_owned())
+                .and_then(|map| decode_frontmatter(map, &id, document.body))
+        } else {
+            parse_frontmatter(text.as_bytes(), &id)
+        };
+        Ok(Self {
+            text,
+            id,
+            candidate,
+            front,
+        })
+    }
 }

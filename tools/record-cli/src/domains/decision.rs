@@ -91,3 +91,7 @@ impl crate::index::DomainDefinition for Definition {
 #[cfg(test)]
 #[path = "decision/tests/frontmatter.rs"]
 mod frontmatter_tests;
+
+#[cfg(test)]
+#[path = "decision/tests/rewrite.rs"]
+mod rewrite_tests;

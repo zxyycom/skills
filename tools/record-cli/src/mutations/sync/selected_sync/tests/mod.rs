@@ -113,3 +113,31 @@ fn selector_validation_aggregates_invalid_and_duplicate_before_baseline() {
         ]
     );
 }
+
+#[test]
+fn batch_selection_preserves_ambiguity_order_and_alias_duplicates() {
+    use crate::source_revision::Domain;
+    let entries = BTreeMap::from([
+        ("230101-report".to_owned(), "report".to_owned()),
+        ("240101-report".to_owned(), "report".to_owned()),
+        ("240102-unique".to_owned(), "unique".to_owned()),
+    ]);
+    let selectors = ["missing", "report.MD", "unique", "240102-unique.md"].map(str::to_owned);
+    for domain in [Domain::Decision, Domain::Investigation] {
+        let error = resolve_selection(&entries, &selectors, String::as_str, domain, "index.json")
+            .unwrap_err();
+        let diagnostics = &error.diagnostics;
+        assert_eq!(diagnostics.len(), 3);
+        assert_eq!(diagnostics[0].target.as_deref(), Some("missing"));
+        assert_eq!(diagnostics[1].target.as_deref(), Some("report"));
+        assert!(
+            diagnostics[1]
+                .reason
+                .as_ref()
+                .unwrap()
+                .contains("230101-report, 240101-report")
+        );
+        assert_eq!(diagnostics[2].target.as_deref(), Some("index.json"));
+        assert!(diagnostics[2].code.ends_with("selector-duplicate"));
+    }
+}

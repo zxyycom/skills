@@ -106,6 +106,13 @@ pub fn parse_candidate(
         .map_err(|_| "invalid UTF-8")?
         .to_owned();
     let front = parse_frontmatter(bytes, id)?;
+    candidate_from_front(markdown, front)
+}
+
+pub(super) fn candidate_from_front(
+    markdown: String,
+    front: Frontmatter,
+) -> Result<super::super::CandidateDocument<DecisionState>, String> {
     if front.status != "candidate" {
         return Err("expected candidate lifecycle".into());
     }
@@ -134,6 +141,15 @@ pub fn parse_established(
         .map_err(|_| "invalid UTF-8")?
         .to_owned();
     let front = parse_frontmatter(bytes, id)?;
+    established_from_front(markdown, front, id, source_path)
+}
+
+pub(super) fn established_from_front(
+    markdown: String,
+    front: Frontmatter,
+    id: &str,
+    source_path: &str,
+) -> Result<super::super::EstablishedDocument<DecisionState>, String> {
     if front.status == "candidate" {
         return Err("expected established decision".into());
     }
@@ -183,4 +199,18 @@ pub fn id_from_markdown(markdown: &str) -> Option<String> {
         .get(&yaml_rust2::Yaml::String("id".into()))?
         .as_str()?;
     is_kebab(id).then(|| id.to_owned())
+}
+
+impl super::frontmatter::ParsedSource<'_> {
+    pub(crate) fn candidate_document(
+        &self,
+    ) -> Result<super::super::CandidateDocument<DecisionState>, String> {
+        candidate_from_front(self.text.to_owned(), self.front.clone()?)
+    }
+    pub(crate) fn established_document(
+        &self,
+        path: &str,
+    ) -> Result<super::super::EstablishedDocument<DecisionState>, String> {
+        established_from_front(self.text.to_owned(), self.front.clone()?, &self.id, path)
+    }
 }

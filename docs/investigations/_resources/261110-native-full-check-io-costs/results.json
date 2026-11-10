@@ -1,0 +1,666 @@
+{
+  "environment": {
+    "head": "4fdeb5581defcffedf65159b2fc52c58610c7598",
+    "old_revision": "a88af9bc029a1539c3abe57f69d752e4d39a868e",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "cpu": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           48 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  6\nOn-line CPU(s) list:                     0-5\nVendor ID:                               AuthenticAMD\nModel name:                              AMD Ryzen AI 7 H 450 w/ Radeon 860M\nCPU family:                              26\nModel:                                   96\nThread(s) per core:                      2\nCore(s) per socket:                      3\nSocket(s):                               1\nStepping:                                0\nBogoMIPS:                                3992.54\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology tsc_reliable nonstop_tsc cpuid extd_apicid tsc_known_freq pni pclmulqdq ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext perfctr_core ssbd ibrs ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves avx_vnni avx512_bf16 clzero xsaveerptr arat avx512vbmi umip avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg avx512_vpopcntdq rdpid fsrm avx512_vp2intersect\nHypervisor vendor:                       Microsoft\nVirtualization type:                     full\nL1d cache:                               144 KiB (3 instances)\nL1i cache:                               96 KiB (3 instances)\nL2 cache:                                3 MiB (3 instances)\nL3 cache:                                16 MiB (1 instance)\nNUMA node(s):                            1\nNUMA node0 CPU(s):                       0-5\nVulnerability Gather data sampling:      Not affected\nVulnerability Ghostwrite:                Not affected\nVulnerability Indirect target selection: Not affected\nVulnerability Itlb multihit:             Not affected\nVulnerability L1tf:                      Not affected\nVulnerability Mds:                       Not affected\nVulnerability Meltdown:                  Not affected\nVulnerability Mmio stale data:           Not affected\nVulnerability Old microcode:             Not affected\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Not affected\nVulnerability Spec rstack overflow:      Vulnerable: Safe RET, no microcode\nVulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:                Mitigation; Retpolines; IBPB conditional; IBRS_FW; STIBP always-on; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected\nVulnerability Srbds:                     Not affected\nVulnerability Tsa:                       Not affected\nVulnerability Tsx async abort:           Not affected\nVulnerability Vmscape:                   Not affected\n",
+    "versions": {
+      "node": "v26.8.2",
+      "git": "git version 2.53.0",
+      "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)"
+    },
+    "receipt": {
+      "schemaVersion": 1,
+      "target": "x86_64-unknown-linux-gnu",
+      "generation": "generation-jWtx84",
+      "sourceHash": "48a8806eddbe20e63e50f1a88ffb496f146085308f999cc3f8a087d30f31a890",
+      "binaries": {
+        "decision-records": "4599a9d5306438bc6b087b2371da24b3b231ebb90ff800e5b3a56db09e01cde8",
+        "investigation-report": "4d9a4a54eb8a72e7a0ef1903a390456eb6fe449c92cac7635696f15496204acd"
+      }
+    },
+    "git_global_and_system_config": "disabled in private fixture measurements",
+    "real_repository_config": "unchanged for baseline"
+  },
+  "native_manifest": {
+    "schemaVersion": 1,
+    "version": "0.2.1",
+    "target": "x86_64-unknown-linux-gnu",
+    "source": {
+      "sha256": "48a8806eddbe20e63e50f1a88ffb496f146085308f999cc3f8a087d30f31a890",
+      "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8",
+      "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)"
+    },
+    "assets": [
+      {
+        "role": "decision-records",
+        "file": "decision-records",
+        "size": 6284624,
+        "sha256": "4599a9d5306438bc6b087b2371da24b3b231ebb90ff800e5b3a56db09e01cde8"
+      },
+      {
+        "role": "investigation-report",
+        "file": "investigation-report",
+        "size": 6284648,
+        "sha256": "4d9a4a54eb8a72e7a0ef1903a390456eb6fe449c92cac7635696f15496204acd"
+      }
+    ]
+  },
+  "matrix": {
+    "start": "2026-11-10T02:16:07.982245+00:00",
+    "end": "2026-11-10T02:20:26.189541+00:00",
+    "groups": {
+      "plain": {
+        "native": {
+          "n": 20,
+          "median_s": 0.010835257999133319,
+          "min_s": 0.01004840002860874,
+          "max_s": 0.012329698074609041,
+          "p95_s": 0.012326112017035484
+        },
+        "old": {
+          "n": 20,
+          "median_s": 0.9217604725272395,
+          "min_s": 0.8806998929940164,
+          "max_s": 0.9589789379388094,
+          "p95_s": 0.9556776570389047
+        }
+      },
+      "history": {
+        "native": {
+          "n": 20,
+          "median_s": 1.196748808491975,
+          "min_s": 1.1105990529758856,
+          "max_s": 1.385728973080404,
+          "p95_s": 1.2459750539856032
+        },
+        "old": {
+          "n": 20,
+          "median_s": 1.0309842399437912,
+          "min_s": 0.9940226400503889,
+          "max_s": 1.074177331989631,
+          "p95_s": 1.0686454580863938
+        }
+      },
+      "resources": {
+        "native": {
+          "n": 20,
+          "median_s": 0.32200063951313496,
+          "min_s": 0.3080264739692211,
+          "max_s": 0.32900960894767195,
+          "p95_s": 0.32889717794023454
+        },
+        "old": {
+          "n": 20,
+          "median_s": 3.8865687579964288,
+          "min_s": 3.8026306349784136,
+          "max_s": 4.498511589015834,
+          "p95_s": 3.997927119024098
+        }
+      },
+      "combined": {
+        "native": {
+          "n": 20,
+          "median_s": 1.4628150499775074,
+          "min_s": 1.4260989910690114,
+          "max_s": 1.5145899970084429,
+          "p95_s": 1.5076679040212184
+        },
+        "old": {
+          "n": 20,
+          "median_s": 4.017060450511053,
+          "min_s": 3.9224856230430305,
+          "max_s": 4.091201054980047,
+          "p95_s": 4.088653467013501
+        }
+      }
+    },
+    "guards_unchanged": true
+  },
+  "real_baseline": {
+    "receipt": {
+      "schemaVersion": 1,
+      "target": "x86_64-unknown-linux-gnu",
+      "generation": "generation-jWtx84",
+      "sourceHash": "48a8806eddbe20e63e50f1a88ffb496f146085308f999cc3f8a087d30f31a890",
+      "binaries": {
+        "decision-records": "4599a9d5306438bc6b087b2371da24b3b231ebb90ff800e5b3a56db09e01cde8",
+        "investigation-report": "4d9a4a54eb8a72e7a0ef1903a390456eb6fe449c92cac7635696f15496204acd"
+      }
+    },
+    "samples": [
+      {
+        "sample": 0,
+        "trace": false,
+        "command": [
+          "<repository>/.local/record-cli/generation-jWtx84/investigation-report",
+          "check",
+          "--json"
+        ],
+        "wall_s": 0.3651108059566468,
+        "status": 0,
+        "stdout_sha256": "155cee3768daeb3e8f7cdef93dc1d5a5ef338a427a78cc1566316ae640e16ffd",
+        "stderr_bytes": 0
+      },
+      {
+        "sample": 1,
+        "trace": false,
+        "command": [
+          "<repository>/.local/record-cli/generation-jWtx84/investigation-report",
+          "check",
+          "--json"
+        ],
+        "wall_s": 0.3266987770330161,
+        "status": 0,
+        "stdout_sha256": "155cee3768daeb3e8f7cdef93dc1d5a5ef338a427a78cc1566316ae640e16ffd",
+        "stderr_bytes": 0
+      },
+      {
+        "sample": 2,
+        "trace": false,
+        "command": [
+          "<repository>/.local/record-cli/generation-jWtx84/investigation-report",
+          "check",
+          "--json"
+        ],
+        "wall_s": 0.34145191905554384,
+        "status": 0,
+        "stdout_sha256": "155cee3768daeb3e8f7cdef93dc1d5a5ef338a427a78cc1566316ae640e16ffd",
+        "stderr_bytes": 0
+      },
+      {
+        "sample": 3,
+        "trace": true,
+        "command": [
+          "<repository>/.local/record-cli/generation-jWtx84/investigation-report",
+          "check",
+          "--json"
+        ],
+        "wall_s": 0.3468777360394597,
+        "status": 0,
+        "stdout_sha256": "155cee3768daeb3e8f7cdef93dc1d5a5ef338a427a78cc1566316ae640e16ffd",
+        "stderr_bytes": 0
+      }
+    ],
+    "git_counts": {
+      "rev-parse": 8,
+      "ls-files": 1,
+      "ls-tree": 44,
+      "cat-file": 44,
+      "hash-object": 44
+    },
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43"
+  },
+  "real_probe": {
+    "enumerate:docs/investigations": {
+      "calls": 1,
+      "entries": 108,
+      "nanos": 129962
+    },
+    "enumerate:docs/investigations/_resources": {
+      "calls": 394,
+      "entries": 15760,
+      "nanos": 10491002
+    },
+    "enumerate:docs/investigations/_resources/260908-recall-historical-decision-alignment": {
+      "calls": 1,
+      "entries": 1,
+      "nanos": 14196
+    },
+    "enumerate:docs/investigations/_resources/260920-laya-decision-model-evidence": {
+      "calls": 1,
+      "entries": 1,
+      "nanos": 13405
+    },
+    "enumerate:docs/investigations/_resources/261004-jev-record-maintenance-boundaries": {
+      "calls": 1,
+      "entries": 1,
+      "nanos": 13956
+    },
+    "enumerate:docs/investigations/_resources/261009-skill-cli-repeated-process-and-source-access": {
+      "calls": 2,
+      "entries": 4,
+      "nanos": 36959
+    },
+    "enumerate:docs/investigations/_resources/261010-investigation-acquisition-performance-recheck": {
+      "calls": 3,
+      "entries": 9,
+      "nanos": 41077
+    },
+    "enumerate:docs/investigations/_resources/261010-investigation-local-stage-and-single-read-check": {
+      "calls": 5,
+      "entries": 25,
+      "nanos": 68518
+    },
+    "enumerate:docs/investigations/_resources/261010-investigation-phase-facts-and-streamed-content": {
+      "calls": 7,
+      "entries": 49,
+      "nanos": 102862
+    },
+    "enumerate:docs/investigations/_resources/261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints": {
+      "calls": 3,
+      "entries": 9,
+      "nanos": 42188
+    },
+    "enumerate:docs/investigations/_resources/261011-investigation-event-query-and-trace-rendering": {
+      "calls": 6,
+      "entries": 36,
+      "nanos": 84476
+    },
+    "enumerate:docs/investigations/_resources/261017-openrouter-decision-live-protocols": {
+      "calls": 4,
+      "entries": 16,
+      "nanos": 59761
+    },
+    "enumerate:docs/investigations/_resources/261021-decision-investigation-constant-factor-audit": {
+      "calls": 8,
+      "entries": 64,
+      "nanos": 117729
+    },
+    "enumerate:docs/investigations/_resources/261021-decision-investigation-first-batch-performance": {
+      "calls": 7,
+      "entries": 49,
+      "nanos": 102479
+    },
+    "enumerate:docs/investigations/_resources/261021-record-tools-100k-performance": {
+      "calls": 23,
+      "entries": 299,
+      "nanos": 348361
+    },
+    "enumerate:docs/investigations/_resources/261021-record-tools-100k-performance/methods": {
+      "calls": 11,
+      "entries": 121,
+      "nanos": 170107
+    },
+    "enumerate:docs/investigations/_resources/261021-record-tools-all-operations-100k": {
+      "calls": 14,
+      "entries": 196,
+      "nanos": 228577
+    },
+    "enumerate:docs/investigations/_resources/261021-record-tools-first-optimization-validation": {
+      "calls": 11,
+      "entries": 121,
+      "nanos": 189333
+    },
+    "enumerate:docs/investigations/_resources/261022-ir-index-payload-optimization": {
+      "calls": 12,
+      "entries": 84,
+      "nanos": 164875
+    },
+    "enumerate:docs/investigations/_resources/261022-ir-index-payload-optimization/pre-gate": {
+      "calls": 6,
+      "entries": 36,
+      "nanos": 83103
+    },
+    "enumerate:docs/investigations/_resources/261022-ir-index-stage-regression-cause": {
+      "calls": 7,
+      "entries": 49,
+      "nanos": 97463
+    },
+    "enumerate:docs/investigations/_resources/261022-record-stage-convergence-10k": {
+      "calls": 20,
+      "entries": 400,
+      "nanos": 368816
+    },
+    "enumerate:docs/investigations/_resources/261022-record-tools-local-contracts-1w": {
+      "calls": 10,
+      "entries": 100,
+      "nanos": 150542
+    },
+    "enumerate:docs/investigations/_resources/261024-align-record-rename-verification": {
+      "calls": 1,
+      "entries": 1,
+      "nanos": 13215
+    },
+    "enumerate:docs/investigations/_resources/261024-record-global-throughput-and-memory": {
+      "calls": 18,
+      "entries": 324,
+      "nanos": 450378
+    },
+    "enumerate:docs/investigations/_resources/261024-record-index-computation-and-transfer": {
+      "calls": 9,
+      "entries": 81,
+      "nanos": 131065
+    },
+    "enumerate:docs/investigations/_resources/261024-record-tools-entry-matrix-10k": {
+      "calls": 20,
+      "entries": 400,
+      "nanos": 378341
+    },
+    "enumerate:docs/investigations/_resources/261028-collection-single-item-cost-audit": {
+      "calls": 15,
+      "entries": 225,
+      "nanos": 260766
+    },
+    "enumerate:docs/investigations/_resources/261028-git-stdin-error-lock-lifecycle": {
+      "calls": 2,
+      "entries": 4,
+      "nanos": 26209
+    },
+    "enumerate:docs/investigations/_resources/261028-investigation-v87-windows-head-predecessor-cost": {
+      "calls": 8,
+      "entries": 64,
+      "nanos": 117859
+    },
+    "enumerate:docs/investigations/_resources/261028-record-cost-reachability-boundaries": {
+      "calls": 14,
+      "entries": 196,
+      "nanos": 233844
+    },
+    "enumerate:docs/investigations/_resources/261105-rust-native-query-performance": {
+      "calls": 7,
+      "entries": 49,
+      "nanos": 97031
+    },
+    "enumerate:docs/investigations/_resources/261105-rust-query-algorithmic-complexity": {
+      "calls": 4,
+      "entries": 16,
+      "nanos": 54741
+    },
+    "enumerate:docs/investigations/_resources/261105-rust-query-fixed-cost-and-scale": {
+      "calls": 4,
+      "entries": 16,
+      "nanos": 55864
+    },
+    "enumerate:docs/investigations/_resources/261105-rust-trace-aligned-graph-performance": {
+      "calls": 20,
+      "entries": 400,
+      "nanos": 359808
+    },
+    "enumerate:docs/investigations/_resources/261106-record-cli-final-candidate-performance": {
+      "calls": 26,
+      "entries": 676,
+      "nanos": 568569
+    },
+    "enumerate:docs/investigations/_resources/261107-record-cli-current-process-cost-and-scale": {
+      "calls": 26,
+      "entries": 676,
+      "nanos": 539018
+    },
+    "enumerate:docs/investigations/_resources/261107-record-cli-native-complexity": {
+      "calls": 13,
+      "entries": 169,
+      "nanos": 209050
+    },
+    "enumerate:docs/investigations/_resources/261107-rust-record-library-replacement-survey": {
+      "calls": 2,
+      "entries": 4,
+      "nanos": 28614
+    },
+    "enumerate:docs/investigations/_resources/261107-rust-record-transaction-io": {
+      "calls": 4,
+      "entries": 16,
+      "nanos": 56777
+    },
+    "enumerate:docs/investigations/_resources/261108-record-cli-native-complexity-survey": {
+      "calls": 48,
+      "entries": 240,
+      "nanos": 643661
+    },
+    "enumerate:docs/investigations/_resources/261108-record-cli-native-complexity-survey/graphs": {
+      "calls": 17,
+      "entries": 289,
+      "nanos": 339144
+    },
+    "enumerate:docs/investigations/_resources/261108-record-cli-native-complexity-survey/inventory": {
+      "calls": 2,
+      "entries": 4,
+      "nanos": 28613
+    },
+    "enumerate:docs/investigations/_resources/261108-record-cli-native-complexity-survey/queries": {
+      "calls": 8,
+      "entries": 64,
+      "nanos": 114791
+    },
+    "enumerate:docs/investigations/_resources/261108-record-cli-native-complexity-survey/writes": {
+      "calls": 20,
+      "entries": 400,
+      "nanos": 361986
+    },
+    "enumerate:docs/investigations/_resources/261109-native-updater-relocated-complete-receipt": {
+      "calls": 2,
+      "entries": 4,
+      "nanos": 27862
+    },
+    "enumerate:docs/investigations/_resources/defer-standard-test-result-blocking": {
+      "calls": 3,
+      "entries": 9,
+      "nanos": 41546
+    },
+    "enumerate:docs/investigations/_resources/preserve-redacted-conversations-in-two-derived-forms": {
+      "calls": 2,
+      "entries": 4,
+      "nanos": 27541
+    },
+    "git:cat-file": {
+      "calls": 44,
+      "entries": 0,
+      "nanos": 78583007
+    },
+    "git:hash-object": {
+      "calls": 44,
+      "entries": 0,
+      "nanos": 68080303
+    },
+    "git:ls-files": {
+      "calls": 1,
+      "entries": 0,
+      "nanos": 3239254
+    },
+    "git:ls-tree": {
+      "calls": 44,
+      "entries": 0,
+      "nanos": 81794289
+    },
+    "git:rev-parse": {
+      "calls": 3,
+      "entries": 0,
+      "nanos": 5477999
+    },
+    "phase:collection": {
+      "calls": 1,
+      "entries": 0,
+      "nanos": 146372
+    },
+    "phase:history": {
+      "calls": 1,
+      "entries": 0,
+      "nanos": 239560082
+    },
+    "phase:index": {
+      "calls": 1,
+      "entries": 0,
+      "nanos": 1564439
+    },
+    "phase:resources": {
+      "calls": 1,
+      "entries": 0,
+      "nanos": 29449664
+    },
+    "phase:sources": {
+      "calls": 1,
+      "entries": 0,
+      "nanos": 9570416
+    }
+  },
+  "inputs": {
+    "plain": {
+      "reports": 376,
+      "edges": 0,
+      "unique_history_targets": 0,
+      "resource_references": 0,
+      "source_bytes": 151418,
+      "native_output": "8b7812ccd0df0d3e0571ce85b0b4d1dde8a4058d1ad97d6a23d9cf30c9897d54",
+      "old_output": "e47026a5f88c2c9d35aa3183c52c851f1cdcb9a224459b8eca5a25cd649e2e42",
+      "file_count": 377,
+      "tree_paths_and_sha256_digest": "8c52880f3e724b0ea764c182cea8cfd9729a8a962f2d4d2822f40b291f2cdcfe"
+    },
+    "history": {
+      "reports": 376,
+      "edges": 250,
+      "unique_history_targets": 250,
+      "resource_references": 0,
+      "source_bytes": 163668,
+      "native_output": "8b7812ccd0df0d3e0571ce85b0b4d1dde8a4058d1ad97d6a23d9cf30c9897d54",
+      "old_output": "e47026a5f88c2c9d35aa3183c52c851f1cdcb9a224459b8eca5a25cd649e2e42",
+      "file_count": 377,
+      "tree_paths_and_sha256_digest": "2f8276010e02b89cb685e774d83145fbe2e550272e862acaed9151fca8fcc363"
+    },
+    "resources": {
+      "reports": 376,
+      "edges": 0,
+      "unique_history_targets": 0,
+      "resource_references": 1504,
+      "source_bytes": 261962,
+      "native_output": "8b7812ccd0df0d3e0571ce85b0b4d1dde8a4058d1ad97d6a23d9cf30c9897d54",
+      "old_output": "e47026a5f88c2c9d35aa3183c52c851f1cdcb9a224459b8eca5a25cd649e2e42",
+      "file_count": 1881,
+      "tree_paths_and_sha256_digest": "2994bc16c9c5f15e9a73e221ad078b58fc341177ce985eca0d89eabcbb4e152c"
+    },
+    "combined": {
+      "reports": 376,
+      "edges": 250,
+      "unique_history_targets": 250,
+      "resource_references": 1504,
+      "source_bytes": 274212,
+      "native_output": "8b7812ccd0df0d3e0571ce85b0b4d1dde8a4058d1ad97d6a23d9cf30c9897d54",
+      "old_output": "e47026a5f88c2c9d35aa3183c52c851f1cdcb9a224459b8eca5a25cd649e2e42",
+      "file_count": 1881,
+      "tree_paths_and_sha256_digest": "298aaaf64e01f415e4c8997969fb0844933f52823615b8bbadb228780b0e02bd"
+    }
+  },
+  "diagnostics": {
+    "plain": {
+      "native_git": {},
+      "old_git": {
+        "rev-parse": 1,
+        "ls-files": 1
+      },
+      "native_phase_ms": {
+        "phase:collection": 0.263211,
+        "phase:history": 0.054742,
+        "phase:index": 3.056787,
+        "phase:resources": 0.023214,
+        "phase:sources": 7.987208
+      },
+      "native_enumeration_calls": 1,
+      "native_enumerated_entries": 377,
+      "native_resource_root": null,
+      "old_readdir_calls": 1,
+      "old_enumerated_entries": 377,
+      "old_resource_root": null
+    },
+    "history": {
+      "native_git": {
+        "rev-parse": 5,
+        "ls-tree": 251,
+        "cat-file": 251,
+        "hash-object": 251
+      },
+      "old_git": {
+        "rev-parse": 6,
+        "ls-files": 1,
+        "ls-tree": 2,
+        "cat-file": 2
+      },
+      "native_phase_ms": {
+        "phase:collection": 0.277187,
+        "phase:history": 1178.43062,
+        "phase:index": 2.511221,
+        "phase:resources": 0.014928,
+        "phase:sources": 7.230657
+      },
+      "native_enumeration_calls": 1,
+      "native_enumerated_entries": 377,
+      "native_resource_root": null,
+      "old_readdir_calls": 1,
+      "old_enumerated_entries": 377,
+      "old_resource_root": null
+    },
+    "resources": {
+      "native_git": {
+        "rev-parse": 3,
+        "ls-files": 1
+      },
+      "old_git": {
+        "rev-parse": 1,
+        "ls-files": 1
+      },
+      "native_phase_ms": {
+        "phase:collection": 0.253653,
+        "phase:history": 0.015369,
+        "phase:index": 2.803956,
+        "phase:resources": 284.149656,
+        "phase:sources": 7.623938
+      },
+      "native_enumeration_calls": 3010,
+      "native_enumerated_entries": 572274,
+      "native_resource_root": {
+        "calls": 1505,
+        "entries": 565880,
+        "nanos": 235503755
+      },
+      "old_readdir_calls": 378,
+      "old_enumerated_entries": 2258,
+      "old_resource_root": {
+        "calls": 1,
+        "entries": 376
+      }
+    },
+    "combined": {
+      "native_git": {
+        "rev-parse": 8,
+        "ls-files": 1,
+        "ls-tree": 251,
+        "cat-file": 251,
+        "hash-object": 251
+      },
+      "old_git": {
+        "rev-parse": 6,
+        "ls-files": 1,
+        "ls-tree": 2,
+        "cat-file": 2
+      },
+      "native_phase_ms": {
+        "phase:collection": 0.387288,
+        "phase:history": 1097.509984,
+        "phase:index": 3.191468,
+        "phase:resources": 287.845437,
+        "phase:sources": 8.235267
+      },
+      "native_enumeration_calls": 3010,
+      "native_enumerated_entries": 572274,
+      "native_resource_root": {
+        "calls": 1505,
+        "entries": 565880,
+        "nanos": 238827129
+      },
+      "old_readdir_calls": 378,
+      "old_enumerated_entries": 2258,
+      "old_resource_root": {
+        "calls": 1,
+        "entries": 376
+      }
+    }
+  },
+  "input_guards": {
+    "unchanged": true,
+    "native": "4d9a4a54eb8a72e7a0ef1903a390456eb6fe449c92cac7635696f15496204acd",
+    "root_lock": "026e4cb5ad75bc688cb6e4f57b85f2029d753697f9fe3bd7cbb3e9b527270255",
+    "probe": "000739f81aba5dc1c3fa1580dbf5becafc1a1160ad824a407e2b3ab2ff3c19f0",
+    "measure": "65b2571512f026fa8c134ba6b914ae6b47152cf8d6240a6db4ef292c735cdc66",
+    "old_profile": "61302b573740de2b647fb5b1830143a0f175b2a0654dc6cc1f0d176f4be81267",
+    "old_cli_file_count": 270,
+    "old_cli_paths_and_sha256_digest": "0f31642209209029e2590248355eafa9d9cad4a3a7bc3d3222c0d5ae71020c94"
+  },
+  "method_corrections": [
+    "Initial private fixture with flow-style tags was rejected before sampling; regenerated with canonical block-style tags and relations.",
+    "Initial native diagnostics expected a Trace2 file even for zero Git calls; it failed before saving diagnostics. diagnose-native.py handles absence as zero. No wall-time sample was removed or reclassified."
+  ],
+  "boundaries": [
+    "Linux x86_64 WSL2/ext4 only; not the unknown Windows command, version or input.",
+    "Native JSON stdout is 8213 bytes versus old text stdout 77 bytes; outputs are only compared within each arm.",
+    "Node transitive dependency bytes were not exhaustively fingerprinted; old generated CLI tree, native/probe binaries, root lock and main measuring scripts were guarded.",
+    "Native inclusive phase times and directory counts come from separate instrumented calls; old directory counts come from Node fs.promises.readdir instrumentation. They are not syscall counts."
+  ]
+}

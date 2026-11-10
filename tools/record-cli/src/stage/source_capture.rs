@@ -9,7 +9,7 @@ use crate::{
     source::{self, ExpectedFile, RelativePath, Root},
 };
 use std::{
-    collections::{BTreeMap, BTreeSet},
+    collections::{BTreeMap, BTreeSet, HashMap},
     path::{Path, PathBuf},
 };
 
@@ -52,24 +52,40 @@ pub(super) fn path_in_domain(
 
 impl<S> SourceCapture<'_, S> {
     pub fn capture(&self) -> Result<Updates, IndexStageError> {
+        // Keep the first matching entry, as the previous per-path scan did.
+        let mut owners = HashMap::new();
+        for (id, state) in &self.workspace.index().entries {
+            if self.ids.contains(id.as_str())
+                && let Ok(path) =
+                    path_in_domain(self.index_path.as_path(), (self.source_path)(state))
+            {
+                owners.entry(path).or_insert((id, state));
+            }
+        }
+        let mut blobs = HashMap::new();
+        for (path, bytes) in self.pending.blobs() {
+            blobs.entry(path.as_path()).or_insert(bytes.as_slice());
+        }
         let mut updates = Updates::new();
         for path in self.selected_paths {
-            let update = self.capture_one(path)?;
+            let update = self.capture_one(
+                path,
+                owners.get(path).copied(),
+                blobs.get(path.as_path()).copied(),
+            )?;
             updates.insert(path.clone(), update);
         }
         Ok(updates)
     }
 
-    fn capture_one(&self, path: &PathBuf) -> Result<Option<PendingFile>, IndexStageError> {
+    fn capture_one(
+        &self,
+        path: &PathBuf,
+        owner: Option<(&String, &S)>,
+        pending_blob: Option<&[u8]>,
+    ) -> Result<Option<PendingFile>, IndexStageError> {
         let relative = RelativePath::new(path).map_err(IndexStageError::Source)?;
         let snapshot = source::capture(self.root, &relative).map_err(IndexStageError::Source)?;
-        let owner = self.workspace.index().entries.iter().find(|(id, state)| {
-            self.ids.contains(id.as_str())
-                && path_in_domain(self.index_path.as_path(), (self.source_path)(state))
-                    .ok()
-                    .as_ref()
-                    == Some(path)
-        });
         let update = match (owner, &snapshot) {
             (Some((id, state)), ExpectedFile::Present(source)) => {
                 Some(self.project_source(source, id, state)?)
@@ -88,7 +104,7 @@ impl<S> SourceCapture<'_, S> {
                 ));
             }
         };
-        self.verify_pending_identity(path)?;
+        self.verify_pending_identity(path, pending_blob)?;
         Ok(update)
     }
 
@@ -113,8 +129,12 @@ impl<S> SourceCapture<'_, S> {
         })
     }
 
-    fn verify_pending_identity(&self, path: &Path) -> Result<(), IndexStageError> {
-        if let Some((_, bytes)) = self.pending.blobs().iter().find(|(p, _)| p == path) {
+    fn verify_pending_identity(
+        &self,
+        path: &Path,
+        pending_blob: Option<&[u8]>,
+    ) -> Result<(), IndexStageError> {
+        if let Some(bytes) = pending_blob {
             let invalid = |reason: &str| IndexStageError::PendingSourceInvalid {
                 path: path.to_owned(),
                 reason: reason.into(),

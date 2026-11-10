@@ -1,11 +1,15 @@
 //! Git identity, selected-content reads and conditional pending publication.
 use std::path::PathBuf;
+mod batch;
 mod command;
 mod revision;
 mod selected;
 mod workspace;
+use batch::read_blobs;
+#[cfg(test)]
+use batch::{parse_batch, read_blobs_with_budget};
 use command::command;
-pub use revision::{list_revision_files, read_revision_file};
+pub use revision::{list_revision_files, read_revision_file, read_revision_files};
 pub use selected::{ContentSnapshot, read_selected};
 pub use workspace::{discover_worktree, list_repository_workspace_files, list_workspace_files};
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -34,10 +38,16 @@ pub enum GitError {
         stderr: String,
     },
     InvalidOutput(&'static str),
+    OutputBudgetExceeded,
 }
 impl std::fmt::Display for GitError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{self:?}")
+        match self {
+            Self::OutputBudgetExceeded => {
+                write!(f, "InvalidOutput(\"Git output budget exceeded\")")
+            }
+            _ => write!(f, "{self:?}"),
+        }
     }
 }
 impl std::error::Error for GitError {}
@@ -143,6 +153,58 @@ fn read_blob(root: &std::path::Path, oid: &str) -> Result<Vec<u8>, GitError> {
         return Err(GitError::InvalidOutput("blob identity mismatch"));
     }
     Ok(bytes)
+}
+
+/// Query a merged pathspec batch without narrowing the prior per-pattern budget.
+fn command_patterns(
+    root: &std::path::Path,
+    prefix: &[&str],
+    patterns: &[String],
+    budget: usize,
+    mut consume: impl FnMut(&[u8]) -> Result<(), GitError>,
+) -> Result<(), GitError> {
+    let mut args = prefix.to_vec();
+    args.extend(patterns.iter().map(String::as_str));
+    match command::command_with_budget(root, &args, None, budget) {
+        Ok(output) => consume(&output),
+        Err(GitError::OutputBudgetExceeded) if patterns.len() > 1 => {
+            for pattern in patterns {
+                let mut args = prefix.to_vec();
+                args.push(pattern);
+                consume(&command(root, &args, None)?)?;
+            }
+            Ok(())
+        }
+        Err(error) => Err(error),
+    }
+}
+
+/// Limit the command line conservatively for Windows, including quoting expansion.
+fn pattern_batches(patterns: &[String]) -> Result<Vec<&[String]>, GitError> {
+    const BUDGET: usize = 16_000;
+    let mut result = Vec::new();
+    let mut start = 0;
+    let mut used = 0;
+    for (index, pattern) in patterns.iter().enumerate() {
+        let cost = pattern
+            .encode_utf16()
+            .count()
+            .saturating_mul(2)
+            .saturating_add(3);
+        if cost > BUDGET {
+            return Err(GitError::InvalidOutput("pathspec exceeds command budget"));
+        }
+        if used + cost > BUDGET {
+            result.push(&patterns[start..index]);
+            start = index;
+            used = 0;
+        }
+        used += cost;
+    }
+    if start < patterns.len() {
+        result.push(&patterns[start..]);
+    }
+    Ok(result)
 }
 
 fn validate_path(path: &std::path::Path) -> Result<(), GitError> {

@@ -228,8 +228,9 @@ pub(in crate::mutations) fn resolve<S>(
     let mut selected = BTreeSet::new();
     let mut diagnostics = Vec::new();
     let mut duplicate = false;
+    let lookup = domains::SelectorIndex::new(entries, name);
     for selector in selectors {
-        let resolved = match resolve_one(entries, selector, name, domain) {
+        let resolved = match resolve_one(&lookup, selector, domain) {
             Ok(id) => Some(id),
             Err(diagnostic) => {
                 diagnostics.push(*diagnostic);
@@ -259,9 +260,8 @@ pub(in crate::mutations) fn resolve<S>(
 }
 
 fn resolve_one<S>(
-    entries: &BTreeMap<String, S>,
+    lookup: &domains::SelectorIndex<'_, S>,
     selector: &str,
-    name: fn(&S) -> &str,
     domain: Domain,
 ) -> Result<String, Box<Diagnostic>> {
     let (label, prefix, recovery) = policy(domain);
@@ -270,7 +270,7 @@ fn resolve_one<S>(
         .filter(|suffix| suffix.eq_ignore_ascii_case(".md"))
         .map(|_| &selector[..selector.len() - 3])
         .unwrap_or(selector);
-    match domains::resolve_selector(entries, selector, name) {
+    match lookup.resolve(selector) {
         Ok((id, _)) => Ok(id.to_owned()),
         Err(domains::SelectorError::NotFound)
             if domains::is_kebab(normalized) && domains::name_from_id(normalized) != normalized =>

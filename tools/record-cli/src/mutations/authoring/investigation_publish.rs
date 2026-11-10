@@ -131,9 +131,11 @@ impl InvestigationPublishOperation {
             .keys()
             .map(|id| (id.clone(), domains::name_from_id(id).to_owned()))
             .collect();
+        let lookup = domains::SelectorIndex::new(&names, |name| name);
         let mut selected = BTreeSet::new();
         for selector in &self.selectors {
-            let (id, _) = domains::resolve_selector(&names, selector, |name| name)
+            let (id, _) = lookup
+                .resolve(selector)
                 .map_err(|e| fail("selector", format!("{e:?}")))?;
             if !selected.insert(id.to_owned()) {
                 return Err(fail("duplicate-selection", id));

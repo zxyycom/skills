@@ -1,6 +1,7 @@
 //! Cross-record resource ownership, relation shape, and chronology validation.
 use super::InvestigationState;
 use crate::index::{IndexError, IndexV4, RelationGraph};
+use std::collections::{HashMap, HashSet};
 use time::{OffsetDateTime, format_description::well_known::Rfc3339};
 
 pub(super) fn validate(index: &IndexV4<InvestigationState>) -> Result<RelationGraph, IndexError> {
@@ -10,8 +11,18 @@ pub(super) fn validate(index: &IndexV4<InvestigationState>) -> Result<RelationGr
             .iter()
             .map(|(id, state)| (id, &state.relations)),
     )?;
+    let resources: HashMap<_, HashSet<_>> = index
+        .entries
+        .iter()
+        .map(|(id, state)| {
+            (
+                id.as_str(),
+                state.resource_ids.iter().map(String::as_str).collect(),
+            )
+        })
+        .collect();
     for (id, state) in &index.entries {
-        validate_resource_owners(index, state)?;
+        validate_resource_owners(&resources, state)?;
         validate_relation_shape(&graph, id)?;
         validate_chronology(index, &graph, id, state)?;
     }
@@ -19,15 +30,14 @@ pub(super) fn validate(index: &IndexV4<InvestigationState>) -> Result<RelationGr
 }
 
 fn validate_resource_owners(
-    index: &IndexV4<InvestigationState>,
+    resources: &HashMap<&str, HashSet<&str>>,
     state: &InvestigationState,
 ) -> Result<(), IndexError> {
     for resource in &state.resource_ids {
         let owner = resource.split('/').next().expect("validated resource ID");
-        if !index
-            .entries
+        if !resources
             .get(owner)
-            .is_some_and(|owner_state| owner_state.resource_ids.contains(resource))
+            .is_some_and(|owner_resources| owner_resources.contains(resource.as_str()))
         {
             return Err(IndexError::Domain(format!(
                 "resource {resource} missing owner reference"
@@ -81,4 +91,32 @@ fn validate_chronology(
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn graph_stage_cost_missing_owner_reference_reports_first_resource() {
+        let state = InvestigationState {
+            formed_at: String::new(),
+            name: String::new(),
+            question: String::new(),
+            relations: vec![],
+            resource_ids: vec!["owner/a".into(), "owner/b".into()],
+            source_path: String::new(),
+            tags: vec![],
+            title: String::new(),
+        };
+        let resources = HashMap::from([("owner", HashSet::from(["owner/b"]))]);
+        let error = validate_resource_owners(&resources, &state).unwrap_err();
+        assert!(
+            error
+                .to_string()
+                .contains("resource owner/a missing owner reference")
+        );
+        let resources = HashMap::from([("owner", HashSet::from(["owner/a", "owner/b"]))]);
+        assert!(validate_resource_owners(&resources, &state).is_ok());
+    }
 }

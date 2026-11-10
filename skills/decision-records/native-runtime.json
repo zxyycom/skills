@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "role": "decision-records",
-  "runtimeVersion": "0.2.1",
-  "sourceHash": "48a8806eddbe20e63e50f1a88ffb496f146085308f999cc3f8a087d30f31a890",
+  "runtimeVersion": "0.2.2",
+  "sourceHash": "24bdf0128ff51d13314844aaaed531cfb7bc2546846e25764565ee70c6557aad",
   "targets": [
     "x86_64-unknown-linux-gnu",
     "x86_64-pc-windows-msvc"

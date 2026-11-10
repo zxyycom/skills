@@ -4,17 +4,17 @@ pub(super) fn resolve_review(
     baseline: &crate::index::ValidatedIndex<crate::domains::investigation::InvestigationState>,
     groups: &[RelationGroup<InvestigationRelationKind>],
 ) -> Result<Vec<SourceReview<InvestigationRelationKind>>, TxError> {
-    let entries = &baseline.index().entries;
+    let lookup = crate::domains::SelectorIndex::new(&baseline.index().entries, |s| &s.name);
     let mut selected = std::collections::HashSet::new();
     let mut review = Vec::new();
     for group in groups {
-        let (source_id, state) =
-            crate::domains::resolve_selector(entries, &group.source, |s| &s.name)
-                .map_err(|e| failure("source-selector", format!("{e:?}")))?;
+        let (source_id, state) = lookup
+            .resolve(&group.source)
+            .map_err(|e| failure("source-selector", format!("{e:?}")))?;
         if !selected.insert(source_id.to_owned()) {
             return Err(failure("duplicate-source", source_id));
         }
-        let after = resolve_targets(entries, &group.relations)?;
+        let after = resolve_targets(&lookup, &group.relations)?;
         let before = state
             .relations
             .iter()
@@ -44,17 +44,18 @@ pub(super) fn resolve_review(
 }
 
 fn resolve_targets(
-    entries: &std::collections::BTreeMap<String, crate::domains::investigation::InvestigationState>,
+    lookup: &crate::domains::SelectorIndex<'_, crate::domains::investigation::InvestigationState>,
     relations: &[Relation<InvestigationRelationKind>],
 ) -> Result<Vec<Relation<InvestigationRelationKind>>, TxError> {
     let mut after = Vec::with_capacity(relations.len());
     for relation in relations {
-        let (target, _) = crate::domains::resolve_selector(entries, &relation.target, |s| &s.name)
+        let (target, _) = lookup
+            .resolve(&relation.target)
             .map_err(|e| failure("target-selector", format!("{e:?}")))?;
         if let Some(selector) = &relation.summary_selector {
-            let (summary_target, _) =
-                crate::domains::resolve_selector(entries, selector, |s| &s.name)
-                    .map_err(|e| failure("relation-summary", format!("{e:?}")))?;
+            let (summary_target, _) = lookup
+                .resolve(selector)
+                .map_err(|e| failure("relation-summary", format!("{e:?}")))?;
             if summary_target != target {
                 return Err(failure(
                     "relation-summary",

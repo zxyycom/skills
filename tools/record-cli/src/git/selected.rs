@@ -46,35 +46,62 @@ fn selected_payloads(
     paths: &[PathBuf],
     membership: &PendingSnapshot,
 ) -> Result<Vec<(PathBuf, Vec<u8>)>, GitError> {
+    let mut index: std::collections::BTreeMap<&std::path::Path, Vec<&PendingEntry>> =
+        std::collections::BTreeMap::new();
+    for entry in &membership.entries {
+        index.entry(&entry.path).or_default().push(entry);
+    }
+    let mut selected = Vec::new();
+    for path in paths {
+        match index.get(path.as_path()).map(Vec::as_slice).unwrap_or(&[]) {
+            [] => {}
+            [entry] if entry.stage == 0 && matches!(entry.mode, 0o100644 | 0o100755 | 0o120000) => {
+                selected.push((path, *entry))
+            }
+            _ => return selected_payloads_sequential(root, paths, &index),
+        }
+    }
+    let objects = match read_blobs(
+        root,
+        &selected
+            .iter()
+            .map(|(_, e)| e.oid.clone())
+            .collect::<Vec<_>>(),
+    ) {
+        Ok(objects) => objects,
+        Err(error) => {
+            selected_payloads_sequential(root, paths, &index)?;
+            return Err(error);
+        }
+    };
+    Ok(selected
+        .into_iter()
+        .map(|(path, entry)| (path.clone(), objects[&entry.oid].clone()))
+        .collect())
+}
+
+/// Restore the original per-path failure order only on an unsuccessful batch.
+fn selected_payloads_sequential(
+    root: &std::path::Path,
+    paths: &[PathBuf],
+    index: &std::collections::BTreeMap<&std::path::Path, Vec<&PendingEntry>>,
+) -> Result<Vec<(PathBuf, Vec<u8>)>, GitError> {
     let mut blobs = Vec::new();
     for path in paths {
-        if let Some(entry) = selected_entry(membership, path)? {
-            let kind = command(root, &["cat-file", "-t", &entry.oid], None)?;
-            if kind != b"blob\n" {
-                return Err(GitError::InvalidOutput("pending object is not a blob"));
+        match index.get(path.as_path()).map(Vec::as_slice).unwrap_or(&[]) {
+            [] => {}
+            [entry] if entry.stage == 0 && matches!(entry.mode, 0o100644 | 0o100755 | 0o120000) => {
+                if command(root, &["cat-file", "-t", &entry.oid], None)? != b"blob\n" {
+                    return Err(GitError::InvalidOutput("pending object is not a blob"));
+                }
+                blobs.push((path.clone(), read_blob(root, &entry.oid)?));
             }
-            let bytes = read_blob(root, &entry.oid)?;
-            blobs.push((path.clone(), bytes));
+            _ => {
+                return Err(GitError::InvalidOutput(
+                    "selected pending entry is not a unique file",
+                ));
+            }
         }
     }
     Ok(blobs)
-}
-
-/// A selected path may name at most one stage-zero supported Git file.
-fn selected_entry<'a>(
-    membership: &'a PendingSnapshot,
-    path: &std::path::Path,
-) -> Result<Option<&'a PendingEntry>, GitError> {
-    let mut entries = membership.entries.iter().filter(|entry| entry.path == path);
-    match (entries.next(), entries.next()) {
-        (None, None) => Ok(None),
-        (Some(entry), None)
-            if entry.stage == 0 && matches!(entry.mode, 0o100644 | 0o100755 | 0o120000) =>
-        {
-            Ok(Some(entry))
-        }
-        _ => Err(GitError::InvalidOutput(
-            "selected pending entry is not a unique file",
-        )),
-    }
 }

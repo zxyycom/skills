@@ -1,0 +1,290 @@
+{
+  "check-plain/0/baseline": {
+    "git_starts": 0,
+    "trace_file_exists": false,
+    "commands": {}
+  },
+  "check-plain/0/candidate": {
+    "git_starts": 0,
+    "trace_file_exists": false,
+    "commands": {}
+  },
+  "check-history/0/baseline": {
+    "git_starts": 758,
+    "trace_file_exists": true,
+    "commands": {
+      "rev-parse --show-toplevel": 3,
+      "rev-parse --verify": 2,
+      "ls-tree -r": 251,
+      "cat-file blob": 251,
+      "hash-object --stdin": 251
+    }
+  },
+  "check-history/0/candidate": {
+    "git_starts": 12,
+    "trace_file_exists": true,
+    "commands": {
+      "rev-parse --show-toplevel": 3,
+      "rev-parse --verify": 2,
+      "ls-tree -r": 3,
+      "cat-file blob": 1,
+      "hash-object --stdin": 1,
+      "cat-file --batch": 2
+    }
+  },
+  "check-resources/0/baseline": {
+    "git_starts": 4,
+    "trace_file_exists": true,
+    "commands": {
+      "rev-parse --show-toplevel": 2,
+      "rev-parse --show-prefix": 1,
+      "ls-files --cached": 1
+    }
+  },
+  "check-resources/0/candidate": {
+    "git_starts": 4,
+    "trace_file_exists": true,
+    "commands": {
+      "rev-parse --show-toplevel": 2,
+      "rev-parse --show-prefix": 1,
+      "ls-files --cached": 1
+    }
+  },
+  "check-combined/0/baseline": {
+    "git_starts": 762,
+    "trace_file_exists": true,
+    "commands": {
+      "rev-parse --show-toplevel": 5,
+      "rev-parse --show-prefix": 1,
+      "ls-files --cached": 1,
+      "rev-parse --verify": 2,
+      "ls-tree -r": 251,
+      "cat-file blob": 251,
+      "hash-object --stdin": 251
+    }
+  },
+  "check-combined/0/candidate": {
+    "git_starts": 16,
+    "trace_file_exists": true,
+    "commands": {
+      "rev-parse --show-toplevel": 5,
+      "rev-parse --show-prefix": 1,
+      "ls-files --cached": 1,
+      "rev-parse --verify": 2,
+      "ls-tree -r": 3,
+      "cat-file blob": 1,
+      "hash-object --stdin": 1,
+      "cat-file --batch": 2
+    }
+  },
+  "stage-decision/1/baseline": {
+    "git_starts": 23,
+    "trace_file_exists": true,
+    "commands": {
+      "rev-parse --show-toplevel": 3,
+      "rev-parse --verify": 1,
+      "ls-tree -r": 1,
+      "cat-file blob": 4,
+      "hash-object --stdin": 4,
+      "ls-files --stage": 3,
+      "cat-file -t": 3,
+      "rev-parse --show-object-format": 1,
+      "hash-object -w": 2,
+      "update-index -z": 1
+    }
+  },
+  "stage-decision/1/candidate": {
+    "git_starts": 16,
+    "trace_file_exists": true,
+    "commands": {
+      "rev-parse --show-toplevel": 3,
+      "rev-parse --verify": 1,
+      "ls-tree -r": 1,
+      "cat-file blob": 1,
+      "hash-object --stdin": 1,
+      "ls-files --stage": 3,
+      "cat-file --batch": 2,
+      "rev-parse --show-object-format": 1,
+      "hash-object -w": 2,
+      "update-index -z": 1
+    }
+  },
+  "stage-decision/8/baseline": {
+    "git_starts": 51,
+    "trace_file_exists": true,
+    "commands": {
+      "rev-parse --show-toplevel": 3,
+      "rev-parse --verify": 1,
+      "ls-tree -r": 1,
+      "cat-file blob": 11,
+      "hash-object --stdin": 11,
+      "ls-files --stage": 3,
+      "cat-file -t": 10,
+      "rev-parse --show-object-format": 1,
+      "hash-object -w": 9,
+      "update-index -z": 1
+    }
+  },
+  "stage-decision/8/candidate": {
+    "git_starts": 23,
+    "trace_file_exists": true,
+    "commands": {
+      "rev-parse --show-toplevel": 3,
+      "rev-parse --verify": 1,
+      "ls-tree -r": 1,
+      "cat-file blob": 1,
+      "hash-object --stdin": 1,
+      "ls-files --stage": 3,
+      "cat-file --batch": 2,
+      "rev-parse --show-object-format": 1,
+      "hash-object -w": 9,
+      "update-index -z": 1
+    }
+  },
+  "stage-decision/32/baseline": {
+    "git_starts": 147,
+    "trace_file_exists": true,
+    "commands": {
+      "rev-parse --show-toplevel": 3,
+      "rev-parse --verify": 1,
+      "ls-tree -r": 1,
+      "cat-file blob": 35,
+      "hash-object --stdin": 35,
+      "ls-files --stage": 3,
+      "cat-file -t": 34,
+      "rev-parse --show-object-format": 1,
+      "hash-object -w": 33,
+      "update-index -z": 1
+    }
+  },
+  "stage-decision/32/candidate": {
+    "git_starts": 47,
+    "trace_file_exists": true,
+    "commands": {
+      "rev-parse --show-toplevel": 3,
+      "rev-parse --verify": 1,
+      "ls-tree -r": 1,
+      "cat-file blob": 1,
+      "hash-object --stdin": 1,
+      "ls-files --stage": 3,
+      "cat-file --batch": 2,
+      "rev-parse --show-object-format": 1,
+      "hash-object -w": 33,
+      "update-index -z": 1
+    }
+  },
+  "stage-investigation/1/baseline": {
+    "git_starts": 34,
+    "trace_file_exists": true,
+    "commands": {
+      "rev-parse --show-toplevel": 4,
+      "rev-parse --verify": 1,
+      "ls-tree -r": 3,
+      "cat-file blob": 5,
+      "hash-object --stdin": 5,
+      "ls-files --stage": 5,
+      "cat-file -t": 4,
+      "rev-parse --show-prefix": 1,
+      "ls-files --cached": 1,
+      "config --type=bool": 1,
+      "rev-parse --show-object-format": 1,
+      "hash-object -w": 2,
+      "update-index -z": 1
+    }
+  },
+  "stage-investigation/1/candidate": {
+    "git_starts": 25,
+    "trace_file_exists": true,
+    "commands": {
+      "rev-parse --show-toplevel": 4,
+      "rev-parse --verify": 1,
+      "ls-tree -r": 3,
+      "cat-file blob": 1,
+      "hash-object --stdin": 1,
+      "ls-files --stage": 5,
+      "cat-file --batch": 3,
+      "rev-parse --show-prefix": 1,
+      "ls-files --cached": 1,
+      "config --type=bool": 1,
+      "rev-parse --show-object-format": 1,
+      "hash-object -w": 2,
+      "update-index -z": 1
+    }
+  },
+  "stage-investigation/8/baseline": {
+    "git_starts": 97,
+    "trace_file_exists": true,
+    "commands": {
+      "rev-parse --show-toplevel": 4,
+      "rev-parse --verify": 1,
+      "ls-tree -r": 10,
+      "cat-file blob": 19,
+      "hash-object --stdin": 19,
+      "ls-files --stage": 5,
+      "cat-file -t": 18,
+      "rev-parse --show-prefix": 1,
+      "ls-files --cached": 8,
+      "config --type=bool": 1,
+      "rev-parse --show-object-format": 1,
+      "hash-object -w": 9,
+      "update-index -z": 1
+    }
+  },
+  "stage-investigation/8/candidate": {
+    "git_starts": 32,
+    "trace_file_exists": true,
+    "commands": {
+      "rev-parse --show-toplevel": 4,
+      "rev-parse --verify": 1,
+      "ls-tree -r": 3,
+      "cat-file blob": 1,
+      "hash-object --stdin": 1,
+      "ls-files --stage": 5,
+      "cat-file --batch": 3,
+      "rev-parse --show-prefix": 1,
+      "ls-files --cached": 1,
+      "config --type=bool": 1,
+      "rev-parse --show-object-format": 1,
+      "hash-object -w": 9,
+      "update-index -z": 1
+    }
+  },
+  "stage-investigation/32/baseline": {
+    "git_starts": 313,
+    "trace_file_exists": true,
+    "commands": {
+      "rev-parse --show-toplevel": 4,
+      "rev-parse --verify": 1,
+      "ls-tree -r": 34,
+      "cat-file blob": 67,
+      "hash-object --stdin": 67,
+      "ls-files --stage": 5,
+      "cat-file -t": 66,
+      "rev-parse --show-prefix": 1,
+      "ls-files --cached": 32,
+      "config --type=bool": 1,
+      "rev-parse --show-object-format": 1,
+      "hash-object -w": 33,
+      "update-index -z": 1
+    }
+  },
+  "stage-investigation/32/candidate": {
+    "git_starts": 56,
+    "trace_file_exists": true,
+    "commands": {
+      "rev-parse --show-toplevel": 4,
+      "rev-parse --verify": 1,
+      "ls-tree -r": 3,
+      "cat-file blob": 1,
+      "hash-object --stdin": 1,
+      "ls-files --stage": 5,
+      "cat-file --batch": 3,
+      "rev-parse --show-prefix": 1,
+      "ls-files --cached": 1,
+      "config --type=bool": 1,
+      "rev-parse --show-object-format": 1,
+      "hash-object -w": 33,
+      "update-index -z": 1
+    }
+  }
+}

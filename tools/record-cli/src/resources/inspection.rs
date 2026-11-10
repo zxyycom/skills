@@ -23,34 +23,56 @@ impl ResourceContext<'_> {
         part: &str,
         id: &str,
     ) -> Result<Option<MemberKind>, CommandError> {
-        let listing = self.observe_directory(directory)?;
-        let entries = listing.members;
-        let exact = entries.iter().find(|entry| entry.name == part);
-        let folded = entries
-            .iter()
-            .find(|entry| entry.name.to_lowercase() == part.to_lowercase());
-        let Some(entry) = exact else {
-            if let Some(actual) = folded {
-                return Err(CommandError::new(
-                    "resource-case-mismatch",
-                    format!(
-                        "_resources/{id} must match actual path casing; found {}",
-                        serde_json::to_string(&actual.name).unwrap_or_default()
-                    ),
-                ));
-            }
-            return Ok(None);
-        };
-        Ok(Some(entry.kind.clone()))
+        let facts = self.observe_directory(directory)?;
+        if facts.exact.contains(part) {
+            let path = RelativePath::new(directory.join(part))
+                .map_err(|e| CommandError::new("candidate-resource-read-failed", e.to_string()))?;
+            return source::resource_member_kind(self.root, &path)
+                .map_err(|e| CommandError::new("candidate-resource-read-failed", e.to_string()));
+        }
+        if let Some(actual) = facts.folded.get(&part.to_lowercase()) {
+            return Err(CommandError::new(
+                "resource-case-mismatch",
+                format!(
+                    "_resources/{id} must match actual path casing; found {}",
+                    serde_json::to_string(actual).unwrap_or_default()
+                ),
+            ));
+        }
+        Ok(None)
     }
     fn observe_directory(
         &mut self,
         directory: &std::path::Path,
-    ) -> Result<source::DirectorySnapshot, CommandError> {
+    ) -> Result<&DirectoryFacts, CommandError> {
         let relative = RelativePath::new(directory)
             .map_err(|e| CommandError::new("candidate-resource-read-failed", e.to_string()))?;
-        source::enumerate_directory(self.root, &relative)
-            .map_err(|e| CommandError::new("candidate-resource-read-failed", e.to_string()))
+        let before = source::resource_directory_version(self.root, &relative)
+            .map_err(|e| CommandError::new("candidate-resource-read-failed", e.to_string()))?;
+        let reusable = before.is_some()
+            && self
+                .directories
+                .get(directory)
+                .is_some_and(|facts| facts.version == before);
+        if !reusable {
+            #[cfg(test)]
+            {
+                self.directory_enumerations += 1;
+            }
+            let listing = source::enumerate_directory(self.root, &relative)
+                .map_err(|e| CommandError::new("candidate-resource-read-failed", e.to_string()))?;
+            let after = source::resource_directory_version(self.root, &relative)
+                .map_err(|e| CommandError::new("candidate-resource-read-failed", e.to_string()))?;
+            if before != after {
+                return Err(CommandError::new(
+                    "candidate-resource-read-failed",
+                    "resource directory changed during observation",
+                ));
+            }
+            self.directories
+                .insert(directory.to_path_buf(), DirectoryFacts::new(listing, after));
+        }
+        Ok(&self.directories[directory])
     }
     pub(super) fn inspect(&mut self, id: &str) -> Result<bool, CommandError> {
         if let Some(value) = self.checked.get(id) {

@@ -1702,6 +1702,64 @@
       ],
       "title": "原生 Skill 搬迁后被已完成回执的恢复路径阻断"
     },
+    "261110-native-full-check-io-costs": {
+      "formedAt": "2026-11-10T02:22:06Z",
+      "name": "native-full-check-io-costs",
+      "question": "原生记录 CLI 是否在多个入口丢失旧性能优化，当前还有哪些可达的进程与算法成本放大，证据能支持到什么程度？",
+      "relations": [
+        {
+          "summary": "在生产切换后复查历史读取与资源目录的工作量",
+          "target": "261108-record-cli-native-complexity-survey",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "261110-native-full-check-io-costs/diagnose-native.py",
+        "261110-native-full-check-io-costs/diagnose-old.py",
+        "261110-native-full-check-io-costs/implementation-bench.py",
+        "261110-native-full-check-io-costs/implementation-end-guards.json",
+        "261110-native-full-check-io-costs/implementation-environment.txt",
+        "261110-native-full-check-io-costs/implementation-independent-summary.json",
+        "261110-native-full-check-io-costs/implementation-inventory.json",
+        "261110-native-full-check-io-costs/implementation-oracle.jsonl",
+        "261110-native-full-check-io-costs/implementation-recompute.py",
+        "261110-native-full-check-io-costs/implementation-samples.jsonl",
+        "261110-native-full-check-io-costs/implementation-trace-counts.json",
+        "261110-native-full-check-io-costs/implementation-write-probe-metadata.json",
+        "261110-native-full-check-io-costs/implementation-write-probe-samples.jsonl",
+        "261110-native-full-check-io-costs/implementation-write-probe.py",
+        "261110-native-full-check-io-costs/instrumentation.patch",
+        "261110-native-full-check-io-costs/measure.py",
+        "261110-native-full-check-io-costs/old-profile.mjs",
+        "261110-native-full-check-io-costs/post-review-bench.py",
+        "261110-native-full-check-io-costs/post-review-fault-result.json",
+        "261110-native-full-check-io-costs/post-review-fault_probe.py",
+        "261110-native-full-check-io-costs/post-review-independent-summary.json",
+        "261110-native-full-check-io-costs/post-review-independent-trace-counts.json",
+        "261110-native-full-check-io-costs/post-review-inventory.json",
+        "261110-native-full-check-io-costs/post-review-oracle.jsonl",
+        "261110-native-full-check-io-costs/post-review-recompute.py",
+        "261110-native-full-check-io-costs/post-review-samples.jsonl",
+        "261110-native-full-check-io-costs/post-review-summary.json",
+        "261110-native-full-check-io-costs/results.json",
+        "261110-native-full-check-io-costs/samples.jsonl",
+        "261110-native-full-check-io-costs/wide-audit.md",
+        "261110-native-full-check-io-costs/wide-process-counts.json",
+        "261110-native-full-check-io-costs/wide-reallocation-probe.py",
+        "261110-native-full-check-io-costs/wide-reallocation-results.json",
+        "261110-native-full-check-io-costs/wide-stage-probe.py"
+      ],
+      "sourcePath": "261110-native-full-check-io-costs.md",
+      "tags": [
+        "algorithmic-complexity",
+        "decision-records",
+        "investigation-report",
+        "performance",
+        "record-cli",
+        "windows"
+      ],
+      "title": "原生记录 CLI 性能回退与成本放大复核"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -2436,6 +2494,7 @@
       "261108-native-relation-summary-input": "sha256:0a269b60d2532137e68c399c390eec82313935128c7b09776ed6162ef7791d93",
       "261108-record-cli-native-complexity-survey": "sha256:e7e72b79940d6d7c2fc0cb672cf39943a56a34946e5b12f56159c31fd6d6a797",
       "261109-native-updater-relocated-complete-receipt": "sha256:e4a7ee4b92853caa86e8147864e8088d4ea9e13ac01b634acd71e44aa929468c",
+      "261110-native-full-check-io-costs": "sha256:f17a175f5b1f5e7f1c1facb0218e5a23ecb84e9e09bddb4f9a4db8d8bd62c524",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:512b8f0c5b6466034d7d851032bf41af7413a227bdd19c62959fc2ad343d495c",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

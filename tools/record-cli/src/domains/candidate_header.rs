@@ -1,8 +1,8 @@
 //! Candidate header identity discovery without full-document validation.
 use yaml_rust2::{
     Yaml, YamlLoader,
-    parser::{Event, EventReceiver, Parser},
-    scanner::TScalarStyle,
+    parser::{Event, EventReceiver, MarkedEventReceiver, Parser},
+    scanner::{Marker, TScalarStyle},
 };
 
 pub(crate) struct CandidateHeaderFields {
@@ -12,37 +12,114 @@ pub(crate) struct CandidateHeaderFields {
 
 /// Discovery only: top-level declarations preserve duplicate identity keys.
 pub(crate) fn candidate_header_fields(text: &str) -> Result<Option<CandidateHeaderFields>, String> {
+    Ok(parse_header(text, false)?.header)
+}
+
+/// Parse classification events and a full YAML document in the same pass.
+/// An unavailable document means the loader rejected it; callers can recover
+/// the precise loader error through the independent frontmatter entry point.
+pub(crate) fn header_and_document(text: &str) -> Result<ParsedHeader, String> {
+    parse_header(text, true)
+}
+
+pub(crate) struct ParsedHeader {
+    pub header: Option<CandidateHeaderFields>,
+    pub document: Option<ParsedDocument>,
+}
+
+pub(crate) struct ParsedDocument {
+    pub yaml: Yaml,
+    pub body: String,
+}
+
+fn parse_header(text: &str, with_document: bool) -> Result<ParsedHeader, String> {
     let text = text
         .strip_prefix('\u{feff}')
         .unwrap_or(text)
         .replace("\r\n", "\n");
     let Some(after) = text.strip_prefix("---\n") else {
-        return Ok(None);
+        return Ok(ParsedHeader {
+            header: None,
+            document: None,
+        });
     };
-    let Some(yaml) = after
+    let Some((yaml, body)) = after
         .find("\n---\n")
-        .map(|i| &after[..i])
-        .or_else(|| after.strip_suffix("\n---"))
+        .map(|i| (&after[..i], &after[i + 5..]))
+        .or_else(|| after.strip_suffix("\n---").map(|yaml| (yaml, "")))
     else {
-        return Ok(None);
+        return Ok(ParsedHeader {
+            header: None,
+            document: None,
+        });
     };
-    let mut header = HeaderEvents::default();
-    if Parser::new_from_str(yaml).load(&mut header, true).is_err() || !header.root_mapping {
-        return Ok(None);
-    }
-    if header
-        .keys
-        .iter()
-        .filter(|key| key.as_str() == "id")
-        .count()
-        > 1
+    let mut receiver = HeaderAndDocument {
+        header: HeaderEvents::default(),
+        loader: with_document.then(YamlLoader::default),
+        documents_started: 0,
+    };
+    if Parser::new_from_str(yaml)
+        .load(&mut receiver, true)
+        .is_err()
+        || !receiver.header.root_mapping
     {
-        return Err("candidate header has ambiguous duplicate frontmatter id declarations".into());
+        return Ok(ParsedHeader {
+            header: None,
+            document: None,
+        });
     }
-    Ok(Some(CandidateHeaderFields {
-        keys: header.keys,
-        document: Yaml::Hash(header.fields),
-    }))
+    receiver.finish(body)
+}
+
+struct HeaderAndDocument {
+    header: HeaderEvents,
+    loader: Option<YamlLoader>,
+    documents_started: usize,
+}
+impl HeaderAndDocument {
+    /// Preserve discovery errors independently of full-document decoding.
+    fn finish(self, body: &str) -> Result<ParsedHeader, String> {
+        let header = self.header;
+        if header
+            .keys
+            .iter()
+            .filter(|key| key.as_str() == "id")
+            .count()
+            > 1
+        {
+            return Err(
+                "candidate header has ambiguous duplicate frontmatter id declarations".into(),
+            );
+        }
+        let document = (self.documents_started == 1)
+            .then_some(self.loader)
+            .flatten()
+            .and_then(|loader| {
+                let docs = loader.documents();
+                (docs.len() == 1).then(|| docs[0].clone())
+            });
+        Ok(ParsedHeader {
+            header: Some(CandidateHeaderFields {
+                keys: header.keys,
+                document: Yaml::Hash(header.fields),
+            }),
+            document: document.map(|yaml| ParsedDocument {
+                yaml,
+                body: body.trim_start_matches('\n').to_owned(),
+            }),
+        })
+    }
+}
+impl MarkedEventReceiver for HeaderAndDocument {
+    fn on_event(&mut self, event: Event, mark: Marker) {
+        if matches!(event, Event::DocumentStart) {
+            self.documents_started += 1;
+        }
+        if let Some(loader) = &mut self.loader {
+            loader.on_event(event.clone(), mark);
+        }
+        EventReceiver::on_event(&mut self.header, event);
+    }
 }
 
 #[derive(Default)]

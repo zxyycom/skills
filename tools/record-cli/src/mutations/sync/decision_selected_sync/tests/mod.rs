@@ -54,6 +54,39 @@ fn related_expands_selected_events_but_not_unrelated_components() {
     );
 }
 #[test]
+fn graph_stage_cost_reallocation_chain_keeps_complete_component_only() {
+    let template =
+        domains::decision::parse_established(text("250102-a").as_bytes(), "250102-a", "a.md")
+            .unwrap()
+            .state;
+    let mut entries: BTreeMap<String, _> = (0..5)
+        .map(|n| (format!("n{n:02}"), template.clone()))
+        .collect();
+    for n in 1..5 {
+        entries
+            .get_mut(&format!("n{n:02}"))
+            .unwrap()
+            .relations
+            .push(domains::Relation {
+                relation_type: "重划".into(),
+                target: format!("n{:02}", n - 1),
+                summary: None,
+            });
+    }
+    entries.insert("outside".into(), template);
+    entries
+        .get_mut("n04")
+        .unwrap()
+        .relations
+        .push(domains::Relation {
+            relation_type: "修订".into(),
+            target: "outside".into(),
+            summary: None,
+        });
+    let expected = (0..5).map(|n| format!("n{n:02}")).collect();
+    assert_eq!(related(&entries, &BTreeSet::from(["n00".into()])), expected);
+}
+#[test]
 fn selected_sync_preserves_unread_baseline_and_requires_both_ids_for_rename() {
     let dir = tempfile::tempdir().unwrap();
     let collection = dir.path().join("decisions");

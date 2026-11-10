@@ -1,0 +1,157 @@
+{
+  "seed": 261110,
+  "assets": {
+    "baseline/decision-records": "4599a9d5306438bc6b087b2371da24b3b231ebb90ff800e5b3a56db09e01cde8",
+    "baseline/investigation-report": "4d9a4a54eb8a72e7a0ef1903a390456eb6fe449c92cac7635696f15496204acd",
+    "candidate/decision-records": "f22790a72f54dd22089a31b32ae9da97a97dff22e59e45a8c8d24cbf8e884316",
+    "candidate/investigation-report": "0d3c33d4876644c4f9e547c61ae20e10204e4ae1d95c806f347450eba9631b6b",
+    "script": "c60e6164908e404d6ffa7389a98f3ee0637cd3c2ce9c6d1356d78cade1a229bb",
+    "inventory": "d9e3d0332d6d7be7aad6864a77290c4093dbd8520b067f6bb7113f891c80c00b",
+    "recompute": "f1e8fcb29089de4467d5c616a1f56d6733020d4705db086bfe38269e517e867d",
+    "original_index/decision": "31a310391ad648957b49a92653ded2aa54a8e5784477d84b46f21325a0b81c5b",
+    "original_index/investigation": "1c1be3abad76baf848482d94f3798b56b54dd21ea2693318b9929516f3c4392b"
+  },
+  "guards_before_after_equal": true,
+  "groups": {
+    "check-plain/0/baseline": {
+      "n": 20,
+      "median_s": 0.010939991999999999,
+      "p95_nearest_rank_s": 0.014097134,
+      "min_s": 0.01012085,
+      "max_s": 0.019235769
+    },
+    "check-plain/0/candidate": {
+      "n": 20,
+      "median_s": 0.0106912915,
+      "p95_nearest_rank_s": 0.014013008,
+      "min_s": 0.009525885,
+      "max_s": 0.017972588
+    },
+    "check-history/0/baseline": {
+      "n": 20,
+      "median_s": 1.12719118,
+      "p95_nearest_rank_s": 1.476047237,
+      "min_s": 1.052300022,
+      "max_s": 1.775249264
+    },
+    "check-history/0/candidate": {
+      "n": 20,
+      "median_s": 0.057346388,
+      "p95_nearest_rank_s": 0.065149721,
+      "min_s": 0.051737925,
+      "max_s": 0.080972986
+    },
+    "check-resources/0/baseline": {
+      "n": 20,
+      "median_s": 0.3141709705,
+      "p95_nearest_rank_s": 0.323215222,
+      "min_s": 0.307618406,
+      "max_s": 0.466248868
+    },
+    "check-resources/0/candidate": {
+      "n": 20,
+      "median_s": 0.052699672,
+      "p95_nearest_rank_s": 0.077710477,
+      "min_s": 0.048460655,
+      "max_s": 0.084342793
+    },
+    "check-combined/0/baseline": {
+      "n": 20,
+      "median_s": 1.4042055965,
+      "p95_nearest_rank_s": 2.522782824,
+      "min_s": 1.339202274,
+      "max_s": 3.186734093
+    },
+    "check-combined/0/candidate": {
+      "n": 20,
+      "median_s": 0.1002102515,
+      "p95_nearest_rank_s": 0.119019419,
+      "min_s": 0.09230311,
+      "max_s": 0.135237256
+    },
+    "stage-decision/1/baseline": {
+      "n": 20,
+      "median_s": 0.035887461999999995,
+      "p95_nearest_rank_s": 0.054065307,
+      "min_s": 0.032778188,
+      "max_s": 0.061130821
+    },
+    "stage-decision/1/candidate": {
+      "n": 20,
+      "median_s": 0.025901077,
+      "p95_nearest_rank_s": 0.027176551,
+      "min_s": 0.024228536,
+      "max_s": 0.030588389
+    },
+    "stage-decision/8/baseline": {
+      "n": 20,
+      "median_s": 0.0763118565,
+      "p95_nearest_rank_s": 0.128539594,
+      "min_s": 0.069304357,
+      "max_s": 0.140853191
+    },
+    "stage-decision/8/candidate": {
+      "n": 20,
+      "median_s": 0.029421693,
+      "p95_nearest_rank_s": 0.031010075,
+      "min_s": 0.026843981,
+      "max_s": 0.044595059
+    },
+    "stage-decision/32/baseline": {
+      "n": 20,
+      "median_s": 0.2058538245,
+      "p95_nearest_rank_s": 0.33707116,
+      "min_s": 0.195222054,
+      "max_s": 0.355350579
+    },
+    "stage-decision/32/candidate": {
+      "n": 20,
+      "median_s": 0.041961095000000004,
+      "p95_nearest_rank_s": 0.05160814,
+      "min_s": 0.038772181,
+      "max_s": 0.061155921
+    },
+    "stage-investigation/1/baseline": {
+      "n": 20,
+      "median_s": 0.0517191245,
+      "p95_nearest_rank_s": 0.095169996,
+      "min_s": 0.047607291,
+      "max_s": 0.101102249
+    },
+    "stage-investigation/1/candidate": {
+      "n": 20,
+      "median_s": 0.039017753,
+      "p95_nearest_rank_s": 0.054309378,
+      "min_s": 0.035194322,
+      "max_s": 0.073323319
+    },
+    "stage-investigation/8/baseline": {
+      "n": 20,
+      "median_s": 0.1386929225,
+      "p95_nearest_rank_s": 0.151563187,
+      "min_s": 0.131250861,
+      "max_s": 0.28594511
+    },
+    "stage-investigation/8/candidate": {
+      "n": 20,
+      "median_s": 0.042232976500000005,
+      "p95_nearest_rank_s": 0.070372605,
+      "min_s": 0.038687996,
+      "max_s": 0.076381151
+    },
+    "stage-investigation/32/baseline": {
+      "n": 20,
+      "median_s": 0.43909673,
+      "p95_nearest_rank_s": 0.498645241,
+      "min_s": 0.415457392,
+      "max_s": 0.751713129
+    },
+    "stage-investigation/32/candidate": {
+      "n": 20,
+      "median_s": 0.0575487395,
+      "p95_nearest_rank_s": 0.097073902,
+      "min_s": 0.05361054,
+      "max_s": 0.108869654
+    }
+  }
+}

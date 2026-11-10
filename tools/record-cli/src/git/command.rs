@@ -5,6 +5,15 @@ pub(super) fn command(
     args: &[&str],
     input: Option<&[u8]>,
 ) -> Result<Vec<u8>, GitError> {
+    command_with_budget(root, args, input, 256 * 1024 * 1024)
+}
+
+pub(super) fn command_with_budget(
+    root: &std::path::Path,
+    args: &[&str],
+    input: Option<&[u8]>,
+    budget: usize,
+) -> Result<Vec<u8>, GitError> {
     use std::process::{Command, Stdio};
     check_git_context()?;
     let mut process = Command::new("git");
@@ -21,21 +30,29 @@ pub(super) fn command(
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
     let child = process.spawn().map_err(GitError::Io)?;
-    collect_output(child, input)
+    collect_output(child, input, budget)
 }
 
 /// Drain both pipes while sending input, then classify the completed Git process.
 fn collect_output(
     mut child: std::process::Child,
     input: Option<&[u8]>,
+    budget: usize,
 ) -> Result<Vec<u8>, GitError> {
     use std::io::Write;
 
     let stdout = child.stdout.take().expect("piped stdout");
     let stderr = child.stderr.take().expect("piped stderr");
     // Drain both streams while feeding stdin: otherwise a full pipe can deadlock Git.
-    let out_thread = std::thread::spawn(move || bounded_output(stdout, 256 * 1024 * 1024));
-    let err_thread = std::thread::spawn(move || bounded_output(stderr, 64 * 1024));
+    let out_thread =
+        std::thread::spawn(move || bounded_output(stdout, budget, GitError::OutputBudgetExceeded));
+    let err_thread = std::thread::spawn(move || {
+        bounded_output(
+            stderr,
+            64 * 1024,
+            GitError::InvalidOutput("Git output budget exceeded"),
+        )
+    });
     let write_result = input.map(|data| child.stdin.take().expect("piped stdin").write_all(data));
     if matches!(write_result, Some(Err(_))) {
         // Termination is a request; wait below is the evidence of process exit.
@@ -60,7 +77,11 @@ fn collect_output(
     output
 }
 
-fn bounded_output(mut stream: impl std::io::Read, budget: usize) -> Result<Vec<u8>, GitError> {
+fn bounded_output(
+    mut stream: impl std::io::Read,
+    budget: usize,
+    overflow_error: GitError,
+) -> Result<Vec<u8>, GitError> {
     let mut output = Vec::new();
     let mut chunk = [0_u8; 8192];
     let mut overflow = false;
@@ -77,7 +98,7 @@ fn bounded_output(mut stream: impl std::io::Read, budget: usize) -> Result<Vec<u
         }
     }
     if overflow {
-        return Err(GitError::InvalidOutput("Git output budget exceeded"));
+        return Err(overflow_error);
     }
     Ok(output)
 }

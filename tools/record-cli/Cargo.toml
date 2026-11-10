@@ -1,6 +1,6 @@
 [package]
 name = "record-cli"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2024"
 rust-version = "1.98"
 publish = false
@@ -17,6 +17,10 @@ cap-std = "4.0.3"
 cap-fs-ext = "4.0.3"
 
 tempfile = "3"
+sha1collisiondetection = "0.3.4"
+
+[target.'cfg(windows)'.dependencies]
+cap-primitives = '=4.0.3'
 
 [target.'cfg(unix)'.dev-dependencies]
 libc = "0.2"

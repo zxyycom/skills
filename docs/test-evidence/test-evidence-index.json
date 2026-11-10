@@ -271,7 +271,7 @@
       "DECISION-STATIC-MERGE-MINIMUM-001": "sha256:a7c24f4cb75b6bfa0daf3030082ab1e2b4f25fa066e407e121baba5bfdd81886",
       "DECISION-STATIC-SPLIT-PURITY-001": "sha256:1dfbaf26e88defdd98afd1339f37c12c059f36ad64ac0edd44cb0a950553a85e",
       "DECISION-SYNC-INDEX-CLI-OPTIONS-001": "sha256:2a15b6aff0d0e9997c9af4ea8c7598b1a3314de29071635ad2d312f6ff3901f6",
-      "DECISION-TAG-METADATA-001": "sha256:83f3eeda4c959335fb28a2c360c4b4c946f2d3ebe354430513482c526f6d966f",
+      "DECISION-TAG-METADATA-001": "sha256:0da2bd0628be39cd5bccca979e23686ac4575f4bd94f7c30eda597765accb459",
       "DECISION-TAG-VALIDATION-001": "sha256:77963d3aeeca8e4508162c5fd5e152e22bbf24b51507ed372b18744aac3c885e",
       "DECISION-TRACE-DIRECTION-001": "sha256:cfa6dfde68edb65b1a0ae8690ab05f6f7b48549fc0666ce24c0407f3719f063d",
       "DECISION-TRACE-EVENT-ADMISSION-001": "sha256:b36c23c02f09b276afbe2fa278c98c4635493ba3291ce93dc2805e73dafdaf1c",
@@ -798,6 +798,7 @@
       "NATIVE-PUBLISHER-RECOVERY-001": "sha256:a2ed9b5d42eaa1ae88d8114a1a5e4fa8083564a6087b24e1d599a15cbb7784c1",
       "NATIVE-RECORD-AUTHOR-CREATE-001": "sha256:c2186c63aa5589a21d55ce30d6f59954819fc7b0cde4407119c9679ffde15230",
       "NATIVE-RECORD-AUTHOR-PUBLISH-001": "sha256:8c320601e9c14e83773801596feab88ead1909cb126f16369b6a2572b80827ec",
+      "NATIVE-RECORD-CHECK-METADATA-SUMMARY-001": "sha256:29e3aba4b17b8f8597040043b36b297d653f99d49d697c3623e32470cb5557b0",
       "NATIVE-RECORD-CLI-CONTRACT-001": "sha256:cbc15ca970383dcc27eb1d6aae6aa5561e32f5f5ae7ed181a7d67135385b7d38",
       "NATIVE-RECORD-CLI-INTERNAL-001": "sha256:0b7a5c84ad2832625fc55f58327afe9c9f989a425fe4d2584e826b9efb2985f9",
       "NATIVE-RECORD-CLI-TXN-RESULT-001": "sha256:a34a684128b2695fd25896d34256034430f05b77a3286435285fd790cdbc638d",
@@ -805,16 +806,22 @@
       "NATIVE-RECORD-DECISION-CANDIDATE-READINESS-001": "sha256:1be545fee3547b6219498cdb7d53250887103c85ac0a91b187eaced07168ac44",
       "NATIVE-RECORD-DECISION-FLOW-001": "sha256:20b9c6c869b596645200f7437f84424164259eda9eee5dff7d2c0b9ce7c2941b",
       "NATIVE-RECORD-DECISION-IDENTITY-001": "sha256:531a96eb51c3659e08a5ab144f5c3673ff2c98067e9bb6aa72a3012de0d23afa",
+      "NATIVE-RECORD-DECISION-PARSED-SOURCE-001": "sha256:2bc58d94d841e427c2657962730c1c0b5337f918c14b29ffc561da01c2f6de42",
       "NATIVE-RECORD-DECISION-PENDING-001": "sha256:7a4e58b0bf40a87b04bb22eef79873b03e8c1f880e3ea476b5953898255e541b",
       "NATIVE-RECORD-DELIVERY-001": "sha256:349451ea2993a220c7b009b2c3d9bbe825f420686f8a2d58f96169614794aa7f",
       "NATIVE-RECORD-DOMAIN-INDEX-001": "sha256:642ce748ed70d7c37a8633f70eecdf4e982d0b46161d942abe15b85e5c5e99a7",
-      "NATIVE-RECORD-DR-MARKDOWN-001": "sha256:8cbc34684d229f49c31dd9f3792fd279f310fb19774f791ce1cdc83862d00ac7",
+      "NATIVE-RECORD-DR-MARKDOWN-001": "sha256:3672c128a9de215d510df35e6eba40b8b318699576546636340ceb3cf57460d5",
       "NATIVE-RECORD-GATE-FIXTURE-INPUT-001": "sha256:f66c27c2455599fd09a91c010711a6eda2895e77367960760ca9e4197125dd69",
       "NATIVE-RECORD-GATE-RUST-METRICS-001": "sha256:7b9913bf84ae4f682332910dd69debbb33bf10abee50af9646f2ef36a7854dbd",
       "NATIVE-RECORD-GATE-WAIVER-001": "sha256:507e1d930b1f68645af44f9e0822ebb54d5f76dfcaad58ee167898ba8f483da4",
+      "NATIVE-RECORD-GIT-BATCH-001": "sha256:07ef23e41390bd901060c9e94927bcc2e9f7dee3883de9a19793665a928f2b27",
+      "NATIVE-RECORD-GIT-BATCH-FAILURE-001": "sha256:f3eac681db7c0cb80065bcaa4b602d4c64b794bfa1b60a807b62d670194bed41",
+      "NATIVE-RECORD-GIT-BATCH-PROTOCOL-001": "sha256:3ce6197075616ac8ff23ae01c376cc9695da15a58d7c2855293dd7b8c5c64f02",
       "NATIVE-RECORD-GIT-HISTORY-001": "sha256:b5753954a575c1fc7d19285c16de8568b48c6e76621726de3b27551b5bfcd1ab",
       "NATIVE-RECORD-GIT-LOCK-FAILURE-001": "sha256:4bb6863bd998b67430f837be94c03bc6db38a8a36438db3978239ab748efe847",
       "NATIVE-RECORD-GIT-PATH-CONFLICT-001": "sha256:270a20d96cd3c266b135b4b74f6d4698c2f12e3d7d2afab3dbd1a087c3574bd3",
+      "NATIVE-RECORD-GIT-PREPARE-FAILURE-001": "sha256:7a3b585de674f4dc6b5eb9b5cd447a546638468ad5b351cf8305f3803e289d84",
+      "NATIVE-RECORD-GIT-PREPARE-OBJECTS-001": "sha256:f5c182f97ff4bfba3fb5dfcd47093a0bb6f0375847f3ec9fd305f382921f6688",
       "NATIVE-RECORD-GIT-PUBLISH-001": "sha256:c1873720bb0fe34f95cb7b40ab66b719c22e2225539be3c6b8b7220edc08c83d",
       "NATIVE-RECORD-GIT-READ-001": "sha256:cf3ae74863292550231da7cdd1f143cd8858713f72516d355853072cc72789e2",
       "NATIVE-RECORD-GIT-STAGE-COMPOSE-001": "sha256:a84a449e39ddb0b7d99357ff28c82e07a7c93e019bc27926c3392d45b9b8beac",
@@ -847,9 +854,16 @@
       "NATIVE-RECORD-QUERY-SEARCH-001": "sha256:971bc917ecdaf73d97ca2283cffdfcef8a266b35263747ce1a9892d75cb12304",
       "NATIVE-RECORD-QUERY-SNAPSHOT-001": "sha256:987a0c3a558d44a887914634a1cceed0c48578e896f2f579a9a84e61e3e202ff",
       "NATIVE-RECORD-QUERY-TEXT-001": "sha256:c12a25d0ae83536f6eaea3659094f6a68c6c87aa0213a79eb4f155d7881f5103",
+      "NATIVE-RECORD-REALLOCATION-COMPONENT-001": "sha256:0b4059225691ecdab01bf9e48326d5a7669a532c07056d0e52914ec8cbc69303",
+      "NATIVE-RECORD-RESOURCE-DIRECTORY-001": "sha256:8b9fe84115705317c3a5949b18258185f5c8a26e6db8b9877390ae70fc7909a4",
       "NATIVE-RECORD-RESOURCE-EVIDENCE-001": "sha256:576be80ca98525e16e98d8c8fc49d9bba613c4386073e0ceb81c09ca703ad428",
+      "NATIVE-RECORD-RESOURCE-OWNER-REFERENCE-001": "sha256:47efb2f6864d7f9158cb9f0dbd62ff3834c92044d5ef2ba2ed1e6ebeec188d84",
+      "NATIVE-RECORD-RESOURCE-WINDOWS-IDENTITY-001": "sha256:27c340b9c15aaebea2941a5b98ea9c2bbe40a35054f4b84ca4849bad9f52612e",
+      "NATIVE-RECORD-SELECTOR-BATCH-001": "sha256:79debfbe602214f52a887079806815be656d86e188b13dbc4cd84e7d790dfbf1",
+      "NATIVE-RECORD-SELECTOR-WORK-001": "sha256:996f413754e3bd717ed27e0e0294d0a4e7c500570b2420232a808d89bd1bfad3",
       "NATIVE-RECORD-SOURCE-CAPTURE-001": "sha256:c63467b011f754a84262fb5800caa12130e3c1011b347d0a8851fd5b87ca117e",
       "NATIVE-RECORD-SOURCE-REVISION-001": "sha256:a57504f373c0ea4f9adbcc21474724d6fde82d74a637c366f09b52cd5333ddd4",
+      "NATIVE-RECORD-STAGE-OWNER-COMPONENT-001": "sha256:86ec9ed0cb3c45ad38f73836c45156328a4db4e218b1e90836164563d313a371",
       "NATIVE-RECORD-TXN-ATOMIC-001": "sha256:b182a4a1d0ede7ed9bcab00c887255748b698e8ac542d3a6ea116d8c726b17dc",
       "NATIVE-RECORD-TXN-OUTCOME-001": "sha256:069ef36019035b17ffe30d381943888551b50410efb9fd3df86796e541af9837",
       "NATIVE-RECORD-TXN-PARTIAL-001": "sha256:2cfaaf1d430c01b029b799c7663a5a875c7dacbd61f388bd5103b951eb162e79",
@@ -4055,7 +4069,7 @@
         "decision-records"
       ],
       "testIds": [
-        "test:5188738de44857305dea8370a4fe4b51d21583b81627cc546c443b7f7b829f1b"
+        "test:b280cca6253da2cd8ce22790ea6b318276506040b98972340b0c801a573134f1"
       ]
     },
     "DECISION-TAG-VALIDATION-001": {
@@ -9455,6 +9469,16 @@
         "test:e4017e83145eb6eac4b65efc128a38726c2642579cf31fa47f9b810fe5070316"
       ]
     },
+    "NATIVE-RECORD-CHECK-METADATA-SUMMARY-001": {
+      "title": "决策检查的元数据摘要与正文错误",
+      "sourcePath": "cases/native-record-check-metadata-summary.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:b7660a1ff23897480d9840e9d5d219279d39e10ff4813445c67e307a9f69188d"
+      ]
+    },
     "NATIVE-RECORD-CLI-CONTRACT-001": {
       "title": "双域 CLI 参数与事务结果通道",
       "sourcePath": "cases/native-record-cli-contract.md",
@@ -9552,6 +9576,16 @@
         "test:c7b77e3480cd103c9c986380fecd1c5d137e58e9e4f7d689afeed1bdae20a0ba"
       ]
     },
+    "NATIVE-RECORD-DECISION-PARSED-SOURCE-001": {
+      "title": "决策来源复用的分类与解析",
+      "sourcePath": "cases/native-record-decision-parsed-source.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:e8452d9d522b22b51829e854526cfb736eda306f297ce877fe1e9ede5bc26179"
+      ]
+    },
     "NATIVE-RECORD-DECISION-PENDING-001": {
       "title": "决策身份操作保护 Git pending",
       "sourcePath": "cases/native-record-decision-pending.md",
@@ -9597,21 +9631,21 @@
         "record-rust"
       ],
       "testIds": [
-        "test:0132b7085ec07be23e82fc3c8f16c9b6d566f0bc360aecff1c7e3593458aed9e",
-        "test:141781b82804d32148da5f8156acd31cc9e267aa3523c6c133e659f4a383c5ab",
+        "test:09c9ebe5e27f861cb7e16cbf38246e42c0ff01ae18686526bbe4019c72a17969",
         "test:1562e0ec86731ee6252e448882419a3cdcb464f96d79214ba4414bb54f792569",
         "test:1f02661cd0f74ad261f3532a9a60d4fa418264565d380d22d01a0360c36c1415",
-        "test:368b9b3ada2c39d6af0b40f9c50f36c0616071172986d45e0b0d341a1d15b329",
-        "test:4c77434f379b6a097f57f9fa02df4dceaafc5e4ff1dacc776a910a1a9a91d506",
-        "test:5188738de44857305dea8370a4fe4b51d21583b81627cc546c443b7f7b829f1b",
-        "test:82210a95be051387f86b74a1d94cce4c3b6f0e1746cd7347074d4c4424730d59",
+        "test:4fff0167cf33d89f7e6a093ab570516352b81371ecce13b6b00b83be637c1e7c",
+        "test:6fe1397e3b416624ffb6f4850ae88eea5d676c0f3bbfb9f065e8d08138d7ef62",
+        "test:803cb8f953fbf88a02ba8002a51cc15ab8716e65724a77aae069874803417cf4",
         "test:88ae748876d431f17b4c3ab9331072c33dc9b093ef8b8f676c1a7fedff55f6eb",
-        "test:98a7d77091f7ea28d88355c7620c20004077e42e42dd8e46bf0ad04d07b33142",
-        "test:e753e67b006de7c64b31a39d4626f6543eba9ef06440babd1e25820c2e5f7c0f",
-        "test:e99fb894ee63771e889b1c8e1ea6966acb9cd211b99f66e2e49daf579c56ad56",
-        "test:e9c6f505c55786d3e5bf578a5205895aa1ac61a4d10721ddf18962ed0a90628e",
+        "test:899090ac4f015181f960b698128ed29e37107ef542c91a1ba1951718825f07c9",
+        "test:960e0605ca48cdcea0dfff2dab9f402dcb37941dd778567c5749c93ff04460fa",
+        "test:b280cca6253da2cd8ce22790ea6b318276506040b98972340b0c801a573134f1",
+        "test:b6ae8f38f0600c252429ee96459572f3014ead98d2619fff2eed605a65e7d37b",
+        "test:cfbde25636365c30d634ac530e7dac4b4ab3faee14608f147e7cc95b85f2655a",
+        "test:cfe2e3f8139b0001d41c7d3db8def7a633b6ec7780a8227a5fe058d13253538b",
         "test:ec81e51cd3f11aa139fde9242937823354cca18a599e5ec2506fcc805c8acc5b",
-        "test:fc19cbabacbd3295686b12d60cb01e0606a3c2740d88cce67f91155be5a0720b"
+        "test:f15ffdfd5c30b7a975b87a32dc4ee4c006d30d4e4f15b99a905466972c9815bc"
       ]
     },
     "NATIVE-RECORD-GATE-FIXTURE-INPUT-001": {
@@ -9648,6 +9682,39 @@
         "test:6c25f134e9b379a3b7108156e85f2db6bec8c9aaf8ebf501a0956592908bc37e"
       ]
     },
+    "NATIVE-RECORD-GIT-BATCH-001": {
+      "title": "Git 批量选择与预算回退",
+      "sourcePath": "cases/native-record-git-batch.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:02ce427177f387af338addd74ccd6c22b5217055506e3c2915d4a2584530168c",
+        "test:1e3a8a203eecb4b21babb4fd2ebcd97047dc96b7712a6d182c6d11e4c9580310",
+        "test:22851be9c54d65d7a9c3435330b024755bc69504776d61fae883c509c6e01b57"
+      ]
+    },
+    "NATIVE-RECORD-GIT-BATCH-FAILURE-001": {
+      "title": "选中 pending 的首个错误",
+      "sourcePath": "cases/native-record-git-batch-failure-order.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:4cf732ca961d922f4ecc921e26f6fc289376c6405ac71ddc33308f0e4ffca839"
+      ]
+    },
+    "NATIVE-RECORD-GIT-BATCH-PROTOCOL-001": {
+      "title": "Git 批量 blob 协议与身份",
+      "sourcePath": "cases/native-record-git-batch-protocol.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:6ce8a805b32859920ff673c8ba3a33cfb4717df9f62c7f5102f47d0ea9d468cc",
+        "test:d7a3396822ebc10790fc524898495a5b2912e2db819eae9b03fc4f73a33ee464"
+      ]
+    },
     "NATIVE-RECORD-GIT-HISTORY-001": {
       "title": "缺失历史索引的 stage 安全边界",
       "sourcePath": "cases/native-record-git-history.md",
@@ -9679,6 +9746,27 @@
         "test:03f81c90a14052c4b489757de1829b6a8b89c54a9ba3f9205f8cb226a7d34514",
         "test:85fc3c89015f1a68371f415a372efce1fe754f8cc2b2df6c32c3be0b7bc1b7f3",
         "test:960fc6eb100368d9d3a1fa98e8eca4b361806f310c8b974a8b004af4f8b54246"
+      ]
+    },
+    "NATIVE-RECORD-GIT-PREPARE-FAILURE-001": {
+      "title": "对象准备失败与 index 边界",
+      "sourcePath": "cases/native-record-git-publish-preparation-failure.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:48e1368e1f640b04123b4925fc997eb43489726aaf637987557ec61b94b97fd3",
+        "test:d53286e7b91f3e09034c6b0f0a7f8f1e0a6b75af994af5d6028010e5f1ae8143"
+      ]
+    },
+    "NATIVE-RECORD-GIT-PREPARE-OBJECTS-001": {
+      "title": "选中对象准备与 pending 保留",
+      "sourcePath": "cases/native-record-git-publish-object-preparation.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:f334dd45a10564b3025c1113d9da525dd6d46d5a469240b9ec775c05b94691a4"
       ]
     },
     "NATIVE-RECORD-GIT-PUBLISH-001": {
@@ -10142,6 +10230,27 @@
         "test:f50da40d7f042d587f059b8de6f5bae92c65c910b342de7de863f9a17c40b7fa"
       ]
     },
+    "NATIVE-RECORD-REALLOCATION-COMPONENT-001": {
+      "title": "选择性同步重划连通分量",
+      "sourcePath": "cases/native-record-reallocation-component.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:abe26d6eb74b12d2eafadc75fe6dad3b821f1662e797d8a05521096e4012cbbd"
+      ]
+    },
+    "NATIVE-RECORD-RESOURCE-DIRECTORY-001": {
+      "title": "资源目录观察与路径安全",
+      "sourcePath": "cases/native-record-resource-directory-observation.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:3849f1b16b4a6709887b501108597d7dbd0c4d7d6169c6ab252ffc8b71f4f0e7",
+        "test:4cb1c6ad2104664ed575251399bcd3b37339446492802d95318ac6853d2deceb"
+      ]
+    },
     "NATIVE-RECORD-RESOURCE-EVIDENCE-001": {
       "title": "调查资源的成员与身份快照",
       "sourcePath": "cases/native-record-resource-evidence.md",
@@ -10151,6 +10260,47 @@
       "testIds": [
         "test:1740c737699157afbfda136429b5cb741af77e407310773be9a056d5a32b4319",
         "test:727cbbdececd9f6f41c62a594e0129b29db6f87ea11fb7aea42225bb41521fb9"
+      ]
+    },
+    "NATIVE-RECORD-RESOURCE-OWNER-REFERENCE-001": {
+      "title": "资源 owner 的直接引用",
+      "sourcePath": "cases/native-record-resource-owner-reference.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:d6feac5fd67279c73c739426c51968dd9567a460ced83725dd9c4d1b282460bc"
+      ]
+    },
+    "NATIVE-RECORD-RESOURCE-WINDOWS-IDENTITY-001": {
+      "title": "Windows 目录身份缺失回退",
+      "sourcePath": "cases/native-record-resource-windows-identity.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:e2569f4d1676b1c8a383ef2c37a366204ded46ff3817025b4241d04ffff3cec6"
+      ]
+    },
+    "NATIVE-RECORD-SELECTOR-BATCH-001": {
+      "title": "批量名称选择与诊断",
+      "sourcePath": "cases/native-record-selector-batch.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:0084a5bbe16c69f00f8b56ac551039f9d501e0a9aca627e5d3bc56d4e996fcfb",
+        "test:eca3f6ff79e82762801296cb35e9106ab97d80445d1c4c08d3edc2400bd56272"
+      ]
+    },
+    "NATIVE-RECORD-SELECTOR-WORK-001": {
+      "title": "批量名称索引的投影工作",
+      "sourcePath": "cases/native-record-selector-work.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:40cf79fe82b27c293b73fc53ef44109ee8cd2595333c35386b447833c6f0e238"
       ]
     },
     "NATIVE-RECORD-SOURCE-CAPTURE-001": {
@@ -10173,6 +10323,16 @@
       "testIds": [
         "test:1d9828351c26a30f4f53836da4c066271d3eb82d2e87421bd3fe74e9d8399596",
         "test:d450556d26d89627e27522529305f48f79cf42186ad13dd1d0cb06c34b55acc7"
+      ]
+    },
+    "NATIVE-RECORD-STAGE-OWNER-COMPONENT-001": {
+      "title": "资源 owner 选择的路径分量",
+      "sourcePath": "cases/native-record-stage-owner-component.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:a61099a25faf2a33ff3dc56eddde1520a08b8c6057dfc21c6bca94f1d2510a31"
       ]
     },
     "NATIVE-RECORD-TXN-ATOMIC-001": {

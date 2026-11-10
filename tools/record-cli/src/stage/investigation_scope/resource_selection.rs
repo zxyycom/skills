@@ -1,4 +1,5 @@
 use super::*;
+use std::collections::HashSet;
 
 /// Resource paths bound to selected owners, direct references and observed Git membership.
 pub(super) struct ResourceSelection {
@@ -17,18 +18,14 @@ pub(super) fn select_resources(
     workspace: &ValidatedIndex<InvestigationState>,
     revision: Option<&str>,
 ) -> Result<ResourceSelection, IndexStageError> {
-    let ResourceScope {
-        resource_root,
-        selected_ids,
-        owner_scopes,
-        direct_paths,
-        resource_scopes,
-    } = resource_scope(index_path, base, workspace)?;
-    validate_owner_directories(root, &resource_root, &owner_scopes)?;
-    let workspace_resources = git::list_repository_workspace_files(root.path(), &resource_scopes)
-        .map_err(IndexStageError::Git)?;
-    for path in &direct_paths {
-        if !workspace_resources.contains(path) {
+    let scope = resource_scope(index_path, base, workspace)?;
+    validate_owner_directories(root, &scope.resource_root, &scope.owner_scopes)?;
+    let workspace_resources =
+        git::list_repository_workspace_files(root.path(), &scope.resource_scopes)
+            .map_err(IndexStageError::Git)?;
+    let workspace_resource_set: HashSet<_> = workspace_resources.iter().collect();
+    for path in &scope.direct_paths {
+        if !workspace_resource_set.contains(path) {
             return Err(IndexStageError::Selection(
                 "referenced resource is missing or ignored".into(),
             ));
@@ -37,17 +34,18 @@ pub(super) fn select_resources(
     let owner_paths = owner_paths(
         root,
         revision,
-        &owner_scopes,
+        &scope,
         base.pending.membership(),
         &workspace_resources,
     )?;
-    let all_resource_paths: BTreeSet<PathBuf> = owner_paths.union(&direct_paths).cloned().collect();
+    let all_resource_paths: BTreeSet<PathBuf> =
+        owner_paths.union(&scope.direct_paths).cloned().collect();
     let file_mode = git::core_file_mode(root.path()).map_err(IndexStageError::Git)?;
 
     Ok(ResourceSelection {
-        resource_root,
-        selected_ids,
-        direct_paths,
+        resource_root: scope.resource_root,
+        selected_ids: scope.selected_ids,
+        direct_paths: scope.direct_paths,
         owner_paths,
         all_resource_paths,
         file_mode,
@@ -123,35 +121,44 @@ fn resource_scope(
 fn owner_paths(
     root: &Root,
     revision: Option<&str>,
-    owner_scopes: &[PathBuf],
+    scope: &ResourceScope,
     pending: &git::PendingSnapshot,
     workspace_resources: &[PathBuf],
 ) -> Result<BTreeSet<PathBuf>, IndexStageError> {
     let head_resources = match revision {
-        Some(revision) => git::list_revision_files(root.path(), revision, owner_scopes)
+        Some(revision) => git::list_revision_files(root.path(), revision, &scope.owner_scopes)
             .map_err(IndexStageError::Git)?,
         None => Vec::new(),
     };
     let mut owner_paths: BTreeSet<PathBuf> =
         head_resources.into_iter().map(|entry| entry.path).collect();
+    let selected_owners: HashSet<&str> = scope.selected_ids.iter().map(String::as_str).collect();
     owner_paths.extend(
         pending
             .entries
             .iter()
-            .filter(|entry| {
-                owner_scopes
-                    .iter()
-                    .any(|owner| entry.path.starts_with(owner))
-            })
+            .filter(|entry| is_selected_owner(&entry.path, &scope.resource_root, &selected_owners))
             .map(|entry| entry.path.clone()),
     );
     owner_paths.extend(
         workspace_resources
             .iter()
-            .filter(|path| owner_scopes.iter().any(|owner| path.starts_with(owner)))
+            .filter(|path| is_selected_owner(path, &scope.resource_root, &selected_owners))
             .cloned(),
     );
     Ok(owner_paths)
+}
+
+fn is_selected_owner(
+    path: &Path,
+    resource_root: &RelativePath,
+    selected_ids: &HashSet<&str>,
+) -> bool {
+    path.strip_prefix(resource_root.as_path())
+        .ok()
+        .and_then(|path| path.components().next())
+        .and_then(|component| component.as_os_str().to_str())
+        .is_some_and(|owner| selected_ids.contains(owner))
 }
 
 /// One phase captures resource-owner evidence and projects updates from it.
@@ -234,5 +241,36 @@ impl ResourceCapture<'_> {
             ));
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn graph_stage_cost_owner_matching_respects_components() {
+        let root = RelativePath::new("reports/_resources").unwrap();
+        let ids = HashSet::from(["owner"]);
+        assert!(is_selected_owner(
+            Path::new("reports/_resources/owner/nested/file"),
+            &root,
+            &ids
+        ));
+        assert!(is_selected_owner(
+            Path::new("reports/_resources/owner"),
+            &root,
+            &ids
+        ));
+        assert!(!is_selected_owner(
+            Path::new("reports/_resources/owner-other/file"),
+            &root,
+            &ids
+        ));
+        assert!(!is_selected_owner(
+            Path::new("reports/_resources-other/owner/file"),
+            &root,
+            &ids
+        ));
     }
 }

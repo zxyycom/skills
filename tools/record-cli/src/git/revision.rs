@@ -20,6 +20,70 @@ pub fn read_revision_file(
     Ok(Some((mode, bytes)))
 }
 
+/// Read an explicit set of paths from one immutable revision. Missing paths are absent.
+pub fn read_revision_files(
+    root: &std::path::Path,
+    revision: &str,
+    paths: &[PathBuf],
+) -> Result<BTreeMap<PathBuf, (u32, Vec<u8>)>, GitError> {
+    if !valid_oid(revision) {
+        return Err(GitError::InvalidOutput("invalid fixed revision"));
+    }
+    let mut names = BTreeMap::new();
+    for path in paths {
+        names.insert(git_path(path)?, path.clone());
+    }
+    if names.is_empty() {
+        return Ok(BTreeMap::new());
+    }
+    let patterns: Vec<_> = names
+        .keys()
+        .map(|name| format!(":(top,literal){name}"))
+        .collect();
+    let mut entries = BTreeMap::new();
+    for batch in pattern_batches(&patterns)? {
+        tree_listing_batch(root, revision, batch, |listing| {
+            merge_tree_listing(&mut entries, listing, revision.len())
+        })?;
+    }
+    reject_directories(&names, &entries)?;
+    let selected: Vec<_> = names
+        .values()
+        .filter_map(|path| entries.get(path).map(|entry| (path, entry)))
+        .collect();
+    let objects = read_blobs(
+        root,
+        &selected
+            .iter()
+            .map(|(_, entry)| entry.oid.clone())
+            .collect::<Vec<_>>(),
+    )?;
+    Ok(selected
+        .into_iter()
+        .map(|(path, entry)| (path.clone(), (entry.mode, objects[&entry.oid].clone())))
+        .collect())
+}
+
+/// A requested directory must never be mistaken for an absent file.
+fn reject_directories(
+    names: &BTreeMap<String, PathBuf>,
+    entries: &BTreeMap<PathBuf, PendingEntry>,
+) -> Result<(), GitError> {
+    // A directory path is not a file, even when Git recursively lists descendants.
+    for name in names.keys() {
+        let path = std::path::Path::new(name);
+        if entries
+            .range(path.to_path_buf()..)
+            .map(|(entry, _)| entry)
+            .find(|entry| entry.as_path() != path)
+            .is_some_and(|entry| entry.starts_with(path))
+        {
+            return Err(GitError::InvalidOutput("revision path is not a file"));
+        }
+    }
+    Ok(())
+}
+
 /// Resolve a literal tree result without permitting ambiguous or mismatched paths.
 fn selected_tree_record<'a>(
     listing: &'a [u8],
@@ -54,7 +118,7 @@ pub fn list_revision_files(
     if !valid_oid(revision) {
         return Err(GitError::InvalidOutput("invalid fixed revision"));
     }
-    let patterns: Vec<String> = if scopes.is_empty() {
+    let mut patterns: Vec<String> = if scopes.is_empty() {
         vec![":(top,literal)".into()]
     } else {
         scopes
@@ -62,10 +126,13 @@ pub fn list_revision_files(
             .map(|path| git_path(path).map(|name| format!(":(top,literal){name}")))
             .collect::<Result<_, _>>()?
     };
+    patterns.sort();
+    patterns.dedup();
     let mut result = BTreeMap::new();
-    for pattern in patterns {
-        let listing = tree_listing(root, revision, &pattern)?;
-        merge_tree_listing(&mut result, &listing, revision.len())?;
+    for batch in pattern_batches(&patterns)? {
+        tree_listing_batch(root, revision, batch, |listing| {
+            merge_tree_listing(&mut result, listing, revision.len())
+        })?;
     }
     Ok(result.into_values().collect())
 }
@@ -114,6 +181,26 @@ fn tree_listing(
         return Err(GitError::InvalidOutput("unterminated tree output"));
     }
     Ok(listing)
+}
+
+fn tree_listing_batch(
+    root: &std::path::Path,
+    revision: &str,
+    patterns: &[String],
+    mut consume: impl FnMut(&[u8]) -> Result<(), GitError>,
+) -> Result<(), GitError> {
+    command_patterns(
+        root,
+        &["ls-tree", "-r", "-z", "--full-tree", revision, "--"],
+        patterns,
+        256 * 1024 * 1024,
+        |listing| {
+            if !listing.is_empty() && listing.last() != Some(&0) {
+                return Err(GitError::InvalidOutput("unterminated tree output"));
+            }
+            consume(listing)
+        },
+    )
 }
 
 fn listed_tree_record(record: &[u8], oid_length: usize) -> Result<PendingEntry, GitError> {
