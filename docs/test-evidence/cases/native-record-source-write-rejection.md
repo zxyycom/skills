@@ -8,8 +8,8 @@ Tags:
 - `record-rust`
 
 Contract:
-- 显式 key 展开为多源时，写操作及其预检必须在写入前拒绝，不选首源或回退工作区。
+- 显式 key 或 defaultWriteKey 展开为多源时，写操作及其预检必须在写入前拒绝，不选首源或回退工作区。
 
 Proves:
-- 多源 new 和 sync-index --preflight 均退出 1，返回 config-error 及恰好单源要求。
-- 两次失败后完整私有 fixture 的路径、目录成员及文件字节均与调用前一致，排除创建候选、索引或额外目录。
+- 显式 key 与默认写 key 的多源 new 和 sync-index --preflight 均退出 1，返回 config-error 及恰好单源要求。
+- 每次失败后完整私有 fixture 的路径、目录成员及文件字节均与调用前一致，排除创建候选、索引或额外目录。

@@ -1,16 +1,11 @@
 //! Thin, ordered wrapper around independent investigation queries.
-use super::investigation_config::Source;
+use super::investigation_config::{SelectedSources, Source};
 use crate::{
     protocol::CommandError,
     queries::investigation::{self, InvestigationQueryCommand, QueryResult},
 };
 use serde::Serialize;
 use std::path::Path;
-
-pub(super) struct Sources {
-    pub key: String,
-    pub sources: Vec<Source>,
-}
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -95,7 +90,7 @@ impl Serialize for SourceResult {
 pub(super) fn dispatch(
     command: &str,
     json: bool,
-    group: Sources,
+    group: SelectedSources,
     query: InvestigationQueryCommand,
     policy: &crate::resource_review::policy::Policy,
 ) -> i32 {

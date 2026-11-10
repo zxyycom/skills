@@ -289,17 +289,13 @@ fn resolve_write_target_and_policy(
     };
     let policy = if matches!(invocation.command, MutationCommand::Investigation(_)) {
         let config = super::investigation_config::load(&target.root, invocation.config.as_deref())?;
-        if let Some(key) = invocation.key.as_deref() {
-            let mut selected = config
-                .take_sources(Some(key))?
-                .expect("explicit source key");
-            if selected.sources.len() != 1 {
-                return Err(crate::protocol::CommandError::new(
-                    "config-error",
-                    "write requires exactly one source",
-                ));
-            }
-            let source = selected.sources.pop().expect("one source");
+        if !invocation.explicit_location
+            && let Some(mut selected) = config.select_sources(
+                invocation.key.as_deref(),
+                super::investigation_config::SourceAccess::Write,
+            )?
+        {
+            let source = selected.sources.pop().expect("validated single source");
             target = WriteTarget {
                 root: source.root,
                 directory: source.directory,

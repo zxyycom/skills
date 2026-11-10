@@ -24,7 +24,7 @@ pub(super) fn dispatch(
         Err(error) => return print_error(command, json, error, 1),
     };
     if !settings.explicit_location {
-        match config.take_sources(settings.key) {
+        match config.select_sources(settings.key, investigation_config::SourceAccess::Read) {
             Ok(Some(sources)) => {
                 return multi_source::dispatch(command, json, sources, query, &config.policy);
             }

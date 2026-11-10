@@ -17,6 +17,7 @@ use std::{
 struct Fragment {
     version: Option<u32>,
     default_key: Option<String>,
+    default_write_key: Option<String>,
     sources: Option<BTreeMap<String, serde_json::Value>>,
     resources: Option<serde_json::Value>,
 }
@@ -89,9 +90,20 @@ pub(super) struct Source {
     identity: SourceIdentity,
 }
 
+pub(super) enum SourceAccess {
+    Read,
+    Write,
+}
+
+pub(super) struct SelectedSources {
+    pub key: String,
+    pub sources: Vec<Source>,
+}
+
 pub(super) struct Config {
     pub policy: Policy,
     default_key: Option<String>,
+    default_write_key: Option<String>,
     groups: BTreeMap<String, SourceGroup>,
     paths: Vec<PathBuf>,
 }
@@ -106,7 +118,10 @@ impl Config {
         } else if !self.groups.is_empty() {
             return Err(error("source groups require defaultKey"));
         }
-        Ok(())
+        self.validate_references()?;
+        self.select_sources(None, SourceAccess::Write)
+            .map(|_| ())
+            .map_err(|e| error(format!("defaultWriteKey: {}", e.message)))
     }
 }
 
@@ -117,6 +132,7 @@ pub(super) fn load(root: &Path, explicit: Option<&str>) -> Result<Config, Comman
     let mut config = Config {
         policy: Policy::default(),
         default_key: None,
+        default_write_key: None,
         groups: BTreeMap::new(),
         paths: paths.clone(),
     };
@@ -129,7 +145,6 @@ pub(super) fn load(root: &Path, explicit: Option<&str>) -> Result<Config, Comman
     config.policy =
         serde_json::from_value(resources).map_err(|e| error(format!("resources: {e}")))?;
     config.validate()?;
-    config.validate_references()?;
     Ok(config)
 }
 
@@ -223,6 +238,9 @@ fn apply(
     }
     if let Some(key) = fragment.default_key {
         config.default_key = Some(key);
+    }
+    if let Some(key) = fragment.default_write_key {
+        config.default_write_key = Some(key);
     }
     if let Some(groups) = fragment.sources {
         apply_sources(config, groups, path)?;

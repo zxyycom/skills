@@ -880,12 +880,12 @@
       "NATIVE-RECORD-SOURCE-CAPTURE-001": "sha256:c63467b011f754a84262fb5800caa12130e3c1011b347d0a8851fd5b87ca117e",
       "NATIVE-RECORD-SOURCE-CHECK-001": "sha256:ee038ec81b99e7b200a3a4cbb6555d61a623d2ee46ad870846a30172cf688364",
       "NATIVE-RECORD-SOURCE-COMPOSITION-001": "sha256:78a450b13a8d5e28aec7731e32790763efd9047b6925be0dc844ef68662122a8",
-      "NATIVE-RECORD-SOURCE-CONFIG-VALIDATION-001": "sha256:313d0e44bae871a47d671fa9b430a820b90bb69728380943b676789f183084a9",
+      "NATIVE-RECORD-SOURCE-CONFIG-VALIDATION-001": "sha256:d617b70a2734ec290f854c6c4b69881dd0352a6a5b30964927034aecac582c51",
       "NATIVE-RECORD-SOURCE-DEEP-CHAIN-001": "sha256:38b08066c4f702e08cd446254b20f5dcf03980f9ed141c0a4efad8a72e15c564",
       "NATIVE-RECORD-SOURCE-HELP-CONFIG-ERROR-001": "sha256:08c6efee3c529a08570dba2581f4bf7520db73cc0899c697e59b9bc84f2dca0d",
       "NATIVE-RECORD-SOURCE-HELP-CONTEXT-001": "sha256:c85564cdaee25273aa485fbf96df63c6524d824f015e2d6df5fcd03c07c9a03b",
       "NATIVE-RECORD-SOURCE-HELP-EXPLICIT-SELECTION-001": "sha256:8f8e354a87ec2848adcf7d2a0751d35c27cd62eba07b69d0ab8ada709be01aa6",
-      "NATIVE-RECORD-SOURCE-HELP-WRITE-SELECTION-001": "sha256:34c358800d0c63d13d0eef6d65276900dba350ce20018d6d43fedd917798812d",
+      "NATIVE-RECORD-SOURCE-HELP-WRITE-SELECTION-001": "sha256:f7bfbc6352e95874e31222a4f3938dfb47f06bfcad35e619ee43dcd0bfa220a0",
       "NATIVE-RECORD-SOURCE-INVALID-REFERENCES-001": "sha256:63b55ca0871b17a700d84d62029b4898de6d8c9b9e61fe7a520cf3407a2c581b",
       "NATIVE-RECORD-SOURCE-NON-UTF8-WRITE-001": "sha256:caff0964536d4b17e5fafd65a24cde6b83e8e4f1ded8b3b8616f6c9baa153f83",
       "NATIVE-RECORD-SOURCE-READ-ROUTING-001": "sha256:d8cde1ba90619b0098bff96fab827a4d8ae5fc675a2f70ccc5bd17528dd3c54e",
@@ -896,9 +896,12 @@
       "NATIVE-RECORD-SOURCE-SHOW-CANDIDATE-001": "sha256:1d1a2421c3210a25633babe1fdca3e11e03003807d338b78256a51f8e260f968",
       "NATIVE-RECORD-SOURCE-SYMLINK-WRITE-001": "sha256:7582b1d0d3daeb7e89a1e6350471e695ef407bb88faf4c6792e09430765f2604",
       "NATIVE-RECORD-SOURCE-TRACE-001": "sha256:4395faa7147cb09a002608877f9457fac61068f9bde369c7c23379a440e39cf4",
-      "NATIVE-RECORD-SOURCE-WRITE-DEFAULT-001": "sha256:edc0f86005eeed91b5e10435cc7993a0144514dd061bc0711180d4f9ecc22946",
-      "NATIVE-RECORD-SOURCE-WRITE-REJECTION-001": "sha256:0fbac5bc7211bb63fff304d26eecf3edc746fee06b2d62557aefe2defac37541",
-      "NATIVE-RECORD-SOURCE-WRITE-SELECTION-001": "sha256:cc07cf3d77db739a28ff9e0b96af0aacc8106d49744f9fc9f57fc5fed75b1ba4",
+      "NATIVE-RECORD-SOURCE-WRITE-CONFIGURED-DEFAULT-001": "sha256:e7a289a141a7ddcaadd78b878e1b8887fc99e149cd3bece162b318f10785defe",
+      "NATIVE-RECORD-SOURCE-WRITE-DEFAULT-001": "sha256:4640343f14bade7195811e7190b6e35d1634f227751adf5a503c5ec9f49c12be",
+      "NATIVE-RECORD-SOURCE-WRITE-DEFAULT-LAYERING-001": "sha256:c65cdfebe6a792ce2945d37c113fe0bac1d7c876ea5e39cf1ccf8661fddd1d12",
+      "NATIVE-RECORD-SOURCE-WRITE-LOCATION-OVERRIDE-001": "sha256:12076f2d3b5c41b90d9f6982dd367fefdf7b51d64d8021ad9e187e18e09038af",
+      "NATIVE-RECORD-SOURCE-WRITE-REJECTION-001": "sha256:f1956cab1ec712c83114ae22cc131944f9b182fbb0cfe06ff0e3cfa3db33b501",
+      "NATIVE-RECORD-SOURCE-WRITE-SELECTION-001": "sha256:5b6cf5e7c320267517a5a82ffe7049de792bca52a3c9e2ca1d5e0cdea32b1931",
       "NATIVE-RECORD-STAGE-OWNER-COMPONENT-001": "sha256:86ec9ed0cb3c45ad38f73836c45156328a4db4e218b1e90836164563d313a371",
       "NATIVE-RECORD-TXN-ATOMIC-001": "sha256:b182a4a1d0ede7ed9bcab00c887255748b698e8ac542d3a6ea116d8c726b17dc",
       "NATIVE-RECORD-TXN-OUTCOME-001": "sha256:069ef36019035b17ffe30d381943888551b50410efb9fd3df86796e541af9837",
@@ -10564,6 +10567,7 @@
         "record-rust"
       ],
       "testIds": [
+        "test:0ebed6e86b7bd91c6904f7b2a96efb3290dc9dfe1f6013efe9c82eb6e5b59880",
         "test:bc9bccc489017ce2d988bf1103e3481cf3429e6c6fb33ce3738bd0a9c74dc9d7"
       ]
     },
@@ -10736,8 +10740,19 @@
         "test:575c69d597ce735a61f5d476d7b20ba92c8cd4b7d13997308754634b8dcc8b85"
       ]
     },
+    "NATIVE-RECORD-SOURCE-WRITE-CONFIGURED-DEFAULT-001": {
+      "title": "配置默认写源用于创建与预检",
+      "sourcePath": "cases/native-record-source-write-configured-default.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:04aff8e154e55cda67387b3091b6494dbbc814e1e43163c3ab4d495014691cd5"
+      ]
+    },
     "NATIVE-RECORD-SOURCE-WRITE-DEFAULT-001": {
-      "title": "未传 key 的写操作保持工作区单源",
+      "title": "未配置写默认时使用工作区单源",
       "sourcePath": "cases/native-record-source-write-default.md",
       "tags": [
         "investigation-report",
@@ -10745,6 +10760,28 @@
       ],
       "testIds": [
         "test:ef29e3bfad0dbabf96dfd7771cbfafc49ddf36e31cca32aa98a3ed43679a4829"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-WRITE-DEFAULT-LAYERING-001": {
+      "title": "默认写 key 独立合并与去重",
+      "sourcePath": "cases/native-record-source-write-default-layering.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:fb7f2cd75b1c8160e4d074a0ae2ed2f2987e85e4e2ea8af69f1b7064ceda2751"
+      ]
+    },
+    "NATIVE-RECORD-SOURCE-WRITE-LOCATION-OVERRIDE-001": {
+      "title": "显式定位覆盖默认写源",
+      "sourcePath": "cases/native-record-source-write-location-override.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:90dd6bce27f279d5d88ae3cc77cda936c2ea7ce24cc31798c4facf8c0bc25c8e"
       ]
     },
     "NATIVE-RECORD-SOURCE-WRITE-REJECTION-001": {

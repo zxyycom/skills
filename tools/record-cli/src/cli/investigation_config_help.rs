@@ -1,4 +1,5 @@
-use super::*;
+use super::{Config, GroupKind, SourceAccess};
+use std::path::Path;
 
 pub(in crate::cli) struct HelpSelection<'a> {
     pub key: Option<&'a str>,
@@ -26,19 +27,18 @@ impl Config {
             } else {
                 ""
             };
-            println!("  Key: {name} ({kind}{default})");
+            let write_default = if self.default_write_key.as_deref() == Some(name) {
+                ", default write"
+            } else {
+                ""
+            };
+            println!("  Key: {name} ({kind}{default}{write_default})");
         }
     }
     fn describe_selection(&self, selection: HelpSelection<'_>) {
-        let workspace_write = selection.write && selection.key.is_none() && !selection.explicit;
-        if selection.explicit || workspace_write {
-            let name = if workspace_write {
-                "workspace"
-            } else {
-                "explicit location"
-            };
+        if selection.explicit {
             println!(
-                "  Selected: {name}\n  Source: {} / {}",
+                "  Selected: explicit location\n  Source: {} / {}",
                 selection.root.display(),
                 selection.directory
             );
@@ -47,12 +47,13 @@ impl Config {
         }
     }
     fn describe_selected_key(&self, selection: HelpSelection<'_>) {
-        match self.take_sources(selection.key) {
+        let access = if selection.write {
+            SourceAccess::Write
+        } else {
+            SourceAccess::Read
+        };
+        match self.select_sources(selection.key, access) {
             Ok(Some(selected)) => {
-                if selection.write && selected.sources.len() != 1 {
-                    println!("  Source diagnostic: write requires exactly one source");
-                    return;
-                }
                 println!("  Selected: {}", selected.key);
                 for source in selected.sources {
                     println!("  Source: {} / {}", source.root.display(), source.directory);

@@ -26,6 +26,7 @@ pub enum MutationCommand {
 pub struct MutationInvocation {
     pub config: Option<String>,
     pub key: Option<String>,
+    pub explicit_location: bool,
     pub root: String,
     pub directory: String,
     pub json: bool,
@@ -51,6 +52,9 @@ impl Args {
     }
     fn has(&self, key: &str) -> bool {
         self.options.iter().any(|(k, _)| k == key)
+    }
+    fn has_location(&self, domain: Domain) -> bool {
+        self.has("root") || self.has(domain.directory_option())
     }
     fn required(&self, key: &str) -> Result<String, ArgumentError> {
         self.one(key)
@@ -281,7 +285,7 @@ fn validate_selectors(command: &str, args: &Args) -> Result<(), ArgumentError> {
 }
 
 fn validate_location(domain: Domain, args: &Args) -> Result<(), ArgumentError> {
-    if args.has("key") && (args.has("root") || args.has(domain.directory_option())) {
+    if args.has("key") && args.has_location(domain) {
         return Err(ArgumentError(
             "--root/--investigations-dir conflict with --key".into(),
         ));
@@ -311,6 +315,7 @@ pub fn parse_mutation(
     Ok(MutationInvocation {
         config: args.one("config"),
         key: args.one("key"),
+        explicit_location: args.has_location(domain),
         root,
         directory,
         json,

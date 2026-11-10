@@ -52,7 +52,7 @@ fn composition_resolves_cross_layer_references_in_first_seen_depth_first_order()
     std::fs::write(cwd.join(".local/.investigation-report.local.json"), json!({"sources":{"nested":[{"root":"../second","investigationsDir":"notes/reports"},"a"]}}).to_string()).unwrap();
     let selection = load(cwd, None)
         .unwrap()
-        .take_sources(None)
+        .select_sources(None, SourceAccess::Read)
         .unwrap()
         .unwrap();
     assert_eq!(selection.key, "all");
@@ -125,4 +125,81 @@ fn invalid_source_settings_are_rejected_before_routing() {
             .expect("invalid source settings accepted");
         assert_eq!(error.code.as_ref(), "config-error", "{invalid}");
     }
+}
+
+#[test]
+fn invalid_default_write_keys_are_rejected_before_routing() {
+    let temp = tempfile::tempdir().unwrap();
+    let path = temp.path().join(".investigation-report.json");
+    let mut config = json!({
+        "defaultKey": "one",
+        "defaultWriteKey": "one",
+        "sources": {
+            "one": {"root": ".", "investigationsDir": "reports"},
+            "many": ["one", {"root": ".", "investigationsDir": "other"}]
+        }
+    });
+    std::fs::write(&path, config.to_string()).unwrap();
+    load(temp.path(), None).expect("valid single-source write default rejected");
+    for key in [
+        json!("unknown"),
+        json!(""),
+        json!("many"),
+        json!(false),
+        json!(null),
+    ] {
+        config["defaultWriteKey"] = key;
+        std::fs::write(&path, config.to_string()).unwrap();
+        let error = load(temp.path(), None)
+            .err()
+            .expect("invalid write default accepted");
+        assert_eq!(error.code.as_ref(), "config-error", "{config}");
+    }
+}
+
+#[test]
+fn write_defaults_resolve_after_layer_merging_independently_of_read_defaults() {
+    let temp = tempfile::tempdir().unwrap();
+    let cwd = temp.path();
+    std::fs::create_dir(cwd.join(".local")).unwrap();
+    std::fs::write(
+        cwd.join(".investigation-report.json"),
+        json!({
+            "defaultKey": "all",
+            "defaultWriteKey": "first",
+            "sources": {
+                "first": {"root": "first", "investigationsDir": "reports"},
+                "all": ["first", "second"]
+            }
+        })
+        .to_string(),
+    )
+    .unwrap();
+    std::fs::write(
+        cwd.join(".local/.investigation-report.local.json"),
+        json!({
+            "defaultWriteKey": "aliases",
+            "sources": {
+                "second": {"root": "../second", "investigationsDir": "notes"},
+                "aliases": ["second", "second"]
+            }
+        })
+        .to_string(),
+    )
+    .unwrap();
+    let config = load(cwd, None).unwrap();
+    let read = config
+        .select_sources(None, SourceAccess::Read)
+        .unwrap()
+        .unwrap();
+    assert_eq!(read.key, "all");
+    assert_eq!(read.sources.len(), 2);
+    let write = config
+        .select_sources(None, SourceAccess::Write)
+        .unwrap()
+        .unwrap();
+    assert_eq!(write.key, "aliases");
+    assert_eq!(write.sources.len(), 1);
+    assert_eq!(write.sources[0].root, cwd.join(".local/../second"));
+    assert_eq!(write.sources[0].directory, "notes");
 }

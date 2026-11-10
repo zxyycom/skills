@@ -52,6 +52,25 @@ fn write_help_matches_single_source_requirements_and_workspace_default() {
     let workspace = help_text(temp.path(), &["help", "new"]);
     assert!(workspace.contains("Selected: workspace"));
     assert!(!workspace.contains("Selected: related"));
+    fs::write(
+        temp.path().join(".investigation-report.json"),
+        json!({
+            "defaultWriteKey": "one",
+            "sources": {"one": {"root": "first", "investigationsDir": "research/reports"}}
+        })
+        .to_string(),
+    )
+    .unwrap();
+    for args in [vec!["help", "new"], vec!["new", "--help"]] {
+        let configured = help_text(temp.path(), &args);
+        assert!(configured.contains("Key: one (single, default write)"));
+        assert!(configured.contains("Selected: one"));
+        assert!(configured.contains("research/reports"));
+        assert!(!configured.contains("Selected: workspace"));
+    }
+    let explicit = help_text(temp.path(), &["help", "new", "--root", "."]);
+    assert!(explicit.contains("Selected: explicit location"));
+    assert!(!explicit.contains("Selected: one"));
 }
 
 #[test]

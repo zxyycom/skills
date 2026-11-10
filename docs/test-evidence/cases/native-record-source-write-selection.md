@@ -8,7 +8,7 @@ Tags:
 - `record-rust`
 
 Contract:
-- 写操作的显式 key 展开为唯一来源时，只作用于该来源，不受多源 defaultKey 重定向。
+- 写操作的显式 key 展开为唯一来源时，只作用于该来源，不受读取 defaultKey 或独立 defaultWriteKey 重定向。
 
 Proves:
-- 真实 new --key one 成功，仅在 first/research/reports 创建固定日期候选，second 来源无候选且调用工作区不创建 docs。
+- 读取默认选择双源、写入默认指向 second 时，真实 new --key one 成功，仅在 first/research/reports 创建固定日期候选，second 来源无候选且调用工作区不创建 docs。

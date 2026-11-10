@@ -41,24 +41,33 @@ fn tree_snapshot(root: &Path) -> Vec<(std::path::PathBuf, Option<Vec<u8>>)> {
 
 #[test]
 fn composite_write_and_preflight_rejection_leave_the_whole_fixture_unchanged() {
-    let temp = setup();
-    let before = tree_snapshot(temp.path());
-    for args in [
-        new_args(&["--key", "related"]),
-        vec!["sync-index", "--key", "related", "--preflight", "--json"],
+    for (key_args, config) in [
+        (vec!["--key", "related"], json!({})),
+        (vec![], json!({"defaultWriteKey": "related"})),
     ] {
-        let output = invoke(temp.path(), &args);
-        assert_eq!(output.status.code(), Some(1));
-        let value = parse(&output);
-        assert_eq!(value["ok"], false);
-        assert_eq!(value["error"]["code"], "config-error");
-        assert!(
-            value["error"]["message"]
-                .as_str()
-                .unwrap()
-                .contains("exactly one source")
-        );
-        assert_eq!(tree_snapshot(temp.path()), before);
+        let temp = setup();
+        fs::write(
+            temp.path().join(".investigation-report.json"),
+            config.to_string(),
+        )
+        .unwrap();
+        let before = tree_snapshot(temp.path());
+        let mut preflight = vec!["sync-index", "--preflight", "--json"];
+        preflight.extend_from_slice(&key_args);
+        for args in [new_args(&key_args), preflight] {
+            let output = invoke(temp.path(), &args);
+            assert_eq!(output.status.code(), Some(1));
+            let value = parse(&output);
+            assert_eq!(value["ok"], false);
+            assert_eq!(value["error"]["code"], "config-error");
+            assert!(
+                value["error"]["message"]
+                    .as_str()
+                    .unwrap()
+                    .contains("exactly one source")
+            );
+            assert_eq!(tree_snapshot(temp.path()), before);
+        }
     }
 }
 
@@ -67,8 +76,14 @@ fn explicit_single_source_key_writes_only_to_its_target() {
     let temp = setup();
     fs::write(
         temp.path().join(".investigation-report.json"),
-        json!({"sources":{"one":{"root":"first","investigationsDir":"research/reports"}}})
-            .to_string(),
+        json!({
+            "defaultWriteKey": "other",
+            "sources": {
+                "one": {"root": "first", "investigationsDir": "research/reports"},
+                "other": {"root": "second", "investigationsDir": "notes/reports"}
+            }
+        })
+        .to_string(),
     )
     .unwrap();
     successful(&invoke(temp.path(), &new_args(&["--key", "one"])));
@@ -155,6 +170,76 @@ fn writes_without_key_ignore_the_read_default_key() {
             .join("second/notes/reports/_candidate.261110-keyed")
             .exists()
     );
+}
+
+#[test]
+fn default_write_key_routes_creation_and_preflight_without_changing_read_selection() {
+    let temp = setup();
+    let cwd = temp.path();
+    fs::write(
+        cwd.join(".investigation-report.json"),
+        json!({
+            "defaultWriteKey": "one",
+            "sources": {"one": {"root": "first", "investigationsDir": "research/reports"}}
+        })
+        .to_string(),
+    )
+    .unwrap();
+    let read = successful(&invoke(cwd, &["list", "--json"]));
+    assert_eq!(read["result"]["key"], "related");
+    successful(&invoke(cwd, &new_args(&[])));
+    assert!(
+        cwd.join("first/research/reports/_candidate.261110-keyed")
+            .is_file()
+    );
+    assert!(
+        !cwd.join("second/notes/reports/_candidate.261110-keyed")
+            .exists()
+    );
+    assert!(!cwd.join("docs").exists());
+    let before = tree_snapshot(cwd);
+    successful(&invoke(
+        cwd,
+        &[
+            "rename",
+            "261110-keyed",
+            "261110-renamed",
+            "--preflight",
+            "--json",
+        ],
+    ));
+    assert_eq!(tree_snapshot(cwd), before);
+}
+
+#[test]
+fn explicit_locations_override_the_default_write_key() {
+    for (location, directory) in [
+        (vec!["--root", "."], "docs/investigations"),
+        (
+            vec!["--investigations-dir", "custom/reports"],
+            "custom/reports",
+        ),
+    ] {
+        let temp = setup();
+        let cwd = temp.path();
+        fs::write(
+            cwd.join(".investigation-report.json"),
+            json!({
+                "defaultWriteKey": "one",
+                "sources": {"one": {"root": "first", "investigationsDir": "research/reports"}}
+            })
+            .to_string(),
+        )
+        .unwrap();
+        let before_first = tree_snapshot(&cwd.join("first"));
+        successful(&invoke(cwd, &new_args(&location)));
+        assert!(
+            cwd.join(directory)
+                .join("_candidate.261110-keyed")
+                .is_file()
+        );
+        assert_eq!(tree_snapshot(&cwd.join("first")), before_first);
+    }
 }
 
 #[cfg(unix)]

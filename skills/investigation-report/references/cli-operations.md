@@ -10,7 +10,7 @@
 | --- | --- |
 | 只读：`list`、`show`、`search`、`trace`、`candidates`、`show-candidate`、`check` | 显式定位时读取该单源；否则选择显式 key 或配置的 `defaultKey`，无来源配置则读取当前工作区。 |
 | 写操作及其 `--preflight`，显式 key | key 展开后须恰好一个来源；多源选择在写入前报错。 |
-| 写操作及其 `--preflight`，未传 key | 当前工作区或显式定位的单源；`defaultKey` 仅影响读取。 |
+| 写操作及其 `--preflight`，未传 key | 显式定位时使用该单源；否则使用配置的 `defaultWriteKey`，未配置时使用当前工作区。`defaultKey` 仅影响读取。 |
 
 selector 移除一次大小写不敏感的末尾 `.md` 后，标准日期 ID 只精确匹配完整 ID，其余输入精确查 name。零项失败，多项报告歧义，一项收敛为完整 ID。路径只进入明确的定位参数；后续操作优先使用返回的完整日期 ID。
 

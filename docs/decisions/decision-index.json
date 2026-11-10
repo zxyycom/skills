@@ -178,6 +178,7 @@
       "261110-bounded-investigation-resource-advisories": "sha256:fb860030f4117a5622af93f93d9d4fdcec517f0cc7c4f90850975c3185747a29",
       "261110-complete-resource-findings-with-bounded-preview": "sha256:565fa34d61f274d0e5b2529ff35f924fa4d9f5b8020425b38db6cfbd9a23fb1e",
       "261110-compose-investigation-source-selection": "sha256:225e18bb09b0c39a50d72a3332d58067298a9d8ed59ab5a4a52926ceb574877c",
+      "261110-configure-default-investigation-write-source": "sha256:d1eddcd70d27878079e8db507609198670bc473811ad557ecf6dbe4bddef96f2",
       "261110-preserve-source-query-boundaries-with-shared-config": "sha256:00220fb866b0a3e0edba4e5ee4093b430725d1776599f21b7e6779ebc6c6b34d",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
@@ -4094,6 +4095,22 @@
           "summary": "保留逐源语义与统一配置，扩展为可组合来源选择及读写路由"
         }
       ]
+    },
+    "261110-configure-default-investigation-write-source": {
+      "name": "configure-default-investigation-write-source",
+      "sourcePath": "261110-configure-default-investigation-write-source.md",
+      "title": "独立配置调查报告默认写入来源",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-11-10T15:16:18Z",
+      "purpose": "减少重复指定写目标，同时保持读取范围与写入选择独立。",
+      "background": "多源读取已有默认 key，写入仍须反复指定单源；将查询默认直接用于写入会扩大意外写入风险。",
+      "decision": "新增可选 defaultWriteKey，仅默认路由到唯一来源，显式定位优先，缺省保持工作区写入。",
+      "tags": [
+        "investigation-report",
+        "source-selection"
+      ],
+      "relations": []
     },
     "261110-preserve-source-query-boundaries-with-shared-config": {
       "name": "preserve-source-query-boundaries-with-shared-config",

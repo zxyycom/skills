@@ -1,5 +1,6 @@
-//! Validate and expand configured source-reference graphs.
-use super::*;
+//! Resolve read/write selections and validate configured source-reference graphs.
+use super::{Config, ResolvedMember, SelectedSources, Source, SourceAccess, error};
+use crate::protocol::CommandError;
 use std::collections::BTreeSet;
 
 impl Config {
@@ -10,16 +11,24 @@ impl Config {
         }
         Ok(())
     }
-    pub fn take_sources(
+    pub fn select_sources(
         &self,
         key: Option<&str>,
-    ) -> Result<Option<crate::cli::multi_source::Sources>, CommandError> {
-        let Some(selected) = key.or(self.default_key.as_deref()) else {
+        access: SourceAccess,
+    ) -> Result<Option<SelectedSources>, CommandError> {
+        let default = match access {
+            SourceAccess::Read => self.default_key.as_deref(),
+            SourceAccess::Write => self.default_write_key.as_deref(),
+        };
+        let Some(selected) = key.or(default) else {
             return Ok(None);
         };
         let mut sources = Vec::new();
         self.expand(selected, &mut BTreeSet::new(), &mut sources)?;
-        Ok(Some(crate::cli::multi_source::Sources {
+        if matches!(access, SourceAccess::Write) && sources.len() != 1 {
+            return Err(error("write requires exactly one source"));
+        }
+        Ok(Some(SelectedSources {
             key: selected.to_owned(),
             sources,
         }))

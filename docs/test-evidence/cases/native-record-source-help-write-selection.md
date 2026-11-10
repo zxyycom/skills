@@ -9,7 +9,8 @@ Tags:
 - `record-rust`
 
 Contract:
-- 写帮助使用与实际操作相同的单源选择规则；无显式 key 时显示工作区，显式多源 key 显示诊断而非成功选择。
+- 写帮助使用与实际操作相同的单源选择规则；无显式选择时使用 defaultWriteKey，未配置则显示工作区；显式多源 key 显示诊断而非成功选择。
 
 Proves:
-- help new --key related 退出 0，给出恰好单源要求且无 Selected；未传 key 的 help new 退出 0 并显示 workspace，不显示 related 为实际选择。
+- help new --key related 退出 0，给出恰好单源要求且无 Selected；未配置写默认时 help new 显示 workspace，不显示读取默认 related 为实际选择。
+- 配置写默认后 help new 和 new --help 均标记 default write 并选择 one 及其调查目录；显式 --root . 显示 explicit location，不再选择 one。
