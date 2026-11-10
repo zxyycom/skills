@@ -85,6 +85,35 @@ fn candidate_automatically_exposes_compression_duplicates_and_library_detected_m
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(stderr.contains("resource-high-compressibility"));
     assert!(stderr.contains("image/png"));
+    assert!(
+        stderr
+            .lines()
+            .next()
+            .unwrap()
+            .starts_with("resource-review: complete;")
+    );
+    let exact = "warning: resource-exact-duplicates:";
+    let compression = "warning: resource-high-compressibility:";
+    assert_eq!(
+        stderr
+            .lines()
+            .filter(|line| line.starts_with(exact))
+            .count(),
+        1
+    );
+    assert!(
+        stderr
+            .lines()
+            .position(|line| line.starts_with(exact))
+            .unwrap()
+            < stderr
+                .lines()
+                .position(|line| line.starts_with(compression))
+                .unwrap()
+    );
+    assert_eq!(review["summary"]["warnings"], 2);
+    assert_eq!(review["summary"]["info"], 1);
+    assert_eq!(codes(review)[0], "resource-exact-duplicates");
 }
 
 #[test]
@@ -127,6 +156,10 @@ fn resource_warnings_do_not_block_publication_or_change_resource_bytes() {
         codes(&published["result"]["resourceReview"]).contains(&"resource-high-compressibility")
     );
     assert!(temp.path().join(DIR).join(format!("{ID}.md")).exists());
+    for output in [&preflight, &published] {
+        assert_eq!(output["result"]["resourceReview"]["summary"]["warnings"], 1);
+    }
+
     assert_eq!(
         fs::read(
             temp.path()
@@ -208,4 +241,30 @@ fn invalid_configuration_fails_before_writes_but_help_and_version_remain_availab
     assert_eq!(fs::read(candidate).unwrap(), before);
     assert!(invoke(temp.path(), &["help", "publish"]).status.success());
     assert!(invoke(temp.path(), &["--version"]).status.success());
+}
+
+#[test]
+fn console_preview_is_bounded_without_truncating_structured_findings() {
+    let names: Vec<_> = (0..16).map(|i| format!("{i:02}.txt")).collect();
+    let files: Vec<_> = names
+        .iter()
+        .map(|name| (name.as_str(), vec![0x61; 65536]))
+        .collect();
+    let temp = fixture(&files);
+    let output = invoke(temp.path(), &["show-candidate", ID, "--json"]);
+    let value = success(&output);
+    let review = &value["result"]["resourceReview"];
+    assert_eq!(review["findings"].as_array().unwrap().len(), 17);
+    assert_eq!(review["omittedFindings"], 0);
+    assert_eq!(review["summary"]["warnings"], 17);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert_eq!(
+        stderr
+            .lines()
+            .filter(|line| line.starts_with("warning: resource-"))
+            .count(),
+        12
+    );
+    assert!(stderr.contains("5 retained findings not printed"));
+    assert!(stderr.contains("resourceReview.findings"));
 }

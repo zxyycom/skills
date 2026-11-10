@@ -1,8 +1,10 @@
 //! Bounded, read-only resource advisories. Findings never authorize mutation.
 mod content;
+mod findings;
 mod payload;
 pub mod policy;
 mod scan;
+pub(crate) use findings::Summary;
 use policy::Level;
 pub(crate) use scan::review;
 use serde::Serialize;
@@ -84,6 +86,7 @@ pub(crate) struct Review {
     pub skipped_files: usize,
     pub omitted_findings: usize,
     pub findings: Vec<Finding>,
+    pub summary: Summary,
     pub duplicate_groups: Vec<DuplicateGroup>,
     pub reports: Vec<ReportObservation>,
     pub files: Vec<FileObservation>,
@@ -103,40 +106,8 @@ impl Review {
             files: vec![],
             duplicate_groups: vec![],
             findings: vec![],
+            summary: Summary::default(),
         }
-    }
-    fn note(&mut self, level: Level, code: &'static str, target: &str, message: String) {
-        if level == Level::Off {
-            return;
-        }
-        if self.findings.len() >= 128 {
-            self.omitted_findings += 1;
-            return;
-        }
-        self.findings.push(Finding {
-            code,
-            level,
-            target: target.into(),
-            message,
-        });
-    }
-    pub fn warnings(&self) -> Vec<String> {
-        let mut messages: Vec<_> = self
-            .findings
-            .iter()
-            .filter(|f| f.level == Level::Warn)
-            .map(|f| format!("{}: {}: {}", f.code, f.target, f.message))
-            .collect();
-        if !self.complete && self.enabled {
-            messages.push(format!("resource-review-incomplete: {} file inspections incomplete; inspect resourceReview coverage", self.skipped_files));
-        }
-        if self.omitted_findings > 0 {
-            messages.push(format!(
-                "resource-review-truncated: {} additional findings omitted",
-                self.omitted_findings
-            ));
-        }
-        messages
     }
 }
 

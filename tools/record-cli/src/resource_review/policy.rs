@@ -133,11 +133,16 @@ impl Policy {
 
 impl Compression {
     pub(super) fn windows(&self, size: u64) -> impl Iterator<Item = std::ops::Range<u64>> {
-        let width = self.sample_window_bytes.min(size);
-        let count = self.sample_windows;
+        let count = u64::from(self.sample_windows).min(size);
+        let width = size
+            .checked_div(count)
+            .map_or(0, |width| self.sample_window_bytes.min(width));
         (0..count).map(move |i| {
-            let offset =
-                ((u128::from(size - width) * u128::from(i)) / u128::from(count - 1)) as u64;
+            let offset = if count == 1 {
+                0
+            } else {
+                ((u128::from(size - width) * u128::from(i)) / u128::from(count - 1)) as u64
+            };
             offset..offset + width
         })
     }
@@ -159,5 +164,34 @@ impl Compression {
             return Err("compression bands require positive minBytes and ratios in (0, 1]".into());
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sample_windows_shrink_to_disjoint_file_ranges() {
+        let c = Compression {
+            sample_window_bytes: 8,
+            sample_windows: 4,
+            ..Policy::default().compressibility
+        };
+        for (size, expected) in [
+            (0, vec![]),
+            (1, vec![(0, 1)]),
+            (10, vec![(0, 2), (2, 4), (5, 7), (8, 10)]),
+            (40, vec![(0, 8), (10, 18), (21, 29), (32, 40)]),
+        ] {
+            let actual: Vec<_> = c.windows(size).map(|w| (w.start, w.end)).collect();
+            assert_eq!(actual, expected, "size={size}");
+        }
+        let large: Vec<_> = c.windows(u64::MAX).collect();
+        assert_eq!(large.first().unwrap().start, 0);
+        assert_eq!(large.last().unwrap().end, u64::MAX);
+        assert!(large.windows(2).all(|pair| pair[0].end <= pair[1].start));
+        assert_eq!(large.len(), 4);
+        assert!(large.iter().all(|window| window.end - window.start <= 8));
     }
 }

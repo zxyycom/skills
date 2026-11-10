@@ -1,7 +1,7 @@
 use super::{
     CompressionObservation, DuplicateCheck, DuplicateGroup, FileObservation, ReportObservation,
     ReportResources, Review, content,
-    payload::{Payload, ReadBudget},
+    payload::{Payload, ReadBudget, Request},
     policy::{Level, Policy},
 };
 use crate::source::{self, RelativePath, Root};
@@ -11,6 +11,34 @@ use std::collections::{BTreeMap, BTreeSet};
 struct EqualContent {
     bytes: Vec<u8>,
     ids: Vec<String>,
+}
+struct Head {
+    bytes: Vec<u8>,
+    kind: content::Detected,
+}
+struct Resource {
+    size: u64,
+    head: Option<Head>,
+}
+impl Resource {
+    fn observation(&self, id: &str, duplicate: bool, level: Level) -> FileObservation {
+        FileObservation {
+            resource_id: id.into(),
+            bytes: self.size,
+            content_type: self
+                .head
+                .as_ref()
+                .map_or_else(|| "not-inspected".into(), |h| h.kind.name.clone()),
+            duplicate_check: if duplicate {
+                DuplicateCheck::NotChecked
+            } else if level == Level::Off {
+                DuplicateCheck::Disabled
+            } else {
+                DuplicateCheck::NotNeeded
+            },
+            compressibility: None,
+        }
+    }
 }
 struct Scanner<'a> {
     root: &'a Root,
@@ -40,16 +68,20 @@ pub(crate) fn review(
     if !policy.enabled {
         return scan.review;
     }
-    let sizes = scan.metadata(&ids, blocked);
-    scan.report_sizes(reports, &sizes);
+    let resources = scan.probe(&ids, blocked);
+    scan.report_sizes(reports, &resources);
     let mut counts = BTreeMap::<u64, usize>::new();
-    for size in sizes.values() {
-        *counts.entry(*size).or_default() += 1;
+    for resource in resources.values() {
+        *counts.entry(resource.size).or_default() += 1;
     }
-    for (id, size) in sizes {
-        scan.file(&id, size, counts[&size] > 1 && size > 0);
+    for (id, resource) in resources {
+        let duplicate = counts[&resource.size] > 1
+            && resource.size > 0
+            && policy.exact_duplicates != Level::Off;
+        scan.file(&id, resource, duplicate);
     }
     scan.finish_duplicates();
+    scan.review.finish_findings();
     scan.review.read_budget_used_bytes = scan.budget.used();
     scan.review
 }
@@ -70,12 +102,12 @@ impl Scanner<'_> {
         self.review
             .note(Level::Warn, "resource-inspection-incomplete", id, detail);
     }
-    fn metadata(
+    fn probe(
         &mut self,
         ids: &BTreeSet<String>,
         blocked: &BTreeSet<String>,
-    ) -> BTreeMap<String, u64> {
-        let mut sizes = BTreeMap::new();
+    ) -> BTreeMap<String, Resource> {
+        let mut resources = BTreeMap::new();
         for id in ids.iter().take(self.policy.max_files) {
             if blocked.contains(id) {
                 self.unavailable(
@@ -84,12 +116,9 @@ impl Scanner<'_> {
                 );
                 continue;
             }
-            match self
-                .open(id)
-                .and_then(|f| f.metadata().map(|m| m.len()).map_err(|e| e.to_string()))
-            {
-                Ok(size) => {
-                    sizes.insert(id.clone(), size);
+            match self.probe_file(id) {
+                Ok(resource) => {
+                    resources.insert(id.clone(), resource);
                 }
                 Err(error) => self.unavailable(id, error),
             }
@@ -108,20 +137,37 @@ impl Scanner<'_> {
                 ),
             );
         }
-        sizes
+        resources
     }
-    fn report_sizes(&mut self, reports: &ReportResources, sizes: &BTreeMap<String, u64>) {
+    fn probe_file(&mut self, id: &str) -> Result<Resource, String> {
+        let mut file = self.open(id)?;
+        let size = file.metadata().map_err(|e| e.to_string())?.len();
+        let head = match self.budget.head(&mut file, size) {
+            Ok(bytes) => {
+                let kind = content::detect(&bytes);
+                self.review.note(kind.category.level(self.policy), "resource-content-type", id,
+                    format!("detected {}; review its evidence purpose; no execution or unpacking performed", kind.name));
+                Some(Head { bytes, kind })
+            }
+            Err(error) => {
+                self.unavailable(id, error.to_string());
+                None
+            }
+        };
+        Ok(Resource { size, head })
+    }
+    fn report_sizes(&mut self, reports: &ReportResources, resources: &BTreeMap<String, Resource>) {
         for (report, refs) in reports {
             let ids: BTreeSet<_> = refs.iter().collect();
             let bytes = ids
                 .iter()
-                .filter_map(|id| sizes.get(*id))
-                .fold(0u64, |total, size| total.saturating_add(*size));
+                .filter_map(|id| resources.get(*id))
+                .fold(0u64, |total, resource| total.saturating_add(resource.size));
             self.review.reports.push(ReportObservation {
                 report_id: report.clone(),
                 resource_count: ids.len(),
                 known_bytes: bytes,
-                metadata_complete: ids.iter().all(|id| sizes.contains_key(*id)),
+                metadata_complete: ids.iter().all(|id| resources.contains_key(*id)),
             });
             if bytes > self.policy.report_bytes_warn {
                 self.review.note(Level::Warn, "resource-report-bytes", report, format!("known resource bytes {bytes} exceed {}; inspect the largest files in resourceReview.files", self.policy.report_bytes_warn));
@@ -140,87 +186,69 @@ impl Scanner<'_> {
             }
         }
     }
-    fn file(&mut self, id: &str, size: u64, repeated_size: bool) {
-        if size > self.policy.file_bytes_warn {
+    fn file(&mut self, id: &str, resource: Resource, duplicate: bool) {
+        if resource.size > self.policy.file_bytes_warn {
             self.review.note(
                 Level::Warn,
                 "resource-file-bytes",
                 id,
                 format!(
-                    "{size} bytes exceed {}; review excerpting or summarizing",
-                    self.policy.file_bytes_warn
+                    "{} bytes exceed {}; review excerpting or summarizing",
+                    resource.size, self.policy.file_bytes_warn
                 ),
             );
         }
-        let duplicate = repeated_size && self.policy.exact_duplicates != Level::Off;
-        match self.inspect(id, size, duplicate) {
-            Ok(file) => self.review.files.push(file),
-            Err(error) => {
-                self.unavailable(id, error);
-                self.review.files.push(FileObservation {
-                    resource_id: id.into(),
-                    bytes: size,
-                    content_type: "not-inspected".into(),
-                    duplicate_check: if duplicate {
-                        DuplicateCheck::NotChecked
-                    } else if self.policy.exact_duplicates == Level::Off {
-                        DuplicateCheck::Disabled
-                    } else {
-                        DuplicateCheck::NotNeeded
-                    },
-                    compressibility: None,
-                });
-            }
+        let mut observation = resource.observation(id, duplicate, self.policy.exact_duplicates);
+        if let Some(head) = resource.head
+            && let Err(error) = self.inspect(id, head, duplicate, &mut observation)
+        {
+            self.unavailable(id, error);
         }
+        self.review.files.push(observation);
     }
-    fn inspect(&mut self, id: &str, size: u64, duplicate: bool) -> Result<FileObservation, String> {
-        let mut file = self.open(id)?;
-        if file.metadata().map_err(|e| e.to_string())?.len() != size {
-            return Err("resource size changed before inspection".into());
-        }
-        let payload = self
-            .budget
-            .read(&mut file, size, duplicate, self.policy)
-            .map_err(|e| e.to_string())?;
-        self.observe(id, size, duplicate, payload)
-    }
-
-    fn observe(
+    fn inspect(
         &mut self,
         id: &str,
-        size: u64,
+        head: Head,
         duplicate: bool,
-        payload: Payload,
-    ) -> Result<FileObservation, String> {
-        let kind = content::detect(payload.head());
-        let level = kind.category.level(self.policy);
-        if level != Level::Off {
-            self.review.note(
-                level,
-                "resource-content-type",
-                id,
-                format!(
-                    "detected {}; review its evidence purpose; no execution or unpacking performed",
-                    kind.name
-                ),
-            );
-        }
-        let compression = if kind.category == content::Category::Text {
-            let observed =
-                content::compression(&payload, size, self.policy).map_err(|e| e.to_string())?;
-            self.compression_note(id, observed.as_ref());
-            observed
-        } else {
-            None
+        observation: &mut FileObservation,
+    ) -> Result<(), String> {
+        let policy = self.policy;
+        let c = &policy.compressibility;
+        let compression = (head.kind.category == content::Category::Text
+            && c.enabled
+            && observation.bytes >= c.bands[0].min_bytes)
+            .then_some(c);
+        let request = Request {
+            size: observation.bytes,
+            duplicate,
+            compression,
         };
-        let duplicate_check = self.duplicate_payload(id, duplicate, payload);
-        Ok(FileObservation {
-            resource_id: id.into(),
-            bytes: size,
-            content_type: kind.name,
-            duplicate_check,
-            compressibility: compression,
-        })
+        let payload = self.payload(id, head.bytes, request)?;
+        if compression.is_some() {
+            let observed = content::compression(&payload, observation.bytes, policy)
+                .map_err(|e| e.to_string())?;
+            self.compression_note(id, observed.as_ref());
+            observation.compressibility = observed;
+        }
+        observation.duplicate_check = self.duplicate_payload(id, duplicate, payload);
+        Ok(())
+    }
+    fn payload(
+        &mut self,
+        id: &str,
+        head: Vec<u8>,
+        request: Request<'_>,
+    ) -> Result<Payload, String> {
+        let size = request.size;
+        let plan = self.budget.plan(request, head.len() as u64);
+        if plan.additional_bytes(head.len() as u64) == 0 {
+            return Ok(Payload::from_head(head, size));
+        }
+        let mut file = self.open(id)?;
+        self.budget
+            .read(&mut file, head, plan)
+            .map_err(|e| e.to_string())
     }
     fn compression_note(&mut self, id: &str, observation: Option<&CompressionObservation>) {
         if let Some(c) = observation

@@ -660,12 +660,16 @@
       "IR-CONFIG-INVALID-WRITE-GUARD-001": "sha256:1fd1ea3a846416b0444451f2746f6a32544be82ccfc1aa082cbaf0046a04a8a5",
       "IR-INDEX-PAYLOAD-PRESERVATION-001": "sha256:d1b53421e5d72719836778ef4528ce426072614a5718d35f8641347ca757a558",
       "IR-INDEX-PAYLOAD-SCOPE-001": "sha256:73e22cf69aaac28da2560532f7bf88f64c9bfdf643de64a972107ee5056909ff",
-      "IR-RESOURCE-CLI-SIGNALS-001": "sha256:0645fc9ae14338f43395fa6502ff8e7f9afbd4bde3982a64ab2677f20e52472b",
+      "IR-RESOURCE-BASIC-COVERAGE-001": "sha256:020b98fc7b869c205f03bfb3b40cb835db1141d038926c313800dc82f93845d8",
+      "IR-RESOURCE-BINARY-HEADER-001": "sha256:7d5bdf153995429d50cdce23fc0889251f45c2db5a85b67406e106e5f6f161f3",
+      "IR-RESOURCE-CLI-SIGNALS-001": "sha256:492b746b84b19d9e94aec43f29b0f682f80e37cfe6f3481e1588634aa96b5e3e",
       "IR-RESOURCE-COMPRESSION-COVERAGE-001": "sha256:ec198cfd3b6f9ac82141a2f455c21be6171204a396f87c7cfed27b86d3dd4db4",
       "IR-RESOURCE-DUPLICATE-PROOF-001": "sha256:841d42e008e388cf3b17effcf06f15edd84b13f3bc1933d2978d37d3b497463f",
+      "IR-RESOURCE-FINDING-PRIORITY-001": "sha256:aec08db09c2fd82c36c281948b0e92688ce7f9cd54682331fd331a80e2c3f39d",
       "IR-RESOURCE-METADATA-LIMITS-001": "sha256:6e5a9bf2c7ef782c809cf925e2eebe568b117de2be0c8ab46729d22657863e4a",
-      "IR-RESOURCE-PUBLICATION-ADVISORY-001": "sha256:c2f0ed058f2418b7efec228ddc12f8cdbbb6c879ac0a2c1998c0790610fd2b7d",
+      "IR-RESOURCE-PUBLICATION-ADVISORY-001": "sha256:179de63b1b9ff323572cf56df6061d0568c71729c432d4fc5053e0d1c0ea5e97",
       "IR-RESOURCE-READ-SAFETY-001": "sha256:06533cb95b05536dd0cc43776b424604230d698a7a935cb66979a8230f5894b8",
+      "IR-RESOURCE-SAMPLE-REUSE-001": "sha256:431704994d6e0af4fe4ecc9e6762e5f1da4379ff8b8423ef7e9ab0cea82ef123",
       "IR-RESOURCE-SCAN-BUDGET-001": "sha256:61b8530d891ab755c4c7702dcd0f2416a179130749a093206fe3374d1fd33ea7",
       "IR-RESOURCE-TYPE-DETECTION-001": "sha256:a2df544f91d9fc3650dc4bb38fd83b64260dd4966a2bd375bd147fc78c34ec3b",
       "IR-TRACE-FRONTIER-001": "sha256:8a034456429ed8c72deb68b6916d263d4fd3103bfe167f98caa1c6ea715cbe10",
@@ -8072,6 +8076,28 @@
         "test:ea0eabe85fd39b11c9b53b83ceec8027faf220675694bdaceee5ea66749e892d"
       ]
     },
+    "IR-RESOURCE-BASIC-COVERAGE-001": {
+      "title": "基础类型覆盖先于深度读取预算",
+      "sourcePath": "cases/investigation-resource-basic-coverage.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:e6457c19e83b0aaff09f8becc506c61ad0f7c11c54fdb2d6cb1964decc62c4f9"
+      ]
+    },
+    "IR-RESOURCE-BINARY-HEADER-001": {
+      "title": "非文本资源优先识别后仅做必要读取",
+      "sourcePath": "cases/investigation-resource-binary-header-budget.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:829c284d0d9c7d087df5c0face075082a240b698f5873f31bd2fa9e7013814c6"
+      ]
+    },
     "IR-RESOURCE-CLI-SIGNALS-001": {
       "title": "候选查询自动暴露资源风险",
       "sourcePath": "cases/investigation-resource-cli-signals.md",
@@ -8103,6 +8129,19 @@
       ],
       "testIds": [
         "test:f3a970332d50efaac292e989df8c5327880cb368bb49647465eccbecf6281e6f"
+      ]
+    },
+    "IR-RESOURCE-FINDING-PRIORITY-001": {
+      "title": "有界明细保留重点且分类汇总不截断",
+      "sourcePath": "cases/investigation-resource-finding-priority.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:5a9cc2aa8f5f29dbf29700cef09a5dc6873264bdcb38db4bdd80c8bc64d40500",
+        "test:e457fcda9318c53e9d706b49042990c7f8d1ba4323c3b8066a7f8fcfd18bcdc6",
+        "test:f49bd3b0d6ef2b67896978d6e546a6c68d74905679488ddd58f50170aa685567"
       ]
     },
     "IR-RESOURCE-METADATA-LIMITS-001": {
@@ -8137,6 +8176,19 @@
       "testIds": [
         "test:9922ee29491d70fa8a4820ce0f3fda2009ca0f44bb012c507f44b82ce4f07403",
         "test:f49360f90a78963e481571b98229e49c2f17e07f78cf5bff66965be9bea4ee2f"
+      ]
+    },
+    "IR-RESOURCE-SAMPLE-REUSE-001": {
+      "title": "采样范围互斥并复用已读头部",
+      "sourcePath": "cases/investigation-resource-sample-reuse.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:06bdd86c2b5e6cd63e7a9032b5b7289aab32177d477fc1e4821c6c4d398febdc",
+        "test:5636435fb429eacdd3033bad3f2cfc389455a9916175e45b82f22cde50498abc",
+        "test:c807b607845380a10c245324ef44829d87936a11f8b5915622e77dffb56b254c"
       ]
     },
     "IR-RESOURCE-SCAN-BUDGET-001": {

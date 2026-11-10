@@ -5,6 +5,8 @@ use crate::resource_review::{
     policy::{Level, Policy},
 };
 
+const CONSOLE_FINDING_LIMIT: usize = 12;
+
 #[derive(serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 struct Reviewed<'a> {
@@ -35,9 +37,7 @@ pub(super) fn emit(
         );
     };
     let review = resource_review::review(root, directory, &reports, policy, &blocked);
-    print_info(&review);
-    let mut warnings = value.warnings().to_vec();
-    warnings.extend(review.warnings());
+    print_review(&review);
     emit_success(
         command,
         json,
@@ -46,7 +46,7 @@ pub(super) fn emit(
             result: &value,
             resource_review: review,
         },
-        &warnings,
+        value.warnings(),
     )
 }
 
@@ -86,11 +86,56 @@ fn candidate_selection(candidates: &[crate::queries::investigation::Candidate]) 
     selected
 }
 
-pub(super) fn print_info(review: &resource_review::Review) {
-    for finding in review.findings.iter().filter(|f| f.level == Level::Info) {
+fn format_summary(review: &resource_review::Review) -> String {
+    let state = if !review.enabled {
+        "disabled"
+    } else if review.complete {
+        "complete"
+    } else {
+        "incomplete"
+    };
+    let counts = review
+        .summary
+        .by_code
+        .iter()
+        .map(|(code, count)| format!("{code}={count}"))
+        .collect::<Vec<_>>()
+        .join(", ");
+    format!(
+        "resource-review: {state}; {} resources; {} warnings, {} info; {} omitted; {} bytes reserved{}",
+        review.resource_count,
+        review.summary.warnings,
+        review.summary.info,
+        review.omitted_findings,
+        review.read_budget_used_bytes,
+        if counts.is_empty() {
+            String::new()
+        } else {
+            format!("; {counts}")
+        }
+    )
+}
+
+pub(super) fn print_review(review: &resource_review::Review) {
+    eprintln!("{}", format_summary(review));
+    for message in review.coverage_warnings() {
+        eprintln!("warning: {message}");
+    }
+    for finding in review.findings.iter().take(CONSOLE_FINDING_LIMIT) {
+        let level = match finding.level {
+            Level::Info => "info",
+            Level::Warn => "warning",
+            Level::Off => continue,
+        };
         eprintln!(
-            "info: {}: {}: {}",
+            "{level}: {}: {}: {}",
             finding.code, finding.target, finding.message
+        );
+    }
+    if review.findings.len() > CONSOLE_FINDING_LIMIT {
+        eprintln!(
+            "info: resource-review-details: {} retained findings not printed; inspect resourceReview.findings",
+            review.findings.len() - CONSOLE_FINDING_LIMIT
         );
     }
 }

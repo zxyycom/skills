@@ -174,3 +174,65 @@ fn metadata_limits_report_known_totals_and_omitted_resources() {
             .any(|f| f.code == "resource-file-budget")
     );
 }
+
+#[test]
+fn non_text_resources_only_read_headers_without_duplicate_candidates() {
+    let mut png = vec![0; 2097152];
+    png[..8].copy_from_slice(&[137, 80, 78, 71, 13, 10, 26, 10]);
+    let (temp, refs) = fixture(&[("large.png", png)]);
+    let observed = inspect(&temp, &refs, &Policy::default());
+    assert!(observed.complete);
+    assert_eq!(observed.read_budget_used_bytes, 8192);
+    assert_eq!(observed.files[0].content_type, "image/png");
+    assert!(observed.files[0].compressibility.is_none());
+}
+
+#[test]
+fn basic_observations_survive_exhausted_content_budget() {
+    let (temp, refs) = fixture(&[
+        ("a.txt", vec![0x61; 65536]),
+        ("b.txt", vec![0x62; 65536]),
+        ("late.png", vec![137, 80, 78, 71, 13, 10, 26, 10]),
+    ]);
+    let policy = Policy {
+        read_budget_bytes: 16392,
+        ..Policy::default()
+    };
+    let observed = inspect(&temp, &refs, &policy);
+    assert!(!observed.complete);
+    assert_eq!(observed.skipped_files, 2);
+    assert_eq!(observed.read_budget_used_bytes, 16392);
+    assert_eq!(observed.files.len(), 3);
+    assert!(
+        observed
+            .files
+            .iter()
+            .all(|f| f.content_type != "not-inspected")
+    );
+    assert_eq!(observed.files[2].content_type, "image/png");
+    assert!(
+        observed.files[..2]
+            .iter()
+            .all(|f| f.duplicate_check == DuplicateCheck::NotChecked)
+    );
+}
+
+#[test]
+fn overlapping_sample_requests_reuse_headers_and_read_each_byte_once() {
+    let (temp, refs) = fixture(&[("sample.txt", vec![0x61; 10000])]);
+    let mut policy = Policy::default();
+    policy.compressibility.full_file_bytes = 1;
+    policy.compressibility.sample_window_bytes = 8192;
+    policy.compressibility.bands = vec![super::policy::Band {
+        min_bytes: 1,
+        max_compressed_ratio: 0.2,
+    }];
+    policy.read_budget_bytes = 10000;
+    policy.validate().unwrap();
+    let observed = inspect(&temp, &refs, &policy);
+    assert!(observed.complete);
+    assert_eq!(observed.read_budget_used_bytes, 10000);
+    let compression = observed.files[0].compressibility.as_ref().unwrap();
+    assert_eq!(compression.method, CompressionMethod::Sampled);
+    assert_eq!(compression.input_bytes, 10000);
+}
