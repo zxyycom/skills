@@ -132,6 +132,13 @@ impl Policy {
 }
 
 impl Compression {
+    pub(super) fn band(&self, size: u64) -> Option<&Band> {
+        if !self.enabled {
+            return None;
+        }
+        self.bands.iter().rev().find(|band| size >= band.min_bytes)
+    }
+
     pub(super) fn windows(&self, size: u64) -> impl Iterator<Item = std::ops::Range<u64>> {
         let count = u64::from(self.sample_windows).min(size);
         let width = size
@@ -178,20 +185,33 @@ mod tests {
             sample_windows: 4,
             ..Policy::default().compressibility
         };
-        for (size, expected) in [
-            (0, vec![]),
-            (1, vec![(0, 1)]),
-            (10, vec![(0, 2), (2, 4), (5, 7), (8, 10)]),
-            (40, vec![(0, 8), (10, 18), (21, 29), (32, 40)]),
+        for (size, count, width) in [
+            (0, 0, 0),
+            (1, 1, 1),
+            (10, 4, 2),
+            (40, 4, 8),
+            (u64::MAX, 4, 8),
         ] {
-            let actual: Vec<_> = c.windows(size).map(|w| (w.start, w.end)).collect();
-            assert_eq!(actual, expected, "size={size}");
+            let windows: Vec<_> = c.windows(size).collect();
+            assert_eq!(windows.len(), count, "size={size}");
+            assert!(
+                windows
+                    .iter()
+                    .all(|w| w.end <= size && w.end - w.start == width)
+            );
+            if windows.is_empty() {
+                continue;
+            }
+            assert_eq!(windows.first().unwrap().start, 0);
+            assert_eq!(windows.last().unwrap().end, size);
+            assert!(windows.windows(2).all(|pair| pair[0].end <= pair[1].start));
+            let gaps: Vec<_> = windows
+                .windows(2)
+                .map(|pair| pair[1].start - pair[0].end)
+                .collect();
+            if let (Some(min), Some(max)) = (gaps.iter().min(), gaps.iter().max()) {
+                assert!(max - min <= 1, "windows must be evenly distributed");
+            }
         }
-        let large: Vec<_> = c.windows(u64::MAX).collect();
-        assert_eq!(large.first().unwrap().start, 0);
-        assert_eq!(large.last().unwrap().end, u64::MAX);
-        assert!(large.windows(2).all(|pair| pair[0].end <= pair[1].start));
-        assert_eq!(large.len(), 4);
-        assert!(large.iter().all(|window| window.end - window.start <= 8));
     }
 }

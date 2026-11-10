@@ -181,7 +181,7 @@ mod tests {
     }
 
     #[test]
-    fn sample_reader_reuses_cached_header_without_physical_rereads() {
+    fn sample_reader_reuses_headers_without_repeating_underlying_reads() {
         let bytes: Vec<_> = (0..10000).map(|i| (i % 251) as u8).collect();
         for (ranges, expected_reads) in [
             ([0..2500, 2500..5000, 5000..7500, 7500..10000], 10000),

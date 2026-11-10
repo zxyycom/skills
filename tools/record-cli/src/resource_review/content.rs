@@ -73,10 +73,7 @@ pub(super) fn compression(
     policy: &Policy,
 ) -> std::io::Result<Option<CompressionObservation>> {
     let c = &policy.compressibility;
-    if !c.enabled {
-        return Ok(None);
-    }
-    let Some(band) = c.bands.iter().rev().find(|b| size >= b.min_bytes) else {
+    let Some(band) = c.band(size) else {
         return Ok(None);
     };
     let (method, chunks): (_, Vec<&[u8]>) = match payload {

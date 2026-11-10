@@ -11,14 +11,26 @@ pub(crate) struct Summary {
     pub by_code: BTreeMap<&'static str, usize>,
 }
 
+impl Summary {
+    fn from_findings(findings: &[Finding]) -> Self {
+        let mut summary = Self::default();
+        for finding in findings {
+            match finding.level {
+                Level::Off => continue,
+                Level::Info => summary.info += 1,
+                Level::Warn => summary.warnings += 1,
+            }
+            *summary.by_code.entry(finding.code).or_default() += 1;
+        }
+        summary
+    }
+}
+
 impl Review {
     pub(super) fn note(&mut self, level: Level, code: &'static str, target: &str, message: String) {
-        match level {
-            Level::Off => return,
-            Level::Info => self.summary.info += 1,
-            Level::Warn => self.summary.warnings += 1,
+        if level == Level::Off {
+            return;
         }
-        *self.summary.by_code.entry(code).or_default() += 1;
         self.findings.push(Finding {
             code,
             level,
@@ -28,6 +40,7 @@ impl Review {
     }
     pub(super) fn finish_findings(&mut self) {
         self.findings.sort_by(compare);
+        self.summary = Summary::from_findings(&self.findings);
     }
     pub fn coverage_warnings(&self) -> Vec<String> {
         let mut messages = Vec::new();

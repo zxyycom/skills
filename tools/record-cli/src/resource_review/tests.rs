@@ -177,7 +177,7 @@ fn metadata_limits_report_known_totals_and_omitted_resources() {
 
 #[test]
 fn non_text_resources_only_read_headers_without_duplicate_candidates() {
-    let mut png = vec![0; 2097152];
+    let mut png = vec![0; 1048577];
     png[..8].copy_from_slice(&[137, 80, 78, 71, 13, 10, 26, 10]);
     let (temp, refs) = fixture(&[("large.png", png)]);
     let observed = inspect(&temp, &refs, &Policy::default());
@@ -185,6 +185,28 @@ fn non_text_resources_only_read_headers_without_duplicate_candidates() {
     assert_eq!(observed.read_budget_used_bytes, 8192);
     assert_eq!(observed.files[0].content_type, "image/png");
     assert!(observed.files[0].compressibility.is_none());
+}
+
+#[test]
+fn non_text_duplicate_candidates_compare_complete_bytes() {
+    let mut png = vec![0; 16384];
+    png[..8].copy_from_slice(&[137, 80, 78, 71, 13, 10, 26, 10]);
+    let mut different = png.clone();
+    different[10000] = 1;
+    let (temp, refs) = fixture(&[("a.png", png.clone()), ("b.png", png), ("c.png", different)]);
+    let observed = inspect(&temp, &refs, &Policy::default());
+    assert!(observed.complete);
+    assert_eq!(observed.read_budget_used_bytes, 49152);
+    assert_eq!(observed.duplicate_groups.len(), 1);
+    assert_eq!(
+        observed.duplicate_groups[0].resource_ids,
+        ["owner/a.png", "owner/b.png"]
+    );
+    assert_eq!(observed.duplicate_groups[0].redundant_bytes, 16384);
+    assert_eq!(observed.files.len(), 3);
+    assert!(observed.files.iter().all(|file| {
+        file.duplicate_check == DuplicateCheck::FullByteComparison && file.compressibility.is_none()
+    }));
 }
 
 #[test]

@@ -216,9 +216,8 @@ impl Scanner<'_> {
         let policy = self.policy;
         let c = &policy.compressibility;
         let compression = (head.kind.category == content::Category::Text
-            && c.enabled
-            && observation.bytes >= c.bands[0].min_bytes)
-            .then_some(c);
+            && c.band(observation.bytes).is_some())
+        .then_some(c);
         let request = Request {
             size: observation.bytes,
             duplicate,

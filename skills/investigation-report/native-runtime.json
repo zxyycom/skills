@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "role": "investigation-report",
-  "runtimeVersion": "0.2.8",
-  "sourceHash": "2a8c5a89c7942adca91598720b303f03da25c0592f6bcdd748cb280b0d6253e6",
+  "runtimeVersion": "0.2.9",
+  "sourceHash": "3a9f62b1eecd5365496351d33748b034b2deb1b014f1499f3af251018f11ff95",
   "targets": [
     "x86_64-unknown-linux-gnu",
     "x86_64-pc-windows-msvc"
