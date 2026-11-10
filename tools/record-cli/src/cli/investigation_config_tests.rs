@@ -203,3 +203,81 @@ fn write_defaults_resolve_after_layer_merging_independently_of_read_defaults() {
     assert_eq!(write.sources[0].root, cwd.join(".local/../second"));
     assert_eq!(write.sources[0].directory, "notes");
 }
+
+#[test]
+fn acceptances_resolve_in_defining_layer_and_reject_invalid_rules() {
+    let temp = tempfile::tempdir().unwrap();
+    std::fs::create_dir(temp.path().join(".local")).unwrap();
+    std::fs::create_dir(temp.path().join("source")).unwrap();
+    let path = temp.path().join(".local/.investigation-report.local.json");
+    let item = json!({"source":{"root":"../source","investigationsDir":"records"},"code":"resource-file-bytes","target":"owner/a","reason":"reviewed"});
+    std::fs::write(
+        &path,
+        json!({"resources":{"acceptances":[item]}}).to_string(),
+    )
+    .unwrap();
+    let config = load(temp.path(), None).unwrap();
+    assert_eq!(
+        config.policy.resolved_acceptances[0].root,
+        temp.path().join("source").canonicalize().unwrap()
+    );
+    // An unrelated later layer must retain the base of the defining project layer.
+    let project = temp.path().join(".investigation-report.json");
+    std::fs::write(&project, json!({"resources":{"acceptances":[{"source":{"root":"source","investigationsDir":"records"},"code":"resource-file-bytes","target":"owner/a","reason":"project"}]}}).to_string()).unwrap();
+    std::fs::write(&path, json!({"resources":{"fileBytesWarn":2}}).to_string()).unwrap();
+    let inherited = load(temp.path(), None).unwrap();
+    assert_eq!(
+        inherited.policy.resolved_acceptances[0].root,
+        temp.path().join("source").canonicalize().unwrap()
+    );
+    assert_eq!(inherited.policy.resolved_acceptances[0].reason, "project");
+    std::fs::write(&path, json!({"resources":{"acceptances":[]}}).to_string()).unwrap();
+    assert!(
+        load(temp.path(), None)
+            .unwrap()
+            .policy
+            .resolved_acceptances
+            .is_empty()
+    );
+    std::fs::remove_file(project).unwrap();
+    let missing = json!({"source":{"root":"../missing","investigationsDir":"records"},"code":"resource-file-bytes","target":"owner/a","reason":"reviewed"});
+    std::fs::write(
+        &path,
+        json!({"resources":{"acceptances":[missing]}}).to_string(),
+    )
+    .unwrap();
+    let missing_config = load(temp.path(), None).unwrap();
+    assert_eq!(
+        missing_config.policy.resolved_acceptances[0].root,
+        temp.path().join(".local/../missing")
+    );
+    #[cfg(unix)]
+    {
+        use std::os::unix::ffi::OsStringExt;
+        let non_utf8 = temp
+            .path()
+            .join(std::ffi::OsString::from_vec(vec![b'n', 0xff]));
+        std::fs::create_dir(&non_utf8).unwrap();
+        std::fs::write(non_utf8.join(".investigation-report.json"), json!({"resources":{"acceptances":[{"source":{"root":".","investigationsDir":"records"},"code":"resource-file-bytes","target":"owner/a","reason":"reviewed"}]}}).to_string()).unwrap();
+        let loaded = load(&non_utf8, None).unwrap();
+        assert_eq!(
+            loaded.policy.resolved_acceptances[0].root,
+            non_utf8.canonicalize().unwrap()
+        );
+    }
+    for invalid in [
+        json!({"source":{"root":"../source","investigationsDir":"records"},"code":"resource-report-bytes","target":"owner/a","reason":"x"}),
+        json!({"source":{"root":"../source","investigationsDir":"records"},"code":"resource-file-bytes","target":"owner","reason":"x"}),
+        json!({"source":{"root":"../source","investigationsDir":"records"},"code":"resource-inspection-incomplete","target":"owner/a","reason":"x"}),
+        json!({"source":{"root":"../source","investigationsDir":"records"},"code":"resource-file-bytes","target":"../a","reason":"x"}),
+        json!({"source":{"root":"../source","investigationsDir":"records"},"code":"resource-file-bytes","target":"owner/a","reason":" "}),
+        json!({"source":{"root":"../source","investigationsDir":"records"},"code":"resource-exact-duplicates","members":["owner/b","owner/a"],"reason":"x"}),
+    ] {
+        std::fs::write(
+            &path,
+            json!({"resources":{"acceptances":[invalid]}}).to_string(),
+        )
+        .unwrap();
+        assert!(load(temp.path(), None).is_err());
+    }
+}

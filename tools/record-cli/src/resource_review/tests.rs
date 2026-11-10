@@ -258,3 +258,74 @@ fn overlapping_sample_requests_reuse_headers_and_read_each_byte_once() {
     assert_eq!(compression.method, CompressionMethod::Sampled);
     assert_eq!(compression.input_bytes, 10000);
 }
+
+#[test]
+fn acceptance_is_scoped_to_source_rule_and_exact_duplicate_members() {
+    use super::policy::{Acceptance, AcceptanceSource};
+    let (temp, refs) = fixture(&[("a", b"same".to_vec()), ("b", b"same".to_vec())]);
+    let source = AcceptanceSource {
+        root: ".".into(),
+        investigations_dir: "records".into(),
+    };
+    let mut policy = Policy {
+        file_bytes_warn: 1,
+        ..Policy::default()
+    };
+    policy.acceptances = vec![
+        Acceptance {
+            source: source.clone(),
+            code: "resource-file-bytes".into(),
+            target: Some("owner/a".into()),
+            members: None,
+            reason: "retained evidence".into(),
+        },
+        Acceptance {
+            source,
+            code: "resource-exact-duplicates".into(),
+            target: None,
+            members: Some(vec!["owner/a".into(), "owner/b".into()]),
+            reason: "both needed".into(),
+        },
+    ];
+    policy.resolved_acceptances = policy
+        .acceptances
+        .iter()
+        .map(|a| a.resolve(temp.path()).unwrap())
+        .collect();
+    let observed = inspect(&temp, &refs, &policy);
+    assert_eq!(observed.summary.accepted, 2);
+    assert!(
+        observed
+            .findings
+            .iter()
+            .any(|f| f.target == "owner/b" && f.code == "resource-file-bytes" && !f.accepted)
+    );
+    assert!(
+        !observed
+            .warnings()
+            .iter()
+            .any(|w| w.contains("resource-exact-duplicates"))
+    );
+    assert!(observed.complete);
+    assert!(
+        observed
+            .findings
+            .iter()
+            .find(|f| f.code == "resource-exact-duplicates")
+            .unwrap()
+            .acceptance_reason
+            .as_deref()
+            == Some("both needed")
+    );
+    let (other, other_refs) = fixture(&[("a", b"same".to_vec()), ("b", b"same".to_vec())]);
+    assert_eq!(inspect(&other, &other_refs, &policy).summary.accepted, 0);
+    policy.acceptances[1].members = Some(vec!["owner/a".into(), "owner/c".into()]);
+    policy.resolved_acceptances = policy
+        .acceptances
+        .iter()
+        .map(|a| a.resolve(temp.path()).unwrap())
+        .collect();
+    assert_eq!(inspect(&temp, &refs, &policy).summary.accepted, 1);
+    policy.resolved_acceptances.clear();
+    assert_eq!(inspect(&temp, &refs, &policy).summary.accepted, 0);
+}

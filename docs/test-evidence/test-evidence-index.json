@@ -660,6 +660,8 @@
       "IR-CONFIG-INVALID-WRITE-GUARD-001": "sha256:1fd1ea3a846416b0444451f2746f6a32544be82ccfc1aa082cbaf0046a04a8a5",
       "IR-INDEX-PAYLOAD-PRESERVATION-001": "sha256:d1b53421e5d72719836778ef4528ce426072614a5718d35f8641347ca757a558",
       "IR-INDEX-PAYLOAD-SCOPE-001": "sha256:73e22cf69aaac28da2560532f7bf88f64c9bfdf643de64a972107ee5056909ff",
+      "IR-RESOURCE-ACCEPTANCE-001": "sha256:b53230086e8aaa8ad8e18cf575ce0b48eecf015e7fd4bde6126da86811fd1d3b",
+      "IR-RESOURCE-ACCEPTANCE-OUTPUT-001": "sha256:801c3714dba32b13f33060192ba69c3c6377a4e4ecf4139c2abbd00e8f35f876",
       "IR-RESOURCE-BASIC-COVERAGE-001": "sha256:020b98fc7b869c205f03bfb3b40cb835db1141d038926c313800dc82f93845d8",
       "IR-RESOURCE-BINARY-HEADER-001": "sha256:7578a887d4f4e4f319e6af765ba741d7c52afddfeefd62aeb580f934f3f003f0",
       "IR-RESOURCE-CLI-SIGNALS-001": "sha256:492b746b84b19d9e94aec43f29b0f682f80e37cfe6f3481e1588634aa96b5e3e",
@@ -8098,6 +8100,29 @@
       ],
       "testIds": [
         "test:ea0eabe85fd39b11c9b53b83ceec8027faf220675694bdaceee5ea66749e892d"
+      ]
+    },
+    "IR-RESOURCE-ACCEPTANCE-001": {
+      "title": "资源诊断接受按来源和对象限定",
+      "sourcePath": "cases/investigation-resource-persistent-acceptance.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:67e9464e8b621f5560a04a4f301882c19363361f501edac89d3e035b5b014efd",
+        "test:6c3a657dfa4d3629495fec64043f1003563d0fde91bac21f89cf9b682b9608fb"
+      ]
+    },
+    "IR-RESOURCE-ACCEPTANCE-OUTPUT-001": {
+      "title": "已接受诊断不占终端预览",
+      "sourcePath": "cases/investigation-resource-acceptance-output.md",
+      "tags": [
+        "investigation-report",
+        "record-rust"
+      ],
+      "testIds": [
+        "test:44c22e7b81e30cfe0ae07059f5ac22cd8ea1099d6d3b31f197940419a0daf6b5"
       ]
     },
     "IR-RESOURCE-BASIC-COVERAGE-001": {

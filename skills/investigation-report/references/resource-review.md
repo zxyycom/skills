@@ -8,7 +8,7 @@
 
 1. 先看 `enabled`、`complete` 和 `skippedFiles`，确认本次覆盖。
 2. 再看 `summary` 分类汇总，按 `findings` 定位材料，决定保留、节选、汇总或共享。
-3. stderr 提供摘要、覆盖提示和优先级最高的至多 12 条明细；普通格式化 JSON 与 `--json` 均完整返回本次 findings，其余终端明细引导至 `resourceReview.findings`，不重复输出。
+3. stderr 提供总量、已接受及待处理数量、覆盖提示和优先级最高的至多 12 条未接受明细；普通格式化 JSON 与 `--json` 均完整返回本次 findings，其余终端明细引导至 `resourceReview.findings`，不重复输出。
 
 findings 优先呈现覆盖不足，其余 warn 先于 info；同级按确定副本、体积／数量、类型、可压缩性排序，再按 code、路径和消息稳定排序。读取预算与文件数上限限制扫描工作量，覆盖不足通过结果字段表达，与输出截断不同。
 
@@ -52,8 +52,8 @@ findings 优先呈现覆盖不足，其余 warn 先于 info；同级按确定副
 | `readBudgetUsedBytes`、`skippedFiles` | 预留的最大读取量、未完成文件检查数；读取失败时实际读取可更少。 |
 | `files` | 大小、类型、`duplicateCheck`，及适用时的 `compressibility`：算法、全文／采样 method、输入与压缩字节、比例、阈值。 |
 | `duplicateGroups` | 本次已逐字节确认的副本组；是否合并仍需按来源与用途判断。 |
-| `summary` | 全部 finding 的 `warnings`、`info` 及 `byCode` 分类计数；关闭的规则不计入，派生的覆盖提示单独表达。 |
-| `findings`、`omittedFindings` | 完整返回本次实际产生的全部明细，不设输出条数上限，`omittedFindings` 为 0。 |
+| `summary` | 全部 finding 的 `warnings`、`info` 及 `byCode` 分类计数，`accepted` 是其中已接受的数量；关闭的规则不计入，派生的覆盖提示单独表达。 |
+| `findings`、`omittedFindings` | 完整返回本次实际产生的全部明细及 `accepted`；已接受项另含 `acceptanceReason`。不设输出条数上限，`omittedFindings` 为 0。 |
 
 ## 配置
 
@@ -95,3 +95,42 @@ findings 优先呈现覆盖不足，其余 warn 先于 info；同级按确定副
 | 65536（64 KiB） | 0.10 |
 | 262144（256 KiB） | 0.15 |
 | 1048576（1 MiB） | 0.20 |
+
+## 复核后的持久接受
+
+已复核且决定保留的信号，由维护者手动写入调用工作区配置的 `resources.acceptances`。记录持续有效，直至显式移除；资源内容或体积变化本身不会使记录失效，每次检查仍观察当前资源。
+
+以下示例位于调用工作区的项目配置 `.investigation-report.json`：
+
+```json
+{
+  "resources": {
+    "acceptances": [
+      {
+        "source": { "root": ".", "investigationsDir": "docs/investigations" },
+        "code": "resource-file-bytes",
+        "target": "report-id/evidence.txt",
+        "reason": "完整原始证据有独立价值"
+      },
+      {
+        "source": { "root": ".", "investigationsDir": "docs/investigations" },
+        "code": "resource-exact-duplicates",
+        "members": ["report-a/evidence.txt", "report-b/evidence.txt"],
+        "reason": "各自记录独立来源"
+      }
+    ]
+  }
+}
+```
+
+| 字段 | 定位与约束 |
+| --- | --- |
+| `source` | `root` 相对定义该项的配置文件目录解析，与根内相对路径 `investigationsDir` 共同确定实际来源；身份比较沿用[来源身份与执行路径](source-selection.md#来源身份与执行路径)，与 key 名称无关。 |
+| `code` | 仅接受上表六种资源信号；读取失败、预算不足及其他覆盖缺口仍独立报告。 |
+| `target` | 报告体积／数量信号使用 [Investigation ID](investigation-report-contract.md#身份与集合)，其余非副本信号使用 [resource ID](investigation-report-contract.md#路径与文件要求)；与 `members` 互斥。 |
+| `members` | 副本组的全部资源 ID，按字典序严格递增、无重复，与本次检测的完整组相同。 |
+| `reason` | 非空复核理由，在已接受 finding 的 `acceptanceReason` 中回读。 |
+
+接受数组按配置层整体替换，本地配置可用 `[]` 清空继承的接受项。同一来源、规则和对象有多条记录时，采用第一条理由。
+
+接受仅改变提示处置，原始观察、完整 findings 和覆盖状态继续保留；readiness 与发布资格仍由领域检查决定。

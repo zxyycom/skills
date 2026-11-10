@@ -37,8 +37,68 @@ pub struct Binary {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct AcceptanceSource {
+    pub root: String,
+    pub investigations_dir: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct Acceptance {
+    pub source: AcceptanceSource,
+    pub code: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub members: Option<Vec<String>>,
+    pub reason: String,
+}
+
+#[derive(Clone, Debug)]
+pub(crate) struct ResolvedAcceptance {
+    pub root: std::path::PathBuf,
+    pub directory: std::path::PathBuf,
+    pub object: AcceptanceObject,
+    pub reason: String,
+}
+
+#[derive(Clone, Debug)]
+pub(crate) enum AcceptanceObject {
+    Target {
+        code: AcceptanceCode,
+        target: String,
+    },
+    Duplicates(Vec<String>),
+}
+
+#[derive(Clone, Copy, Debug)]
+pub(crate) enum AcceptanceCode {
+    FileBytes,
+    ReportBytes,
+    ReportCount,
+    ContentType,
+    HighCompressibility,
+}
+
+impl AcceptanceCode {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::FileBytes => "resource-file-bytes",
+            Self::ReportBytes => "resource-report-bytes",
+            Self::ReportCount => "resource-report-count",
+            Self::ContentType => "resource-content-type",
+            Self::HighCompressibility => "resource-high-compressibility",
+        }
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Policy {
     pub enabled: bool,
+    pub acceptances: Vec<Acceptance>,
+    #[serde(skip)]
+    pub(crate) resolved_acceptances: Vec<ResolvedAcceptance>,
     pub file_bytes_warn: u64,
     pub report_bytes_warn: u64,
     pub report_files_warn: usize,
@@ -53,6 +113,8 @@ impl Default for Policy {
     fn default() -> Self {
         Self {
             enabled: true,
+            acceptances: vec![],
+            resolved_acceptances: vec![],
             file_bytes_warn: 1_048_576,
             report_bytes_warn: 10_485_760,
             report_files_warn: 30,
@@ -171,6 +233,75 @@ impl Compression {
             return Err("compression bands require positive minBytes and ratios in (0, 1]".into());
         }
         Ok(())
+    }
+}
+
+impl Acceptance {
+    pub(crate) fn resolve(&self, base: &std::path::Path) -> Result<ResolvedAcceptance, String> {
+        use crate::source::RelativePath;
+        if self.reason.trim().is_empty() || self.source.root.is_empty() {
+            return Err("acceptances require a source root and nonempty reason".into());
+        }
+        RelativePath::new(&self.source.investigations_dir)
+            .map_err(|e| format!("acceptance source investigationsDir: {e}"))?;
+        let object = AcceptanceObject::parse(self)?;
+        let root = base.join(&self.source.root);
+        Ok(ResolvedAcceptance {
+            root: std::fs::canonicalize(&root).unwrap_or(root),
+            directory: self.source.investigations_dir.clone().into(),
+            object,
+            reason: self.reason.clone(),
+        })
+    }
+}
+
+impl AcceptanceObject {
+    fn parse(input: &Acceptance) -> Result<Self, String> {
+        use crate::domains::investigation::valid_resource_id;
+        const INVALID: &str = "acceptance requires an eligible code and exact target, or sorted unique duplicate members";
+        match (input.code.as_str(), &input.target, &input.members) {
+            ("resource-exact-duplicates", None, Some(members))
+                if members.len() >= 2
+                    && members.iter().all(|s| valid_resource_id(s))
+                    && members.windows(2).all(|w| w[0] < w[1]) =>
+            {
+                Ok(Self::Duplicates(members.clone()))
+            }
+            (code, Some(target), None) => {
+                let code = AcceptanceCode::parse(code).ok_or(INVALID)?;
+                if !code.valid_target(target) {
+                    return Err(INVALID.into());
+                }
+                Ok(Self::Target {
+                    code,
+                    target: target.clone(),
+                })
+            }
+            _ => Err(INVALID.into()),
+        }
+    }
+}
+
+impl AcceptanceCode {
+    fn valid_target(self, target: &str) -> bool {
+        use crate::domains::investigation::{InvestigationId, valid_resource_id};
+        match self {
+            Self::ReportBytes | Self::ReportCount => InvestigationId::parse(target).is_ok(),
+            Self::FileBytes | Self::ContentType | Self::HighCompressibility => {
+                valid_resource_id(target)
+            }
+        }
+    }
+
+    fn parse(code: &str) -> Option<Self> {
+        match code {
+            "resource-file-bytes" => Some(Self::FileBytes),
+            "resource-report-bytes" => Some(Self::ReportBytes),
+            "resource-report-count" => Some(Self::ReportCount),
+            "resource-content-type" => Some(Self::ContentType),
+            "resource-high-compressibility" => Some(Self::HighCompressibility),
+            _ => None,
+        }
     }
 }
 

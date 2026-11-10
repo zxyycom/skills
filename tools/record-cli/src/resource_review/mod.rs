@@ -35,6 +35,9 @@ pub(crate) struct Finding {
     pub level: Level,
     pub target: String,
     pub message: String,
+    pub accepted: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub acceptance_reason: Option<String>,
 }
 
 #[derive(Debug, Serialize)]

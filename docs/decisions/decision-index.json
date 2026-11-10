@@ -179,6 +179,7 @@
       "261110-complete-resource-findings-with-bounded-preview": "sha256:565fa34d61f274d0e5b2529ff35f924fa4d9f5b8020425b38db6cfbd9a23fb1e",
       "261110-compose-investigation-source-selection": "sha256:225e18bb09b0c39a50d72a3332d58067298a9d8ed59ab5a4a52926ceb574877c",
       "261110-configure-default-investigation-write-source": "sha256:d1eddcd70d27878079e8db507609198670bc473811ad557ecf6dbe4bddef96f2",
+      "261110-persistent-resource-finding-acceptance": "sha256:068fed6fabe9ff0108b81d8dc38c8556b735629dbc1cb3bdc120920cc39c3ac1",
       "261110-preserve-source-query-boundaries-with-shared-config": "sha256:00220fb866b0a3e0edba4e5ee4093b430725d1776599f21b7e6779ebc6c6b34d",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
@@ -4109,6 +4110,22 @@
       "tags": [
         "investigation-report",
         "source-selection"
+      ],
+      "relations": []
+    },
+    "261110-persistent-resource-finding-acceptance": {
+      "name": "persistent-resource-finding-acceptance",
+      "sourcePath": "261110-persistent-resource-finding-acceptance.md",
+      "title": "按来源与对象持久接受资源诊断",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-11-10T15:55:54Z",
+      "purpose": "让维护者保留已复核资源并减少重复提示，同时保留完整观察与覆盖事实。",
+      "background": "重复诊断缺乏逐对象处置，关闭规则会遮蔽其他对象。",
+      "decision": "允许按真实来源、规则和明确对象持久记录复核理由，直到显式撤销；不改变检测或覆盖。",
+      "tags": [
+        "investigation-report",
+        "resource-management"
       ],
       "relations": []
     },

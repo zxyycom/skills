@@ -81,9 +81,38 @@ pub(crate) fn review(
         scan.file(&id, resource, duplicate);
     }
     scan.finish_duplicates();
+    mark_acceptances(&mut scan.review, root, directory, policy);
     scan.review.finish_findings();
     scan.review.read_budget_used_bytes = scan.budget.used();
     scan.review
+}
+
+fn mark_acceptances(review: &mut Review, root: &Root, directory: &str, policy: &Policy) {
+    for finding in &mut review.findings {
+        let members = review
+            .duplicate_groups
+            .iter()
+            .find(|g| {
+                finding.code == "resource-exact-duplicates"
+                    && g.resource_ids.first() == Some(&finding.target)
+            })
+            .map(|g| &g.resource_ids);
+        if let Some(acceptance) = policy.resolved_acceptances.iter().find(|a| {
+            a.root == root.path()
+                && a.directory == std::path::Path::new(directory)
+                && match &a.object {
+                    super::policy::AcceptanceObject::Target { code, target } => {
+                        code.as_str() == finding.code && target == &finding.target
+                    }
+                    super::policy::AcceptanceObject::Duplicates(expected) => {
+                        finding.code == "resource-exact-duplicates" && Some(expected) == members
+                    }
+                }
+        }) {
+            finding.accepted = true;
+            finding.acceptance_reason = Some(acceptance.reason.clone());
+        }
+    }
 }
 
 impl Scanner<'_> {

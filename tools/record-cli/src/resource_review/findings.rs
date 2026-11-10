@@ -6,6 +6,7 @@ use std::{cmp::Ordering, collections::BTreeMap};
 #[derive(Debug, Default, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct Summary {
+    pub accepted: usize,
     pub warnings: usize,
     pub info: usize,
     pub by_code: BTreeMap<&'static str, usize>,
@@ -15,6 +16,7 @@ impl Summary {
     fn from_findings(findings: &[Finding]) -> Self {
         let mut summary = Self::default();
         for finding in findings {
+            summary.accepted += usize::from(finding.accepted);
             match finding.level {
                 Level::Off => continue,
                 Level::Info => summary.info += 1,
@@ -36,6 +38,8 @@ impl Review {
             level,
             target: target.into(),
             message,
+            accepted: false,
+            acceptance_reason: None,
         });
     }
     pub(super) fn finish_findings(&mut self) {
@@ -54,7 +58,7 @@ impl Review {
         messages.extend(
             self.findings
                 .iter()
-                .filter(|f| f.level == Level::Warn)
+                .filter(|f| f.level == Level::Warn && !f.accepted)
                 .map(|f| format!("{}: {}: {}", f.code, f.target, f.message)),
         );
         messages

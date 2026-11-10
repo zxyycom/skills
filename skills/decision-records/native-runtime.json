@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "role": "decision-records",
   "runtimeVersion": "0.2.9",
-  "sourceHash": "3a9f62b1eecd5365496351d33748b034b2deb1b014f1499f3af251018f11ff95",
+  "sourceHash": "de7edc2b9672f4a5d5bf4d6a1c0d05e0eb8775005a2111bd7281cfac9b3a6cee",
   "targets": [
     "x86_64-unknown-linux-gnu",
     "x86_64-pc-windows-msvc"

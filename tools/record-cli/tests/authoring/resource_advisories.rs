@@ -268,3 +268,42 @@ fn console_preview_is_bounded_without_truncating_structured_findings() {
     assert!(stderr.contains("119 findings not printed"));
     assert!(stderr.contains("resourceReview.findings"));
 }
+
+#[test]
+fn accepted_findings_do_not_consume_console_preview() {
+    let names: Vec<_> = (0..14).map(|i| format!("{i:02}.txt")).collect();
+    let files: Vec<_> = names
+        .iter()
+        .enumerate()
+        .map(|(i, name)| (name.as_str(), format!("text {i}").into_bytes()))
+        .collect();
+    let temp = fixture(&files);
+    let acceptances: Vec<_> = names.iter().take(13).map(|name| json!({
+        "source": {"root": ".", "investigationsDir": DIR},
+        "code": "resource-file-bytes", "target": format!("{ID}/{name}"), "reason": "retained"
+    })).collect();
+    project(
+        temp.path(),
+        json!({"resources": {"fileBytesWarn": 1, "exactDuplicates": "off", "compressibility": {"enabled": false}, "acceptances": acceptances}}),
+    );
+    let output = invoke(temp.path(), &["show-candidate", ID, "--json"]);
+    let value = success(&output);
+    let review = &value["result"]["resourceReview"];
+    let findings = review["findings"].as_array().unwrap();
+    assert_eq!(findings.len(), 14);
+    assert_eq!(review["summary"]["accepted"], 13);
+    assert_eq!(review["summary"]["warnings"], 14);
+    assert_eq!(review["omittedFindings"], 0);
+    assert_eq!(
+        findings
+            .iter()
+            .filter(|f| f["accepted"] == true && f["acceptanceReason"] == "retained")
+            .count(),
+        13
+    );
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(stderr.contains("13 accepted, 1 pending"));
+    assert!(stderr.contains(&format!("{ID}/13.txt")));
+    assert!(!stderr.contains(&format!("{ID}/00.txt")));
+    assert!(!stderr.contains("findings not printed"));
+}

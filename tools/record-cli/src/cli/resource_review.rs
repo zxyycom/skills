@@ -114,10 +114,12 @@ fn format_summary(review: &resource_review::Review) -> String {
         .collect::<Vec<_>>()
         .join(", ");
     format!(
-        "resource-review: {state}; {} resources; {} warnings, {} info; {} bytes reserved{}",
+        "resource-review: {state}; {} resources; {} warnings, {} info total; {} accepted, {} pending; {} bytes reserved{}",
         review.resource_count,
         review.summary.warnings,
         review.summary.info,
+        review.summary.accepted,
+        review.findings.len() - review.summary.accepted,
         review.read_budget_used_bytes,
         if counts.is_empty() {
             String::new()
@@ -132,7 +134,12 @@ pub(super) fn print_review(review: &resource_review::Review) {
     for message in review.coverage_warnings() {
         eprintln!("warning: {message}");
     }
-    for finding in review.findings.iter().take(CONSOLE_FINDING_LIMIT) {
+    let pending: Vec<_> = review
+        .findings
+        .iter()
+        .filter(|finding| !finding.accepted)
+        .collect();
+    for finding in pending.iter().take(CONSOLE_FINDING_LIMIT) {
         let level = match finding.level {
             Level::Info => "info",
             Level::Warn => "warning",
@@ -143,10 +150,10 @@ pub(super) fn print_review(review: &resource_review::Review) {
             finding.code, finding.target, finding.message
         );
     }
-    if review.findings.len() > CONSOLE_FINDING_LIMIT {
+    if pending.len() > CONSOLE_FINDING_LIMIT {
         eprintln!(
             "info: resource-review-details: {} findings not printed; inspect resourceReview.findings",
-            review.findings.len() - CONSOLE_FINDING_LIMIT
+            pending.len() - CONSOLE_FINDING_LIMIT
         );
     }
 }

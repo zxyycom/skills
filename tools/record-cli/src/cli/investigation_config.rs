@@ -110,7 +110,6 @@ pub(super) struct Config {
 
 impl Config {
     fn validate(&self) -> Result<(), CommandError> {
-        self.policy.validate().map_err(error)?;
         if let Some(key) = &self.default_key {
             if key.is_empty() || !self.groups.contains_key(key) {
                 return Err(error("defaultKey must name an existing source group"));
@@ -142,8 +141,6 @@ pub(super) fn load(root: &Path, explicit: Option<&str>) -> Result<Config, Comman
             apply(&mut config, &mut resources, fragment, &path)?;
         }
     }
-    config.policy =
-        serde_json::from_value(resources).map_err(|e| error(format!("resources: {e}")))?;
     config.validate()?;
     Ok(config)
 }
@@ -245,7 +242,18 @@ fn apply(
     if let Some(groups) = fragment.sources {
         apply_sources(config, groups, path)?;
     }
-    if let Some(patch) = fragment.resources {
+    apply_resource_layer(config, resources, fragment.resources, path)
+}
+
+fn apply_resource_layer(
+    config: &mut Config,
+    resources: &mut serde_json::Value,
+    patch: Option<serde_json::Value>,
+    path: &Path,
+) -> Result<(), CommandError> {
+    let mut replaces_acceptances = false;
+    if let Some(patch) = patch {
+        replaces_acceptances = patch.get("acceptances").is_some();
         merge(resources, patch);
     }
     // Validate each layer so a later override cannot conceal an invalid project policy.
@@ -253,7 +261,21 @@ fn apply(
         .map_err(|e| error(format!("{}: resources: {e}", path.display())))?;
     policy
         .validate()
-        .map_err(|e| error(format!("{}: resources: {e}", path.display())))
+        .map_err(|e| error(format!("{}: resources: {e}", path.display())))?;
+    let mut policy = policy;
+    policy.resolved_acceptances = if replaces_acceptances {
+        let base = path.parent().unwrap_or(Path::new("."));
+        policy
+            .acceptances
+            .iter()
+            .map(|a| a.resolve(base))
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|e| error(format!("{}: resources: {e}", path.display())))?
+    } else {
+        config.policy.resolved_acceptances.clone()
+    };
+    config.policy = policy;
+    Ok(())
 }
 
 fn apply_sources(
