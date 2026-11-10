@@ -1,9 +1,7 @@
-//! Bounded priority retention and totals independent of truncated detail.
+//! Complete finding collection, deterministic priority ordering and totals.
 use super::{Finding, Review, policy::Level};
 use serde::Serialize;
 use std::{cmp::Ordering, collections::BTreeMap};
-
-const FINDING_LIMIT: usize = 128;
 
 #[derive(Debug, Default, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -21,26 +19,12 @@ impl Review {
             Level::Warn => self.summary.warnings += 1,
         }
         *self.summary.by_code.entry(code).or_default() += 1;
-        let finding = Finding {
+        self.findings.push(Finding {
             code,
             level,
             target: target.into(),
             message,
-        };
-        if self.findings.len() < FINDING_LIMIT {
-            self.findings.push(finding);
-            return;
-        }
-        self.omitted_findings += 1;
-        let (index, worst) = self
-            .findings
-            .iter()
-            .enumerate()
-            .max_by(|(_, a), (_, b)| compare(a, b))
-            .expect("finding limit is nonzero");
-        if compare(&finding, worst).is_lt() {
-            self.findings[index] = finding;
-        }
+        });
     }
     pub(super) fn finish_findings(&mut self) {
         self.findings.sort_by(compare);
@@ -49,9 +33,6 @@ impl Review {
         let mut messages = Vec::new();
         if !self.complete && self.enabled {
             messages.push(format!("resource-review-incomplete: {} file inspections incomplete; inspect resourceReview coverage", self.skipped_files));
-        }
-        if self.omitted_findings > 0 {
-            messages.push(format!("resource-review-truncated: {} additional findings omitted; counts include omitted findings", self.omitted_findings));
         }
         messages
     }
@@ -96,7 +77,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn priority_retention_preserves_late_proven_findings_and_global_counts() {
+    fn priority_sorting_keeps_all_findings_and_global_counts() {
         let mut review = Review::new(true, 136);
         for i in 0..132 {
             review.note(
@@ -134,8 +115,8 @@ mod tests {
         review.complete = false;
         review.skipped_files = 1;
         review.finish_findings();
-        assert_eq!(review.findings.len(), 128);
-        assert_eq!(review.omitted_findings, 8);
+        assert_eq!(review.findings.len(), 136);
+        assert_eq!(review.omitted_findings, 0);
         assert_eq!(review.summary.warnings, 135);
         assert_eq!(review.summary.info, 1);
         assert_eq!(review.summary.by_code["resource-high-compressibility"], 132);
@@ -148,7 +129,23 @@ mod tests {
                 "resource-file-bytes"
             ]
         );
-        assert!(review.findings.iter().all(|f| f.level == Level::Warn));
+        assert_eq!(
+            review
+                .findings
+                .iter()
+                .filter(|f| f.level == Level::Warn)
+                .count(),
+            135
+        );
+        assert_eq!(
+            review
+                .findings
+                .iter()
+                .filter(|f| f.code == "resource-high-compressibility")
+                .count(),
+            132
+        );
+        assert_eq!(review.findings.last().unwrap().target, "media.png");
         assert!(review.warnings()[0].starts_with("resource-review-incomplete:"));
     }
 }

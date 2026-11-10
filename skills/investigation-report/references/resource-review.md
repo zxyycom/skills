@@ -79,9 +79,9 @@
 | `readBudgetUsedBytes`、`skippedFiles` | 预留的最大读取量、未完成文件检查数；读取失败时实际读取可更少。 |
 | `files` | 大小、类型、`duplicateCheck`，及适用时的 `compressibility`：算法、全文／采样 method、输入与压缩字节、比例、阈值。 |
 | `duplicateGroups` | 本次已逐字节确认的副本组；是否合并仍需按来源与用途判断。 |
-| `summary` | 全部 finding 的 `warnings`、`info` 及 `byCode` 分类计数，包含被省略明细；关闭的规则不计入，派生的覆盖／截断提示单独表达。 |
-| `findings`、`omittedFindings` | 保留优先级最高的至多 128 项及额外省略数；覆盖不足优先，其余 warn 先于 info，同级按确定副本、体积／数量、类型、可压缩性排序，再按 code、路径和消息稳定排序。 |
+| `summary` | 本次全部 finding 的 `warnings`、`info` 及 `byCode` 分类计数；关闭的规则不计入，派生的覆盖提示单独表达。 |
+| `findings`、`omittedFindings` | 完整返回本次实际产生的全部明细，不设输出条数上限，`omittedFindings` 为 0；覆盖不足优先，其余 warn 先于 info，同级按确定副本、体积／数量、类型、可压缩性排序，再按 code、路径和消息稳定排序。 |
 
-stderr 先给检查状态、分类汇总和预算用量，再给覆盖／截断提示及优先级最高的至多 12 条明细；其余保留明细引导至 JSON 的 `resourceReview.findings`，不重复输出。机器调用读取结构化结果。
+stderr 先给检查状态、分类汇总和预算用量，再给覆盖提示及优先级最高的至多 12 条明细；其余明细引导至 JSON 的 `resourceReview.findings`，不重复输出。普通格式化 JSON 与 `--json` 的 findings 均完整；读取预算和文件数上限仍限制扫描工作量，未检查范围由 `complete`、`skippedFiles` 等字段表达，不等同于输出截断。
 
 发布预检表达预计发布时的观察，正式发布诊断使用本次准备结果；调用结束后文件仍可能变化。没有 finding 仅表示当前策略与覆盖下未触发信号，不能证明材料必要、无语义重复或安全。

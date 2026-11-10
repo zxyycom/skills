@@ -245,18 +245,18 @@ fn invalid_configuration_fails_before_writes_but_help_and_version_remain_availab
 
 #[test]
 fn console_preview_is_bounded_without_truncating_structured_findings() {
-    let names: Vec<_> = (0..16).map(|i| format!("{i:02}.txt")).collect();
+    let names: Vec<_> = (0..129).map(|i| format!("{i:03}.bin")).collect();
     let files: Vec<_> = names
         .iter()
-        .map(|name| (name.as_str(), vec![0x61; 65536]))
+        .map(|name| (name.as_str(), vec![0; 8]))
         .collect();
     let temp = fixture(&files);
     let output = invoke(temp.path(), &["show-candidate", ID, "--json"]);
     let value = success(&output);
     let review = &value["result"]["resourceReview"];
-    assert_eq!(review["findings"].as_array().unwrap().len(), 17);
+    assert_eq!(review["findings"].as_array().unwrap().len(), 131);
     assert_eq!(review["omittedFindings"], 0);
-    assert_eq!(review["summary"]["warnings"], 17);
+    assert_eq!(review["summary"]["warnings"], 130);
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert_eq!(
         stderr
@@ -265,6 +265,6 @@ fn console_preview_is_bounded_without_truncating_structured_findings() {
             .count(),
         12
     );
-    assert!(stderr.contains("5 retained findings not printed"));
+    assert!(stderr.contains("119 findings not printed"));
     assert!(stderr.contains("resourceReview.findings"));
 }

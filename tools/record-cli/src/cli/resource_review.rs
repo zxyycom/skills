@@ -102,11 +102,10 @@ fn format_summary(review: &resource_review::Review) -> String {
         .collect::<Vec<_>>()
         .join(", ");
     format!(
-        "resource-review: {state}; {} resources; {} warnings, {} info; {} omitted; {} bytes reserved{}",
+        "resource-review: {state}; {} resources; {} warnings, {} info; {} bytes reserved{}",
         review.resource_count,
         review.summary.warnings,
         review.summary.info,
-        review.omitted_findings,
         review.read_budget_used_bytes,
         if counts.is_empty() {
             String::new()
@@ -134,7 +133,7 @@ pub(super) fn print_review(review: &resource_review::Review) {
     }
     if review.findings.len() > CONSOLE_FINDING_LIMIT {
         eprintln!(
-            "info: resource-review-details: {} retained findings not printed; inspect resourceReview.findings",
+            "info: resource-review-details: {} findings not printed; inspect resourceReview.findings",
             review.findings.len() - CONSOLE_FINDING_LIMIT
         );
     }

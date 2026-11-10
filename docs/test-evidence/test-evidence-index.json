@@ -665,7 +665,7 @@
       "IR-RESOURCE-CLI-SIGNALS-001": "sha256:492b746b84b19d9e94aec43f29b0f682f80e37cfe6f3481e1588634aa96b5e3e",
       "IR-RESOURCE-COMPRESSION-COVERAGE-001": "sha256:ec198cfd3b6f9ac82141a2f455c21be6171204a396f87c7cfed27b86d3dd4db4",
       "IR-RESOURCE-DUPLICATE-PROOF-001": "sha256:841d42e008e388cf3b17effcf06f15edd84b13f3bc1933d2978d37d3b497463f",
-      "IR-RESOURCE-FINDING-PRIORITY-001": "sha256:aec08db09c2fd82c36c281948b0e92688ce7f9cd54682331fd331a80e2c3f39d",
+      "IR-RESOURCE-FINDING-PRIORITY-001": "sha256:af6afe0a163ff0145a55d1ff41b65bbaefef706342cfdebf97af9a2df7e173cd",
       "IR-RESOURCE-METADATA-LIMITS-001": "sha256:6e5a9bf2c7ef782c809cf925e2eebe568b117de2be0c8ab46729d22657863e4a",
       "IR-RESOURCE-PUBLICATION-ADVISORY-001": "sha256:179de63b1b9ff323572cf56df6061d0568c71729c432d4fc5053e0d1c0ea5e97",
       "IR-RESOURCE-READ-SAFETY-001": "sha256:06533cb95b05536dd0cc43776b424604230d698a7a935cb66979a8230f5894b8",
@@ -8132,15 +8132,15 @@
       ]
     },
     "IR-RESOURCE-FINDING-PRIORITY-001": {
-      "title": "有界明细保留重点且分类汇总不截断",
+      "title": "JSON 明细完整且终端预览聚焦重点",
       "sourcePath": "cases/investigation-resource-finding-priority.md",
       "tags": [
         "investigation-report",
         "record-rust"
       ],
       "testIds": [
+        "test:2c2d9d002b5772b2ff793be4200fe29f5682daf565a1e2dc134a2c3c2c4ca7ac",
         "test:5a9cc2aa8f5f29dbf29700cef09a5dc6873264bdcb38db4bdd80c8bc64d40500",
-        "test:e457fcda9318c53e9d706b49042990c7f8d1ba4323c3b8066a7f8fcfd18bcdc6",
         "test:f49bd3b0d6ef2b67896978d6e546a6c68d74905679488ddd58f50170aa685567"
       ]
     },

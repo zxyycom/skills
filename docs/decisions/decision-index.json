@@ -175,8 +175,9 @@
       "261107-rust-record-candidate-sequential-local-runtime": "sha256:1399b913a6474fb29517d118e64eb1465b4a24313aa5811b1c23e7e4569f95a3",
       "261108-share-record-index-json-contracts": "sha256:11b9d29d6cce583f076862bf6759d9c6c5ceeca04c47079fc27667c67fb38594",
       "261109-query-investigations-from-local-source-groups": "sha256:8214c2fffe9aaf5bbafa4ae34702d814d1e1ac8b9e39134890a8bd7182a9abf9",
-      "261110-bounded-investigation-resource-advisories": "sha256:26bcbc1bf73994f686654a8e574474db0a8027ea33db988a87e5eafcca286f5a",
-      "261110-preserve-source-query-boundaries-with-shared-config": "sha256:0fc232954c5d425a0bb48a64a4e5b5eb8d19a61ddc198ef550cb18547ba07279",
+      "261110-bounded-investigation-resource-advisories": "sha256:c74bbe0aebf5998940015b3980785b0f4c259fbd2036a081c872a9b643b3279a",
+      "261110-complete-resource-findings-with-bounded-preview": "sha256:b22aa350d5008497b92d39eecdac5f189c6c2ab326740aa56d060705fcb10f1d",
+      "261110-preserve-source-query-boundaries-with-shared-config": "sha256:55a7bfbc406b23ddd811f14300415adfe08eb59ef59abafd6cbb1932fecdc409",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -4032,9 +4033,9 @@
     },
     "261110-bounded-investigation-resource-advisories": {
       "name": "bounded-investigation-resource-advisories",
-      "sourcePath": "261110-bounded-investigation-resource-advisories.md",
+      "sourcePath": "archive/261110-bounded-investigation-resource-advisories.md",
       "title": "用统一配置提供有界的调查资源提示",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-11-10T08:02:22Z",
       "purpose": "让调查资料成本与重复风险在日常 CLI 中主动可见，而不把启发信号当作证据价值裁决。",
@@ -4046,6 +4047,29 @@
         "validation-boundaries"
       ],
       "relations": []
+    },
+    "261110-complete-resource-findings-with-bounded-preview": {
+      "name": "complete-resource-findings-with-bounded-preview",
+      "sourcePath": "261110-complete-resource-findings-with-bounded-preview.md",
+      "title": "调查资源工作有界而机器结果完整返回",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-11-10T11:16:43Z",
+      "purpose": "让机器调用取得完整资源问题清单，同时保持日常终端提示可读和扫描成本可控。",
+      "background": "前序将结果条数也限制在诊断数据层，机器调用可能丢失低优先级问题；输出展示与检查工作量需要分开约束。",
+      "decision": "维持有预算的非阻断资源检查，结构化结果完整返回，终端预览独立限制。",
+      "tags": [
+        "investigation-report",
+        "resource-management",
+        "validation-boundaries"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "261110-bounded-investigation-resource-advisories",
+          "summary": "保留有界检查，改为仅限制终端预览而完整返回诊断"
+        }
+      ]
     },
     "261110-preserve-source-query-boundaries-with-shared-config": {
       "name": "preserve-source-query-boundaries-with-shared-config",

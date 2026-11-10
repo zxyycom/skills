@@ -55,7 +55,7 @@ selected sync 和 stage 的多个 selector 诊断保留各自有序的 `target`�
 
 ### 调查资源诊断结果
 
-IR 的 `candidates`、`show-candidate`、`publish`（含预检）及成功 `check` 在结果对象中增加 `resourceReview`，保留原有 DTO 字段。其中 `summary` 包含未受明细截断影响的分类计数，findings 为按优先级保留的有界明细。结构化字段、信号与覆盖解释见[资源诊断契约](../../skills/investigation-report/references/resource-review.md)。诊断为只读、非阻断观察；配置错误在业务操作前失败。查询 warning 可仅在 review 和 stderr 中提供，不要求复制到原 DTO 的 warnings。
+IR 的 `candidates`、`show-candidate`、`publish`（含预检）及成功 `check` 在结果对象中增加 `resourceReview`，保留原有 DTO 字段。其中 `summary` 为分类计数，findings 按优先级完整返回本次产生的全部明细，不设输出条数上限；stderr 仅提供有界预览。结构化字段、信号与覆盖解释见[资源诊断契约](../../skills/investigation-report/references/resource-review.md)。诊断为只读、非阻断观察；配置错误在业务操作前失败。查询 warning 可仅在 review 和 stderr 中提供，不要求复制到原 DTO 的 warnings。
 
 ## 只读查询与选择性身份发现
 
