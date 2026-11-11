@@ -25,7 +25,7 @@ findings 优先呈现覆盖不足，其余 warn 先于 info；同级按确定副
 
 图片、音视频和 PDF 默认 info；归档、可执行及其他非文本类型默认 warn。未匹配格式且有二进制特征时标为 `suspected-binary`；仅 UTF-8 解码失败标为 `unknown-text-encoding`，info 提示。类型观察最多使用开头 8 KiB，属于启发识别，非完整格式或编码验证。
 
-压缩后比例是压缩字节数／参与压缩的原始字节数，用作**内部重复信息的启发信号**。结构化数据也可能含重复载荷；逐次条件、顺序、异常和差异仍有独立价值，可以保留观测并共享相同大载荷。该比例不是语义重复率或删除依据；资源精简与历史材料变更按固定契约和当前授权处理。没有 finding 仅表示当前策略与覆盖下未触发信号，不能证明材料必要、无语义重复或安全。
+压缩后比例是压缩字节数／参与压缩的原始字节数，用作**内部重复信息的启发信号**，不是语义重复率或删除依据。按[资源选择与示例](resource-selection.md)判断逐次条件、顺序、异常和差异是否为正文所需，具体整理服从资源契约和当前授权。没有 finding 仅表示当前策略与覆盖下未触发信号，不能证明材料必要、无语义重复或安全。
 
 ## 检查范围与成本
 
@@ -110,13 +110,13 @@ findings 优先呈现覆盖不足，其余 warn 先于 info；同级按确定副
         "source": { "root": ".", "investigationsDir": "docs/investigations" },
         "code": "resource-file-bytes",
         "target": "report-id/evidence.txt",
-        "reason": "完整原始证据有独立价值"
+        "reason": "正文需逐项核对差异，概括无法承接所需依据"
       },
       {
         "source": { "root": ".", "investigationsDir": "docs/investigations" },
         "code": "resource-exact-duplicates",
         "members": ["report-a/evidence.txt", "report-b/evidence.txt"],
-        "reason": "各自记录独立来源"
+        "reason": "正文比较两份样本的目录布局，需在各自位置保留该文件"
       }
     ]
   }

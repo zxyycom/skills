@@ -23,16 +23,15 @@
 
 ## 用本仓库理解资源取舍
 
-通用方法见[资源选择与示例](../../skills/investigation-report/references/resource-selection.md)。以下是本仓库已完成的精简示范：先裁剪信息，再决定载体；少量必要信息可直接并入正文，附件可以归零。
+通用方法见[资源选择与示例](../../skills/investigation-report/references/resource-selection.md)。以下实例按正文依赖选择保留位置与形式：能概括的关键依据归正文，需逐项核对、追溯或保留原话的材料精简后随附。
 
-| 调查对象 | 保留的必要依据 | 实际取舍 |
+| 调查对象 | 正文依赖 | 保留位置与形式 |
 | --- | --- | --- |
-| [Rust 函数指标误计调查](../investigations/261110-rust-byte-literal-function-metrics-boundary.md) | 异常指标、等价输入对照及未完成的机制验证 | 已在正文闭合，无需再附完整运行日志或依赖副本。 |
-| [对象读取反例](../investigations/investigation-phase-facts-and-streamed-content.md)、[入口矩阵测量](../investigations/record-tools-entry-matrix-10k.md)及[查询普查](../investigations/261108-record-cli-native-complexity-survey.md) | 输入条件、方法、比较结果、反例与未知 | 正文承接必要依据，删除完整日志、逐次 stdout、逐文件清单及运行脚本；没有仅换 CSV 或另存全量阅读版。 |
-| [图片协议取证](../investigations/openrouter-decision-live-protocols.md) | 合成图构造、legend 对象与节点关系、实际响应及精度边界 | 用构造与响应要点承接，删除独立 PNG 和重复 Base64；没有把对象转述成字符串。 |
-| [92 条历史对齐召回](../investigations/recall-historical-decision-alignment.md) | 每条恢复值、历史定位、区分性依据及推断限制 | 保留精简逐项证据；只留87/5的总计无法回答各对象为何恢复为该值。 |
-| [Laya 来源清单](../investigations/_resources/260920-laya-decision-model-evidence/source-inventory.md)及[原生库候选定位](../investigations/_resources/261107-rust-record-library-replacement-survey/findings.json) | 正文未列齐的准确来源、问题定位及必要验证边界 | 保留最短定位材料，删除重复结论、完整源码清单和成套建议。 |
-| [讨论原话与批注节选](../investigations/_resources/preserve-redacted-conversations-in-two-derived-forms/discussion-evidence-excerpts.md) | 用户真实纠正的目标句、原话与先后关系 | 将双份完整派生档案裁为一份有明确范围的节选，保留原回合与批注索引；删除工具过程和重复助手总结，不再称为近全量或机械初稿。 |
+| [对象读取反例](../investigations/investigation-phase-facts-and-streamed-content.md)、[入口矩阵测量](../investigations/record-tools-entry-matrix-10k.md)及[查询普查](../investigations/261108-record-cli-native-complexity-survey.md) | 输入条件、方法、比较结果、反例与未知 | 正文概括承接，删除完整日志、逐次 stdout、逐文件清单及运行脚本。 |
+| [图片协议取证](../investigations/openrouter-decision-live-protocols.md) | 合成图构造、legend 对象与节点关系、实际响应及精度边界 | 正文保留构造说明与响应要点，替代独立 PNG 和重复 Base64。 |
+| [92 条历史对齐召回](../investigations/recall-historical-decision-alignment.md) | 各对象为何恢复为相应值 | 资源逐项保留恢复值、历史定位、区分性依据及推断限制。 |
+| [Laya 来源清单](../investigations/_resources/260920-laya-decision-model-evidence/source-inventory.md)及[原生库候选定位](../investigations/_resources/261107-rust-record-library-replacement-survey/findings.json) | 正文未列齐的准确来源、问题定位及必要验证边界 | 资源保留最短定位材料，结论与建议由正文承接。 |
+| [讨论原话与批注节选](../investigations/_resources/preserve-redacted-conversations-in-two-derived-forms/discussion-evidence-excerpts.md) | 用户真实纠正的目标句、原话与先后关系 | 资源保留带原回合、消息序号和批注索引的必要原话节选，删除工具过程和重复助手总结。 |
 
 ## 从哪里开始
 

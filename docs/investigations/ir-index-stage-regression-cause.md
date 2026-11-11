@@ -36,7 +36,7 @@ relations:
 
 每次使用真实 Node 26.8.2 公开 CLI，`NODE_OPTIONS=''`、默认 heap 2,248,146,944B，4 CPU 配额、6GiB cgroup，不强制清 OS 缓存。fixture HEAD tree 精确等于前序 `e234306131070fe7762852346d249d0468eb7497`：10,000 正式报告、9,000 分组边、2 ready 候选、全域 5×96B 资源，索引 5,893,454B。每十条的九叶指向组根，无跨组边。
 
-基本单选 P=HEAD，没有 A 或旧 B pending。准备阶段修改 B（`261001-perf-00007`）正文并重建工作区发布索引，增加 B 的 96B 未引用 owner 成员，保留域外 pending 修改和 staged 删除；每次仅把 pending index 恢复为 HEAD，其他相同准备字节不变。被测动作只有一次 `stage B --scope index`，
+基本单选 P=HEAD，没有 A 或旧 B pending。准备阶段修改 B（`261001-perf-00007`）正文并重建工作区发布索引，增加 B 的 96B 未引用 owner 成员，保留域外 pending 修改和 staged 删除；每次仅把 pending index 恢复为 HEAD，其他相同准备字节不变。被测动作只有一次 `stage B --scope index`。
 
 ### 样本、计时与独立效果
 
