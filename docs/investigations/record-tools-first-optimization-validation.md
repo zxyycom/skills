@@ -18,7 +18,7 @@ relations:
 
 前序[十万条性能调查](record-tools-100k-performance.md)识别了证据去重的二次复杂度，以及整索引重复准备、决策多轮来源验证与元数据无界输出的常数成本。用户授权先实施这组改进，并沿用现有索引格式与架构，不建立跨调用缓存。批量操作优先复用现有入口。
 
-本轮在修改前固定 `063115bdf290efa66a2d925b33d14ba33395b1a3`，使用新生成的输入和新编写的方法做前后对照。前序报告及随附资源保持不变，其历史数值不与本轮新样本直接拼接比较。
+本轮在修改前固定 `063115bdf290efa66a2d925b33d14ba33395b1a3`，使用新生成的输入和新编写的方法做前后对照。前序报告的历史数值不与本轮新样本直接拼接比较。
 
 ## 调查目的
 
@@ -26,11 +26,11 @@ relations:
 
 ## 调查范围与依据
 
-- **实现范围**：`tools/decision-records/`、`tools/investigation-report/` 与共享 `tools/index-runtime/`；源码指纹见资源。分发闭包涉及两个记录 skill、Test Evidence Review 与 Novel Cards。
+- **实现范围**：`tools/decision-records/`、`tools/investigation-report/` 与共享 `tools/index-runtime/`；分发闭包涉及两个记录 skill、Test Evidence Review 与 Novel Cards。
 - **正式集合**：每域 100,000 条，按十条一组、每组九条边，90,000 条关系；Decision 每组一条 archived、九条 active，Investigation 全部正式。固定时间、十类 tags、短正文且无资源。索引分别为 66,730,257 和 55,830,262 字节。
 - **归并样本**：总节点 N=1,000／10,000／100,000，一个来源有 N−1 条归并出边，用 type-only 过滤提取完整证据。与稀疏正式集合分别测量。
 - **测量方式**：每次用独立 Node 进程，加载模块与生成 fixture 不计入操作耗时；结果 JSON 序列化另计。list／metadata 前后各三次，交替一轮先后顺序；来源检查与各归并点各一次。全部计时串行；不并行运行测试或其他规模基准，不清空操作系统缓存。
-- **环境与时点**：2026-10-21 UTC，Node 26.8.2、Bun 1.4.2、WSL2 Linux x64，4 CPU 配额、6 GiB 容器内存，Node old-space 上限 4 GiB；完整记录见环境资源。只代表这一环境和合成负载，不是生产延迟承诺。
+- **环境与时点**：2026-10-21 UTC，Node 26.8.2、Bun 1.4.2、WSL2 Linux x64，4 CPU 配额、6 GiB 容器内存，Node old-space 上限 4 GiB。只代表这一环境和合成负载，不是生产延迟承诺。
 
 ## 调查结果与边界
 
@@ -70,22 +70,8 @@ metadata 的 JSON 结果由 **50,580,512 降为 56,760 字节**，scanComplete �
 
 ### 正确性、验证与未覆盖范围
 
-验证记录见随附 verification.json；定向测试覆盖冻结隔离、原始入口严格验证、stale 优先级、首次摘要与全部方向、100 条边界、窗口后 matcher 错误，以及来源漂移优先于索引文本差异。独立审查按编码规范核对责任、类型、信任边界与错误映射；文档按 AI-Ready Docs 检查 owner、重心、引用与可执行性。
+定向测试覆盖冻结隔离、原始入口严格验证、stale 优先级、首次摘要与全部方向、100 条边界、窗口后 matcher 错误，以及来源漂移优先于索引文本差异。独立审查按编码规范核对责任、类型、信任边界与错误映射；文档按 AI-Ready Docs 检查 owner、重心、引用与可执行性。
 
 本轮未重测 trace、stage、资源密集正文、完整搜索回退与每种 mutation 的十万条成本；其原始调查边界仍由前序报告承接。调用内复用不取消跨调用完整准备，百万规模、冷缓存、长期并发与真实大附件仍需单独测量。
 
-方法代码记录本轮实际做法，默认供阅读，不是持续维护的工具或独立可运行包；重跑须按所记版本与环境准备。原始观测保留各次时点、操作时间、序列化时间、进程峰值、输出字节与结果摘要。summary 按操作与版本分组，计算中位数、最小值、最大值与 `1 − 后值/前值`；SHA-256 用于比较完整结果或指定前缀。环境、fixture 与源码指纹用于核对条件，verification 记录实际验证范围。
-
-## 随附资源
-
-- [批量发布的调用数、耗时与最终索引对照](./_resources/261021-record-tools-first-optimization-validation/batch-results.jsonl)
-- [运行环境与固定基线](./_resources/261021-record-tools-first-optimization-validation/environment.json)
-- [正式 fixture 规模与索引大小](./_resources/261021-record-tools-first-optimization-validation/fixture.json)
-- [全部 26 次原始性能与一致性观测](./_resources/261021-record-tools-first-optimization-validation/measurements.jsonl)
-- [批量发布测量方法](./_resources/261021-record-tools-first-optimization-validation/method-batch.ts)
-- [正式合成集合的构造方法](./_resources/261021-record-tools-first-optimization-validation/method-fixture.ts)
-- [操作计时、读取计数与结果摘要方法](./_resources/261021-record-tools-first-optimization-validation/method-measure.ts)
-- [串行调度与采样顺序](./_resources/261021-record-tools-first-optimization-validation/method-run.sh)
-- [实测实现源码指纹](./_resources/261021-record-tools-first-optimization-validation/source.sha256)
-- [分组时间范围、中位数与变化比例](./_resources/261021-record-tools-first-optimization-validation/summary.json)
-- [正确性、测试与审查验证记录](./_resources/261021-record-tools-first-optimization-validation/verification.json)
+统计按操作与版本分组，变化比例按 `1 − 后值/前值` 计算；SHA-256 用于比较完整结果或指定前缀。

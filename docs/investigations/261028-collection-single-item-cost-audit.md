@@ -28,23 +28,21 @@ relations:
 
 ## 调查范围与依据
 
-- **入口与源码**：决策 18、调查 14 个业务命令逐项对账，SDK 对照源码出口与生成声明。机械筛查涉及 401 个 TS 文件；静态依赖闭包为 394 个，含类型 import，闭包外 7 个归构建或独立 API。覆盖清单按可达核心成本归类，分母用于说明范围。
+- **入口与源码**：决策 18、调查 14 个业务命令逐项对账，SDK 对照源码出口与生成声明。机械筛查涉及 401 个 TS 文件；静态依赖闭包为 394 个，含类型 import，闭包外 7 个归构建或独立 API。按可达核心成本归类，分母用于说明审阅范围。
 - **取证**：真实只读版本门禁使用 Git Trace2；领域热点主要以原函数、只读上下文或隔离回调计数。Git 写对象及 index 标志实验使用无 remote、禁 hook 的临时仓库。主代理复核矩阵、源码引用，并重跑非法图与名称关系两组探针。
 - **环境**：Linux，Node v26.8.2、Bun 1.4.4、Git 2.53.0。getter、Proxy、临时 wrapper 和 IO stub 用于计数，函数探针时间仅反映该构造。
-
-先读 `terra-audit-findings.json` 的站点台账、`terra-audit-coverage.csv` 的命令覆盖和 `terra-audit-gaps.json` 的候选处置。源码闭包见 `terra-audit-scope.json`，原始计数与方法见 `terra-audit-results.json` / `terra-audit-methods.md`；两阶段指纹与主代理重跑由各自溯源文件承接。附件是形成时证据，重跑需恢复相应版本、路径和依赖。
 
 ## 调查结果与边界
 
 ### 核心结论
 
-**同阶段重复查找、集合物化和单项 Git 调用是主要优化对象。** 台账共 20 条机制/候选记录、29 处源码引用，包含新增站点、既有补证与取舍候选；同一根因可涉及多个入口。
+**同阶段重复查找、集合物化和单项 Git 调用是主要优化对象。** 本轮归纳 20 项机制或候选、定位 29 处源码引用，包含新增站点、既有补证与取舍候选；同一根因可涉及多个入口。
 
-32 个命令及共享编排、搜索、图和 Git 的可达核心成本已按清单处置，本轮提出的静态疑点均有归类。8 项仍需设计、合法可达性或等价验证的候选另列。证据确认的是工作量机制；完整命令影响和优化收益由后续实测判断。
+本轮审查了 32 个命令及共享编排、搜索、图和 Git 的可达核心成本，静态疑点均有归类；其中 8 项仍需设计、合法可达性或等价验证。证据确认的是工作量机制；完整命令影响和优化收益由后续实测判断。
 
 ### 批量路径中的重复扫描
 
-N=索引/身份数，K=所选数，C=候选数，G=关系分组数，P=pending 成员数，R=资源 owner 数，F=受管资源文件数。以下按修复责任归组，精确站点和各样本条件见台账。
+N=索引/身份数，K=所选数，C=候选数，G=关系分组数，P=pending 成员数，R=资源 owner 数，F=受管资源文件数。以下按修复责任归组，保留影响判断的样本条件与代表计数。
 
 | 路径 | 机制与代表计数 |
 | --- | --- |
@@ -70,7 +68,7 @@ N=索引/身份数，K=所选数，C=候选数，G=关系分组数，P=pending �
 
 ### 历史归属与排除项
 
-[常数成本审计](decision-investigation-constant-factor-audit.md)的 C9/C10/C11 已记录搜索范围映射、重复分行和决策 new 名称关系 lookup；索引重复 canonical 化见[既有调查](261024-record-index-computation-and-transfer.md)。逐目标 hash-object、trace 邻接和非法回边也已有观察，本轮补充具体站点及计数，台账保留其历史归属。
+[常数成本审计](decision-investigation-constant-factor-audit.md)的 C9/C10/C11 已记录搜索范围映射、重复分行和决策 new 名称关系 lookup；索引重复 canonical 化见[既有调查](261024-record-index-computation-and-transfer.md)。逐目标 hash-object、trace 邻接和非法回边也已有观察，本轮补充具体站点及计数，不将这些补证称为首次发现。
 
 排除与必要性判断集中如下：
 
@@ -85,21 +83,3 @@ N=索引/身份数，K=所选数，C=候选数，G=关系分组数，P=pending �
 3. 对图、搜索和规范化候选验证收益与等价性；每项同时核对结果、错误及工作量，分别变化 N、K、C、关系、资源与字节量。
 
 本轮完成源码成本审计与定向计数，优化尚待实施。Windows、冷缓存、并发/漂移、容量上限，以及完整命令的 no-op、无 HEAD、非 Git、legacy 和故障恢复仍需系统动态验证；局部函数成功与完整事务可达性的差别已逐项记录。静态覆盖结论适用于所列入口和机制，端到端收益以目标平台验收为准。
-
-## 随附资源
-
-- [首轮 selector 与 pending locator 的原函数计数](./_resources/261028-collection-single-item-cost-audit/batch-selection-results.json)
-- [Git 单路径请求去重与 skill 分布](./_resources/261028-collection-single-item-cost-audit/hash-cli-path-summary.json)
-- [公开版本门禁的实际计时与 Git Trace2 汇总](./_resources/261028-collection-single-item-cost-audit/hash-cli-trace-summary.json)
-- [首轮决策维护上下文及历史路径映射计数](./_resources/261028-collection-single-item-cost-audit/lookup-results.json)
-- [形成时公开命令与 Trace2 采集方法](./_resources/261028-collection-single-item-cost-audit/measure-hash-cli.py)
-- [首轮 selector 与私有 locator 探针方法](./_resources/261028-collection-single-item-cost-audit/probe-batch-selection.mjs)
-- [首轮只读维护与历史映射探针方法](./_resources/261028-collection-single-item-cost-audit/probe-lookups.mjs)
-- [首轮版本、环境、源码指纹及方法边界](./_resources/261028-collection-single-item-cost-audit/provenance.json)
-- [32 个命令的静态处置与动态边界](./_resources/261028-collection-single-item-cost-audit/terra-audit-coverage.csv)
-- [根因、新旧归属与 29 处源码引用台账](./_resources/261028-collection-single-item-cost-audit/terra-audit-findings.json)
-- [具体候选取舍、排除项及未验证范围](./_resources/261028-collection-single-item-cost-audit/terra-audit-gaps.json)
-- [Terra 形成时探针代码与方法](./_resources/261028-collection-single-item-cost-audit/terra-audit-methods.md)
-- [Terra 交接指纹、主代理引用检查及两组重跑](./_resources/261028-collection-single-item-cost-audit/terra-audit-provenance.json)
-- [Terra 原函数、隔离 Git 及回调计数结果](./_resources/261028-collection-single-item-cost-audit/terra-audit-results.json)
-- [入口闭包、SDK、机械分母及共享模块处置](./_resources/261028-collection-single-item-cost-audit/terra-audit-scope.json)

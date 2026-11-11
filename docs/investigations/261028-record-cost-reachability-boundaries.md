@@ -25,13 +25,11 @@ relations:
 
 ## 调查范围与依据
 
-源码与 owner 包括 Index Runtime、File Text Search、Decision Records 关系及生命周期契约。CodeGraph 用于调用定位，限定路径源码确认其结果。测量从固定 commit 的 `git archive` 隔离副本加载，复用既有依赖；Node v26.8.2、Bun 1.4.4、Git 2.53.0，Linux。完整版本与关键源码 SHA-256 见 `provenance.json`。
+源码与 owner 包括 Index Runtime、File Text Search、Decision Records 关系及生命周期契约。CodeGraph 用于调用定位，限定路径源码确认其结果。测量从固定 commit 的 `git archive` 隔离副本加载，复用既有依赖；Node v26.8.2、Bun 1.4.4、Git 2.53.0，Linux。
 
 - **真实文件系统及源码 CLI**：隔离、非 Git 文件夹生成合法 Markdown，经 `runDecisionRecordsCli` 完成 `sync-index → evolve → check` 或 `sync-index → check → trace`。仅在副本中加入闭包成员查询及序列比较计数；trace 输出再与未计数基线严格比较，evolve 后以未计数基线 check 验收。这里没有 Git fixture 写入、真实 Node CLI 子进程、打包制品或 Git 事务测量。
 - **隔离原型差分**：query-fields 的同调用 memo；selected 的 revision 差异先短路与过滤后排序；长行的按起点归并游标。均未写入生产源码。query-fields 使用真实两域 definition 和有限 JSON 状态构造，未把该直接函数输入称为完整领域事务。长行保留现有 Unicode 映射，验证范围限制变化，不独立验证映射本身。
 - **受控真实 FS 调度**：在 `readSelectedFile` 使用的 fs 调用返回边界实施真实 rename、symlink 与恢复，比较当前实现和仅合并叶节点 lstat 的副本。包装器控制时点，不虚构 Stats 或读取字节。
-
-`domain-evidence.json` 保留最小完整 CLI 响应和规模响应的明确节选；完整响应由脚本重跑生成。参数、固定随机种子及 fixture 输入生成均在四份探针中。`reproduce.sh` 从指定基线创建新临时目录，不安装、不访问远端；归档时方法经过格式整理与插桩点断言增强，复跑摘要及方法指纹见 `method-provenance.json`，原始结果不改。
 
 ## 调查结果与边界
 
@@ -57,20 +55,3 @@ relations:
 ### 未覆盖与建议边界
 
 本轮不包含生产修复、完整仓库门禁、Git pending/锁/恢复、Windows、冷缓存、容量上限或真实业务分布时延。query-fields 和 selected 原型只给出窄化的等价路径，不能替代全部公开输入与故障矩阵；trace 原型尚未提出经验证的替代排序。优先评估闭包较小集合查询和 content 按最终范围停止；selected 的保守短路与 query-fields 的同调用可信复用可作为独立小改动。文件身份检查与未选保护不以性能为理由移除。
-
-## 随附资源
-
-- [复跑前置、临时输出与清理边界](./_resources/261028-record-cost-reachability-boundaries/README.md)
-- [合法领域 CLI 的计数与响应节选](./_resources/261028-record-cost-reachability-boundaries/domain-evidence.json)
-- [叶节点真实替换实验结果](./_resources/261028-record-cost-reachability-boundaries/files-results.json)
-- [基线副本的计数插入差异](./_resources/261028-record-cost-reachability-boundaries/instrumentation.diff)
-- [长行有限范围差分结果](./_resources/261028-record-cost-reachability-boundaries/longline-results.json)
-- [归档方法指纹及复跑摘要](./_resources/261028-record-cost-reachability-boundaries/method-provenance.json)
-- [合法领域输入生成与 CLI 探针](./_resources/261028-record-cost-reachability-boundaries/probe-domain.mjs)
-- [文件身份调度与合并反例探针](./_resources/261028-record-cost-reachability-boundaries/probe-files.mjs)
-- [有序命中游标与确定性 Unicode 差分探针](./_resources/261028-record-cost-reachability-boundaries/probe-longline.mjs)
-- [字段复用、selected 与长行基线探针](./_resources/261028-record-cost-reachability-boundaries/probe-small.mjs)
-- [版本、环境与基线源码指纹](./_resources/261028-record-cost-reachability-boundaries/provenance.json)
-- [隔离重跑入口](./_resources/261028-record-cost-reachability-boundaries/reproduce.sh)
-- [计数副本准备脚本](./_resources/261028-record-cost-reachability-boundaries/setup-instrumentation.py)
-- [字段、selected 与长行基线结果](./_resources/261028-record-cost-reachability-boundaries/small-results.json)

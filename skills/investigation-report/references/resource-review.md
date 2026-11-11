@@ -1,13 +1,13 @@
 # 调查资源诊断
 
-本文维护 CLI 资源信号、策略字段及覆盖含义。资料取舍按 [Skill 的资源选择](../SKILL.md#4-选择随附资源)判断；路径、owner、共享与历史保真由[固定契约](investigation-report-contract.md#资源引用与归属)维护。
+本文维护 CLI 资源信号、策略字段及覆盖含义。资料取舍见[资源选择与示例](resource-selection.md)；路径、owner、共享与事实忠实要求由[固定契约](investigation-report-contract.md#资源引用与归属)维护。
 
 ## 使用与结果判读
 
 `candidates`、`show-candidate`、`publish`（含预检）及成功的 `check` 默认返回 `resourceReview`。检查既有报告直接使用 `check`：全量检查覆盖全部正式报告，局部检查覆盖所选报告。诊断只读且非阻断；readiness、发布资格和索引新鲜度由领域检查决定，配置错误在业务操作前失败。
 
 1. 先看 `enabled`、`complete` 和 `skippedFiles`，确认本次覆盖。
-2. 再看 `summary` 分类汇总，按 `findings` 定位材料，决定保留、节选、汇总或共享。
+2. 再看 `summary` 分类汇总，按 `findings` 定位材料，对照正文依赖裁剪信息与形式，优先概括必要结果，再决定是否保留片段或原形式。
 3. stderr 提供总量、已接受及待处理数量、覆盖提示和优先级最高的至多 12 条未接受明细；普通格式化 JSON 与 `--json` 均完整返回本次 findings，其余终端明细引导至 `resourceReview.findings`，不重复输出。
 
 findings 优先呈现覆盖不足，其余 warn 先于 info；同级按确定副本、体积／数量、类型、可压缩性排序，再按 code、路径和消息稳定排序。读取预算与文件数上限限制扫描工作量，覆盖不足通过结果字段表达，与输出截断不同。

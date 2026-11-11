@@ -17,7 +17,7 @@ relations:
 
 ## 形成时背景
 
-前序复查在实现职责收敛后仍测得 N=K=20 的 domain stage 集合内 readFile 102 次、Git 24／26 次，全量 check 41 次。用户进一步确定结果责任：只读 check 只验证首次采集的同一份对象，不承诺结束时来源仍未变化；stage 不再以全集原文健康为局部门禁。本轮基线为已提交 `10442106`；前两报告及其原始资源保持不变。
+前序复查在实现职责收敛后仍测得 N=K=20 的 domain stage 集合内 readFile 102 次、Git 24／26 次，全量 check 41 次。用户进一步确定结果责任：只读 check 只验证首次采集的同一份对象，不承诺结束时来源仍未变化；stage 不再以全集原文健康为局部门禁。本轮基线为已提交 `10442106`；前两报告的形成时条件与观察不变。
 
 ## 调查目的
 
@@ -26,12 +26,12 @@ relations:
 ## 调查范围与依据
 
 - 2026-10-10，Node 26.8.2、Bun 1.4.2、Git 2.53.0、Python 3.14.7。`before` 为 HEAD `10442106f209321457ad22066af5b379606a7b5d` 的生成 CLI，SHA-256 `f4cb1f7d4079aa371d53241ded88bf11e92b23b88e614d1656f08acecef8e177`；`after` 为该基线上的首次未提交实测实现，SHA-256 `710f8b6f57f12d20aebca96e60dafe2b19aecb0e310361aa89eb9d9c3a934795`。这些指纹只定位当次实测，不表示已经提交或发布。
-- [隔离重放脚本](./_resources/261010-investigation-local-stage-and-single-read-check/measure-local-acquisition.py)复用前序 fixture，运行 N=1／20／100、固定 K=1，以及 N=K=1／20。有资源样本每报告一个普通资源、所有资源字节相同；formal 已同步并在隔离 repo 提交，pending 起初等于 HEAD，普通样本无关系。init/add/commit/stage 只在自动清理的隔离 repo；主仓库未暂存或提交。
+- 隔离重放复用前序 fixture，运行 N=1／20／100、固定 K=1，以及 N=K=1／20。有资源样本每报告一个普通资源、所有资源字节相同；formal 已同步并在隔离 repo 提交，pending 起初等于 HEAD，普通样本无关系。init/add/commit/stage 只在自动清理的隔离 repo；主仓库未暂存或提交。
 - 每阶段各 26 次命令，增加无资源、fileMode true/false、无关坏／删除原文、所选坏原文及真正直接共享 owner 依赖样本。所有访问保持原返回值：fs/promises readFile 记录正文、资源、索引和重复路径／源调用位置；Git Trace2 计进程，spawn/execFile 观察器另外计树／pending 条目和 cat-file 输入请求。不是仅用 fs 计数推断没有 HEAD 正文。
-- [前后观测](./_resources/261010-investigation-local-stage-and-single-read-check/observations.json)保存实际退出、各类读取、路径重复、来源位置、Git 命令分布及批次条目／blob 请求数；隔离绝对路径归一化，不保存临时 repo。单次耗时不是固定时延或加速比证据。
-- 2026-10-10T10:34:33Z 的[路径安全修复后重放](./_resources/261010-investigation-local-stage-and-single-read-check/post-safety-observations.json)定位实际生成 CLI，SHA-256 `f5c1f20cebefadd6e0a8bb0de7357ba246254380890f93ad0dc002cf2eb0e3f8`；2026-10-10T10:38:28Z 的[未引用文件名兼容性收敛后重放](./_resources/261010-investigation-local-stage-and-single-read-check/final-safety-observations.json)定位路径安全修复阶段的冻结对象，SHA-256 `e23aacfba870dddf586059a553249ca7b935a78b45c1455e8840e7bb1ef9ca88`。原 after 对象及指纹不被覆盖；两个新增 checkpoint 各 26 项退出状态、readFile 次数与路径、Git 分布和成员／blob 请求计数均相同。隔离 Git commit ID 因重建而不同，比对时只归一化该 fixture 身份，不抹除命令、成员与请求差异。
-- 2026-10-10T10:54:46Z 的[最终文档与代码优化后重放](./_resources/261010-investigation-local-stage-and-single-read-check/final-optimization-observations.json)定位新的生成 CLI，SHA-256 `d63a98dd4ce5bf5a03b7dae2ecd67f77a4da59b1c147187d56a05e212487ca69`。该 checkpoint 的 26 项退出状态、readFile 次数与路径、Git 分布和成员／blob 请求计数与安全修复阶段冻结对象相同；只归一化隔离 fixture 的 commit ID。源码定位与单次耗时仍按此次真实输出保留，未拿它们作等值或墙钟加速证明；前三份观测原样保留。
-- 首次实测后的可移植脚本独立重放，26 次计数与重复路径均与 `after` 相同；主仓库 50 份发布报告上 list --limit 1 与 metadata search --limit 1 各实际读取正式正文 0 次（结果保存在新观测，不覆盖历史资源）。
+- 前后观测记录退出、各类读取、路径重复、Git 命令分布及批次条目／blob 请求数；单次耗时不是固定时延或加速比证据。
+- 2026-10-10T10:34:33Z 的路径安全修复后重放定位实际生成 CLI，SHA-256 `f5c1f20cebefadd6e0a8bb0de7357ba246254380890f93ad0dc002cf2eb0e3f8`；2026-10-10T10:38:28Z 的未引用文件名兼容性收敛后重放定位路径安全修复阶段的冻结对象，SHA-256 `e23aacfba870dddf586059a553249ca7b935a78b45c1455e8840e7bb1ef9ca88`。两个新增 checkpoint 各 26 项退出状态、readFile 次数与路径、Git 分布和成员／blob 请求计数均相同。隔离 Git commit ID 因重建而不同，比对时只归一化该 fixture 身份，不抹除命令、成员与请求差异。
+- 2026-10-10T10:54:46Z 的最终文档与代码优化后重放定位新的生成 CLI，SHA-256 `d63a98dd4ce5bf5a03b7dae2ecd67f77a4da59b1c147187d56a05e212487ca69`。该 checkpoint 的 26 项退出状态、readFile 次数与路径、Git 分布和成员／blob 请求计数与安全修复阶段冻结对象相同；只归一化隔离 fixture 的 commit ID。源码定位与单次耗时未用于等值或墙钟加速证明。
+- 首次实测后的可移植脚本独立重放，26 次计数与重复路径均与 `after` 相同；主仓库 50 份发布报告上 list --limit 1 与 metadata search --limit 1 各实际读取正式正文 0 次。
 - 独立原生回归与 Case 位于 `tools/investigation-report/tests/{snapshot-check-contract,local-stage-contract,staging-resource-safety}.test.ts`、`docs/test-evidence/cases/investigation-{check,stage,sync}-*.md`；共享显式阶段依据由 `version-control-workspace-phase-basis.md` 承接。既有 legacy constructor、候选读取失败、资源共享、模式／成员／HEAD／pending 等测试继续保留；测试支持选定契约，不证明所有平台或并发时序。
 
 ## 调查结果与边界
@@ -89,11 +89,3 @@ index scope 零正文不意味着忽略约束：完整发布关系图及 owner �
 原 stageFreshnessFailure 先收集整个原文集合并丢弃结果，后续再读取所选源；full check 在完整对象采集后调用通用 fresh 同步核对导致结束全集重读。现在 readonly check 只比较首次对象的完整投影，IR sync-index／publish 及其他共享 caller 的默认契约不变。stage 先严格解析 metadata 并确定所选和直接 owner 依赖，再按阶段传递已读字节、解析、成员与 pending 表示依据。
 
 正常已定位来源访问随显式所选报告、必要直接 owner 依赖和局部资源成员增长；完整索引、关系、全 pending、排序与其他 CPU 仍非局部成本，未证明严格线性或固定时延。基线-only 删除为证明 ID 没有移动／重现可扩大身份发现；该例外不冒充普通 K=1 样本。没有全局缓存、watcher、守护进程或新依赖，未优化 Decision 暂存的既有扫描。
-
-## 随附资源
-
-- [最终文档与代码优化后重放](./_resources/261010-investigation-local-stage-and-single-read-check/final-optimization-observations.json)
-- [未引用文件名兼容性收敛后重放](./_resources/261010-investigation-local-stage-and-single-read-check/final-safety-observations.json)
-- [隔离重放脚本](./_resources/261010-investigation-local-stage-and-single-read-check/measure-local-acquisition.py)
-- [前后分解观测](./_resources/261010-investigation-local-stage-and-single-read-check/observations.json)
-- [路径安全修复后重放](./_resources/261010-investigation-local-stage-and-single-read-check/post-safety-observations.json)

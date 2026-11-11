@@ -36,13 +36,13 @@ relations:
 | 实施验证 | 同日，以 `a661d059` 的七份 DR 域源码为对照，其余依赖共用当时工作区闭包；两记录夹具比较 baseline／source／generated 四场景，另做领域聚合和定向变异。 |
 | 落地版复测 | 同日 19:32:05–19:37:17 UTC 修正窗口，`ef809161`，DR 98／IR 87；DR 四场景各 3 对，IR 四场景及长文 check 各 3 次，共 39 次正常、6 次闭包 smoke。 |
 
-本文“落地版”固定指 `ef809161`。DR 对照仅撤回同阶段复用的七份源码及对应生成文件；envelope 冻结和其余闭包相同。IR 只报告该版本的时延与内存。原型明细、实施记录及复测原始数据分别由随附资源承接。
+本文“落地版”固定指 `ef809161`。DR 对照仅撤回同阶段复用的七份源码及对应生成文件；envelope 冻结和其余闭包相同。IR 只报告该版本的时延与内存。
 
 ### 计量与窗口选择
 
 Node v26.8.2 生成 CLI 在新进程中串行运行，文件缓存已暖；Bun 1.4.2 用于版本核对。环境可见 6 CPU，cgroup 配额 4 CPU／6 GiB。wall 为 monotonic 墙钟，CPU 为 wait4 user+system，RSS 为进程高水位、含 Node worker 线程；它不同于同时进程树总内存或 JS live heap。每组 3 次，配对顺序 A/B、B/A、A/B；百分比为两组中位之比减一。
 
-**复测表只使用修正窗口。**首轮长文后验使大 oracle 父进程的 fork 前 RSS 高水位进入子进程计量；控制实验确认后，改由 resident 15,096–15,328 KiB 的独立进程计量，并完整重跑两报告矩阵。两轮各 63 次正常＋14 次 smoke 及 3 个计量控制全部保留，不跨窗口合并。控制数值、采样代码和窗口字段见[共享复测方法](./_resources/261024-record-global-throughput-and-memory/current-version-methods.md)。
+**复测表只使用修正窗口。**首轮长文后验使大 oracle 父进程的 fork 前 RSS 高水位进入子进程计量；控制实验确认后，改由 resident 15,096–15,328 KiB 的独立进程计量，并完整重跑两报告矩阵。两轮各有 63 次正常＋14 次 smoke 及 3 个计量控制，统计不跨窗口合并。
 
 原型矩阵受外部性能进程竞争影响；optional `supports-color` 9.4.0 在 loader 调查中途才被发现，缺少首样本前哈希，矩阵与后续 AB 属于不同依赖闭包。初始 DR check 配对可能与自有测试重叠，因此另于 16:12:19–16:12:43 UTC 做独立三对。落地版复测在采样前冻结实际依赖，起止指纹一致；端点仍可见常驻 Node／CodeGraph，进程快照不足以排除窗口内或宿主干扰。
 
@@ -72,7 +72,7 @@ Node v26.8.2 生成 CLI 在新进程中串行运行，文件缓存已暖；Bun 1
 | IR full sync preflight | 2.627（2.471–4.192） | 3.337 | 284.9（260.5–290.7） |
 | IR 长文 check | 2.005（1.922–2.399） | 2.688 | 426.2（420.5–426.3） |
 
-以下仅比较同一复测闭包的 DR 撤回版→落地版，逐对数据见复测资源。
+以下仅比较同一复测闭包的 DR 撤回版→落地版。
 
 | DR 场景 | wall 变化 | CPU 变化 | RSS 变化 | wall 变慢对数 |
 | --- | ---: | ---: | ---: | ---: |
@@ -89,7 +89,7 @@ Node v26.8.2 生成 CLI 在新进程中串行运行，文件缓存已暖；Bun 1
 
 原型诊断确认：成员发现和正式解析分别解同一份 YAML。check 累计 20,000 次、inclusive 2.269 秒；复用后 check YAML **20,000→10,000**，sync unchanged **30,000→20,000**，正文读取仍为 10,000／20,000 次。changed／preflight 的相同计数按流程推断，未单独插桩。
 
-原型独立 check 三对 wall 均下降，unchanged／preflight 也各三对下降；changed 有一对反向，wall 中位 **10.913→13.233 秒**。changed／preflight 原型 RSS 中位分别增加约 19.8／20.1 MiB。完整原型矩阵和逐对数值保存在资源；它们说明采用时已有延迟和内存取舍，不能与落地版混算。
+原型独立 check 三对 wall 均下降，unchanged／preflight 也各三对下降；changed 有一对反向，wall 中位 **10.913→13.233 秒**。changed／preflight 原型 RSS 中位分别增加约 19.8／20.1 MiB。原型结果说明采用时已有延迟和内存取舍，不能与落地版混算。
 
 12 项原型 CLI 对照覆盖合法输入、BOM／CRLF、YAML 及字段错误、重复身份、正文、关系目标和采用字段；完整退出、stdout／stderr、索引 SHA 与最终文件差异一致。落地实现由[解析 owner](https://github.com/zxyycom/skills/blob/a88af9bc029a1539c3abe57f69d752e4d39a868e/tools/decision-records/src/records/decision-metadata.ts)的 `DecisionMarkdownSource` 绑定原文与私有解析结果，成员发现和正式扫描消费同一来源；公开 raw 入口自行解析，fresh 独立重读。复用限于单阶段对象，无跨调用缓存或失效管理。
 
@@ -97,7 +97,7 @@ Node v26.8.2 生成 CLI 在新进程中串行运行，文件缓存已暖；Bun 1
 
 - 两记录夹具的 source／generated check 均为 **2 次 YAML／2 次来源打开**，对照为 4／2；三类 sync 均为 **4／4**，对照为 6／4。12 次运行按场景比较退出、完整输出、最终 SHA-256 和 mode，结果相同。
 - 六个原生测试节点覆盖 raw 入口、字节绑定、诊断顺序、无效字段参与重复身份判定、独立 fresh 及 sync 失败时的索引保护；三个定向变异均被识别。
-- DR 聚合 **395 通过／0 失败**，全仓类型检查通过；联合生成、版本和账本同步后，18:13 UTC 的 `bun run check:changed` 为 **66 通过／0 失败／3 不适用**，最终版本调整后的增量复验通过。首次失败及修正细节由实施资源保留。
+- DR 聚合 **395 通过／0 失败**，全仓类型检查通过；联合生成、版本和账本同步后，18:13 UTC 的 `bun run check:changed` 为 **66 通过／0 失败／3 不适用**，最终版本调整后的增量复验通过。
 
 ### IR：身份计算与全集保留
 
@@ -114,25 +114,4 @@ Node v26.8.2 生成 CLI 在新进程中串行运行，文件缓存已暖；Bun 1
 - 冷盘、十万条、资源密集、复杂关系图、Git 历史、并发修改／中断回滚、权限或恶意路径未进入本性能矩阵。IR 资源校验和未引用 warning 的串行结构仅作静态确认，零资源输入不足以估计其优化收益。
 - 正文、资源、关系规模显著增长，或解析、reader、来源快照生命周期改变时，按对应形态重测。三次样本不足以给出生产尾延迟、稳定比例或容量保证；本地测试与 Gate 仅证明实际验收范围。
 
-资源中的原型补丁和测量代码供复核形成时做法；当前实现与验证入口由源码和测试 owner 维护。
-
-## 随附资源
-
-- [原型审计：样本、配对与证明边界](./_resources/261024-record-global-throughput-and-memory/audit.json)
-- [原型正确性：DR CLI 与 IR 身份等价](./_resources/261024-record-global-throughput-and-memory/correctness.json)
-- [落地版复测：计量修正、完整方法与输入模板](./_resources/261024-record-global-throughput-and-memory/current-version-methods.md)
-- [落地版复测：冻结、闭包、输入、控制与保真审计](./_resources/261024-record-global-throughput-and-memory/current-version-provenance.json)
-- [落地版复测：两窗口分组与全部逐对变化](./_resources/261024-record-global-throughput-and-memory/current-version-results.json)
-- [落地版复测：首轮及修正轮全部原始指标](./_resources/261024-record-global-throughput-and-memory/current-version-samples.jsonl)
-- [落地版复测：按原始 SHA 去重的完整输出](./_resources/261024-record-global-throughput-and-memory/current-version-streams.json)
-- [环境与输入：冻结、实际依赖与正文形态](./_resources/261024-record-global-throughput-and-memory/environment-and-inputs.json)
-- [实施验证：方法、命令与失败处理](./_resources/261024-record-global-throughput-and-memory/implementation-methods.md)
-- [实施验证：计数、等价输出、源码 SHA 与变异结果](./_resources/261024-record-global-throughput-and-memory/implementation-verification.json)
-- [原型样本：指标、输出与最终文件差异](./_resources/261024-record-global-throughput-and-memory/measurements.json)
-- [原型方法：准备、测量、插桩与对照代码](./_resources/261024-record-global-throughput-and-memory/methods.md)
-- [原型诊断：调用次数、inclusive 耗时与阶段末内存](./_resources/261024-record-global-throughput-and-memory/profiles.json)
-- [协议：窗口、计量、边界与留存](./_resources/261024-record-global-throughput-and-memory/protocol.md)
-- [DR 隔离原型补丁](./_resources/261024-record-global-throughput-and-memory/prototype-dr.patch)
-- [IR 隔离原型补丁](./_resources/261024-record-global-throughput-and-memory/prototype-ir.patch)
-- [来源：路径展示、代码哈希与方法纠正](./_resources/261024-record-global-throughput-and-memory/provenance.json)
-- [原型统计：各窗口各分组 min／median／max](./_resources/261024-record-global-throughput-and-memory/summary.csv)
+当前实现与验证入口由源码和测试 owner 维护。

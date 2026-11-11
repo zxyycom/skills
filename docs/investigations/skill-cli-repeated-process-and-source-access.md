@@ -94,11 +94,6 @@ Change Plan 已在单次集合查询内共享仓库、HEAD 与基线历史。用
 
 上述建议尚未实施。后续优化需保持检查范围、资源可见性、文件表示和失败语义，并验证结果等价；写前必须重新核对来源字节与身份，准备快照不能代替漂移验证。
 
-已列计数实验均退出 0。随附脚本以 `--count 1 --count 20` 重跑 16 项操作，Git 和候选正文读取次数与上表一致；它是隔离样本复现资源，不是性能门禁或正式回归测试。复现使用当前工作区生成 CLI，历史版本与数字见观测摘要。
+已列计数实验均退出 0。隔离样本以 `--count 1 --count 20` 重跑 16 项操作，Git 和候选正文读取次数与上表一致；该观测不是性能门禁或正式回归测试。
 
 结论限于已列入口和样本；未覆盖 Windows、网络、远端、全部 mutation 组合及新增/改动 blob 的写入成本。调用链、文件定位、资源可见性或版本层 API 变化后需重新计数。
-
-## 随附资源
-
-- [计数复现：隔离样本、Git Trace2 与正文读取观察](./_resources/261009-skill-cli-repeated-process-and-source-access/measure-process-access.py)
-- [观测摘要：版本、命令、进程与文件读取次数](./_resources/261009-skill-cli-repeated-process-and-source-access/observations.json)

@@ -36,8 +36,6 @@ relations:
 - 临时 fixture 根路径及内部资源的设备／inode 身份归一化；公开诊断、warning、source、facets、coverage 与关系全部参与比较，Map／Set 保留有序内容。逐字段深比较后保存 hash 与字节数。
 - 同步函数入口与原语计数单独运行。耗时每端使用 7 个无计数 hook 的独立 Node 进程，交错先后顺序；计时范围为实际操作，fixture 建立、结果序列化和清理在范围外。同一进程按固定顺序执行多个操作，存在模块与文件系统热态。
 
-原始计数、全部耗时样本、条件与源码指纹见[测量结果](./_resources/261021-decision-investigation-first-batch-performance/first-run.json)。四份代码附件保存形成时采集方法，使用边界见下方[附件复核](#附件复核)。
-
 ## 调查结果与边界
 
 **48 对公开 JSON 结果全部一致，另 4 对内部数据投影一致。五项均减少重复工作；万条决策查询的耗时中位数下降约 32%–34%，其余小幅耗时变化见下表及适用范围。**
@@ -83,26 +81,16 @@ C5 的小样本耗时也下降；C1、C3、C8 的重复工作量确定减少，�
 
 ### 交付验证
 
-形成时通过两个领域套件（`bun run test:decision-records-cli` 306 项、`bun run test:investigation-report-check` 308 项）、源码／生成物检查、项目测试账本检查（1,326 个实体）及 `bun run check`（61 项通过、0 失败、3 项发布专用检查不适用）。独立审查核对了实现、测试、计量代码、源码指纹、结果 hash 与计时统计；测量脚本的严格类型、lint、格式命令见[验证记录](./_resources/261021-decision-investigation-first-batch-performance/measurement-verification.json)。
+形成时通过两个领域套件（`bun run test:decision-records-cli` 306 项、`bun run test:investigation-report-check` 308 项）、源码／生成物检查、项目测试账本检查（1,326 个实体）及 `bun run check`（61 项通过、0 失败、3 项发布专用检查不适用）。
 
 2026-10-21 后续编码复审将上述测试拆为 20 个独立入口，共同承接原 17 个 Case；决策来源声明改用独立字面量预期。整改后两个领域套件分别为 308、309 项通过，生产实现保持形成时字节。
 
-### 附件复核
+### 测量方法复核
 
-同日后续复审逐项核对了原 52 对结果、7 次采样统计及源码／脚本指纹，原固定样本的结果一致性与计时统计得到复核。也确认了两处可执行入口缺口：采集器只验证观测形状，可能接纳空观测或相同错误结果；调查 worker 接受 N=1，但关系 fixture 至少需要两份报告。反例及适用影响见[附件边界复核](./_resources/261021-decision-investigation-first-batch-performance/measurement-boundary-review.json)。
+同日后续复审逐项核对了原 52 对结果、7 次采样统计及源码／脚本指纹，原固定样本的结果一致性与计时统计得到复核。也确认了两处可执行入口缺口：采集器只验证观测形状，可能接纳空观测或相同错误结果；调查 worker 接受 N=1，但关系 fixture 至少需要两份报告。
 
-原代码与原始结果一起保留为形成时证据。新的采集任务应先补齐样本前提、预期操作集合、结果类别及采样次数校验，再建立测量入口；`equivalent` 单个字段不足以验收。这里记录的是复审发现与使用边界，原脚本未作行为修复。
+新的采集任务应先补齐样本前提、预期操作集合、结果类别及采样次数校验，再建立测量入口；`equivalent` 单个字段不足以验收。这里记录的是复审发现与使用边界，原脚本未作行为修复。
 
 ### 适用范围
 
 结果适用于所列版本、短元数据与稀疏关系的合成集合；等价证据覆盖已列条件，内部 4 对投影仅覆盖可序列化数据。真实项目、关系密图、大附件、其他平台、内存峰值、CPU 时间、并发竞态及冷启动仍待验证。规模或数据形态改变时应重新测量，再判断实际收益。
-
-## 随附资源
-
-- [计数 hook](./_resources/261021-decision-investigation-first-batch-performance/count-hook.ts)
-- [计数会话状态](./_resources/261021-decision-investigation-first-batch-performance/counter-state.ts)
-- [完整对照结果、计数与耗时](./_resources/261021-decision-investigation-first-batch-performance/first-run.json)
-- [隔离样本与测量 worker](./_resources/261021-decision-investigation-first-batch-performance/measure-worker.ts)
-- [附件输入与观测边界复核](./_resources/261021-decision-investigation-first-batch-performance/measurement-boundary-review.json)
-- [测量脚本验证与覆盖边界](./_resources/261021-decision-investigation-first-batch-performance/measurement-verification.json)
-- [形成时固定基线采集脚本](./_resources/261021-decision-investigation-first-batch-performance/run-measurements.ts)

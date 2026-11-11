@@ -25,7 +25,7 @@ relations: []
 
 ### 基线与样本
 
-形成时基线为 Git `d5f9fde2821f03088a2a1850a3c2819b23224db5`，日期为 2026-10-21。运行时为 Node `v26.8.2`、Bun `1.4.2`；Decision Records version `80`、Investigation Report version `69`。当时正式集合含 388 条决策、64 份调查。[源码清单](./_resources/261021-decision-investigation-constant-factor-audit/source-manifest.json)保存 293 份生产源码及两个生成 CLI 入口的 SHA-256。
+形成时基线为 Git `d5f9fde2821f03088a2a1850a3c2819b23224db5`，日期为 2026-10-21。运行时为 Node `v26.8.2`、Bun `1.4.2`；Decision Records version `80`、Investigation Report version `69`。当时正式集合含 388 条决策、64 份调查。
 
 | 对象 | 样本与覆盖 |
 | --- | --- |
@@ -40,7 +40,7 @@ N 表示正式记录数，C 表示候选数，F=N+C。决策和调查文件分�
 - 文件与原语 wrapper 保留原返回值和异常，按路径类别与调用栈归类。JSON.parse 总数含 YAML scalar 处理，只有完整索引调用栈才记作“完整 JSON 解析”；正文匹配的 `FileHandle.read` 单独解释。
 - 共享与调查脚本通过 Node `registerHooks` 在内存插入入口计数；共享 case 使用独立进程。决策观测使用 fs／JSON 调用及同步函数 coverage，排除可能把 async 恢复执行算作调用的计数。
 - 调查局部探针只调整内存中的三处数据复用：current 包装层返回、关系投影和完整 layout 的身份返回。19 对条件全部成功，其中 17 个公开结果的规范化语义 hash 相同，两个内部 preparation 对象不比较。便携脚本重跑 19 个基线条件，计数一致。
-- 独立审查者重跑共享 10 个 case，结果和源码指纹均与附件一致。计数证明工作量及重复位置；实际时延、内存收益和完整失败矩阵仍需在候选实现后验证。
+- 独立审查者重跑共享 10 个 case，结果和当时记录的源码指纹一致。计数证明工作量及重复位置；实际时延、内存收益和完整失败矩阵仍需在候选实现后验证。
 
 ## 调查结果与边界
 
@@ -182,19 +182,8 @@ N=12、C=3 时，check 和 sync 预检均读取 45 份 Markdown，分属三个�
 
 ### 验证结果与适用范围
 
-调查产物为本报告、八份证据和派生索引，生产实现保持形成时基线。调查阶段已完成三个原生工具套件、源码／生成入口一致性及报告全集检查；`bun run check` 为 61 项通过、0 失败、3 项发布专用检查不适用，详见[形成时验证记录](./_resources/261021-decision-investigation-constant-factor-audit/verification.json)。
+生产实现保持形成时基线。调查阶段完成三个原生工具套件、源码／生成入口一致性及报告全集检查；当时 `bun run check` 为 61 项通过、0 失败、3 项发布专用检查不适用。
 
 候选实施后应先对照完整查询结果和失败诊断，再检查来源／索引／资源／HEAD／pending 漂移及恢复行为；matcher 另需 Unicode 和跨片段对照。真实加速比与内存收益应在无计数 hook 的相同输入上重复测量。
 
 本轮结论适用于所列源码和样本，未覆盖用户真实项目、其他平台、任意并发竞态、巨大附件或关系密图。源码指纹或领域契约变化后，应重核对应调用链。
-
-## 随附资源
-
-- [Decision 隔离调用计数](./_resources/261021-decision-investigation-constant-factor-audit/decision-counts.json)
-- [Decision 形成时观测脚本](./_resources/261021-decision-investigation-constant-factor-audit/decision-probe.mjs)
-- [Investigation 基线与局部探针观测](./_resources/261021-decision-investigation-constant-factor-audit/investigation-counts.json)
-- [Investigation 形成时观测脚本](./_resources/261021-decision-investigation-constant-factor-audit/investigation-probe.mjs)
-- [共享查询与匹配计数](./_resources/261021-decision-investigation-constant-factor-audit/shared-counts.json)
-- [共享查询与匹配观测脚本](./_resources/261021-decision-investigation-constant-factor-audit/shared-probe.mjs)
-- [形成时源码与生成入口指纹](./_resources/261021-decision-investigation-constant-factor-audit/source-manifest.json)
-- [形成时验证结果](./_resources/261021-decision-investigation-constant-factor-audit/verification.json)

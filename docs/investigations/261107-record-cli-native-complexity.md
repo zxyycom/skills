@@ -29,7 +29,7 @@ relations:
 - **版本与环境**：源码固定为 `c1161cf1`，复用同源 Rust 1.98.1 release 制品；运行于 Linux x86_64 WSL2、Ryzen AI 7 H 450，文件缓存已暖、整机未隔离。
 - **覆盖**：动态探针使用 Investigation Report（IR）原生 CLI；Decision Records（DR）及共享路径作源码核对。
 - **方法**：先由源码确定可达输入，再核对身份、匹配与截断语义。低成本预览单元各测 5 次；批量预检按首样成本测 2–5 次；较大的 Q=32/64 补探各测一次。
-- **证据类型**：复杂度来自指定路径的源码级逻辑计数，耗时来自完整原生命令。版本摘要、输入构造、全部样本及复核方法见[证据说明](./_resources/261107-record-cli-native-complexity/evidence-notes.md)。
+- **证据类型**：复杂度来自指定路径的源码级逻辑计数，耗时来自完整原生命令。补充条件及静态候选定位见[证据说明](./_resources/261107-record-cli-native-complexity/evidence-notes.md)。
 
 记号：L 为测试行长度，本轮 ASCII 字符数等于字节数；Q 为去重后的查询词数，R 为单行原始命中总数；N 为索引记录数，K 为选择器数量。
 
@@ -92,16 +92,4 @@ relations:
 
 ## 随附资源
 
-- [证据说明：版本、方法、统计与其他源码候选](./_resources/261107-record-cli-native-complexity/evidence-notes.md)
-- [长行探针结束摘要](./_resources/261107-record-cli-native-complexity/guard-after.json)
-- [长行探针开始摘要](./_resources/261107-record-cli-native-complexity/guard-before.json)
-- [大 Q 单次观测与摘要](./_resources/261107-record-cli-native-complexity/large-q.json)
-- [大 Q 补探方法](./_resources/261107-record-cli-native-complexity/large-q.py)
-- [第一次预探记录](./_resources/261107-record-cli-native-complexity/pre-samples.jsonl)
-- [第二次预探记录](./_resources/261107-record-cli-native-complexity/pre2-samples.jsonl)
-- [长行探针方法](./_resources/261107-record-cli-native-complexity/probe.py)
-- [长行探针样本](./_resources/261107-record-cli-native-complexity/samples.jsonl)
-- [批量预检结束摘要](./_resources/261107-record-cli-native-complexity/select-guard-after.json)
-- [批量预检开始摘要](./_resources/261107-record-cli-native-complexity/select-guard-before.json)
-- [批量预检方法](./_resources/261107-record-cli-native-complexity/select-probe.py)
-- [批量预检样本](./_resources/261107-record-cli-native-complexity/select-samples.jsonl)
+- [evidence-notes.md](./_resources/261107-record-cli-native-complexity/evidence-notes.md)

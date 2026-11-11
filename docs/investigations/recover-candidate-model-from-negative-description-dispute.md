@@ -31,10 +31,10 @@ relations: []
 
 本轮采用概念分层、反例比较和语义责任分析，没有进行模型行为实验、样本计量、外部文献调查或跨模型复现。讨论中的“剪枝”“距离”“道路”和“解空间”均为帮助分析生成与选择过程的模型，不是已经建立了度量、拓扑或搜索算法的数学形式系统。“低阶无穷”和“高阶无穷”只作为原始直觉来源接受检查，未被证明为严格集合基数结论。
 
-**2026-10-26 维护补充：对话回查。** 本主题公开讨论保存在 2026-08-14 形成的[来源与处理说明](./preserve-redacted-conversations-in-two-derived-forms.md)及共享机械对话初稿中。
+**2026-10-26 维护补充：对话回查。** 本主题公开讨论保存在 2026-08-14 形成的[来源与处理说明](./preserve-redacted-conversations-in-two-derived-forms.md)及共享讨论节选中。
 
-- 本报告对应回合 1–10，后续相关讨论见回合 11–33。
-- 初稿是脱敏机械派生件，不是原始 JSONL；它供恢复公开讨论与批注，不证明当时工具原输出、论文原文或私有原件的保真，也不改变本报告的形成时点与原 Git 基线。
+- 本报告对应回合 1–10；节选保留其中的概念转折，省去纯操作请求，后续相关讨论保留原回合位置。
+- 当前节选来自形成时的脱敏派生件，不是原始 JSONL 或完整对话；它供恢复必要讨论与批注，不证明当时工具原输出、论文原文或私有原件的保真，也不改变本报告的形成时点与原 Git 基线。
 
 ## 调查结果与边界
 
@@ -62,4 +62,4 @@ relations: []
 
 ## 随附资源
 
-- [公开讨论机械初稿](./_resources/preserve-redacted-conversations-in-two-derived-forms/conversation-final-dialogue.initial.md)
+- [公开讨论必要原话与批注节选](./_resources/preserve-redacted-conversations-in-two-derived-forms/discussion-evidence-excerpts.md)

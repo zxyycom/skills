@@ -40,11 +40,11 @@ relations:
 
 资源样本覆盖读取、发布、改名、删除及暂存路径；stage 只选一个 owner，修改一个已有资源并新增一个小资源，同时保护未选 owner 和域外 pending。它不是十万份附件的容量测试。
 
-必要变体共 **47 个场景**：metadata 少命中；默认 content 原生硬限与关系小集合成功；同步预演、实际单改、无改及 selected；三种 stage scope。其余命令选择一个简单、可完成实际效果核对的路径。`help` 不读取集合，只保存公开命令清单，不作规模计时。精确 argv、输入和预期变化见覆盖清单。
+必要变体共 **47 个场景**：metadata 少命中；默认 content 原生硬限与关系小集合成功；同步预演、实际单改、无改及 selected；三种 stage scope。其余命令选择一个简单、可完成实际效果核对的路径。`help` 不读取集合，只保存公开命令清单，不作规模计时。
 
 ### 计量与核对
 
-- **采集窗口**：2026-10-21 15:16–17:06 UTC；正式 CLI 串行，每场景一次。wall 包含启动、模块加载、业务处理、渲染至退出；不含 fixture 准备与后验核对。辅助阶段时长另存原始记录。
+- **采集窗口**：2026-10-21 15:16–17:06 UTC；正式 CLI 串行，每场景一次。wall 包含启动、模块加载、业务处理、渲染至退出；不含 fixture 准备与后验核对。
 - **环境**：Node 26.8.2、Bun 1.4.2、Python 3.14.7、WSL2 Linux，4 CPU 配额、6 GiB 容器内存。CLI 无 heap 参数，`NODE_OPTIONS` 未设置，Node 默认 heap limit 为 2,248,146,944 字节。准备／核对辅助进程单独使用 4 GiB heap，不传给 CLI。
 - **指标**：`os.wait4(CLI)` 记录 wall、user/system CPU 与 maxrss；表中 CPU 为 user＋system，RSS 不是同时刻进程树内存总和，也不等于 JS heap。完整 stdout/stderr 落盘并计算 SHA-256，不依赖终端截断内容。没有主动清 OS 缓存，不是冷缓存测量。
 - **限时与隔离**：业务命令 600 秒，准备／核对各 1,800 秒，分别计限。异常立即停止该域，保存现场、核对进程退出与精确残留，再人工恢复自有合成基线，继续未尝试命令。
@@ -61,7 +61,7 @@ relations:
 
 ### Decision：25 场景覆盖 18 个命令
 
-以下均为单次完整 CLI 读数，不是中位数。行按操作组织；实际采样顺序见原始观测。
+以下均为单次完整 CLI 读数，不是中位数。行按操作组织，不代表采样顺序。
 
 | 命令与输入 | wall（秒） | CPU（秒） | RSS（MiB） | 结果 |
 | --- | ---: | ---: | ---: | --- |
@@ -128,7 +128,7 @@ relations:
 
 ### 优化优先级：保持架构，先减少重复准备和活跃副本
 
-以下为实测支持的优先级与静态候选，不是本轮已经实现或测出收益的改进。调用位置与依据见静态审查资源。
+以下为实测支持的优先级与静态候选，不是本轮已经实现或测出收益的改进。
 
 | 优先级 | 卡点与证据 | 推荐的下一步 |
 | --- | --- | --- |
@@ -141,25 +141,8 @@ relations:
 
 ### 证据与适用边界
 
-覆盖核对确认 47 个场景各一个主样本、32 个命令齐全、实际 argv 一致、正式命令时间不重叠、272 份输出流字节及摘要匹配；成功和预算拒绝的后验均完成。采集器另用大输出、启动失败、整进程组超时及 wait4 成功样本验证协议。文档按 AI-Ready Docs 审核重心、边界、引用和 Markdown；项目验证结果另见 verification.json。
+覆盖核对确认 47 个场景各一个主样本、32 个命令齐全、实际 argv 一致、正式命令时间不重叠、272 份输出流字节及摘要匹配；成功和预算拒绝的后验均完成。采集器另用大输出、启动失败、整进程组超时及 wait4 成功样本验证协议。
 
 单样本用于识别数量级卡点，不能估计 p50／p95、证明线性增长或承诺生产延迟。结论适用于本次短正文、稀疏小组图、常数附件及单对象操作；五处 OOM 未取得同环境正常完成样本，也未做扩容对照或分配 profile，不能据此断言内存泄漏、精确崩溃语句或增大 heap 必然解决。
 
-资源中的方法保留本轮形成时做法，作为证据阅读，不是长期维护的工具、测试入口或独立可运行包；旧调查资源未执行、未修改。原始观测中的临时路径通过 streams.jsonl 的 originalPath 对应归档全文，复核无需保留十万份合成文件。
-
-## 随附资源
-
-- [采集器输出、启动、超时及 wait4 协议验证](./_resources/261021-record-tools-all-operations-100k/collector-smoke.json)
-- [固定版本全部公开命令帮助](./_resources/261021-record-tools-all-operations-100k/command-help.txt)
-- [47 个场景的精确输入与预期效果](./_resources/261021-record-tools-all-operations-100k/coverage-manifest.json)
-- [运行环境、默认 heap 与计量边界](./_resources/261021-record-tools-all-operations-100k/environment.json)
-- [两域基线、字节规模与固定 HEAD](./_resources/261021-record-tools-all-operations-100k/fixtures.json)
-- [五处 OOM 的写后对账与人工恢复](./_resources/261021-record-tools-all-operations-100k/incident-evidence.json)
-- [本轮构造、采集、核对与证据整理方法](./_resources/261021-record-tools-all-operations-100k/methods.txt)
-- [47 次完整主观测及准备与核对结果](./_resources/261021-record-tools-all-operations-100k/observations.jsonl)
-- [本轮存量、小输入与失败隔离协议](./_resources/261021-record-tools-all-operations-100k/protocol.md)
-- [固定版本源码和分发文件指纹](./_resources/261021-record-tools-all-operations-100k/source.sha256)
-- [重复准备与峰值副本的静态调用依据](./_resources/261021-record-tools-all-operations-100k/static-audit.md)
-- [272 份 stdout／stderr 全文与摘要](./_resources/261021-record-tools-all-operations-100k/streams.jsonl)
-- [全操作耗时、CPU、RSS 与覆盖汇总](./_resources/261021-record-tools-all-operations-100k/summary.json)
-- [覆盖、协议、审查与仓库验证记录](./_resources/261021-record-tools-all-operations-100k/verification.json)
+本轮未执行或修改旧调查资源。

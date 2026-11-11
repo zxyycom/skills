@@ -25,10 +25,10 @@ relations:
 
 ## 调查范围与依据
 
-- 2026-10-10，Node 26.8.2、Bun 1.4.2、Git 2.53.0、Python 3.14.7；before 为主仓库基线生成 CLI，after 为其上尚未提交的实现。首次实现与最终优化的实际生成 CLI 指纹分别保存在随附观测中；两个 after 阶段均真实重放同样本。
-- 复用前序的[隔离计数脚本](./_resources/261009-skill-cli-repeated-process-and-source-access/measure-process-access.py)，运行 `--count 1 --count 20`。样本无关系、metadata 合法，带资源样本每条一个普通文本资源；formal 已同步并提交，pending 起初等于 HEAD。Git 初始化、提交及暂存只在自动清理的隔离目录，未改主仓库 pending。
+- 2026-10-10，Node 26.8.2、Bun 1.4.2、Git 2.53.0、Python 3.14.7；before 为主仓库基线生成 CLI，after 为其上尚未提交的实现。首次实现与最终优化两个 after 阶段均真实重放同样本。
+- 复用前序的隔离计数方法，运行 `--count 1 --count 20`。样本无关系、metadata 合法，带资源样本每条一个普通文本资源；formal 已同步并提交，pending 起初等于 HEAD。Git 初始化、提交及暂存只在自动清理的隔离目录，未改主仓库 pending。
 - Git Trace2 按 start/session 计进程；Node 局部观察器计 `fs/promises.readFile` 并保留原返回值。formal 样本依次运行局部 check、全量 check、fileMode=true 与 false 的 domain stage；读取次数含集合内索引，不全等于正文次数。
-- 主仓库 48 条报告的 list 与 metadata search 补充观测，before 各读正式 Markdown 96 次/48 个文件，after 各 0 次；before 未留逐调用日志。after 可用[只读快照计数脚本](./_resources/261010-investigation-acquisition-performance-recheck/measure-snapshot-query-access.py)复现。最终优化阶段在 49 条已发布报告上重放同样查询，两者仍各读正式 Markdown 0 次；这证明当次访问边界，不依赖报告总数固定。
+- 主仓库 48 条报告的 list 与 metadata search 补充观测，before 各读正式 Markdown 96 次/48 个文件，after 各 0 次；before 未留逐调用日志。after 使用只读快照计数。最终优化阶段在 49 条已发布报告上重放同样查询，两者仍各读正式 Markdown 0 次；这证明当次访问边界，不依赖报告总数固定。
 - 根因调用链与职责实现位于 `tools/investigation-report/src/`；共享表示批次位于 `tools/shared/src/version-control/git-workspace-file.ts`。独立可选择的测试入口和证明义务见 `docs/test-evidence/cases/investigation-acquisition-*.md` 与 `version-control-workspace-batch*.md`，测试通过不证明所有并发现场。
 
 ## 调查结果与边界
@@ -51,7 +51,7 @@ relations:
 | domain stage 配置读取 | 4 → 2 | 80 → 2 |
 | domain stage 集合内 readFile | 8 → 7 | 122 → 102 |
 
-[首次 before/after 观测](./_resources/261010-investigation-acquisition-performance-recheck/observations.json)保留每条原始摘要、命令分布与单次耗时。[最终优化观测](./_resources/261010-investigation-acquisition-performance-recheck/final-optimization-observations.json)保留优化阶段各次真实观测；`rechecks` 中最后一项对应最终 CLI 的指纹与结果。全部命令、Git 与文件访问计数与首次 after 相同，上表适用于两次实测。Decision domain stage 的集合内读取仍为 4/441，Git 仍为 15/15；archive 也未优化。单次时间噪声不能推导稳定时延或承诺固定加速比，未测 after N=100。
+最终优化阶段重测的全部命令、Git 与文件访问计数与首次 after 相同，上表适用于两次实测。Decision domain stage 的集合内读取仍为 4/441，Git 仍为 15/15；archive 也未优化。单次时间噪声不能推导稳定时延或承诺固定加速比，未测 after N=100。
 
 ### 根因闭合与实际动作
 
@@ -64,10 +64,3 @@ relations:
 当前测试明确覆盖 source-free 查询、普通目标与 symlink 拒绝、移动/新身份、正式 owner 资源共享、批次两阶段成员和来源漂移、非法资源所有权、执行位 true/false、空路径、pending symlink 与冲突。正确性复核另确认合法 legacy ID `constructor` 会与对象继承成员混淆；定位与 owner 发现改用索引自有成员判断，三个独立回归在修复前均失败、修复后均通过，分别覆盖未索引身份发现、正式 owner 共享和 HEAD-only 删除暂存（见 `docs/test-evidence/cases/investigation-legacy-identity-membership.md`）。候选读取准备的访问故障另由独立回归覆盖：candidates 与 show-candidate 返回只读 access-denied 诊断、读取恢复动作及不变的候选正文，不附创建事务或 mutation 结果（见 `docs/test-evidence/cases/investigation-candidate-read-failure.md`）。这些测试支持选定契约，不证明任意资源拓扑、平台或并发时序。
 
 本轮实现与分发产物仅写入工作区，未暂存、提交或推送。
-
-## 随附资源
-
-- [复用前序隔离样本脚本](./_resources/261009-skill-cli-repeated-process-and-source-access/measure-process-access.py)
-- [最终优化阶段重测摘要](./_resources/261010-investigation-acquisition-performance-recheck/final-optimization-observations.json)
-- [只读快照查询计数脚本](./_resources/261010-investigation-acquisition-performance-recheck/measure-snapshot-query-access.py)
-- [before/after 完整计数摘要](./_resources/261010-investigation-acquisition-performance-recheck/observations.json)

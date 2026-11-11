@@ -52,9 +52,9 @@ relations:
 
 最终组合优化的中位 wall 减少 **47.7%（耗时约为优化前的 1/1.91）**，CPU 减少 53.9%，RSS 中位减少 34.8MiB。三对按顺序的 wall 减少 2.389／4.461／2.779s，final/baseline 分别为 0.580／0.400／0.482。原生 baseline 范围 5.364–7.436s、final 2.585–3.301s；第二对 baseline 7.436s 高于另两次，仍按原分组完整纳入统计。连续 final B2 为 4.067s、末两次 probe 为 8.823／4.398s，也体现窗口内波动，但这些组本就不进入原生中位数。没有取得特定宿主事件原因的证据，也没有已知协作代理构建／测试／复制重叠。
 
-环境为 Node 26.8.2、Git 2.53.0、4 CPU 配额／6GiB cgroup、默认 heap 2,248,146,944B。实测副本 baseline/final 各 237 个文件；逐文件指纹见 `context.json`；最终冻结 final manifest SHA-256 为 `0a87d35a64cfe6744fc33b23a07bb423931bb677da42ac0659bbc97c699e0c74`，baseline 为 `857848da02f981241a45b590df0291eb0fbea5c8114f7eb25201d2b2a4645a7a`。结束后核对两份原生输入未变化，并确认当时仓库 runtime 与实测 final 字节一致。对应场景的 baseline/final stdout 完全相同，stderr 均为空，scope 输出保持为 index。
+环境为 Node 26.8.2、Git 2.53.0、4 CPU 配额／6GiB cgroup、默认 heap 2,248,146,944B。实测副本 baseline/final 各 237 个文件；最终冻结 final manifest SHA-256 为 `0a87d35a64cfe6744fc33b23a07bb423931bb677da42ac0659bbc97c699e0c74`，baseline 为 `857848da02f981241a45b590df0291eb0fbea5c8114f7eb25201d2b2a4645a7a`。结束后核对两份原生输入未变化，并确认当时仓库 runtime 与实测 final 字节一致。对应场景的 baseline/final stdout 完全相同，stderr 均为空，scope 输出保持为 index。
 
-门禁收敛前另有 16 次有效观察，原生中位为 5.621→2.750s、独立效果 16/16 通过。因最终分发字节随后改变，这组资源以原字节保存在同 owner 的 `pre-gate/`，作为前阶段辅助证据；两阶段分别统计，最终性能结论仅使用新 16 次。两阶段均执行本轮新写的临时方法，归档方法仅供阅读。
+门禁收敛前另有 16 次有效观察，原生中位为 5.621→2.750s、独立效果 16/16 通过。因最终分发字节随后改变，两阶段分别统计，最终性能结论仅使用后续 16 次。
 
 本轮与前序 5.482s 或诊断变体分别解释。此次只测整体组合，无法拆分范围收窄与准备合并各自的收益，也不能将前序干预差相加。
 
@@ -82,21 +82,6 @@ baseline/final 各完成 A1→B1→A2→B2 的连续序列，逐次通过前述�
 
 实测支持在已授权的责任边界下采用本轮组合实现：基本单选耗时约减半，基本及连续刷新效果符合独立预期。非索引 payload 的即时可读性与内容指纹不属于 index scope 的成功保证。
 
-未测十万条、冷缓存、大附件、复杂图、其他 scope、全部异常与并发路径、p95 或统计置信区间；未分离对象扇出、每字节开销、Git 缓存及 GC 的精确贡献。三对样本只支持本环境下的代表性比较，不承诺固定倍数或容量上界。其他契约测试由实现与测试 owner 交付，最终结论仅使用门禁收敛后的 16 次实验，前阶段 16 次单独保留为辅助证据。
+未测十万条、冷缓存、大附件、复杂图、其他 scope、全部异常与并发路径、p95 或统计置信区间；未分离对象扇出、每字节开销、Git 缓存及 GC 的精确贡献。三对样本只支持本环境下的代表性比较，不承诺固定倍数或容量上界。其他契约测试由实现与测试 owner 交付，最终结论仅使用门禁收敛后的 16 次实验，前阶段 16 次仅作辅助证据。
 
-两阶段合计 32 次观察均通过独立效果后验，保存 64 个 stdout/stderr 输出流。主路径六份资源承接最终 16 次及其 32 个输出流，`pre-gate/` 六份资源以原字节承接前阶段对应材料，各自包含方法、输入指纹、原始观测、输出流的 SHA 去重表示与汇总。临时 fixture、分发副本和依赖链接不归档；方法作为阅读证据，不是维护或重跑入口。
-
-## 随附资源
-
-- [最终环境、fixture与全部输入指纹](./_resources/261022-ir-index-payload-optimization/context.json)
-- [本轮最终方法阅读证据](./_resources/261022-ir-index-payload-optimization/methods.txt)
-- [最终16次原始观测及独立后验](./_resources/261022-ir-index-payload-optimization/observations.jsonl)
-- [前阶段环境与输入指纹](./_resources/261022-ir-index-payload-optimization/pre-gate/context.json)
-- [前阶段方法原字节阅读证据](./_resources/261022-ir-index-payload-optimization/pre-gate/methods.txt)
-- [前阶段16次原始观测及独立后验](./_resources/261022-ir-index-payload-optimization/pre-gate/observations.jsonl)
-- [前阶段32个输出流去重全文](./_resources/261022-ir-index-payload-optimization/pre-gate/streams.json)
-- [前阶段分组汇总](./_resources/261022-ir-index-payload-optimization/pre-gate/summary.json)
-- [前阶段两个probe原始batch事件](./_resources/261022-ir-index-payload-optimization/pre-gate/workload.json)
-- [最终32个原始输出流的去重全文](./_resources/261022-ir-index-payload-optimization/streams.json)
-- [最终分组中位数、配对差与解释边界](./_resources/261022-ir-index-payload-optimization/summary.json)
-- [最终两个独立probe的原始batch事件与加总](./_resources/261022-ir-index-payload-optimization/workload.json)
+两阶段合计 32 次观察均通过独立效果后验。

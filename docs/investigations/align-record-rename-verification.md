@@ -27,7 +27,7 @@ relations: []
 
 ### 代码与修复身份
 
-实际检查 `tools/record-operations/src/transaction.ts`、`transaction-plan.ts`、`transaction-verification.ts`、`transaction-journal.ts`，DR 的 `decision-rename-planning.ts`、`decision-transaction-plan.ts`，以及 IR 的 rename/discard preparation、publication、verification 与 resource proof。当前事实由三处工具 README 和源码承接。修复版本为 DR 92 / IR 81；12 个产品文件清单 SHA-256 为 `77e215d0465a2ddad8f3ede33a787c7e938a5c05c6723579cb0f9aea2241412f`，测量冻结的 1,281 文件源码集合 SHA-256 见随附数据。
+实际检查 `tools/record-operations/src/transaction.ts`、`transaction-plan.ts`、`transaction-verification.ts`、`transaction-journal.ts`，DR 的 `decision-rename-planning.ts`、`decision-transaction-plan.ts`，以及 IR 的 rename/discard preparation、publication、verification 与 resource proof。当前事实由三处工具 README 和源码承接。修复版本为 DR 92 / IR 81；12 个产品文件清单 SHA-256 为 `77e215d0465a2ddad8f3ede33a787c7e938a5c05c6723579cb0f9aea2241412f`。
 
 `RecordWriteJournal` 在写入前跳过 unchanged，排除“10,003 个提案等于 10,003 次物理写入”的解释。基线 shared verifyPlan/verifyWritten 对 writes 逐项 await，只有 guards 使用批量路径；IR beforePublish 之后另逐源读文本，再进入共同验收。这给出可区分的机制：相同文件义务因计划表示不同落入串行路径，且同一写前阶段重复采集。
 
@@ -70,17 +70,11 @@ IR rename after 的 domain postverify 约 2.926s；IR discard 仍有较早 fresh
 
 实际 handle/readback、资源复制/删除前的独立源证明、逐文件 CAS、恢复 winner 保护和精确 tombstone cleanup 不合并为旧 phase。commit 后不自动回滚；验收未知与仅 cleanup pending 仍有不同结果。部署回退需沿仓库版本控制恢复相应源码与生成闭包；已执行的数据变化按真实 mutation 与资源恢复 owner 对账，不靠代码回退覆盖后来编辑。本轮没有生产记录迁移或公开格式变更。
 
-本性能输入不是大 fan-in / 大 changed-set，也未测所选资源移动性能；正确性测试不补成其性能结论。CPU/RSS 逐样本保留，但没有逐阶段 CPU/syscall 数据，未声称内存峰值改善或阈值最优。若在不同运行时、文件系统、资源树、权限约束或大量入边/changed 集合下出现新差异，应按实际义务重新测量与审查，不能外推本轮数值。
+本性能输入不是大 fan-in / 大 changed-set，也未测所选资源移动性能；正确性测试不补成其性能结论。曾逐样本测量 CPU/RSS，但没有逐阶段 CPU/syscall 数据，未声称内存峰值改善或阈值最优。若在不同运行时、文件系统、资源树、权限约束或大量入边/changed 集合下出现新差异，应按实际义务重新测量与审查，不能外推本轮数值。
 
-精简 JSON 汇总由本轮独立测量审计后的逐样本结果提炼，保留 24 个正式样本的 wall/CPU/RSS、instrumented 阶段、计划与最终 delta、环境和来源 hash；需要复核表中数值与取样边界时读取。
+
 
 历史材料可从 Git `d21f6a7f1356266fca3f89c6ff1ab17b7158f175` 恢复：
 
 - 完整 raw、fixture 模板、插桩 patch 与归档审计：`changes/align-record-rename-verification/evidence/performance/`。
 - 安全复核材料：同提交的 `changes/align-record-rename-verification/evidence/review/` 与 `changes/align-record-rename-verification/evidence/self-verification/`。
-
-这些历史材料供阅读复核，不是本次维护的重跑入口，不复制为长期大附件。
-
-## 随附资源
-
-- [精简样本、阶段、环境与来源身份](./_resources/261024-align-record-rename-verification/phase-summary.json)

@@ -15,7 +15,7 @@ relations:
 
 ## 形成时背景
 
-前轮已把 readonly 全量 check 收敛为首次完整对象验证，并把 domain stage 来源获取限定到所选及直接 owner 依赖。本轮在其已提交基线 `40ee8f0d9caab5cb02695deb2fe60300ce06a704` 上复查新的成本条件：固定 K=1 增加平坦资源 R、根 owner D、完整 pending 条目 P、未选独特大 payload，以及直接关系 E。前轮报告及资源保留其原条件与观测，本报告承接新条件下的独立证据。
+前轮已把 readonly 全量 check 收敛为首次完整对象验证，并把 domain stage 来源获取限定到所选及直接 owner 依赖。本轮在其已提交基线 `40ee8f0d9caab5cb02695deb2fe60300ce06a704` 上复查新的成本条件：固定 K=1 增加平坦资源 R、根 owner D、完整 pending 条目 P、未选独特大 payload，以及直接关系 E。前轮报告保留其形成时条件与观测，本报告承接新条件下的独立证据。
 
 局部获取并不等于局部总成本。逐资源逐 component 的目录枚举在完整所选 owner 树上放大；全 pending 多阶段 materialize 与比较复制大未选内容；有关系时历史检查保存并解码全部 HEAD 正文。此外，写前读取故障被压成普通 source-drift 字符串，操作者失去权限、工具和操作目标事实。问题跨资源安全、共享版本管理、历史警告及 CLI 恢复边界，需要分别证明优化没有弱化这些责任。
 
@@ -34,20 +34,20 @@ N 为正式报告数，K 为选中报告数，R 为所选平坦资源数，D 为
 - 历史 owner：`validation-history.ts`。原身份解析只消费 normalized Markdown 前三行或合法直属 basename，却复制完整历史正文。E1N100 实际历史 payload 51753695 字节，原显式复制同为 51753695 字节。HEAD 索引不能证明 legacy、移动或索引不一致来源不存在，也不能证明其他 formal 对象可读；本轮不采用未经证明的 indexed fastpath。
 - 失败与流程 owner：`staging-domain-writes.ts`、`staging-domain.ts` 和 CLI stage 诊断。写前错误必须在净化边界保留可靠 category、operation、target，不把读取故障伪装成 mutation。
 
-[对象读取反例脚本](./_resources/261010-investigation-phase-facts-and-streamed-content/object-integrity.py) 与[真实观察](./_resources/261010-investigation-phase-facts-and-streamed-content/object-equivalence.json)在私有临时仓库构造 600000 字节 blob，截断压缩尾部 12 字节：batch-check exit 0、输出 53 字节；实际 batch exit 128、输出 589877 字节。因此 metadata-only 不是旧 full-read 失败语义的等价替代。被拒绝的是静默绕过实际读取，并非建立新的“所有未选对象永远健康”领域承诺。
+对象读取反例在私有临时仓库构造 600000 字节 blob，截断压缩尾部 12 字节：batch-check exit 0、输出 53 字节；实际 batch exit 128、输出 589877 字节。因此 metadata-only 不是旧 full-read 失败语义的等价替代。被拒绝的是静默绕过实际读取，并非建立新的“所有未选对象永远健康”领域承诺。
 
 ### 隔离测量与复核入口
 
-所有 init/add/commit/stage 只发生在脚本自行创建并清理的临时仓库；测量不修改主工作区 pending。[测量脚本](./_resources/261010-investigation-phase-facts-and-streamed-content/measure.py)、[计数观察器](./_resources/261010-investigation-phase-facts-and-streamed-content/counter.mjs)、[CPU profile 归属提取](./_resources/261010-investigation-phase-facts-and-streamed-content/profile-summary.mjs)及两侧[before](./_resources/261010-investigation-phase-facts-and-streamed-content/before.json)/[after](./_resources/261010-investigation-phase-facts-and-streamed-content/after.json)共同保存可复核条件。
+所有 init/add/commit/stage 只发生在脚本自行创建并清理的临时仓库；测量不修改主工作区 pending。测量记录 Git、文件读取和复制计数，并用 CPU profile 观察模块归属；条件和主要结果见下文。
 
 - before 是从上述固定 HEAD 导出的原生成 CLI 与同版 map，不是重写后的源码近似。SHA256 `d63a98dd4ce5bf5a03b7dae2ecd67f77a4da59b1c147187d56a05e212487ca69`；after 是实际最终生成 CLI，SHA256 `6dc9a8131babe618429b02c36277e38b21576b1c3ff3dfadb85ebf5fe87a1248`。
 - 环境：v26.8.2，git version 2.53.0。before 观测完成时点 `2026-10-10T18:16:44Z`，after `2026-10-10T19:44:54Z`。每条件一个带观察器与 V8 CPU profile 的样本；不是独占机器的统计基准。
 - P1/P20/P100 对应 N=1/20/100，实际 scope 条目 P=3/22/102，包括索引和资源，不只已暂存变化。K 始终 1。B20-large 使用 20 份报告、20 owner、524288 字节的未选独特正文与 unique 资源；flat 资源含独特前缀，避免多个路径共享同 bytes 掩盖 payload/复制增长。
 - R20/R200 固定 N=1、D=0；D20/D200 固定所选 flat R=1、N=D；RD200 同时 R=D=N=200。E1N100 为一条关系和 N=100 大正文；E20/E100 的 E=19/99。关系样本运行全量 check，其工作区完整来源读取责任不变。
 - 普通 stage 样本真实修改一个所选资源；U3 修改三个。Git 进程为 25／27，hash-object 1／3；关系 check 为 9。这是观测，不是通用常数上界。
-- JSON 保存每 Git batch 的实际 payload、framing（headerBytes 含末端 LF）、输出 bytes、请求数和 unique OID 数；保存 fs readFile bytes（含物理 index 读取，非完整内核/Git内部I/O）、目录调用/返回项、显式 typed-array 复制调用点、保留 Buffer 分配调用点、Node CPU/RSS 及 V8 module self/inclusive 采样。比较视图不是复制；必要 boundary-owned bytes 仍复制。
+- 测量包含 Git batch 的 payload、framing 和请求数，以及文件读取、目录枚举、显式复制和 Node CPU/RSS；不包括完整内核或 Git 内部 I/O。
 
-从仓库运行 measure.py，显式传入欲复核的 CLI 和输出位置即可重建 fixture。要复核 before，先从固定 commit 导出 `skills/investigation-report/scripts/check-investigations.mjs` 与同名 `.map` 到独立目录；map 必须与生成 CLI 的 sourceMappingURL 匹配。传入 `--profiles <directory>` 后，以 profile-summary.mjs 的四个参数（CLI、profile directory、观测 JSON、输出 JSON）恢复模块采样。原始 profile 不作为长期资源；保存的模块采样足以区分 source/metadata/graph 与共享边界，inclusive 时间不能相加或当成精确 metadata 专属 CPU。
+CPU profile 的 inclusive 时间不能相加，也不能当成精确 metadata 专属 CPU。
 
 ## 调查结果与边界
 
@@ -116,13 +116,3 @@ B20-large 中 pending 比较调用点各约 41 MB 的临时复制消失，只留
 - 源码、生成与行为 owner 收敛后的 `bun run check`：65 passed、0 failed、0 unavailable，3 项 release-only 未执行；此次未复用日常 receipt，质量配置与豁免不变。
 - 全索引及 metadata/graph、全 P 成员和所有 unique payload 验证、J 物理 index 复制仍必要；本轮性能 fixture 的 pending 条目全部位于调查 scope（J=P），范围外保留由独立 sentinel 回归证明，并未测大型范围外 index 或其扩展的复制成本；不同更新目标的 hash-object 随目标数增长。完整 pending payload I/O 没有变成 O(K)。HEAD-only 所选删除在需要排除移动或重新出现的身份时仍会扩大身份发现范围，该条件 fallback 不属于普通 K=1 样本。history 有关系时仍验证全部直属 formal payload，极长前三行有额外单文件 full-read fallback；全量 workspace source bytes 仍全部取得一次。
 - 不保证任意 TOCTOU 下的 atomic FS、不新增对象 hash/fsck 健康承诺、不证明跨调用来源新鲜度或结束时 freshness。外部仓库、不同 Git/platform 的广泛性能与峰值上界未测；重新调查条件是降低真实 payload 验证、扩大缓存生命周期或变更警告/恢复语义。
-
-## 随附资源
-
-- [after.json](./_resources/261010-investigation-phase-facts-and-streamed-content/after.json)
-- [before.json](./_resources/261010-investigation-phase-facts-and-streamed-content/before.json)
-- [counter.mjs](./_resources/261010-investigation-phase-facts-and-streamed-content/counter.mjs)
-- [measure.py](./_resources/261010-investigation-phase-facts-and-streamed-content/measure.py)
-- [object-equivalence.json](./_resources/261010-investigation-phase-facts-and-streamed-content/object-equivalence.json)
-- [object-integrity.py](./_resources/261010-investigation-phase-facts-and-streamed-content/object-integrity.py)
-- [profile-summary.mjs](./_resources/261010-investigation-phase-facts-and-streamed-content/profile-summary.mjs)

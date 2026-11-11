@@ -23,7 +23,7 @@ relations: []
 
 - 环境：Linux、Node.js v26.8.2、Git 2.53.0；源码基线为 `eea1d03e`。检查 `tools/shared/src/version-control/git-command.ts`、`git-pending.ts` 和 `git-pending-replacement.ts`。
 - 隔离时序实验以模拟 Git 的 Node 子进程关闭 stdin 并忽略 TERM，向原版和修复版分别输入 8 MiB；原版 Promise 拒绝时子进程仍存活，修复版拒绝时子进程已结束。实验模拟输入管道错误，不证明真实 Git 常态下会出现此错误。
-- `tools/shared/tests/version-control-blob-write-failure.test.ts` 通过真实临时 Git 仓库和受控 wrapper 覆盖实际替换：输入错误、TERM 忽略、信号抛错或发出 EPERM、启动失败、并发写入失败及锁与 index 状态。随附探针在仓库根运行并核对基线与修改源码指纹，记录当时结果；源码改变时先恢复指定字节再复验。
+- `tools/shared/tests/version-control-blob-write-failure.test.ts` 通过真实临时 Git 仓库和受控 wrapper 覆盖实际替换：输入错误、TERM 忽略、信号抛错或发出 EPERM、启动失败、并发写入失败及锁与 index 状态。形成时隔离探针对照基线与修改源码，取得上述时序观察；它不作为现行执行入口。
 
 ## 调查结果与边界
 
@@ -31,8 +31,3 @@ relations: []
 - Node 的进程错误回调也可能先于 `close`，不能仅将拒绝延后到该回调。修复将回调结果与 `close` 同时作为结算前提；stdin 出错后先请求终止，必要时升级强制终止，已启动的并发对象写入全部结算后才交回锁恢复。首次观察到的失败停止新派发；已写入但未引用的 Git 对象不承诺回滚。
 - 定向测试验证进程在锁保持期间终止、失败不发布 pending，启动失败可恢复锁；独立真实 Git 模式和混合内容验证见 `tools/shared/tests/version-control-blob-write.test.ts`。现有 CAS、未选保护及写后验收仍由替换事务负责。
 - 若操作系统持续拒绝终止且子进程永不退出，等待会持续以避免释放锁后仍有写入；这不是恢复成功。Windows、异常文件系统和真实 Git 触发 stdin 错误的频率未验证。恢复应先确认子进程和锁状态，不能仅因等待超时删除锁。
-
-## 随附资源
-
-- [环境、源码指纹与时序观察](./_resources/261028-git-stdin-error-lock-lifecycle/probe-results.json)
-- [输入错误时序的隔离探针](./_resources/261028-git-stdin-error-lock-lifecycle/probe.mjs)

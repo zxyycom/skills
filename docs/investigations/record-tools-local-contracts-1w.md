@@ -19,7 +19,7 @@ relations:
 
 [前序十万条调查](record-tools-all-operations-100k.md)发现小输入仍承担明显的全集来源准备和事务成本。本轮在局部操作契约调整后，以**一万条正式存量、每调用一个对象或一组小关系**验证成本和实际效果；这是新契约、新代表负载下的一轮独立对照；前序材料提供问题背景，本轮结果仅适用于下述负载。
 
-改前固定 Git `0a85d4139309657c1b2d0e985d40f0c57f7f71e7`（Decision 86、Investigation 75）；改后为本轮已同步、集成验证后的**未提交源码及公开分发输入快照**（87／76），不以当时 HEAD 冒充改后实现。两版源码与生成物的实际字节由[输入指纹](./_resources/261022-record-tools-local-contracts-1w/input-fingerprints.json)定位。
+改前固定 Git `0a85d4139309657c1b2d0e985d40f0c57f7f71e7`（Decision 86、Investigation 75）；改后为本轮已同步、集成验证后的**未提交源码及公开分发输入快照**（87／76），不以当时 HEAD 冒充改后实现。
 
 ## 调查目的
 
@@ -31,16 +31,14 @@ relations:
 
 每域是自有、无 remote、停用 hook 的独立 Git 仓库；改前／改后初始 Git 树及文件字节相同。每域 **10,000 正式对象、9,000 条关系、2 ready 候选**；每十个正式对象为一组，九叶指向组根，无跨组边。Investigation 初始资源固定为 **5×96B**，不随存量增长。正式数在发布后允许 N+1，下一次恢复 N。Decision 组根及一叶归档，另有一条 unaligned；content 关系筛选得到 8 个 active 文件，Investigation 得到 9 个文件。
 
-基线的源文件尺寸、索引字节和固定树见[fixture 清单](./_resources/261022-record-tools-local-contracts-1w/fixtures.json)。stage 单次选择 B；另设“已有 A pending”和“B 已有旧 pending”两类准备状态，以核对连续选择与重选刷新的组合结果。预先放置常数份工作区／pending 差异和受保护域外修改、staged 删除；Investigation 为所选 owner 加一个 96B 未引用成员，验证完整资源树 scope。准备不计时。
+stage 单次选择 B；另设“已有 A pending”和“B 已有旧 pending”两类准备状态，以核对连续选择与重选刷新的组合结果。预先放置常数份工作区／pending 差异和受保护域外修改、staged 删除；Investigation 为所选 owner 加一个 96B 未引用成员，验证完整资源树 scope。准备不计时。
 
 ### 采集与独立核对
 
-- Node **26.8.2**，默认 heap limit **2,248,146,944B**，`NODE_OPTIONS` 明确为空；4 CPU 配额、6GiB cgroup。兼容依赖两版复用且不安装，版本见[环境记录](./_resources/261022-record-tools-local-contracts-1w/environment.json)。
+- Node **26.8.2**，默认 heap limit **2,248,146,944B**，`NODE_OPTIONS` 明确为空；4 CPU 配额、6GiB cgroup。
 - 直接启动实际 Node 公开分发 CLI，`os.wait4` 记录 **wall、user＋system CPU、maxrss**；含启动和渲染至退出，不含准备、后验或 Bun wrapper。RSS 为 Linux KiB 转 MiB，不等于 JS heap；CPU 可因线程而超过 wall。
 - **每版每场景三次，每次恢复各自同字节基线**，同序串行、Node 进程不复用；无主动清 OS 缓存，不是冷缓存测试。测量窗口排除了其他重测试／构建，仍有轻量编辑或静态读取，不是整机隔离。
 - 后验独立核对完整工作区来源／资源 SHA 清单、预定受影响索引 ID 与 revision ID 集、状态／关系／路径、所选完整 pending 表示、未选 pending 字节身份和域外 staged 删除、退出码及实际 source／诊断。被测 CLI `check` 不代替这些证据；预期由已知 fixture 与各版契约计算。
-
-[234 次主观测](./_resources/261022-record-tools-local-contracts-1w/observations.jsonl)保留逐次指标及后验，[468 份输出流](./_resources/261022-record-tools-local-contracts-1w/streams.jsonl)保留全文与摘要（按 SHA-256 去重为 54 份正文，468 个流引用，未节选）；[完整性记录](./_resources/261022-record-tools-local-contracts-1w/integrity.json)核对样本、来源声明及初始树一致。[形成时方法](./_resources/261022-record-tools-local-contracts-1w/methods.txt)是本轮实际新写方法的阅读证据，不是长期维护工具、测试入口或独立可运行包。
 
 ## 调查结果与边界
 
@@ -53,7 +51,7 @@ relations:
 
 ### 普通入口与基础单选 stage
 
-表中均为三次**中位数**；箭头为改前→改后，wall／CPU 单位秒，RSS 单位 MiB。完整三次值和全部连续／刷新场景见[汇总](./_resources/261022-record-tools-local-contracts-1w/summary.json)。
+表中均为三次**中位数**；箭头为改前→改后，wall／CPU 单位秒，RSS 单位 MiB。
 
 | 域 | 场景 | wall | CPU | RSS |
 | --- | --- | ---: | ---: | ---: |
@@ -107,11 +105,11 @@ relations:
 | Decision | 3→1 | 78.13→6.38s | 80.78→7.78s |
 | Investigation | 3→1 | 19.12→4.91s | 22.71→6.66s |
 
-[封套逐次求和](./_resources/261022-record-tools-local-contracts-1w/workflow-costs.json)保存组件及三次值。这同时减少了默认外层调用、改变全集验收安排，不能把全部收益归给 CLI 内部优化；项目门禁不因此取消。
+这同时减少了默认外层调用、改变全集验收安排，不能把全部收益归给 CLI 内部优化；项目门禁不因此取消。
 
 ### 完整性、采集异常与适用边界
 
-一次改前 Investigation 预算拒绝已正确退出且状态不变，但采集后验误要求诊断包含数字 `2000`，真实公开诊断仅说明候选文件上限超出。该尝试[保留现场](./_resources/261022-record-tools-local-contracts-1w/method-anomaly.json)，不纳入 234 正式样本；修正断言后从该场景重新取得完整三次结果，没有掩去产品失败或改变原生上限。
+一次改前 Investigation 预算拒绝已正确退出且状态不变，但采集后验误要求诊断包含数字 `2000`，真实公开诊断仅说明候选文件上限超出。该尝试不纳入 234 个正式样本；修正断言后重新取得该场景三次结果，没有改变原生上限。
 
 本轮没有证明 p95、线性伸缩、十万条容量、所有异常组合或生产延迟；短正文、稀疏分组关系和常数资源不能外推大附件或复杂图。三次小差异不能单独建立因果或稳定回归阈值；但 IR stage index 约三倍的观察回退应保留为后续取舍依据，而非由其他命令提速抵消。全索引、图与完整 pending 保护仍有集合成本；如需定位回退原因，应在明确授权的新调查中做分阶段证据采集。
 
@@ -122,16 +120,3 @@ relations:
 这是静态优化接点，不是回退归因：合并后的时序与诊断等价、payload 损坏、准备漂移和 unchanged 路径覆盖，以及可节省成本的比例均未验证；不能据此解释全部回退。本轮没有为该候选修改实现或重新测量。
 
 本报告交付本轮测量、实际效果与保证边界。生产代码、分发与项目门禁由相应实施和交付记录承接；报告的机械 readiness 仅验证结构、正文和直接资源，不能替代测量后验或证明产品全集健康。
-
-## 随附资源
-
-- [运行环境、默认 heap 与依赖版本](./_resources/261022-record-tools-local-contracts-1w/environment.json)
-- [两域固定 fixture、字节规模与初始树](./_resources/261022-record-tools-local-contracts-1w/fixtures.json)
-- [改前 revision 与实际改后源码／分发输入指纹](./_resources/261022-record-tools-local-contracts-1w/input-fingerprints.json)
-- [覆盖、输出、来源契约与同字节完整性核对](./_resources/261022-record-tools-local-contracts-1w/integrity.json)
-- [预算诊断断言修正前的真实尝试](./_resources/261022-record-tools-local-contracts-1w/method-anomaly.json)
-- [本轮实际新写的形成时测量方法](./_resources/261022-record-tools-local-contracts-1w/methods.txt)
-- [234 次正式样本及逐次独立后验](./_resources/261022-record-tools-local-contracts-1w/observations.jsonl)
-- [468 份 stdout／stderr 引用与去重全文及摘要](./_resources/261022-record-tools-local-contracts-1w/streams.jsonl)
-- [全部场景三次中位数](./_resources/261022-record-tools-local-contracts-1w/summary.json)
-- [S4 命令封套逐次求和与边界](./_resources/261022-record-tools-local-contracts-1w/workflow-costs.json)

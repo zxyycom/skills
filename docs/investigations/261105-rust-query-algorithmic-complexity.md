@@ -25,10 +25,10 @@ relations:
 ## 调查范围与依据
 
 - TS 为生产源码 `tools/decision-records/src/`、共同图和搜索实现 `tools/shared/src/`；Rust 为当时独立实验目录中的本轮候选源码；行为依据为 `tools/decision-records/README.md` 及当时的实验参数矩阵。此前配对测量的生产 revision 是 `098d64ad53ccfcd64c4d78b3a72782c0e2b6b6ae`，冻结二进制 SHA-256 为 `863e91862111f68e7a54505d14369a8d2afcdb2f37aac371f0a0f5099676e788`；本次计数用从该候选源码复制并插桩后另行离线编译的程序，**不是该冻结二进制的计数**。
-- 有界输入为一个 archived 前序、d 个各以单条“修订”指向它的 active 后继，分别 d=8、16、32、64；每组先以生产 CLI `sync-index` 和 `check` 通过，再执行同一 `trace 260101-bench-00000 --direction successors --max-records 1 --json`。对 Rust 复制版的 unit 两两检查闭包计数，比较两程序的退出码及解析后的 JSON。无墙钟对比；结果、准确插桩 diff、原脚本、源码及程序指纹见资源。
+- 有界输入为一个 archived 前序、d 个各以单条“修订”指向它的 active 后继，分别 d=8、16、32、64；每组先以生产 CLI `sync-index` 和 `check` 通过，再执行同一 `trace 260101-bench-00000 --direction successors --max-records 1 --json`。对 Rust 复制版的 unit 两两检查闭包计数，比较两程序的退出码及解析后的 JSON。无墙钟对比。
 - 使用 N 表示索引条数、E 表示关系边数、d 表示本次 anchor 的直接后继数、L 表示归一化前后可比较的文本长度、k 表示返回上限、M 表示命中数。以 ID 长度固定、通常映射实现和字符串比较成本可控为简化条件；输入包含可变长度字符串时应另计字符成本。平方规律是参数化算法及有限可行输入范围内的工作量结论，不宣称受 ID、字节和机器资源约束的实现存在严格无穷输入族。
 
-资源记录一次实际执行，脚本和补丁供审阅当时的计数方法与结果，不是现行运行入口；实验源码不作为长期产物保留，留存材料不保证完整重跑。实验不涉及 npm 或生产源码写入。
+上述计数为一次插桩执行的观察，实验源码与完整重跑环境不作为长期产物保留。实验不涉及 npm 或生产源码写入。
 
 ## 调查结果与边界
 
@@ -60,10 +60,3 @@ Rust 还在 `units` 约第 235–243 行用 `.position` 线性查找事件；多
 后续版本已移除本报告定位的 unit 尾部查重，修复证据和有关系图的三臂计量见[独立调查](./261105-rust-trace-aligned-graph-performance.md)。本文保留优化前实现的计数和推理；其他静态候选不因这次局部修复自动消除。
 
 因此，**不应把本次加速说成只有 Rust 语言常数优势，也未证明 Rust 普遍存在更优的大 O**。程序、容器、数据、调用与运行时同时不同；固定启动成本可以掩盖增长差异，系数小也可以推迟交叉点，但前序独立单元的耗时不能分解为这些原因，也未测试本报告星形图的时延交叉点。要决定优化优先级，应针对真实度分布、返回范围和候选算法，先保证行为等价，再预登记规模并在独占窗口配对测量。上面复杂度差异属于当时的实现，可以在任一语言中改写，并非 Rust 或 TS 的固有定理。
-
-## 随附资源
-
-- [本次执行的原始生成与比较脚本](./_resources/261105-rust-query-algorithmic-complexity/probe.py)
-- [工具、源码与插桩二进制指纹](./_resources/261105-rust-query-algorithmic-complexity/provenance.txt)
-- [四组计数与输出比较原始结果](./_resources/261105-rust-query-algorithmic-complexity/results.jsonl)
-- [隔离源码计数插桩补丁](./_resources/261105-rust-query-algorithmic-complexity/trace-count.patch)

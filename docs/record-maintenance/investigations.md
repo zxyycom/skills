@@ -7,7 +7,7 @@
 ## 1. 恢复调查轮次与材料
 
 1. 按公共流程确定检查范围；需要当前全集基线时运行 `bun run investigation-report -- check`，局部任务读取所选报告与必要依赖。已知合法正式编辑先同步。
-2. 读取所选全文及其问题、formedAt、来源版本、实际动作、样本和未覆盖范围。依据按实际取得时点区分；正文应独立承接关键认识，资源提供复核细节。
+2. 读取所选全文及其问题、formedAt、来源版本、实际动作、样本和未覆盖范围。依据按实际取得时点区分；正文独立承接关键认识，资源只保留仍被正文判断依赖的必要材料。
 3. 按本轮维度取回所引用的关键证据和随附资源，保存内容、版本、来源、取得时点和处理方式。材料无法取得时登记缺证；路径存在本身只证明可定位。
 4. 候选对取直接关系、普通报告引用及同一问题／现象检索命中的并集；同领域且至少一端为所选报告，按无序对去重。用 `preparation.pairContext` 对照形成条件、方法和认识，保存检索依据与覆盖边界。
 5. 本轮报告维护检查其形成时认识是否被准确记录。只有当前请求或项目规则要求重新调查时才开展事实复查；新版本结果另按轮次边界记录，不回填为旧轮次已取得的证据。
@@ -24,7 +24,7 @@
 | `boundaries` | `record`：`investigation_round`；`pair`：`investigation_pair_explanation`、`investigation_pair_independence` | 单篇轮次边界；两篇全文及各自条件；分别检查差异解释与独立复核价值 |
 | `tags` | `tag`：`tag_support`、`tag_redundancy` | 按 `preparation.tagCandidates` 列全部既有值与正文支持的候选，附含义、依据和其他标签 |
 | `relations` | `pair`：`investigation_missing_relation`；`relation`：`investigation_relation_type`、`investigation_relation_summary`；`event`：`investigation_event_coverage` | 对候选对查真实直接承接是否漏记，再检查全部既有边；拆分／归并补完整成员并去重 |
-| `resources` | `resource`：`investigation_resource_value`、`investigation_resource_fidelity` | 每份已引用资源的内容、阅读用途及处理方式；节选／汇总／转写等比对 originalEvidence |
+| `resources` | `resource`：`investigation_resource_value`、`investigation_resource_fidelity` | 对照正文具体判断，检查每份资源的信息、文字质量与形式是否仍可裁剪；处理后的关键含义比对 originalEvidence |
 
 不适用与缺证按以下条件登记：
 
@@ -32,7 +32,7 @@
 - 候选或成员未取全：记覆盖缺口。
 - 原样资源经字节与来源核对无需转换：保真题可不适用，价值题仍检查；经过处理却取不到原材料时记缺证。
 
-资源默认供阅读，执行其中代码、复现及其他副作用需单独授权。
+资源审阅按[资源选择与示例](../../skills/investigation-report/references/resource-selection.md)裁剪；`originalEvidence` 只服务本次关键含义核对，不要求长期附存完整原件。除正在负责实际操作的人员外，读者将 `.txt` 与代码按伪代码理解；执行、复现及其他副作用服从任务范围与授权。
 
 ### 可选局部辅助
 
@@ -50,7 +50,7 @@
 | 两篇结论不同但条件不同 | 保留各自条件及认识，必要时补充比较说明；报告不是同时生效的规范，差异不直接等于冲突 |
 | 同轮重复或混合独立轮次 | 分别判断收敛、归并或拆分；维护问题、关键证据和认识的对应关系，前序历史保真 |
 | 关系遗漏、类型、摘要或事件承接不符 | 正式关系用 set-relations 完整替换；新报告通过 candidate / publish 建立，保留前序报告及位置 |
-| 资源冗长、缺用途或失真 | 将关键认识补回正文，资源按用途取舍；新增实质材料另存，既有材料原地修改限准确恢复、格式修复或脱敏 |
+| 资源冗长、低质量、缺必要依赖或失真 | 按领域资源契约，将必要判断补回正文，并在授权内概括、节选、转换或删减；保留支撑原判断的事实与边界，不默认保留整份原件 |
 | 标签缺依据或重复 | 修正既有值或拒绝新增；有依据且增加检索价值才添加，保留至少一个有效标签 |
 
 动作 `kind` 为 `edit_tags`、`edit_text`、`edit_resources`、`publish`、`set-relations`、`rename`、`discard`。资源编辑按领域契约核对位置、共享引用、安全与留存，在 `action.changes` 中用所属报告 `recordKey` 和实际资源路径登记。

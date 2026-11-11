@@ -190,9 +190,7 @@
       "name": "jev-record-maintenance-boundaries",
       "question": "JEV 对标签、记录内部质量、直接关系、闭合事件与跨记录冲突的判断能支持哪些维护，哪些错误来自输入设计或采用范围？",
       "relations": [],
-      "resourceIds": [
-        "261004-jev-record-maintenance-boundaries/observations.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "jev-record-maintenance-boundaries.md",
       "tags": [
         "lightweight-judgment",
@@ -266,10 +264,7 @@
       "name": "skill-cli-repeated-process-and-source-access",
       "question": "Change 之外的 Skill CLI 是否重复访问同一 Git 上下文或集合来源，哪些路径已形成可复现的扩展问题？",
       "relations": [],
-      "resourceIds": [
-        "261009-skill-cli-repeated-process-and-source-access/measure-process-access.py",
-        "261009-skill-cli-repeated-process-and-source-access/observations.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "skill-cli-repeated-process-and-source-access.md",
       "tags": [
         "decision-records",
@@ -293,12 +288,7 @@
           "type": "复查"
         }
       ],
-      "resourceIds": [
-        "261009-skill-cli-repeated-process-and-source-access/measure-process-access.py",
-        "261010-investigation-acquisition-performance-recheck/final-optimization-observations.json",
-        "261010-investigation-acquisition-performance-recheck/measure-snapshot-query-access.py",
-        "261010-investigation-acquisition-performance-recheck/observations.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "investigation-acquisition-performance-recheck.md",
       "tags": [
         "investigation-report",
@@ -320,13 +310,7 @@
           "type": "复查"
         }
       ],
-      "resourceIds": [
-        "261010-investigation-local-stage-and-single-read-check/final-optimization-observations.json",
-        "261010-investigation-local-stage-and-single-read-check/final-safety-observations.json",
-        "261010-investigation-local-stage-and-single-read-check/measure-local-acquisition.py",
-        "261010-investigation-local-stage-and-single-read-check/observations.json",
-        "261010-investigation-local-stage-and-single-read-check/post-safety-observations.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "investigation-local-stage-and-single-read-check.md",
       "tags": [
         "investigation-report",
@@ -348,15 +332,7 @@
           "type": "复查"
         }
       ],
-      "resourceIds": [
-        "261010-investigation-phase-facts-and-streamed-content/after.json",
-        "261010-investigation-phase-facts-and-streamed-content/before.json",
-        "261010-investigation-phase-facts-and-streamed-content/counter.mjs",
-        "261010-investigation-phase-facts-and-streamed-content/measure.py",
-        "261010-investigation-phase-facts-and-streamed-content/object-equivalence.json",
-        "261010-investigation-phase-facts-and-streamed-content/object-integrity.py",
-        "261010-investigation-phase-facts-and-streamed-content/profile-summary.mjs"
-      ],
+      "resourceIds": [],
       "sourcePath": "investigation-phase-facts-and-streamed-content.md",
       "tags": [
         "investigation-report",
@@ -416,11 +392,7 @@
           "type": "复查"
         }
       ],
-      "resourceIds": [
-        "261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints/after.json",
-        "261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints/before.json",
-        "261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints/measure.mjs"
-      ],
+      "resourceIds": [],
       "sourcePath": "investigation-batch-lookup-iterative-graph-and-demanded-fingerprints.md",
       "tags": [
         "investigation-report",
@@ -435,14 +407,7 @@
       "name": "investigation-event-query-and-trace-rendering",
       "question": "如何在不改变查询和事件预算语义时消除正常关系查询的重复聚合与扫描？",
       "relations": [],
-      "resourceIds": [
-        "261011-investigation-event-query-and-trace-rendering/adapter-snapshots.json",
-        "261011-investigation-event-query-and-trace-rendering/adapter-snapshots.ts",
-        "261011-investigation-event-query-and-trace-rendering/after.json",
-        "261011-investigation-event-query-and-trace-rendering/before.json",
-        "261011-investigation-event-query-and-trace-rendering/measurement.ts",
-        "261011-investigation-event-query-and-trace-rendering/verification.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "investigation-event-query-and-trace-rendering.md",
       "tags": [
         "index-runtime",
@@ -539,12 +504,7 @@
           "type": "补充"
         }
       ],
-      "resourceIds": [
-        "261017-openrouter-decision-live-protocols/blue-square.png",
-        "261017-openrouter-decision-live-protocols/cli-e2e-evidence.json",
-        "261017-openrouter-decision-live-protocols/evidence.json",
-        "261017-openrouter-decision-live-protocols/red-square.png"
-      ],
+      "resourceIds": [],
       "sourcePath": "openrouter-decision-live-protocols.md",
       "tags": [
         "decision-models",
@@ -560,16 +520,7 @@
       "name": "decision-investigation-constant-factor-audit",
       "question": "保持现有 Markdown 与 JSON 架构及安全语义时，决策和调查工具中哪些重复工作值得用低复杂度方式消除？",
       "relations": [],
-      "resourceIds": [
-        "261021-decision-investigation-constant-factor-audit/decision-counts.json",
-        "261021-decision-investigation-constant-factor-audit/decision-probe.mjs",
-        "261021-decision-investigation-constant-factor-audit/investigation-counts.json",
-        "261021-decision-investigation-constant-factor-audit/investigation-probe.mjs",
-        "261021-decision-investigation-constant-factor-audit/shared-counts.json",
-        "261021-decision-investigation-constant-factor-audit/shared-probe.mjs",
-        "261021-decision-investigation-constant-factor-audit/source-manifest.json",
-        "261021-decision-investigation-constant-factor-audit/verification.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "decision-investigation-constant-factor-audit.md",
       "tags": [
         "decision-records",
@@ -590,15 +541,7 @@
           "type": "复查"
         }
       ],
-      "resourceIds": [
-        "261021-decision-investigation-first-batch-performance/count-hook.ts",
-        "261021-decision-investigation-first-batch-performance/counter-state.ts",
-        "261021-decision-investigation-first-batch-performance/first-run.json",
-        "261021-decision-investigation-first-batch-performance/measure-worker.ts",
-        "261021-decision-investigation-first-batch-performance/measurement-boundary-review.json",
-        "261021-decision-investigation-first-batch-performance/measurement-verification.json",
-        "261021-decision-investigation-first-batch-performance/run-measurements.ts"
-      ],
+      "resourceIds": [],
       "sourcePath": "decision-investigation-first-batch-performance.md",
       "tags": [
         "decision-records",
@@ -633,31 +576,7 @@
           "type": "补充"
         }
       ],
-      "resourceIds": [
-        "261021-record-tools-100k-performance/environment.txt",
-        "261021-record-tools-100k-performance/extra-summary.json",
-        "261021-record-tools-100k-performance/manifest.json",
-        "261021-record-tools-100k-performance/methods/cli-metrics.ts",
-        "261021-record-tools-100k-performance/methods/collector.ts",
-        "261021-record-tools-100k-performance/methods/decision-stage-worker.ts",
-        "261021-record-tools-100k-performance/methods/decision-worker.ts",
-        "261021-record-tools-100k-performance/methods/investigation-worker.ts",
-        "261021-record-tools-100k-performance/methods/measurement.ts",
-        "261021-record-tools-100k-performance/methods/shape-worker.ts",
-        "261021-record-tools-100k-performance/methods/stage-collector.ts",
-        "261021-record-tools-100k-performance/methods/summarize-extra.ts",
-        "261021-record-tools-100k-performance/methods/summarize.ts",
-        "261021-record-tools-100k-performance/methods/supplement.ts",
-        "261021-record-tools-100k-performance/observations.jsonl",
-        "261021-record-tools-100k-performance/preparation.json",
-        "261021-record-tools-100k-performance/protocol.md",
-        "261021-record-tools-100k-performance/stage.jsonl",
-        "261021-record-tools-100k-performance/static-audit.md",
-        "261021-record-tools-100k-performance/summary.csv",
-        "261021-record-tools-100k-performance/summary.json",
-        "261021-record-tools-100k-performance/supplement.jsonl",
-        "261021-record-tools-100k-performance/verification.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "record-tools-100k-performance.md",
       "tags": [
         "decision-records",
@@ -680,22 +599,7 @@
           "type": "补充"
         }
       ],
-      "resourceIds": [
-        "261021-record-tools-all-operations-100k/collector-smoke.json",
-        "261021-record-tools-all-operations-100k/command-help.txt",
-        "261021-record-tools-all-operations-100k/coverage-manifest.json",
-        "261021-record-tools-all-operations-100k/environment.json",
-        "261021-record-tools-all-operations-100k/fixtures.json",
-        "261021-record-tools-all-operations-100k/incident-evidence.json",
-        "261021-record-tools-all-operations-100k/methods.txt",
-        "261021-record-tools-all-operations-100k/observations.jsonl",
-        "261021-record-tools-all-operations-100k/protocol.md",
-        "261021-record-tools-all-operations-100k/source.sha256",
-        "261021-record-tools-all-operations-100k/static-audit.md",
-        "261021-record-tools-all-operations-100k/streams.jsonl",
-        "261021-record-tools-all-operations-100k/summary.json",
-        "261021-record-tools-all-operations-100k/verification.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "record-tools-all-operations-100k.md",
       "tags": [
         "decision-records",
@@ -716,19 +620,7 @@
           "type": "复查"
         }
       ],
-      "resourceIds": [
-        "261021-record-tools-first-optimization-validation/batch-results.jsonl",
-        "261021-record-tools-first-optimization-validation/environment.json",
-        "261021-record-tools-first-optimization-validation/fixture.json",
-        "261021-record-tools-first-optimization-validation/measurements.jsonl",
-        "261021-record-tools-first-optimization-validation/method-batch.ts",
-        "261021-record-tools-first-optimization-validation/method-fixture.ts",
-        "261021-record-tools-first-optimization-validation/method-measure.ts",
-        "261021-record-tools-first-optimization-validation/method-run.sh",
-        "261021-record-tools-first-optimization-validation/source.sha256",
-        "261021-record-tools-first-optimization-validation/summary.json",
-        "261021-record-tools-first-optimization-validation/verification.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "record-tools-first-optimization-validation.md",
       "tags": [
         "decision-records",
@@ -749,20 +641,7 @@
           "type": "补充"
         }
       ],
-      "resourceIds": [
-        "261022-ir-index-payload-optimization/context.json",
-        "261022-ir-index-payload-optimization/methods.txt",
-        "261022-ir-index-payload-optimization/observations.jsonl",
-        "261022-ir-index-payload-optimization/pre-gate/context.json",
-        "261022-ir-index-payload-optimization/pre-gate/methods.txt",
-        "261022-ir-index-payload-optimization/pre-gate/observations.jsonl",
-        "261022-ir-index-payload-optimization/pre-gate/streams.json",
-        "261022-ir-index-payload-optimization/pre-gate/summary.json",
-        "261022-ir-index-payload-optimization/pre-gate/workload.json",
-        "261022-ir-index-payload-optimization/streams.json",
-        "261022-ir-index-payload-optimization/summary.json",
-        "261022-ir-index-payload-optimization/workload.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "ir-index-payload-optimization.md",
       "tags": [
         "investigation-report",
@@ -782,15 +661,7 @@
           "type": "补充"
         }
       ],
-      "resourceIds": [
-        "261022-ir-index-stage-regression-cause/context.json",
-        "261022-ir-index-stage-regression-cause/interventions.txt",
-        "261022-ir-index-stage-regression-cause/methods.txt",
-        "261022-ir-index-stage-regression-cause/observations.jsonl",
-        "261022-ir-index-stage-regression-cause/phases.json",
-        "261022-ir-index-stage-regression-cause/streams.json",
-        "261022-ir-index-stage-regression-cause/summary.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "ir-index-stage-regression-cause.md",
       "tags": [
         "investigation-report",
@@ -811,28 +682,7 @@
           "type": "复查"
         }
       ],
-      "resourceIds": [
-        "261022-record-stage-convergence-10k/context.json",
-        "261022-record-stage-convergence-10k/fixture-integrity.json",
-        "261022-record-stage-convergence-10k/input-fingerprints-v3.json",
-        "261022-record-stage-convergence-10k/input-fingerprints.json",
-        "261022-record-stage-convergence-10k/methods-v3.txt",
-        "261022-record-stage-convergence-10k/methods.txt",
-        "261022-record-stage-convergence-10k/observations-v3.jsonl",
-        "261022-record-stage-convergence-10k/observations.jsonl",
-        "261022-record-stage-convergence-10k/probe-events-v3.json",
-        "261022-record-stage-convergence-10k/probe-events.json",
-        "261022-record-stage-convergence-10k/probe-summary-v1.json",
-        "261022-record-stage-convergence-10k/probe-summary-v2.json",
-        "261022-record-stage-convergence-10k/probe-summary-v3.json",
-        "261022-record-stage-convergence-10k/sequence-effects-v1.json",
-        "261022-record-stage-convergence-10k/sequence-effects-v2.json",
-        "261022-record-stage-convergence-10k/sequence-effects-v3.json",
-        "261022-record-stage-convergence-10k/streams-v3.json",
-        "261022-record-stage-convergence-10k/streams.json",
-        "261022-record-stage-convergence-10k/summary-v3.json",
-        "261022-record-stage-convergence-10k/summary.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "record-stage-convergence-10k.md",
       "tags": [
         "decision-records",
@@ -854,18 +704,7 @@
           "type": "复查"
         }
       ],
-      "resourceIds": [
-        "261022-record-tools-local-contracts-1w/environment.json",
-        "261022-record-tools-local-contracts-1w/fixtures.json",
-        "261022-record-tools-local-contracts-1w/input-fingerprints.json",
-        "261022-record-tools-local-contracts-1w/integrity.json",
-        "261022-record-tools-local-contracts-1w/method-anomaly.json",
-        "261022-record-tools-local-contracts-1w/methods.txt",
-        "261022-record-tools-local-contracts-1w/observations.jsonl",
-        "261022-record-tools-local-contracts-1w/streams.jsonl",
-        "261022-record-tools-local-contracts-1w/summary.json",
-        "261022-record-tools-local-contracts-1w/workflow-costs.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "record-tools-local-contracts-1w.md",
       "tags": [
         "decision-records",
@@ -881,9 +720,7 @@
       "name": "align-record-rename-verification",
       "question": "为什么同等来源规模的 IR rename 承受额外串行验收，如何在不减弱事务安全的条件下对齐共同操作？",
       "relations": [],
-      "resourceIds": [
-        "261024-align-record-rename-verification/phase-summary.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "align-record-rename-verification.md",
       "tags": [
         "decision-records",
@@ -906,26 +743,7 @@
           "type": "补充"
         }
       ],
-      "resourceIds": [
-        "261024-record-global-throughput-and-memory/audit.json",
-        "261024-record-global-throughput-and-memory/correctness.json",
-        "261024-record-global-throughput-and-memory/current-version-methods.md",
-        "261024-record-global-throughput-and-memory/current-version-provenance.json",
-        "261024-record-global-throughput-and-memory/current-version-results.json",
-        "261024-record-global-throughput-and-memory/current-version-samples.jsonl",
-        "261024-record-global-throughput-and-memory/current-version-streams.json",
-        "261024-record-global-throughput-and-memory/environment-and-inputs.json",
-        "261024-record-global-throughput-and-memory/implementation-methods.md",
-        "261024-record-global-throughput-and-memory/implementation-verification.json",
-        "261024-record-global-throughput-and-memory/measurements.json",
-        "261024-record-global-throughput-and-memory/methods.md",
-        "261024-record-global-throughput-and-memory/profiles.json",
-        "261024-record-global-throughput-and-memory/protocol.md",
-        "261024-record-global-throughput-and-memory/prototype-dr.patch",
-        "261024-record-global-throughput-and-memory/prototype-ir.patch",
-        "261024-record-global-throughput-and-memory/provenance.json",
-        "261024-record-global-throughput-and-memory/summary.csv"
-      ],
+      "resourceIds": [],
       "sourcePath": "261024-record-global-throughput-and-memory.md",
       "tags": [
         "decision-records",
@@ -946,20 +764,7 @@
           "type": "补充"
         }
       ],
-      "resourceIds": [
-        "261024-record-global-throughput-and-memory/current-version-methods.md",
-        "261024-record-global-throughput-and-memory/current-version-provenance.json",
-        "261024-record-global-throughput-and-memory/current-version-streams.json",
-        "261024-record-index-computation-and-transfer/current-version-results.json",
-        "261024-record-index-computation-and-transfer/current-version-samples.jsonl",
-        "261024-record-index-computation-and-transfer/implementation-validation.json",
-        "261024-record-index-computation-and-transfer/implementation.md",
-        "261024-record-index-computation-and-transfer/measurements.jsonl",
-        "261024-record-index-computation-and-transfer/methods.md",
-        "261024-record-index-computation-and-transfer/protocol.md",
-        "261024-record-index-computation-and-transfer/provenance.json",
-        "261024-record-index-computation-and-transfer/results.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "261024-record-index-computation-and-transfer.md",
       "tags": [
         "decision-records",
@@ -982,28 +787,7 @@
           "type": "复查"
         }
       ],
-      "resourceIds": [
-        "261024-record-tools-entry-matrix-10k/audit.json",
-        "261024-record-tools-entry-matrix-10k/decision-matrix.json",
-        "261024-record-tools-entry-matrix-10k/decision-metrics.jsonl",
-        "261024-record-tools-entry-matrix-10k/decision-outcomes.jsonl",
-        "261024-record-tools-entry-matrix-10k/decision-provenance.jsonl",
-        "261024-record-tools-entry-matrix-10k/decision-streams.jsonl",
-        "261024-record-tools-entry-matrix-10k/decision-summary.json",
-        "261024-record-tools-entry-matrix-10k/decision-workloads.jsonl",
-        "261024-record-tools-entry-matrix-10k/environment-and-inputs.json",
-        "261024-record-tools-entry-matrix-10k/investigation-matrix.json",
-        "261024-record-tools-entry-matrix-10k/investigation-metrics.jsonl",
-        "261024-record-tools-entry-matrix-10k/investigation-outcomes.jsonl",
-        "261024-record-tools-entry-matrix-10k/investigation-provenance.jsonl",
-        "261024-record-tools-entry-matrix-10k/investigation-streams.jsonl",
-        "261024-record-tools-entry-matrix-10k/investigation-summary.json",
-        "261024-record-tools-entry-matrix-10k/investigation-workloads.jsonl",
-        "261024-record-tools-entry-matrix-10k/measurement-methods.md",
-        "261024-record-tools-entry-matrix-10k/measurements.csv",
-        "261024-record-tools-entry-matrix-10k/protocol.md",
-        "261024-record-tools-entry-matrix-10k/verification.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "record-tools-entry-matrix-10k.md",
       "tags": [
         "decision-records",
@@ -1024,23 +808,7 @@
           "type": "补充"
         }
       ],
-      "resourceIds": [
-        "261028-collection-single-item-cost-audit/batch-selection-results.json",
-        "261028-collection-single-item-cost-audit/hash-cli-path-summary.json",
-        "261028-collection-single-item-cost-audit/hash-cli-trace-summary.json",
-        "261028-collection-single-item-cost-audit/lookup-results.json",
-        "261028-collection-single-item-cost-audit/measure-hash-cli.py",
-        "261028-collection-single-item-cost-audit/probe-batch-selection.mjs",
-        "261028-collection-single-item-cost-audit/probe-lookups.mjs",
-        "261028-collection-single-item-cost-audit/provenance.json",
-        "261028-collection-single-item-cost-audit/terra-audit-coverage.csv",
-        "261028-collection-single-item-cost-audit/terra-audit-findings.json",
-        "261028-collection-single-item-cost-audit/terra-audit-gaps.json",
-        "261028-collection-single-item-cost-audit/terra-audit-methods.md",
-        "261028-collection-single-item-cost-audit/terra-audit-provenance.json",
-        "261028-collection-single-item-cost-audit/terra-audit-results.json",
-        "261028-collection-single-item-cost-audit/terra-audit-scope.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "261028-collection-single-item-cost-audit.md",
       "tags": [
         "decision-records",
@@ -1057,10 +825,7 @@
       "name": "git-stdin-error-lock-lifecycle",
       "question": "Git 写对象输入失败时，何时才能安全释放 pending 锁？",
       "relations": [],
-      "resourceIds": [
-        "261028-git-stdin-error-lock-lifecycle/probe-results.json",
-        "261028-git-stdin-error-lock-lifecycle/probe.mjs"
-      ],
+      "resourceIds": [],
       "sourcePath": "261028-git-stdin-error-lock-lifecycle.md",
       "tags": [
         "concurrency",
@@ -1081,16 +846,7 @@
           "type": "补充"
         }
       ],
-      "resourceIds": [
-        "261028-investigation-v87-windows-head-predecessor-cost/external-baselines.json",
-        "261028-investigation-v87-windows-head-predecessor-cost/external-events-excerpt.json",
-        "261028-investigation-v87-windows-head-predecessor-cost/external-imports.json",
-        "261028-investigation-v87-windows-head-predecessor-cost/external-inventory.json",
-        "261028-investigation-v87-windows-head-predecessor-cost/external-observe.mjs",
-        "261028-investigation-v87-windows-head-predecessor-cost/external-summary.json",
-        "261028-investigation-v87-windows-head-predecessor-cost/external-validation-summary.json",
-        "261028-investigation-v87-windows-head-predecessor-cost/review-provenance.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "261028-investigation-v87-windows-head-predecessor-cost.md",
       "tags": [
         "git-integration",
@@ -1112,22 +868,7 @@
           "type": "复查"
         }
       ],
-      "resourceIds": [
-        "261028-record-cost-reachability-boundaries/README.md",
-        "261028-record-cost-reachability-boundaries/domain-evidence.json",
-        "261028-record-cost-reachability-boundaries/files-results.json",
-        "261028-record-cost-reachability-boundaries/instrumentation.diff",
-        "261028-record-cost-reachability-boundaries/longline-results.json",
-        "261028-record-cost-reachability-boundaries/method-provenance.json",
-        "261028-record-cost-reachability-boundaries/probe-domain.mjs",
-        "261028-record-cost-reachability-boundaries/probe-files.mjs",
-        "261028-record-cost-reachability-boundaries/probe-longline.mjs",
-        "261028-record-cost-reachability-boundaries/probe-small.mjs",
-        "261028-record-cost-reachability-boundaries/provenance.json",
-        "261028-record-cost-reachability-boundaries/reproduce.sh",
-        "261028-record-cost-reachability-boundaries/setup-instrumentation.py",
-        "261028-record-cost-reachability-boundaries/small-results.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "261028-record-cost-reachability-boundaries.md",
       "tags": [
         "decision-records",
@@ -1191,15 +932,7 @@
       "name": "rust-native-query-performance",
       "question": "在相同行为任务下，Rust 原生 CLI 相对现有 Node CLI 和 TS 直接导入的耗时、CPU、内存及安装入口成本变化多少，是否值得继续迁移？",
       "relations": [],
-      "resourceIds": [
-        "261105-rust-native-query-performance/cargo-validation.txt",
-        "261105-rust-native-query-performance/delivery.json",
-        "261105-rust-native-query-performance/measurements.json",
-        "261105-rust-native-query-performance/native-tests.json",
-        "261105-rust-native-query-performance/provenance.json",
-        "261105-rust-native-query-performance/run.sh",
-        "261105-rust-native-query-performance/validation.json"
-      ],
+      "resourceIds": [],
       "sourcePath": "261105-rust-native-query-performance.md",
       "tags": [
         "decision-records",
@@ -1220,12 +953,7 @@
           "type": "补充"
         }
       ],
-      "resourceIds": [
-        "261105-rust-query-algorithmic-complexity/probe.py",
-        "261105-rust-query-algorithmic-complexity/provenance.txt",
-        "261105-rust-query-algorithmic-complexity/results.jsonl",
-        "261105-rust-query-algorithmic-complexity/trace-count.patch"
-      ],
+      "resourceIds": [],
       "sourcePath": "261105-rust-query-algorithmic-complexity.md",
       "tags": [
         "algorithmic-complexity",
@@ -1246,12 +974,7 @@
           "type": "补充"
         }
       ],
-      "resourceIds": [
-        "261105-rust-query-fixed-cost-and-scale/interleaved-results.jsonl",
-        "261105-rust-query-fixed-cost-and-scale/interleaved-summary.json",
-        "261105-rust-query-fixed-cost-and-scale/interleaved.py",
-        "261105-rust-query-fixed-cost-and-scale/summarize_interleaved.py"
-      ],
+      "resourceIds": [],
       "sourcePath": "261105-rust-query-fixed-cost-and-scale.md",
       "tags": [
         "benchmarking",
@@ -1272,28 +995,7 @@
           "type": "补充"
         }
       ],
-      "resourceIds": [
-        "261105-rust-trace-aligned-graph-performance/correctness.jsonl",
-        "261105-rust-trace-aligned-graph-performance/evidence.txt",
-        "261105-rust-trace-aligned-graph-performance/fixture-validation.json",
-        "261105-rust-trace-aligned-graph-performance/host.jsonl",
-        "261105-rust-trace-aligned-graph-performance/new-build.txt",
-        "261105-rust-trace-aligned-graph-performance/new-final.err",
-        "261105-rust-trace-aligned-graph-performance/new-probe.patch",
-        "261105-rust-trace-aligned-graph-performance/old-build.txt",
-        "261105-rust-trace-aligned-graph-performance/old-final.err",
-        "261105-rust-trace-aligned-graph-performance/old-final.out",
-        "261105-rust-trace-aligned-graph-performance/old-probe.patch",
-        "261105-rust-trace-aligned-graph-performance/original.sha256",
-        "261105-rust-trace-aligned-graph-performance/probe-output-dedup.json",
-        "261105-rust-trace-aligned-graph-performance/probe.rs",
-        "261105-rust-trace-aligned-graph-performance/resources.jsonl",
-        "261105-rust-trace-aligned-graph-performance/summary.json",
-        "261105-rust-trace-aligned-graph-performance/test.patch",
-        "261105-rust-trace-aligned-graph-performance/trace.patch",
-        "261105-rust-trace-aligned-graph-performance/validation.txt",
-        "261105-rust-trace-aligned-graph-performance/wall.jsonl"
-      ],
+      "resourceIds": [],
       "sourcePath": "261105-rust-trace-aligned-graph-performance.md",
       "tags": [
         "decision-records",
@@ -1308,34 +1010,7 @@
       "name": "record-cli-final-candidate-performance",
       "question": "冻结正式 Rust 候选在两域真实单次进程查询与同步中，相对现行 Node CLI 的端到端延迟和规模变化如何？",
       "relations": [],
-      "resourceIds": [
-        "261106-record-cli-final-candidate-performance/correctness-100.json",
-        "261106-record-cli-final-candidate-performance/correctness-32.json",
-        "261106-record-cli-final-candidate-performance/correctness-500.json",
-        "261106-record-cli-final-candidate-performance/environment-100.json",
-        "261106-record-cli-final-candidate-performance/environment-32.json",
-        "261106-record-cli-final-candidate-performance/environment-500.json",
-        "261106-record-cli-final-candidate-performance/runtime-correctness-100.json",
-        "261106-record-cli-final-candidate-performance/runtime-correctness-32.json",
-        "261106-record-cli-final-candidate-performance/runtime-correctness-500.json",
-        "261106-record-cli-final-candidate-performance/runtime-environment-100.json",
-        "261106-record-cli-final-candidate-performance/runtime-environment-32.json",
-        "261106-record-cli-final-candidate-performance/runtime-environment-500.json",
-        "261106-record-cli-final-candidate-performance/runtime-samples-100.jsonl",
-        "261106-record-cli-final-candidate-performance/runtime-samples-32.jsonl",
-        "261106-record-cli-final-candidate-performance/runtime-samples-500.jsonl",
-        "261106-record-cli-final-candidate-performance/runtime-summary-100.json",
-        "261106-record-cli-final-candidate-performance/runtime-summary-32.json",
-        "261106-record-cli-final-candidate-performance/runtime-summary-500.json",
-        "261106-record-cli-final-candidate-performance/runtime-window-monitor.jsonl",
-        "261106-record-cli-final-candidate-performance/samples-100.jsonl",
-        "261106-record-cli-final-candidate-performance/samples-32.jsonl",
-        "261106-record-cli-final-candidate-performance/samples-500.jsonl",
-        "261106-record-cli-final-candidate-performance/summary-100.json",
-        "261106-record-cli-final-candidate-performance/summary-32.json",
-        "261106-record-cli-final-candidate-performance/summary-500.json",
-        "261106-record-cli-final-candidate-performance/window-monitor.jsonl"
-      ],
+      "resourceIds": [],
       "sourcePath": "261106-record-cli-final-candidate-performance.md",
       "tags": [
         "decision-records",
@@ -1430,34 +1105,7 @@
           "type": "复查"
         }
       ],
-      "resourceIds": [
-        "261107-record-cli-current-process-cost-and-scale/addon-samples.jsonl",
-        "261107-record-cli-current-process-cost-and-scale/collector-high-parent-calibration.json",
-        "261107-record-cli-current-process-cost-and-scale/collector.c",
-        "261107-record-cli-current-process-cost-and-scale/correctness.json",
-        "261107-record-cli-current-process-cost-and-scale/environment.json",
-        "261107-record-cli-current-process-cost-and-scale/expected-candidate.txt",
-        "261107-record-cli-current-process-cost-and-scale/fixture-notes.md",
-        "261107-record-cli-current-process-cost-and-scale/fixtures-small.ts",
-        "261107-record-cli-current-process-cost-and-scale/fixtures.ts",
-        "261107-record-cli-current-process-cost-and-scale/formal-samples.jsonl",
-        "261107-record-cli-current-process-cost-and-scale/guards.json",
-        "261107-record-cli-current-process-cost-and-scale/measure-addon.ts",
-        "261107-record-cli-current-process-cost-and-scale/measure-pre.ts",
-        "261107-record-cli-current-process-cost-and-scale/measure-pre2.ts",
-        "261107-record-cli-current-process-cost-and-scale/measure.ts",
-        "261107-record-cli-current-process-cost-and-scale/pre-failed-help.jsonl",
-        "261107-record-cli-current-process-cost-and-scale/pre-samples.jsonl",
-        "261107-record-cli-current-process-cost-and-scale/pre2-samples.jsonl",
-        "261107-record-cli-current-process-cost-and-scale/pre3-samples.jsonl",
-        "261107-record-cli-current-process-cost-and-scale/private-script-guard.txt",
-        "261107-record-cli-current-process-cost-and-scale/resource-calibration.jsonl",
-        "261107-record-cli-current-process-cost-and-scale/resource-samples.jsonl",
-        "261107-record-cli-current-process-cost-and-scale/resources.sh",
-        "261107-record-cli-current-process-cost-and-scale/rss-calibration.c",
-        "261107-record-cli-current-process-cost-and-scale/summarize.py",
-        "261107-record-cli-current-process-cost-and-scale/summary.jsonl"
-      ],
+      "resourceIds": [],
       "sourcePath": "261107-record-cli-current-process-cost-and-scale.md",
       "tags": [
         "benchmarking",
@@ -1481,19 +1129,7 @@
         }
       ],
       "resourceIds": [
-        "261107-record-cli-native-complexity/evidence-notes.md",
-        "261107-record-cli-native-complexity/guard-after.json",
-        "261107-record-cli-native-complexity/guard-before.json",
-        "261107-record-cli-native-complexity/large-q.json",
-        "261107-record-cli-native-complexity/large-q.py",
-        "261107-record-cli-native-complexity/pre-samples.jsonl",
-        "261107-record-cli-native-complexity/pre2-samples.jsonl",
-        "261107-record-cli-native-complexity/probe.py",
-        "261107-record-cli-native-complexity/samples.jsonl",
-        "261107-record-cli-native-complexity/select-guard-after.json",
-        "261107-record-cli-native-complexity/select-guard-before.json",
-        "261107-record-cli-native-complexity/select-probe.py",
-        "261107-record-cli-native-complexity/select-samples.jsonl"
+        "261107-record-cli-native-complexity/evidence-notes.md"
       ],
       "sourcePath": "261107-record-cli-native-complexity.md",
       "tags": [
@@ -1512,8 +1148,7 @@
       "question": "Rust 记录候选中哪些内部表达值得惯用化而不改变对外契约？",
       "relations": [],
       "resourceIds": [
-        "261107-rust-record-library-replacement-survey/findings.json",
-        "261107-rust-record-library-replacement-survey/source-census.json"
+        "261107-rust-record-library-replacement-survey/findings.json"
       ],
       "sourcePath": "261107-rust-record-idiomatic-implementation-review.md",
       "tags": [
@@ -1529,8 +1164,7 @@
       "question": "Rust 记录候选中哪些职责值得交给库，哪些应保留领域实现？",
       "relations": [],
       "resourceIds": [
-        "261107-rust-record-library-replacement-survey/findings.json",
-        "261107-rust-record-library-replacement-survey/source-census.json"
+        "261107-rust-record-library-replacement-survey/findings.json"
       ],
       "sourcePath": "261107-rust-record-library-replacement-survey.md",
       "tags": [
@@ -1545,12 +1179,7 @@
       "name": "rust-record-transaction-io",
       "question": "相同私有记录与操作下，事务改造前后的普通更新和资源迁移产生怎样的进程 I/O 代价与实际结果？",
       "relations": [],
-      "resourceIds": [
-        "261107-rust-record-transaction-io/baseline.jsonl",
-        "261107-rust-record-transaction-io/calibration.json",
-        "261107-rust-record-transaction-io/final.jsonl",
-        "261107-rust-record-transaction-io/measure.py"
-      ],
+      "resourceIds": [],
       "sourcePath": "261107-rust-record-transaction-io.md",
       "tags": [
         "benchmarking",
@@ -1624,56 +1253,7 @@
           "type": "补充"
         }
       ],
-      "resourceIds": [
-        "261108-record-cli-native-complexity-survey/evidence-notes.md",
-        "261108-record-cli-native-complexity-survey/graphs/coverage.md",
-        "261108-record-cli-native-complexity-survey/graphs/guard_recheck.py",
-        "261108-record-cli-native-complexity-survey/graphs/ordinary-results.json",
-        "261108-record-cli-native-complexity-survey/graphs/ordinary_probe.py",
-        "261108-record-cli-native-complexity-survey/graphs/realloc-250-results.json",
-        "261108-record-cli-native-complexity-survey/graphs/realloc-3-results.json",
-        "261108-record-cli-native-complexity-survey/graphs/realloc-50-results.json",
-        "261108-record-cli-native-complexity-survey/graphs/reallocation_probe.py",
-        "261108-record-cli-native-complexity-survey/graphs/resource-0-results.json",
-        "261108-record-cli-native-complexity-survey/graphs/resource-2000-guarded.json",
-        "261108-record-cli-native-complexity-survey/graphs/resource-2000-results.json",
-        "261108-record-cli-native-complexity-survey/graphs/resource-30-results.json",
-        "261108-record-cli-native-complexity-survey/graphs/resource-500-results.json",
-        "261108-record-cli-native-complexity-survey/graphs/resource_probe.py",
-        "261108-record-cli-native-complexity-survey/graphs/trace_guards.json",
-        "261108-record-cli-native-complexity-survey/graphs/trace_probe.py",
-        "261108-record-cli-native-complexity-survey/graphs/trace_results.jsonl",
-        "261108-record-cli-native-complexity-survey/inventory/coverage.json",
-        "261108-record-cli-native-complexity-survey/inventory/coverage.md",
-        "261108-record-cli-native-complexity-survey/queries/branches.py",
-        "261108-record-cli-native-complexity-survey/queries/candidates.py",
-        "261108-record-cli-native-complexity-survey/queries/coverage.md",
-        "261108-record-cli-native-complexity-survey/queries/date_retry.py",
-        "261108-record-cli-native-complexity-survey/queries/environment.json",
-        "261108-record-cli-native-complexity-survey/queries/guards.json",
-        "261108-record-cli-native-complexity-survey/queries/samples.jsonl",
-        "261108-record-cli-native-complexity-survey/queries/survey.py",
-        "261108-record-cli-native-complexity-survey/writes/coverage.md",
-        "261108-record-cli-native-complexity-survey/writes/d-stage-k8.trace.jsonl",
-        "261108-record-cli-native-complexity-survey/writes/history-after.trace.jsonl",
-        "261108-record-cli-native-complexity-survey/writes/history-before.trace.jsonl",
-        "261108-record-cli-native-complexity-survey/writes/history-edges-continue.py",
-        "261108-record-cli-native-complexity-survey/writes/history-edges.jsonl",
-        "261108-record-cli-native-complexity-survey/writes/history-edges.py",
-        "261108-record-cli-native-complexity-survey/writes/i-stage-k8.trace.jsonl",
-        "261108-record-cli-native-complexity-survey/writes/pending-scale.jsonl",
-        "261108-record-cli-native-complexity-survey/writes/pending-scale.py",
-        "261108-record-cli-native-complexity-survey/writes/scale.jsonl",
-        "261108-record-cli-native-complexity-survey/writes/scale.py",
-        "261108-record-cli-native-complexity-survey/writes/unselected-audit.jsonl",
-        "261108-record-cli-native-complexity-survey/writes/unselected-audit.py",
-        "261108-record-cli-native-complexity-survey/writes/wide-continue.py",
-        "261108-record-cli-native-complexity-survey/writes/wide-continue2.py",
-        "261108-record-cli-native-complexity-survey/writes/wide-extra.py",
-        "261108-record-cli-native-complexity-survey/writes/wide-more.py",
-        "261108-record-cli-native-complexity-survey/writes/wide.jsonl",
-        "261108-record-cli-native-complexity-survey/writes/wide.py"
-      ],
+      "resourceIds": [],
       "sourcePath": "261108-record-cli-native-complexity-survey.md",
       "tags": [
         "algorithmic-complexity",
@@ -1690,10 +1270,7 @@
       "name": "native-updater-relocated-complete-receipt",
       "question": "为何完整安装的决策与调查 Skill 搬迁后检查升级会报 invalid native recovery directory，修复应保留什么恢复边界？",
       "relations": [],
-      "resourceIds": [
-        "261109-native-updater-relocated-complete-receipt/accept-current-overlay.mjs",
-        "261109-native-updater-relocated-complete-receipt/reproduce.sh"
-      ],
+      "resourceIds": [],
       "sourcePath": "261109-native-updater-relocated-complete-receipt.md",
       "tags": [
         "compatibility",
@@ -1727,42 +1304,7 @@
           "type": "复查"
         }
       ],
-      "resourceIds": [
-        "261110-native-full-check-io-costs/diagnose-native.py",
-        "261110-native-full-check-io-costs/diagnose-old.py",
-        "261110-native-full-check-io-costs/implementation-bench.py",
-        "261110-native-full-check-io-costs/implementation-end-guards.json",
-        "261110-native-full-check-io-costs/implementation-environment.txt",
-        "261110-native-full-check-io-costs/implementation-independent-summary.json",
-        "261110-native-full-check-io-costs/implementation-inventory.json",
-        "261110-native-full-check-io-costs/implementation-oracle.jsonl",
-        "261110-native-full-check-io-costs/implementation-recompute.py",
-        "261110-native-full-check-io-costs/implementation-samples.jsonl",
-        "261110-native-full-check-io-costs/implementation-trace-counts.json",
-        "261110-native-full-check-io-costs/implementation-write-probe-metadata.json",
-        "261110-native-full-check-io-costs/implementation-write-probe-samples.jsonl",
-        "261110-native-full-check-io-costs/implementation-write-probe.py",
-        "261110-native-full-check-io-costs/instrumentation.patch",
-        "261110-native-full-check-io-costs/measure.py",
-        "261110-native-full-check-io-costs/old-profile.mjs",
-        "261110-native-full-check-io-costs/post-review-bench.py",
-        "261110-native-full-check-io-costs/post-review-fault-result.json",
-        "261110-native-full-check-io-costs/post-review-fault_probe.py",
-        "261110-native-full-check-io-costs/post-review-independent-summary.json",
-        "261110-native-full-check-io-costs/post-review-independent-trace-counts.json",
-        "261110-native-full-check-io-costs/post-review-inventory.json",
-        "261110-native-full-check-io-costs/post-review-oracle.jsonl",
-        "261110-native-full-check-io-costs/post-review-recompute.py",
-        "261110-native-full-check-io-costs/post-review-samples.jsonl",
-        "261110-native-full-check-io-costs/post-review-summary.json",
-        "261110-native-full-check-io-costs/results.json",
-        "261110-native-full-check-io-costs/samples.jsonl",
-        "261110-native-full-check-io-costs/wide-audit.md",
-        "261110-native-full-check-io-costs/wide-process-counts.json",
-        "261110-native-full-check-io-costs/wide-reallocation-probe.py",
-        "261110-native-full-check-io-costs/wide-reallocation-results.json",
-        "261110-native-full-check-io-costs/wide-stage-probe.py"
-      ],
+      "resourceIds": [],
       "sourcePath": "261110-native-full-check-io-costs.md",
       "tags": [
         "algorithmic-complexity",
@@ -1948,11 +1490,7 @@
       "name": "defer-standard-test-result-blocking",
       "question": "标准测试结果协议与阻断资格在没有实施授权时应由哪些长期载体承接？",
       "relations": [],
-      "resourceIds": [
-        "defer-standard-test-result-blocking/design.md",
-        "defer-standard-test-result-blocking/proposal.md",
-        "defer-standard-test-result-blocking/tasks.md"
-      ],
+      "resourceIds": [],
       "sourcePath": "defer-standard-test-result-blocking.md",
       "tags": [
         "knowledge-evolution",
@@ -2023,7 +1561,7 @@
         }
       ],
       "resourceIds": [
-        "preserve-redacted-conversations-in-two-derived-forms/conversation-final-dialogue.initial.md"
+        "preserve-redacted-conversations-in-two-derived-forms/discussion-evidence-excerpts.md"
       ],
       "sourcePath": "distinguish-expressive-equivalence-from-construction-cost.md",
       "tags": [
@@ -2144,8 +1682,7 @@
       "question": "怎样从含敏感运行时数据的 Codex JSONL 形成可审计近全量档案和可阅读对话初稿？",
       "relations": [],
       "resourceIds": [
-        "preserve-redacted-conversations-in-two-derived-forms/conversation-final-dialogue.initial.md",
-        "preserve-redacted-conversations-in-two-derived-forms/conversation-near-full.redacted.jsonl"
+        "preserve-redacted-conversations-in-two-derived-forms/discussion-evidence-excerpts.md"
       ],
       "sourcePath": "preserve-redacted-conversations-in-two-derived-forms.md",
       "tags": [
@@ -2185,7 +1722,7 @@
       "question": "负向描述争议暴露了怎样的候选概念层次与后续调查边界？",
       "relations": [],
       "resourceIds": [
-        "preserve-redacted-conversations-in-two-derived-forms/conversation-final-dialogue.initial.md"
+        "preserve-redacted-conversations-in-two-derived-forms/discussion-evidence-excerpts.md"
       ],
       "sourcePath": "recover-candidate-model-from-negative-description-dispute.md",
       "tags": [
@@ -2455,76 +1992,76 @@
     "entries": {
       "260903-explore-name-collisions-in-retained-artifacts": "sha256:917cde39059f74edf802b1020cd37e223ad0e39309bb77bae32cfedae656f971",
       "260907-investigate-vibe-check-test-evidence": "sha256:ceb08a215fca02e71e3197ff8bac3f1b3cb2ecff83e88cece860bba39f4867bb",
-      "260908-recall-historical-decision-alignment": "sha256:5b5baaff297122336c96e05a2cfb2c1ab97099a062cb373ef8ea3aa489cf1b4e",
+      "260908-recall-historical-decision-alignment": "sha256:8d784542e496de3718893f05b31ba71a0eb47434e638cad711eb76df34d7a50c",
       "260911-bound-bun-optional-peer-resolution": "sha256:25bb80ae52bcbca6b21c4ec640c3dcee96ec88038e59c9b61ca9a556d581c526",
       "260911-explain-ci-cold-proof-test-failure": "sha256:2bb1a591998082c1ad39c3ae51daa73842a0195022a690601061b80827845a42",
       "260912-isolate-ci-version-control-test-load": "sha256:676088ae4f676fbdb7d86544680808b9544199fb698037e875c760316e497c25",
       "260919-gate-toolchain-drift": "sha256:6ae61d9a98622da92e811e803fd84805bd8161223ae8d6edd40ff2323c07a169",
-      "260920-laya-decision-model-evidence": "sha256:8a7692fd9cbe9e4737d0df25337e3a690d4d5768e94bd4abb5825e08079bf0cb",
+      "260920-laya-decision-model-evidence": "sha256:474ed114ff9a5e0a888274897441727e13b5971d15694dd065887897eb5c50dc",
       "260923-stale-skill-release-after-failed-ci": "sha256:30f5274c8658ca3684d44997f7f3e2ee09d3552a1d1a4dc6a975be58878e4299",
       "260926-intern-decision-clm-evidence": "sha256:3eaad52e82e9a7dd283cf19f7088defef281d20f8d0fd5f094a8f0b3ce4317b6",
-      "261004-jev-record-maintenance-boundaries": "sha256:168f6931ca8b9f1392643ec7606dd8dfad06f87eacd4d26c4c23c8c676024046",
+      "261004-jev-record-maintenance-boundaries": "sha256:7670479f4eebf40a7de76304fc16de5e982b17907165250def4f11db2319ed06",
       "261004-lightweight-judgment-wal-init-contention": "sha256:3dc57830e8c2b5f466922ea241f86702a776ea8ebcb091018705157c8933fde7",
       "261005-pending-file-representation-conflict": "sha256:a0ec1d56034387be455235f89aa718f1c915bfb1002564ca564e8b9a3190ff43",
       "261009-openai-decisions-api-contract": "sha256:2c69c76427b9905bdbe6c5a71818802a546fbc4f469b02f8b38c457a154c1f37",
       "261009-openai-decisions-jev-comparison": "sha256:770e68e8124f5dda7c6eeeb1f66ce714a046fb62fca3a209c515cb41d5106830",
-      "261009-skill-cli-repeated-process-and-source-access": "sha256:da3f9342786ccdad2b27c60a311b9737d6e6298a8b897ae4f0fc8340c0abd5ce",
-      "261010-investigation-acquisition-performance-recheck": "sha256:8159c96a4151c77f9312c810aafbfaca3ff887bec0d9ff841407f2cf0c5c3d6c",
-      "261010-investigation-local-stage-and-single-read-check": "sha256:76066ba670f3f135ac353a3c5d24359d915d884478600fcf3d2747e6abdb1321",
-      "261010-investigation-phase-facts-and-streamed-content": "sha256:45ba304c2b187ad2916e7746c3ba4aca3805381904dd01595c4d7ca7191fbb11",
+      "261009-skill-cli-repeated-process-and-source-access": "sha256:9c7591c5d917dce35e7f94865a6edc1f9ca2f3e4547c734a92f056540fb6c170",
+      "261010-investigation-acquisition-performance-recheck": "sha256:d6a3c8396328e37a86cfa609c2d6de2d3621e330f6ee02e769a69f8247950c7b",
+      "261010-investigation-local-stage-and-single-read-check": "sha256:61edfcc1acc24e9e800926596f0cb92feb2d3f8c421215231e1d1c57985793ce",
+      "261010-investigation-phase-facts-and-streamed-content": "sha256:77e7bb94cb6db8bb9d8c8e7d0b4e6cbdf9d47bc701667a3704ce0b398db46f10",
       "261011-decision-batch-lookup-and-stable-event-members": "sha256:49853802318c7f7cd57a1cab6c44df9b14ecc59eac8e7a473ad3b0b038d61b21",
       "261011-decision-snapshot-stage-and-event-costs": "sha256:1db0e5e287cdd85852354ae4e05b7dc2c0c29f613700600f174825edc3de656f",
-      "261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints": "sha256:22e37022017d828a261c5cc8bb778cc929858ed9142229b09f914a109113a863",
-      "261011-investigation-event-query-and-trace-rendering": "sha256:021ec7b8b90c6659ed8c4ea5d9abce7657762c6d4b21fe0d3345638680a2934d",
+      "261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints": "sha256:ce4dd5dd54908b43e6f6cec56a669d91a5975ca57286d70f0070aaa9b3efcf9b",
+      "261011-investigation-event-query-and-trace-rendering": "sha256:e95849532202d511ab55ea3d96f884ad5fe0047ffd860366d67ca815421564f4",
       "261015-jev-1-14-capabilities-and-comparison": "sha256:7ed67df61ade4a42d555d0f3591656e1fdcc7a59acd24b98f44bb8e3f926447e",
       "261017-decision-model-multimodal-long-context-integration": "sha256:d0ef103bfbbc3739a23153c50be7be642e57a2dca48165dd1d061edcee989275",
       "261017-jev-carrier-openai-decisions-mapping": "sha256:fee6fd09b23fb1f0b742793eb53592c746cd39423c43dce413e4d4e198fd2520",
       "261017-lightweight-judgment-multi-protocol-runtime-boundaries": "sha256:c087174ef8d4dccaf315c7ba6d71186cfa2036e3dab9f6d74b8783420c73ff99",
-      "261017-openrouter-decision-live-protocols": "sha256:6c5b0fd11c69d628626288d378f221673c88cd7ec72f37b3ed2274361bb0e91b",
-      "261021-decision-investigation-constant-factor-audit": "sha256:aebf200dd653b679ceade0895bcd6114d42cc116824ad8b3857030fe1be1a25c",
-      "261021-decision-investigation-first-batch-performance": "sha256:d7a5aa36f659472224a7741c965aff30309806671cb6a1a8769870d9b15a89f3",
+      "261017-openrouter-decision-live-protocols": "sha256:1b3ffbab183fffdfa83879c0d319c7122c52aa26c036902b0dd0e03ae05adce0",
+      "261021-decision-investigation-constant-factor-audit": "sha256:06117fe331929131a63aeedf87ee44fa86810e5be4351dab2f32a6abb7a3e2b9",
+      "261021-decision-investigation-first-batch-performance": "sha256:9bd189b1fd9894737d5608a9f5bf61311dcc541d7a3cf15c0e9aef30c27c4595",
       "261021-git-path-query-argument-batching": "sha256:aab1c0f55d2bf5fe08d745a681d9b349afd6f61522358c8e952171c336874b2f",
-      "261021-record-tools-100k-performance": "sha256:90f583af3ff0bd21d2cd30332c33af6f480e2ffed737cf6d7f5d956ed891837b",
-      "261021-record-tools-all-operations-100k": "sha256:d55d495455ae2bd3217331bb0ec6c936995278a9a04a8e6945ec8673e97dfefc",
-      "261021-record-tools-first-optimization-validation": "sha256:193a274ac8ba04b526b07e0798f6943370e7b6cc1f695b6b4f0de0d2e2e388f1",
-      "261022-ir-index-payload-optimization": "sha256:c96894e0db5b2c3bda5d7aed77545ab927253e0fe863c8a045de326dd9518766",
-      "261022-ir-index-stage-regression-cause": "sha256:05771ed8e787febbde029f3079e5bf4466fd8b5b8e7817e8d4fc3e3d7cc6fa91",
-      "261022-record-stage-convergence-10k": "sha256:b72f5d9b85d11a94779f6be1edcb3d1b087eefddd5cd26616bf33e54f9eaa2f0",
-      "261022-record-tools-local-contracts-1w": "sha256:57bcb70b9bc5b88f4ab02e6946cec25694aeaf734bb5362441f6b390100f44ef",
-      "261024-align-record-rename-verification": "sha256:fd52dbadac7dd085a4232752533b5c0bab2c4fb08bfbfe2dd78fc9479cd10c2e",
-      "261024-record-global-throughput-and-memory": "sha256:d17e6ad3f44d366fcfa4ea45dbb9e9ad9b57e2c44951f174d279290cf8de0451",
-      "261024-record-index-computation-and-transfer": "sha256:0a4dc167b2ee878c5ea1a71f0690580564a48b5213b3ce8224bccdd50ebfb8e8",
-      "261024-record-tools-entry-matrix-10k": "sha256:bdb7464449dcae7a158bd1e6d18ed8adae29de35855b26dc3d814ac6ba092149",
-      "261028-collection-single-item-cost-audit": "sha256:aab7d365be0bc5778559f12f1dd512a870978454ab04a23a3479ce4da48ac2e4",
-      "261028-git-stdin-error-lock-lifecycle": "sha256:68d33cbbf0d7376ef566fa1155291edce2a55e55d5997ea74df1bfb245ab163d",
-      "261028-investigation-v87-windows-head-predecessor-cost": "sha256:8246510717cf2d3afff1400de4358d1d3ee651760031dffa52c04febb6d2667f",
-      "261028-record-cost-reachability-boundaries": "sha256:b4e86e4f03808bfd98f5e66d9a96954dccf836e47f1cf6ba638f6ffab7b19b0c",
+      "261021-record-tools-100k-performance": "sha256:88501162d56d62770568d177c847159da7cda917c924d3df36856cb341c46e1a",
+      "261021-record-tools-all-operations-100k": "sha256:987c8a3b3925b88a1f434b7acaf969e5453953d0fe56d1288b83545615f8a36f",
+      "261021-record-tools-first-optimization-validation": "sha256:ae90bd7606b1609763e401fecdbd266112cb611aa8351ee41ce41777ef184c98",
+      "261022-ir-index-payload-optimization": "sha256:88e82859b231de90cbd8c746c2b02d3876e16cdcf621506bba2fce5d54089b7a",
+      "261022-ir-index-stage-regression-cause": "sha256:add63bf0425fb708de2c0fd79cf197658e37d4b9ba994aefe8fefb2b42b054a1",
+      "261022-record-stage-convergence-10k": "sha256:43e4c9b4bfcd8b1f4bb605916f0554ae80268c1dda1647d1d8afdeb4d0255176",
+      "261022-record-tools-local-contracts-1w": "sha256:0951121f07524898258664da007f58aa50fe8b62e74bf3f6b5ed8b4a53340d1a",
+      "261024-align-record-rename-verification": "sha256:86ddf611e151c06a9be85ac3eb5bb7b07273a22dfee094e34ecdd325a897a3fb",
+      "261024-record-global-throughput-and-memory": "sha256:4c6f20c651570a88ba34220c18762fd483d9a479ed5f73c864306fba56af64c7",
+      "261024-record-index-computation-and-transfer": "sha256:7686d3db57720ed880ac07bc8ee62ff5973936f015e61a3c6e84b7d53402d967",
+      "261024-record-tools-entry-matrix-10k": "sha256:e34bdaa978547b5e27a989db23220ef8ed86713c68fc94608869d62977d5101a",
+      "261028-collection-single-item-cost-audit": "sha256:9397ede8dcbe6377d593ff0125446444fa987b65b909a4411c114d8ebc3b0c2b",
+      "261028-git-stdin-error-lock-lifecycle": "sha256:27dacbbc502671d48bb2491151f790f4485b63402bbd4de1a93e23b480ba039b",
+      "261028-investigation-v87-windows-head-predecessor-cost": "sha256:8e8d750c56a5b1c3dd9ab50dc7da85fbe20b854998be866290767c6aa5e33063",
+      "261028-record-cost-reachability-boundaries": "sha256:3b1f723d9a4b15bd5fdf09bdbc6f43d3b6b3efa7ce91d1257c51ba37e78b3900",
       "261031-gate-domain-scope-quality-audit": "sha256:94a030a2de9740ba1a63ba0e8bd07b775fd54fcd58ed48471def5251709ce98e",
       "261104-investigate-head-index-diagnostic-loss": "sha256:d7ce6b0df8b181942fe657ec41e40598c9f0885657252b025ae978959b536f41",
       "261104-shared-historical-index-boundaries": "sha256:ee4183d42ade08db30b899986994851e7fb5371fdb25ba9b54301343d9b85dfe",
-      "261105-rust-native-query-performance": "sha256:527ccbd6d06cb7d0f7af4f896d41121c5a58a24830a2f86ba6ad447c2713f113",
-      "261105-rust-query-algorithmic-complexity": "sha256:4cc79ca0d4e610141c1beda1369ad8f77b6a9b6596b62d613138a5ccaa738de3",
-      "261105-rust-query-fixed-cost-and-scale": "sha256:6ecf09c891f5f1e276fcd8e2494435b854efa13ce6566bc9d3cdf7ea866e372b",
-      "261105-rust-trace-aligned-graph-performance": "sha256:355fa3139a6a4e6aa4ab8bab69df53dc59d9bce1b06a998130f192bb47a619cd",
-      "261106-record-cli-final-candidate-performance": "sha256:dd8860fba21869f65a67c09aaa123d1c5858683df397d4f0719b6401c224a42c",
+      "261105-rust-native-query-performance": "sha256:2c0f03d27a1049973459346785434dd64db520c08220d88991dc84e6399322d7",
+      "261105-rust-query-algorithmic-complexity": "sha256:d52510377ccc617774618ceccd85b3507122f397572f0069abefa12b908a48b4",
+      "261105-rust-query-fixed-cost-and-scale": "sha256:dd196f94e34433f53e29a16b36c899c21f63c07fde88feadd04f9752d9bdc40d",
+      "261105-rust-trace-aligned-graph-performance": "sha256:77128a1cee60eff847e1abc7e0d390fa8a26e117ffeabb747f9e2c8960a8d15e",
+      "261106-record-cli-final-candidate-performance": "sha256:eaff3f267a90402cd49072689331a184d569417e087adc2bfc5e6612e697e206",
       "261106-rust-function-metrics-boundaries": "sha256:e85870944d58186950abe4e47806a302259dd0a5da3838908d9f6443751b3031",
       "261106-rust-transaction-namespace-race": "sha256:3a2f6b27fe32c95d72cc6383bdd102296e7975ef3efbd4723d245aeae1eae88d",
       "261106-rust-verification-error-causes": "sha256:3a4d1a073c8f1811e33b5a8ee536181362618bb281c29181f5ef2c59b204b95d",
       "261106-rust-windows-native-compatibility": "sha256:e6837963e21bae8298cdd5748c6c8b05e7df0740de9dc27d2a65b7299cf8e573",
       "261107-git-index-update-prefix-collisions": "sha256:cc4553d9e3bdeff028b103ad7573accda44bfcc57740296b3b23901866aae842",
-      "261107-record-cli-current-process-cost-and-scale": "sha256:cbc661c991af0d107657903cb1ac7d604ffdb8713dadef9bf27fc86d4e9866d4",
-      "261107-record-cli-native-complexity": "sha256:f496d6e4021805ff9c773c86a9a848f675d303abfc52cd11bb4330e936d58602",
-      "261107-rust-record-idiomatic-implementation-review": "sha256:58db8c058cdc2fac58a0f8c25061367dbb0e96e2f20521181432a6612f5d8398",
-      "261107-rust-record-library-replacement-survey": "sha256:95e0b6e3103647c39e624788b2d8403ac6db03b4d629c9f3582fde7206710c6c",
-      "261107-rust-record-transaction-io": "sha256:c1e92ff82dcc0c4fc75201783f0a54de9fa456726fc56a986baa0bc0f3a41fd7",
+      "261107-record-cli-current-process-cost-and-scale": "sha256:e6bbf85ccf704ec9e7538feda78bcef798d8ab2b4e2c50cbd80fd09499a29a80",
+      "261107-record-cli-native-complexity": "sha256:b44a4c49cbfc7a40b4ab6082cc41c39b7d473de60aef07936a923106494acf4e",
+      "261107-rust-record-idiomatic-implementation-review": "sha256:c3be91c005b56d9935d3cb326e17d7373ba5a9bb73639042913d9ecf366abcf9",
+      "261107-rust-record-library-replacement-survey": "sha256:243bdd60ffd1a67988c2e9f2946e5a53d8b0ef093bd7ba171dc89df67359a2e4",
+      "261107-rust-record-transaction-io": "sha256:701cbfc5a4917e4749e75dffa7a04d53bcd8d6ff2ca4ce7b83ca354686c48132",
       "261108-decision-candidate-self-relation-validation": "sha256:b7e4929491d32c2d09940bc4d1f8ea451ef47489a6d0dd7e1cb410d85fdd2717",
       "261108-decision-evolve-final-selection-closure": "sha256:d88e7d768d41e1b9aaeeaee3c039d62c951c8c15fb353388df66800909b846b8",
       "261108-investigation-stage-owner-symlink": "sha256:1d63de3e825abb9a1d3a27c18f764b42ba8bad766139bfdbfc45d6d34ab019f7",
       "261108-native-relation-summary-input": "sha256:0a269b60d2532137e68c399c390eec82313935128c7b09776ed6162ef7791d93",
-      "261108-record-cli-native-complexity-survey": "sha256:e7e72b79940d6d7c2fc0cb672cf39943a56a34946e5b12f56159c31fd6d6a797",
-      "261109-native-updater-relocated-complete-receipt": "sha256:e4a7ee4b92853caa86e8147864e8088d4ea9e13ac01b634acd71e44aa929468c",
+      "261108-record-cli-native-complexity-survey": "sha256:9049f8b55f5de9c8dab4a325f693d3625e3d01376e76eb21cb51482436ee38a7",
+      "261109-native-updater-relocated-complete-receipt": "sha256:57059f98d11119e766feb75f1a2d8d38ed1e9ee45f70c7b62c5afd6df6c3320b",
       "261110-native-ci-version-and-directory-cache": "sha256:32ece96e13f74a86133f08224c1fc69558ad112b0364f6d9f0bd1952c6f74188",
-      "261110-native-full-check-io-costs": "sha256:f17a175f5b1f5e7f1c1facb0218e5a23ecb84e9e09bddb4f9a4db8d8bd62c524",
+      "261110-native-full-check-io-costs": "sha256:d932360808c439e55d5683f838d8e58be8da082f29d0f8e1ad0412410f158f56",
       "261110-rust-byte-literal-function-metrics-boundary": "sha256:ac2065a8b224e66cb0db544ea1ffc0fd0c27a74240d1ea6c25151ed12a7c8783",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:512b8f0c5b6466034d7d851032bf41af7413a227bdd19c62959fc2ad343d495c",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
@@ -2534,20 +2071,20 @@
       "ci-clean-runner-environment-regressions": "sha256:06863d08f3b62c30486a5ed0b953b84f58ab12dd68156cc78e2b0df9ab680a88",
       "compare-human-and-ai-abstraction-defaults": "sha256:5a2d0cd8034f768502ab886ec08649ed74fa3722cd5d3fd2e83e00811631a5d4",
       "compress-negative-revision-history-into-positive-goals": "sha256:02ee1c6cbff503f7ca0fef29b5c8ff3a58f20908c851972ef445547dc9114dd5",
-      "defer-standard-test-result-blocking": "sha256:cf8f87e766bb4da0f3502655a25cff8fe8f65ddb0b8aff3d55d7faf92fb0283a",
+      "defer-standard-test-result-blocking": "sha256:b4b5e85a85326b14aa173f014b382c8c90f5dae64e709faf1e27fccb86fb519b",
       "define-git-library-selection-evidence": "sha256:c89802bd2cf1aa87c73a0a5fd56a80d59f0305f7ecc93c6d859ab60226e90825",
       "detect-uncommitted-decision-evolution-from-git-baselines": "sha256:e71f540c3f0a94218d0839913199c25ade8d393342cf3dff2f25dd23514fe6fa",
       "distinguish-activation-neighborhoods-from-valid-solution-space": "sha256:507a13802372dc342b5f1d3a7c9a9f29db6a5cdb7179295179fcdf4bb5e40b96",
-      "distinguish-expressive-equivalence-from-construction-cost": "sha256:014e213694744e4983deca62de139a302f53e410f90f74d20b601821fb7f42a3",
+      "distinguish-expressive-equivalence-from-construction-cost": "sha256:ce0fff2200a64bdebf8a6da9a13247cd105739043bf0014091913335cd95b6dd",
       "evaluate-mcpshell-as-user-scoped-workspace-bridge": "sha256:1117a288375c051f938c6115783f0e084fd01e819fb332197fd9cec606a5794a",
       "ground-positive-negative-asymmetry-in-reference-structure": "sha256:23bdef79371bc4a9c883e32abba5255f1409bad4dba630d28c4da57d59be194d",
       "identify-operation-time-skill-rerouting-gap": "sha256:21f570c4ef34d834621fb23c34f78d30818898bf0fa722700ede500fb7f96829",
       "identify-routing-and-coordination-gaps-in-context-management": "sha256:38f3c87eb94537e089cbc401c6a61179bf5d4da042a3b1c7b75d016423f03e53",
       "identify-vibe-001-jscpd-path-and-lizard-version-gaps": "sha256:5ab2c102f8afec6e68ff5499f8718fbd575480bce9f36b41242bf3051297d086",
       "model-goals-as-layered-partially-expressible-intentions": "sha256:c64d32dfe7fd1ed38314254be75af7712aa276bb337e5dad2a5eeef60f538c03",
-      "preserve-redacted-conversations-in-two-derived-forms": "sha256:2f496ad741ff081a5919760c0f918b815e1bcde4df520289072c81b15ae0610c",
+      "preserve-redacted-conversations-in-two-derived-forms": "sha256:bfb89860269e28b64c59d7609c4e4149fc29bd6b008e42f42ee8fea9062f779e",
       "recognize-document-projections-as-part-of-goal-formation": "sha256:e636c7e927beb109ea9fc35b9aea518cce7c4a1890ae4650983b4a4189ff4537",
-      "recover-candidate-model-from-negative-description-dispute": "sha256:2bb9bf4c86614bc2ed6e4b1fd622b7f3406824327f6bee889e4509cca28e891c",
+      "recover-candidate-model-from-negative-description-dispute": "sha256:b79d4feacdb2a8e0ec4f6d2a3a34e57a9c2e84873e46df7d9b1ecaf39c44fcb0",
       "reject-lock-and-atomic-write-library-dependencies": "sha256:34837dbbad923e197ae264ddf67f5703e6763f02b78d5534dca7f08b1f76c653",
       "remove-supervision-around-lock-and-atomic-write-libraries": "sha256:6e0a0cec791667df38f0dca6894a922c49765073b778d2ff91b1928abe09db5d",
       "return-from-framework-strategy-to-description-polarity": "sha256:f714f3cdb411b7e2aea10cec3278314ef05a5171bdfbefab2a03a11fffcfe261",

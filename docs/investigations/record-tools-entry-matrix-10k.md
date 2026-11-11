@@ -52,7 +52,7 @@ DR 18 个命令、63 个场景，IR 14 个命令、58 个场景，合计 **32 �
 | Git 工作量 | 记录 `cat-file` 完整 payload 与 framing。HEAD／pending 标签来自初态 OID 成员关系，可重叠，只能解释归属，不能相加或视为精确阶段。 |
 | 操作效果 | 独立核对完整工作区字节与 mode、领域状态、索引与 sourceRevision、资源、完整 pending 和未选保护；再比较正常／probe 输出与最终状态。 |
 
-源码和复制依赖虽已冻结，运行时依赖并非完全封闭：`simple-git → debug` 可解析到外部 optional `supports-color` 9.4.0，仅有发现时与结束时的一致哈希，缺少采样开始前哈希。未观察到的 loader 读取仍是覆盖边界。精确计数、等价归一化及环境记录见随附协议与来源材料。
+源码和复制依赖虽已冻结，运行时依赖并非完全封闭：`simple-git → debug` 可解析到外部 optional `supports-color` 9.4.0，仅有发现时与结束时的一致哈希，缺少采样开始前哈希。未观察到的 loader 读取仍是覆盖边界。
 
 ## 调查结果与边界
 
@@ -62,7 +62,7 @@ DR 18 个命令、63 个场景，IR 14 个命令、58 个场景，合计 **32 �
 
 484 个样本全部完成：363 次正常运行（345 次预期成功、18 次预期拒绝）及 121 次 probe（115 次预期成功、6 次预期拒绝）。没有非预期 CLI 失败、超时或 OOM。独立审计覆盖全部样本、968 个输出流身份及状态后验，正常／probe 等价通过；正式采样无删样或失败替换。
 
-下表按用途分组，时间与 RSS 为三个正常样本的统计，工作量来自独立 probe。完整场景见随附总表。
+下表按用途分组，时间与 RSS 为三个正常样本的统计，工作量来自独立 probe。
 
 | 分组与场景 | wall 中位（最小–最大），秒 | CPU 中位，秒 | RSS 中位，MiB | probe 实际工作量 |
 | --- | ---: | ---: | ---: | --- |
@@ -89,37 +89,3 @@ DR 18 个命令、63 个场景，IR 14 个命令、58 个场景，合计 **32 �
 当前证据支持入口分组与工作量判断，**尚未证明每轮读取的耗时占比或可删除性**。后续可优先为普通发布／演进和候选删除补最小阶段证据，同时保留授权、未选保护、历史门禁与 fresh 义务。
 
 适用范围为本轮版本、稀疏关系及串行暖缓存输入。冷缓存、并发漂移／中断恢复、权限故障、复杂归并拆分及全部参数组合未覆盖；跨域载荷不同，结果不用于跨域总时长排名、跨报告加速比或线性伸缩推算。本轮仅形成调查材料，被测实现与 skill 版本未变。
-
-### 证据阅读路径
-
-| 阅读目的 | 入口 |
-| --- | --- |
-| 找到全部场景和重点指标 | `measurements.csv`；两域 `*-summary.json` 保存三样本统计 |
-| 确认输入、工作量与操作效果 | `*-matrix.json` 定位初态与 argv，`*-metrics.jsonl`／`*-workloads.jsonl` 核对指标与计数，`*-streams.jsonl`／`*-outcomes.jsonl` 核对输出与后验 |
-| 审查来源与方法 | `environment-and-inputs.json`、`protocol.md`、`measurement-methods.md`；`*-provenance.jsonl` 保存来源映射及准备阶段纠正 |
-| 核对审计和机械检查 | `audit.json` 与 `verification.json`；后者的资源体积及文本审阅结论对应报告初次建立时的快照 |
-
-资源保存经审计材料的展示与摘要：路径一致标记化，原始 bytes／SHA 与展示身份分开；输出按 SHA 去重，长路径／OID 列表保留 count＋SHA。JSONL 的 `bundlePath` 是逻辑来源名。完整 maps、大索引字节、依赖和合成仓库未随附；方法代码供审查形成时做法，材料支持审查而非完整重放。
-
-## 随附资源
-
-- [审计：全样本、导出自验与聚合边界](./_resources/261024-record-tools-entry-matrix-10k/audit.json)
-- [DR 场景：精确 argv 与初态](./_resources/261024-record-tools-entry-matrix-10k/decision-matrix.json)
-- [DR 指标：全部正常与 probe 样本](./_resources/261024-record-tools-entry-matrix-10k/decision-metrics.jsonl)
-- [DR 后验：状态指纹与小 delta](./_resources/261024-record-tools-entry-matrix-10k/decision-outcomes.jsonl)
-- [DR 来源：输出映射、方法前提与导出依据](./_resources/261024-record-tools-entry-matrix-10k/decision-provenance.jsonl)
-- [DR 输出：内容去重的完整展示](./_resources/261024-record-tools-entry-matrix-10k/decision-streams.jsonl)
-- [DR 统计：三样本与逐场景工作量](./_resources/261024-record-tools-entry-matrix-10k/decision-summary.json)
-- [DR 工作量：probe 计数与 Git 批次](./_resources/261024-record-tools-entry-matrix-10k/decision-workloads.jsonl)
-- [来源：冻结版本、环境、输入指纹与依赖边界](./_resources/261024-record-tools-entry-matrix-10k/environment-and-inputs.json)
-- [IR 场景：精确 argv 与初态](./_resources/261024-record-tools-entry-matrix-10k/investigation-matrix.json)
-- [IR 指标：全部正常与 probe 样本](./_resources/261024-record-tools-entry-matrix-10k/investigation-metrics.jsonl)
-- [IR 后验：状态指纹与小 delta](./_resources/261024-record-tools-entry-matrix-10k/investigation-outcomes.jsonl)
-- [IR 来源：输出映射、方法前提与导出依据](./_resources/261024-record-tools-entry-matrix-10k/investigation-provenance.jsonl)
-- [IR 输出：内容去重的完整展示](./_resources/261024-record-tools-entry-matrix-10k/investigation-streams.jsonl)
-- [IR 统计：三样本与逐场景工作量](./_resources/261024-record-tools-entry-matrix-10k/investigation-summary.json)
-- [IR 工作量：probe 计数与 Git 批次](./_resources/261024-record-tools-entry-matrix-10k/investigation-workloads.jsonl)
-- [方法：计量、计数、后验与整理代码导航](./_resources/261024-record-tools-entry-matrix-10k/measurement-methods.md)
-- [总表：121 场景的耗时、CPU、RSS 与工作量](./_resources/261024-record-tools-entry-matrix-10k/measurements.csv)
-- [方法：本轮计量协议](./_resources/261024-record-tools-entry-matrix-10k/protocol.md)
-- [验证：报告初次建立时的审计与门禁记录](./_resources/261024-record-tools-entry-matrix-10k/verification.json)

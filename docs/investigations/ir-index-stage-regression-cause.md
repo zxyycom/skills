@@ -32,15 +32,15 @@ relations:
 
 ### 输入与恢复
 
-2026-10-22 在同一宿主新写方法，旧版由 Git `0a85d4139309657c1b2d0e985d40f0c57f7f71e7` 独立 archive，当前为 `af4015ab` 的实际源码与公开分发字节副本。没有执行或修补历史方法。输入逐文件指纹、环境、fixture 与分组边界见随附 `context.json`。
+2026-10-22 在同一宿主新写方法，旧版由 Git `0a85d4139309657c1b2d0e985d40f0c57f7f71e7` 独立 archive，当前为 `af4015ab` 的实际源码与公开分发字节副本。没有执行或修补历史方法。
 
 每次使用真实 Node 26.8.2 公开 CLI，`NODE_OPTIONS=''`、默认 heap 2,248,146,944B，4 CPU 配额、6GiB cgroup，不强制清 OS 缓存。fixture HEAD tree 精确等于前序 `e234306131070fe7762852346d249d0468eb7497`：10,000 正式报告、9,000 分组边、2 ready 候选、全域 5×96B 资源，索引 5,893,454B。每十条的九叶指向组根，无跨组边。
 
-基本单选 P=HEAD，没有 A 或旧 B pending。准备阶段修改 B（`261001-perf-00007`）正文并重建工作区发布索引，增加 B 的 96B 未引用 owner 成员，保留域外 pending 修改和 staged 删除；每次仅把 pending index 恢复为 HEAD，其他相同准备字节不变。被测动作只有一次 `stage B --scope index`，完整 argv 随原观测保存。
+基本单选 P=HEAD，没有 A 或旧 B pending。准备阶段修改 B（`261001-perf-00007`）正文并重建工作区发布索引，增加 B 的 96B 未引用 owner 成员，保留域外 pending 修改和 staged 删除；每次仅把 pending index 恢复为 HEAD，其他相同准备字节不变。被测动作只有一次 `stage B --scope index`，
 
 ### 样本、计时与独立效果
 
-共 **31 次观察**，不是31份同条件性能样本：旧／当前原生各3次（6），三种无插桩诊断变体各3次（9），初始 probe 各1次（2），重新串行的 clean probe 各3次（6），current／merge交替3对（6），merge／narrow各1次计数 probe（2）。逐次顺序与分组见 `observations.jsonl`、`context.json`；clean 原始阶段事件见 `phases.json`。
+共 **31 次观察**，不是31份同条件性能样本：旧／当前原生各3次（6），三种无插桩诊断变体各3次（9），初始 probe 各1次（2），重新串行的 clean probe 各3次（6），current／merge交替3对（6），merge／narrow各1次计数 probe（2）。
 
 `os.wait4` 记录 CLI 至退出的 wall、user+system CPU 和 maxrss，包含 Node 与其 Git 子进程，不含准备／后验／Bun wrapper。函数 timer 用 `performance.now` 与 `process.cpuUsage`，**阶段 CPU 仅 Node，不含 Git；计时是 inclusive，父子阶段不能相加**。原生无插桩组用于端到端倍数；插桩只用于工作量和阶段定位，不要求其总时与另一组精确相等。
 
@@ -104,14 +104,4 @@ merge 复用初次 P 作为准备事实。额外计数 probe 确认完整 P **5�
 
 结论限于本轮一万条、短正文、稀疏分组关系、常数资源与基本单选 index。没有证明 p95、冷缓存、大附件、复杂图、其他scope或十万条容量；没有独立量化每对象／每字节、hash／Git读取／JS framing、GC或RSS各自贡献。不以其他操作提速抵消本回退，也不因有重复候选就默认要求立即实施。
 
-随附材料保留31次原观测及62个输出流全文；输出仅按SHA去重，阶段与最小diff合并，方法作为阅读证据而非执行入口。没有归档大fixture、源码副本或依赖；来源revision及字节指纹支持进一步复核。机械候选readiness不代替上述语义、因果和修复安全边界。
-
-## 随附资源
-
-- [环境、fixture、输入指纹与异常说明](./_resources/261022-ir-index-stage-regression-cause/context.json)
-- [诊断变体完整最小差异](./_resources/261022-ir-index-stage-regression-cause/interventions.txt)
-- [本轮新写方法阅读证据](./_resources/261022-ir-index-stage-regression-cause/methods.txt)
-- [31次原始观测与独立效果](./_resources/261022-ir-index-stage-regression-cause/observations.jsonl)
-- [clean及其他探针的原始阶段事件](./_resources/261022-ir-index-stage-regression-cause/phases.json)
-- [62个原输出流引用及去重全文](./_resources/261022-ir-index-stage-regression-cause/streams.json)
-- [原生、阶段、配对与计数汇总](./_resources/261022-ir-index-stage-regression-cause/summary.json)
+机械候选 readiness 不代替上述语义、因果和修复安全边界。

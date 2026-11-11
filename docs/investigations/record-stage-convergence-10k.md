@@ -17,7 +17,7 @@ relations:
 
 ## 形成时背景
 
-**最终匹配组通过本轮性能与独立效果验收：Decision Records（DR）index wall 中位数降低 65.11%，Investigation Report（IR）降低 15.05%。** 首轮候选因稳定回退被拒绝；修复后 v2 通过性能验收；后续结构整理改变了运行时源码，因此再次冻结 v3 并完整重测相同有限矩阵。主结论只使用最终 v3 匹配组，v1 失败组与 v2 中间组独立保留。
+**最终匹配组通过本轮性能与独立效果验收：Decision Records（DR）index wall 中位数降低 65.11%，Investigation Report（IR）降低 15.05%。** 首轮候选因稳定回退被拒绝；修复后 v2 通过性能验收；后续结构整理改变了运行时源码，因此再次冻结 v3 并完整重测相同有限矩阵。主结论只使用最终 v3 匹配组，v1 失败组与 v2 中间组分别解释。
 
 [前序调查](record-tools-local-contracts-1w.md)保留了局部契约调整时的成本与保证；[后续归因](ir-index-stage-regression-cause.md)识别了 pending 范围及重复准备成本。本轮在共同协调机制的新源码条件下独立复查单选 stage，保留旧轮次以区分契约、版本、fixture 与入口的变化。**本轮测量公开源码 stage API，不含 CLI 解析与渲染**，不能与旧报告的分发 CLI 耗时直接拼表。
 
@@ -29,9 +29,9 @@ relations:
 
 ### 源码、输入与有限场景
 
-baseline 固定为 Git `4043171705d7fd667b135e9898c6f66f3221161d`。候选是实施后未提交源码的独立副本，以工具树聚合 SHA-256 定位：首轮为 `9354aa4a93b66390a6a3dc0c358c7dbf0b3b821afbf85657e44609b979a2a367`，中间 v2 为 `8429ed3a00eb326071d69e8cddd0da55284a50cc4637550accac541eaa6964a0`，最终 v3 为 `da02d787b3926d96f8a0331b4332b51ea927e72b80f469e1f66e410ba60142a1`。逐文件 SHA、采集时点、共享 manifest／锁文件摘要分别见原输入指纹与新增 v3 输入指纹。各组使用同一兼容依赖，原 v1/v2 资源未覆盖。
+baseline 固定为 Git `4043171705d7fd667b135e9898c6f66f3221161d`。候选是实施后未提交源码的独立副本，以工具树聚合 SHA-256 定位：首轮为 `9354aa4a93b66390a6a3dc0c358c7dbf0b3b821afbf85657e44609b979a2a367`，中间 v2 为 `8429ed3a00eb326071d69e8cddd0da55284a50cc4637550accac541eaa6964a0`，最终 v3 为 `da02d787b3926d96f8a0331b4332b51ea927e72b80f469e1f66e410ba60142a1`。各组使用同一兼容依赖。
 
-隔离 Git 仓库同时包含两域，各 10,000 正式对象、9,000 条分组链式关系；每十条为一组且无跨组边。Decision 为 9,000 archived＋1,000 active；Investigation 为 10,000 报告。Decision 正文 4,262,016 B、工作区索引 6,682,273 B；Investigation 正文 4,128,210 B、索引 5,472,408 B。正文、关系与资源规模固定，生成方法及完整性摘要见资源。
+隔离 Git 仓库同时包含两域，各 10,000 正式对象、9,000 条分组链式关系；每十条为一组且无跨组边。Decision 为 9,000 archived＋1,000 active；Investigation 为 10,000 报告。Decision 正文 4,262,016 B、工作区索引 6,682,273 B；Investigation 正文 4,128,210 B、索引 5,472,408 B。正文、关系与资源规模固定。
 
 下文 H 为固定 HEAD，W 为工作区，P 为 Git pending。固定选择 `261001-perf-00000`；未选对象 `00031` 保留部分 pending 内容与 `100755` 模式，`00032` 保留 staged 删除，另有外域 pending 修改／staged 删除和不同工作区字节。工作区已同步 selected 及未选来源变化，初始 pending 索引保留 HEAD 投影。所选 Investigation 直接引用未选 `00003` owner 的共享资源，自有 owner 树还包含更新、增加、删除和可执行模式变化，用于核对完整树刷新（含未引用成员）。每次复制隔离 Git index 恢复相同 P，H 与 W 固定；初始化、sync、恢复、后验均不计入 stage。
 
@@ -45,7 +45,7 @@ baseline 固定为 Git `4043171705d7fd667b135e9898c6f66f3221161d`。候选是实
 | CPU | `ru_utime+ru_stime`，含 Node 及其已等待 Git 子进程。 |
 | RSS | Linux wait4 `ru_maxrss`（KiB），继承式最大进程峰值，非子树同一时刻 RSS 之和或 JS heap。 |
 
-每域每版每 scope 预热 1 次。index 正式 3 对按 baseline→candidate、candidate→baseline、baseline→candidate 交替；all/domain 各 1 对。三轮均在冻结代码并停止其他测试／同步后串行采集；不主动清 OS 缓存，仍非整机隔离。预先约定主组极差／中位数超过 10% 标为噪声，回退判断另看全部样本、实测组内波动与配对方向。全部 80 次 1W 观测分组保留：首轮 12 正式＋4 预热；v2、v3 各为主组 12 正式、scope 代表 8 次、预热 12 次。原资源保存前 48 次，新增 v3 资源单独保存 32 次，不拼接不同候选或旧 baseline 样本。正式中位数不含预热。
+每域每版每 scope 预热 1 次。index 正式 3 对按 baseline→candidate、candidate→baseline、baseline→candidate 交替；all/domain 各 1 对。三轮均在冻结代码并停止其他测试／同步后串行采集；不主动清 OS 缓存，仍非整机隔离。预先约定主组极差／中位数超过 10% 标为噪声，回退判断另看全部样本、实测组内波动与配对方向。全部 80 次 1W 观测分组为：首轮 12 正式＋4 预热；v2、v3 各为主组 12 正式、scope 代表 8 次、预热 12 次。不拼接不同候选或旧 baseline 样本。正式中位数不含预热。
 
 每次结束后独立读取 Git pending 与 JSON，不调用被测 stage 的投影／检查逻辑：完整预期由原 P 所有 entry／revision 仅替换 selected 当前 W 投影形成，并独立 SHA-256 重算 selected 来源 revision。核对所有未选 entry／revision、全 pending 路径／OID／mode 与删除、selected 文件及 owner 树字节／mode／删除、scope 外保持和全 W 来源／资源 SHA 清单不变。domain 保持原 pending 索引，index 保持领域文件；Git 内部对象新增不属于 W 来源变化。100 条连续序列另核对先前已选对象与 revision 不被后选覆盖。
 
@@ -63,7 +63,7 @@ IR 独立工作量显示 H／P 读取、W 字节、枚举与物理复制未扩�
 
 ### 2. 最终 v3 index 完整匹配组
 
-下表列出三次全部值；时间单位秒，RSS 单位 KiB，按组内序号排列，真实交替执行顺序见 v3 原始观测。
+下表列出三次全部值；时间单位秒，RSS 单位 KiB，按组内序号排列。
 
 | 域／版本 | wall 三次 | CPU 三次 | RSS 三次 |
 | --- | --- | --- | --- |
@@ -85,7 +85,7 @@ Decision 中位 wall **6.712542→2.342072s（−65.11%）**，CPU 9.929110→3.
 | Investigation all | 5.073495→4.605491 | 7.713191→7.127008 | 413184→364808 |
 | Investigation domain | 4.145258→3.866727 | 6.568825→6.231437 | 359504→318232 |
 
-代表样本均通过 selected／unselected 与 scope 后验。IR all 同时覆盖必要共享 owner 和完整自有资源树；domain 证明不覆盖索引。v2 的 IR all baseline 预热 6.932616s 与正式 5.087321s 差距明显，原值继续保留在 v2 资源；最终 v3 对应预热为 5.131722s、正式为 5.073495s。预热与正式、不同候选组均分别解释。
+代表样本均通过 selected／unselected 与 scope 后验。IR all 同时覆盖必要共享 owner 和完整自有资源树；domain 证明不覆盖索引。v2 的 IR all baseline 预热 6.932616s 与正式 5.087321s 差距明显；最终 v3 对应预热为 5.131722s、正式为 5.073495s。预热与正式、不同候选组均分别解释。
 
 ### 4. 实际工作量与剩余成本
 
@@ -113,29 +113,6 @@ IR all 的 baseline-v3/candidate-v3 均为 1 批 H＋5 批完整 P，P 每批约
 
 ### 5. 完整性与未覆盖边界
 
-80 次 1W 观测及 14 次独立工作量调用全部通过各自 scope 的独立后验；三轮候选各有两域 100 条 A→B→修改后重选 A 的 6 步检查，共 18 步，全部通过。v3 新增 32 次观测与 6 次探针，前两轮 48 次观测与 8 次探针保留原资源，未覆盖或混组。输出保存完整字节 SHA；冗长 `preservedPendingPaths` 只节选首尾并保留数组总数／规范 JSON SHA，其余输出字段及 stderr 保真，具体处理见 streams 资源。
+80 次 1W 观测及 14 次独立工作量调用全部通过各自 scope 的独立后验；三轮候选各有两域 100 条 A→B→修改后重选 A 的 6 步检查，共 18 步，全部通过。v3 有 32 次观测与 6 次探针，前两轮有 48 次观测与 8 次探针，各组未混用。
 
-本轮未覆盖异常／竞态全集、symlink 故障、跨平台 runner、十万条容量、冷缓存、p95、内存子树同时峰值或公开 CLI／分发开销。产品功能测试、生成接线与项目 Gate 由实施 owner 另行验收；本文只报告本轮实测。随附资源供复核形成时证据，不是长期测试入口或可维护基准工具。
-
-## 随附资源
-
-- [运行环境与Git配置](./_resources/261022-record-stage-convergence-10k/context.json)
-- [fixture规模、资源表示与输入完整性摘要](./_resources/261022-record-stage-convergence-10k/fixture-integrity.json)
-- [最终v3源码逐文件输入指纹](./_resources/261022-record-stage-convergence-10k/input-fingerprints-v3.json)
-- [两轮候选与固定baseline逐文件输入指纹](./_resources/261022-record-stage-convergence-10k/input-fingerprints.json)
-- [最终v3实际方法与独立驱动](./_resources/261022-record-stage-convergence-10k/methods-v3.txt)
-- [本轮实际方法与执行驱动](./_resources/261022-record-stage-convergence-10k/methods.txt)
-- [最终v3独立32次观测与后验](./_resources/261022-record-stage-convergence-10k/observations-v3.jsonl)
-- [前两轮48次1W样本与逐次独立后验](./_resources/261022-record-stage-convergence-10k/observations.jsonl)
-- [最终v3原始工作量事件](./_resources/261022-record-stage-convergence-10k/probe-events-v3.json)
-- [两轮原始工作量事件](./_resources/261022-record-stage-convergence-10k/probe-events.json)
-- [首轮被拒绝IR工作量摘要](./_resources/261022-record-stage-convergence-10k/probe-summary-v1.json)
-- [中间v2两域index与IR资源代表工作量](./_resources/261022-record-stage-convergence-10k/probe-summary-v2.json)
-- [最终v3两域index与IR资源工作量](./_resources/261022-record-stage-convergence-10k/probe-summary-v3.json)
-- [首轮小fixture连续序列效果](./_resources/261022-record-stage-convergence-10k/sequence-effects-v1.json)
-- [中间v2小fixture连续序列效果](./_resources/261022-record-stage-convergence-10k/sequence-effects-v2.json)
-- [最终v3小fixture连续序列效果](./_resources/261022-record-stage-convergence-10k/sequence-effects-v3.json)
-- [最终v3输出流与节选指纹](./_resources/261022-record-stage-convergence-10k/streams-v3.json)
-- [输出流摘要、节选与全文指纹](./_resources/261022-record-stage-convergence-10k/streams.json)
-- [最终v3分布与中位数](./_resources/261022-record-stage-convergence-10k/summary-v3.json)
-- [前两轮各组的分布与中位数](./_resources/261022-record-stage-convergence-10k/summary.json)
+本轮未覆盖异常／竞态全集、symlink 故障、跨平台 runner、十万条容量、冷缓存、p95、内存子树同时峰值或公开 CLI／分发开销。产品功能测试、生成接线与项目 Gate 由实施 owner 另行验收；本文只报告本轮实测。

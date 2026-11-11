@@ -28,9 +28,9 @@ relations: []
 
 before 从保存的旧生产 TypeScript 直接导入，after 从工作树生产 TypeScript 直接导入。私有合成发布索引通过完整领域解析和合法图验证；关系图诊断为 `[]`，完整建图包含在 trace 计数内。指标是命名生产调用栈中的 predicate、Set 输入、成员探测、准入证明与反向索引访问，不是 CPU 指令或墙钟时延。
 
-实际运行时为 Bun 1.4.2，其 `process.version` 为兼容字符串 v26.3.0；7 条生成 CLI 对照另以真实 Node v26.8.2 子进程执行。`before.json` 与 `after.json` 保存形成时来源、源码／CLI SHA256 和目标计数，after 共 123 组（其中 108 组为双向完整接纳／阻断矩阵）。`measurement.ts` 保存实际观测代码，供理解方法，不是长期维护的复跑入口。
+实际运行时为 Bun 1.4.2，其 `process.version` 为兼容字符串 v26.3.0；7 条生成 CLI 对照另以真实 Node v26.8.2 子进程执行。after 共 123 组计数，其中 108 组为双向完整接纳／阻断矩阵。
 
-独立审查发现仪器自用的字段名 `includes` 被全局 hook 误归入生产成员检查。改为调用预先捕获的 native 后真实重测全部 123 组，移除 9,440 次仪器调用；所有其他计数逐样本完全一致，生产 `admissionIncludesCalls` 和对应比较数均为 0。旧观察保留用于审计；计数归零只说明该生产调用消失，其他工作由下列指标分别计量。
+独立审查发现仪器自用的字段名 `includes` 被全局 hook 误归入生产成员检查。改为调用预先捕获的 native 后真实重测全部 123 组，移除 9,440 次仪器调用；所有其他计数逐样本完全一致，生产 `admissionIncludesCalls` 和对应比较数均为 0。计数归零只说明该生产调用消失，其他工作由下列指标分别计量。
 
 ### A：完整事件聚合与接纳
 
@@ -77,19 +77,10 @@ after 一次反向索引构建访问50/100/200条边；BFS邻接边访问同为5
 
 ### 验证与适用边界
 
-当前源码与生成CLI上重新执行2,797项完整旧／新对照：864组trace、864组终端文本、882组list、72组metadata/content search、108组scalar/reader，以及7条真实Node CLI的stdout/stderr/exit，全部相同。矩阵覆盖合法ordinary/split/merge组合、全部anchor、三方向、depth0/1/2/all、预算below/exact/above、context闭合／提升、筛选交集、分页、失败诊断和预算反例。七类动态adapter交叉三方向、三depth、三预算的189组完整对照也全部相同；全部输出及来源身份见附件。
+当前源码与生成CLI上重新执行2,797项完整旧／新对照：864组trace、864组终端文本、882组list、72组metadata/content search、108组scalar/reader，以及7条真实Node CLI的stdout/stderr/exit，全部相同。矩阵覆盖合法ordinary/split/merge组合、全部anchor、三方向、depth0/1/2/all、预算below/exact/above、context闭合／提升、筛选交集、分页、失败诊断和预算反例。七类动态adapter交叉三方向、三depth、三预算的189组完整对照也全部相同。
 
-公开原生套件实际通过：Index Runtime 62、shared graph 23、IR 305、Decision Records 282、Test Evidence 32、Novel Cards 38，均零失败。新增13个最小原生节点由Case承接，完整账本覆盖1208项，原入口保留。IR／Decision／Test Evidence runtime字节变化各只升版一次至64/74/36；Novel Cards公开sync/check确认生成字节未变，版本保持5。声明和Schema保持。Gate阶段、准确时点与执行／复用范围由 `verification.json` 区分；过程中的指标诊断与收敛动作保存在该附件，不作为新增质量规则。
+公开原生套件实际通过：Index Runtime 62、shared graph 23、IR 305、Decision Records 282、Test Evidence 32、Novel Cards 38，均零失败。新增13个最小原生节点由Case承接，完整账本覆盖1208项，原入口保留。IR／Decision／Test Evidence runtime字节变化各只升版一次至64/74/36；Novel Cards公开sync/check确认生成字节未变，版本保持5。声明和Schema保持。早期 Gate 在 accessor 缺陷发现前为 65 passed、3 not applicable，不能证明修复后的源码；修正后 Gate 为 64 passed、4 not applicable，其中 63 项执行、1 项复用。
 
-原before的18组从保存的旧生产字节复跑，其中15个目标样本与原before完全相同，3个非法cycle样本仅核对历史观察。旧报告及资源保持原字节。优化范围限定于合法事件、exact批量membership和非JSON renderer；非法cycle位置查找与type-only依据去重保持原实现，完整来源验证、payload、CAS、锁与恢复保护保持。
+原before的18组从保存的旧生产字节复跑，其中15个目标样本与原before完全相同，3个非法cycle样本仅核对历史观察。旧报告的形成时条件与观察不变。优化范围限定于合法事件、exact批量membership和非JSON renderer；非法cycle位置查找与type-only依据去重保持原实现，完整来源验证、payload、CAS、锁与恢复保护保持。
 
 本轮验证证明工作树源码和生成制品的对应行为；未执行提交、远端写入或release-only打包，也未证明分发／部署、其他平台／运行时或CPU／墙钟SLO。事件稳定性、BFS深度单调性、remaining frontier组成、scalar identity或slice渲染顺序改变时，应重新调查。
-
-## 随附资源
-
-- [adapter-snapshots.json](./_resources/261011-investigation-event-query-and-trace-rendering/adapter-snapshots.json)
-- [adapter-snapshots.ts](./_resources/261011-investigation-event-query-and-trace-rendering/adapter-snapshots.ts)
-- [after.json](./_resources/261011-investigation-event-query-and-trace-rendering/after.json)
-- [before.json](./_resources/261011-investigation-event-query-and-trace-rendering/before.json)
-- [measurement.ts](./_resources/261011-investigation-event-query-and-trace-rendering/measurement.ts)
-- [verification.json](./_resources/261011-investigation-event-query-and-trace-rendering/verification.json)

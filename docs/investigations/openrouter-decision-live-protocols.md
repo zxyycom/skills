@@ -29,7 +29,7 @@ relations:
 
 2026-10-17 03:36 UTC 在仓库 HEAD `c00f1428` 对应工作区开始调查。先读相关 owner、三份协议设计报告，运行一次离线 `bun run lightweight-judgment -- doctor` 确认已有 OpenRouter 连接／凭据前置。之后使用独占一次性 HTTP 客户端读取已配置凭据，仅向 `https://openrouter.ai` 发出 **8 次 POST**；不读取其他供应商凭据，不用旧 CLI 的持久化路径，不创建或打开调用日志库。
 
-各请求使用 `application/json`、Bearer 鉴权、manual redirect、90 秒等待上限，**均没有 TypeSafe 实验头**；没有自动重试。只发合成英文文本和自制静态 RGB PNG：320×320 白底，中心 160×160 的红色／蓝色正方形，满足本轮所读两种通道的文档尺寸交集。每个请求先落合成正文、再发一次并保存实际状态、接收正文与耗时。正式附件保留安全合成 JSON；403 中账号标识删除，长输入用精确生成式及 wire SHA-256 代替大段重复文本。认证、配置、私有路径和带凭据读取逻辑的客户端不入仓库。
+各请求使用 `application/json`、Bearer 鉴权、manual redirect、90 秒等待上限，**均没有 TypeSafe 实验头**；没有自动重试。只发合成英文文本和自制静态 RGB PNG：320×320 白底，中心 160×160 的红色／蓝色正方形，满足本轮所读两种通道的文档尺寸交集。每个请求先落合成正文、再发一次并保存实际状态、接收正文与耗时。本文按实际观察概括关键输入与响应；403 中账号标识不保留，长输入以构造特点和规模说明。认证、配置、私有路径和带凭据读取逻辑的客户端不入仓库。
 
 同时复核官方 [Jev 文档](https://openrouter.ai/docs/guides/community/jev)、[alpha Reference](https://openrouter.ai/docs/api/api-reference/alphadecisions/submit-a-decisions-request)、[多模态指南](https://openrouter.ai/docs/guides/community/multimodal-decisions)、[TypeSafe SDK 接入](https://openrouter.ai/docs/guides/community/typesafe-sdk)及 [OpenAI 上游模型页](https://openrouter.ai/openai/gpt-6-luna-decisions)。它们是本轮读取的 live 文档，未固定 revision；文档声明与下列实际调用分开解释。
 
@@ -86,11 +86,11 @@ relations:
 
 #### 直接 HTTP 阶段的覆盖边界
 
-8 次探查采用一次性客户端，资源只供阅读复核，不保留自动联网执行器。该阶段未验证 JPEG、外链、图片尺寸边界、TypeSafe 原生 assets／headers、1.13 Box 拒绝、缺目标 Box 行为、全部模型别名、refusal／缓存或上下文硬上限；也未验证正在实施的 adapter 与 CLI。后者由下一阶段单独验收。
+8 次探查采用一次性客户端。该阶段未验证 JPEG、外链、图片尺寸边界、TypeSafe 原生 assets／headers、1.13 Box 拒绝、缺目标 Box 行为、全部模型别名、refusal／缓存或上下文硬上限；也未验证正在实施的 adapter 与 CLI。后者由下一阶段单独验收。
 
 ### 同轮补证：新版公开 CLI 的隔离端到端验收
 
-**2026-10-17 03:47–03:48 UTC**，待实现作者冻结代码后，另经公开入口 `bun run lightweight-judgment -- ...` 验收 skill version `9` 的生成 bundle；附件记录该 bundle SHA-256。此处与前面 8 次直接 HTTP 探查明确分开：新增 **3 次真实请求**，不重试 OpenAI 403，不访问 TypeSafe／OAI 原生端点。临时配置仅声明环境变量名，授权 OpenRouter key 在父进程内读取后仅注入子进程环境，不复制进临时配置或正式资源；正文、配置与 SQLite 都放独占临时目录，未访问真实日志库。
+**2026-10-17 03:47–03:48 UTC**，待实现作者冻结代码后，另经公开入口 `bun run lightweight-judgment -- ...` 验收 skill version `9` 的生成 bundle。此处与前面 8 次直接 HTTP 探查明确分开：新增 **3 次真实请求**，不重试 OpenAI 403，不访问 TypeSafe／OAI 原生端点。临时配置仅声明环境变量名，授权 OpenRouter key 在父进程内读取后仅注入子进程环境，不复制进临时配置或正式资源；正文、配置与 SQLite 都放独占临时目录，未访问真实日志库。
 
 先以新 alpha 配置运行 `doctor` 和媒体请求 `--dry-run`，均退出 0、attempts=0；预览保留实际图像节点，非秘密实验 headers 为 `{}`。同一媒体输入配 `images:false` 正式调用时在本地返回退出 2、`input`、attempts=0，并确认当时临时数据库尚未创建。随后执行下列真实调用，全部退出 0、`ok:true`、attempts=1、`normalized.completion:"complete"`、`meta.persistence.status:"recorded"`；响应模型均为 `typesafe/jev-1.14-20261014`。
 
@@ -112,11 +112,4 @@ relations:
 
 公开 CLI 阶段补足 **OpenRouter JEV 两种合同的真实 CLI、normalized、临时日志和 stats 贯通证据**。两个阶段均只证明所列接收与贯通：Box 精度、目标任务质量、262k 容量、native TypeSafe、native OAI、OR OpenAI 成功响应、OAI 非直通 carrier／refusal 与真实旧库迁移仍未证。
 
-本报告不承担实现测试或全仓 Gate 验收；后续产品能力以行为 owner 及其验证为准。取证阶段未修改代码／测试或真实库；临时配置、输入、原输出、客户端和临时 DB 在安全资源提取后清理，仅保留下列合成资源，不保留联网执行器。
-
-## 随附资源
-
-- [合成蓝色方形 PNG](./_resources/261017-openrouter-decision-live-protocols/blue-square.png)
-- [新版公开 CLI 端到端合成证据](./_resources/261017-openrouter-decision-live-protocols/cli-e2e-evidence.json)
-- [安全合成请求与实际响应汇总](./_resources/261017-openrouter-decision-live-protocols/evidence.json)
-- [合成红色方形 PNG](./_resources/261017-openrouter-decision-live-protocols/red-square.png)
+本报告不承担实现测试或全仓 Gate 验收；后续产品能力以行为 owner 及其验证为准。取证阶段未修改代码／测试或真实库；临时配置、输入、原输出、客户端和临时 DB 在关键事实提取后清理；本文保留已验证的输入条件、响应要点与边界，不保留联网执行器。

@@ -23,14 +23,14 @@ relations: []
 
 ## 调查范围与依据
 
-- **基线与候选**：生产 revision `098d64ad53ccfcd64c4d78b3a72782c0e2b6b6ae`，Node v26.8.2、Bun 1.4.4；Rust/Cargo 1.98.1，锁定依赖的 release 构建。Linux x86_64，AMD Ryzen AI 7 H 450。候选 SHA-256 为 `863e91862111f68e7a54505d14369a8d2afcdb2f37aac371f0a0f5099676e788`；源码逐文件指纹及组件版本见 provenance。
+- **基线与候选**：生产 revision `098d64ad53ccfcd64c4d78b3a72782c0e2b6b6ae`，Node v26.8.2、Bun 1.4.4；Rust/Cargo 1.98.1，锁定依赖的 release 构建。Linux x86_64，AMD Ryzen AI 7 H 450。候选 SHA-256 为 `863e91862111f68e7a54505d14369a8d2afcdb2f37aac371f0a0f5099676e788`。
 - **输入**：固定 revision 的真实快照 419 条（153 active、266 archived）；确定性 100／1,000／10,000 条合成输入通过现有同步与检查。基础合成图无边，复杂关系使用真实快照，另有合法 Unicode 长行、四种故意损坏来源和两种合法来源的字节超限变体。
 - **行为证据**：21 个原生节点通过，另以行为 owner 独立预期核对关键边界。业务输入差分 66 个单元匹配，npm／本地安装各重复 17 个单元，共保存 100 个对照；独立验证重跑规模、真实图、Unicode、安全和预算组。`list/search` 本轮仍为现有文本，仅 `trace` 提供 JSON。
 - **计量**：在查看配对结果前选定 20 个主单元；每单元分无插桩 wall 与资源 profile，再分 CLI／宿主路径，各 10 对交替样本及首轮预热。共 40 份记录、1,600 个正式调用样本、160 个预热调用。测量期间本任务的编译、Gate 和其他验证已暂停，并非整机隔离或冷文件缓存实验。
 - **调用边界**：CLI 计从启动至完整输出；宿主比较公开 `runDecisionRecordsCli` 捕获输出与同类宿主启动原生子进程，trace 双方含 JSON 解析。模块首次加载单列，监督进程 IPC 另记。这里不是所有 SDK 导出或外部客户端的实测回放。
-- **证据留存**：measurements 保留全部样本数值与状态，stdout／stderr 替换为 SHA-256 和字节数；validation 保存差分结果。驱动执行前后指纹比对并在漂移时失败，但原始 JSON 未保存逐次两份实际哈希，不能称具备这类独立记录。npm 驱动锁定启动器，安装树的版本、二进制及文件指纹由独立 smoke 和归档补充，不宣称逐请求锁定完整 npm 树。
+- **证据边界**：驱动执行前后指纹比对并在漂移时失败，但原始 JSON 未保存逐次两份实际哈希，不能称具备这类独立记录。npm 驱动锁定启动器，安装树的版本、二进制及文件指纹由独立 smoke 和归档补充，不宣称逐请求锁定完整 npm 树。
 
-随附材料用于审阅当时的方法、数据与结论；run.sh 保留当时命令和临时路径，不是现行运行入口。实验源码、测试及制品不作为长期产物保留，留存材料不保证完整重跑。正式迁移需另建源码、测试及 CI，并重新验证和测量。
+实验源码、测试及制品不作为长期产物保留，留存材料不保证完整重跑。正式迁移需另建源码、测试及 CI，并重新验证和测量。
 
 版本续接：本报告数值继续对应上述旧冻结制品；后续 trace 查重优化及 TS／旧 Rust／新 Rust 的有关系图比较见[独立调查](./261105-rust-trace-aligned-graph-performance.md)。后续优化版本不能代入本报告的旧版本结果。
 
@@ -38,7 +38,7 @@ relations: []
 
 ### 1. 直接原生路径有明确收益，常驻调用需单独评价
 
-下表是各单元独立配对样本的无插桩墙钟中位数，单位毫秒。不同单元独立执行，不能将跨单元差异作为纯规模因果；完整分布见 measurements。
+下表是各单元独立配对样本的无插桩墙钟中位数，单位毫秒。不同单元独立执行，不能将跨单元差异作为纯规模因果。
 
 | 输入／操作 | Node CLI → Rust CLI | TS 导入 → Rust 子进程 |
 | --- | --- | --- |
@@ -77,13 +77,3 @@ relations: []
 首次交付验证因私有目录缺少 package.json，npm 意外选择 `/tmp` 上级包树；代理回报增加 2、移除 239 个包，原先 manifest／lock／node_modules 内容未知。本轮保留现场，未擅自恢复；仓库生产依赖未因此纳入改动。后续验证已使用新私有根、显式 prefix／cache，并修复启动器向父目录解析平台包的行为。该副作用不是性能数据；若其他工作依赖这棵共享临时包树，需要由其 owner 按已知依赖清单恢复。
 
 本轮未切换生产入口或发布原生包。二进制、工具版本、算法、安装入口或输入分布变化后，应重新测量，而不是沿用本轮倍数。
-
-## 随附资源
-
-- [Cargo 命令、原生列表与执行记录](./_resources/261105-rust-native-query-performance/cargo-validation.txt)
-- [本地交付、安装时长与制品指纹](./_resources/261105-rust-native-query-performance/delivery.json)
-- [完整数值样本、预热与输出摘要](./_resources/261105-rust-native-query-performance/measurements.json)
-- [21 个专项原生节点的规则与证明范围](./_resources/261105-rust-native-query-performance/native-tests.json)
-- [源码、工具版本与留存口径](./_resources/261105-rust-native-query-performance/provenance.json)
-- [当时执行的完整主矩阵命令](./_resources/261105-rust-native-query-performance/run.sh)
-- [100 个匹配执行单元的差分结果](./_resources/261105-rust-native-query-performance/validation.json)

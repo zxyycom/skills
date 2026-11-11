@@ -31,8 +31,8 @@ relations:
 
 ### 证据与方法
 
-- **现场采集**：2026-10-28 北京时间约 10:03–10:11，原项目串行执行两次普通检查、一次完成的插桩检查，保留环境清单、事件和采集脚本。
-- **上游复核**：在仓库快照 `9556c5a6` 读取附件、核对源码；21 项包内 SHA-256 全部匹配，独立重算 631 条子进程事件的次数、区间并集与阶段归属，均与摘要一致。Windows 实测来自外部项目，上游负责证据复核。
+- **现场采集**：2026-10-28 北京时间约 10:03–10:11，原项目串行执行两次普通检查、一次完成的插桩检查，采集环境、事件和调用阶段。
+- **上游复核**：在仓库快照 `9556c5a6` 复核现场材料与源码；21 项包内 SHA-256 全部匹配，独立重算 631 条子进程事件的次数、区间并集与阶段归属，均与摘要一致。Windows 实测来自外部项目，上游负责证据复核。
 - **版本对照**：外部 273 个指纹中，268 个与 v87 快照 `64527516` 匹配，包含关键调用链；另 5 个额外路径来源未核实。`git diff --quiet 64527516 9556c5a6 -- skills/investigation-report/scripts` 退出 0，证明本轮 v89 与 v87 的该分发运行时目录相同。
 
 插桩通过 preload/`registerHooks` 在内存包装函数，记录阶段、文件操作和子进程，受检文件保持原样。阶段时长包含内层操作，使用包围阶段或区间并集归因，避免重复求和。样本未清缓存；插桩净开销和普通复测间波动尚待量化。
@@ -45,8 +45,6 @@ relations:
 | 硬件与内存 | Ryzen AI 7 H 450，16 逻辑处理器；内存约 33.46 GB，采集时空闲约 2.94–3.07 GB。 |
 | 报告与索引 | 344 正式、0 候选；Markdown 共 3,649,619 字节；索引 559,967 字节、251 条边、208 个唯一直接前序。 |
 | 资源 | 2,563 文件、300,413,633 字节、262 目录，最大目录深度 4；唯一直接引用 2,531，均为 Git 可见资源，另 32 个 ignored 文件未引用。 |
-
-环境、依赖解析和逐文件指纹见 `external-inventory.json` / `external-imports.json`。随附证据约 167 KB：6 份原样文本、全部子进程事件及 10 个包围阶段区间的节选、复核溯源。节选保留原值，文件操作明细与 CPU profile 由摘要承接；采集脚本用于形成时方法审计，重跑需适配脱敏路径和依赖。
 
 ## 调查结果与边界
 
@@ -102,16 +100,5 @@ v87 已包含 `3c1d9110` 的首次采集复用，以及 v85 `f381715c` 的集合
 ### 证据边界与复查条件
 
 - **计时归属**：原始 93.914 秒的计时边界未知；普通复测为外部工具输出转录，原 transcript 已失效。阶段占比仅属于一次插桩运行，支持同量级慢的归因，不用于估计稳定延迟或精确分摊原始 94 秒。
-- **验证范围**：上游复核附件与对应源码，尚未在外部 Windows 集合重跑或实施优化。外部 completion 的文件指纹及 Git 状态一致性为采集方自述，详细溯源见附件。
+- **验证范围**：上游复核现场取证材料与对应源码，尚未在外部 Windows 集合重跑或实施优化。外部 completion 的文件指纹及 Git 状态一致性为采集方自述。
 - **重新调查**：历史读取 API、前序核对语义、集合/关系形状或 Windows/Git/Node/包装器变化时，以及需要解释运行波动时重新测量。跨平台、大型历史正文、Git 故障和并发漂移需单独覆盖。
-
-## 随附资源
-
-- [外部两次普通复测转录及其来源限制](./_resources/261028-investigation-v87-windows-head-predecessor-cost/external-baselines.json)
-- [全部子进程事件及包围阶段区间节选](./_resources/261028-investigation-v87-windows-head-predecessor-cost/external-events-excerpt.json)
-- [外部独立导入耗时与实际依赖解析位置](./_resources/261028-investigation-v87-windows-head-predecessor-cost/external-imports.json)
-- [外部环境、数据规模及受检文件指纹](./_resources/261028-investigation-v87-windows-head-predecessor-cost/external-inventory.json)
-- [形成时内存插桩采集脚本，只供方法审计](./_resources/261028-investigation-v87-windows-head-predecessor-cost/external-observe.mjs)
-- [外部阶段、文件操作、Git 及 CPU 采样摘要](./_resources/261028-investigation-v87-windows-head-predecessor-cost/external-summary.json)
-- [外部启动区分观测、Git 分阶段计数及关键指纹](./_resources/261028-investigation-v87-windows-head-predecessor-cost/external-validation-summary.json)
-- [压缩包校验、v87 对照及节选留存溯源](./_resources/261028-investigation-v87-windows-head-predecessor-cost/review-provenance.json)

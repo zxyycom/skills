@@ -53,7 +53,7 @@ H、W、P 分别指固定 HEAD、工作区和 Git pending。该矩阵未测 stag
 
 wall 覆盖新进程启动至退出，CPU 为 wait4 user+system，RSS 为该口径的高水位，而非同时进程树总内存或 JS heap。原型第 1 对多场景前后观察到其他 Bun；全部样本保留，端点快照不足以排除窗口内或宿主干扰。
 
-**复测表仅使用修正窗口。**同批首轮长文后验使大 oracle 父进程污染 wait4 RSS；控制实验确认后，改用约 15 MiB resident 的独立计量进程，完整重跑两报告矩阵。首轮全部数据保留、两窗口分别统计；修正与控制证据见[共享复测方法](./_resources/261024-record-global-throughput-and-memory/current-version-methods.md)。
+**复测表仅使用修正窗口。**同批首轮长文后验使大 oracle 父进程污染 wait4 RSS；控制实验确认后，改用约 15 MiB resident 的独立计量进程，完整重跑两报告矩阵。
 
 ## 调查结果与边界
 
@@ -65,7 +65,7 @@ wall 覆盖新进程启动至退出，CPU 为 wait4 user+system，RSS 为该口�
 
 ### 落地版复测：时延与内存取舍
 
-每格为 3 次正常运行的组中位，撤回版→落地版；wall／CPU 单位秒，RSS 单位 MiB。百分比按两组中位之比减一，资源另存 min／median／max 和全部逐对值。
+每格为 3 次正常运行的组中位，撤回版→落地版；wall／CPU 单位秒，RSS 单位 MiB。百分比按两组中位之比减一。
 
 | 场景 | wall | CPU | 峰值 RSS | wall 变慢对数 |
 | --- | ---: | ---: | ---: | ---: |
@@ -96,7 +96,7 @@ selected 正文只有 2 个唯一读取路径、共 4 次，分别为所选及�
 
 - selected 的四次索引读取分别核对严格基线、交接时实际 baseline、写前 fresh 和写后 readback；两次 serialize 分别验证 canonical 基线和生成最终索引，新旧组合图具有不同输入。
 - stage 严格解析 H/W/P 并验证最终组合图；fresh 重取 W/P 字节和完整身份，等价证明成立后复用确定性计算。
-- 5 次 Git blob 分别为固定 H 索引、captured P 索引在准备／fresh／锁内 CAS 的三次读取、最终 P 写后验收。Git metadata index 另有集合级复制；API 字节明细见原型资源。
+- 5 次 Git blob 分别为固定 H 索引、captured P 索引在准备／fresh／锁内 CAS 的三次读取、最终 P 写后验收。Git metadata index 另有集合级复制。
 
 ### 原型取舍与实施依据
 
@@ -117,13 +117,13 @@ selected 正文只有 2 个唯一读取路径、共 4 次，分别为所选及�
 
 省掉的是**递归复检＋复制**，不是纯 clone 时间。inclusive 阶段计时存在嵌套且波动明显；例如 DR stage serialize 在两个 probe 中为 505.4／58.7 ms，无法将完整 CLI 差额全归因于 seal。
 
-原型完整 CLI 中，DR stage 三对 wall／CPU／RSS 均下降；IR selected 三对 wall 都上升，中位 **wall +30.5%／CPU +24.0%／RSS +5.8%**；IR stage RSS 中位 **+5.4%**。完整逐对表和其他阶段数据在原型资源保留。局部省工未一致转为 CLI 收益的原因仍未闭合，已观察的集合工作、阶段波动和宿主活动尚不足以确定单一因果解释。
+原型完整 CLI 中，DR stage 三对 wall／CPU／RSS 均下降；IR selected 三对 wall 都上升，中位 **wall +30.5%／CPU +24.0%／RSS +5.8%**；IR stage RSS 中位 **+5.4%**。局部省工未一致转为 CLI 收益的原因仍未闭合，已观察的集合工作、阶段波动和宿主活动尚不足以确定单一因果解释。
 
 实施验证补足正确性证据：
 
 - 五个新增原生节点覆盖完整 JSON／特殊键、callback 与上下文递归冻结、外部 parser 返回值隔离、十三种原始 envelope 错误及跨调用独立输入；Bun 与 Node 各 **5/5**，Index Runtime 聚合 **91/91**。
 - 不冻结、浅冻结、接纳非有限数值、冻结外部返回值四种变异均被识别；断言放在 callback 外核对，避免生产异常转换吞掉失败。
-- 源码 import 与生成闭包确认四个分发消费者：Decision Records、Investigation Report、Novel Cards、Test Evidence Review。联合生成、版本和账本同步后，18:13 UTC 的 `bun run check:changed` 为 **66 通过／0 失败／3 不适用**，最终版本调整后的增量复验通过。首次 fixture／类型诊断及修正保存在实施资源。
+- 源码 import 与生成闭包确认四个分发消费者：Decision Records、Investigation Report、Novel Cards、Test Evidence Review。联合生成、版本和账本同步后，18:13 UTC 的 `bun run check:changed` 为 **66 通过／0 失败／3 不适用**，最终版本调整后的增量复验通过。
 
 ### 证明边界与复查条件
 
@@ -132,19 +132,4 @@ selected 正文只有 2 个唯一读取路径、共 4 次，分别为所选及�
 - 性能覆盖暖缓存、万条稀疏关系输入；冷缓存、稠密关系、十万条和跨平台尚未测量。三次样本不足以证明显著性、生产 p95、稳定收益、并发穷尽或容量保证。
 - 真实入口超出延迟／内存预算，或更大索引和明确 SLO 要求继续优化时，先测实际载荷及阶段；合并 H/W/P 图、调整安全复核或引入持久化新结构需独立契约判断。
 
-资源保存形成时样本、后验、方法与实施证据；当前实现及验证入口由源码和测试 owner 维护。
-
-## 随附资源
-
-- [落地版复测：共享计量修正、方法与输入模板](./_resources/261024-record-global-throughput-and-memory/current-version-methods.md)
-- [落地版复测：共享冻结、闭包、控制与审计](./_resources/261024-record-global-throughput-and-memory/current-version-provenance.json)
-- [落地版复测：按原始 SHA 去重的完整输出](./_resources/261024-record-global-throughput-and-memory/current-version-streams.json)
-- [落地版复测：两窗口分组与全部逐对变化](./_resources/261024-record-index-computation-and-transfer/current-version-results.json)
-- [落地版复测：首轮及修正轮全部原始指标](./_resources/261024-record-index-computation-and-transfer/current-version-samples.jsonl)
-- [实施验证：隔离变异结果与源码身份](./_resources/261024-record-index-computation-and-transfer/implementation-validation.json)
-- [实施验证：维护面、所有权证据与验证记录](./_resources/261024-record-index-computation-and-transfer/implementation.md)
-- [原型样本：正常、probe 与闭包 smoke](./_resources/261024-record-index-computation-and-transfer/measurements.jsonl)
-- [原型方法与代码阅读副本](./_resources/261024-record-index-computation-and-transfer/methods.md)
-- [原型协议：固定输入、计量与正确性](./_resources/261024-record-index-computation-and-transfer/protocol.md)
-- [原型来源：环境、冻结身份、方法变更与边界](./_resources/261024-record-index-computation-and-transfer/provenance.json)
-- [原型结果：统计、阶段事件、工作量、控制与 payload 身份](./_resources/261024-record-index-computation-and-transfer/results.json)
+当前实现及验证入口由源码和测试 owner 维护。

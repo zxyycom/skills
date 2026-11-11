@@ -16,7 +16,7 @@ relations:
 
 ## 形成时背景
 
-前轮在保持完整 pending 身份、实际 payload 读取、失败与恢复保护的前提下，减少了阶段目录重复枚举和内容保留/复制。本轮从已提交基线 `0bda55fd78c3fa30223e91460c3b97790cbed7e4` 复查其残余成本：整批 name selector 和未定位 ID 仍各自全扫固定集合；共享关系 DFS 使用递归；普通完整读与历史前缀仍计算最终无人消费的 SHA256。前轮保留其形成时条件与结果；本轮资源用于独立对照上述残余成本。
+前轮在保持完整 pending 身份、实际 payload 读取、失败与恢复保护的前提下，减少了阶段目录重复枚举和内容保留/复制。本轮从已提交基线 `0bda55fd78c3fa30223e91460c3b97790cbed7e4` 复查其残余成本：整批 name selector 和未定位 ID 仍各自全扫固定集合；共享关系 DFS 使用递归；普通完整读与历史前缀仍计算最终无人消费的 SHA256。前轮保留其形成时条件与结果；本轮以实际计数对照上述残余成本。
 
 合法关系链在实际 Node 环境触发调用栈异常，而非领域图错误。问题同时跨共享结构验证、IR/Decision Records 消费者、blob transport 与 opaque snapshot 的实际字节身份，必须独立证明兼容与失败保护；运行时对照及计数证据也有超出最终代码差异和测试的复核价值，因此按项目复杂 Bug 门槛形成独立轮次。
 
@@ -30,9 +30,9 @@ relations:
 
 N 在 selector 测量中是 baseline→workspace 覆盖后的唯一 ID/name 数，在发现测量中是同次 formalSources 数；Kname 是 name selector 数，Ku 是 unique 未定位 ID 数。图用 V 个节点、E 条边，bytes 表示完整实际 payload 长度，retention 只是保留字节数。这些集合成本不等于整个 stage 的 N/P/J、文件系统或 Git 成本。
 
-[测量脚本](./_resources/261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints/measure.mjs)从指定 Git revision 或工作树读取真实源码，Bun 仅移除 TypeScript 类型并把不变依赖定位到仓库原路径；discovery 隔离提取原局部纯函数，不重写算法。[before](./_resources/261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints/before.json)与[after](./_resources/261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints/after.json)保存实际使用的四个源码 SHA256、输入、计数与观察时点。before 完成于 `2026-10-11T07:21:44.422Z`，after 完成于 `2026-10-11T07:39:35.582Z`；生成 IR CLI 的 SHA256 为 before `6dc9a8131babe618429b02c36277e38b21576b1c3ff3dfadb85ebf5fe87a1248`、after `754d6c1f674d9b5117b3e49cda7609d460a01d2a3cd57ffa318981d18ae4777d`。
+测量从指定 Git revision 或工作树读取真实源码，Bun 仅移除 TypeScript 类型并把不变依赖定位到仓库原路径；discovery 隔离提取原局部纯函数，不重写算法。before 完成于 `2026-10-11T07:21:44.422Z`，after 完成于 `2026-10-11T07:39:35.582Z`；生成 IR CLI 的 SHA256 为 before `6dc9a8131babe618429b02c36277e38b21576b1c3ff3dfadb85ebf5fe87a1248`、after `754d6c1f674d9b5117b3e49cda7609d460a01d2a3cd57ffa318981d18ae4777d`。
 
-环境是 Bun 1.4.2 与外部 Node v26.8.2。Bun 的 `process.version` 兼容字符串是 v26.3.0，不代表另一个实际 Node 引擎。Node 子进程在自建、自清临时目录加载真实生产图算法；不是一般 CLI 的深度阈值。脚本不写 Git；复核命令为 `bun <测量脚本路径> <仓库根> <revision|workspace> <新输出JSON>`。其相邻依赖在本轮未修改；独立重放固定基线时需要相应仓库版本与同版运行时。
+环境是 Bun 1.4.2 与外部 Node v26.8.2。Bun 的 `process.version` 兼容字符串是 v26.3.0，不代表另一个实际 Node 引擎。Node 子进程在自建、自清临时目录加载真实生产图算法；不是一般 CLI 的深度阈值。测量不写 Git。
 
 ### 批量匹配
 
@@ -72,9 +72,3 @@ parser 对 1,048,576 bytes payload 的 full／16,384／0 retention，每组均�
 - 六个实际生成 runtime consumer 已通过公开同步与一致性检查。typecheck、lint、Case 覆盖与 Gate catalog 测试已实际通过；质量配置和豁免不变。最终代码与生成物收敛后的 `bun run check` 保留完整 68 项 Definition，65 项实际执行并 passed，0 failed／unavailable，3 项 release-only 未执行，本次未复用日常 receipt。
 
 未做真实 CPU／墙钟隔离对照，扫描及 hash.update 计数不能推出整体 CLI 加速；未验证跨平台或其他 Node/Git 版本的广泛深度上界，也未执行 release-only 打包。完整 payload I/O、完整 pending 成员、物理 index 复制与既有 fresh phase、固定 HEAD、错误净化、CAS 和恢复责任继续适用。上述证据不证明 atomic FS、结束时 freshness、全部 stage O(K) 或 Git 进程常数。改变索引生命周期、循环输出、指纹结果构造或完整 payload/CAS 失败责任时，应重新调查。
-
-## 随附资源
-
-- [after.json](./_resources/261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints/after.json)
-- [before.json](./_resources/261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints/before.json)
-- [measure.mjs](./_resources/261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints/measure.mjs)

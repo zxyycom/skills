@@ -24,19 +24,19 @@ relations:
 
 ## 调查目的
 
-在当前隔离构建的候选与现行直接 Node CLI 之间，先观察轻路径和单条业务路径的完整新进程成本，再分别增大索引数量、实际内容扫描数、图关系工作和局部新建时的集合存量。判断哪些增长已明显超过固定项、哪些仍被输出、机器波动或固定工作混合；保留可复算样本，但不把时间曲线当作算法复杂度证明，也不设生产 SLA。
+在当前隔离构建的候选与现行直接 Node CLI 之间，先观察轻路径和单条业务路径的完整新进程成本，再分别增大索引数量、实际内容扫描数、图关系工作和局部新建时的集合存量。判断哪些增长已明显超过固定项、哪些仍被输出、机器波动或固定工作混合；保留代表性统计观察，但不把时间曲线当作算法复杂度证明，也不设生产 SLA。
 
 ## 调查范围与依据
 
-**输入、构建与环境。** 主仓库起点干净、HEAD `c1161cf1db52cf2de9ba5e0829808e18ebdccf19`；使用 `node tools/record-cli/delivery/cli.ts build record-cli-perf-261107-main 0.1.0` 在 `dist/` 新目录以锁定、离线 release 构建，未安装到用户环境。manifest 的隔离源码树 SHA-256 为 `88c5ecaa22b7a42ba660b7c14a3e0c5300c85fb4174c5fc818792b25d976c072`；其清单中 316 个文件与测后工作树对应字节逐一相同。DR 二进制 SHA-256 `42bdfe5113c4a6ffa404efa54eb68f42a42003a92f51e3529b5ddd5ef8fe2a6b`，IR 为 `1e1aa4a14553239e2cbe22723d738ee53b3dc46b53ba9a355add3825c453ab20`；Node v26.8.2 可执行文件 SHA-256 `8a22a371fd85aecf5411636574309f6380fbc42694aaf0651a089a8ef9c44e52`。Rust/Cargo 1.98.1、Git 2.53.0、glibc 2.43；Linux x86_64 WSL2 kernel 6.18.33.2，AMD Ryzen AI 7 H 450，枚举 6 逻辑 CPU、`nproc` 为 4；`df` 显示 ext4、`stat -f` 显示 ext2/ext3。锁文件、两域运行脚本树和列举的直接依赖入口按字节守卫，未穷举所有传递依赖或系统库；完整资产和 fixture hash 见资源。
+**输入、构建与环境。** 主仓库起点干净、HEAD `c1161cf1db52cf2de9ba5e0829808e18ebdccf19`；使用 `node tools/record-cli/delivery/cli.ts build record-cli-perf-261107-main 0.1.0` 在 `dist/` 新目录以锁定、离线 release 构建，未安装到用户环境。manifest 的隔离源码树 SHA-256 为 `88c5ecaa22b7a42ba660b7c14a3e0c5300c85fb4174c5fc818792b25d976c072`；其清单中 316 个文件与测后工作树对应字节逐一相同。DR 二进制 SHA-256 `42bdfe5113c4a6ffa404efa54eb68f42a42003a92f51e3529b5ddd5ef8fe2a6b`，IR 为 `1e1aa4a14553239e2cbe22723d738ee53b3dc46b53ba9a355add3825c453ab20`；Node v26.8.2 可执行文件 SHA-256 `8a22a371fd85aecf5411636574309f6380fbc42694aaf0651a089a8ef9c44e52`。Rust/Cargo 1.98.1、Git 2.53.0、glibc 2.43；Linux x86_64 WSL2 kernel 6.18.33.2，AMD Ryzen AI 7 H 450，枚举 6 逻辑 CPU、`nproc` 为 4；`df` 显示 ext4、`stat -f` 显示 ext2/ext3。锁文件、两域运行脚本树和列举的直接依赖入口按字节守卫，未穷举所有传递依赖或系统库。
 
 **预采样与选档。** 私有输入用确定性 Markdown 构造，两域原生产 CLI 分别 `sync-index`、`check`；不读取真实记录。 这些 fixture 位于主仓库 `dist/` 下，可发现主仓库 Git HEAD；TS 全量 check 对尚未进入该 HEAD 的私有前序发出演进复核 warning，发生在计时外的准备阶段，与下文正式 Node `new` 每次的空正文 scaffold warning 是两类不同诊断。预采样每臂每单元两次，独立留存，不合并到正式样本。IR 内容扫描 32/250/1200 条的 Node 中位约 328/631/1782 ms、原生约 9.6/13.4/30.8 ms，因完整扫描次数已可区分且 1200 低于 IR 2000 文件预算，正式沿用。IR list 和新建在小规模固定项仍明显，补探 5000 后原生约 26.8/44.4 ms，故这两组扩至 5000；metadata 也包括 5000。图先在 N=250 下试宽 8/40/200，原生大约仍落在 6–13 ms 的同量级范围，未声称分离；再固定 N=5000、深度 8，将宽从 8 扩至 2000，原生预采样约 31–33 → 49 ms，Node 约 490–498 → 533–560 ms，选择该组正式复核。单条 IR list 与两域 help 补充低成本路径。DR 正式增补 list 5000 与 content 32/250/1200；不同能力未机械套用同一阶梯。
 
 **图和工作量。** 固定 N=5000 的 IR 图宽 8/2000 同时有各自的复杂归并事件、深链和普通宽分支，全集合边数分别 30/4014；指定 predecessor trace 实际输出 trace ID 17/2009，context 为空、frontier 为空且 coverage complete。两组不是只改一条局部边：全集图校验、事件、输出及排序均可能改变。Node JSON 输出分别 6322/715476 字节，原生 JSON 分别 4286/486352 字节；输出随宽度明显增长。内容搜索使用只命中一个固定 ID 的 query，独立断言命中数精确为 1、scan/results/previews 完整，故 32/250/1200 对应实际访问该数目的记录，而不是提前停止的总 N。
 
-**计量和核对。** 预采样结束后先校验每组独立预期；list 检查 ID 和总数，search 检查 ID、精确计数和 coverage，trace 检查 trace/context/frontier/coverage 并比较两端解析后的完整 JSON；单条 list 独立核对一条身份与总数。TS list/search 为文本，原生是 protocol v2 JSON，不能声称逐字段等价。IR 新建每次在计时外恢复完全相同的私有状态，核对新候选完整字节、ID、实际已知写路径，以及排除该候选后的全树 hash，再移除该精确自建文件；没有 stage 或 Git pending 场景。示例脚手架及失败尝试见资源。两域生产 `check` 只是辅助来源，不是唯一 oracle。
+**计量和核对。** 预采样结束后先校验每组独立预期；list 检查 ID 和总数，search 检查 ID、精确计数和 coverage，trace 检查 trace/context/frontier/coverage 并比较两端解析后的完整 JSON；单条 list 独立核对一条身份与总数。TS list/search 为文本，原生是 protocol v2 JSON，不能声称逐字段等价。IR 新建每次在计时外恢复完全相同的私有状态，核对新候选完整字节、ID、实际已知写路径，以及排除该候选后的全树 hash，再移除该精确自建文件；没有 stage 或 Git pending 场景。零条 fixture 的生成未成功，不证明空索引非法；图宽 2000 的准备因输出捕获限制中断，重定向后 check 退出 0，准备时有历史 warning。两域生产 `check` 只是辅助来源，不是唯一 oracle。
 
-墙钟从直接 `node <生产脚本>` 或原生 release 新进程启动至 stdout/stderr 完整收集和退出，不包括 Bun、cargo run、fixture 准备、写后核对或常驻宿主。固定种子在全部单元与两臂间随机交错；主批 2026-11-07 15:12:16–15:16:54 UTC，20 单元、每臂 20 次，共 800 次；DR 补批 15:17:18–15:18:35 UTC，5 单元、每臂 20 次，共 200 次。1000 次状态均为 0、无信号，逐次保留命令、时序、输出字节数及 SHA-256；查询输出逐次与事先核过的各臂输出 hash 相同。Node 新建每次 stderr 均含 309 字节的空正文 scaffold warning，原生该样例无 stderr，均真实计入墙钟；其余正式样本 stderr 为空。主代理另行只读复算全部 1000 条样本并核对 50 组统计与首尾守卫，另行重跑两域 5000 条 list 的身份与总数检查；后者是正确性复核，不作为额外性能样本。没有事后删离群值。中位数为中间两值均值，P95 为 nearest-rank 第 19 个值，仅是 20 样本描述，不是生产尾延迟。
+墙钟从直接 `node <生产脚本>` 或原生 release 新进程启动至 stdout/stderr 完整收集和退出，不包括 Bun、cargo run、fixture 准备、写后核对或常驻宿主。固定种子在全部单元与两臂间随机交错；主批 2026-11-07 15:12:16–15:16:54 UTC，20 单元、每臂 20 次，共 800 次；DR 补批 15:17:18–15:18:35 UTC，5 单元、每臂 20 次，共 200 次。1000 次状态均为 0、无信号，当时逐次记录命令、时序、输出字节数及 SHA-256；查询输出逐次与事先核过的各臂输出 hash 相同。Node 新建每次 stderr 均含 309 字节的空正文 scaffold warning，原生该样例无 stderr，均真实计入墙钟；其余正式样本 stderr 为空。主代理另行只读复算全部 1000 条样本并核对 50 组统计与首尾守卫，另行重跑两域 5000 条 list 的身份与总数检查；后者是正确性复核，不作为额外性能样本。没有事后删离群值。中位数为中间两值均值，P95 为 nearest-rank 第 19 个值，仅是 20 样本描述，不是生产尾延迟。
 
 墙钟两批分别在首尾对 fixture、资产与 manifest、316 个源码输入及快照、Node、领域运行脚本树、根锁文件和所列直接依赖入口计算守卫，批内相等；一次性测量脚本另留 SHA-256。守卫不证明窗口内每一瞬间或全部传递依赖未变化。主批中一次轻量进程快照显示本测量及常驻系统进程，协调方避免构建和 Gate，但没有隔离整机；仍可能有短暂竞争。操作系统缓存未清，前序构建、校验和预采样已访问文件：**新进程不是冷文件缓存，也没有测出纯进程启动**。首轮成功 help 预采样的第一次/第二次分别为原生 8.51/8.33 ms、Node 271.17/271.15 ms，但当时二进制和 Node 早已执行过，不能当首次安装或冷系统启动。主批 IR 轻路径约 4 ms、较早预采样和后续 DR 补批约 8–10 ms 的原生值提示跨窗口波动；不能用差值推算纯启动，也不能归因于领域差异。
 
@@ -44,7 +44,7 @@ relations:
 
 ## 调查结果与边界
 
-在本机、本轮全部 25 个规模/场景单元中，原生与 Node 的两臂 20 次新进程均成功，原生的中位数和样本 P95 均低于同单元 Node；这说明当前候选在所测完整命令与输出组合中有明显低延迟，但不证明所有命令、平台或并发使用都有同样优势。下表单位 ms，格式为 `Node 中位/P95 → 原生中位/P95`；全部单元、输出和逐次样本见资源。
+在本机、本轮全部 25 个规模/场景单元中，原生与 Node 的两臂 20 次新进程均成功，原生的中位数和样本 P95 均低于同单元 Node；这说明当前候选在所测完整命令与输出组合中有明显低延迟，但不证明所有命令、平台或并发使用都有同样优势。下表单位 ms，格式为 `Node 中位/P95 → 原生中位/P95`。
 
 | 实际场景 | 小规模 | 中规模 | 大规模 |
 | --- | --- | --- | --- |
@@ -65,35 +65,6 @@ relations:
 
 资源辅助观察的 5 次中位示例：IR content 1200 的 Node CPU 2255.59 ms、峰值 RSS 160404 KiB，原生 CPU 22.25 ms、RSS 9272 KiB；IR 图宽 2000 分别为 Node 897.82 ms / 171360 KiB、原生 36.62 ms / 24688 KiB。CPU 可包含并行线程的累计时间，故可能大于 wall；这不是 CPU 加速 SLA、各阶段归因或生产峰值内存保证。
 
-未测合法空索引、真正首次安装/冷 OS 缓存、常驻调用、DR 图与普通写入、stage 和 Git pending、全量同步、Windows、资源迁移/大资产及超过本轮预算的内容扫描。零条 fixture 创建尝试失败的原因及后续未推断空索引合法性见资源；后续需要评估上述情形时应单独构造合法输入、校准对应调用边界并在当时源码重测。本轮没有切换生产、修改实现、提交或发布二进制。
+未测合法空索引、真正首次安装/冷 OS 缓存、常驻调用、DR 图与普通写入、stage 和 Git pending、全量同步、Windows、资源迁移/大资产及超过本轮预算的内容扫描。后续需要评估上述情形时应单独构造合法输入、校准对应调用边界并在当时源码重测。本轮没有切换生产、修改实现、提交或发布二进制。
 
-资源保留形成时方法和数据而不是稳定测试入口：`*-samples.jsonl` 是原始逐次样本，`summary.jsonl`/`summarize.py` 可复算描述统计；`correctness.json`、`guards.json`、`environment.json` 保存预期与输入身份。生成和测量脚本引用当时工作区路径，仅用于审阅该次做法；大 fixture、二进制和依赖不作为报告资源。`fixture-notes.md` 记录失败、warning 与写入 oracle；collector 与其校准、资源样本独立于墙钟。
-
-## 随附资源
-
-- [addon-samples.jsonl](./_resources/261107-record-cli-current-process-cost-and-scale/addon-samples.jsonl)
-- [collector-high-parent-calibration.json](./_resources/261107-record-cli-current-process-cost-and-scale/collector-high-parent-calibration.json)
-- [collector.c](./_resources/261107-record-cli-current-process-cost-and-scale/collector.c)
-- [correctness.json](./_resources/261107-record-cli-current-process-cost-and-scale/correctness.json)
-- [environment.json](./_resources/261107-record-cli-current-process-cost-and-scale/environment.json)
-- [expected-candidate.txt](./_resources/261107-record-cli-current-process-cost-and-scale/expected-candidate.txt)
-- [fixture-notes.md](./_resources/261107-record-cli-current-process-cost-and-scale/fixture-notes.md)
-- [fixtures-small.ts](./_resources/261107-record-cli-current-process-cost-and-scale/fixtures-small.ts)
-- [fixtures.ts](./_resources/261107-record-cli-current-process-cost-and-scale/fixtures.ts)
-- [formal-samples.jsonl](./_resources/261107-record-cli-current-process-cost-and-scale/formal-samples.jsonl)
-- [guards.json](./_resources/261107-record-cli-current-process-cost-and-scale/guards.json)
-- [measure-addon.ts](./_resources/261107-record-cli-current-process-cost-and-scale/measure-addon.ts)
-- [measure-pre.ts](./_resources/261107-record-cli-current-process-cost-and-scale/measure-pre.ts)
-- [measure-pre2.ts](./_resources/261107-record-cli-current-process-cost-and-scale/measure-pre2.ts)
-- [measure.ts](./_resources/261107-record-cli-current-process-cost-and-scale/measure.ts)
-- [pre-failed-help.jsonl](./_resources/261107-record-cli-current-process-cost-and-scale/pre-failed-help.jsonl)
-- [pre-samples.jsonl](./_resources/261107-record-cli-current-process-cost-and-scale/pre-samples.jsonl)
-- [pre2-samples.jsonl](./_resources/261107-record-cli-current-process-cost-and-scale/pre2-samples.jsonl)
-- [pre3-samples.jsonl](./_resources/261107-record-cli-current-process-cost-and-scale/pre3-samples.jsonl)
-- [private-script-guard.txt](./_resources/261107-record-cli-current-process-cost-and-scale/private-script-guard.txt)
-- [resource-calibration.jsonl](./_resources/261107-record-cli-current-process-cost-and-scale/resource-calibration.jsonl)
-- [resource-samples.jsonl](./_resources/261107-record-cli-current-process-cost-and-scale/resource-samples.jsonl)
-- [resources.sh](./_resources/261107-record-cli-current-process-cost-and-scale/resources.sh)
-- [rss-calibration.c](./_resources/261107-record-cli-current-process-cost-and-scale/rss-calibration.c)
-- [summarize.py](./_resources/261107-record-cli-current-process-cost-and-scale/summarize.py)
-- [summary.jsonl](./_resources/261107-record-cli-current-process-cost-and-scale/summary.jsonl)
+collector 与校准独立于墙钟。大 fixture、二进制和逐次样本不作为报告资源。

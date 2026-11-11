@@ -90,7 +90,7 @@
       "260908-bound-record-list-output": "sha256:a943a23ea9812da8df45df35d1057b8757f4af43347b57d5104d83df52f4b0b9",
       "260908-maintain-independent-investigation-rounds": "sha256:686c0229214cf5d328b1348d5193db1004cf0e6333a2749acd35d97772af141c",
       "260908-require-established-decision-alignment": "sha256:046aa5919fdf2bde6d108a78f9b782b71706c3ed97ca88899710d29a2d9182e4",
-      "260908-separate-investigation-narrative-from-supporting-materials": "sha256:c3cc01ba4cb2a8cd26c96d78bbafbada621972e4ef60b7f8edcc78a9a1c14f44",
+      "260908-separate-investigation-narrative-from-supporting-materials": "sha256:353f0c19f9191c4e861d2af128f83230401fbd69e78c598b769afacbf00cb9d0",
       "260909-adopt-vibe-check-0-0-2-gate-runtime": "sha256:af245cdf1ce1ee1e2cd3594fac65b0c3d27927a1db62c972112e256eba183a5c",
       "260909-batch-release-test-execution": "sha256:40c65db65eee894ce7379d05a973ea2564ad79f08b731d841c60646f983e9d91",
       "260909-incremental-vibe-gate": "sha256:1f4be987daaa4ccf85701a295be7e485af25678fdc8d1276d045a6feef79db59",
@@ -181,6 +181,7 @@
       "261110-configure-default-investigation-write-source": "sha256:d1eddcd70d27878079e8db507609198670bc473811ad557ecf6dbe4bddef96f2",
       "261110-persistent-resource-finding-acceptance": "sha256:068fed6fabe9ff0108b81d8dc38c8556b735629dbc1cb3bdc120920cc39c3ac1",
       "261110-preserve-source-query-boundaries-with-shared-config": "sha256:00220fb866b0a3e0edba4e5ee4093b430725d1776599f21b7e6779ebc6c6b34d",
+      "261111-retain-only-narrative-critical-investigation-materials": "sha256:a6b9e37cd334c60ab82020c0d346f34d9e8ed57830a174b2fc5ae43101e9944d",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -2175,9 +2176,9 @@
     },
     "260908-separate-investigation-narrative-from-supporting-materials": {
       "name": "separate-investigation-narrative-from-supporting-materials",
-      "sourcePath": "separate-investigation-narrative-from-supporting-materials.md",
+      "sourcePath": "archive/separate-investigation-narrative-from-supporting-materials.md",
       "title": "分层表达调查认识与详细材料",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-08T13:37:14Z",
       "purpose": "让调查报告保留关键认识，让随附资源按需说明详细依据与当时动作。",
@@ -4148,6 +4149,27 @@
           "type": "修订",
           "target": "261109-query-investigations-from-local-source-groups",
           "summary": "保留逐源查询，改由统一配置装载并分离显式定位"
+        }
+      ]
+    },
+    "261111-retain-only-narrative-critical-investigation-materials": {
+      "name": "retain-only-narrative-critical-investigation-materials",
+      "sourcePath": "261111-retain-only-narrative-critical-investigation-materials.md",
+      "title": "按正文必要依赖精简调查资源",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-11-11T02:02:10Z",
+      "purpose": "只保留调查正文无法用更精简表达承接的依据与形式，降低阅读和维护成本。",
+      "background": "独有信息、文字载体和形成时原件均不足以证明必要性，完整日志与代码会挤占关键认识。",
+      "decision": "资源按正文依赖裁剪，日志优先概括，方法默认按伪代码理解，事实忠实不等于原件全部留存。",
+      "tags": [
+        "investigation-report"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260908-separate-investigation-narrative-from-supporting-materials",
+          "summary": "保留正文与资源分层，收紧必要性与方法阅读边界"
         }
       ]
     },

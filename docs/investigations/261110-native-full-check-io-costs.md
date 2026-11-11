@@ -34,7 +34,7 @@ relations:
 
 修复后候选为原生 0.2.2（Decision skill 115、Investigation skill 104），源码摘要 `24bdf0128ff51d13314844aaaed531cfb7bc2546846e25764565ee70c6557aad`，最终采样候选为 `generation-9H4TXz`。0.2.1 与 0.2.2 在相同私有输入复测：IR check 沿用上述四种负载；stage 每域 32 来源、34 index 成员，其中 33 个 pending 路径有变化。04:06:41–04:08:38 UTC 每场景每端 20 次墙钟，共 **400 次**；另加 20 次 warmup 和 20 次独立 Trace2，共 **440 条 oracle**。脚本逐次断言输出及 index，manifest 明文未保留，记录的是执行断言与摘要，因此不能独立重放每次文件内容。
 
-资源中 `results.json`、`samples.jsonl` 与 `measure.py` 保存首次对照；`diagnose-*`、`instrumentation.patch`、`old-profile.mjs` 保存独立计数方法；`wide-audit.md` 和 `wide-*` 保存扩展审查、stage 与闭包证据；`implementation-*` 保存此前候选 `generation-9yliYR` 的历史复测；`post-review-*` 保存最终候选的复测样本、oracle、汇总、工作量、输入清单、守卫及故障探针。资源不含大 fixture 或二进制，不构成可直接重跑的完整环境。
+正文分别记录首次对照、扩展审查、此前候选 `generation-9yliYR` 与最终候选的复测和故障探针；不构成可直接重跑的完整环境。
 
 ## 调查结果与边界
 
@@ -103,40 +103,3 @@ OID 校验改用启用碰撞检测的 `sha1collisiondetection`；独立碰撞向
 最终候选修正 stdout 与 stderr 预算错误分类，避免 stderr 超限误触批读取回退。私有 Git 包装器注入 stderr 超限时，此前候选退出 0、无 warning，运行 2 次 batch、250 次 `cat-file -t` 和 251 次 blob 读取；最终候选退出 0、报告历史不可用 warning，运行 1 次 batch 与 251 次 blob 读取。该结果支持 stderr 不再误触 batch stdout 的逐对象恢复，但上层历史诊断仍有逐对象回退；无注入时两者均成功且无 warning。这只证明定向故障，不概括所有错误路径。原生测试与独立审查完成；`record-rust`、`investigation-collection`、`test-evidence-project` 三 scope 加 quick 共 24 项通过、39 项未选。MSVC all-targets 交叉检查通过，测试模块有 unused-import warning；**这不是 Windows 原生运行**。本轮不证明未知 Windows 请求、冷缓存、所有错误路径、并发文件变更或正式发布。实际 Windows 耗时还需要原命令、版本、输入与本机采样；更高进程或目录访问成本可能放大上述机制，但只是推断。
 
 首次 fixture 的 flow-style tags 被规范解析器拒绝，正式采样前改为 block-style；原 native diagnostics 在零 Git 调用时错误期待 Trace2 文件，改用独立脚本后取得数据。这些纠正未删除或重分类正式样本。扩展 stage 资产只在重跑后记录尾指纹，不作为该批首尾稳定性证明。形成时未发布二进制；当前操作与平台验收入口见 [Record CLI 维护](../../tools/record-cli/README.md)。
-
-## 随附资源
-
-- [diagnose-native.py](./_resources/261110-native-full-check-io-costs/diagnose-native.py)
-- [diagnose-old.py](./_resources/261110-native-full-check-io-costs/diagnose-old.py)
-- [implementation-bench.py](./_resources/261110-native-full-check-io-costs/implementation-bench.py)
-- [implementation-end-guards.json](./_resources/261110-native-full-check-io-costs/implementation-end-guards.json)
-- [implementation-environment.txt](./_resources/261110-native-full-check-io-costs/implementation-environment.txt)
-- [implementation-independent-summary.json](./_resources/261110-native-full-check-io-costs/implementation-independent-summary.json)
-- [implementation-inventory.json](./_resources/261110-native-full-check-io-costs/implementation-inventory.json)
-- [implementation-oracle.jsonl](./_resources/261110-native-full-check-io-costs/implementation-oracle.jsonl)
-- [implementation-recompute.py](./_resources/261110-native-full-check-io-costs/implementation-recompute.py)
-- [implementation-samples.jsonl](./_resources/261110-native-full-check-io-costs/implementation-samples.jsonl)
-- [implementation-trace-counts.json](./_resources/261110-native-full-check-io-costs/implementation-trace-counts.json)
-- [implementation-write-probe-metadata.json](./_resources/261110-native-full-check-io-costs/implementation-write-probe-metadata.json)
-- [implementation-write-probe-samples.jsonl](./_resources/261110-native-full-check-io-costs/implementation-write-probe-samples.jsonl)
-- [implementation-write-probe.py](./_resources/261110-native-full-check-io-costs/implementation-write-probe.py)
-- [instrumentation.patch](./_resources/261110-native-full-check-io-costs/instrumentation.patch)
-- [measure.py](./_resources/261110-native-full-check-io-costs/measure.py)
-- [old-profile.mjs](./_resources/261110-native-full-check-io-costs/old-profile.mjs)
-- [post-review-bench.py](./_resources/261110-native-full-check-io-costs/post-review-bench.py)
-- [post-review-fault-result.json](./_resources/261110-native-full-check-io-costs/post-review-fault-result.json)
-- [post-review-fault_probe.py](./_resources/261110-native-full-check-io-costs/post-review-fault_probe.py)
-- [post-review-independent-summary.json](./_resources/261110-native-full-check-io-costs/post-review-independent-summary.json)
-- [post-review-independent-trace-counts.json](./_resources/261110-native-full-check-io-costs/post-review-independent-trace-counts.json)
-- [post-review-inventory.json](./_resources/261110-native-full-check-io-costs/post-review-inventory.json)
-- [post-review-oracle.jsonl](./_resources/261110-native-full-check-io-costs/post-review-oracle.jsonl)
-- [post-review-recompute.py](./_resources/261110-native-full-check-io-costs/post-review-recompute.py)
-- [post-review-samples.jsonl](./_resources/261110-native-full-check-io-costs/post-review-samples.jsonl)
-- [post-review-summary.json](./_resources/261110-native-full-check-io-costs/post-review-summary.json)
-- [results.json](./_resources/261110-native-full-check-io-costs/results.json)
-- [samples.jsonl](./_resources/261110-native-full-check-io-costs/samples.jsonl)
-- [wide-audit.md](./_resources/261110-native-full-check-io-costs/wide-audit.md)
-- [wide-process-counts.json](./_resources/261110-native-full-check-io-costs/wide-process-counts.json)
-- [wide-reallocation-probe.py](./_resources/261110-native-full-check-io-costs/wide-reallocation-probe.py)
-- [wide-reallocation-results.json](./_resources/261110-native-full-check-io-costs/wide-reallocation-results.json)
-- [wide-stage-probe.py](./_resources/261110-native-full-check-io-costs/wide-stage-probe.py)

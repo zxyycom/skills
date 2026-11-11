@@ -40,7 +40,7 @@ Rust 记录 CLI 候选简化文件与事务层：普通更新改为临时文件�
 
 **输入与操作。** 使用 `tools/record-cli/benchmarks/fixtures.ts` 生成两域各 20 条、宽 3 深 2 的合法私有记录，移动至独立目录后初始化私有空 Git 仓库；将 DR `260101-record-00019` 设为 unaligned 并用生产 TS 同步索引。给无关系的 IR `260101-record-00019` 添加两份自有资源并同步索引：`payload.txt` 为 1,048,576 字节（`0123456789abcdef` 重复 65,536 次），`small.txt` 为 15 字节（`small resource` 加换行）。四次执行从同一 fixture 复制得到独立副本，副本准备和检查不计入进程数据。输入 `docs/` 所有文件按路径排序执行 `sha256sum` 再对清单求 SHA-256 为 `ed5c1d90bbfde5d1a1c7805515402c76033fe6c618e69693bb7317ebf17b10ce`。DR 正文/索引为 404 / 12,655 字节，IR 正文/索引为 499 / 10,552 字节。Git 为 unborn HEAD，资源可见，非真实记录。
 
-调用 `decision-records mark-aligned 260101-record-00019 --root <副本> --json` 和 `investigation-report rename 260101-record-00019 renamed --root <副本> --json`；完整实参和输出见 JSONL。后者将身份变为 `260101-renamed`，并迁移两个资源。每次独立对比操作前后所有 `docs/` 普通文件的路径及 SHA-256：仅允许所选正文、相关索引和迁移资源变化；核对资源哈希、引用及实际身份，并在计量之外调用生产 TS 对相应全集 `check`。另在两个版本各自新副本预建目标 owner 的同名资源，正式调用均非零、返回 `resource-owner` 且全部 docs 文件哈希与路径不变，证明该具体目标冲突未覆盖；不是对所有并发冲突的证明。
+调用 `decision-records mark-aligned 260101-record-00019 --root <副本> --json` 和 `investigation-report rename 260101-record-00019 renamed --root <副本> --json`。后者将身份变为 `260101-renamed`，并迁移两个资源。每次独立对比操作前后所有 `docs/` 普通文件的路径及 SHA-256：仅允许所选正文、相关索引和迁移资源变化；核对资源哈希、引用及实际身份，并在计量之外调用生产 TS 对相应全集 `check`。另在两个版本各自新副本预建目标 owner 的同名资源，正式调用均非零、返回 `resource-owner` 且全部 docs 文件哈希与路径不变，证明该具体目标冲突未覆盖；不是对所有并发冲突的证明。
 
 **计量。** 小型父进程只对自己创建的 CLI 进程启用 `ptrace` 的退出事件，在退出前暂停一次读取 `/proc/PID/io`，再继续回收；不逐 syscall 跟踪。已尝试 `waitid(WEXITED|WNOWAIT)` 后读取，但本环境对僵尸进程返回 PermissionError，故未使用。1 MiB `dd` 校准复制字节一致，观测 `rchar=1,074,138`、`wchar=1,048,576`、`syscr=45`、`syscw=16`。依据 [Linux proc 手册](https://www.kernel.org/pub/linux/docs/man-pages/book/man-pages-6.13.pdf) 和 [内核 proc 文档](https://docs.kernel.org/7.2/filesystems/proc.html)，计数包括进程及其已等待子进程：`rchar/wchar` 是读写类调用返回字节，包含缓存命中、启动、标准输出和已等待的 Git 子进程；`syscr/syscw` 是读写相关调用计数，**不包括全部 open/stat/getdents 等元数据调用**。`read_bytes/write_bytes` 是存储层读取和脏页记账，并非持久化或实际设备完成写入量；`cancelled_write_bytes` 是后来取消的写回记账，不可简单当作本次持久字节。退出暂停和父进程调度会扰动时间，取数并非各阶段成本拆分。
 
@@ -59,11 +59,4 @@ Rust 记录 CLI 候选简化文件与事务层：普通更新改为临时文件�
 
 结果只证明此环境、规模和两个正常操作以及一个静态冲突；不证明非合作进程竞争下的跨文件隔离、故障恢复、所有路径或 Windows 行为，也不证明实际发布或生产切换。记录的是离线候选和私有数据，不是基准 SLA。若需性能分布，应在稳定版本按独立新进程、至少每臂每场景 20 次、随机交错和每次重置 fixture 另做实验。
 
-归档的测量脚本后续仅作等义可读性整理；历史结果绑定形成时版本，不表示当前文件字节曾用于采样。
-
-## 随附资源
-
-- [基线原始数据](./_resources/261107-rust-record-transaction-io/baseline.jsonl)
-- [校准原始数据](./_resources/261107-rust-record-transaction-io/calibration.json)
-- [最终原始数据](./_resources/261107-rust-record-transaction-io/final.jsonl)
-- [测量脚本](./_resources/261107-rust-record-transaction-io/measure.py)
+历史结果绑定形成时版本，不代表当前实现。

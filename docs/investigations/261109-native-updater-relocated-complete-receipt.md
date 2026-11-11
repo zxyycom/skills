@@ -52,7 +52,7 @@ relations: []
 
 ### 复现方法与对照
 
-随附 `reproduce.sh` 保存形成时复现，应在上述基线的隔离 checkout 根运行。它依赖修前源码接口；当前实现已退出这些接口，不在当前工作树恢复旧模块或把旧症状断言作为成功标准。
+形成时复现依赖修前源码接口；当前实现已退出这些接口，不应把旧症状断言作为成功标准。
 
 1. 对两个 role 分别构造版本 200 的完整原生安装资产，通过真实 `activateNativeBundle` 完成安装。
 2. 确认回执为 `complete`，且回执指向的恢复目录已不存在。构造版本 201 资产，在原位置生成升级计划，作为成功对照。
@@ -96,7 +96,7 @@ relations: []
 
 回执没有不可修改的签名语义。安装校验会约束其角色、版本、文件集合、摘要和 mode；`backup` 不在 `proveEvidenceReceipt` 的上述成员证明中，而由恢复/计划阶段另行解释。已有复现只改变合成副本的 `backup` 后，安装证明与计划都通过，已经反驳“恢复路径写入后不能改”的说法。
 
-本次补证在原复现实验的 `rebound` 计划断言之后，继续调用 `activateNativeBundle({ ...next, destination: moved, confirm: async () => true, validatePrepared: async () => {} })`，随后用 `verifyInstalledNativeEvidence` 核验新版本。两个 role 均完成版本 200 到 201 的激活，回执变为 `complete`，新恢复目录已清理。全部操作仍限于合成临时副本，二进制为 fixture，未验证真实业务启动或真实用户现场。随附原脚本保持形成时内容；该补证不是重写原历史材料，也不是修复后验收测试。
+本次补证在原复现实验的 `rebound` 计划断言之后，继续调用 `activateNativeBundle({ ...next, destination: moved, confirm: async () => true, validatePrepared: async () => {} })`，随后用 `verifyInstalledNativeEvidence` 核验新版本。两个 role 均完成版本 200 到 201 的激活，回执变为 `complete`，新恢复目录已清理。全部操作仍限于合成临时副本，二进制为 fixture，未验证真实业务启动或真实用户现场。该补证不是修复后验收测试。
 
 因此，有依据的路径元数据修正是可行选项；不存在因“回执不可修改”而必须重装的技术结论。但若真实安装仍有待清理目录，不能仅把路径改成不存在的位置假装完成，应核验并保全恢复材料。新增能力是否值得其成本，与永久回执是否为最小表示，仍是两个不同的取舍。
 
@@ -122,7 +122,7 @@ relations: []
 
 ### 当前实现的独立 Linux 验收
 
-主代理独立于实现子代理，使用已准备的真实 Linux x64 原生程序、合成 skill 包和全部模拟的 release HTTP 响应，执行随附 `accept-current-overlay.mjs`。在仓库根运行 `node docs/investigations/_resources/261109-native-updater-relocated-complete-receipt/accept-current-overlay.mjs`；前置是按项目入口准备 `.local/record-cli`。该目录的构建来源证明是仓库运行时职责，不属于已安装 skill 的永久回执。
+主代理独立于实现子代理，使用已准备的真实 Linux x64 原生程序、合成 skill 包和全部模拟的 release HTTP 响应，执行独立验收；前置是按项目入口准备 `.local/record-cli`。该目录的构建来源证明是仓库运行时职责，不属于已安装 skill 的永久回执。
 
 两个 role 均实际通过：
 
@@ -164,8 +164,3 @@ relations: []
 - 本轮未更新或修复用户项目里的安装副本。初始 48 项测试记录属于修前基线，首轮 43 项属于实现检查点；提交前测试与审查结论见质量复审，不按数量推断覆盖质量。
 - 未在 Windows 运行；未验证完整业务记录操作、线上 release 或远端 bootstrap 包生效。当前真实二进制启动、版本与 help 验证不替代这些职责。
 - 未对原用户现场的旧恢复目录与备份作盘点或清理；跨平台搬迁和非合作进程竞争未作为本轮证明目标。模拟网络实验也不证明网络认证或远端发布状态。
-
-## 随附资源
-
-- [当前覆盖模型的独立 Linux 验收](./_resources/261109-native-updater-relocated-complete-receipt/accept-current-overlay.mjs)
-- [形成时离线复现脚本](./_resources/261109-native-updater-relocated-complete-receipt/reproduce.sh)

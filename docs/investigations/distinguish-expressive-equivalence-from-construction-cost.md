@@ -30,10 +30,10 @@ relations:
 
 以下集合表示假设一个讨论范围内的全集 `U` 和目标集合 `T`。这是用于澄清逻辑等价性的理想模型，不表示现实目标已经闭合、`U` 已被人完整掌握，或自然语言能够有限且无歧义地表达任意集合。
 
-**2026-10-26 维护补充：对话回查。** 本次回查了 2026-08-14 形成的共享机械对话初稿，来源和脱敏方式见[处理说明](./preserve-redacted-conversations-in-two-derived-forms.md)。
+**2026-10-26 维护补充：对话回查。** 本次回查了 2026-08-14 形成的公开对话派生件，相关回合现以节选保留，来源和处理方式见[处理说明](./preserve-redacted-conversations-in-two-derived-forms.md)。
 
 - 回合 24 保存对象角色绑定讨论；回合 25 的用户批注明确选中“为什么只有负向边界通常无法替代目标描述”并纠正集合表达能力。因而本报告直接修正[对象角色绑定报告](./bind-mentioned-objects-to-negative-roles.md)中的该项推断，同时保留角色绑定认识。
-- 初稿是后续取得的公开讨论派生件，不是原始 JSONL，不证明当时工具原输出或论文原文，也不改变形成时点或原 Git 基线。
+- 该节选来自后续取得的公开讨论派生件，不是原始 JSONL 或完整对话，不证明当时工具原输出或论文原文，也不改变形成时点或原 Git 基线。
 
 ## 调查结果与边界
 
@@ -61,4 +61,4 @@ relations:
 
 ## 随附资源
 
-- [公开讨论机械初稿](./_resources/preserve-redacted-conversations-in-two-derived-forms/conversation-final-dialogue.initial.md)
+- [公开讨论必要原话与批注节选](./_resources/preserve-redacted-conversations-in-two-derived-forms/discussion-evidence-excerpts.md)

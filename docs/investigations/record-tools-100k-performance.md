@@ -38,9 +38,9 @@ relations:
 
 共 **439 次观察**：主矩阵 62 场景×两个规模、340 样本，图形状 75 次、CLI 12 次、Git 暂存 12 次。其中四次 worker 超时，其余取得预期成功或原生候选硬限结果。
 
-- **主表时间**为领域调用的 elapsed：决策内部查询 handler、调查公开领域函数，包含结果断言；启动、导入、CLI 渲染另计。任务串行、每项独立进程；首样本进程 wall 超过 20 秒，或 worker 超时／非零退出时只采一次，其余三次。下表给中位数，单次标“1 次”；完整范围见[操作统计表](./_resources/261021-record-tools-100k-performance/summary.csv)。
-- **RSS**为该组 worker 全生命周期峰值的最大值，包含微基准计时外预载；Git 子进程内存另属未覆盖范围。CPU、进程 wall 与失败分类见[完整汇总](./_resources/261021-record-tools-100k-performance/summary.json)。
-- **独立微基准**用于比较成本量级，阶段时长不能相加或相减作为精确分摊；CLI、图形状与暂存补测各场景均为单样本。方法见[测量协议](./_resources/261021-record-tools-100k-performance/protocol.md)，调用链与静态次数见[源码依据](./_resources/261021-record-tools-100k-performance/static-audit.md)。
+- **主表时间**为领域调用的 elapsed：决策内部查询 handler、调查公开领域函数，包含结果断言；启动、导入、CLI 渲染另计。任务串行、每项独立进程；首样本进程 wall 超过 20 秒，或 worker 超时／非零退出时只采一次，其余三次。
+- **RSS**为该组 worker 全生命周期峰值的最大值，包含微基准计时外预载；Git 子进程内存另属未覆盖范围。
+- **独立微基准**用于比较成本量级，阶段时长不能相加或相减作为精确分摊；CLI、图形状与暂存补测各场景均为单样本。
 
 ## 调查结果与边界
 
@@ -53,7 +53,7 @@ relations:
 
 ### 常用操作的时间与内存
 
-两表时间单位为秒，RSS 单位为 MiB。1 万条列均为三次中位数；10 万条除标“1 次”外也为三次中位数。分页、name 选择器、其他筛选和完整波动范围保留在操作统计表中。
+两表时间单位为秒，RSS 单位为 MiB。1 万条列均为三次中位数；10 万条除标“1 次”外也为三次中位数。其他分页、name 选择器与筛选不在下表逐项展开。
 
 #### 决策工具
 
@@ -159,7 +159,7 @@ relations:
 | 大入星 | 50 | 约 2.2 MB |
 | 长链 | 50 | 约 14–21 KB |
 
-归并 entry 保留 99,999 条直接关系及完整阻断事件；大入星的 frontier 保留 99,999 个 next ID。成员预算因此只约束记录接纳，完整关系与事件字段仍随图形状增长。上述纯内存 trace 含投影和 JSON 序列化，耗时约 5–310 ms；两域十万深链均完成图校验及有界切片。详细结果见[补充汇总](./_resources/261021-record-tools-100k-performance/extra-summary.json)。
+归并 entry 保留 99,999 条直接关系及完整阻断事件；大入星的 frontier 保留 99,999 个 next ID。成员预算因此只约束记录接纳，完整关系与事件字段仍随图形状增长。上述纯内存 trace 含投影和 JSON 序列化，耗时约 5–310 ms；两域十万深链均完成图校验及有界切片。
 
 ### Git 暂存与 CLI 输出
 
@@ -196,30 +196,4 @@ relations:
 4. **按批次同步／发布**：一批来源编辑集中支付全集准备；实际收益以真实批量负载补测。
 5. **分别设计返回窗口与字节预算**：决策 metadata 可评估返回 limit，保留精确总数和覆盖声明；巨型 trace／资源的预算调整另按完整关系与事件契约评估。
 
-本轮保持生产实现不变，测量代码与原始结果作为形成时材料保留。适用边界是所列版本、短正文、无资源及已测图形状；长正文、大资源、密图、并发写入、冷缓存、其他平台、候选创建和未列正式 mutation／回滚仍待验证。少量样本反映本次量级与卡点，不构成 p95、每日吞吐或一般线性扩展承诺。形成时验证与复核结果见[验证记录](./_resources/261021-record-tools-100k-performance/verification.json)。
-
-## 随附资源
-
-- [形成时环境输出](./_resources/261021-record-tools-100k-performance/environment.txt)
-- [图形状、CLI 与暂存汇总](./_resources/261021-record-tools-100k-performance/extra-summary.json)
-- [版本、方法指纹与样本清点](./_resources/261021-record-tools-100k-performance/manifest.json)
-- [CLI 进程指标采集方法](./_resources/261021-record-tools-100k-performance/methods/cli-metrics.ts)
-- [主矩阵采集方法](./_resources/261021-record-tools-100k-performance/methods/collector.ts)
-- [决策暂存测量方法](./_resources/261021-record-tools-100k-performance/methods/decision-stage-worker.ts)
-- [决策样本与操作测量方法](./_resources/261021-record-tools-100k-performance/methods/decision-worker.ts)
-- [调查样本与操作测量方法](./_resources/261021-record-tools-100k-performance/methods/investigation-worker.ts)
-- [通用计时与指标定义](./_resources/261021-record-tools-100k-performance/methods/measurement.ts)
-- [图形状构造与测量方法](./_resources/261021-record-tools-100k-performance/methods/shape-worker.ts)
-- [隔离 Git 基线与暂存采集方法](./_resources/261021-record-tools-100k-performance/methods/stage-collector.ts)
-- [图形状、CLI 与暂存汇总方法](./_resources/261021-record-tools-100k-performance/methods/summarize-extra.ts)
-- [主矩阵清点与统计方法](./_resources/261021-record-tools-100k-performance/methods/summarize.ts)
-- [图形状与 CLI 采集方法](./_resources/261021-record-tools-100k-performance/methods/supplement.ts)
-- [主矩阵原始观察](./_resources/261021-record-tools-100k-performance/observations.jsonl)
-- [四个真实集合的建立与验证结果](./_resources/261021-record-tools-100k-performance/preparation.json)
-- [测量方法与指标边界](./_resources/261021-record-tools-100k-performance/protocol.md)
-- [Git 暂存原始结果](./_resources/261021-record-tools-100k-performance/stage.jsonl)
-- [固定源码调用链与复杂度依据](./_resources/261021-record-tools-100k-performance/static-audit.md)
-- [完整操作统计表](./_resources/261021-record-tools-100k-performance/summary.csv)
-- [完整统计与失败分类](./_resources/261021-record-tools-100k-performance/summary.json)
-- [图形状与 CLI 原始结果](./_resources/261021-record-tools-100k-performance/supplement.jsonl)
-- [交付验证记录](./_resources/261021-record-tools-100k-performance/verification.json)
+本轮保持生产实现不变。适用边界是所列版本、短正文、无资源及已测图形状；长正文、大资源、密图、并发写入、冷缓存、其他平台、候选创建和未列正式 mutation／回滚仍待验证。少量样本反映本次量级与卡点，不构成 p95、每日吞吐或一般线性扩展承诺。

@@ -1,4 +1,0 @@
-{"degree": 8, "sync_check": true, "node_rc": 0, "rust_rc": 0, "json_equal": true, "node_stderr": "", "rust_stderr": "PROBE id=260101-bench-00000 dir=successors comparisons=28 units=8\n"}
-{"degree": 16, "sync_check": true, "node_rc": 0, "rust_rc": 0, "json_equal": true, "node_stderr": "", "rust_stderr": "PROBE id=260101-bench-00000 dir=successors comparisons=120 units=16\n"}
-{"degree": 32, "sync_check": true, "node_rc": 0, "rust_rc": 0, "json_equal": true, "node_stderr": "", "rust_stderr": "PROBE id=260101-bench-00000 dir=successors comparisons=496 units=32\n"}
-{"degree": 64, "sync_check": true, "node_rc": 0, "rust_rc": 0, "json_equal": true, "node_stderr": "", "rust_stderr": "PROBE id=260101-bench-00000 dir=successors comparisons=2016 units=64\n"}

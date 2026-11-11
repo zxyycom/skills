@@ -22,7 +22,7 @@ relations: []
 
 补充普查的基线是 2026-11-07 10:55 UTC 采集的 commit `e03e9e87e937029c3058456cfb88d600e1f88ed7`。五名 gpt-6.1-terra 按分区全文阅读`tools/record-cli/src` 和 `tools/record-cli/tests` 下受版本控制的 280 个 Rust 文件（分别为 249 和 31 个，共 38,815 行）及 17 个关联输入；另一名同模型 reviewer 逐项复核 13 项发现并抽样。主代理完成路径、哈希和行范围闭合；机械闭合不等于独立重读全部源码或保证零遗漏。
 
-这是静态源码普查，未运行新测试、替代构建或性能采样，也不是逐测试入口价值审核。共享资源 `source-census.json` 保存逐文件责任、完整行范围、SHA 和判断；`findings.json` 保存各发现的定位、建议、验证要求和独立复核。账本的 `retain` 仅表示未发现应库化或惯用化的调整，不证明行为正确。资源供进一步核对，不是动态验证结果。
+这是静态源码普查，未运行新测试、替代构建或性能采样，也不是逐测试入口价值审核。共享资源 `findings.json` 保存各发现的源码定位和后续验证要求。未发现应调整不证明行为正确。资源供进一步核对，不是动态验证结果。
 
 ## 调查结果与边界
 
@@ -55,5 +55,4 @@ relations: []
 
 ## 随附资源
 
-- [发现与独立复核目录](./_resources/261107-rust-record-library-replacement-survey/findings.json)
-- [逐文件普查与关联输入账本](./_resources/261107-rust-record-library-replacement-survey/source-census.json)
+- [发现定位与验证要求](./_resources/261107-rust-record-library-replacement-survey/findings.json)

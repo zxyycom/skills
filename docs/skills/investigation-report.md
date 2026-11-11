@@ -19,7 +19,20 @@
 | 调查范围与依据 | 实际检查对象、来源、方法、版本或时点，以及未覆盖部分。 |
 | 调查结果与边界 | 事实、推断、建议、实际动作与未知，以及结论适用条件。 |
 
-正文独立解释关键认识，资源按需补充现场与做法。稳定 ID 连接报告身份，tags 支持主题发现，直接前序关系表达认识演进，索引支持查找和追溯。复现与重跑按任务另行要求。
+正文独立解释关键认识，资源只承接正文仍需依赖的必要材料。稳定 ID 连接报告身份，tags 支持主题发现，直接前序关系表达认识演进，索引支持查找和追溯。复现与重跑按任务另行要求。
+
+## 用本仓库理解资源取舍
+
+通用方法见[资源选择与示例](../../skills/investigation-report/references/resource-selection.md)。以下是本仓库已完成的精简示范：先裁剪信息，再决定载体；少量必要信息可直接并入正文，附件可以归零。
+
+| 调查对象 | 保留的必要依据 | 实际取舍 |
+| --- | --- | --- |
+| [Rust 函数指标误计调查](../investigations/261110-rust-byte-literal-function-metrics-boundary.md) | 异常指标、等价输入对照及未完成的机制验证 | 已在正文闭合，无需再附完整运行日志或依赖副本。 |
+| [对象读取反例](../investigations/investigation-phase-facts-and-streamed-content.md)、[入口矩阵测量](../investigations/record-tools-entry-matrix-10k.md)及[查询普查](../investigations/261108-record-cli-native-complexity-survey.md) | 输入条件、方法、比较结果、反例与未知 | 正文承接必要依据，删除完整日志、逐次 stdout、逐文件清单及运行脚本；没有仅换 CSV 或另存全量阅读版。 |
+| [图片协议取证](../investigations/openrouter-decision-live-protocols.md) | 合成图构造、legend 对象与节点关系、实际响应及精度边界 | 用构造与响应要点承接，删除独立 PNG 和重复 Base64；没有把对象转述成字符串。 |
+| [92 条历史对齐召回](../investigations/recall-historical-decision-alignment.md) | 每条恢复值、历史定位、区分性依据及推断限制 | 保留精简逐项证据；只留87/5的总计无法回答各对象为何恢复为该值。 |
+| [Laya 来源清单](../investigations/_resources/260920-laya-decision-model-evidence/source-inventory.md)及[原生库候选定位](../investigations/_resources/261107-rust-record-library-replacement-survey/findings.json) | 正文未列齐的准确来源、问题定位及必要验证边界 | 保留最短定位材料，删除重复结论、完整源码清单和成套建议。 |
+| [讨论原话与批注节选](../investigations/_resources/preserve-redacted-conversations-in-two-derived-forms/discussion-evidence-excerpts.md) | 用户真实纠正的目标句、原话与先后关系 | 将双份完整派生档案裁为一份有明确范围的节选，保留原回合与批注索引；删除工具过程和重复助手总结，不再称为近全量或机械初稿。 |
 
 ## 从哪里开始
 
