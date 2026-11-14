@@ -29,15 +29,18 @@ const outputSchema = v.strictObject({
   deliveryHash: digest,
   skillInputHashes: v.strictObject({
     "decision-records": digest,
-    "investigation-report": digest
+    "investigation-report": digest,
+    "resource-records": digest
   }),
   versions: v.strictObject({
     "decision-records": v.number(),
-    "investigation-report": v.number()
+    "investigation-report": v.number(),
+    "resource-records": v.number()
   }),
   packages: v.strictObject({
     "decision-records": archive,
-    "investigation-report": archive
+    "investigation-report": archive,
+    "resource-records": archive
   }),
   bootstrap: archive
 });
@@ -241,7 +244,8 @@ async function generateNativeCandidate(
       "decision-records": decodeArchive(parsed.packages["decision-records"]),
       "investigation-report": decodeArchive(
         parsed.packages["investigation-report"]
-      )
+      ),
+      "resource-records": decodeArchive(parsed.packages["resource-records"])
     },
     bootstrap: decodeArchive(parsed.bootstrap),
     versions: parsed.versions

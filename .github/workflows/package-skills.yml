@@ -204,7 +204,7 @@ jobs:
       - name: Run native tests on this platform
         run: cargo +1.98.1 test --manifest-path tools/record-cli/Cargo.toml --locked --all-targets -- --include-ignored
       - name: Run native updater tests on this platform
-        run: node --test scripts/lib/record-native/tests/runtime.test.ts tools/skill-updater/tests/native-archive.test.ts tools/skill-updater/tests/native-bundle.test.ts tools/skill-updater/tests/native-legacy-plan.test.ts tools/skill-updater/tests/native-legacy-preflight.test.ts tools/skill-updater/tests/native-manifest.test.ts tools/skill-updater/tests/native-release.test.ts tools/skill-updater/tests/native-transaction.test.ts tools/skill-updater/tests/native-installed-evidence.test.ts tools/skill-updater/tests/native-updater-dependencies.test.ts
+        run: node --test scripts/lib/record-native/tests/runtime.test.ts tools/skill-updater/tests/native-archive.test.ts tools/skill-updater/tests/native-bundle.test.ts tools/skill-updater/tests/native-frozen-consumer.test.ts tools/skill-updater/tests/native-overlay.test.ts tools/skill-updater/tests/native-cli.test.ts tools/skill-updater/tests/native-manifest.test.ts tools/skill-updater/tests/native-release.test.ts tools/skill-updater/tests/native-updater-dependencies.test.ts
       - name: Build formal frozen inputs
         run: node scripts/lib/record-native/ci-release-build.ts
       - uses: actions/upload-artifact@v4

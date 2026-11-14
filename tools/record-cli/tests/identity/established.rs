@@ -47,10 +47,12 @@ fn decision_formal_rename_noop_date_and_discard() {
             .entries
             .is_empty()
     );
-    let ready = include_str!("../fixtures/identity/decisions/draft.md").replace(
-        "## 目的\n\n## 背景\n\n## 决策",
-        "## 目的\nPurpose\n\n## 背景\nBackground\n\n## 决策\n- 采用: Choice",
-    );
+    let ready = include_str!("../fixtures/identity/decisions/draft.md")
+        .replace("\r\n", "\n")
+        .replace(
+            "## 目的\n\n## 背景\n\n## 决策",
+            "## 目的\nPurpose\n\n## 背景\nBackground\n\n## 决策\n- 采用: Choice",
+        );
     std::fs::write(dir.path().join("decisions/draft.md"), ready).unwrap();
     let published = std::process::Command::new(env!("CARGO_BIN_EXE_decision-records"))
         .args([

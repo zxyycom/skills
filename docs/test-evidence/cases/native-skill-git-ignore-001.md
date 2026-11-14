@@ -8,7 +8,7 @@ Tags:
 - `tooling`
 
 Contract:
-- 两个原生记录 skill 的随包 `.gitignore` 对 skill 根内的平台程序补充忽略规则；分发源码与其他目录的可执行文件保持可见。
+- 三个原生记录 skill 的随包 `.gitignore` 对 skill 根内的平台程序补充忽略规则；分发源码与其他目录的可执行文件保持可见。
 
 Proves:
 - 将仓库生成的 `.gitignore` 放入隔离 Git 仓库的嵌套 skill 目录后，真实 `git check-ignore` 排除 Linux/Windows 程序文件名及 Node 依赖路径。

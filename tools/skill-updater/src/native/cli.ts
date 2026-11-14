@@ -62,6 +62,7 @@ export async function runNativeUpdaterCli(
   };
   const manifest = await loadNativeManifest(input);
   const remote = manifest[role];
+  if (!remote) throw new Error(`native release missing: ${role}`);
   const current =
     state.state === "versioned" && state.version === remote.version;
   if (options.check || (current && !bootstrap)) {

@@ -1,3 +1,7 @@
+import {
+  nativeRoles,
+  nativeSchemaFiles
+} from "../../../../tools/skill-package/src/native-release-manifest.ts";
 import { createHash } from "node:crypto";
 import { zipSync, strToU8 } from "fflate";
 import type { assembleCandidateRelease } from "../candidate-release.ts";
@@ -13,10 +17,14 @@ export function fixture(
 ): ReturnType<typeof assembleCandidateRelease> {
   const assets: ReturnType<typeof assembleCandidateRelease>["assets"] = [];
   const schemas = {
-    "decision-records": Buffer.from(
-      malformedSchema ? "not json" : '{"title":"decision"}'
-    ),
-    "investigation-report": Buffer.from('{"title":"investigation"}')
+    "decision-records": [
+      Buffer.from(malformedSchema ? "not json" : '{"title":"decision"}')
+    ],
+    "investigation-report": [Buffer.from('{"title":"investigation"}')],
+    "resource-records": [
+      Buffer.from('{"title":"resource"}'),
+      Buffer.from('{"title":"resource index"}')
+    ]
   };
   const add = (name: string, contents: Record<string, string>) => {
     const bytes = Buffer.from(
@@ -42,7 +50,8 @@ export function fixture(
         "pnpm-lock.yaml",
         "README.md",
         "scripts/decision-records.ts",
-        "scripts/investigation-report.ts"
+        "scripts/investigation-report.ts",
+        "scripts/resource-records.ts"
       ].map((name) => [`record-native-installer/${name}`, "fixture"])
     )
   );
@@ -50,7 +59,7 @@ export function fixture(
   add("other.zip", {
     "other/SKILL.md": "---\nname: other\nmetadata:\n  version: '1'\n---\n"
   });
-  for (const role of ["decision-records", "investigation-report"]) {
+  for (const role of nativeRoles) {
     const linux = "x86_64-unknown-linux-gnu",
       windows = "x86_64-pc-windows-msvc";
     const descriptor = JSON.stringify({
@@ -60,15 +69,15 @@ export function fixture(
       sourceHash: hash,
       targets: [linux, windows]
     });
-    const schema =
-      role === "decision-records"
-        ? "decision-index.schema.json"
-        : "investigation-index.schema.json";
     const pkg = add(`${role}-native.zip`, {
       [`${role}/SKILL.md`]: `---\nname: ${role}\n${privateCandidate ? "description: Private native candidate for isolated verification only.\n" : ""}metadata:\n  version: '2'\n---\n`,
       [`${role}/native-runtime.json`]: descriptor,
-      [`${role}/references/${schema}`]:
-        schemas[role as keyof typeof schemas].toString(),
+      ...Object.fromEntries(
+        nativeSchemaFiles[role].map((schema, index) => [
+          `${role}/references/${schema}`,
+          schemas[role][index]!.toString()
+        ])
+      ),
       [`${role}/scripts/update-skill.ts`]: "fixture",
       ...(retiredSdk && role === "decision-records"
         ? { [`${role}/scripts/decision-records-sdk/cli.d.mts`]: "retired" }
@@ -131,15 +140,14 @@ export function fixture(
     ),
     assetHashes: {}
   };
-  const runtimeAssets = ["decision-records", "investigation-report"].flatMap(
-    (role) =>
-      ["x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc"].map(
-        (target) =>
-          assets.find(
-            (item) =>
-              item.asset.name === `${role}-${runtimeVersion}-${target}.zip`
-          )!.asset
-      )
+  const runtimeAssets = nativeRoles.flatMap((role) =>
+    ["x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc"].map(
+      (target) =>
+        assets.find(
+          (item) =>
+            item.asset.name === `${role}-${runtimeVersion}-${target}.zip`
+        )!.asset
+    )
   );
   const proof = Buffer.from(
     `${JSON.stringify({ schemaVersion: 1, buildRevision: commit, runtimeVersion, source: { sha256: hash, files: [] }, buildDelivery: { sha256: hash, files: [] }, recipe: provenance.recipeHashes, platforms: provenance.platforms, assets: runtimeAssets }, null, 2)}\n`

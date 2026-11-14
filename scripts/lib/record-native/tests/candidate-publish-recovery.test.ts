@@ -107,7 +107,7 @@ test("rolling upload verifies recovery before runtime and resumes from exact pub
     remoteAssets,
     downloaded
   });
-  assert.equal(recovered.assets.length, 4);
+  assert.equal(recovered.assets.length, 6);
   const prior = stored.get(
     "decision-records-0.2.1-x86_64-unknown-linux-gnu.zip"
   )!;
@@ -124,9 +124,11 @@ test("rolling upload verifies recovery before runtime and resumes from exact pub
     "updated"
   );
   const runtimes = release.assets.filter((entry) =>
-    /^(decision-records|investigation-report)-0\.2\.1-/.test(entry.asset.name)
+    /^(decision-records|investigation-report|resource-records)-0\.2\.1-/.test(
+      entry.asset.name
+    )
   );
-  assert.equal(runtimes.length, 4);
+  assert.equal(runtimes.length, 6);
   for (const asset of runtimes) {
     assert.deepEqual(
       stored.get(asset.asset.name)?.bytes,

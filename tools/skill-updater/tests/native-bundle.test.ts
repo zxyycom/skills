@@ -150,3 +150,51 @@ test("native bundle binds role, target, skill version and source before planning
     /selected binary/
   );
 });
+
+test("resource bundle requires both schemas and shared identity", async () => {
+  const { fixture } =
+    await import("../../../scripts/lib/record-native/tests/candidate-publish-fixture.ts");
+  const { parseNativeReleaseSet } =
+    await import("../../skill-package/src/native-release-manifest.ts");
+  const candidate = fixture();
+  const release = parseNativeReleaseSet(candidate.manifest)["resource-records"];
+  const role = "resource-records";
+  const target = "x86_64-unknown-linux-gnu";
+  const lookup = (name: string) =>
+    candidate.assets.find((item) => item.asset.name === name)!.bytes;
+  const packageZip = lookup(release.native.package.name);
+  const runtimeZip = lookup(release.native.targets[target].name);
+  const input = { role, target, release, packageZip, runtimeZip } as const;
+  assert.ok(
+    prepareNativeBundle(input).some((file) => file.path === `bin/${role}`)
+  );
+  const { unzipSync } = await import("fflate");
+  for (const schema of [
+    "resource-record.schema.json",
+    "resource-index.schema.json"
+  ]) {
+    const contents = unzipSync(packageZip);
+    delete contents[`${role}/references/${schema}`];
+    const incomplete = zipSync(contents);
+    const patched = {
+      ...release,
+      native: {
+        ...release.native,
+        package: {
+          ...release.native.package,
+          byteLength: incomplete.length,
+          sha256: createHash("sha256").update(incomplete).digest("hex")
+        }
+      }
+    };
+    assert.throws(
+      () =>
+        prepareNativeBundle({
+          ...input,
+          release: patched,
+          packageZip: incomplete
+        }),
+      /missing required/
+    );
+  }
+});

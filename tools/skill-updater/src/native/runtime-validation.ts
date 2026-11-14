@@ -6,6 +6,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import * as v from "valibot";
+import { nativeSchemaFiles } from "../../../skill-package/src/native-release-manifest.ts";
 import type {
   NativeRole,
   NativeTarget
@@ -70,15 +71,13 @@ export async function validateNativeRuntime(
   );
   runChecked(binary, ["--version"], `${role} ${version}`);
   runChecked(binary, ["--help"]);
-  const schema =
-    role === "decision-records"
-      ? "decision-index.schema.json"
-      : "investigation-index.schema.json";
-  const value: unknown = JSON.parse(
-    await fs.readFile(path.join(root, "references", schema), "utf8")
-  );
-  if (!value || typeof value !== "object" || Array.isArray(value))
-    throw new Error("prepared schema is invalid");
+  for (const schema of nativeSchemaFiles[role]) {
+    const value: unknown = JSON.parse(
+      await fs.readFile(path.join(root, "references", schema), "utf8")
+    );
+    if (!value || typeof value !== "object" || Array.isArray(value))
+      throw new Error("prepared schema is invalid");
+  }
   await verifyPreparedUpdater(root);
 }
 

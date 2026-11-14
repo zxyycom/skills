@@ -115,6 +115,7 @@ fn investigation_source_scopes_stage_managed_owner_tree_and_ignore_extras() {
             )
             .unwrap();
         }
+        let revived_bytes = fs::read(root.join("_resources/240229-report/revive.txt")).unwrap();
         fs::copy(
             raw_git_fixture("resources/report.md"),
             root.join("report.md"),
@@ -224,7 +225,7 @@ fn investigation_source_scopes_stage_managed_owner_tree_and_ignore_extras() {
         }
         assert_eq!(
             git(root, &["show", ":_resources/240229-report/revive.txt"]),
-            b"revived tracked\n"
+            revived_bytes
         );
         assert_eq!(
             git(root, &["show", ":_resources/240229-report/file.txt"]),

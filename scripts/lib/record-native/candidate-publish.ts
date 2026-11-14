@@ -13,7 +13,7 @@ export type CandidatePublishInput = Readonly<{
     asset: Readonly<{ name: string; byteLength: number; sha256: string }>;
     bytes: Uint8Array;
   }>[];
-  schemas: Readonly<Record<NativeRole, Uint8Array>>;
+  schemas: Readonly<Record<NativeRole, readonly Uint8Array[]>>;
   provenance: Readonly<{
     pendingMatchesBase: boolean;
     pendingBaseRevision: string;

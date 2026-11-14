@@ -44,7 +44,11 @@ async function verifyInstalled(
     assert.equal(version.stdout.trim(), `${asset.role} ${manifest.version}`);
     const help = spawnSync(file, ["--help"], { encoding: "utf8" });
     assert.equal(help.status, 0);
-    assert.ok(help.stdout.includes("Usage:"));
+    assert.ok(
+      asset.role === "resource-records"
+        ? help.stdout.includes("resource-records <list")
+        : help.stdout.includes("Usage:")
+    );
   }
 }
 

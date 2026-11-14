@@ -33,8 +33,8 @@ function gitOutput(cwd, args) {
   return result.stdout.trim();
 }
 
-function readGitConfig(cwd, key) {
-  const result = gitResult(cwd, ["config", "--local", "--get", key]);
+function readGitConfig(cwd, key, source = ["--local"]) {
+  const result = gitResult(cwd, ["config", ...source, "--get", key]);
   if (!result.error && result.status === 1 && result.stdout.trim() === "") {
     return null;
   }
@@ -44,7 +44,9 @@ function readGitConfig(cwd, key) {
       .join("\n")
       .trim();
     const failure = result.error?.message || detail || `exit ${result.status}`;
-    throw new Error(`git config --local --get ${key} failed: ${failure}`);
+    throw new Error(
+      `git config ${source.join(" ")} --get ${key} failed: ${failure}`
+    );
   }
   return result.stdout.trim();
 }
@@ -58,6 +60,25 @@ export function discoverMainWorktreeRoot(cwd) {
   const root = firstField.slice("worktree ".length);
   if (!path.isAbsolute(root)) {
     throw new Error(`git returned a non-absolute main worktree path: ${root}`);
+  }
+  const commonDir = gitOutput(cwd, [
+    "rev-parse",
+    "--path-format=absolute",
+    "--git-common-dir"
+  ]);
+  if (path.relative(root, commonDir) === "") {
+    const mainConfig = path.join(commonDir, "config.worktree");
+    const usesWorktreeConfig =
+      readGitConfig(cwd, "extensions.worktreeConfig", ["--local", "--bool"]) ===
+      "true";
+    const worktree =
+      (usesWorktreeConfig &&
+        readGitConfig(cwd, "core.worktree", ["--file", mainConfig])) ||
+      readGitConfig(cwd, "core.worktree");
+    if (!worktree) {
+      throw new Error("git main worktree path is unavailable");
+    }
+    return path.resolve(commonDir, worktree);
   }
   return path.normalize(root);
 }

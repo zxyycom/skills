@@ -18,17 +18,19 @@ function fixture(): NativeCandidateSnapshot {
     }
   ];
   const filesBySkill = new Map(
-    ["decision-records", "investigation-report"].map((name, i) => [
-      name,
-      [
-        {
-          path: "SKILL.md",
-          data: Buffer.from(
-            `---\nname: ${name}\nmetadata:\n  version: "${i ? 98 : 109}"\n---\n`
-          )
-        }
+    ["decision-records", "investigation-report", "resource-records"].map(
+      (name, i) => [
+        name,
+        [
+          {
+            path: "SKILL.md",
+            data: Buffer.from(
+              `---\nname: ${name}\nmetadata:\n  version: "${i ? 98 : 109}"\n---\n`
+            )
+          }
+        ]
       ]
-    ])
+    )
   );
   return {
     source,
@@ -59,6 +61,10 @@ test("private bootstrap successor changes Rust and skill versions and preserves 
   );
   assert.match(
     b.skills.filesBySkill.get("investigation-report")![0]!.data.toString(),
+    /version: "99"/
+  );
+  assert.match(
+    b.skills.filesBySkill.get("resource-records")![0]!.data.toString(),
     /version: "99"/
   );
   assert.match(a.source[0]!.data.toString(), /0\.1\.0/);

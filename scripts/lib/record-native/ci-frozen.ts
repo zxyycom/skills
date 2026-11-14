@@ -1,3 +1,4 @@
+import { nativeRoles } from "../../../tools/skill-package/src/native-release-manifest.ts";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
@@ -118,7 +119,7 @@ async function build(): Promise<void> {
       path.join(stage, `native-${target}.json`),
       path.join(dest, "native.json")
     );
-    for (const role of ["decision-records", "investigation-report"]) {
+    for (const role of nativeRoles) {
       const name = `${role}-${versions[index]}-${target}.zip`;
       await copyFile(
         path.join(stage, "native-assets", name),
@@ -183,7 +184,7 @@ async function preparePrivateVerification(
   const assets = [];
   const directory = path.join(stage, "assets");
   await mkdir(directory);
-  for (const role of ["decision-records", "investigation-report"]) {
+  for (const role of nativeRoles) {
     const name = `${role}-${version}-${target}.zip`;
     const entries = metadata.assets.filter(
       (item) => item.role === role && item.name === name
@@ -213,7 +214,7 @@ async function preparePrivateVerification(
     });
   }
   const manifest = parseManifest({
-    schemaVersion: 1,
+    schemaVersion: 2,
     version,
     target,
     source: { sha256: sourceHash, ...metadata.toolchain },

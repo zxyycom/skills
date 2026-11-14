@@ -137,7 +137,11 @@ async function prepare(): Promise<void> {
     (await treeDigest(frozen)).sha256 !== snapshot.sha256
   )
     throw new Error("native source changed during build; rerun prepare");
-  const binaries = { "decision-records": "", "investigation-report": "" };
+  const binaries = {
+    "decision-records": "",
+    "investigation-report": "",
+    "resource-records": ""
+  };
   const cargo = await readFile(path.join(frozen, "Cargo.toml"), "utf8");
   const version = /^version\s*=\s*"([^"]+)"/m.exec(cargo)?.[1];
   if (!version) throw new Error("missing Cargo package version");

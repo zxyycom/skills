@@ -7,7 +7,7 @@ import { skillReleaseManifestSchema } from "../../../tools/skill-package/src/rel
 import {
   nativeRoles,
   nativeTargets,
-  parseNativeReleasePair
+  parseNativeReleaseSet
 } from "../../../tools/skill-package/src/native-release-manifest.ts";
 import type { PublishedAsset } from "../publishing/publish-skills-types.ts";
 import type {
@@ -33,7 +33,7 @@ export function prepareCandidatePublish(release: CandidatePublishInput): {
   runtime: Set<string>;
 } {
   const base = v.parse(skillReleaseManifestSchema, release.manifest);
-  const pair = parseNativeReleasePair(release.manifest);
+  const pair = parseNativeReleaseSet(release.manifest);
   if (pair["decision-records"].native.runtimeVersion === "0.1.0")
     throw new Error("private runtime 0.1.0 cannot be published");
   const expected = new Map<
@@ -129,7 +129,7 @@ export function prepareCandidatePublish(release: CandidatePublishInput): {
 
 function verifyRecoveryAssets(
   release: CandidatePublishInput,
-  pair: ReturnType<typeof parseNativeReleasePair>,
+  pair: ReturnType<typeof parseNativeReleaseSet>,
   assets: CandidatePublishAsset[],
   runtime: Set<string>,
   buildProof: string,

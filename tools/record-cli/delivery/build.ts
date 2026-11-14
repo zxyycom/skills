@@ -156,7 +156,7 @@ function createManifest(
   cargo: string
 ) {
   return parseManifest({
-    schemaVersion: 1,
+    schemaVersion: 2,
     version,
     target,
     source: { sha256: sourceHash, rustc, cargo },
@@ -170,6 +170,12 @@ function createManifest(
       {
         role: "investigation-report",
         file: assetName("investigation-report", target),
+        size: 1,
+        sha256: "0".repeat(64)
+      },
+      {
+        role: "resource-records",
+        file: assetName("resource-records", target),
         size: 1,
         sha256: "0".repeat(64)
       }

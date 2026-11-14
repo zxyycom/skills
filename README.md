@@ -62,6 +62,8 @@
 
 [Investigation Report](docs/skills/investigation-report.md) 在当前请求或生效项目规则要求沉淀调查时，用稳定 Investigation ID 保存每轮形成时背景、调查目的、实际依据以及结果与边界。每份报告独立成立，以 tags 分类，并通过指向直接前序的关系表达认识演进；所有报告留在同一正式集合，报告级派生索引负责发现、筛选和关系查询。实际 skill 位于 [`skills/investigation-report/`](skills/investigation-report/)。
 
+[Resource Records](skills/resource-records/SKILL.md) 维护资源集合、精确版本、文件和用途选择，并查询已登记的来源关系；原始调用仍由原记录保存。源码、构建和安装状态分别核对，入口见 [Record CLI](tools/record-cli/README.md)。
+
 [Decision Records](docs/skills/decision-records.md) 提供一套跨项目复用的长期决策记忆方案和配套 CLI。它用自包含 Markdown 保存长期决策的完整语义、生命周期、对齐状态和演进关系，并生成可重建的全生命周期 JSON 查询索引；配套 CLI 负责查询、检查、索引同步和受约束的维护事务。实际 skill 位于 [`skills/decision-records/`](skills/decision-records/)。
 
 [Video Understanding](docs/skills/video-understanding.md) 按任务范围读取视频字幕与画面，核对关键依据，交付总结、答案或操作步骤。随包 TS CLI 与独立媒体运行时协作，配置和证据保留在程序包外。实际 skill 位于 [`skills/video-understanding/`](skills/video-understanding/)。

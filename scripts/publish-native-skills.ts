@@ -5,11 +5,12 @@ import path from "node:path";
 import * as v from "valibot";
 import {
   nativeRoles,
+  nativeSchemaFiles,
   type NativeRole
 } from "../tools/skill-package/src/native-release-manifest.ts";
 import { candidateGithubRemote } from "./lib/record-native/candidate-publish-github.ts";
 import { publishCandidateRelease } from "./lib/record-native/candidate-publish.ts";
-import { schemaFile } from "./lib/record-native/candidate-schemas.ts";
+import { isMainModule } from "../tools/shared/src/node/main-module.ts";
 
 const digest = v.pipe(v.string(), v.regex(/^[a-f0-9]{64}$/));
 async function validatePublicationStage(
@@ -32,6 +33,30 @@ async function validatePublicationStage(
   )
     throw new Error("invalid owned release stage");
   return stage;
+}
+
+/** Read all authorities from the frozen delivery, never from the worktree. */
+export async function readCandidateSchemas(
+  stage: string
+): Promise<Record<NativeRole, readonly Uint8Array[]>> {
+  const schemas = {} as Record<NativeRole, readonly Uint8Array[]>;
+  for (const role of nativeRoles) {
+    schemas[role] = await Promise.all(
+      nativeSchemaFiles[role].map((name) =>
+        fs.readFile(
+          path.join(
+            stage,
+            "delivery",
+            "tools",
+            "record-contracts",
+            "schemas",
+            name
+          )
+        )
+      )
+    );
+  }
+  return schemas;
 }
 
 async function readCandidateRelease(stage: string, revision: string) {
@@ -70,18 +95,7 @@ async function readCandidateRelease(stage: string, revision: string) {
       bytes
     });
   }
-  const schemas = {} as Record<NativeRole, Uint8Array>;
-  for (const role of nativeRoles)
-    schemas[role] = await fs.readFile(
-      path.join(
-        stage,
-        "delivery",
-        "tools",
-        "record-contracts",
-        "schemas",
-        schemaFile(role)
-      )
-    );
+  const schemas = await readCandidateSchemas(stage);
   const release = {
     manifest: JSON.parse(
       await fs.readFile(
@@ -127,7 +141,9 @@ async function main(): Promise<void> {
   if (result.status === "failed")
     throw new Error(`publication failed at ${result.phase}: ${result.error}`);
 }
-main().catch((error: unknown) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+if (isMainModule(import.meta.url)) {
+  main().catch((error: unknown) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}

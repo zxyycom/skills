@@ -349,6 +349,8 @@
       "GATE-NATIVE-BUILD-MATERIALS-001": "sha256:fa954af3b681946af1a89e0dd01932babef8f2798fb5e3a35b4b60ceee6f1b36",
       "GATE-NATIVE-COMMAND-LAUNCH-001": "sha256:f0bb76570a8c1b1e6218a3a86a2e009f2c6c8102319c13468c2388f8f8e8339f",
       "GATE-NATIVE-DURATION-BUDGET-001": "sha256:0e19abd2836cc7b11df4f429d39a4732319e1bcefcfa7f0203fbf1a37a0e207a",
+      "GATE-NATIVE-PUBLISHER-INPUTS-001": "sha256:15626276217482aa1c384c49c48dbf183d48c55d40f0bf9ecc88204473a3c218",
+      "GATE-NATIVE-RUNTIME-REGISTRATION-001": "sha256:049dc415bcd7e9b735c567946612ac07818849be457ab94a44860db843d16b0e",
       "GATE-PERFORMANCE-EXECUTED-SAMPLES-001": "sha256:8f25a5d06d53243a5f50174eb5db22f1c64a150e5141bc36b5e92a4a018119a6",
       "GATE-PERFORMANCE-INVALID-001": "sha256:be90cddfbf3f5f95024a7ce64f0e2ca75bec19c8884836c600e456c8d25338d0",
       "GATE-PERFORMANCE-NATIVE-STATISTICS-001": "sha256:fb8915a0d4e1c099eeb056148e963063bc09bdb42467779f3ab7214474ded5a8",
@@ -793,11 +795,11 @@
       "NATIVE-BUILD-FROZEN-INPUT-001": "sha256:96ddee98a05553a49680ffb0c8a66bb7ba220cff76f82db2ea104e9ff9371a59",
       "NATIVE-BUNDLE-IDENTITY-001": "sha256:4e5c180342f608a6a58580f6b361cf36bee95f8db60138fae6f84f3859701d7d",
       "NATIVE-CANDIDATE-LOCK-ORDER-001": "sha256:64abd8c6d686ec8fcb96c912046b04dc6544b1705f7cf0cbb906ba72f636c1f0",
-      "NATIVE-CANDIDATE-PACKAGE-001": "sha256:6cc9bc6c24bb45da7742efb6ab5c721e6d3a0a22c8be1e4d0057464a131e24e6",
+      "NATIVE-CANDIDATE-PACKAGE-001": "sha256:3bf61a2f44e006493503b4b7193121d6655bca3a3647898be43ac9a16c629974",
       "NATIVE-CANDIDATE-PATH-OVERLAP-001": "sha256:b3c287ec124da6ba138c5eb23d71d006def517e860bb369d734083f56ea5072f",
       "NATIVE-CANDIDATE-PUBLISH-001": "sha256:9bf178f7dec84cddeaecd31154b57f22688e8a4090e0a0a0c460f741650d9644",
       "NATIVE-CI-BOOTSTRAP-FIRST-TARGET-001": "sha256:e2383af2a46cc66ef8f2f8b21c0ac40e16f1cb20a08b169be3e3e1c375fc2d85",
-      "NATIVE-CI-BOOTSTRAP-SUCCESSOR-001": "sha256:f3bade58a997d17721f6cc825e73b93639e886565f1b04fb7efd59be69e64202",
+      "NATIVE-CI-BOOTSTRAP-SUCCESSOR-001": "sha256:202aa8e95b4a1bb2c92e2aec1e8aad1c773a67f66d128092581f7fd14e24cbbe",
       "NATIVE-CI-ONLINE-HARNESS-REVISION-001": "sha256:194415fd82d0f53a178c3bcbe5b9d779790726f5050be279a08be9856da7ed87",
       "NATIVE-CI-RELEASE-REUSE-OUTPUT-001": "sha256:3b13c3eddbc9ea8ff82ddecc469d49add7f5e24e0a700ee10407e7ea0c491e08",
       "NATIVE-CI-SOURCE-CONSISTENCY-001": "sha256:6b66b10a8972eff8aab2cd8ffb2c01f9192cf91edbae6a879e69600c157248e9",
@@ -811,7 +813,8 @@
       "NATIVE-OVERLAY-LINK-001": "sha256:75047cf6ba6470355962ad8d518ab62790726ec0b7b4ee6485374ad549524aca",
       "NATIVE-OVERLAY-NESTED-001": "sha256:6adb7b358bdaf29383262f8d9ea436e5a7ebdb2b0a56b2116a99b8b7a56bd73a",
       "NATIVE-OVERLAY-ROLLBACK-001": "sha256:fb8a8320dfdd6fb60ee323234c08eb9d51e57ca79c562faf5eaf454e72ae13bd",
-      "NATIVE-PUBLISHER-RECOVERY-001": "sha256:a2ed9b5d42eaa1ae88d8114a1a5e4fa8083564a6087b24e1d599a15cbb7784c1",
+      "NATIVE-PUBLISHER-RECOVERY-001": "sha256:39fe494b6b19fafe860b1f135ffc8fc6a09a47278b91f56db9489e9480d09fd5",
+      "NATIVE-RECEIPT-LEGACY-001": "sha256:4dd4372c4a6c298fcecef14d0a00fa9e4c1eee633fc11f89cd1d5db2c01495d6",
       "NATIVE-RECORD-AUTHOR-CREATE-001": "sha256:c2186c63aa5589a21d55ce30d6f59954819fc7b0cde4407119c9679ffde15230",
       "NATIVE-RECORD-AUTHOR-PUBLISH-001": "sha256:8c320601e9c14e83773801596feab88ead1909cb126f16369b6a2572b80827ec",
       "NATIVE-RECORD-CHECK-METADATA-SUMMARY-001": "sha256:29e3aba4b17b8f8597040043b36b297d653f99d49d697c3623e32470cb5557b0",
@@ -913,11 +916,13 @@
       "NATIVE-RELEASE-FETCH-001": "sha256:4909737f435f4e0ab9bfc68ce9a26a3abd394c60c24d20b5f4d14aedbeeb20c7",
       "NATIVE-RELEASE-MANIFEST-001": "sha256:231e40aefc0207b1871b2d7715330d1f99700ec42a9080867ceeebc588d5dd37",
       "NATIVE-RELEASE-STAGING-001": "sha256:0c6f6499eeda94cfdd878ec2595dd452ced674a9cc83f7230e3bbb13e223a8c1",
+      "NATIVE-RELEASE-THREE-ROLES-001": "sha256:df6133c0b5ef0b6310ef9e44c7d6154f0cc2f6536e59a346ad781d5eead7ffc9",
       "NATIVE-REPOSITORY-RUNTIME-001": "sha256:5d7e44848f2fef79b7f988f3bc80b994ad649f835223cdd6e07fba3a531ab741",
+      "NATIVE-RESOURCE-SCHEMAS-001": "sha256:9039f9ca95ea9b08a6255ea3d487be62c1cfcf421f4fd87fdd224503a79ed165",
       "NATIVE-RUNTIME-ALIAS-001": "sha256:7ea82f6647faf8e9128104cf41759113e58e028709d727400791d6219cdfdd39",
-      "NATIVE-RUNTIME-GATE-INPUT-001": "sha256:8ba3e0d761f56ef826280a30e1e2ffd9ad86734099a40e07d6fe45ff7bb9d43d",
+      "NATIVE-RUNTIME-GATE-INPUT-001": "sha256:c209a76475a9d01f7b7592590028579cca7110fdd964875c480438d7c85eee36",
       "NATIVE-RUNTIME-SCAN-EXCLUSION-001": "sha256:9c1d0cb3b2bb07d421ca3ae29c491687b47082be706a159f113595e8c87897d7",
-      "NATIVE-SKILL-GIT-IGNORE-001": "sha256:b9b61e13e7ce0f79e00f11cd10ef273b185921f9f66598fed758967ed9578ae6",
+      "NATIVE-SKILL-GIT-IGNORE-001": "sha256:8a004b2a84429a02fd883ff9f7de9b883616d0db6077ea7e3ddb42199476122f",
       "NATIVE-SOURCE-DIRECTORY-BOUNDARY-001": "sha256:647ca2db3781b37bc83ae41e58d32e19f9f88a1eb8ccef30c2e33be9d439edf2",
       "NATIVE-SOURCE-ORDER-001": "sha256:f5c682823090eb643fcb72ed65506f61d1f4a921662b1aa72e98bc572553cc49",
       "NATIVE-UPDATER-CLI-CHECK-001": "sha256:49e29db3bbfca1407bc7bf9424e21dc394459faea6d06b9c6e12d90c8bda73e0",
@@ -987,6 +992,7 @@
       "RECORD-COST-CASE-028": "sha256:f4afda6a6bee7268d08fa1f1636d5a836ab7d9550c114f144930d62e05cac4a6",
       "RECORD-COST-CASE-029": "sha256:be4114824ec32e13dbe21acf1af972bb6ad3b52e31f4d9cffb9823cbb6fdd2ee",
       "RECORD-COST-CASE-030": "sha256:1606630d08867d5a381af091ebdfe613d204a491fbf45a956b31c27f15e2f977",
+      "RECORD-DELIVERY-THREE-ROLES-001": "sha256:247b55d66b9e2ecd4cee111edc9fae968ed3615b9e7923f186ca786c2ae3c8fa",
       "RECORD-DIAGNOSTIC-SYSTEM-RENDERING-001": "sha256:8084e33d78111b8f3b378335435f3fb5f71f1ba9aeaf6670b0d4a058336d823b",
       "RECORD-HISTORY-INDEX-001": "sha256:0df4b56083423a6b24f23bf2055d890f104a97908420da77c77d8fcdfaed3855",
       "RECORD-NATIVE-RELEASE-EVIDENCE-001": "sha256:0ff79fdff964e747bd3d062aefbbd2b6676240a924c65cdf2bcd5f0593a2ceb9",
@@ -1033,11 +1039,28 @@
       "REPO-SKILL-HASH-004": "sha256:a12d259fe72967aaf3ea99ec51781a9b6c30c64a0b0bd03e6d396f0edac869a3",
       "REPO-SKILL-HASH-005": "sha256:1431ecf81dcb1f1b2e5024b228470a55674dde5de6603ab548b7efcf6b5322e8",
       "REPO-TASK-ROOT-001": "sha256:1bc1e400d6c75adb7abc820c2b5e89003365ed63b4697f56357affaff014eea1",
+      "REPO-TASK-ROOT-SUBMODULE-001": "sha256:8df3ea441ae78c1e23d084890c8cc815aa75b73e067c3889073fdbe56f5079b9",
       "REPO-TASK-TARGET-001": "sha256:ecb4455de87ea9327fe857b293de167b91e45e926ea61eb8981ad7ba471b7d6c",
       "REPO-VALIDATION-LINK-SCOPE-001": "sha256:60d6376f0d42d1513b6ee69e7858de00ad1efabafd0f6e1ba85775d101533055",
       "REPO-VALIDATION-SKILL-STRUCTURE-001": "sha256:5247acf37bb72e1643ca57848a5c98bc5d42125b3e9bcac12a226fb7d2f7da75",
       "RESOLVED-FIRST-PARENT-ENDPOINTS-REUSE-001": "sha256:367ffda6641e1626a673b3cc4a171ee185bd4f657b2ba52f1d79bf6d72f3b036",
       "RESOLVED-FIRST-PARENT-ENDPOINTS-VALIDATION-001": "sha256:ab7d384d0f3c4456c465331b86422278b8aff05f4d43e580085f691460e9428b",
+      "RESOURCE-BROKEN-PIPE-001": "sha256:826f1070a4615d6d20113fbd75c31e3ab091642db5ba61c18634909743fa8abe",
+      "RESOURCE-CLI-CONTRACT-001": "sha256:1bb064ba1ee30bd0aabe710492b827a6949aa5cc06034411e0b42c5004edf036",
+      "RESOURCE-DEEP-CHAIN-001": "sha256:249f3aeace7cd7be3ab4a060573a6317b9652986b64978980982fb1490b86d82",
+      "RESOURCE-GRAPH-VALIDATION-001": "sha256:100b211b6fb466b95480493a8a70ae7029d5d240d5661ac69aa4374e845ecf84",
+      "RESOURCE-INDEX-FAILURES-001": "sha256:d85743839bf889c3ac10dfc63b57e51b4aa8c036836a5dc35f39680b7d63d38a",
+      "RESOURCE-INDEX-ROUNDTRIP-001": "sha256:d4941764591977b70a86e1d38e8e2d01e016d61d6ad41c82fb36b38fd0029adc",
+      "RESOURCE-LINEAGE-CASE-001": "sha256:2fe6b70002d1fd12422717e8b96019aaaf55d401ce1c3a10611e431a6630e2cd",
+      "RESOURCE-LITERAL-ARGUMENTS-001": "sha256:380a75420d95349303213fdb7bf91f766ff61893a9b59ae78a3b045bca60b65b",
+      "RESOURCE-MEDIA-PACK-001": "sha256:a859517044b2c057835a29ef661ec42790dadaef9fb7a54b0e78ccc03d45b725",
+      "RESOURCE-PATH-SAFETY-001": "sha256:12a130b3bb169503f41e04f6f47a63f6b1c93adeb81740c12cabff126df3be66",
+      "RESOURCE-PLATFORM-EVIDENCE-001": "sha256:177ef27d823fb7bf0c4b56a3ea8bc1ce720749f6ba0d9a97234b2ba5e4cb29cd",
+      "RESOURCE-QUERIES-CASE-001": "sha256:a3502ff4b0bdc92fee382caa933384df0908e9757558439acf90b2e6e340b42d",
+      "RESOURCE-SCHEMA-CASE-001": "sha256:398c37b8586cd1370ac49d3b3a30b506e844d0449417882018ade99f52de2069",
+      "RESOURCE-SELECTION-TRACE-001": "sha256:ae5601d83fde437c27128b929e5b2ce5c1a30076d6df678ed4fce911504913db",
+      "RESOURCE-VALIDATION-DIAGNOSTICS-001": "sha256:7eec3fa1baf2ef01ae37e35d8234303d1751ef2af62356b222efd6aad942e947",
+      "RESOURCE-WINDOWS-CASE-ALIAS-001": "sha256:713badee49bcc29f126e62214bd31ecedeba4075ce24ee86c1991d29a73be418",
       "RETIRED-PUBLISHER-ENTRY-001": "sha256:6d2998412a34ef32f7e0008d4a02bb62272f65a5c4537a161f14453b92dd970a",
       "RUNTIME-PARENT-SYMLINK-ESCAPE-001": "sha256:2c5d596465c4641534651046e5d80ce2ca034699bd6aa0a173a8ac905dcb305e",
       "RUNTIME-SELECTED-SOURCE-CLOSURE-001": "sha256:12a70e84c014127ea8983a437a1b00adddca2de31361bd1c6d2ff9f550665e4c",
@@ -4920,6 +4943,26 @@
       ],
       "testIds": [
         "test:3bf8df9034599514c468d0126f9fd51ce4ba0ab74c30c7de6631ad417b8aabd1"
+      ]
+    },
+    "GATE-NATIVE-PUBLISHER-INPUTS-001": {
+      "title": "原生发布与冻结消费者输入使 receipt 失效",
+      "sourcePath": "cases/gate-native-publisher-inputs.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:1cbb681d71507a0d77599c96528b755fdea41d492afb7bcac3c7ee1303422466"
+      ]
+    },
+    "GATE-NATIVE-RUNTIME-REGISTRATION-001": {
+      "title": "原生 runtime Gate 与稳定测试入口一致",
+      "sourcePath": "cases/gate-native-runtime-registration.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:3975f6f74f52f833d17c1ba258b208dbc4ad5ea03599547089080805db84ef31"
       ]
     },
     "GATE-PERFORMANCE-EXECUTED-SAMPLES-001": {
@@ -9655,6 +9698,16 @@
         "test:fd7c5d450b74aa25d16a1ac480252065791985f59809566037c0a146db730476"
       ]
     },
+    "NATIVE-RECEIPT-LEGACY-001": {
+      "title": "旧运行时回执与第三角色准备",
+      "sourcePath": "cases/native-receipt-legacy-001.md",
+      "tags": [
+        "native-delivery"
+      ],
+      "testIds": [
+        "test:7ef946228d8c41246f680b8791d5f41a691884411103f529df5e66b9b3043b80"
+      ]
+    },
     "NATIVE-RECORD-AUTHOR-CREATE-001": {
       "title": "双域候选新建和选择器",
       "sourcePath": "cases/native-record-author-create.md",
@@ -10922,6 +10975,18 @@
         "test:581578fa88e4b805d9d5a899d4b5c84194284ab0625bb6bc99c173cece50a354"
       ]
     },
+    "NATIVE-RELEASE-THREE-ROLES-001": {
+      "title": "正式清单第三角色兼容边界",
+      "sourcePath": "cases/native-release-three-roles-001.md",
+      "tags": [
+        "native-delivery"
+      ],
+      "testIds": [
+        "test:55016724f20768055b6700046c9132ee5d7520aa73b64e39d79fb5d4cdc9b5b8",
+        "test:5c94db541e493659ea09dc9febd4a174f09107bdf7e4325b7135f432ff6f4784",
+        "test:a5d3455c68dbc21bf358e75aee6d9cc1bc5e92f3046cb5333bb62ee6c09c78e4"
+      ]
+    },
     "NATIVE-REPOSITORY-RUNTIME-001": {
       "title": "仓库运行时检查来源及二进制新鲜度",
       "sourcePath": "cases/native-repository-runtime-001.md",
@@ -10930,6 +10995,17 @@
       ],
       "testIds": [
         "test:45a5fd516ea1383db421f6f0268beac22ab3218968d722bbf040a47ace995dca"
+      ]
+    },
+    "NATIVE-RESOURCE-SCHEMAS-001": {
+      "title": "资源包与冻结发布的双 Schema 完整性",
+      "sourcePath": "cases/native-resource-schemas-001.md",
+      "tags": [
+        "native-delivery"
+      ],
+      "testIds": [
+        "test:0075ef86bb1b5dc563396d863e95bce0558b7fe0eba6612d0d72d3034794fa0d",
+        "test:be182c4418f6b8f19a643f30d75440f7bcdbb740d0b50f71336dd587952b243c"
       ]
     },
     "NATIVE-RUNTIME-ALIAS-001": {
@@ -11666,6 +11742,17 @@
         "test:656ff8fb1c33f08b7ff6ab6fcfe6352903c2f7d70a2ab1655ba73e82ab809eac"
       ]
     },
+    "RECORD-DELIVERY-THREE-ROLES-001": {
+      "title": "离线清单版本与三角色安装",
+      "sourcePath": "cases/record-delivery-three-roles-001.md",
+      "tags": [
+        "native-delivery"
+      ],
+      "testIds": [
+        "test:2fceb6340d4f61cc15a1cabc32ce8aa851d6cb5d71bac1334098115a7c883cb1",
+        "test:94490a5840c1a10903e1f3ac005209c8c79739e40fc9f42ff93c7811c9deb38f"
+      ]
+    },
     "RECORD-DIAGNOSTIC-SYSTEM-RENDERING-001": {
       "title": "Git 失败不透出子进程 stderr",
       "sourcePath": "cases/record-diagnostic-system-evidence-rendering.md",
@@ -12149,6 +12236,16 @@
         "test:01ed9d38f492cb50319daa65903a2d504a41c187c8f4407814abdade5ad69c3e"
       ]
     },
+    "REPO-TASK-ROOT-SUBMODULE-001": {
+      "title": "子模块任务根与中央索引",
+      "sourcePath": "cases/repo-task-root-submodule.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:e653b2188db63dcb710f6709fa0b1f3554c76d5a39505e8b8df3631302680b9d"
+      ]
+    },
     "REPO-TASK-TARGET-001": {
       "title": "task-graph 短命令拒绝无效的显式项目 root",
       "sourcePath": "cases/repo-task-target-001.md",
@@ -12199,6 +12296,183 @@
       ],
       "testIds": [
         "test:e26613086fc9c7f8b454d877116eb8ff09a7047a9412cb9e1d66643bfce67e5c"
+      ]
+    },
+    "RESOURCE-BROKEN-PIPE-001": {
+      "title": "输出断管后的索引状态",
+      "sourcePath": "cases/resource-broken-pipe.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:35bf92ebca4d312c69af95fd5de5a10436be4ea107cd176a813413010f8bfaae"
+      ]
+    },
+    "RESOURCE-CLI-CONTRACT-001": {
+      "title": "CLI 输出与结构错误",
+      "sourcePath": "cases/resource-cli-contract.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:4a577f6e01c50cd06a63c798a8270dd198d64b90364047cbbc3aafd548e926a0",
+        "test:b8af7d351ea327ff0361f87620175f88cfde67754d012e22e1e000f293690b7d"
+      ]
+    },
+    "RESOURCE-DEEP-CHAIN-001": {
+      "title": "长版本链的有界查询",
+      "sourcePath": "cases/resource-deep-chain.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:d9c84f01ef763b3e10ba2a86363a099d704de44dfe025f41dc9055ea9579fa3f"
+      ]
+    },
+    "RESOURCE-GRAPH-VALIDATION-001": {
+      "title": "引用、身份与图约束",
+      "sourcePath": "cases/resource-graph-validation.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:0be36ac5413a269b7bacf92c9e3747632684e61b9fcec03870e0632d25ffc986",
+        "test:4ffd93116201a9030d0702f0ecde56bf8dcce5e47ef5e6cfad1d1149864c991f",
+        "test:75bcf81d1c72a6befdfaee213878f8dcfc25f4199cb5fbb5b0566c083e66f456",
+        "test:c1b75d32c1f97bcab44168ded5388a3263d32cf74c5cde05d32bed00f4acd2aa"
+      ]
+    },
+    "RESOURCE-INDEX-FAILURES-001": {
+      "title": "索引写入失败边界",
+      "sourcePath": "cases/resource-index-failures.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:13c77d9d56131e995b1ed0cbcc119a9b8dec0cacc873cc279639ede5166d86be",
+        "test:67ad3e151a19bc62982a094474989057115363d3eaf28d57e30d8a5170cb7ba0",
+        "test:b5a888e2ce21a92cfd42d1bccb2159753e0e3e1505cd7f8cf2bdd1d004a5853f"
+      ]
+    },
+    "RESOURCE-INDEX-ROUNDTRIP-001": {
+      "title": "深层记录写前可读取",
+      "sourcePath": "cases/resource-index-roundtrip.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:ebc0662ee8e39309d3b15594979a5db0a078851cd47948af9ad06d71c7331830"
+      ]
+    },
+    "RESOURCE-LINEAGE-CASE-001": {
+      "title": "候选与输入溯源",
+      "sourcePath": "cases/resource-lineage.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:4ecf1924b12fab9089aeb11ac06058f370b9629b488ec1f55ed41d8dbf2e2da0",
+        "test:ef6611c63a93826434029206bb5969662beb163166cc50ad8682edfc9635c581"
+      ]
+    },
+    "RESOURCE-LITERAL-ARGUMENTS-001": {
+      "title": "真实参数与字面搜索",
+      "sourcePath": "cases/resource-literal-arguments.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:0e7f976a83fad6bd8709200f637aed567ae45241af8f565ce38fc69edde6635f",
+        "test:160a11950dfc5bd5f4f262296db7dfdd2564e787502b6e386019ba2abdce3f03",
+        "test:c0f9f991f4110d6b1c0f777cadec7fa8b189f97632a2bd6e283f98465256499b"
+      ]
+    },
+    "RESOURCE-MEDIA-PACK-001": {
+      "title": "内容身份与图包顺序",
+      "sourcePath": "cases/resource-media-pack.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:0d809c3df7e4655e477a433f310546d034a6a1adb5484f063db75d34a7c6a5b3",
+        "test:4b08c58734716fc97ed8cc7e902e966adc1bca730c8c75e14fec120922fe37d2"
+      ]
+    },
+    "RESOURCE-PATH-SAFETY-001": {
+      "title": "记录索引路径与外置位置校验",
+      "sourcePath": "cases/resource-path-safety.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:41836dfe8f763f4c8514a9116c87d8ede1794928d536d17371fe4e665daeba1f",
+        "test:72f89a59280d7f005ae5aef296806b3ba80bf23fb9006ab3567589169add59de"
+      ]
+    },
+    "RESOURCE-PLATFORM-EVIDENCE-001": {
+      "title": "平台限定测试引用与本机覆盖",
+      "sourcePath": "cases/resource-platform-evidence.md",
+      "tags": [
+        "test-evidence"
+      ],
+      "testIds": [
+        "test:1ad4938264d33700977f3c893fb4fa64538c2f38ced8f2d4f4ad2119694ece36",
+        "test:3398979ce653c672574e66a2631bac4cc24caaf01edcc8894cda624d3ad13d76",
+        "test:6b3352d02c1389b8200f46dd78c2ab22b0bea711f143385b2db0a50ede7c2e04",
+        "test:e28ba02338b8a9057b6148f4617c546ede96d30762e3332c82cfa02bb3ddba87"
+      ]
+    },
+    "RESOURCE-QUERIES-CASE-001": {
+      "title": "查询与索引新鲜度",
+      "sourcePath": "cases/resource-queries.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:6bb0a6395b69af96bab825dd164136812417203bab28f70d7eae00fc8d909667",
+        "test:8d41794aca24275e115f86cefac5518692fa5331ed79cc6df7e6e0fccb956b65",
+        "test:edfdee55a3aaa6a5d098d8a3427069b447cf30c4682d8d3d975265d427ed641a"
+      ]
+    },
+    "RESOURCE-SCHEMA-CASE-001": {
+      "title": "资源结构 Schema 条件约束",
+      "sourcePath": "cases/resource-schema.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:549144a505f41c4ab749b9268022de1f86adf7720f7bee02773d3c4ed38f1094",
+        "test:f99da3788463659b5952443fc0dea4ced393906aa5a620d67d61f6c8dad820fc"
+      ]
+    },
+    "RESOURCE-SELECTION-TRACE-001": {
+      "title": "图包成员的下游用途",
+      "sourcePath": "cases/resource-selection-trace.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:e90c0d0b989113856f537432952c2d066faf03785cc250300014ffe22a21b910"
+      ]
+    },
+    "RESOURCE-VALIDATION-DIAGNOSTICS-001": {
+      "title": "资源记录字段诊断定位",
+      "sourcePath": "cases/resource-validation-diagnostics.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:4ffd93116201a9030d0702f0ecde56bf8dcce5e47ef5e6cfad1d1149864c991f"
+      ]
+    },
+    "RESOURCE-WINDOWS-CASE-ALIAS-001": {
+      "title": "Windows 大小写别名目录观察",
+      "sourcePath": "cases/resource-windows-case-alias.md",
+      "tags": [
+        "record-rust"
+      ],
+      "testIds": [
+        "test:c55e10913159cf5d56e079933ea83e8ce6df8c9f901c3428f493e45e09be7712"
       ]
     },
     "RETIRED-PUBLISHER-ENTRY-001": {

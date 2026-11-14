@@ -122,8 +122,8 @@ YAML 的 job 依赖约束发布；远端合并保护以本节生效核对为准�
 
 ### 原生记录资产与安装
 
-两个记录 skill 使用 `<skill>-native.zip`。四个角色／目标运行时 ZIP 和 `record-native-installer.zip` 与包描述符、manifest 的角色、版本、目标、源码摘要和资产 hash 交叉校验。首次安装与同版本重装由独立安装器显式选择目标，后续更新使用 skill 内入口；版本检查、覆盖与失败处置由 [Skill Updater](../tools/skill-updater/README.md#原生记录-skill) 承接。真实 release 和用户目录安装须有相应授权；本地构建或私有验收不证明上线。
+记录 skill 使用 `<skill>-native.zip`。三角色交付契约包含三个 skill ZIP、六个角色／目标运行时 ZIP 和 `record-native-installer.zip`；资产与包描述符、manifest 的角色、版本、目标、源码摘要和资产 hash 交叉校验。首次安装与同版本重装由独立安装器显式选择目标，后续更新使用 skill 内入口；版本检查、覆盖与失败处置由 [Skill Updater](../tools/skill-updater/README.md#原生记录-skill) 承接。上述三角色是交付契约，是否已构建、验收或发布以对应 revision 的证据为准。真实 release 和用户目录安装须有相应授权；本地构建或私有验收不证明上线。
 
-正式发布保存 `record-native-build-<runtimeVersion>.json` 和 `record-native-recovery-<runtimeVersion>.zip`，版本取自本次冻结源码。前者记录原构建 revision、Rust 输入清单、构建 recipe、平台及工具链与四个运行时 ZIP 的身份；后者包含证明及四个原始运行时 ZIP。
+正式发布保存 `record-native-build-<runtimeVersion>.json` 和 `record-native-recovery-<runtimeVersion>.zip`，版本取自本次冻结源码。前者记录原构建 revision、Rust 输入清单、构建 recipe、平台及工具链与六个运行时 ZIP 的身份；后者包含证明及六个原始运行时 ZIP。
 
 发布器先上传并回读验证恢复包，再上传运行时。中断后依据固定资产 ID 和 digest 核验并复用原字节，即使压缩器后来变化也不重打；未知同名冲突会拒绝，而非覆盖猜测。此恢复不依赖仅保留七天的 CI artifact。具体调用与复用条件以 workflow 和发布实现为准，远端实际状态仍须另验。

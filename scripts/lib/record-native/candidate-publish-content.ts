@@ -8,7 +8,7 @@ import { skillReleaseManifestSchema } from "../../../tools/skill-package/src/rel
 import {
   nativeRoles,
   nativeTargets,
-  parseNativeReleasePair
+  parseNativeReleaseSet
 } from "../../../tools/skill-package/src/native-release-manifest.ts";
 import type { CandidatePublishAsset } from "./candidate-publish.ts";
 function verifyOtherArchives(
@@ -33,9 +33,9 @@ function verifyOtherArchives(
 export function verifyAssetContents(
   manifest: unknown,
   assets: readonly CandidatePublishAsset[],
-  schemas: Readonly<Record<NativeRole, Uint8Array>>
+  schemas: Readonly<Record<NativeRole, readonly Uint8Array[]>>
 ): void {
-  const pair = parseNativeReleasePair(manifest);
+  const pair = parseNativeReleaseSet(manifest);
   const base = v.parse(skillReleaseManifestSchema, manifest);
   const lookup = new Map(assets.map((item) => [item.name, item.bytes]));
   const requireBytes = (name: string) => {
@@ -93,7 +93,8 @@ export function verifyAssetContents(
     "pnpm-lock.yaml",
     "README.md",
     "scripts/decision-records.ts",
-    "scripts/investigation-report.ts"
+    "scripts/investigation-report.ts",
+    "scripts/resource-records.ts"
   ])
     if (!bootstrap.get(`record-native-installer/${file}`)?.length)
       throw new Error(`candidate bootstrap file missing: ${file}`);

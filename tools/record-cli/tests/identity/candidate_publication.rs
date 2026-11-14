@@ -78,8 +78,8 @@ fn decision_candidate_queries_respect_empty_and_trusted_published_index() {
 fn decision_publish_requires_ready_candidate_and_rejects_republication() {
     let (dir, _) = fixture();
     let base = dir.path().join("decisions");
-    let draft = include_str!("../fixtures/identity/decisions/draft.md");
-    std::fs::write(base.join("draft.md"), draft).unwrap();
+    let draft = include_str!("../fixtures/identity/decisions/draft.md").replace("\r\n", "\n");
+    std::fs::write(base.join("draft.md"), &draft).unwrap();
     let index_before = std::fs::read(base.join("decision-index.json")).unwrap();
     let run = |preflight: bool| {
         let mut cmd = std::process::Command::new(env!("CARGO_BIN_EXE_decision-records"));
@@ -145,6 +145,7 @@ fn decision_legacy_numeric_name_candidate_can_be_discovered_and_published() {
     let (dir, _) = fixture();
     let base = dir.path().join("decisions");
     let doc = include_str!("../fixtures/identity/decisions/draft.md")
+        .replace("\r\n", "\n")
         .replace("261106-draft", "2026-choice")
         .replace(
             "## 目的\n\n## 背景\n\n## 决策",
@@ -189,8 +190,9 @@ fn decision_new_candidates_keep_distinct_dated_and_legacy_identities() {
     use record_cli::mutations::authoring::{NewInput, NewOperation};
     let (dir, root) = fixture();
     let base = dir.path().join("decisions");
-    let legacy =
-        include_str!("../fixtures/identity/decisions/draft.md").replace("261106-draft", "draft");
+    let legacy = include_str!("../fixtures/identity/decisions/draft.md")
+        .replace("\r\n", "\n")
+        .replace("261106-draft", "draft");
     std::fs::write(base.join("draft.md"), &legacy).unwrap();
     let input = || NewInput::Decision {
         title: "Title".into(),

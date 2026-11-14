@@ -23,6 +23,7 @@ import {
   executableName,
   hostTarget,
   preparedRuntime,
+  parseReceipt,
   roles
 } from "../runtime.ts";
 
@@ -54,7 +55,8 @@ async function fixture() {
     sourceHash: await workingSourceDigest(source),
     binaries: {
       "decision-records": digest(bytes),
-      "investigation-report": digest(bytes)
+      "investigation-report": digest(bytes),
+      "resource-records": digest(bytes)
     }
   };
   await writeFile(
@@ -192,5 +194,25 @@ test("prepare rejects a symlinked local parent before creating its child", async
     );
   } finally {
     await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("old receipt remains readable but cannot prepare the resource role", async () => {
+  const f = await fixture();
+  try {
+    const file = path.join(f.root, ".local", "record-cli", "receipt.json");
+    const { readFile } = await import("node:fs/promises");
+    const receipt = JSON.parse(await readFile(file, "utf8"));
+    delete receipt.binaries["resource-records"];
+    await writeFile(file, JSON.stringify(receipt));
+    assert.equal(parseReceipt(receipt).binaries["resource-records"], undefined);
+    await preparedRuntime(f.root, "decision-records");
+    await assert.rejects(
+      preparedRuntime(f.root, "resource-records"),
+      /run prepare/
+    );
+    await assert.rejects(preparedRuntime(f.root), /run prepare/);
+  } finally {
+    await rm(f.root, { recursive: true, force: true });
   }
 });

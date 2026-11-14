@@ -87,10 +87,12 @@ fn decision_discard_last_archived_retains_empty_index_for_next_publish() {
             .entries
             .is_empty()
     );
-    let draft = include_str!("../fixtures/identity/decisions/draft.md").replace(
-        "## 目的\n\n## 背景\n\n## 决策",
-        "## 目的\nPurpose\n\n## 背景\nBackground\n\n## 决策\n- 采用: Choice",
-    );
+    let draft = include_str!("../fixtures/identity/decisions/draft.md")
+        .replace("\r\n", "\n")
+        .replace(
+            "## 目的\n\n## 背景\n\n## 决策",
+            "## 目的\nPurpose\n\n## 背景\nBackground\n\n## 决策\n- 采用: Choice",
+        );
     std::fs::write(base.join("draft.md"), draft).unwrap();
     run(&["publish", "draft", "--alignment", "aligned"]);
     let bytes = std::fs::read(base.join("decision-index.json")).unwrap();
@@ -120,6 +122,7 @@ fn decision_archived_unrecorded_predecessor_requires_history_confirmation() {
     assert!(invoke(&["archive", "original"]).status.success());
     initialize_git(dir.path());
     let draft = include_str!("../fixtures/identity/decisions/draft.md")
+        .replace("\r\n", "\n")
         .replace(
             "relations: []",
             "relations:\n  - type: 修订\n    target: 261106-original\n    summary: Reason",

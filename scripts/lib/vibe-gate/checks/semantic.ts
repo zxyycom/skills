@@ -55,6 +55,7 @@ export const semanticGateChecks = [
       command: "node",
       args: [
         "--test",
+        "./scripts/lib/record-native/tests/publish-native-input.test.ts",
         "./scripts/lib/record-native/tests/candidate-publish.test.ts",
         "./scripts/lib/record-native/tests/candidate-publish-github.test.ts",
         "./scripts/lib/record-native/tests/candidate-publish-recovery.test.ts",

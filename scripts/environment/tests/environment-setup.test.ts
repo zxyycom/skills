@@ -143,12 +143,15 @@ test("environment setup is idempotent in a linked worktree and keeps the main ta
       runEnvironment(linked, "setup", fakeTools),
       "repeated linked worktree setup"
     );
+    const firstWorktree = run(
+      "git",
+      ["worktree", "list", "--porcelain"],
+      linked
+    ).stdout.split("\n", 1)[0];
+    assert.ok(firstWorktree.startsWith("worktree "));
     assert.equal(
-      run("git", ["worktree", "list", "--porcelain"], linked).stdout.split(
-        "\n",
-        1
-      )[0],
-      `worktree ${main}`
+      path.normalize(firstWorktree.slice("worktree ".length)),
+      path.normalize(main)
     );
     await assertHooksAreUsable(linked);
     assertHookExecutes(linked);

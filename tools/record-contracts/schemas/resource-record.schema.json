@@ -1,0 +1,510 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skills.local/schemas/resource-record.schema.json",
+  "$comment": "校验 frontmatter 的结构；跨记录身份、路径、引用、关系和图约束由 CLI 校验。",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+$"
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resource": {
+          "$ref": "#/$defs/id"
+        },
+        "version": {
+          "$ref": "#/$defs/id"
+        },
+        "member": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "required": [
+        "resource",
+        "version"
+      ]
+    },
+    "fileReference": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/reference"
+        },
+        {
+          "required": [
+            "member"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "path"
+      ]
+    },
+    "location": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "workspace"
+            },
+            "path": {
+              "$ref": "#/$defs/relativePath"
+            }
+          },
+          "required": [
+            "kind",
+            "path"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "external"
+            },
+            "storage": {
+              "type": "string",
+              "minLength": 1
+            },
+            "path": {
+              "$ref": "#/$defs/relativePath"
+            },
+            "custody": {
+              "$ref": "#/$defs/relativePath"
+            }
+          },
+          "required": [
+            "kind",
+            "storage",
+            "path",
+            "custody"
+          ]
+        }
+      ]
+    },
+    "target": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "record": {
+              "$ref": "#/$defs/fileReference"
+            }
+          },
+          "required": [
+            "record"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "evidence": {
+              "$ref": "#/$defs/evidence"
+            }
+          },
+          "required": [
+            "evidence"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "unknown": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "unknown"
+          ]
+        }
+      ]
+    },
+    "relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "input",
+            "preview-of",
+            "reference"
+          ]
+        },
+        "target": {
+          "$ref": "#/$defs/target"
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "type",
+        "target",
+        "evidence",
+        "scope"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "input"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "order"
+            ],
+            "properties": {
+              "evidence": {
+                "required": [
+                  "locator"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "else": {
+            "not": {
+              "required": [
+                "order"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "role": {
+          "enum": [
+            "primary",
+            "derivative"
+          ]
+        },
+        "sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          ]
+        },
+        "locations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/location"
+          }
+        },
+        "gap": {
+          "type": "string",
+          "minLength": 1
+        },
+        "specs": {
+          "type": "object"
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/relation"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "role",
+        "sha256",
+        "locations"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "anyOf": [
+              {
+                "properties": {
+                  "sha256": {
+                    "type": "null"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "locations": {
+                    "maxItems": 0,
+                    "type": "array"
+                  }
+                }
+              }
+            ]
+          },
+          "then": {
+            "required": [
+              "gap"
+            ]
+          }
+        }
+      ]
+    },
+    "member": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "target": {
+          "$ref": "#/$defs/fileReference"
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1
+        },
+        "locations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/location"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "target",
+        "role"
+      ]
+    },
+    "version": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/file"
+          }
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/member"
+          }
+        },
+        "parents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/versionReference"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "files",
+        "members"
+      ],
+      "anyOf": [
+        {
+          "properties": {
+            "files": {
+              "minItems": 1,
+              "type": "array"
+            }
+          }
+        },
+        {
+          "properties": {
+            "members": {
+              "minItems": 1,
+              "type": "array"
+            }
+          }
+        }
+      ]
+    },
+    "selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "slot": {
+          "$ref": "#/$defs/id"
+        },
+        "target": {
+          "$ref": "#/$defs/reference"
+        },
+        "basis": {
+          "enum": [
+            "agent-provisional",
+            "user-preference",
+            "user-confirmed"
+          ]
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        }
+      },
+      "required": [
+        "slot",
+        "target",
+        "basis",
+        "scope",
+        "evidence"
+      ]
+    },
+    "versionReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resource": {
+          "$ref": "#/$defs/id"
+        },
+        "version": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "required": [
+        "resource",
+        "version"
+      ]
+    },
+    "relativePath": {
+      "type": "string",
+      "pattern": "^(?!\\.{1,2}(?:/|$))[^/\\\\:\\u0000]+(?:/(?!\\.{1,2}(?:/|$))[^/\\\\:\\u0000]+)*$"
+    }
+  },
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "kind": {
+          "const": "collection"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "parent": {
+          "$ref": "#/$defs/id"
+        },
+        "selections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/selection"
+          }
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "kind",
+        "id",
+        "title"
+      ]
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "kind": {
+          "const": "resource"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "collection": {
+          "$ref": "#/$defs/id"
+        },
+        "versions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/version"
+          }
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "kind",
+        "id",
+        "title",
+        "collection",
+        "versions"
+      ]
+    }
+  ]
+}

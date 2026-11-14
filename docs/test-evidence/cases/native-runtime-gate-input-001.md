@@ -7,7 +7,8 @@ Tags:
 - `repository-tooling`
 
 Contract:
-- 仓库原生 runtime 和冻结构建工具发生变化时，消费这些输入的交付和包快照测试必须重新执行。
+- 仓库原生 runtime 和冻结构建工具发生变化时，消费这些输入的交付、包快照及测试证据项目检查必须重新执行。
 
 Proves:
 - 私有 Git fixture 分别修改 runtime 与构建源码后，Rust 交付、runtime 及 skill package hash 检查均激活，没有未分类路径。
+- 修改 runtime 后，测试证据项目引用检查执行而不复用旧 receipt；该输入不扩为测试证据代码指标归属。

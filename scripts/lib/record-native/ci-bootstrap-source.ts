@@ -1,3 +1,4 @@
+import { nativeRoles } from "../../../tools/skill-package/src/native-release-manifest.ts";
 import { readSkillPackageIdentityFromMarkdown } from "../../../tools/skill-package/src/version.ts";
 import { digestNativeSource, type NativeCandidateSnapshot } from "./capture.ts";
 
@@ -33,7 +34,7 @@ export function privateBootstrapSuccessor(
   });
   if (replacements.size) throw new Error("successor source files missing");
   const filesBySkill = new Map(base.skills.filesBySkill);
-  for (const role of ["decision-records", "investigation-report"]) {
+  for (const role of nativeRoles) {
     const files = filesBySkill.get(role);
     if (!files) throw new Error(`missing skill: ${role}`);
     let changed = false;

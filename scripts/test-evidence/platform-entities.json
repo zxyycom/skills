@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "sourceHash": "3c7dc6d4a209eab50cc1142f33884586f163db9981cb863c1a27719579febddd",
+  "entities": [
+    {
+      "id": "test:13c77d9d56131e995b1ed0cbcc119a9b8dec0cacc873cc279639ede5166d86be",
+      "platform": "windows",
+      "locator": "cargo:test:resource_records > validation::replace_failure_preserves_previous_index"
+    },
+    {
+      "id": "test:1c41042855ea1d97e66a4f67cc3bd95694c492f33fc494c21403def1bd326c1b",
+      "platform": "unix",
+      "locator": "cargo:test:investigation_identity > cli_resources::cli_rename_reports_resource_move_before_later_write_failure"
+    },
+    {
+      "id": "test:1ce5e564226638a7e48974fc3df046f68b94dc58a7a5c47034ebe3fbf4dc3207",
+      "platform": "unix",
+      "locator": "cargo:test:decision_authoring > evolution_transactions::reactivate_rejects_archive_parent_symlink_without_external_write"
+    },
+    {
+      "id": "test:203dc2ec1de15733a9cffe85facbcbee34a2a4a21f757ba6ce33e8f4c820eb93",
+      "platform": "unix",
+      "locator": "cargo:test:queries > candidates::investigation_candidate_referenced_symlink_is_a_resource_issue"
+    },
+    {
+      "id": "test:21f7da8e4df35bd9c4fff9992b99a9eb07bc1c2615d37a091a82963bb01a5ec0",
+      "platform": "unix",
+      "locator": "cargo:test:decision_authoring > publication::cli_publish_write_failure_preserves_existing_source"
+    },
+    {
+      "id": "test:3849f1b16b4a6709887b501108597d7dbd0c4d7d6169c6ab252ffc8b71f4f0e7",
+      "platform": "unix",
+      "locator": "cargo:lib:record_cli > resources::tests::refreshed_namespace_and_selected_types_preserve_path_safety"
+    },
+    {
+      "id": "test:459520c2533f7f1ea9b9adcafbd31ab8a0f4e52ec87c232894cdbec635fb24a6",
+      "platform": "unix",
+      "locator": "cargo:test:cli_sensitive > investigation_stage_cli_hides_git_stderr_on_failure"
+    },
+    {
+      "id": "test:4b10fb774673f7452e3fe5f004f7909d8e5968842ee14d1500fe8f25596ded66",
+      "platform": "unix",
+      "locator": "cargo:test:git_stage > stage_investigation_sources::resource_safety::investigation_stage_rejects_unreferenced_owner_tree_symlinks_without_changing_pending"
+    },
+    {
+      "id": "test:4b597b34afa63dcac8252c6853a39bfda4088e0d3101c79db466e6cf904edd2f",
+      "platform": "unix",
+      "locator": "cargo:test:cli_entry > multi_source::write_selection::source_write_preserves_symlink_parent_traversal_semantics"
+    },
+    {
+      "id": "test:64288e2a689498146f889e503c6675d0928d7031bd4ae057dd7797f78fa55203",
+      "platform": "unix",
+      "locator": "cargo:lib:record_cli > source::tests::directory_boundary_does_not_enumerate_unrelated_names"
+    },
+    {
+      "id": "test:6fba71310b1414d72c10e05385cf0ab1daac0754a4abefda2bdca99207688b64",
+      "platform": "unix",
+      "locator": "cargo:test:investigation_identity > owner_scope_contracts::unsafe_owner_members_block_discard_and_rename_without_writes"
+    },
+    {
+      "id": "test:81b4a71435a8139f928f7675b1326de1f1c4fecf5b1ddc5f773f225aaff54504",
+      "platform": "unix",
+      "locator": "cargo:test:git_stage > publish_git::selected_executable_only_change_updates_mode_once"
+    },
+    {
+      "id": "test:9c476c1da30d2e3a4d4eeab9c215c08270ae972a066f06083af038da870bcb28",
+      "platform": "unix",
+      "locator": "cargo:test:cli_entry > multi_source::write_selection::source_write_preserves_non_utf8_working_directory_identity"
+    },
+    {
+      "id": "test:a4c9415a9115b8c5c338c5fc503d9434af7fb65e0c7b64db549a07ce57f021e9",
+      "platform": "unix",
+      "locator": "cargo:test:cli_entry > failure_facts::identity_failure_reports_prepared_plan_separately_from_actual_writes"
+    },
+    {
+      "id": "test:c1ed0c7ba2efd8b1517c3d2c6ac413d24d85a540b2a0880560d62923f51481c4",
+      "platform": "unix",
+      "locator": "cargo:test:git_stage > stage_decision_pending::decision_stage_rejects_missing_or_symlink_destination_without_pending_write"
+    },
+    {
+      "id": "test:c55e10913159cf5d56e079933ea83e8ce6df8c9f901c3428f493e45e09be7712",
+      "platform": "windows",
+      "locator": "cargo:lib:record_cli > resources::tests::case_mismatch_aliases_do_not_repeat_directory_enumeration"
+    },
+    {
+      "id": "test:cd4106b0c5e4d90db34cc976caf60a063d988e3ff335a732a88d91c791b9baa3",
+      "platform": "unix",
+      "locator": "cargo:test:git_stage > stage_investigation_sources::resource_safety::investigation_stage_does_not_traverse_unselected_owner_symlink"
+    },
+    {
+      "id": "test:ddc6bc32caf655dc4e099bea61603c6cf6a1b4b8cdf8a06cf0ee7a8180daabab",
+      "platform": "unix",
+      "locator": "cargo:test:decision_source_safety > selected_source_symlink_is_rejected_at_show_sync_and_check_boundaries"
+    },
+    {
+      "id": "test:f45af7a8b5ca245c57f637a22e845979a89aaddfad7b0fcd3046b7819ef7b1fc",
+      "platform": "unix",
+      "locator": "cargo:test:cli_entry > non_unicode_arguments_use_structured_usage_error_when_json_is_requested"
+    },
+    {
+      "id": "test:f49360f90a78963e481571b98229e49c2f17e07f78cf5bff66965be9bea4ee2f",
+      "platform": "unix",
+      "locator": "cargo:lib:record_cli > source::resource_file::tests::payload_open_rejects_symlink_ancestors_and_leaf_files"
+    }
+  ]
+}

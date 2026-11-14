@@ -6,6 +6,7 @@ pub mod index;
 pub mod mutations;
 pub mod protocol;
 pub mod queries;
+pub mod resource_records;
 pub(crate) mod resource_review;
 pub mod resources;
 pub mod source;

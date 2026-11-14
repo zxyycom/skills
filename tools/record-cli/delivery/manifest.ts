@@ -11,7 +11,11 @@ const version = v.pipe(
   v.regex(/^[0-9]+\.[0-9]+\.[0-9]+(?:-[a-zA-Z0-9.-]+)?$/)
 );
 const asset = v.strictObject({
-  role: v.picklist(["decision-records", "investigation-report"]),
+  role: v.picklist([
+    "decision-records",
+    "investigation-report",
+    "resource-records"
+  ]),
   file: v.string(),
   size: v.pipe(
     v.number(),
@@ -22,7 +26,7 @@ const asset = v.strictObject({
   sha256: digest
 });
 export const manifestSchema = v.strictObject({
-  schemaVersion: v.literal(1),
+  schemaVersion: v.picklist([1, 2]),
   version,
   target,
   source: v.strictObject({
@@ -30,7 +34,7 @@ export const manifestSchema = v.strictObject({
     rustc: v.pipe(v.string(), v.minLength(1)),
     cargo: v.pipe(v.string(), v.minLength(1))
   }),
-  assets: v.pipe(v.array(asset), v.length(2))
+  assets: v.array(asset)
 });
 export type Manifest = v.InferOutput<typeof manifestSchema>;
 export type Target = Manifest["target"];
@@ -47,6 +51,15 @@ export function parseManifest(input: unknown): Manifest {
     }
     roles.add(item.role);
   }
+  const required =
+    parsed.schemaVersion === 1
+      ? ["decision-records", "investigation-report"]
+      : ["decision-records", "investigation-report", "resource-records"];
+  if (
+    roles.size !== required.length ||
+    required.some((role) => !roles.has(role))
+  )
+    throw new Error("invalid asset roles for manifest version");
   return parsed;
 }
 

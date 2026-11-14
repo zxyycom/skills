@@ -7,7 +7,8 @@ import {
 
 export const nativeRoles = [
   "decision-records",
-  "investigation-report"
+  "investigation-report",
+  "resource-records"
 ] as const;
 export const nativeTargets = [
   "x86_64-unknown-linux-gnu",
@@ -15,6 +16,16 @@ export const nativeTargets = [
 ] as const;
 export type NativeRole = (typeof nativeRoles)[number];
 export type NativeTarget = (typeof nativeTargets)[number];
+export const nativeSchemaFiles: Readonly<
+  Record<NativeRole, readonly string[]>
+> = {
+  "decision-records": ["decision-index.schema.json"],
+  "investigation-report": ["investigation-index.schema.json"],
+  "resource-records": [
+    "resource-record.schema.json",
+    "resource-index.schema.json"
+  ]
+};
 
 const digest = v.pipe(v.string(), v.regex(/^[a-f0-9]{64}$/));
 const version = v.pipe(
@@ -48,7 +59,11 @@ const nativeEntry = v.object({
 });
 type DeepReadonly<T> = { readonly [K in keyof T]: DeepReadonly<T[K]> };
 export type NativeRelease = DeepReadonly<v.InferOutput<typeof nativeEntry>>;
-export type NativeReleasePair = Readonly<Record<NativeRole, NativeRelease>>;
+export type NativeReleasePair = Readonly<
+  Record<"decision-records" | "investigation-report", NativeRelease> &
+    Partial<Record<"resource-records", NativeRelease>>
+>;
+export type NativeReleaseSet = Readonly<Record<NativeRole, NativeRelease>>;
 
 function nativeEntries(input: unknown): Readonly<Record<string, unknown>> {
   const base = v.safeParse(skillReleaseManifestSchema, input);
@@ -122,7 +137,7 @@ export function parseNativeRuntimeDescriptor(
   return parsed.output;
 }
 
-/** Validate the two independently versioned skills against one native build. */
+/** Read legacy two-role releases and validate any resource role against the same build. */
 export function parseNativeReleasePair(input: unknown): NativeReleasePair {
   const entries = nativeEntries(input);
   const decision = parseNativeEntry(
@@ -133,22 +148,37 @@ export function parseNativeReleasePair(input: unknown): NativeReleasePair {
     entries["investigation-report"],
     "investigation-report"
   );
+  const resource =
+    entries["resource-records"] === undefined
+      ? undefined
+      : parseNativeEntry(entries["resource-records"], "resource-records");
   const left = decision.native;
-  const right = investigation.native;
-  if (
-    left.runtimeVersion !== right.runtimeVersion ||
-    left.sourceHash !== right.sourceHash ||
-    left.bootstrap.name !== right.bootstrap.name ||
-    left.bootstrap.sha256 !== right.bootstrap.sha256 ||
-    left.bootstrap.byteLength !== right.bootstrap.byteLength
-  )
-    throw new Error(
-      "native releases do not share a build and bootstrap identity"
-    );
+  for (const release of [investigation, ...(resource ? [resource] : [])]) {
+    const right = release.native;
+    if (
+      left.runtimeVersion !== right.runtimeVersion ||
+      left.sourceHash !== right.sourceHash ||
+      left.bootstrap.name !== right.bootstrap.name ||
+      left.bootstrap.sha256 !== right.bootstrap.sha256 ||
+      left.bootstrap.byteLength !== right.bootstrap.byteLength
+    )
+      throw new Error(
+        "native releases do not share a build and bootstrap identity"
+      );
+  }
   return {
     "decision-records": decision,
-    "investigation-report": investigation
+    "investigation-report": investigation,
+    ...(resource ? { "resource-records": resource } : {})
   };
+}
+
+/** Assemblers require the complete three-role release. */
+export function parseNativeReleaseSet(input: unknown): NativeReleaseSet {
+  const pair = parseNativeReleasePair(input);
+  const resource = pair["resource-records"];
+  if (!resource) throw new Error("native resource-records release missing");
+  return { ...pair, "resource-records": resource };
 }
 
 /** Reject missing, ambiguous or byte-mismatched assets before unpacking. */

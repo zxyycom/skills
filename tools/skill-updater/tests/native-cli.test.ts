@@ -220,3 +220,67 @@ test(
     });
   }
 );
+
+test(
+  "resource installer selects third-role release and rejects old two-role manifest",
+  { skip: !supported },
+  async () => {
+    const { fixture } =
+      await import("../../../scripts/lib/record-native/tests/candidate-publish-fixture.ts");
+    const candidate = fixture();
+    const root = await fs.mkdtemp(
+      path.join(os.tmpdir(), "native-resource-cli-")
+    );
+    const original = globalThis.fetch;
+    const token = process.env.GITHUB_TOKEN;
+    let manifest = candidate.manifest;
+    try {
+      process.env.GITHUB_TOKEN = "fixture-token";
+      globalThis.fetch = (async (request: string | URL | Request) => {
+        const url =
+          typeof request === "string"
+            ? request
+            : request instanceof URL
+              ? request.href
+              : request.url;
+        if (url.endsWith("/releases/latest"))
+          return Response.json({
+            assets: [
+              {
+                name: "skill-release-manifest.json",
+                url: "https://api.github.com/repos/owner/repo/releases/assets/1"
+              }
+            ],
+            tag_name: "fixture",
+            html_url: "https://github.com/owner/repo/releases/tag/fixture"
+          });
+        return new Response(JSON.stringify(manifest));
+      }) as typeof fetch;
+      const config = {
+        repo: "owner/repo",
+        skillName: "resource-records",
+        releaseAssetName: "resource-records-native.zip",
+        releaseManifestAssetName: "skill-release-manifest.json",
+        sourcePath: "skills/resource-records"
+      };
+      const run = () =>
+        runNativeUpdaterCli(
+          config,
+          "resource-records",
+          import.meta.url,
+          ["--check", "--target-dir", root],
+          true
+        );
+      assert.equal(await run(), 1);
+      const skills = { ...manifest.skills };
+      delete skills["resource-records"];
+      manifest = { ...manifest, skills };
+      await assert.rejects(run, /native release missing: resource-records/);
+    } finally {
+      globalThis.fetch = original;
+      if (token === undefined) delete process.env.GITHUB_TOKEN;
+      else process.env.GITHUB_TOKEN = token;
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  }
+);

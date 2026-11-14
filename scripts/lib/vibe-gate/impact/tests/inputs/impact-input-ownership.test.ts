@@ -84,6 +84,7 @@ test("record Rust test fixture changes invalidate the Cargo receipt without wide
       "tools/record-cli/**",
       "tools/record-contracts/**",
       "scripts/prepare-record-native.ts",
+      "scripts/publish-native-skills.ts",
       "scripts/record-native-cli.ts",
       "scripts/lib/record-native/**"
     ]);
@@ -107,6 +108,38 @@ test("record Rust test fixture changes invalidate the Cargo receipt without wide
   });
 });
 
+test("native publisher and frozen consumer dependencies invalidate their receipts", async () => {
+  await withImpactFixture(async (fixture) => {
+    for (const [input, checkId] of [
+      ["scripts/publish-native-skills.ts", "test:record-rust:runtime"],
+      [
+        "scripts/lib/record-native/tests/candidate-publish-fixture.ts",
+        "script:test:skill-updater"
+      ],
+      [
+        "scripts/lib/record-native/candidate-build-recipe.ts",
+        "script:test:skill-updater"
+      ]
+    ] as const) {
+      const plan = await prepareChangedFixtureActivation(fixture, input);
+      assert.equal(plan.kind, "incremental");
+      assert.deepEqual(plan.snapshot.unclassifiedPaths, [], input);
+      assert.equal(
+        plan.decisions.find((item) => item.checkId === checkId)?.action,
+        "execute",
+        input
+      );
+      assert.equal(
+        plan.decisions.find(
+          (item) => item.checkId === "script:test:index-runtime"
+        )?.action,
+        "reuse",
+        input
+      );
+    }
+  });
+});
+
 test("record native runtime and build inputs invalidate affected delivery checks", async () => {
   await withImpactFixture(async (fixture) => {
     for (const input of [
@@ -117,6 +150,20 @@ test("record native runtime and build inputs invalidate affected delivery checks
       const plan = await prepareChangedFixtureActivation(fixture, input);
       assert.equal(plan.kind, "incremental");
       assert.deepEqual(plan.snapshot.unclassifiedPaths, []);
+      if (input === "scripts/lib/record-native/runtime.ts") {
+        assert.ok(
+          gateToolScopes["test-evidence-project"].additionalInputs.includes(
+            input
+          )
+        );
+        assert.equal(
+          plan.decisions.find(
+            (item) =>
+              item.checkId === "test:test-evidence:project-reference-check"
+          )?.action,
+          "execute"
+        );
+      }
       for (const checkId of [
         "test:record-rust:delivery",
         "test:record-rust:runtime",

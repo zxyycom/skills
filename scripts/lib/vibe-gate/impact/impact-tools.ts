@@ -103,7 +103,12 @@ export const gateToolScopes = {
   "generated-artifacts": toolScope([...codeFiles, "skills/**"]),
   "skill-updater": toolScope(
     ["tools/skill-updater/**", "skills/ai-ready-docs/**"],
-    [...commonGateInputPatterns, ...generatedFileFiles]
+    [
+      ...commonGateInputPatterns,
+      ...generatedFileFiles,
+      "scripts/lib/record-native/tests/candidate-publish-fixture.ts",
+      "scripts/lib/record-native/candidate-build-recipe.ts"
+    ]
   ),
   "index-runtime": toolScope(["tools/index-runtime/**"]),
   "relation-graph": toolScope(["tools/shared/src/graph/**"]),
@@ -161,6 +166,7 @@ export const gateToolScopes = {
       "tools/record-cli/**",
       "tools/record-contracts/**",
       "scripts/prepare-record-native.ts",
+      "scripts/publish-native-skills.ts",
       "scripts/record-native-cli.ts",
       "scripts/lib/record-native/**"
     ],
@@ -182,7 +188,10 @@ export const gateToolScopes = {
     commonGateInputPatterns,
     "material"
   ),
-  "test-evidence-project": toolScope(["scripts/test-evidence/**"]),
+  "test-evidence-project": toolScope(
+    ["scripts/test-evidence/**"],
+    [...commonGateInputPatterns, "scripts/lib/record-native/runtime.ts"]
+  ),
   "test-evidence": toolScope(
     [
       "tools/test-evidence/**",
