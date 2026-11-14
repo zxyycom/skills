@@ -4,7 +4,7 @@ description: >-
   维护资源集合、精确版本、文件、图包及用途选择；查询已登记来源和派生关系，
   并以权威 Markdown 重建资源索引。
 metadata:
-  version: "1"
+  version: "2"
 ---
 
 # Resource Records

@@ -138,3 +138,92 @@ test("rolling upload verifies recovery before runtime and resumes from exact pub
   assert.ok(stored.has("record-native-build-0.2.1.json"));
   assert.ok(stored.has("skill-release-manifest.json"));
 });
+
+test("rolling publication stops before dependent writes when asset readback differs", async () => {
+  for (const scenario of [
+    "recovery-missing",
+    "recovery-digest",
+    "package-digest"
+  ] as const) {
+    const release = fixture(false, "0.2.1");
+    const recovery = "record-native-recovery-0.2.1.zip";
+    const other = "decision-records-native.zip";
+    const legacy = [
+      "decision-records.zip",
+      "investigation-report.zip"
+    ] as const;
+    const stored = new Map<
+      string,
+      { name: string; size: number; digest: string | null }
+    >(legacy.map((name) => [name, { name, size: 1, digest: null }]));
+    const uploads: string[] = [];
+    const deletions: string[] = [];
+    let injected = false;
+    const remote: CandidatePublishRemote = {
+      async readTag() {
+        return commit;
+      },
+      async readRelease() {
+        const items = [...stored.values()];
+        const target = scenario === "package-digest" ? other : recovery;
+        if (!stored.has(target)) return items;
+        injected = true;
+        return scenario === "recovery-missing"
+          ? items.filter((item) => item.name !== target)
+          : items.map((item) =>
+              item.name === target
+                ? { ...item, digest: `sha256:${"0".repeat(64)}` }
+                : item
+            );
+      },
+      async readReleaseId() {
+        return 17;
+      },
+      async readNotes() {
+        return undefined;
+      },
+      async updateNotes() {},
+      async readLatest() {
+        return undefined;
+      },
+      async markLatest() {},
+      async updateRollingTag() {},
+      async createRelease() {
+        throw new Error("unexpected release creation");
+      },
+      async upload(_tag, asset) {
+        uploads.push(asset.name);
+        stored.set(asset.name, {
+          name: asset.name,
+          size: asset.size,
+          digest: asset.digest
+        });
+      },
+      async deleteLegacy(name) {
+        deletions.push(name);
+        stored.delete(name);
+      }
+    };
+    const result = await publishCandidateRelease(
+      { release, mode: "rolling", commit, packageHash: hash },
+      remote
+    );
+    assert.equal(injected, true, scenario);
+    assert.equal(result.status, "failed", scenario);
+    assert.equal(result.phase, "upload and verify assets", scenario);
+    if (scenario === "package-digest") {
+      assert.ok(uploads.includes(other), scenario);
+      assert.match(result.error!, /uploaded assets do not match/, scenario);
+    } else {
+      assert.match(
+        result.error!,
+        /runtime recovery asset verification failed/,
+        scenario
+      );
+      assert.deepEqual(uploads, [recovery], scenario);
+    }
+    assert.deepEqual(deletions, [], scenario);
+    for (const name of legacy)
+      assert.ok(stored.has(name), `${scenario}: ${name}`);
+  }
+});

@@ -4,4 +4,4 @@
 
 资源领域的 `resource-record.schema.json` 和 `resource-index.schema.json` 分别描述记录与派生索引，领域模型及校验由 [Resource Records](../../skills/resource-records/SKILL.md) 承接；不改变原两域格式。
 
-维护时同时对照领域规则、两种运行时的校验及版本字段，运行对应生成检查与领域测试。格式更改应经领域 owner 裁决，不因 Rust 候选当前行为而缩小已承诺格式。生产入口切换和完整跨平台验收仍由对应 Change 控制。
+维护时对照相关领域规则、运行时校验及版本字段，运行对应生成检查与领域测试。格式更改应经领域 owner 裁决，不因实现行为而缩小已承诺格式；生产入口和跨平台能力分别按实际证据验收。

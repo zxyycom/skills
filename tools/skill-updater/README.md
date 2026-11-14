@@ -21,7 +21,7 @@
 
 ## 原生记录 skill
 
-`decision-records` 和 `investigation-report` 的独立安装器要求显式 `--target-dir`；skill 内 updater 默认自身目录。两者以目标 `SKILL.md` 身份和版本判断安装，以 release manifest 选择当前角色、平台及版本；`--check` 只比较版本，不下载 ZIP，也不验证文件完整性。普通 import 和 help 不请求网络。
+`decision-records`、`investigation-report` 和 `resource-records` 的独立安装器要求显式 `--target-dir`；skill 内 updater 默认自身目录。三者以目标 `SKILL.md` 身份和版本判断安装，以 release manifest 选择当前角色、平台及版本；`--check` 只比较版本，不下载 ZIP，也不验证文件完整性。普通 import 和 help 不请求网络。
 
 需要安装或更新时，下载并校验 manifest 绑定的包和平台程序，列出新增和覆盖文件后统一确认（`--yes` 跳过交互）。仅覆盖包内路径，保留其他本地文件；安装器可显式覆盖重装同版本。使用本次临时 staging 和备份，验证程序及说明后最后启用 `SKILL.md`。普通失败尝试恢复；恢复不完整时保留备份并报告路径。临时清理失败时，诊断区分已安装与已恢复的文件状态，保留主失败并列出残留路径。多文件覆盖不保证原子性或崩溃自动恢复。安装成功不保存安装级账本或资产副本。
 

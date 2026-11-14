@@ -10,4 +10,4 @@ Contract:
 - 同步提交后输出失败须非 panic 地报告提交状态及恢复方式。
 
 Proves:
-- 关闭真实 stdout 管道并检查错误状态、stderr 提示和 check；测试覆盖首次创建与替换，但首个失败会阻断后续步骤。
+- 关闭真实 stdout 管道并检查错误状态、stderr 中的索引状态及 check 或 sync-index 建议，再以 check 核验索引；覆盖首次创建与替换，但首个失败会阻断后续步骤。

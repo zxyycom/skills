@@ -67,24 +67,28 @@ fn closed_stdout_after_sync_reports_committed_state_without_panic() {
             let text = fs::read_to_string(&base).unwrap();
             fs::write(base, text.replace("底图正文", "更新正文")).unwrap();
         }
-        let mut child = Command::new(env!("CARGO_BIN_EXE_resource-records"))
+        let (reader, writer) = std::io::pipe().unwrap();
+        drop(reader);
+        let child = Command::new(env!("CARGO_BIN_EXE_resource-records"))
             .arg("sync-index")
             .arg("--root")
             .arg(p)
             .arg("--json")
-            .stdout(Stdio::piped())
+            .stdout(Stdio::from(writer))
             .stderr(Stdio::piped())
             .spawn()
             .unwrap();
-        drop(child.stdout.take());
         let out = child.wait_with_output().unwrap();
         let err = String::from_utf8_lossy(&out.stderr);
         assert_ne!(out.status.code(), Some(101), "must not panic: {err}");
         assert!(!out.status.success(), "closed output must be reported");
         assert!(
-            err.contains("index")
-                && (err.contains("committed") || err.contains("同步") || err.contains("写入")),
+            err.contains("index") && (err.contains("committed") || err.contains("unchanged")),
             "must report committed index state: {err}"
+        );
+        assert!(
+            err.contains("check") || err.contains("sync-index"),
+            "must suggest how to confirm or recover index state: {err}"
         );
         assert!(run(p, &["check"]).0.status.success());
     }
