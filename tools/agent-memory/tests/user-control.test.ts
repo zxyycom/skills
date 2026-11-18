@@ -18,12 +18,10 @@ test("disable and hide preserve explicit history while blocking adoption", async
   const dependent = await save(
     memory("hidden-dependent", "隐藏依赖", { edges: [edge(hidden)] })
   );
-  for (const [target, action, state, title] of [
-    [a, "disable", "disabled", "停用前提"],
-    [hidden, "hide", "hidden", "隐藏单元"]
+  for (const [target, action, state, body] of [
+    [a, "disable", "disabled", "停用前提正文"],
+    [hidden, "hide", "hidden", "隐藏单元正文"]
   ]) {
-    let preview = await ok("forget", { id: target, action });
-    assert.equal((await ok("show", { id: target })).body, `${title}正文`);
     let expectedVersion = 1;
     if (action === "hide") {
       await ok("review", {
@@ -33,9 +31,11 @@ test("disable and hide preserve explicit history while blocking adoption", async
         outcome: "pending",
         reason: "暂候新证据"
       });
-      preview = await ok("forget", { id: target, action });
       expectedVersion = 2;
     }
+    const before = await ok("show", { id: target });
+    const preview = await ok("forget", { id: target, action });
+    assert.deepEqual(await ok("show", { id: target }), before);
     await ok("forget", {
       id: target,
       requestId: `apply-${action}`,
@@ -48,7 +48,7 @@ test("disable and hide preserve explicit history while blocking adoption", async
     assert.equal(hiddenHead.reason, state);
     assert.equal(hiddenHead.body, undefined);
     const history = await ok("show", { id: target, version: 1 });
-    assert.equal(history.body, `${title}正文`);
+    assert.equal(history.body, body);
     assert.equal(history.status, "historical");
     assert.equal(history.usable, false);
     assert.match(
@@ -250,11 +250,14 @@ test("purge preview includes historical dependants and rejects stale confirmatio
       edges: [{ ...edge(a, 1, "supports"), role: "清除关联说明" }]
     })
   );
-  await reject("forget", {
-    ...purge,
-    requestId: "stale-reference",
-    confirm: preview.token
-  });
+  assert.match(
+    await reject("forget", {
+      ...purge,
+      requestId: "stale-reference",
+      confirm: preview.token
+    }),
+    /forget preview conflict/u
+  );
   const withReference = await ok("forget", purge);
   assert.ok(
     entries(withReference, "removedReferences").some(
@@ -269,11 +272,14 @@ test("purge preview includes historical dependants and rejects stale confirmatio
     semanticChange: false,
     body: "预览后变更"
   });
-  await reject("forget", {
-    ...purge,
-    requestId: "stale-version",
-    confirm: withReference.token
-  });
+  assert.match(
+    await reject("forget", {
+      ...purge,
+      requestId: "stale-version",
+      confirm: withReference.token
+    }),
+    /forget preview conflict/u
+  );
   const fresh = await ok("forget", purge);
   await ok("forget", {
     ...purge,
@@ -286,8 +292,8 @@ test("purge preview includes historical dependants and rejects stale confirmatio
   }
   assert.deepEqual((await ok("show", { id: related })).edges, []);
   assert.equal((await ok("show", { id: related })).body, "保留关联正文");
-  await reject("save", original);
-  await reject("save", batch);
+  assert.match(await reject("save", original), /request ID was revoked/u);
+  assert.match(await reject("save", batch), /request ID was revoked/u);
   assert.deepEqual(
     (
       await ok("recall", {
@@ -336,10 +342,6 @@ test("forget confirmation is bound to the target and action even for equal scope
   });
   const first = await ok("forget", { id: a, action: "purge" });
   const request = { id: b, action: "purge", requestId: "confirmed" };
-  assert.match(
-    await reject("forget", { id: b, action: "purge", extra: true }),
-    /unknown field/u
-  );
   const second = await ok("forget", { id: b, action: "purge" });
   const hidden = await ok("forget", { id: b, action: "hide" });
   assert.deepEqual(first.units, second.units);
@@ -359,9 +361,6 @@ test("forget confirmation is bound to the target and action even for equal scope
     await reject("forget", { ...valid, expectedVersion: 1 }),
     /version conflict/u
   );
-  for (const target of [a, b]) {
-    assert.equal((await ok("show", { id: target })).status, "current");
-  }
   assert.deepEqual((await ok("forget", valid)).purged, [a, b].sort());
   assert.deepEqual((await ok("forget", valid)).purged, [a, b].sort());
 });

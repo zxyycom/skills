@@ -9,9 +9,32 @@
  */
 import { Composition } from "./composition.ts";
 import type { ReadOperation } from "./input.ts";
-import type { Store } from "./store.ts";
+import type { UnitState } from "./model.ts";
+import type { RecallMatch, Store, StoredEdge, Version } from "./store.ts";
 
-function snapshot(store: Store, id: string, version: number) {
+type Snapshot = Version & {
+  readonly tags: readonly string[];
+  readonly edges: readonly StoredEdge[];
+};
+type ShowResult =
+  | (Snapshot & { readonly status: "current" })
+  | (Snapshot & {
+      readonly status: "historical";
+      readonly latest: boolean;
+      readonly usable: boolean;
+    })
+  | Readonly<{
+      id: string;
+      status: "blocked";
+      reason: Exclude<UnitState, "active"> | "premise";
+      blockers: readonly string[];
+    }>;
+type RecallResult = Readonly<{
+  items: readonly RecallMatch[];
+  truncated: boolean;
+}>;
+
+function snapshot(store: Store, id: string, version: number): Snapshot {
   return {
     ...store.version(id, version),
     tags: store.tags(id, version),
@@ -21,15 +44,14 @@ function snapshot(store: Store, id: string, version: number) {
 
 export function show(
   store: Store,
-  data: Extract<ReadOperation, { name: "show" }>["data"]
-) {
+  { id, version }: Extract<ReadOperation, { name: "show" }>["data"]
+): ShowResult {
   const graph = new Composition(store);
-  const { id, version } = data;
   const head = graph.head(id);
   if (version !== undefined) {
     const latest = version === head.current_version;
     return {
-      status: "historical" as const,
+      status: "historical",
       latest,
       usable: latest && graph.blockers(id).length === 0,
       ...snapshot(store, id, version)
@@ -39,12 +61,12 @@ export function show(
   if (blockers.length > 0)
     return {
       id,
-      status: "blocked" as const,
+      status: "blocked",
       reason: head.state === "active" ? "premise" : head.state,
       blockers
     };
   return {
-    status: "current" as const,
+    status: "current",
     ...snapshot(store, id, head.current_version)
   };
 }
@@ -52,7 +74,7 @@ export function show(
 export function recall(
   store: Store,
   data: Extract<ReadOperation, { name: "recall" }>["data"]
-) {
+): RecallResult {
   const graph = new Composition(store);
   const items = [];
   for (const match of store.recall(data.tags, data.terms)) {

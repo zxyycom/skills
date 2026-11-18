@@ -8,6 +8,7 @@
  * Rebuild: bun run sync:agent-memory-cli
  */
 import { createHash } from "node:crypto";
+import { fail } from "./errors.ts";
 
 export function canonical(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
@@ -18,7 +19,11 @@ export function canonical(value: unknown): string {
       .map(([key, entry]) => `${JSON.stringify(key)}:${canonical(entry)}`)
       .join(",")}}`;
   }
-  return JSON.stringify(value);
+  // JSON.parse can overflow a JSON number to Infinity. It is invalid for every
+  // field but must not fingerprint as null and replay a different request.
+  if (typeof value === "number" && !Number.isFinite(value))
+    return String(value);
+  return JSON.stringify(value) ?? fail("cannot fingerprint non-JSON data");
 }
 
 export function hash(value: unknown): string {

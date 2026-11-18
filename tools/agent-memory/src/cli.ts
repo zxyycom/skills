@@ -30,18 +30,28 @@ import { recall, show } from "./retrieval.ts";
 import { schemaVersion, withStore, type Store } from "./store.ts";
 import { write } from "./writes.ts";
 
-const help = `agent-memory <init|save|revise|recall|show|review|close|forget> --root ABS --db ABS [--json] [--input JSON]
---db overrides AGENT_MEMORY_DB. JSON input may instead be supplied on stdin.
-New writes and forget previews reject unknown JSON fields, including in items and edges.
-init: {}.
-save: {requestId,kind:"knowledge"|"intent",title,body,source,conditions,reason?:string,tags?:[string],edges?:[{target,version,type:"composition"|"supports"|"limits"|"conflicts"|"replaces"|"splits",role}]}.
-Batch save: {requestId,items:[save fields without requestId]}. For atomic split, use a splits edge from each successor to the current original.
-revise: {id,expectedVersion,requestId,reason,semanticChange:boolean} plus optional kind,title,body,source,conditions,tags,edges.
-review: {id,expectedVersion,requestId,reason,outcome:"unchanged"|"changed"|"pending"} plus the same optional content fields.
-recall: {tags:[string],terms:[string],limit?:number}; show: {id,version?:number}; close: {id,expectedVersion,requestId,outcome:"completed"|"cancelled",reason}.
-forget: first {id,action:"disable"|"hide"|"purge"} previews an active/pending target and newly blocked current dependants (disable/hide), or the full historical composition scope (purge).
-Then {id,action,requestId,confirm:token,expectedVersion} executes; expectedVersion is optional for purge and checked when supplied.
+const help = `agent-memory <recall|show|save|revise|review|close|forget|init> --root ABS [--db ABS] [--json] [--input JSON]
+--db overrides AGENT_MEMORY_DB. Pass a JSON object via --input or stdin.
+Use declared fields only, including in batch items and edges. A ? marks an optional field; int is a positive safe integer.
+
+recall  {tags?:string[], terms?:string[], limit?:int} (at least one clue; limit defaults to 10)
+show    {id, version?:int} (omit version for the current result)
+save    {requestId, ...content} or {requestId, items:[content, ...]}
+revise  {id, expectedVersion, requestId, reason, semanticChange:boolean, ...contentChanges}
+review  {id, expectedVersion, requestId, reason, outcome:"unchanged"|"changed"|"pending", ...contentChanges}
+close   {id, expectedVersion, requestId, reason, outcome:"completed"|"cancelled"}
+forget  {id, action:"disable"|"hide"|"purge"} previews the scope.
+        Add requestId, confirm:token and expectedVersion to apply the preview.
+        expectedVersion is optional for purge and checked when supplied.
+init    {} (creates a new database outside the project root)
+
+content: {kind:"knowledge"|"intent", title, body, source, conditions, reason?:string, tags?:string[], edges?:edge[]}.
+contentChanges: optional kind, title, body, source, conditions, tags and edges. Unset fields keep their current values.
+edge: {target, version:int, type:"composition"|"supports"|"limits"|"conflicts"|"replaces"|"splits", role}.
+For an atomic split, use a splits edge from each successor to the current original.
 `;
+
+type Binding = Readonly<{ root: string; path: string }>;
 
 function argumentsFor(args: string[]) {
   try {
@@ -128,7 +138,7 @@ function initialize(root: string, path: string) {
     }
     throw error;
   }
-  return { root, db: path, schemaVersion };
+  return { root, db: target, schemaVersion };
 }
 
 function read(store: Store, operation: ReadOperation) {
@@ -152,7 +162,7 @@ function selectCommand(args: string[]) {
   return { name, values };
 }
 
-function binding(values: Readonly<{ root?: string; db?: string }>) {
+function binding(values: Readonly<{ root?: string; db?: string }>): Binding {
   const root = values.root ?? fail("--root is required");
   const db = values.db ?? process.env.AGENT_MEMORY_DB;
   if (db === undefined) {
@@ -179,7 +189,7 @@ function run(args: string[]) {
 }
 
 function dispatch(
-  paths: ReturnType<typeof binding>,
+  paths: Binding,
   operation: ReadOperation | WriteRequest,
   input: unknown
 ) {
@@ -195,16 +205,24 @@ function dispatch(
     return write(store, operation, fingerprint);
   });
 }
-export async function runCli(args: string[]): Promise<number> {
+type CliOutput = Readonly<{
+  stdout: { readonly write: (text: string) => unknown };
+  stderr: { readonly write: (text: string) => unknown };
+}>;
+
+export async function runCli(
+  args: string[],
+  output: CliOutput = process
+): Promise<number> {
   try {
-    process.stdout.write(run(args));
+    output.stdout.write(run(args));
     return 0;
   } catch (error) {
     const message =
       error instanceof MemoryError
         ? error.message
         : "database operation failed; verify the binding, access, schema and installed CLI resources";
-    process.stderr.write(`agent-memory: ${message}\n`);
+    output.stderr.write(`agent-memory: ${message}\n`);
     return 1;
   }
 }

@@ -11,9 +11,14 @@ import * as v from "valibot";
 import { fail, MemoryError } from "./errors.ts";
 import { closeOutcome, edgeType, forgetAction, memoryKind } from "./model.ts";
 
+const unicodeString = (field: string) =>
+  v.pipe(
+    v.string(`${field} must be a string`),
+    v.check((value) => value.isWellFormed(), "must contain valid Unicode")
+  );
 const text = (field: string) =>
   v.pipe(
-    v.string(`${field} must be a nonempty string`),
+    unicodeString(field),
     v.check((x) => x.trim().length > 0, `${field} must be a nonempty string`)
   );
 const number = (field: string) =>
@@ -22,8 +27,6 @@ const number = (field: string) =>
     v.safeInteger(`${field} must be a positive integer`),
     v.minValue(1, `${field} must be a positive integer`)
   );
-const object = <const T extends v.ObjectEntries>(fields: T) =>
-  v.object(fields, "expected a JSON object");
 function strictObject<const T extends v.ObjectEntries>(
   fields: T,
   unknownFieldMessage = "unknown field in JSON object"
@@ -52,12 +55,14 @@ const edges = v.pipe(
       new Set(entries.map((e) => JSON.stringify([e.target, e.type]))).size ===
       entries.length,
     "duplicate edge"
-  )
+  ),
+  v.readonly()
 );
 const strings = (field: string) =>
   v.pipe(
     v.array(text(field), `${field} must be an array of nonempty strings`),
-    v.transform((entries) => [...new Set(entries)])
+    v.transform((entries) => [...new Set(entries)]),
+    v.readonly()
   );
 
 const contentFields = {
@@ -69,10 +74,7 @@ const contentFields = {
 };
 const content = strictObject({
   ...contentFields,
-  reason: v.pipe(
-    v.optional(v.unknown(), ""),
-    v.transform((value) => (typeof value === "string" ? value : ""))
-  ),
+  reason: v.optional(unicodeString("reason"), ""),
   tags: v.nullish(strings("tags"), []),
   edges: v.nullish(edges, [])
 });
@@ -110,9 +112,12 @@ const close = strictObject(
   },
   "close does not accept content changes"
 );
-const show = object({ id: text("id"), version: v.optional(number("version")) });
+const show = strictObject({
+  id: text("id"),
+  version: v.optional(number("version"))
+});
 const recall = v.pipe(
-  object({
+  strictObject({
     tags: v.nullish(strings("tags"), []),
     terms: v.nullish(strings("terms"), []),
     limit: v.optional(number("limit"), 10)
@@ -135,12 +140,7 @@ const forget = v.variant(
     strictObject({
       ...reference,
       confirm: text("confirm"),
-      action: v.literal("disable")
-    }),
-    strictObject({
-      ...reference,
-      confirm: text("confirm"),
-      action: v.literal("hide")
+      action: v.picklist(["disable", "hide"], "invalid forget action")
     })
   ],
   "invalid forget action"
@@ -213,16 +213,35 @@ function validated<T extends v.GenericSchema>(
 ): v.InferOutput<T> {
   const result = v.safeParse(schema, value);
   if (result.success) return result.output;
-  // Valibot default messages may interpolate the actual input. Expose only static issue messages.
-  const issue = result.issues[0];
-  // An object issue with a quoted expectation identifies a declared required key.
-  if (
-    (issue.type === "object" || issue.type === "strict_object") &&
-    issue.expected?.startsWith('"')
-  ) {
-    fail(`missing required field ${issue.expected}`);
+  return fail(validationMessage(result.issues[0]));
+}
+
+function validationMessage(issue: v.BaseIssue<unknown>): string {
+  const path = issue.path ?? [];
+  if (issue.type === "strict_object") {
+    const expected = issue.expected ?? "";
+    if (expected === "never") {
+      return fieldMessage(path.slice(0, -1), issue.message);
+    }
+    if (expected.startsWith('"')) {
+      return fieldMessage(path, "missing required field");
+    }
   }
-  return fail(issue.message);
+  return fieldMessage(path, issue.message);
+}
+
+function fieldMessage(
+  path: readonly v.IssuePathItem[],
+  message: string
+): string {
+  let location = "";
+  // Only declared keys and array offsets are trusted, never the offending key or value.
+  for (const item of path) {
+    if (item.type === "array") location += `[${item.key}]`;
+    if (item.type === "object")
+      location += location ? `.${item.key}` : item.key;
+  }
+  return location === "" ? message : `${location}: ${message}`;
 }
 
 function parseSave(input: object): Extract<WriteOperation, { name: "save" }> {
@@ -236,10 +255,6 @@ export function parseInvocation(name: Command, input: unknown): Invocation {
   if (input === null || typeof input !== "object" || Array.isArray(input)) {
     fail("input must be a JSON object");
   }
-  return parseObject(name, input);
-}
-
-function parseObject(name: Command, input: object): Invocation {
   switch (name) {
     case "init":
       validated(init, input);

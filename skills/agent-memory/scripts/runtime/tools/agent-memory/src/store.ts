@@ -76,7 +76,17 @@ const metadataRow = v.object({
 });
 export type Head = Readonly<v.InferOutput<typeof headRow>>;
 export type StoredEdge = Readonly<v.InferOutput<typeof edgeRow>>;
-type Args = (string | number)[];
+export type Version = Readonly<v.InferOutput<typeof versionRow>>;
+export type Premise = Readonly<v.InferOutput<typeof premiseRow>>;
+export type AffectedUnit = Readonly<v.InferOutput<typeof affectedRow>>;
+export type RemovedReference = Readonly<v.InferOutput<typeof referenceRow>>;
+export type RecallMatch = Readonly<{
+  id: string;
+  conditions: string;
+  reasons: readonly string[];
+}>;
+type RequestReceipt = Readonly<v.InferOutput<typeof requestRow>>;
+type Args = readonly (string | number)[];
 type Transaction = "read" | "write";
 
 function stored<T extends v.GenericSchema>(
@@ -102,18 +112,26 @@ export function readStoredJson<T extends v.GenericSchema>(
   return stored(schema, value);
 }
 
+function readSql(file: "queries.sql" | "schema.sql"): string {
+  try {
+    return readFileSync(new URL(file, import.meta.url), "utf8");
+  } catch {
+    return fail(`cannot read ${file}; verify the installed CLI resources`);
+  }
+}
+
 function loadQueries(): ReadonlyMap<string, string> {
-  const source = readFileSync(
-    new URL("./queries.sql", import.meta.url),
-    "utf8"
-  );
-  return new Map(
-    [
-      ...source.matchAll(
-        /^-- name: (\w+)\r?\n([\s\S]*?)(?=^-- name: |$(?![\s\S]))/gmu
-      )
-    ].map((match) => [match[1] ?? "", match[2]?.trim() ?? ""])
-  );
+  const source = readSql("queries.sql");
+  const queries = new Map<string, string>();
+  for (const [, name, body] of source.matchAll(
+    /^-- name: (\w+)\r?\n([\s\S]*?)(?=^-- name: |$(?![\s\S]))/gmu
+  )) {
+    const sql = body?.trim();
+    if (!name || !sql || queries.has(name))
+      fail("queries.sql contains a missing or duplicate statement");
+    queries.set(name, sql);
+  }
+  return queries;
 }
 
 export function withStore<T>(
@@ -164,9 +182,7 @@ export class Store {
   }
 
   initialize(root: string, id: string) {
-    this.#db.exec(
-      readFileSync(new URL("./schema.sql", import.meta.url), "utf8")
-    );
+    this.#db.exec(readSql("schema.sql"));
     this.#run("init", root, id, schemaVersion);
   }
 
@@ -184,7 +200,7 @@ export class Store {
     return this.#get("head", headRow, id) ?? fail("unknown memory id");
   }
 
-  version(id: string, version: number) {
+  version(id: string, version: number): Version {
     return (
       this.#get("version", versionRow, id, version) ??
       fail("unknown memory version")
@@ -198,15 +214,15 @@ export class Store {
     );
   }
 
-  tags(id: string, version: number): string[] {
+  tags(id: string, version: number): readonly string[] {
     return this.#all("tags", tagRow, id, version).map((row) => row.tag);
   }
 
-  edges(id: string, version: number): StoredEdge[] {
+  edges(id: string, version: number): readonly StoredEdge[] {
     return this.#all("edges", edgeRow, id, version);
   }
 
-  premises(head: Head) {
+  premises(head: Head): readonly Premise[] {
     return this.#all("composition", premiseRow, head.id, head.current_version);
   }
 
@@ -214,7 +230,10 @@ export class Store {
     return this.#statement("reaches").get(from, target) !== undefined;
   }
 
-  *recall(tags: readonly string[], terms: readonly string[]) {
+  *recall(
+    tags: readonly string[],
+    terms: readonly string[]
+  ): Generator<RecallMatch> {
     const matches = this.#statement("recall").iterate(
       JSON.stringify(tags),
       JSON.stringify(terms)
@@ -228,7 +247,7 @@ export class Store {
     }
   }
 
-  affected(id: string, scope: "current" | "history") {
+  affected(id: string, scope: "current" | "history"): readonly AffectedUnit[] {
     return this.#all(
       "affected_units",
       affectedRow,
@@ -237,7 +256,7 @@ export class Store {
     );
   }
 
-  removedReferences(ids: readonly string[]) {
+  removedReferences(ids: readonly string[]): RemovedReference[] {
     return this.#all("removed_references", referenceRow, JSON.stringify(ids));
   }
 
@@ -291,7 +310,7 @@ export class Store {
     );
   }
 
-  request(id: string) {
+  request(id: string): RequestReceipt | undefined {
     return this.#get("request", requestRow, id);
   }
 
@@ -338,7 +357,7 @@ export class Store {
 
   #sql(name: string): string {
     return (
-      this.#queries.get(name) || fail("agent-memory SQL resource is incomplete")
+      this.#queries.get(name) ?? fail(`queries.sql lacks the ${name} statement`)
     );
   }
 

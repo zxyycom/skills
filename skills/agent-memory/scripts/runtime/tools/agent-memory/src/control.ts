@@ -12,17 +12,29 @@ import { fail } from "./errors.ts";
 import { canonical, hash } from "./fingerprint.ts";
 import type { ReadOperation, WriteOperation } from "./input.ts";
 import type { UnitState } from "./model.ts";
-import type { Head, Store } from "./store.ts";
+import type { AffectedUnit, Head, RemovedReference, Store } from "./store.ts";
 
 type PreviewInput = Extract<ReadOperation, { name: "forget-preview" }>["data"];
+type Preview = Readonly<{
+  units: readonly AffectedUnit[];
+  removedReferences: readonly RemovedReference[];
+  token: string;
+}>;
+type ForgetMutation = Readonly<{
+  result: { purged: string[] } | { id: string; state: "disabled" | "hidden" };
+  affected: readonly string[];
+}>;
 
-export function preview(store: Store, data: PreviewInput) {
+export function preview(store: Store, data: PreviewInput): Preview {
   const { head, result } = plan(store, data);
   if (data.action !== "purge") assertVisibilityState(head.state);
   return result;
 }
 
-function plan(store: Store, { id, action }: PreviewInput) {
+function plan(
+  store: Store,
+  { id, action }: PreviewInput
+): Readonly<{ head: Head; result: Preview }> {
   const graph = new Composition(store);
   const head = graph.head(id);
   const units =
@@ -44,7 +56,11 @@ function plan(store: Store, { id, action }: PreviewInput) {
   };
 }
 
-function visibilityScope(store: Store, graph: Composition, head: Head) {
+function visibilityScope(
+  store: Store,
+  graph: Composition,
+  head: Head
+): readonly AffectedUnit[] {
   const { id, current_version, state } = head;
   if (graph.blockers(id).length !== 0)
     return [{ id, version: current_version, state }];
@@ -56,7 +72,7 @@ function visibilityScope(store: Store, graph: Composition, head: Head) {
 export function forget(
   store: Store,
   data: Extract<WriteOperation, { name: "forget" }>["data"]
-) {
+): ForgetMutation {
   const { head, result } = plan(store, data);
   if (data.confirm !== result.token) fail("forget preview conflict");
   const { id, action, expectedVersion } = data;

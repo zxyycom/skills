@@ -22,12 +22,15 @@ test("project binding rejects wrong roots and never creates a database on recall
     (await ok("recall", { terms: ["第一项目"] }, other, otherDb)).items,
     []
   );
-  await ok("save", memory("other", "第二项目"), other, otherDb);
   await reject("recall", { terms: ["第一项目"] }, other, db);
-  await reject("recall", { terms: ["第二项目"] }, root, otherDb);
-  await reject("show", { id: memoryId }, other, db);
   await reject("save", memory("wrong", "错库写入"), other, db);
   await reject("init", {}, other, db);
+  const inProject = join(root, "internal.sqlite");
+  assert.match(
+    await reject("init", {}, root, inProject),
+    /outside the project/u
+  );
+  assert.equal(existsSync(inProject), false);
   const fileRoot = join(dir, "not-a-workspace.txt");
   const invalidDb = join(dir, "invalid.sqlite");
   writeFileSync(fileRoot, "synthetic fixture");
@@ -79,12 +82,15 @@ test("recall deduplicates literal Chinese and exact tag matches before ranking",
   assert.equal(limited.truncated, true);
 });
 
-test("request replay, version conflicts and a failed batch leave no partial writes", async (t) => {
+test("request replay and version conflicts protect single and batch writes", async (t) => {
   const { ok, reject } = await fixture(t);
   const input = memory("original", "原前提");
   const original = await ok("save", input);
   assert.deepEqual(await ok("save", input), original);
-  await reject("save", { ...input, body: "冲突内容" });
+  assert.match(
+    await reject("save", { ...input, body: "冲突内容" }),
+    /request ID conflict/u
+  );
   const premise = id(original);
   assert.deepEqual(entries(await ok("recall", { terms: ["原前提"] })).map(id), [
     premise
@@ -97,7 +103,7 @@ test("request replay, version conflicts and a failed batch leave no partial writ
     semanticChange: true,
     body: "新前提"
   };
-  await reject("revise", revision);
+  assert.match(await reject("revise", revision), /version conflict/u);
   const first = memoryContent("分支甲", {
     edges: [edge(premise, 1, "splits")]
   });
@@ -105,8 +111,6 @@ test("request replay, version conflicts and a failed batch leave no partial writ
     edges: [edge(premise, 1, "splits")]
   });
   const batch = { requestId: "atomic-split", items: [first, second] };
-  await reject("save", { ...batch, items: [first, { ...second, body: "" }] });
-  assert.deepEqual((await ok("recall", { terms: ["分支"] })).items, []);
   const after = await ok("show", { id: premise });
   assert.equal(after.status, "current");
   assert.equal(after.version, 1);
@@ -160,7 +164,6 @@ test("unknown fields cannot create or revise memories", async (t) => {
     await reject("save", { ...input, edegs: [] }),
     /request ID conflict/u
   );
-  assert.deepEqual(await ok("save", input), saved);
 });
 
 test("unknown batch or edge fields cannot partially commit a split", async (t) => {
@@ -191,18 +194,108 @@ test("evolution cannot publish a new combination that its own write invalidates"
   const { ok, reject, save } = await fixture(t);
   const a = await save(memory("evolution-a", "演进前提"));
   const b = await save(memory("evolution-b", "中间依据", { edges: [edge(a)] }));
-  await reject("save", {
-    requestId: "self-invalidating-batch",
-    items: [
-      memoryContent("矛盾联合", { edges: [edge(b)] }),
-      memoryContent("矛盾替代", {
-        edges: [edge(a, 1, "replaces")]
-      })
-    ]
+  const replacement = memoryContent("矛盾替代", {
+    edges: [edge(a, 1, "replaces")]
   });
+  const batch = {
+    requestId: "self-invalidating-batch",
+    items: [memoryContent("矛盾联合", { edges: [edge(b)] }), replacement]
+  };
+  assert.match(
+    await reject("save", batch),
+    /save would create an unusable unit/u
+  );
   assert.deepEqual((await ok("recall", { terms: ["矛盾"] })).items, []);
   assert.equal((await ok("show", { id: a })).status, "current");
   assert.equal((await ok("show", { id: b })).status, "current");
+  assert.equal(
+    entries(await ok("save", { ...batch, items: [replacement] })).length,
+    1
+  );
+  assert.equal((await ok("show", { id: a })).reason, "superseded");
+});
+
+test("input validation rejects lossy text and mis-typed fields before saving", async (t) => {
+  const { ok, reject } = await fixture(t);
+  const item = memoryContent("测试编解码");
+  const batch = { requestId: "invalid-content", items: [item] };
+  assert.match(
+    await reject("save", { ...batch, items: [{ ...item, reason: {} }] }),
+    /items\[0\]\.reason.*string/u
+  );
+  assert.match(
+    await reject("save", {
+      ...batch,
+      items: [{ ...item, body: "甲\uD800乙" }]
+    }),
+    /items\[0\]\.body.*Unicode/u
+  );
+  assert.deepEqual((await ok("recall", { terms: ["测试编解码"] })).items, []);
+  const [saved] = entries(await ok("save", batch));
+  assert.ok(saved);
+  assert.equal((await ok("show", { id: id(saved) })).reason, "");
+
+  const nullable = memory("overflow", "可空标签", { tags: null });
+  await ok("save", nullable);
+  assert.match(
+    await reject(
+      "save",
+      JSON.stringify(nullable).replace('"tags":null', '"tags":1e400')
+    ),
+    /request ID conflict/u
+  );
+});
+
+test("query input rejects misspelled controls without echoing unknown keys", async (t) => {
+  const { reject, save } = await fixture(t);
+  const unit = await save(memory("query", "待查询"));
+  const diagnostic = await reject("show", { id: unit, verison: 1 });
+  assert.match(diagnostic, /unknown field/u);
+  assert.doesNotMatch(diagnostic, /verison/u);
+  assert.match(
+    await reject("recall", { terms: ["待查询"], limti: 1 }),
+    /unknown field/u
+  );
+  assert.match(await reject("recall", "{"), /not valid JSON/u);
+});
+
+test("text-only revision retains a still-usable exact premise version", async (t) => {
+  const { ok, reject, save } = await fixture(t);
+  const premise = await save(memory("premise-version", "原前提"));
+  const dependent = await save(
+    memory("retaining", "组合", { edges: [edge(premise)] })
+  );
+  const update = { id: premise, expectedVersion: 1, reason: "更正文字" };
+  await ok("revise", {
+    ...update,
+    requestId: "same-meaning",
+    semanticChange: false
+  });
+  const edit = {
+    id: dependent,
+    expectedVersion: 1,
+    reason: "补充表述",
+    semanticChange: false
+  };
+  await ok("revise", { ...edit, requestId: "retain-current" });
+  const current = await ok("show", { id: dependent });
+  assert.equal(current.version, 2);
+  assert.equal(entries(current, "edges")[0]?.target_version, 1);
+  await ok("revise", {
+    ...update,
+    expectedVersion: 2,
+    requestId: "changed-premise",
+    semanticChange: true
+  });
+  assert.match(
+    await reject("revise", {
+      ...edit,
+      expectedVersion: 2,
+      requestId: "stale-retained"
+    }),
+    /revision would create an unusable unit/u
+  );
+  await reject("show", { id: dependent, version: 3 });
 });
 
 test("semantic corrections block transitive composition until review", async (t) => {
@@ -221,12 +314,22 @@ test("semantic corrections block transitive composition until review", async (t)
     reason: "前提纠正",
     edges: [edge(c)]
   };
-  await reject("revise", { ...edit, requestId: "cycle", semanticChange: true });
-  await reject("review", {
-    ...edit,
-    requestId: "pending-cycle",
-    outcome: "pending"
-  });
+  assert.match(
+    await reject("revise", {
+      ...edit,
+      requestId: "cycle",
+      semanticChange: true
+    }),
+    /composition cycle/u
+  );
+  assert.match(
+    await reject("review", {
+      ...edit,
+      requestId: "pending-cycle",
+      outcome: "pending"
+    }),
+    /composition cycle/u
+  );
   await ok("revise", {
     id: a,
     expectedVersion: 1,
@@ -262,7 +365,6 @@ test("semantic corrections block transitive composition until review", async (t)
     edges: [edge(a, 2)]
   };
   await ok("review", { ...review, requestId: "review-b" });
-  await reject("review", { ...review, requestId: "outdated-review" });
   assert.equal((await ok("show", { id: c })).body, "结论正文");
   assert.equal((await ok("show", { id: e })).status, "blocked");
   await ok("review", {

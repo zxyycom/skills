@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import {
   copyFileSync,
   cpSync,
+  existsSync,
   mkdtempSync,
   mkdirSync,
   realpathSync,
@@ -47,21 +48,21 @@ test("distributed Node CLI initializes and recalls an isolated memory", () => {
     mkdirSync(root);
     const db = path.join(temp, "memory.sqlite");
     const cli = path.join(installed, "scripts", "agent-memory.ts");
-    function call(command: string, input: Record<string, unknown>) {
+    function call(
+      command: string,
+      input: Readonly<Record<string, unknown>>,
+      database = db
+    ) {
       const child = spawnSync(
         process.execPath,
-        [
-          cli,
-          command,
-          "--root",
-          root,
-          "--db",
-          db,
-          "--json",
-          "--input",
-          JSON.stringify(input)
-        ],
-        { cwd: root, encoding: "utf8", timeout: 10_000, windowsHide: true }
+        [cli, command, "--root", root, "--db", database, "--json"],
+        {
+          cwd: root,
+          input: JSON.stringify(input),
+          encoding: "utf8",
+          timeout: 10_000,
+          windowsHide: true
+        }
       );
       assert.ifError(child.error);
       assert.equal(child.signal, null);
@@ -76,7 +77,7 @@ test("distributed Node CLI initializes and recalls an isolated memory", () => {
     const missing = call("recall", { terms: ["中文"] });
     assert.equal(missing.status, 1);
     assert.equal(missing.stdout, "");
-    assert.match(missing.stderr, /agent-memory:/u);
+    assert.match(missing.stderr, /cannot open bound database/u);
     run("init", {});
     const saved = run("save", {
       requestId: "one",
@@ -84,9 +85,7 @@ test("distributed Node CLI initializes and recalls an isolated memory", () => {
       title: "分发验证",
       body: "中文正文",
       source: "隔离样例",
-      conditions: "测试",
-      tags: ["测试"],
-      edges: []
+      conditions: "测试"
     });
     assert.ok(typeof saved.id === "string" && saved.id.length > 0);
     const found = run("recall", { terms: ["中文"] });
@@ -96,6 +95,23 @@ test("distributed Node CLI initializes and recalls an isolated memory", () => {
     const item = items[0];
     assert.ok(item !== null && typeof item === "object" && "id" in item);
     assert.equal(item.id, saved.id);
+    rmSync(
+      path.join(
+        installed,
+        "scripts",
+        "runtime",
+        "tools",
+        "agent-memory",
+        "src",
+        "schema.sql"
+      )
+    );
+    const secondDb = path.join(temp, "other.sqlite");
+    const broken = call("init", {}, secondDb);
+    assert.equal(broken.status, 1);
+    assert.equal(broken.stdout, "");
+    assert.match(broken.stderr, /cannot read schema\.sql/u);
+    assert.equal(existsSync(secondDb), false);
   } finally {
     rmSync(temp, { recursive: true, force: true });
   }

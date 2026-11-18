@@ -1,4 +1,4 @@
-import type { Head, Store } from "./store.ts";
+import type { Head, Premise, Store } from "./store.ts";
 
 type Visit =
   | { step: "enter"; id: string; expectedGeneration?: number }
@@ -8,7 +8,7 @@ type Visit =
 export class Composition {
   readonly #store: Store;
   readonly #heads = new Map<string, Head>();
-  readonly #premises = new Map<string, ReturnType<Store["premises"]>>();
+  readonly #premises = new Map<string, readonly Premise[]>();
   readonly #usable = new Set<string>();
 
   constructor(store: Store) {

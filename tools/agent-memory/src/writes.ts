@@ -130,11 +130,14 @@ function revise(store: Store, patch: ContentPatch): Mutation {
   const { pending, increment } = revisionTransition(head, patch);
   const state = pending ? "pending" : "active";
   const previous = store.edges(head.id, head.current_version);
-  const proposed = patch.edges ?? previous.map(asInputEdge);
-  const links = resolveLinks(store, new Composition(store), head.id, proposed, {
-    previous,
-    pending
-  });
+  // Omission preserves the versions actually used; it does not re-adopt them.
+  const links =
+    patch.edges == null
+      ? { edges: previous, retire: [] }
+      : resolveLinks(store, new Composition(store), head.id, patch.edges, {
+          previous,
+          pending
+        });
   const next = {
     id: head.id,
     version: head.current_version + 1,
@@ -149,15 +152,6 @@ function revise(store: Store, patch: ContentPatch): Mutation {
   return {
     result: { ...next, state },
     affected: [head.id, ...links.edges.map((edge) => edge.target)]
-  };
-}
-
-function asInputEdge(edge: StoredEdge): Edge {
-  return {
-    target: edge.target,
-    version: edge.target_version,
-    type: edge.type,
-    role: edge.role
   };
 }
 

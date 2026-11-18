@@ -37,6 +37,7 @@
 
 | 短命令 | 本仓库内用途 |
 | --- | --- |
+| `bun run agent-memory -- <arguments>` | 查询或维护宿主绑定的项目记忆库；身份、JSON 输入和写入授权见 [Agent Memory CLI](../skills/agent-memory/references/cli.md) |
 | `bun run novel-cards -- <arguments>` | 本地小说卡片检查、章节定位、版本与历史查询、索引同步及受控变迁维护；命令与运行边界由 [CLI 契约](../skills/novel-cards/references/local-cli.md) 承接 |
 | `bun run lightweight-judgment -- <command> [参数]` | 单次结构化判断、本地前置诊断、离线预览与调用统计；外发、配置与结果按 [CLI 操作契约](../skills/lightweight-judgment/references/cli.md) |
 | `bun run change-plan -- <arguments>` | 维护 change proposal、design、tasks 与生命周期 |
@@ -72,6 +73,7 @@ task-graph 短命令另外承担项目 root 选择。省略 `--root` 时，它�
 
 | 责任 | 行为测试 | 显式写入 | 只读检查 |
 | --- | --- | --- | --- |
+| Agent Memory | `test:agent-memory-cli` | `sync:agent-memory-cli` | `check:agent-memory-cli` |
 | Novel Cards | `test:novel-cards-cli` | `sync:novel-cards-cli` | `check:novel-cards-cli` |
 | Video Understanding | `test:video-understanding-cli` | `sync:video-understanding-cli` | `check:video-understanding-cli` |
 | Lightweight Judgment | `test:lightweight-judgment-cli` | `sync:lightweight-judgment-cli` | `check:lightweight-judgment-cli` |

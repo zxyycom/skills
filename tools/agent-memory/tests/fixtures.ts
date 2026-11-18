@@ -23,31 +23,14 @@ export async function fixture(t: TestContext) {
 
   async function call(
     action: string,
-    input: Data = {},
+    input: Data | string = {},
     target = root,
     database = db
   ): Promise<Response> {
-    const out: string[] = [];
-    const err: string[] = [];
-    // Calls within this Node test file are serial; only capture writes during one CLI call.
-    const stdout = t.mock.method(
-      process.stdout,
-      "write",
-      (chunk: string | Uint8Array) => {
-        out.push(chunk.toString());
-        return true;
-      }
-    );
-    const stderr = t.mock.method(
-      process.stderr,
-      "write",
-      (chunk: string | Uint8Array) => {
-        err.push(chunk.toString());
-        return true;
-      }
-    );
-    try {
-      const code = await runCli([
+    let stdout = "";
+    let stderr = "";
+    const code = await runCli(
+      [
         action,
         "--root",
         target,
@@ -55,19 +38,20 @@ export async function fixture(t: TestContext) {
         database,
         "--json",
         "--input",
-        JSON.stringify(input)
-      ]);
-      return { code, stdout: out.join(""), stderr: err.join("") };
-    } finally {
-      stderr.mock.restore();
-      stdout.mock.restore();
-    }
+        typeof input === "string" ? input : JSON.stringify(input)
+      ],
+      {
+        stdout: { write: (value) => (stdout += value) },
+        stderr: { write: (value) => (stderr += value) }
+      }
+    );
+    return { code, stdout, stderr };
   }
 
   success(await call("init"));
   async function ok(
     action: string,
-    input?: Data,
+    input?: Data | string,
     target?: string,
     database?: string
   ): Promise<Data> {
@@ -75,7 +59,7 @@ export async function fixture(t: TestContext) {
   }
   async function reject(
     action: string,
-    input?: Data,
+    input?: Data | string,
     target?: string,
     database?: string
   ): Promise<string> {

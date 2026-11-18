@@ -5,15 +5,16 @@
   "metadata": {},
   "sourceRevision": {
     "entries": {
-      "AGENT-MEMORY-ATOMIC-001": "sha256:9abdab2be467f945a19e8e77e1f83d100b0564bb51edea598225c6fca794f2ae",
-      "AGENT-MEMORY-BINDING-001": "sha256:6c78e095fadcbec07e9f612f583519189184cf3172bed4fdd73f8815c948b688",
+      "AGENT-MEMORY-ATOMIC-001": "sha256:c55cb75d3c791206793703682525ec2abb6e9c0a794830c02e353036c7c1b4a6",
+      "AGENT-MEMORY-BINDING-001": "sha256:42f1a796d5f33875c1a3d020deabf89a93fd08757dbde29d34b7baa666fe99e7",
       "AGENT-MEMORY-CONTROL-001": "sha256:cb2575f389c7b55c71df4e2968124d5a92d913dc98e94c841a22f0b771ae7f08",
-      "AGENT-MEMORY-DEPENDENCIES-001": "sha256:c6d650680d1738bb38fe8ddcc4d7cc6a8728601b89f22477a46059a4a8760631",
-      "AGENT-MEMORY-DISTRIBUTION-001": "sha256:17333f9d2db636b912ae3a0772fa4bf435fad780d2c1bc79b615f7bbebf7f2f5",
-      "AGENT-MEMORY-EVOLUTION-001": "sha256:bd69bdd113cef4a624e5ca80a65b7d5fb872be727aacb7bb5555a008e5fdb25f",
-      "AGENT-MEMORY-INPUT-001": "sha256:a991d4a877360b9edb07e5f72851b416db4dba4b929eb2dbfa1818001cc4b8cc",
+      "AGENT-MEMORY-DEPENDENCIES-001": "sha256:7fcb2967546eb2deba91a7302f05e93e2d50918e93c0aa57cf777d09267dda68",
+      "AGENT-MEMORY-DISTRIBUTION-001": "sha256:ecdc6ccc1505fe070dd6206fe75009bc92e2ae87cca4b48ac22eebf36b961116",
+      "AGENT-MEMORY-EVOLUTION-001": "sha256:3b0511fcc0f8248e7c23ab01feba93f5883dc8f20d68a3b3ad22f4261a86a4b5",
+      "AGENT-MEMORY-INPUT-001": "sha256:6d16a093329713dcd4d1b1f21e3cb34c9aefb9ccd8ac5eeb08b063af5fb8da49",
       "AGENT-MEMORY-INTENT-001": "sha256:e65ae13a641e6f5d166f9696070389f532be7425bdc8143a6758602c3ede7fa2",
       "AGENT-MEMORY-PURGE-001": "sha256:618a7254d0597e39b20367928b835b52ec2d651a2082a6e18e3a23fa2ed20436",
+      "AGENT-MEMORY-QUERY-INPUT-001": "sha256:838a82075aa56f2e396bec00a7589203219d29c6b9282979d183fdc10e14fb1d",
       "AGENT-MEMORY-RECALL-001": "sha256:9d95caa4f786a286f819b6ea93f12d05d934b22c0c7242e5d08ea7ee82176e31",
       "AUTO-PUSH-BRANCH-001": "sha256:20c898b6bd5abacce38e2b43f8287a85c3131309c90a0566ef8ff693e448598d",
       "AUTO-PUSH-CONCURRENCY-001": "sha256:f6bc44d8e72386226acdc7c029ddeb90a4fa9f7f9bb2df45fa221781ef61f92a",
@@ -1444,13 +1445,13 @@
   },
   "entries": {
     "AGENT-MEMORY-ATOMIC-001": {
-      "title": "请求重放和事务失败回滚",
+      "title": "写入重放与版本冲突",
       "sourcePath": "cases/agent-memory-atomic.md",
       "tags": [
         "agent-memory"
       ],
       "testIds": [
-        "test:6b7decdd0f1d6f230116ab922ce848a8333bdf080d6adcdd667150b074cf6ed2"
+        "test:452a101bfc8f33b5ec550bb1da4196e75d4162fe4820482dca910b7acf6fa006"
       ]
     },
     "AGENT-MEMORY-BINDING-001": {
@@ -1481,7 +1482,8 @@
         "agent-memory"
       ],
       "testIds": [
-        "test:2d182357ed2cf2c151f764db8f7267f2c44d3d1f0499140cbd320aca793ce4af"
+        "test:2d182357ed2cf2c151f764db8f7267f2c44d3d1f0499140cbd320aca793ce4af",
+        "test:b66410111ba29e8a8f9a956db5a72bf213187efe5a3446596dfdb2c8a18743ce"
       ]
     },
     "AGENT-MEMORY-DISTRIBUTION-001": {
@@ -1505,13 +1507,14 @@
       ]
     },
     "AGENT-MEMORY-INPUT-001": {
-      "title": "拒绝写入中的未知字段",
+      "title": "拒绝无效写入字段",
       "sourcePath": "cases/agent-memory-input.md",
       "tags": [
         "agent-memory"
       ],
       "testIds": [
         "test:524abfba00d353b850f705fd2e146d6f12aec710f8cf2dcdd2097217c544fca4",
+        "test:78bd4e9c85b12f95a4833151450227224835905bf3b007a3facac6c4f8aec502",
         "test:cda24fbaff57537df2ee711ddab30ecfb5ee4198132d83deafdba1258076c9f2"
       ]
     },
@@ -1534,6 +1537,16 @@
       "testIds": [
         "test:6e761ae69b2888303ebcbba7f9b3ccfd02df3e6fe48f8c2bab0eddddae647d6b",
         "test:c22d02cf82705d94d386bedbf061e53fc62600acca683c57a6bcd2080d4291d9"
+      ]
+    },
+    "AGENT-MEMORY-QUERY-INPUT-001": {
+      "title": "查询输入错误不是查询结果",
+      "sourcePath": "cases/agent-memory-query-input.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:1bacafd8afc7f6081fd8334ecb49a33a062024d409b4287d11155367fac3b303"
       ]
     },
     "AGENT-MEMORY-RECALL-001": {
