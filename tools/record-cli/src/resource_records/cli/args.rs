@@ -1,13 +1,18 @@
 use std::collections::HashSet;
 
+#[derive(Clone, Copy)]
+pub(super) enum ListView {
+    Brief,
+    Tree,
+}
+
 #[derive(Default)]
 pub(super) struct Args {
     pub(super) command: String,
     pub(super) root: Option<String>,
     pub(super) dir: Option<String>,
     pub(super) json: bool,
-    pub(super) brief: bool,
-    pub(super) tree: bool,
+    pub(super) view: Option<ListView>,
     pub(super) positionals: Vec<String>,
     pub(super) collection: Option<String>,
     pub(super) descendants: bool,
@@ -26,33 +31,55 @@ pub(super) struct Args {
     pub(super) edges: Option<usize>,
 }
 pub(super) const HELP: &str = "resource-records <list|show|search|trace|check|sync-index> [options]\n  --root <path> --resources-dir <path> --json\n  list: --collection <id> --descendants --kind <collection|resource> --tag <tag> --slot <slot> --offset <n> --limit <n> [--brief|--tree]\n  show: <id> [--version <id>] [--member <id>]\n  search: <text> [--metadata] [--offset <n>] [--limit <n>]\n  trace: <id> [--version <id>] [--member <id>] [--type <type>] [--direction <upstream|downstream>] [--depth <n>] [--max-nodes <n>] [--max-edges <n>]";
-pub(super) fn parse_args(args: Vec<String>) -> Result<Args, String> {
+pub(super) struct ParseError {
+    pub(super) message: String,
+    pub(super) command: String,
+    pub(super) json: bool,
+}
+
+pub(super) fn parse_args(args: Vec<String>) -> Result<Args, ParseError> {
     let mut a = Args::default();
     let mut seen = HashSet::new();
     let mut it = args.into_iter();
     let mut positional_only = false;
+    let mut command_seen = false;
+    let mut first_error = None;
     while let Some(x) = it.next() {
         if !positional_only && x == "--" {
             positional_only = true;
             continue;
         }
         if positional_only {
-            if a.command.is_empty() {
+            if !command_seen {
                 a.command = x;
+                command_seen = true;
             } else {
                 a.positionals.push(x);
             }
             continue;
         }
-        consume_argument(&mut a, &mut seen, &mut it, x)?;
+        if let Err(error) = consume_argument(&mut a, &mut seen, &mut it, &mut command_seen, x) {
+            first_error.get_or_insert(error);
+        }
     }
-    validate_args(&a, &seen)?;
-    Ok(a)
+    let error = first_error.or_else(|| validate_args(&a, &seen).err());
+    match error {
+        Some(message) => Err(ParseError {
+            message,
+            command: if is_command(&a.command) {
+                a.command
+            } else {
+                String::new()
+            },
+            json: a.json,
+        }),
+        None => Ok(a),
+    }
 }
 
 fn validate_args(a: &Args, seen: &HashSet<String>) -> Result<(), String> {
     validate_shape(a)?;
-    if a.brief && a.tree {
+    if seen.contains("--brief") && seen.contains("--tree") {
         return Err("--brief and --tree are mutually exclusive".into());
     }
     validate_options(a, seen)?;
@@ -105,12 +132,10 @@ fn consume_argument(
     a: &mut Args,
     seen: &mut HashSet<String>,
     it: &mut impl Iterator<Item = String>,
+    command_seen: &mut bool,
     x: String,
 ) -> Result<(), String> {
-    check_duplicate(seen, &x)?;
-    if set_flag(a, &x) {
-        return Ok(());
-    }
+    let duplicate = check_duplicate(seen, &x);
     const VALUE_OPTIONS: &[&str] = &[
         "--root",
         "--resources-dir",
@@ -128,26 +153,36 @@ fn consume_argument(
         "--max-nodes",
         "--max-edges",
     ];
-    if VALUE_OPTIONS.contains(&x.as_str()) {
-        let v = it.next().ok_or_else(|| format!("{x} requires a value"))?;
-        return set_value(a, &x, v);
-    }
-    if x.starts_with('-') {
-        return Err(format!("unknown option {x}"));
-    }
-    if a.command.is_empty() {
-        a.command = x;
+    let result = if set_flag(a, &x) {
+        Ok(())
+    } else if VALUE_OPTIONS.contains(&x.as_str()) {
+        match it.next() {
+            Some(v) => set_value(a, &x, v),
+            None => Err(format!("{x} requires a value")),
+        }
+    } else if x.starts_with('-') {
+        Err(format!("unknown option {x}"))
     } else {
-        a.positionals.push(x);
-    }
-    Ok(())
+        if !*command_seen {
+            a.command = x;
+            *command_seen = true;
+        } else {
+            a.positionals.push(x);
+        }
+        Ok(())
+    };
+    duplicate.and(result)
+}
+
+fn is_command(command: &str) -> bool {
+    matches!(
+        command,
+        "list" | "show" | "search" | "trace" | "check" | "sync-index"
+    )
 }
 
 fn validate_shape(a: &Args) -> Result<(), String> {
-    if !matches!(
-        a.command.as_str(),
-        "list" | "show" | "search" | "trace" | "check" | "sync-index"
-    ) {
+    if !is_command(&a.command) {
         return Err("unknown or missing command".into());
     }
     let count = if matches!(a.command.as_str(), "show" | "search" | "trace") {
@@ -216,8 +251,7 @@ fn validate_limits(a: &Args) -> Result<(), String> {
 }
 
 fn has_list_options(a: &Args) -> bool {
-    a.brief
-        || a.tree
+    a.view.is_some()
         || a.collection.is_some()
         || a.descendants
         || a.kind.is_some()
@@ -235,8 +269,8 @@ fn has_trace_options(a: &Args) -> bool {
 fn set_flag(a: &mut Args, name: &str) -> bool {
     match name {
         "--json" => a.json = true,
-        "--brief" => a.brief = true,
-        "--tree" => a.tree = true,
+        "--brief" => a.view = Some(ListView::Brief),
+        "--tree" => a.view = Some(ListView::Tree),
         "--descendants" => a.descendants = true,
         "--metadata" => a.metadata = true,
         _ => return false,

@@ -1,5 +1,5 @@
 use super::super::model::{Entry, Index, Record};
-use super::args::Args;
+use super::args::{Args, ListView};
 use std::collections::{HashMap, HashSet};
 use std::fmt::Write;
 
@@ -77,13 +77,19 @@ fn tree_row(out: &mut String, record: &Record, path: &[&Record], previous: &[&st
     );
 }
 
-pub(super) fn list(records: &[&Entry], idx: &Index, total: usize, args: &Args) -> String {
+pub(super) fn list(
+    records: &[&Entry],
+    idx: &Index,
+    total: usize,
+    args: &Args,
+    view: ListView,
+) -> String {
     let mut out = format!(
         "total={total} offset={} limit={} freshness=unchecked\n",
         args.offset,
         args.limit.unwrap_or(50)
     );
-    if args.tree {
+    if matches!(view, ListView::Tree) {
         let collections: HashMap<_, _> = idx
             .records
             .iter()

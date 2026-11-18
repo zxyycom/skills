@@ -87,21 +87,48 @@ test("resource schemas enforce record and index structure", () => {
     collection: "root",
     versions: [{ id: "v1", files: [file], members: [] }]
   };
+  const entry = { kind: "document", path: "notes/guide.md" };
+  const logical = { id: "v2", files: [], members: [], entries: [entry] };
+  const withLogicalVersion = (version: unknown) => ({
+    ...resource,
+    versions: [...resource.versions, version]
+  });
+  const resourceIndex = (record: unknown) => ({
+    schemaVersion: 1,
+    records: [
+      {
+        sourcePath: "resources/records/item.md",
+        sourceRevision: `sha256:${"a".repeat(64)}`,
+        record
+      }
+    ]
+  });
   assert.equal(record(collection), true, JSON.stringify(record.errors));
-  assert.equal(record(resource), true, JSON.stringify(record.errors));
+  const mixedVersions = withLogicalVersion(logical);
+  assert.equal(record(mixedVersions), true, JSON.stringify(record.errors));
   assert.equal(
-    index({
-      schemaVersion: 1,
-      records: [
-        {
-          sourcePath: "resources/records/item.md",
-          sourceRevision: `sha256:${"a".repeat(64)}`,
-          record: resource
-        }
-      ]
-    }),
+    index(resourceIndex(mixedVersions)),
     true,
     JSON.stringify(index.errors)
+  );
+  const member = {
+    id: "frame",
+    role: "first",
+    target: { resource: "item", version: "v1", member: "main" }
+  };
+  for (const invalid of [
+    { ...logical, entries: [] },
+    { ...logical, entries: [{ ...entry, path: "notes/../guide.md" }] },
+    { ...logical, files: [file] },
+    { ...logical, members: [member] }
+  ]) {
+    const input = withLogicalVersion(invalid);
+    assert.equal(record(input), false, JSON.stringify(invalid));
+  }
+  // The index validator must apply the record schema, not just accept an opaque object.
+  assert.equal(
+    index(resourceIndex(withLogicalVersion({ ...logical, members: [member] }))),
+    false
   );
   for (const invalid of [
     { ...resource, versions: [] },

@@ -9,8 +9,10 @@ Tags:
 - `resource-records`
 
 Contract:
-- CLI 区分 JSON 与普通输出通道、参数错误与记录错误；非法记录不生成索引。
+- CLI 区分 JSON 与普通输出通道、参数错误与记录错误；解析后的选项和命令决定错误通道与 envelope.command；非法记录不生成索引。
 
 Proves:
-- 真实进程检查帮助、stderr 和退出码、JSON 错误 envelope，并拒绝缺字段、非法角色、重复 YAML 键及多目标。
-- `list` 同时指定两种视图，或在 `show` 指定任一视图，均返回退出码 2 和对应的参数错误原因。
+- 真实进程核对帮助、stderr 和退出码、JSON 错误 envelope；列表帮助包含两种视图，非法记录拒绝缺字段、非法角色、重复 YAML 键及多目标。
+- list 同时指定两种视图、或 show 指定任一视图时，返回退出码 2 和对应参数错误原因。
+- 原样传入 list --collection --json --brief --tree：--json 是集合值，冲突退出 2，stdout 为空、诊断在 stderr。
+- 原样传入 --root show list --json --brief --tree：show 是根路径值，冲突退出 2，stdout 的 envelope.command 为 list、stderr 为空。

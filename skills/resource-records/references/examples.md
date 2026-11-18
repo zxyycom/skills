@@ -98,7 +98,14 @@ versions:
 
 ## 查询示例
 
-将以上三段分别保存为隔离工作区 `resources/records/` 下的 Markdown，已授权维护时先用该工作区执行 `sync-index`、`check`。以下 `resource-records` 代表安装包中实际可执行文件；不在 PATH 时替换为其路径。`--root .` 表示当前目录是示例工作区；可换成工作区绝对路径。
+将以上三段分别保存为隔离工作区 `resources/records/` 下的 Markdown。以下 `resource-records` 代表安装包中实际可执行文件，Windows 使用 `resource-records.exe`；不在 PATH 时替换为其路径。`--root .` 表示当前目录是示例工作区；可换成工作区绝对路径。获准维护示例工作区后，先建索引并检查：
+
+```sh
+resource-records sync-index --root .
+resource-records check --root .
+```
+
+再查询：
 
 ```sh
 resource-records list --slot appearance --root .
@@ -109,9 +116,10 @@ resource-records show demo-image --version v2 --member main --root .
 resource-records trace demo-image --version v2 --type version-parent --direction upstream --depth 2 --max-nodes 20 --max-edges 20 --root .
 resource-records trace demo-image --version v2 --member main --type input --direction upstream --depth 2 --max-nodes 20 --max-edges 20 --root .
 resource-records trace demo-pack --version v1 --member main-view --type member --direction upstream --depth 2 --max-nodes 20 --max-edges 20 --root .
+resource-records trace demo-image --version v1 --member main --type selection --direction downstream --root .
 ```
 
-slot 查询返回声明该 slot 的集合及索引中的选择快照；两种视图用于浏览，`show` 回读当前源记录并核对新鲜度；三条 `trace` 分别追踪版本沿革、文件输入和图包别名。检查 `truncated`、`unexpandedTerminals`、证据及 `freshness`，不要把有限结果当全图。
+slot 查询返回声明该 slot 的集合及索引中的选择快照；两种视图用于浏览，`show` 回读当前源记录并核对新鲜度。前面三条 `trace` 分别追踪版本沿革、文件输入和图包别名；最后一条从精确文件反查直接选择它的集合。检查 `truncated`、`unexpandedTerminals`、证据及 `freshness`，不要把有限结果当全图；找到集合后以 `show` 回读其当前选择。
 
 ## 逻辑入口示例
 
@@ -140,6 +148,7 @@ versions:
 
 ```sh
 resource-records search demo-batch --metadata --root .
+resource-records search projects/demo/experiment --metadata --root .
 resource-records show demo-batch --version v1 --root .
 resource-records list --collection demo-form --descendants --tree --root .
 resource-records list --slot appearance --root .
@@ -147,4 +156,4 @@ resource-records show demo-form --root .
 resource-records show demo-image --version v1 --member main --root .
 ```
 
-批次的 `entries` 指向可变入口；集合的 `appearance` 选择指向 `demo-image@v1#main`。树中 `[match depth=...]` 是命中，`[context depth=...]` 仅为祖先；索引查询的 `freshness: unchecked` 不证明源记录新鲜，分别以 `show` 核对。目录新增过程文件不必改卡，也不使已有精确文件选择漂移。
+路径搜索匹配记录中登记的入口路径，不搜索目录或文档内容。批次的 `entries` 指向可变入口；集合的 `appearance` 选择指向 `demo-image@v1#main`。树中 `[match depth=...]` 是命中，`[context depth=...]` 仅为祖先；索引查询的 `freshness: unchecked` 不证明源记录新鲜，分别以 `show` 核对。目录新增过程文件不必改卡，也不使已有精确文件选择漂移。

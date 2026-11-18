@@ -2,13 +2,15 @@
 
 ## 程序与工作区
 
-安装包中的程序为本 skill 目录的 `bin/resource-records`，Windows 使用 `bin/resource-records.exe`；先运行实际程序的 `--help`。二进制名 `resource-records`。工作区默认当前目录，`--root <path>` 指定工作区；`--resources-dir <relative-path>` 默认 `resources`。仅 `records/` 直接普通 Markdown 文件及 `resource-index.json` 在读取范围内，拒绝越界及符号链接。所有命令支持 `--json`；单独的 `--help`、`<command> --help` 和 `help <command>` 显示同一份总览。`--` 结束选项解析，之后的值作为位置参数，例如 `show -- -Base` 或 `search -- --help`。精确参数和结果见下文。
+- **调用程序：**运行安装包的 `bin/resource-records`（Windows 为 `bin/resource-records.exe`）。`--help`、`<command> --help` 和 `help <command>` 显示同一份总览。
+- **选择数据：**`--root <path>` 默认当前工作目录；`--resources-dir <relative-path>` 相对工作区，默认 `resources`。CLI 读取该目录下的 `resource-index.json` 和 `records/` 的直接普通 Markdown 文件，拒绝越界和符号链接。
+- **传递参数：**所有命令支持 `--json`。取值选项的下一个参数是它的值，即使字面为 `--json` 或命令名。单独的 `--` 结束选项解析，例如 `show -- -Base` 或 `search -- --help`。
 
 ## 查询与维护命令
 
 - `list [--collection <id>] [--descendants] [--kind <collection|resource>] [--tag <tag> ...] [--slot <slot>] [--offset <n>] [--limit <n>] [--brief|--tree]`：按索引组合筛选，标签精确 AND；按 ID 稳定排序，返回 total 和窗口。
 - `show <id> [--version <id>] [--member <id>]`：索引定位、读取当前文件并核对该记录来源指纹。member 必须与 version 一同指定。
-- `search <text> [--metadata] [--offset <n>] [--limit <n>]`：默认扫描当前正文，metadata 查询索引；字面量匹配，正文支持跨行查询，返回命中字段或位置、实际覆盖；跨行命中的 text 为匹配文本，line 为起始行。
+- `search <text> [--metadata] [--offset <n>] [--limit <n>]`：默认扫描当前记录正文；metadata 查询索引中记录的字符串值，包括标题、标签、入口路径与文件位置，而非字段名。均为区分大小写的字面量匹配，不读取入口指向的内容；正文支持跨行查询，返回命中字段或位置、实际覆盖；跨行命中的 text 为匹配文本，line 为起始行。
 - `trace <id> [--version <id>] [--member <id>] [--type <type> ...] [--direction <upstream|downstream>] [--depth <n>] [--max-nodes <n>] [--max-edges <n>]`：默认上游直接来源，深度 1、节点 100、边 200；所有上限为正整数。返回终点、截断与证据。
 - `check`：核对全部源记录、引用、分类型图和索引；缺失或陈旧索引是可通过 sync-index 修复的错误。
 - `sync-index`：校验源记录并生成索引；事务及失败恢复见下文。
@@ -34,7 +36,14 @@
 
 分页默认为 offset 0、limit 50。查询索引标记 `freshness: unchecked`；show 对所选记录标记 `current` 或 `stale`；正文搜索标明当前文件来源。
 
-`--brief` 和 `--tree` 互斥，输出文本视图；省略时保留原有完整 JSON 输出，指定 `--json` 时即使带视图选项也返回完整机器 envelope。两种视图先使用相同筛选、ID 排序及分页窗口，头部显示 total、offset、limit 和 freshness；`--brief` 的 `[match]` 和 `--tree` 的 `[match depth=...]` 是窗口内命中，含 ID、标题和归属定位；tree 的 depth 是从根集合起的层级深度，根为 0。`--tree` 额外显示 `[context depth=...]` 祖先集合，可能跨页或在不相邻分支重复；context 不计入命中、total 或分页，同一集合既可作为命中也可作为其他行的上下文。集合有父集合时显示 `parent=...`，根集合不显示 parent；资源显示 `collection=...`。树只表达集合归属，不表达文件层次或制作依赖。用 `show` 回读当前源记录。
+`list` 默认输出完整结果。`--brief` 和 `--tree` 是互斥的文本视图；与任一视图一起传 `--json` 时仍输出完整机器 envelope。各视图共用筛选、ID 顺序和分页窗口；文本头部列出 `total`、`offset`、`limit` 和 `freshness`。
+
+| 行标记 | 如何读取 |
+| --- | --- |
+| `[match]`（摘要）或 `[match depth=…]`（树） | 本页命中，显示 ID、标题与归属。资源显示 `collection`；子集合显示 `parent`，根集合省略此字段。可按 ID 用 `show` 回读当前源记录。 |
+| `[context depth=…]`（树） | 为解释命中而显示的祖先集合，不计入 `total` 或分页。上下文可在不同页或不相邻分支重复；同一集合也可能另有一行作为命中。 |
+
+深度从根集合的 0 开始。树表示集合归属；文件位置查 `show`，制作关系查 `trace`。
 
 ## 机器协议
 

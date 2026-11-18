@@ -20,6 +20,12 @@ fn run(root: &Path, args: &[&str]) -> (Output, Value) {
     });
     (o, v)
 }
+fn successful_result(root: &Path, args: &[&str]) -> Value {
+    let (output, mut envelope) = run(root, args);
+    assert!(output.status.success(), "{args:?}: {envelope}");
+    assert_eq!(envelope["ok"], true, "{args:?}: {envelope}");
+    envelope["result"].take()
+}
 fn assert_error(root: &Path, args: &[&str], code: i32, fragments: &[&str]) {
     let (output, envelope) = run(root, args);
     assert_eq!(output.status.code(), Some(code), "{args:?}: {envelope}");
@@ -32,9 +38,13 @@ fn assert_error(root: &Path, args: &[&str], code: i32, fragments: &[&str]) {
         );
     }
 }
-fn fixture() -> tempfile::TempDir {
+fn empty_fixture() -> tempfile::TempDir {
     let d = tempfile::tempdir().unwrap();
     fs::create_dir_all(d.path().join("resources/records")).unwrap();
+    d
+}
+fn fixture() -> tempfile::TempDir {
+    let d = empty_fixture();
     write(
         d.path(),
         "collection",
