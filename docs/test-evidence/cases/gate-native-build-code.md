@@ -8,8 +8,10 @@ Tags:
 
 Contract:
 - duplicate-detection、file-metrics 与 function-metrics 的文件选择共同覆盖 scripts/build 维护源码及其普通子目录；该例外不能取消原生依赖、VCS、日志、缓存和产物排除，也不能扩展到近邻前缀目录。
+- 仅重复检测排除冻结消费者的历史源码；其他 fixture 仍须参与重复比较。
 
 Proves:
 - 从真实三项 Check 读取文件策略，经 collectProjectFiles 扫描私有真实文件树；重复检测和文件指标恰好选中独立列出的产品、自动化及测试源码，函数指标三角色分别选中自身路径。
 - 正样本包含 scripts/build 直接源码、测试及 nested/src 下源码；负样本包含 root 与 scripts/build 下的默认排除目录、generated 文件、技能副本、历史资源、受管本地记录运行时和再次嵌套 build。
+- 相同相对路径的 bundle.ts 分别置于固定历史快照与相邻 fixture，仅前者不出现在重复检测输入；两者仍进入文件指标和测试角色函数指标。
 - scripts-copy/build、scripts2/build、scripts/building/build、scripts/building/deep/build、scripts/buildish/build 与 scripts/builds/build 不因 micromatch 前缀语义而获得源码例外。

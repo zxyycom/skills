@@ -92,11 +92,15 @@ test("all three native code selections include build source while excluding depe
     const tests = [
       "scripts/build/source.test.ts",
       "scripts/build/nested/source.test.ts",
-      "tools/alpha/tests/source.test.ts"
+      "tools/alpha/tests/source.test.ts",
+      "tools/skill-updater/tests/fixtures/current/tools/skill-updater/src/native/bundle.ts"
     ];
+    const frozen =
+      "tools/skill-updater/tests/fixtures/frozen-native-consumer-925de860/tools/skill-updater/src/native/bundle.ts";
     const expected = [...product, ...automation, ...tests].toSorted();
     await writeSelectionFiles(directory, [
       ...expected,
+      frozen,
       ...excludedMaterialDirectories.map((folder) => `${folder}/output.ts`),
       "scripts/build/source.generated.ts",
       "skills/alpha/scripts/runtime/copied.ts",
@@ -110,12 +114,14 @@ test("all three native code selections include build source while excluding depe
     );
     for (const id of ["duplicate-detection", "file-metrics"]) {
       const area = codeAreaOptions(optionsById, id, "maintained");
-      assert.deepEqual(selectedFiles(directory, area.files), expected, id);
+      const files =
+        id === "file-metrics" ? [...expected, frozen].toSorted() : expected;
+      assert.deepEqual(selectedFiles(directory, area.files), files, id);
     }
     for (const [role, paths] of Object.entries({
       product,
       automation,
-      tests
+      tests: [...tests, frozen]
     })) {
       const area = codeAreaOptions(optionsById, "function-metrics", role);
       assert.deepEqual(

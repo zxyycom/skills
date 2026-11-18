@@ -41,7 +41,7 @@ Gate 最多并行 4 项，外部进程容量为 3、仓库扫描容量为 2；re
 
 | 检查 | 当前范围与结算 |
 | --- | --- |
-| 重复检测 | 保持 `repository-code` 订阅与完整维护代码范围，不因显式选择任意代码领域自动启动或裁剪，保留跨领域比较责任；不少于 150 tokens 的重复片段形成 blocking finding。原生 fragments cache 位于 `.log/vibe-check/cache/duplicate-fragments/`，本次仍按当前配置结算。 |
+| 重复检测 | 保持 `repository-code` 订阅与完整维护代码范围，不因显式选择任意代码领域自动启动或裁剪，保留跨领域比较责任；不少于 150 tokens 的重复片段形成 blocking finding。`tools/skill-updater/tests/fixtures/frozen-native-consumer-925de860/tools/` 是为兼容性测试逐字保留的历史消费者，不参与重复比较；当前消费者、测试及其他 fixture 仍参与。原生 fragments cache 位于 `.log/vibe-check/cache/duplicate-fragments/`，本次仍按当前配置结算。 |
 | 密钥检测 | 维护文本型扩展名、Git 属性/忽略文件与 hooks；8,192 文件、单文件 1 MiB、64 MiB 总量上限，高置信 PEM private-key finding、coverage gap 或 unavailable 阻断。 |
 | JSON / Schema | JSON 检查维护材料；Schema 显式选择 Task Graph/Test Evidence 的两项 schema 和两项 binding，以配置为 schema 身份，使用 offline registry/catalog。 |
 | Markdown 链接 | 当前维护材料的直接 target、anchor、目录和 symlink 由本次验证承担；root-external 使用 report 边界。有限预算覆盖完整维护范围：单文件 1 MiB、10,000 个语义 occurrence、4,096 次直接端点逻辑校验（含 memo 命中，不是唯一 target 数）。parse-facts cache 位于 `.log/vibe-check/cache/markdown-parse-facts/`，命中仍重新验证目标并结算。 |
