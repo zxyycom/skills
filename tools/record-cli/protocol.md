@@ -1,6 +1,6 @@
 # Record CLI 机器协议
 
-本文供调用者和维护者理解两个原生 CLI 的 JSON、结果和恢复边界。领域行为及授权仍以 [Decision Records CLI](../../skills/decision-records/references/cli-operations.md)、[Investigation Report CLI](../../skills/investigation-report/references/cli-operations.md) 和[共同操作模型](../record-operations/model.md)为准；参数、默认值及命令的域差异用各二进制 `help <command>` 查询。构建与验证从 [README](README.md) 进入。本页描述 version 2 接口；平台及行为验收以实际测试证据为准。
+本文供调用者和维护者理解 Decision Records 与 Investigation Report 的 JSON、结果和恢复边界。Resource Records 使用独立协议，见其 [CLI 契约](../../skills/resource-records/references/cli-operations.md)；本页 version 2 envelope 和 trace 特例不推定适用于资源领域。领域行为及授权仍以 [Decision Records CLI](../../skills/decision-records/references/cli-operations.md)、[Investigation Report CLI](../../skills/investigation-report/references/cli-operations.md) 和[共同操作模型](../record-operations/model.md)为准；参数、默认值及命令的域差异用各二进制 `help <command>` 查询。构建与验证从 [README](README.md) 进入。本页描述 version 2 接口；平台及行为验收以实际测试证据为准。
 
 ## 通道与 envelope
 

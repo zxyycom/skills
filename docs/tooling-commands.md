@@ -46,6 +46,8 @@
 | `bun run test-evidence -- <arguments>` | 校验、同步和查询显式测试证据 case |
 | `bun run validate-skill -- <skill-directory>` | 校验单个 skill 的可移植结构 |
 
+资源记录可按 [Record CLI](../tools/record-cli/README.md#构建与调用)构建后直接调用 `resource-records`；构建、安装和平台验收分别核对。
+
 项目内 agent、维护说明和日常人工操作使用上表入口。Decision Records 和 Investigation Report 经 Node 轻量调度器调用已准备的原生程序；先运行 `bun run prepare:record-native`，可用 `bun run prepare:record-native -- --check` 核对。其他入口除 task-graph 外委托对应 `skills/*/scripts/` 生成 CLI；参数、输出、退出状态和事务逻辑仍由该领域 CLI 定义。只有以下场景直接调用 `tools/` 源码或 `skills/*/scripts/` 完整路径：
 
 1. 验证工具源码与生成制品的一致性。

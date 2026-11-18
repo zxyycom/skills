@@ -199,6 +199,21 @@ test("semantic Gate catalog matches its aggregate native entry points", async ()
   }
 });
 
+test("record native runtime check registers every package script test", async () => {
+  const packageJson = JSON.parse(
+    await fs.readFile(path.join(repositoryRoot, "package.json"), "utf8")
+  ) as { scripts: Record<string, string> };
+  const script = packageJson.scripts["test:record-native-runtime"];
+  const check = semanticGateChecks.find(
+    ({ checkId }) => checkId === "test:record-rust:runtime"
+  );
+  assert.ok(check);
+  assert.deepEqual(
+    [check.command.command, ...check.command.args],
+    script.split(/\s+/u)
+  );
+});
+
 test("semantic commands retain native store, version-control and retired performance entry policies", async () => {
   assert.deepEqual(
     semanticGateChecks

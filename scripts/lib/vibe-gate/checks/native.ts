@@ -143,7 +143,13 @@ export function createVibeNativeChecks(
       },
       codeAreas: {
         maintained: {
-          files: maintainedCodeFiles,
+          files: {
+            ...maintainedCodeFiles,
+            patterns: [
+              ...maintainedCodeFiles.patterns,
+              "!tools/skill-updater/tests/fixtures/frozen-native-consumer-925de860/tools/**"
+            ]
+          },
           findingPolicy: "blocking",
           minimumTokens: 150
         }

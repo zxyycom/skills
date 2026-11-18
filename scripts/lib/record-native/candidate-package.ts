@@ -8,8 +8,9 @@ import * as v from "valibot";
 import { assertNativeRelativePaths } from "../../../tools/skill-package/src/native-paths.ts";
 import {
   nativeRoles,
+  nativeSchemaFiles,
   nativeTargets,
-  parseNativeReleasePair,
+  parseNativeReleaseSet,
   verifyNativeAsset,
   type NativeRole
 } from "../../../tools/skill-package/src/native-release-manifest.ts";
@@ -25,7 +26,7 @@ type Archive = Readonly<{ asset: Asset; bytes: Buffer }>;
 export type CandidatePackageInputs = Readonly<{
   snapshot: NativeCandidateSnapshot;
   runtimeVersion: string;
-  schemas: Readonly<Record<NativeRole, Buffer>>;
+  schemas: Readonly<Record<NativeRole, readonly Buffer[]>>;
   bootstrap: Readonly<{ files: readonly SkillPackageFile[]; entry: string }>;
 }>;
 
@@ -70,19 +71,21 @@ function prepareRole(
   required(files, "scripts/update-skill.ts");
   required(files, "package.json");
   required(files, "pnpm-lock.yaml");
-  const schema =
-    role === "decision-records"
-      ? "decision-index.schema.json"
-      : "investigation-index.schema.json";
-  const frozenSchema = required(
-    snapshot.delivery,
-    `tools/record-contracts/schemas/${schema}`
-  );
-  if (
-    !frozenSchema.equals(input.schemas[role]) ||
-    !required(files, `references/${schema}`).equals(frozenSchema)
-  )
-    throw new Error(`candidate schema differs from frozen source: ${role}`);
+  if (input.schemas[role].length !== nativeSchemaFiles[role].length)
+    throw new Error(`candidate schema count mismatch: ${role}`);
+  for (const [index, schema] of nativeSchemaFiles[role].entries()) {
+    const frozenSchema = required(
+      snapshot.delivery,
+      `tools/record-contracts/schemas/${schema}`
+    );
+    if (
+      !frozenSchema.equals(input.schemas[role][index]) ||
+      !required(files, `references/${schema}`).equals(frozenSchema)
+    )
+      throw new Error(
+        `candidate schema differs from frozen source: ${role}/${schema}`
+      );
+  }
   if (
     files.some(
       (file) =>
@@ -214,7 +217,7 @@ export function verifyCandidatePackageManifest(
     >
   >
 ): void {
-  const releases = parseNativeReleasePair(rawManifest);
+  const releases = parseNativeReleaseSet(rawManifest);
   for (const role of nativeRoles) {
     const release = releases[role];
     if (

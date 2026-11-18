@@ -5,9 +5,9 @@ import { preparedRuntime, roles } from "./lib/record-native/runtime.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const role = process.argv[2];
-if (role !== roles[0] && role !== roles[1]) {
+if (role !== roles[0] && role !== roles[1] && role !== roles[2]) {
   process.stderr.write(
-    "usage: record-native-cli.ts <decision-records|investigation-report> [args...]\n"
+    "usage: record-native-cli.ts <decision-records|investigation-report|resource-records> [args...]\n"
   );
   process.exitCode = 1;
 } else {

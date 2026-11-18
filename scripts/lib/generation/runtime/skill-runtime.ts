@@ -50,6 +50,7 @@ const domainAdapters: Readonly<Record<string, string>> = {
   "change-plan": "change-plan",
   "decision-records": "decision-records",
   "investigation-report": "investigation-report",
+  "resource-records": "resource-records",
   "test-evidence-review": "test-evidence",
   "task-graph": "task-graph",
   "skill-maintainer": "skill-validator",

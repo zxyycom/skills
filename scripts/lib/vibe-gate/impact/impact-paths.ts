@@ -80,6 +80,7 @@ export function isKnownGateInput(relativePath: string): boolean {
       "change-plan",
       "decision-records",
       "investigation-report",
+      "resource-records",
       "task-graph",
       "test-evidence",
       "novel-cards",

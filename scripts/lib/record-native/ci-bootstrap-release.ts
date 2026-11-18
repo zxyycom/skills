@@ -1,4 +1,4 @@
-import { parseNativeReleasePair } from "../../../tools/skill-package/src/native-release-manifest.ts";
+import { parseNativeReleaseSet } from "../../../tools/skill-package/src/native-release-manifest.ts";
 import fs from "node:fs/promises";
 import path from "node:path";
 import * as v from "valibot";
@@ -49,7 +49,7 @@ function validateReport(
     report.target !== target ||
     report.runtimeVersion !== version ||
     report.sourceHash !== sourceHash ||
-    report.assets.length !== 2
+    report.assets.length !== nativeRoles.length
   )
     throw new Error(`invalid platform build evidence: ${target}`);
   if (
@@ -163,7 +163,7 @@ export async function versions(
     ])
   );
   const manifest = { schemaVersion: 1, skills };
-  const releases = parseNativeReleasePair(manifest);
+  const releases = parseNativeReleaseSet(manifest);
   for (const role of nativeRoles)
     for (const target of nativeTargets)
       prepareNativeBundle({

@@ -57,7 +57,7 @@ function cli(name: string, args: string[], expected = 0) {
     "version" in value && "ok" in value,
     `Invalid response from ${name}: ${out}`
   );
-  assert.equal(value.version, 2);
+  assert.equal(value.version, name === "resource-records" ? 1 : 2);
   assert.equal(value.ok, expected === 0, JSON.stringify(value));
   if (expected !== 0) {
     assert.ok(
@@ -74,10 +74,22 @@ function cli(name: string, args: string[], expected = 0) {
 }
 const git = (...args: string[]) => run("git", args);
 try {
-  for (const name of ["decision-records", "investigation-report"]) {
+  for (const name of [
+    "decision-records",
+    "investigation-report",
+    "resource-records"
+  ]) {
     assert.equal(run(binary(name), ["--version"]).trim(), `${name} ${version}`);
-    assert.match(run(binary(name), ["--help"]), /Usage:/);
+    assert.match(
+      run(binary(name), ["--help"]),
+      name === "resource-records" ? /resource-records <list/ : /Usage:/
+    );
   }
+  fs.mkdirSync(path.join(root, "resources", "records"), { recursive: true });
+  cli("resource-records", ["sync-index"]);
+  cli("resource-records", ["check"]);
+  cli("resource-records", ["list"]);
+  cli("resource-records", ["show", "missing"], 1);
   const created = cli("decision-records", [
     "new",
     "sample",

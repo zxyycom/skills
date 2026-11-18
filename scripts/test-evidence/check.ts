@@ -13,6 +13,12 @@ import {
   type RepositoryTestSnapshot
 } from "./snapshot/snapshot.ts";
 
+import {
+  cargoSourceFingerprint,
+  classifyPlatformReferences,
+  readPlatformEntityProof
+} from "./platform-entities.ts";
+
 const snapshotMaximumBytes = 67_108_864;
 
 type CheckDiagnostic = Readonly<{
@@ -112,6 +118,7 @@ async function allReferencedTestIds(
 export type RepositoryTestEvidenceCheckResult = Readonly<{
   diagnostics: readonly CheckDiagnostic[];
   entityCount: number;
+  unavailableTestIds?: readonly string[];
   status: "ok" | "error";
 }>;
 
@@ -138,6 +145,7 @@ export async function checkRepositoryTestEvidence(
   );
   const outputPath = path.join(outputDirectory, "snapshot.json");
   try {
+    const platformProof = await readPlatformEntityProof(root);
     const expectedBefore = await repositoryTestEvidenceSource(root);
     let generatedEntityCount = 0;
     let snapshot = await readCachedSnapshot(root, expectedBefore.revision);
@@ -166,7 +174,10 @@ export async function checkRepositoryTestEvidence(
         await publishCachedSnapshot(root, written);
       }
     }
-    if (references.status !== "ok") {
+    if (
+      references.status !== "ok" &&
+      references.state !== "references-invalid"
+    ) {
       return {
         diagnostics: [
           projectDiagnostic(
@@ -181,6 +192,45 @@ export async function checkRepositoryTestEvidence(
       };
     }
     const typedSnapshot = snapshot as RepositoryTestSnapshot;
+    const missing =
+      references.state === "references-invalid"
+        ? references.diagnostics.map((diagnostic) => diagnostic.testId ?? "")
+        : [];
+    const classified = classifyPlatformReferences(
+      platformProof.entities,
+      process.platform,
+      new Set(typedSnapshot.entities.map((entity) => entity.id)),
+      missing
+    );
+    if (
+      classified.invalid.length ||
+      classified.stale.length ||
+      classified.unexpected.length
+    ) {
+      return {
+        diagnostics: [
+          projectDiagnostic(
+            `project.references-${references.state}`,
+            [
+              ...references.diagnostics
+                .filter(
+                  (diagnostic) =>
+                    !classified.unavailable.includes(diagnostic.testId ?? "")
+                )
+                .map((diagnostic) => diagnostic.message),
+              ...classified.unexpected.map(
+                (id) => `foreign platform entity unexpectedly present: ${id}`
+              ),
+              ...classified.stale.map(
+                (id) => `declared local platform entity missing: ${id}`
+              )
+            ].join("; ")
+          )
+        ],
+        entityCount: generatedEntityCount,
+        status: "error"
+      };
+    }
     const referenced = await allReferencedTestIds(root);
     const uncovered = typedSnapshot.entities
       .map((entity) => entity.id)
@@ -210,9 +260,28 @@ export async function checkRepositoryTestEvidence(
         status: "error"
       };
     }
+    if (
+      platformProof.sourceHash !== null &&
+      (await cargoSourceFingerprint(path.join(root, "tools/record-cli"))) !==
+        platformProof.sourceHash
+    ) {
+      return {
+        diagnostics: [
+          projectDiagnostic(
+            "project.cargo-source-drift",
+            "Cargo source closure changed while checking platform evidence"
+          )
+        ],
+        entityCount: typedSnapshot.entities.length,
+        status: "error"
+      };
+    }
     return {
       diagnostics: [],
       entityCount: typedSnapshot.entities.length,
+      ...(classified.unavailable.length
+        ? { unavailableTestIds: classified.unavailable }
+        : {}),
       status: "ok"
     };
   } catch (error) {
@@ -236,8 +305,10 @@ if (import.meta.main) {
     .then((result) => {
       if (result.status === "ok") {
         process.stdout.write(
-          `test evidence project check passed (${result.entityCount} entities)\n`
+          `test evidence project check passed (${result.entityCount} local entities; ${result.unavailableTestIds?.length ?? 0} platform-unavailable references; tests not executed)\n`
         );
+        for (const id of result.unavailableTestIds ?? [])
+          process.stdout.write(`platform unavailable: ${id}\n`);
         return;
       }
       for (const diagnostic of result.diagnostics) {

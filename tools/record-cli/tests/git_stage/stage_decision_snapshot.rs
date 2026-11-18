@@ -137,6 +137,7 @@ fn decision_stage_addition_and_separate_scopes_preserve_other_pending() {
     .unwrap();
     git(root, &["add", "--", "record.md", "decision-index.json"]);
     git(root, &["commit", "-qm", "baseline"]);
+    let baseline_record = git(root, &["show", ":record.md"]);
     let b = a
         .replace("240229-record", "240229-new")
         .replace("Old title", "New record");
@@ -158,7 +159,7 @@ fn decision_stage_addition_and_separate_scopes_preserve_other_pending() {
     )
     .unwrap();
     assert_eq!(git(root, &["show", ":new.md"]), b.as_bytes());
-    assert_eq!(git(root, &["show", ":record.md"]), a.as_bytes());
+    assert_eq!(git(root, &["show", ":record.md"]), baseline_record);
     stage_index(
         &handle,
         &index_path,
@@ -168,7 +169,7 @@ fn decision_stage_addition_and_separate_scopes_preserve_other_pending() {
     )
     .unwrap();
     let pending_index = git(root, &["show", ":decision-index.json"]);
-    assert_eq!(git(root, &["show", ":record.md"]), a.as_bytes());
+    assert_eq!(git(root, &["show", ":record.md"]), baseline_record);
     stage_decisions(
         &handle,
         &index_path,
@@ -290,6 +291,9 @@ fn decision_stage_related_projection_keeps_unselected_pending_body() {
         ],
     );
     git(root, &["commit", "-qm", "related baseline"]);
+    // Make the selected worktree source byte-identical to its Git baseline.
+    // Git may have normalized the fixture on add, depending on host settings.
+    fs::write(root.join("record.md"), git(root, &["show", ":record.md"])).unwrap();
     let edited = b.replace("Old title", "Prior edited");
     fs::write(root.join("archive/prior.md"), &edited).unwrap();
     fs::write(

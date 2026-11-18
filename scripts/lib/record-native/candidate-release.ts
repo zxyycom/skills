@@ -2,7 +2,7 @@ import { validatePlatform, type PlatformInput } from "./candidate-platform.ts";
 export { validatePlatformSourceEvidence } from "./candidate-platform.ts";
 import { verifyNativeBuildRecipe } from "./candidate-build-recipe.ts";
 import type { SkillPackageFile } from "../skill-package/skill-package-hash.ts";
-import { schemaFile, validateCandidateSchema } from "./candidate-schemas.ts";
+import { validateCandidateSchema } from "./candidate-schemas.ts";
 import { extractNativeArchive } from "../../../tools/skill-updater/src/native/archive.ts";
 import { readSkillPackageVersion } from "../skill-package/skill-package-hash.ts";
 import { createHash } from "node:crypto";
@@ -11,6 +11,7 @@ import * as v from "valibot";
 import { zipSync } from "fflate";
 import {
   nativeRoles,
+  nativeSchemaFiles,
   nativeTargets,
   type NativeRole,
   type NativeTarget
@@ -117,10 +118,11 @@ function buildCandidateManifestParts(
   >;
   for (const role of nativeRoles) {
     if (
-      !versions[role] ||
-      (input.formal
-        ? input.prepared.versions[role] !== versions[role].version
-        : input.prepared.versions[role] <= versions[role].version)
+      (!versions[role] && (input.formal || role !== "resource-records")) ||
+      (versions[role] &&
+        (input.formal
+          ? input.prepared.versions[role] !== versions[role].version
+          : input.prepared.versions[role] <= versions[role].version))
     )
       throw new Error(
         `candidate version must exceed the legacy package: ${role}`
@@ -168,18 +170,20 @@ type CandidateReleaseInput = {
 
 function verifyFrozenSchemas(
   input: CandidateReleaseInput
-): Record<NativeRole, Uint8Array> {
-  const schemas = {} as Record<NativeRole, Uint8Array>;
+): Record<NativeRole, readonly Uint8Array[]> {
+  const schemas = {} as Record<NativeRole, readonly Uint8Array[]>;
   for (const role of nativeRoles) {
-    const name = `tools/record-contracts/schemas/${schemaFile(role)}`;
-    const source = input.snapshot.delivery.find((file) => file.path === name);
-    if (!source) throw new Error(`frozen schema missing: ${role}`);
+    schemas[role] = nativeSchemaFiles[role].map((schema) => {
+      const name = `tools/record-contracts/schemas/${schema}`;
+      const source = input.snapshot.delivery.find((file) => file.path === name);
+      if (!source) throw new Error(`frozen schema missing: ${name}`);
+      return source.data;
+    });
     validateCandidateSchema(
       role,
       input.prepared.packages[role].bytes,
-      source.data
+      schemas[role]
     );
-    schemas[role] = source.data;
   }
   return schemas;
 }

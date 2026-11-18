@@ -18,12 +18,17 @@ test("native skill ignore rules exclude binaries and preserve other files", asyn
     for (const name of Object.keys(environment)) {
       if (name.toUpperCase().startsWith("GIT_")) delete environment[name];
     }
-    environment.GIT_CONFIG_GLOBAL = os.devNull;
+    environment.GIT_CONFIG_GLOBAL = path.join(root, "empty-git-config");
+    await fs.writeFile(environment.GIT_CONFIG_GLOBAL, "");
     environment.GIT_CONFIG_NOSYSTEM = "1";
     execFileSync("git", ["init", "--quiet", root], { env: environment });
     const ignoredPaths: string[] = [];
     const visiblePaths = ["bin/project-tool", "other.exe"];
-    for (const role of ["decision-records", "investigation-report"]) {
+    for (const role of [
+      "decision-records",
+      "investigation-report",
+      "resource-records"
+    ]) {
       const prefix = `.agents/skills/${role}`;
       const destination = path.join(root, prefix);
       await fs.mkdir(destination, { recursive: true });

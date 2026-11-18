@@ -25,6 +25,7 @@ export const maintenanceCliPackageScripts = {
     "node skills/lightweight-judgment/scripts/lightweight-judgment.ts",
   "change-plan": "node skills/change-plan/scripts/change-plan.ts",
   "decision-records": "node scripts/record-native-cli.ts decision-records",
+  "resource-records": "node scripts/record-native-cli.ts resource-records",
   "investigation-report":
     "node scripts/record-native-cli.ts investigation-report",
   "task-graph": "node scripts/task-graph.js",
@@ -107,6 +108,7 @@ export const requiredPackageScripts = [
   "sync:skill-validator",
   "sync:investigation-report-check",
   "sync:decision-records-cli",
+  "sync:resource-records-cli",
   "sync:task-graph-cli",
   "sync:test-evidence-cli",
   "sync:test-evidence-catalog",

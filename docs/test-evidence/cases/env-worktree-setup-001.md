@@ -2,6 +2,7 @@
 
 Tests:
 - `test:21a56c4e36031d5bd25f3e90519128aeec431fd6dc93283555389a0399ef2e31`
+- `test:e653b2188db63dcb710f6709fa0b1f3554c76d5a39505e8b8df3631302680b9d`
 
 Tags:
 - `repository-tooling`
@@ -12,3 +13,4 @@ Contract:
 Proves:
 - 连续两次 setup 都成功，Git worktree 列表的首个项目根保持主 worktree 绝对路径，无需额外 root 配置。
 - 原本不可执行的 linked worktree pre-commit 在 setup 后会被真实 `git commit` 调用。
+- 另一独立 fixture 调用任务根解析：普通仓和 absorbed submodule 的主工作区及 linked worktree 均解析到主工作区；主工作区索引缺失时失败。不以此声称已在 setup 后同一 fixture 中调用解析。

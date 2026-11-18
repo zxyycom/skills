@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import {
   nativeTargets,
+  nativeSchemaFiles,
   type NativeRole
 } from "../../../../tools/skill-package/src/native-release-manifest.ts";
 import { captureNativeCandidateSnapshot } from "../../record-native/capture.ts";
@@ -38,10 +39,11 @@ export async function syncNativeSkillRuntime(
       workspaceRoot: rootDir,
       skillName: role,
       entries: [nativeUpdaterEntry(role, false)],
-      rebuildCommand:
-        role === "decision-records"
-          ? "bun run sync:decision-records-cli"
-          : "bun run sync:investigation-report-check",
+      rebuildCommand: {
+        "decision-records": "bun run sync:decision-records-cli",
+        "investigation-report": "bun run sync:investigation-report-check",
+        "resource-records": "bun run sync:resource-records-cli"
+      }[role],
       nodeEngine: ">=24.18",
       additionalGitIgnorePatterns: nativeSkillGitIgnorePatterns,
       resources: nativeUpdaterResources
@@ -56,11 +58,6 @@ export async function syncNativeSkillRuntime(
     Buffer.from(manifest.content),
     await fs.readFile(path.join(skillRoot, "pnpm-lock.yaml"))
   );
-  const schemaName =
-    role === "decision-records"
-      ? "decision-index.schema.json"
-      : "investigation-index.schema.json";
-  const schemaPath = `tools/record-contracts/schemas/${schemaName}`;
   artifacts.push(
     {
       path: path.join(skillRoot, "pnpm-lock.yaml"),
@@ -71,13 +68,16 @@ export async function syncNativeSkillRuntime(
       path: path.join(skillRoot, "native-runtime.json"),
       content: `${JSON.stringify({ schemaVersion: 1, role, runtimeVersion: version, sourceHash: snapshot.sourceHash, targets: nativeTargets }, null, 2)}\n`,
       sourcePath: "tools/record-cli/Cargo.toml"
-    },
-    {
+    }
+  );
+  for (const schemaName of nativeSchemaFiles[role]) {
+    const schemaPath = `tools/record-contracts/schemas/${schemaName}`;
+    artifacts.push({
       path: path.join(skillRoot, "references", schemaName),
       content: await fs.readFile(path.join(rootDir, schemaPath), "utf8"),
       sourcePath: schemaPath
-    }
-  );
+    });
+  }
   const retiredPaths = [
     "scripts/runtime/tools/skill-updater/src/native/legacy-manifests.json"
   ];

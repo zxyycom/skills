@@ -1,3 +1,7 @@
+import {
+  nativeRoles,
+  nativeSchemaFiles
+} from "../../../../tools/skill-package/src/native-release-manifest.ts";
 import { nativeBuildRecipePaths } from "../candidate-build-recipe.ts";
 import assert from "node:assert/strict";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
@@ -31,17 +35,17 @@ test("candidate source archives bind frozen identities and never overwrite outpu
 
   const source = [{ path: "Cargo.toml", data: Buffer.from("source") }];
   const sourceHash = digestNativeSource(source);
-  const roles = ["decision-records", "investigation-report"] as const;
+  const roles = nativeRoles;
   const schemas = {
-    "decision-records": Buffer.from('{"title":"decision"}'),
-    "investigation-report": Buffer.from('{"title":"investigation"}')
+    "decision-records": [Buffer.from('{"title":"decision"}')],
+    "investigation-report": [Buffer.from('{"title":"investigation"}')],
+    "resource-records": [
+      Buffer.from('{"title":"resource"}'),
+      Buffer.from('{"title":"resource index"}')
+    ]
   };
   const filesBySkill = new Map<string, SkillPackageFile[]>();
   for (const role of roles) {
-    const schema =
-      role === "decision-records"
-        ? "decision-index.schema.json"
-        : "investigation-index.schema.json";
     const entries: SkillPackageFile[] = [
       {
         path: "SKILL.md",
@@ -52,7 +56,10 @@ test("candidate source archives bind frozen identities and never overwrite outpu
       { path: "scripts/update-skill.ts", data: Buffer.from("updater") },
       { path: "package.json", data: Buffer.from("{}") },
       { path: "pnpm-lock.yaml", data: Buffer.from("lock") },
-      { path: `references/${schema}`, data: schemas[role] },
+      ...nativeSchemaFiles[role].map((schema, index) => ({
+        path: `references/${schema}`,
+        data: schemas[role][index]!
+      })),
       {
         path: "native-runtime.json",
         data: Buffer.from(
@@ -68,16 +75,12 @@ test("candidate source archives bind frozen identities and never overwrite outpu
     ];
     filesBySkill.set(role, entries);
   }
-  const delivery = [
-    {
-      path: "tools/record-contracts/schemas/decision-index.schema.json",
-      data: schemas["decision-records"]
-    },
-    {
-      path: "tools/record-contracts/schemas/investigation-index.schema.json",
-      data: schemas["investigation-report"]
-    }
-  ];
+  const delivery = roles.flatMap((role) =>
+    nativeSchemaFiles[role].map((schema, index) => ({
+      path: `tools/record-contracts/schemas/${schema}`,
+      data: schemas[role][index]!
+    }))
+  );
   const buildRecipe = nativeBuildRecipePaths.map((name) => ({
     path: name,
     data: Buffer.from(`recipe:${name}`)
@@ -132,6 +135,38 @@ test("candidate source archives bind frozen identities and never overwrite outpu
       }),
     /identity mismatch/
   );
+  assert.throws(
+    () =>
+      prepareCandidateSourcePackages({
+        ...input,
+        schemas: {
+          ...schemas,
+          "resource-records": [schemas["resource-records"][0]!]
+        }
+      }),
+    /schema count mismatch/
+  );
+  const missingResourceSchema = new Map(filesBySkill);
+  missingResourceSchema.set(
+    "resource-records",
+    filesBySkill
+      .get("resource-records")!
+      .filter((file) => file.path !== "references/resource-index.schema.json")
+  );
+  assert.throws(
+    () =>
+      prepareCandidateSourcePackages({
+        ...input,
+        snapshot: {
+          ...input.snapshot,
+          skills: {
+            ...input.snapshot.skills,
+            filesBySkill: missingResourceSchema
+          }
+        }
+      }),
+    /missing or empty/
+  );
   const result = prepareCandidateSourcePackages(input);
   assert.equal(result.versions["decision-records"], 111);
   assert.deepEqual(
@@ -140,13 +175,23 @@ test("candidate source archives bind frozen identities and never overwrite outpu
         "decision-records/references/decision-index.schema.json"
       ]!
     ),
-    schemas["decision-records"]
+    schemas["decision-records"][0]
   );
+  const resourcePackage = unzipSync(result.packages["resource-records"].bytes);
+  for (const [index, name] of [
+    "resource-record.schema.json",
+    "resource-index.schema.json"
+  ].entries()) {
+    assert.deepEqual(
+      Buffer.from(resourcePackage[`resource-records/references/${name}`]!),
+      schemas["resource-records"][index]
+    );
+  }
   assert.throws(
     () =>
       prepareCandidateSourcePackages({
         ...input,
-        schemas: { ...schemas, "decision-records": Buffer.from("different") }
+        schemas: { ...schemas, "decision-records": [Buffer.from("different")] }
       }),
     /schema differs/
   );
@@ -178,7 +223,8 @@ test("candidate source archives bind frozen identities and never overwrite outpu
   });
   const targetArchives = {
     "decision-records": targetFiles("decision-records"),
-    "investigation-report": targetFiles("investigation-report")
+    "investigation-report": targetFiles("investigation-report"),
+    "resource-records": targetFiles("resource-records")
   };
   const asset = (name: string, bytes: Uint8Array) => ({
     name,
@@ -251,7 +297,8 @@ test("candidate source archives bind frozen identities and never overwrite outpu
     },
     archives: {
       "decision-records": targetArchives["decision-records"][target],
-      "investigation-report": targetArchives["investigation-report"][target]
+      "investigation-report": targetArchives["investigation-report"][target],
+      "resource-records": targetArchives["resource-records"][target]
     }
   });
   const otherFiles = [
@@ -330,7 +377,7 @@ test("candidate source archives bind frozen identities and never overwrite outpu
     /source evidence differs/
   );
   const release = assembleCandidateRelease(releaseInput);
-  assert.equal(release.assets.length, 8);
+  assert.equal(release.assets.length, 11);
   const formalInput = {
     ...releaseInput,
     formal: true,
@@ -341,6 +388,7 @@ test("candidate source archives bind frozen identities and never overwrite outpu
         "investigation-report": {
           version: result.versions["investigation-report"]
         },
+        "resource-records": { version: result.versions["resource-records"] },
         other: { version: 5 }
       }
     }

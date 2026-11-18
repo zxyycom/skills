@@ -29,3 +29,9 @@ Case 使用 Tests、可选 tags、Contract 与 Proves，由测试改动显式维
 4. Case 正文变化后运行 `sync:test-evidence-catalog`；完整检查中的 `check:test-evidence-catalog` 不写回版本管理文件。
 
 项目快照生产和旧账本迁移不属于 `bun run test-evidence` 的常规 Case CLI。需要人工检查或交接快照时，使用 `bun run snapshot:test-evidence -- --output <new-file>`；`migrate:test-evidence` 的 expected source 必须从生成快照所用的同一项目输入边界独立计算或核验，不能直接抄录待验证快照的 source 三字段。迁移命令默认只预演，只有明确追加 `--write` 才写入；支持范围、映射阻断和恢复边界由 [Case 账本契约](../skills/test-evidence-review/references/catalog-contract.md#迁移) 承接。日常查询、同步和检查不得把旧 topic/`Entry:` 当作 fallback 输入。
+
+### 平台限定节点
+
+`scripts/test-evidence/platform-entities.json` 是项目集成层的显式 Cargo 条件节点声明，不改变通用 Case 或快照协议。声明仅能依据两平台相同冻结源码的真实 Cargo 原生枚举结果维护；每项记录目标与完整测试名，ID 按 Cargo 快照身份规则核对，不能通过扫描或人工推测补造。`sourceHash` 绑定整个 `tools/record-cli` 源码闭包，范围与 `workingSourceDigest` 相同（排除根 `target/`、`delivery/`）；有效 UTF-8 文本的 CRLF 归一为 LF，含 NUL 或非 UTF-8 文件按原始字节计算。缺失、待确认或不匹配时阻断，须重新在两平台枚举并人工核对差集后再更新，不能自动刷新。任何测试、模块、Cargo 定义或条件变化均使此证明失效。
+
+检查器先由核心校验本机快照来源、完整性与引用，仅当源码身份一致时，才把声明为其他平台的缺失引用列为 `platform unavailable`；未知引用、本平台声明未枚举、或外平台声明在本机出现均阻断。本机实际枚举节点仍全部要求 Case。声明仅证明冻结源码的异平台引用资格，不是跨平台测试执行或通过证据；每个平台须分别运行测试与本机检查。不可用条目不会补入本机快照。

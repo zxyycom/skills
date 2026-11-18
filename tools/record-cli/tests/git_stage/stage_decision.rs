@@ -262,7 +262,9 @@ fn decision_all_uses_pending_index_to_remove_third_old_location() {
     let doc = include_str!("../fixtures/git-stage/documents/decision.md");
     let mut digest = Sha256::new();
     digest.update(b"decision-index-entry-v2\0");
-    for s in ["240229-record", "record.md", doc] {
+    // Decision fingerprints canonicalize CRLF, independently of the source bytes.
+    let fingerprint_doc = doc.replace("\r\n", "\n");
+    for s in ["240229-record", "record.md", fingerprint_doc.as_str()] {
         digest.update(s.len().to_string().as_bytes());
         digest.update(b":");
         digest.update(s.as_bytes());
@@ -281,6 +283,7 @@ fn decision_all_uses_pending_index_to_remove_third_old_location() {
     .unwrap();
     git(root, &["add", "--", "record.md", "decision-index.json"]);
     git(root, &["commit", "-qm", "records baseline"]);
+    let expected_document = fs::read(root.join("record.md")).unwrap();
     fs::create_dir(root.join("archive")).unwrap();
     fs::write(root.join("archive/record.md"), doc).unwrap();
     git(root, &["rm", "--cached", "-q", "--", "record.md"]);
@@ -321,7 +324,7 @@ fn decision_all_uses_pending_index_to_remove_third_old_location() {
         )
         .is_empty()
     );
-    assert_eq!(git(root, &["show", ":record.md"]), doc.as_bytes());
+    assert_eq!(git(root, &["show", ":record.md"]), expected_document);
     assert_eq!(git(root, &["show", ":unselected"]), b"other pending\n");
 }
 

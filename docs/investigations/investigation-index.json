@@ -1331,6 +1331,19 @@
       ],
       "title": "Rust 测试字节字符写法与函数指标边界误计"
     },
+    "261114-absorbed-submodule-task-root": {
+      "formedAt": "2026-11-14T08:17:06Z",
+      "name": "absorbed-submodule-task-root",
+      "question": "为何 absorbed submodule 的环境 setup 找不到任务索引，如何保持 linked worktree 的中央根语义？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "261114-absorbed-submodule-task-root.md",
+      "tags": [
+        "git",
+        "repository-tooling"
+      ],
+      "title": "Absorbed submodule 环境任务根发现失败"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -2063,6 +2076,7 @@
       "261110-native-ci-version-and-directory-cache": "sha256:32ece96e13f74a86133f08224c1fc69558ad112b0364f6d9f0bd1952c6f74188",
       "261110-native-full-check-io-costs": "sha256:d932360808c439e55d5683f838d8e58be8da082f29d0f8e1ad0412410f158f56",
       "261110-rust-byte-literal-function-metrics-boundary": "sha256:ac2065a8b224e66cb0db544ea1ffc0fd0c27a74240d1ea6c25151ed12a7c8783",
+      "261114-absorbed-submodule-task-root": "sha256:856d84883d4a3bf15d14659555bdbbe00be5fa2dbdcd97d2d2c7859a42b5b631",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:512b8f0c5b6466034d7d851032bf41af7413a227bdd19c62959fc2ad343d495c",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

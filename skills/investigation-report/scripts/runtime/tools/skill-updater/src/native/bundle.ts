@@ -10,6 +10,7 @@
 import { readSkillPackageIdentityFromMarkdown } from "../../../skill-package/src/version.ts";
 import { assertNativeRelativePaths } from "../../../skill-package/src/native-paths.ts";
 import {
+  nativeSchemaFiles,
   parseNativeRuntimeDescriptor,
   verifyNativeAsset,
   type NativeRole,
@@ -36,14 +37,13 @@ function readSkillFiles(
   const byName = new Map(files.map((file) => [file.path, file.data]));
   const entry = byName.get("SKILL.md");
   const descriptor = byName.get("native-runtime.json");
-  const schema =
-    role === "decision-records"
-      ? "decision-index.schema.json"
-      : "investigation-index.schema.json";
+
   if (
     !entry ||
     !descriptor ||
-    !byName.has(`references/${schema}`) ||
+    nativeSchemaFiles[role].some(
+      (schema) => !byName.has(`references/${schema}`)
+    ) ||
     !byName.has("scripts/update-skill.ts")
   )
     throw new Error(

@@ -11,6 +11,7 @@ import {
 import { readSkillPackageIdentityFromMarkdown } from "../../../tools/skill-package/src/version.ts";
 import {
   nativeRoles,
+  nativeSchemaFiles,
   nativeTargets,
   type NativeRole
 } from "../../../tools/skill-package/src/native-release-manifest.ts";
@@ -29,7 +30,8 @@ const inputSchema = v.object({
   delivery: v.array(encoded),
   skills: v.object({
     "decision-records": v.array(encoded),
-    "investigation-report": v.array(encoded)
+    "investigation-report": v.array(encoded),
+    "resource-records": v.array(encoded)
   })
 });
 type Encoded = v.InferOutput<typeof encoded>;
@@ -78,14 +80,10 @@ async function prepareRole(
   );
   if (identity.name !== role || identity.version === null)
     throw new Error(`invalid frozen skill identity: ${role}`);
-  const schemaName =
-    role === "decision-records"
-      ? "decision-index.schema.json"
-      : "investigation-index.schema.json";
-  const schema = required(
-    delivery,
-    `tools/record-contracts/schemas/${schemaName}`
-  );
+  const schemas = nativeSchemaFiles[role].map((schemaName) => ({
+    path: `references/${schemaName}`,
+    data: required(delivery, `tools/record-contracts/schemas/${schemaName}`)
+  }));
   const runtime = await generated(role, false);
   const lock = candidateLock(
     required(runtime, "package.json"),
@@ -96,7 +94,7 @@ async function prepareRole(
     : [
         ...runtime,
         { path: "pnpm-lock.yaml", data: lock },
-        { path: `references/${schemaName}`, data: schema },
+        ...schemas,
         {
           path: "native-runtime.json",
           data: Buffer.from(
@@ -112,7 +110,7 @@ async function prepareRole(
       ];
   return {
     files,
-    schema,
+    schemas: schemas.map((schema) => schema.data),
     skillInputHash,
     installer: await generated(role, true)
   };
@@ -121,14 +119,14 @@ async function prepare(input: Input) {
   const source = decode(input.source),
     delivery = decode(input.delivery);
   const filesBySkill = new Map<string, SkillPackageFile[]>();
-  const schemas = {} as Record<NativeRole, Buffer>;
+  const schemas = {} as Record<NativeRole, readonly Buffer[]>;
   const skillInputHashes = {} as Record<NativeRole, string>;
   let bootstrap: SkillPackageFile[] = [];
   for (const role of nativeRoles) {
     const original = decode(input.skills[role]);
     const prepared = await prepareRole(input, role, delivery, original);
     filesBySkill.set(role, prepared.files);
-    schemas[role] = prepared.schema;
+    schemas[role] = prepared.schemas;
     skillInputHashes[role] = prepared.skillInputHash;
     const { installer } = prepared;
     if (bootstrap.length === 0)

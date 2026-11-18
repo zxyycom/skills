@@ -62,13 +62,13 @@ fn decision_candidate_rename_and_discard_keep_published_index() {
 fn decision_recorded_candidate_rename_requires_confirmation() {
     let (dir, root) = fixture();
     let base = dir.path().join("decisions");
-    let candidate = "---\ntitle: Candidate title\nid: 261106-draft\nstatus: candidate\nalignment: null\ncreatedAt: null\npurpose: Purpose\nbackground: Background\ndecision: Decision\ntags:\n  - example\nrelations: []\n---\n\n## 目的\n\n## 背景\n\n## 决策\n";
     std::fs::copy(
         std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("tests/fixtures/identity/decisions/draft.md"),
         base.join("draft.md"),
     )
     .unwrap();
+    let candidate = std::fs::read(base.join("draft.md")).unwrap();
     commit_fixture(dir.path());
     let mut op = operation(Action::Rename {
         target: "new-draft".into(),
@@ -86,10 +86,7 @@ fn decision_recorded_candidate_rename_requires_confirmation() {
             .unwrap()
             .contains("--rename-recorded-decision")
     );
-    assert_eq!(
-        std::fs::read(base.join("draft.md")).unwrap(),
-        candidate.as_bytes()
-    );
+    assert_eq!(std::fs::read(base.join("draft.md")).unwrap(), candidate);
     op.action = Action::Rename {
         target: "new-draft".into(),
         confirm_recorded: true,

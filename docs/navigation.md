@@ -29,6 +29,7 @@
 | 排查 Gate 运行结果或输入证明 | [项目验证模型](validation-model.md)、[Gate 运行结果与诊断](gate-runtime.md) | [权威 Vibe 门禁](gate-execution.md#权威-vibe-门禁)的执行范围与 [Gate 项目运行与质量政策](gate-policy.md)的精确政策；需要修改 Check 时进入其编写路由 |
 | 新增、修改或移除 Gate Check | [项目验证模型](validation-model.md)、[Gate Check 编写与接入](gate-check-authoring.md) | [项目工具链的权威 Vibe 门禁](gate-execution.md#权威-vibe-门禁)、[Gate 项目运行与质量政策](gate-policy.md)、[类型接入](gate-check-types.md)及[编码规范](coding-style.md)；涉及测试实现或 Case 时读 [Test Evidence Review](../skills/test-evidence-review/SKILL.md) |
 | 成批审阅或持续纠正记录 | [记录维护入口](record-maintenance-workflow.md) | 按对象选择[决策流程](record-maintenance/decisions.md)或[调查流程](record-maintenance/investigations.md)及其领域 skill；明确使用 JEV 时读取 [Lightweight Judgment](../skills/lightweight-judgment/SKILL.md) |
+| 登记或查询资源版本、文件、来源和用途选择 | [Resource Records](../skills/resource-records/SKILL.md) | 记录模型与 CLI 契约；原始调用和媒体保管由所属项目维护 |
 | 恢复、审阅或维护长期决策 | [Decision Records](../skills/decision-records/SKILL.md)，按需使用 show、list、search 或 trace 查询 | 相关决策 Markdown、领域规则和所选 CLI 操作或恢复章节；索引位置见下方 owner 表 |
 | 创建、更新或审阅调查报告 | [Investigation Report](../skills/investigation-report/SKILL.md)，按需使用 show、list、search 或 trace 查询 | 相关调查报告、领域规则和所选 CLI 操作或恢复章节；索引位置见下方 owner 表 |
 | 整理并创建 Git 提交 | [Git Commit Organizer](../skills/git-commit-organizer/SKILL.md) | 当前 Git 状态、diff 和目标改动的验证结果 |
@@ -77,7 +78,7 @@
 | Skill 本体 | `skills/<skill-name>/SKILL.md` 及其相邻材料 | 单个 skill 的触发、行为、读取策略、执行流程、边界、验收和分发内容 |
 | 任务图索引 | `docs/task-graph/task-graph-index.json` | 当前工作中 task、真实父子、显式依赖与排斥、执行租约的唯一权威事实；只由 task-graph 工具事务化修改，复杂有效状态由查询投影 |
 | 测试证据账本 | `docs/test-evidence/cases/*.md`、`docs/test-evidence/test-evidence-index.json` | 每个 Markdown 承接一个权威 Case，索引 JSON 是 Case-only 查询投影。项目实体快照与覆盖策略由测试与测试证据维护承接，格式和维护事务由 `skills/test-evidence-review/` 承接 |
-| 两域索引机器格式 | `tools/record-contracts/schemas/` | Decision Records 与 Investigation Report 的随包索引 JSON Schema 纯数据源；领域规则及集合语义仍归各域 |
+| 记录机器格式 | `tools/record-contracts/schemas/` | 三领域的机器 Schema 维护源；领域规则及集合语义仍归各域 |
 | 共同记录操作 | `tools/record-operations/` | Decision Records 与 Investigation Report 的共同原生操作与失败边界；领域规则与适配仍归各域，stage 使用 Git 自身更新 pending；责任与事务模型见 `tools/record-operations/model.md`，维护入口见该目录 README |
 | 可分发工具源码 | `tools/<tool-name>/` | 随 skill 分发的源码、声明、测试、fixture 和局部组件契约；`tools/shared/` 承接跨工具运行时不变量，`tools/skill-package/` 承接发布端与 updater 共用的分发协议 |
 | 主仓库自动化与共享交付 | 主仓库根目录、`scripts/` 和 CI 配置 | 命令编排、生成适配、共享校验、打包、聚合发布、依赖入口、Git 和 CI 自动化；不承接随 skill 分发工具的运行时源码 |

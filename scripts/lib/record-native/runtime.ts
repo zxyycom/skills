@@ -3,7 +3,11 @@ import { constants } from "node:fs";
 import { access, lstat, readFile } from "node:fs/promises";
 import path from "node:path";
 
-export const roles = ["decision-records", "investigation-report"] as const;
+export const roles = [
+  "decision-records",
+  "investigation-report",
+  "resource-records"
+] as const;
 export type Role = (typeof roles)[number];
 type Target = "x86_64-unknown-linux-gnu" | "x86_64-pc-windows-msvc";
 type Receipt = {
@@ -11,7 +15,8 @@ type Receipt = {
   target: Target;
   generation: string;
   sourceHash: string;
-  binaries: Record<Role, string>;
+  binaries: Record<"decision-records" | "investigation-report", string> &
+    Partial<Record<"resource-records", string>>;
 };
 const hashPattern = /^[0-9a-f]{64}$/;
 
@@ -40,6 +45,27 @@ export function digest(bytes: Uint8Array): string {
 function object(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
+function parseBinaryHashes(
+  value: Record<string, unknown>
+): Receipt["binaries"] {
+  const decision = value["decision-records"];
+  const investigation = value["investigation-report"];
+  const resource = value["resource-records"];
+  if (
+    (resource !== undefined &&
+      (typeof resource !== "string" || !hashPattern.test(resource))) ||
+    typeof decision !== "string" ||
+    !hashPattern.test(decision) ||
+    typeof investigation !== "string" ||
+    !hashPattern.test(investigation)
+  )
+    throw new Error("invalid binary hashes in runtime receipt");
+  return {
+    "decision-records": decision,
+    "investigation-report": investigation,
+    ...(typeof resource === "string" ? { "resource-records": resource } : {})
+  };
+}
 export function parseReceipt(value: unknown): Receipt {
   if (
     !object(value) ||
@@ -53,24 +79,13 @@ export function parseReceipt(value: unknown): Receipt {
     !object(value.binaries)
   )
     throw new Error("invalid runtime receipt");
-  const decision = value.binaries["decision-records"];
-  const investigation = value.binaries["investigation-report"];
-  if (
-    typeof decision !== "string" ||
-    !hashPattern.test(decision) ||
-    typeof investigation !== "string" ||
-    !hashPattern.test(investigation)
-  )
-    throw new Error("invalid binary hashes in runtime receipt");
+
   return {
     schemaVersion: 1,
     target: value.target,
     generation: value.generation,
     sourceHash: value.sourceHash,
-    binaries: {
-      "decision-records": decision,
-      "investigation-report": investigation
-    }
+    binaries: parseBinaryHashes(value.binaries)
   };
 }
 export async function assertRuntimeDirectory(directory: string): Promise<void> {
@@ -115,6 +130,8 @@ export async function preparedRuntime(
     ])
   ) as Record<Role, string>;
   for (const name of role ? [role] : roles) {
+    if (!receipt.binaries[name])
+      throw new Error(`runtime missing ${name}; run prepare`);
     const stat = await lstat(paths[name]);
     if (!stat.isFile() || stat.isSymbolicLink())
       throw new Error(`invalid executable: ${name}`);

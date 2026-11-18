@@ -155,3 +155,26 @@ test("native manifest validates asset identity without changing the generic proj
       )
     );
 });
+
+test("three-role release set requires resource and validates shared identity while pair reads old manifests", async () => {
+  const { fixture } =
+    await import("../../../scripts/lib/record-native/tests/candidate-publish-fixture.ts");
+  const { parseNativeReleaseSet } =
+    await import("../../skill-package/src/native-release-manifest.ts");
+  const { manifest } = fixture();
+  assert.ok(parseNativeReleaseSet(manifest)["resource-records"]);
+  const old = structuredClone(manifest);
+  delete old.skills["resource-records"];
+  assert.equal(parseNativeReleasePair(old)["resource-records"], undefined);
+  assert.throws(
+    () => parseNativeReleaseSet(old),
+    /resource-records release missing/
+  );
+  const bad = structuredClone(manifest);
+  const entry = bad.skills["resource-records"] as {
+    version: number;
+    native: { sourceHash: string };
+  };
+  entry.native.sourceHash = "f".repeat(64);
+  assert.throws(() => parseNativeReleasePair(bad), /share a build/);
+});

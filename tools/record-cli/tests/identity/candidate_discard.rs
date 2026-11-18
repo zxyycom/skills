@@ -7,6 +7,7 @@ fn decision_identity_actions_ignore_unselected_formal_body_but_keep_index() {
     let published_index = std::fs::read(base.join("decision-index.json")).unwrap();
     let original_formal = std::fs::read(base.join("original.md")).unwrap();
     let candidate = include_str!("../fixtures/identity/decisions/draft.md")
+        .replace("\r\n", "\n")
         .replace(
             "relations: []",
             "relations:\n  - type: 修订\n    target: 261106-original\n    summary: Reason",
@@ -40,10 +41,12 @@ fn decision_discard_rejects_incomplete_candidate_without_writes() {
     let (dir, root) = fixture();
     let base = dir.path().join("decisions");
     let index = std::fs::read(base.join("decision-index.json")).unwrap();
-    let ready = include_str!("../fixtures/identity/decisions/draft.md").replace(
-        "## 目的\n\n## 背景\n\n## 决策",
-        "## 目的\nPurpose\n\n## 背景\nBackground\n\n## 决策\n- 采用: Choice",
-    );
+    let ready = include_str!("../fixtures/identity/decisions/draft.md")
+        .replace("\r\n", "\n")
+        .replace(
+            "## 目的\n\n## 背景\n\n## 决策",
+            "## 目的\nPurpose\n\n## 背景\nBackground\n\n## 决策\n- 采用: Choice",
+        );
     for bad in [
         ready.replace("alignment: null", "alignment: aligned"),
         ready.replace("createdAt: null", "createdAt: 2026-11-06T12:00:00Z"),
@@ -69,10 +72,12 @@ fn decision_discard_rejects_incomplete_candidate_without_writes() {
 fn decision_candidate_discard_fails_closed_on_unreadable_git_head() {
     let (dir, root) = fixture();
     let base = dir.path().join("decisions");
-    let draft = include_str!("../fixtures/identity/decisions/draft.md").replace(
-        "## 目的\n\n## 背景\n\n## 决策",
-        "## 目的\nPurpose\n\n## 背景\nBackground\n\n## 决策\n- 采用: Choice",
-    );
+    let draft = include_str!("../fixtures/identity/decisions/draft.md")
+        .replace("\r\n", "\n")
+        .replace(
+            "## 目的\n\n## 背景\n\n## 决策",
+            "## 目的\nPurpose\n\n## 背景\nBackground\n\n## 决策\n- 采用: Choice",
+        );
     std::fs::write(base.join("draft.md"), &draft).unwrap();
     commit_fixture(dir.path());
     let index = std::fs::read(base.join("decision-index.json")).unwrap();

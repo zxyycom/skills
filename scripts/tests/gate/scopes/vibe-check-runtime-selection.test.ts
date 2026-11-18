@@ -204,7 +204,10 @@ test("selected runtime source acquisition follows shared cycles but never scans 
         [...facts.references.keys()]
           .map((file) => path.relative(directory, file))
           .sort(),
-        ["tools/alpha/src/index.ts", "tools/shared/src/leaf.ts"]
+        [
+          path.join("tools", "alpha", "src", "index.ts"),
+          path.join("tools", "shared", "src", "leaf.ts")
+        ]
       );
       await writeRuntimeFixtureFile(
         directory,

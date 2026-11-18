@@ -294,3 +294,82 @@ test("source digest sorts complete paths before hashing", async () => {
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test("v2 requires exactly the three roles while v1 remains readable", () => {
+  const target = "x86_64-unknown-linux-gnu";
+  const asset = (role: string) => ({
+    role,
+    file: role,
+    size: 1,
+    sha256: "b".repeat(64)
+  });
+  const base = {
+    version: "1.2.3",
+    target,
+    source: { sha256: "a".repeat(64), rustc: "r", cargo: "c" }
+  };
+  const old = [asset("decision-records"), asset("investigation-report")];
+  const resource = asset("resource-records");
+  assert.equal(
+    parseManifest({ ...base, schemaVersion: 1, assets: old }).assets.length,
+    2
+  );
+  assert.equal(
+    parseManifest({ ...base, schemaVersion: 2, assets: [...old, resource] })
+      .assets.length,
+    3
+  );
+  assert.throws(() =>
+    parseManifest({ ...base, schemaVersion: 2, assets: old })
+  );
+  assert.throws(() =>
+    parseManifest({ ...base, schemaVersion: 1, assets: [...old, resource] })
+  );
+  assert.throws(() =>
+    parseManifest({ ...base, schemaVersion: 2, assets: [...old, old[0]] })
+  );
+});
+
+test("v2 installs all three roles into an isolated fixture", async () => {
+  const { root, source, destination } = await fixture();
+  try {
+    const manifestPath = path.join(source, "record-cli-candidate.json");
+    const manifest = parseManifest(
+      JSON.parse(await readFile(manifestPath, "utf8")) as unknown
+    );
+    const role = "resource-records";
+    const file = assetName(role, hostTarget());
+    const bytes = Buffer.from(`candidate-${role}`);
+    await writeFile(path.join(source, file), bytes);
+    await writeFile(
+      manifestPath,
+      JSON.stringify({
+        ...manifest,
+        schemaVersion: 2,
+        assets: [
+          ...manifest.assets,
+          { role, file, size: bytes.length, sha256: sha256(bytes) }
+        ]
+      })
+    );
+    await installCandidate({ source, destination, version: "1.0.0" });
+    for (const installedRole of [
+      "decision-records",
+      "investigation-report",
+      "resource-records"
+    ]) {
+      assert.deepEqual(
+        await readFile(
+          path.join(destination, assetName(installedRole, hostTarget()))
+        ),
+        Buffer.from(`candidate-${installedRole}`)
+      );
+    }
+    assert.equal(
+      await readFile(path.join(destination, "unrelated"), "utf8"),
+      "keep"
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

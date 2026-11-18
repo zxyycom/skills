@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skills.local/schemas/resource-index.schema.json",
+  "$comment": "记录文本的派生投影；指纹与实际内容、关系一致性由 CLI check 验证。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "records"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sourcePath",
+          "sourceRevision",
+          "record"
+        ],
+        "properties": {
+          "sourcePath": {
+            "type": "string",
+            "pattern": "^(?!\\.{1,2}(?:/|$))[^/\\\\:\\u0000]+(?:/(?!\\.{1,2}(?:/|$))[^/\\\\:\\u0000]+)*/records/[^/\\\\:\\u0000]+\\.md$"
+          },
+          "sourceRevision": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "record": {
+            "$ref": "resource-record.schema.json"
+          }
+        }
+      }
+    }
+  }
+}

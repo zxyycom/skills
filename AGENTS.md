@@ -49,6 +49,7 @@
 - `lightweight-judgment`：仅在用户点名时启用，完成低成本分类、选择、筛选和评分。
 - `skill-design-discovery`：从现实材料恢复 skill 设计所需的流程、判断与约束。
 - `investigation-report`：保存可独立复核的一轮调查认识及其依据和边界。
+- `resource-records`：维护资源版本、文件、来源与用途选择，并查询已登记关系。
 - `test-design`：围绕真实错误与行为契约设计、编写和改进测试。
 - `test-evidence-review`：审查最小原生测试入口的证据能力并维护 Case 账本。
 - `ai-ready-docs`：优化文档语义与组织，使 AI 准确理解和可靠使用。
