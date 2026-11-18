@@ -208,6 +208,14 @@ export const gateToolScopes = {
     ["tools/task-graph/**", "skills/task-graph/**", "docs/task-graph/**"],
     [...domainRuntimeInputs, "scripts/**/{build,lib}/**"]
   ),
+  "agent-memory": toolScope(
+    [
+      "tools/agent-memory/**",
+      "skills/agent-memory/**",
+      "scripts/tests/agent-memory-distribution.test.ts"
+    ],
+    domainRuntimeInputs
+  ),
   "novel-cards": toolScope(
     ["tools/novel-cards/**", "skills/novel-cards/**"],
     domainRuntimeInputs

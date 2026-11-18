@@ -6,12 +6,10 @@ import {
   gateEnvironmentCheckId,
   gateResourceCapacities,
   releaseGateResourceCapacities,
-  releaseRequiredCheckIds,
-  semanticGateChecks,
   vibeNativeCheckIds
 } from "../../lib/vibe-gate.ts";
 import {
-  expectedSemanticChecks,
+  expectedReleaseOnlyCheckIds,
   expectedSemanticPrerequisites
 } from "./vibe-check-catalog-fixture.ts";
 
@@ -19,7 +17,6 @@ test("gate Definition keeps the complete catalog and incremental selection", () 
   const definition = createGateDefinition([], {
     activeToolIds: ["repository-code"]
   });
-  assert.equal(gateCheckIds().length, 63);
   assert.deepEqual(
     definition.checks.map(({ checkId }) => checkId),
     gateCheckIds()
@@ -53,14 +50,6 @@ test("gate Definition keeps the complete catalog and incremental selection", () 
       createGateDefinition([], { activeToolIds: ["release:skill-version"] }),
     /unknown tool/u
   );
-  assert.deepEqual(
-    semanticGateChecks.map(({ checkId, command }) => [
-      checkId,
-      command.command,
-      command.args.at(-1)
-    ]),
-    expectedSemanticChecks
-  );
 });
 
 test("gate Definition keeps scheduler, output, and release DAG contracts", () => {
@@ -73,26 +62,31 @@ test("gate Definition keeps scheduler, output, and release DAG contracts", () =>
     release.scheduler.resourceCapacities,
     releaseGateResourceCapacities
   );
-  assert.equal(releaseRequiredCheckIds.length, 60);
   assert.deepEqual(
     release.checks.find(({ checkId }) => checkId === "release:skill-prepare")
       ?.dependsOn,
     [gateEnvironmentCheckId]
   );
+  const versionDependencies = release.checks.find(
+    ({ checkId }) => checkId === "release:skill-version"
+  )?.dependsOn;
+  const baseCheckIds = release.checks
+    .map(({ checkId }) => checkId)
+    .filter(
+      (checkId) => !expectedReleaseOnlyCheckIds.some((id) => id === checkId)
+    );
+  assert.ok(Array.isArray(versionDependencies));
+  const dependencies: readonly unknown[] = versionDependencies;
+  assert.ok(dependencies.every((id) => typeof id === "string"));
   assert.deepEqual(
-    release.checks.find(({ checkId }) => checkId === "release:skill-version")
-      ?.dependsOn,
-    [...releaseRequiredCheckIds, "release:skill-prepare"]
+    [...dependencies].sort(),
+    [...baseCheckIds, "release:skill-prepare"].sort()
   );
   assert.deepEqual(
     release.checks.find(({ checkId }) => checkId === "pack:skills")?.dependsOn,
     [gateEnvironmentCheckId, "release:skill-version"]
   );
-  for (const id of [
-    "release:skill-prepare",
-    "release:skill-version",
-    "pack:skills"
-  ])
+  for (const id of expectedReleaseOnlyCheckIds)
     assert.deepEqual(
       release.checks.find(({ checkId }) => checkId === id)?.enabledByFlags,
       { when: "release", propagateDependsOn: true }

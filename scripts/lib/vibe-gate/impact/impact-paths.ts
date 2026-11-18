@@ -83,6 +83,7 @@ export function isKnownGateInput(relativePath: string): boolean {
       "resource-records",
       "task-graph",
       "test-evidence",
+      "agent-memory",
       "novel-cards",
       "lightweight-judgment",
       "video-understanding",

@@ -182,6 +182,7 @@
       "261110-persistent-resource-finding-acceptance": "sha256:068fed6fabe9ff0108b81d8dc38c8556b735629dbc1cb3bdc120920cc39c3ac1",
       "261110-preserve-source-query-boundaries-with-shared-config": "sha256:00220fb866b0a3e0edba4e5ee4093b430725d1776599f21b7e6779ebc6c6b34d",
       "261111-retain-only-narrative-critical-investigation-materials": "sha256:a6b9e37cd334c60ab82020c0d346f34d9e8ed57830a174b2fc5ae43101e9944d",
+      "261118-agent-memory-sqlite-fact-source": "sha256:83bc671cb4d0f6b42b106c7298c48d6596d388f9e31fd6ffe72a853e8208a613",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -4172,6 +4173,22 @@
           "summary": "保留正文与资源分层，收紧必要性与方法阅读边界"
         }
       ]
+    },
+    "261118-agent-memory-sqlite-fact-source": {
+      "name": "agent-memory-sqlite-fact-source",
+      "sourcePath": "261118-agent-memory-sqlite-fact-source.md",
+      "title": "Agent Memory 以项目 SQLite 为唯一事实源",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-11-18T03:48:32Z",
+      "purpose": "让项目记忆及其版本与依赖在修订时原子一致并可控回访。",
+      "background": "跨版本依赖和即时失效需要一致事务，Markdown 与派生索引难以共同保证。",
+      "decision": "仅 agent-memory 使用项目 SQLite 保存权威内容与关系，Markdown 作为正文格式和只读展示。",
+      "tags": [
+        "agent-memory",
+        "repository-model"
+      ],
+      "relations": []
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",

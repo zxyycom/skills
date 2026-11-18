@@ -20,6 +20,7 @@ import {
 } from "../../tools/skill-package/src/version.ts";
 
 export const maintenanceCliPackageScripts = {
+  "agent-memory": "node skills/agent-memory/scripts/agent-memory.ts",
   "novel-cards": "node skills/novel-cards/scripts/novel-cards.ts",
   "lightweight-judgment":
     "node skills/lightweight-judgment/scripts/lightweight-judgment.ts",
@@ -105,6 +106,7 @@ export const requiredPackageScripts = [
   "sync:change-plan-cli",
   "sync:lightweight-judgment-cli",
   "sync:novel-cards-cli",
+  "sync:agent-memory-cli",
   "sync:skill-validator",
   "sync:investigation-report-check",
   "sync:decision-records-cli",
