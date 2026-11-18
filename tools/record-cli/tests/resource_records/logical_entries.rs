@@ -216,32 +216,32 @@ versions:
 
 #[test]
 fn selection_can_target_a_logical_version_but_not_an_entry() {
-    let d = fixture();
+    let d = logical_fixture(GUIDE);
     let p = d.path();
-    write(p, "logical", &logical(GUIDE));
-    let root = fs::read_to_string(p.join("resources/records/collection.md")).unwrap();
-    let root = root.replace(
-        "---\n集合正文",
-        "  - slot: reference\n    target: {resource: logical, version: v1}\n    basis: agent-provisional\n    scope: 实验入口\n    evidence: {path: note.md}\n---\n集合正文",
-    );
-    write(p, "collection", &root);
+    let root = r#"---
+schemaVersion: 1
+kind: collection
+id: root
+title: 根
+selections:
+  - slot: reference
+    target: {resource: logical, version: v1}
+    basis: agent-provisional
+    scope: 实验入口
+    evidence: {path: note.md}
+---
+"#;
+    write(p, "root", root);
     successful_result(p, &["sync-index"]);
     let show = successful_result(p, &["show", "root"]);
-    let selections = show["record"]["selections"].as_array().unwrap();
-    for (slot, target) in [
-        (
-            "use",
-            json!({"resource": "pack", "version": "v1", "member": "frame"}),
-        ),
-        ("reference", json!({"resource": "logical", "version": "v1"})),
-    ] {
-        let selection = selections.iter().find(|s| s["slot"] == slot).unwrap();
-        assert_eq!(selection["target"], target);
-    }
+    assert_eq!(
+        show["record"]["selections"][0]["target"],
+        json!({"resource": "logical", "version": "v1"})
+    );
 
     write(
         p,
-        "collection",
+        "root",
         &root.replace(
             "resource: logical, version: v1",
             "resource: logical, version: v1, member: guide",
@@ -251,6 +251,6 @@ fn selection_can_target_a_logical_version_but_not_an_entry() {
         p,
         &["sync-index"],
         1,
-        &["collection.md", "selections.reference", "target missing"],
+        &["root.md", "selections.reference", "target missing"],
     );
 }

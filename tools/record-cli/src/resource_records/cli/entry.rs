@@ -1,10 +1,13 @@
 use super::{
     Output,
-    args::{HELP, parse_args},
+    args::{HELP, is_command, parse_args},
     run,
 };
 use serde_json::{Value, json};
-use std::io::{self, Write};
+use std::{
+    ffi::OsString,
+    io::{self, Write},
+};
 
 fn fail(message: impl ToString) -> Value {
     json!({"code":"resource-error","message":message.to_string(),"recovery":"检查记录、索引和路径后重新执行；必要时运行 sync-index"})
@@ -24,21 +27,18 @@ fn output(text: &str, committed: bool) -> bool {
     }
 }
 
-fn is_help(args: &[String]) -> bool {
+fn is_help(args: &[OsString]) -> bool {
     if args.is_empty()
         || matches!(
-            args.first().map(String::as_str),
+            args.first().and_then(|arg| arg.to_str()),
             Some("help" | "--help" | "-h")
         )
     {
         return true;
     }
     args.len() == 2
-        && matches!(
-            args[0].as_str(),
-            "list" | "show" | "search" | "trace" | "check" | "sync-index"
-        )
-        && matches!(args[1].as_str(), "--help" | "-h")
+        && args[0].to_str().is_some_and(is_command)
+        && matches!(args[1].to_str(), Some("--help" | "-h"))
 }
 fn status_output(text: &str, committed: bool) -> i32 {
     if output(text, committed) { 0 } else { 1 }
@@ -79,7 +79,7 @@ fn execute(a: super::args::Args) -> i32 {
     }
 }
 pub fn main_entry() -> i32 {
-    let args: Vec<String> = std::env::args().skip(1).collect();
+    let args: Vec<_> = std::env::args_os().skip(1).collect();
     if is_help(&args) {
         return status_output(HELP, false);
     }

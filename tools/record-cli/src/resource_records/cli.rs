@@ -32,7 +32,7 @@ fn query(a: &Args, root: &Path, dir: &str) -> Result<Output, String> {
     }
     let idx = load_index(root, dir)?;
     match a.command.as_str() {
-        "list" => Ok(list(a, &idx)),
+        "list" => list(a, &idx),
         "show" => show(a, &idx, root, dir).map(Output::Json),
         "search" => search_metadata(a, &idx).map(Output::Json),
         "trace" => trace::run(a, &idx).map(Output::Json),
@@ -74,26 +74,39 @@ fn search_body(a: &Args, root: &Path, dir: &str) -> Result<Value, String> {
     )
 }
 
-fn list(a: &Args, index: &model::Index) -> Output {
-    let mut total = 0;
-    let mut records = Vec::new();
-    let limit = a.limit.unwrap_or(50);
+#[derive(serde::Serialize)]
+struct ListPage<'a> {
+    records: Vec<&'a model::Entry>,
+    total: usize,
+    offset: usize,
+    limit: usize,
+    freshness: &'static str,
+}
+
+fn list(a: &Args, index: &model::Index) -> Result<Output, String> {
+    let mut page = ListPage {
+        records: Vec::new(),
+        total: 0,
+        offset: a.offset,
+        limit: a.limit.unwrap_or(50),
+        freshness: "unchecked",
+    };
     for entry in &index.records {
         if matches_list(a, index, &entry.record) {
-            if total >= a.offset && records.len() < limit {
-                records.push(entry);
+            if page.total >= page.offset && page.records.len() < page.limit {
+                page.records.push(entry);
             }
-            total += 1;
+            page.total += 1;
         }
     }
     if !a.json
         && let Some(view) = a.view
     {
-        Output::Text(render::list(&records, index, total, a, view))
+        render::list(&page, index, view).map(Output::Text)
     } else {
-        Output::Json(
-            json!({"records":records,"total":total,"offset":a.offset,"limit":limit,"freshness":"unchecked"}),
-        )
+        serde_json::to_value(page)
+            .map(Output::Json)
+            .map_err(|error| error.to_string())
     }
 }
 

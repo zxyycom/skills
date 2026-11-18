@@ -29,6 +29,7 @@ fn successful_result(root: &Path, args: &[&str]) -> Value {
 fn assert_error(root: &Path, args: &[&str], code: i32, fragments: &[&str]) {
     let (output, envelope) = run(root, args);
     assert_eq!(output.status.code(), Some(code), "{args:?}: {envelope}");
+    assert!(output.stderr.is_empty(), "{args:?}: {output:?}");
     assert_eq!(envelope["ok"], false, "{envelope}");
     let message = envelope["error"]["message"].as_str().unwrap();
     for fragment in fragments {

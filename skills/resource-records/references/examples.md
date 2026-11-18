@@ -13,6 +13,11 @@ kind: collection
 id: demo-form
 title: 示例形态
 selections:
+  - slot: experiment-guide
+    target: {resource: demo-batch, version: v1}
+    basis: agent-provisional
+    scope: 找到本批次的实验说明
+    evidence: {path: evidence/demo.md, locator: 批次说明入口}
   - slot: appearance
     target: {resource: demo-image, version: v1, member: main}
     basis: agent-provisional
@@ -96,34 +101,9 @@ versions:
 
 示例中 v2 以 v1 为制作前序，另有调用证据声明 v1 主图是实际输入；两条关系分别有其证据含义，不能互相推导。选择仍指向 v1，不因为 v2 出现而变化。占位证据仅为展示结构，不证明调用或媒体存在；真实登记须引用可回查的原始条目。
 
-## 查询示例
-
-将以上三段分别保存为隔离工作区 `resources/records/` 下的 Markdown。以下 `resource-records` 代表安装包中实际可执行文件，Windows 使用 `resource-records.exe`；不在 PATH 时替换为其路径。`--root .` 表示当前目录是示例工作区；可换成工作区绝对路径。获准维护示例工作区后，先建索引并检查：
-
-```sh
-resource-records sync-index --root .
-resource-records check --root .
-```
-
-再查询：
-
-```sh
-resource-records list --slot appearance --root .
-resource-records list --brief --root .
-resource-records list --tree --root .
-resource-records show demo-form --root .
-resource-records show demo-image --version v2 --member main --root .
-resource-records trace demo-image --version v2 --type version-parent --direction upstream --depth 2 --max-nodes 20 --max-edges 20 --root .
-resource-records trace demo-image --version v2 --member main --type input --direction upstream --depth 2 --max-nodes 20 --max-edges 20 --root .
-resource-records trace demo-pack --version v1 --member main-view --type member --direction upstream --depth 2 --max-nodes 20 --max-edges 20 --root .
-resource-records trace demo-image --version v1 --member main --type selection --direction downstream --root .
-```
-
-slot 查询返回声明该 slot 的集合及索引中的选择快照；两种视图用于浏览，`show` 回读当前源记录并核对新鲜度。前面三条 `trace` 分别追踪版本沿革、文件输入和图包别名；最后一条从精确文件反查直接选择它的集合。检查 `truncated`、`unexpandedTerminals`、证据及 `freshness`，不要把有限结果当全图；找到集合后以 `show` 回读其当前选择。
-
 ## 逻辑入口示例
 
-另存以下独立资源记录；集合需存在。路径仅为占位，不证明目录或文档存在。此版本代表可演进入口，不是确切文件快照；需要精确选用的文件仍另行登记。
+同一集合用以下资源登记批次入口。目录或说明可变化，路径是导航而非历史快照。
 
 ```yaml
 ---
@@ -144,16 +124,28 @@ versions:
 实验入口；实际调用和观察保留在原说明中。
 ```
 
-将该记录加入同一隔离工作区，在获准维护时重新运行 `sync-index` 和 `check`。下面分别找实验批次和精确选用，再回读源记录：
+## 查询示例
+
+将以上四段分别保存为隔离工作区 `resources/records/` 下的 Markdown。以下 `resource-records` 代表安装包中实际可执行文件，Windows 使用 `resource-records.exe`；不在 PATH 时替换为其路径。`--root .` 表示当前目录是示例工作区；可换成工作区绝对路径。获准维护示例工作区后，先建索引并检查：
 
 ```sh
-resource-records search demo-batch --metadata --root .
-resource-records search projects/demo/experiment --metadata --root .
-resource-records show demo-batch --version v1 --root .
-resource-records list --collection demo-form --descendants --tree --root .
-resource-records list --slot appearance --root .
-resource-records show demo-form --root .
-resource-records show demo-image --version v1 --member main --root .
+resource-records sync-index --root .
+resource-records check --root .
 ```
 
-路径搜索匹配记录中登记的入口路径，不搜索目录或文档内容。批次的 `entries` 指向可变入口；集合的 `appearance` 选择指向 `demo-image@v1#main`。树中 `[match depth=...]` 是命中，`[context depth=...]` 仅为祖先；索引查询的 `freshness: unchecked` 不证明源记录新鲜，分别以 `show` 核对。目录新增过程文件不必改卡，也不使已有精确文件选择漂移。
+再查询：
+
+```sh
+resource-records list --slot appearance --root .
+resource-records search projects/demo/experiment --metadata --root .
+resource-records show demo-batch --version v1 --root .
+resource-records list --tree --root .
+resource-records show demo-form --root .
+resource-records show demo-image --version v2 --member main --root .
+resource-records trace demo-image --version v2 --type version-parent --direction upstream --depth 2 --max-nodes 20 --max-edges 20 --root .
+resource-records trace demo-image --version v2 --member main --type input --direction upstream --depth 2 --max-nodes 20 --max-edges 20 --root .
+resource-records trace demo-pack --version v1 --member main-view --type member --direction upstream --depth 2 --max-nodes 20 --max-edges 20 --root .
+resource-records trace demo-image --version v1 --member main --type selection --direction downstream --root .
+```
+
+路径搜索只匹配登记的字符串。`show demo-form` 回读两个用途槽：`experiment-guide` 指向整个可变批次，`appearance` 固定到 `demo-image@v1#main`。`list` 反映索引快照，当前选择以源记录为准。前面三条 `trace` 分别追踪版本沿革、文件输入和图包别名；最后一条从精确文件反查直接选择它的集合。检查 `truncated`、`unexpandedTerminals`、证据及 `freshness`，不要把有限结果当全图；找到集合后以 `show` 回读其当前选择。

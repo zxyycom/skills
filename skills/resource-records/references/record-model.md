@@ -9,7 +9,7 @@
 - 集合可有一个 `parent`、标签和 `selections`；资源恰归属一个集合并有至少一个版本。
 - 版本分为逻辑入口与文件／图包两种：有 `entries` 时其数组非空，`files` 和 `members` 均为空；没有 `entries` 时，`files` 和 `members` 至少一个非空。同一版本的 `files` 与 `members` 共享 ID 命名空间，彼此不得重名；`entries` 没有 ID，不属于该命名空间。版本 `parents` 表示制作沿革，不代表现行用途。
 - 逻辑入口为 `{kind: directory, path}` 或 `{kind: document, path}`，路径相对工作区，遵循下述路径约束；一个版本可有多个入口，不要求对应一个目录。入口是可变内容的导航，不是文件身份、哈希或历史快照；CLI 校验路径形式，不核验入口及其内容是否存在。
-- 用途选择属于声明它的集合、不继承，目标必须属于该集合或其后代；slot 在集合内唯一，basis 明确是 `agent-provisional`、`user-preference` 或 `user-confirmed`。
+- 用途选择属于声明它的集合、不继承，目标必须属于该集合或其后代；逻辑版本可用 `{resource, version}` 整体选用。入口路径没有成员 ID，不能填入 `member`。slot 在集合内唯一，basis 明确是 `agent-provisional`、`user-preference` 或 `user-confirmed`。
 
 ## 精确引用、文件与路径
 

@@ -134,6 +134,7 @@ fn plain(p: &Path, args: &[&str]) -> String {
         output.status.code(),
         String::from_utf8_lossy(&output.stderr)
     );
+    assert!(output.stderr.is_empty(), "{args:?}: {output:?}");
     String::from_utf8(output.stdout).unwrap()
 }
 
@@ -201,10 +202,6 @@ fn list_views_preserve_window_and_mark_tree_context() {
             assert_eq!(lines.next(), None, "{args:?}: {text}");
         }
     }
-
-    let show = successful_result(p, &["show", "base"]);
-    assert_eq!(show["record"]["title"], "底图\n第二行");
-    assert_eq!(show["freshness"], "current");
 }
 
 fn assert_row_prefix(row: Option<&str>, expected: &str, text: &str) {
@@ -268,31 +265,6 @@ fn list_view_flags_are_exclusive_and_list_only() {
     for view in ["--brief", "--tree"] {
         assert_error(p, &["show", "base", view], 2, &["not applicable"]);
     }
-
-    // These are raw argv tests: adding --root or --json would change what is under test.
-    let raw = |args: &[&str]| {
-        Command::new(env!("CARGO_BIN_EXE_resource-records"))
-            .args(args)
-            .output()
-            .unwrap()
-    };
-    let output = raw(&["list", "--collection", "--json", "--brief", "--tree"]);
-    assert_eq!(output.status.code(), Some(2), "{output:?}");
-    assert!(output.stdout.is_empty(), "{output:?}");
-    assert!(String::from_utf8_lossy(&output.stderr).contains("mutually exclusive"));
-
-    let output = raw(&["--root", "show", "list", "--json", "--brief", "--tree"]);
-    assert_eq!(output.status.code(), Some(2), "{output:?}");
-    assert!(output.stderr.is_empty(), "{output:?}");
-    let envelope: Value = serde_json::from_slice(&output.stdout).unwrap();
-    assert_eq!(envelope["command"], "list", "{envelope}");
-    assert_eq!(envelope["ok"], false, "{envelope}");
-    assert!(
-        envelope["error"]["message"]
-            .as_str()
-            .is_some_and(|message| message.contains("mutually exclusive")),
-        "{envelope}"
-    );
 }
 
 #[test]

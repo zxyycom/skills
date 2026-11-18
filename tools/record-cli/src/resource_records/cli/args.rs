@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, ffi::OsString};
 
 #[derive(Clone, Copy)]
 pub(super) enum ListView {
@@ -37,43 +37,67 @@ pub(super) struct ParseError {
     pub(super) json: bool,
 }
 
-pub(super) fn parse_args(args: Vec<String>) -> Result<Args, ParseError> {
-    let mut a = Args::default();
-    let mut seen = HashSet::new();
-    let mut it = args.into_iter();
-    let mut positional_only = false;
-    let mut command_seen = false;
-    let mut first_error = None;
-    while let Some(x) = it.next() {
-        if !positional_only && x == "--" {
-            positional_only = true;
-            continue;
-        }
-        if positional_only {
-            if !command_seen {
-                a.command = x;
-                command_seen = true;
-            } else {
-                a.positionals.push(x);
+#[derive(Default)]
+struct ArgumentScan {
+    args: Args,
+    seen: HashSet<String>,
+    command: Option<String>,
+    positional_only: bool,
+}
+
+impl ArgumentScan {
+    fn consume(
+        &mut self,
+        raw: OsString,
+        remaining: &mut impl Iterator<Item = OsString>,
+    ) -> Result<(), String> {
+        let token = raw.into_string().map_err(|raw| {
+            if self.positional_only || !raw.as_encoded_bytes().starts_with(b"-") {
+                self.command.get_or_insert_default();
             }
-            continue;
+            "argument must be valid Unicode"
+        })?;
+        if !self.positional_only {
+            if token == "--" {
+                self.positional_only = true;
+                return Ok(());
+            }
+            if token.starts_with('-') {
+                return consume_option(&mut self.args, &mut self.seen, remaining, &token);
+            }
         }
-        if let Err(error) = consume_argument(&mut a, &mut seen, &mut it, &mut command_seen, x) {
+        if self.command.is_some() {
+            self.args.positionals.push(token);
+        } else {
+            self.command = Some(token);
+        }
+        Ok(())
+    }
+}
+
+pub(super) fn parse_args(args: Vec<OsString>) -> Result<Args, ParseError> {
+    let mut scan = ArgumentScan::default();
+    let mut remaining = args.into_iter();
+    let mut first_error = None;
+    while let Some(raw) = remaining.next() {
+        if let Err(error) = scan.consume(raw, &mut remaining) {
             first_error.get_or_insert(error);
         }
     }
-    let error = first_error.or_else(|| validate_args(&a, &seen).err());
+    let mut args = scan.args;
+    args.command = scan.command.unwrap_or_default();
+    let error = first_error.or_else(|| validate_args(&args, &scan.seen).err());
     match error {
         Some(message) => Err(ParseError {
             message,
-            command: if is_command(&a.command) {
-                a.command
+            command: if is_command(&args.command) {
+                args.command
             } else {
                 String::new()
             },
-            json: a.json,
+            json: args.json,
         }),
-        None => Ok(a),
+        None => Ok(args),
     }
 }
 
@@ -128,14 +152,12 @@ fn set_numeric(a: &mut Args, name: &str, value: &str) -> Result<(), String> {
     Ok(())
 }
 
-fn consume_argument(
+fn consume_option(
     a: &mut Args,
     seen: &mut HashSet<String>,
-    it: &mut impl Iterator<Item = String>,
-    command_seen: &mut bool,
-    x: String,
+    remaining: &mut impl Iterator<Item = OsString>,
+    name: &str,
 ) -> Result<(), String> {
-    let duplicate = check_duplicate(seen, &x);
     const VALUE_OPTIONS: &[&str] = &[
         "--root",
         "--resources-dir",
@@ -153,28 +175,29 @@ fn consume_argument(
         "--max-nodes",
         "--max-edges",
     ];
-    let result = if set_flag(a, &x) {
+    let duplicate = check_duplicate(seen, name);
+    let result = if set_flag(a, name) {
         Ok(())
-    } else if VALUE_OPTIONS.contains(&x.as_str()) {
-        match it.next() {
-            Some(v) => set_value(a, &x, v),
-            None => Err(format!("{x} requires a value")),
-        }
-    } else if x.starts_with('-') {
-        Err(format!("unknown option {x}"))
+    } else if VALUE_OPTIONS.contains(&name) {
+        option_value(remaining, name).and_then(|value| set_value(a, name, value))
     } else {
-        if !*command_seen {
-            a.command = x;
-            *command_seen = true;
-        } else {
-            a.positionals.push(x);
-        }
-        Ok(())
+        Err(format!("unknown option {name}"))
     };
     duplicate.and(result)
 }
 
-fn is_command(command: &str) -> bool {
+fn option_value(
+    remaining: &mut impl Iterator<Item = OsString>,
+    name: &str,
+) -> Result<String, String> {
+    remaining
+        .next()
+        .ok_or_else(|| format!("{name} requires a value"))?
+        .into_string()
+        .map_err(|_| format!("{name} value must be valid Unicode"))
+}
+
+pub(super) fn is_command(command: &str) -> bool {
     matches!(
         command,
         "list" | "show" | "search" | "trace" | "check" | "sync-index"

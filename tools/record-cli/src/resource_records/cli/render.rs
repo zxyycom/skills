@@ -1,6 +1,6 @@
-use super::super::model::{Entry, Index, Record};
-use super::args::{Args, ListView};
-use std::collections::{HashMap, HashSet};
+use super::super::model::{Index, Record};
+use super::{ListPage, args::ListView};
+use std::collections::HashMap;
 use std::fmt::Write;
 
 fn details(record: &Record) -> String {
@@ -36,22 +36,26 @@ fn parent(record: &Record) -> Option<&str> {
         Record::Resource { collection, .. } => Some(collection),
     }
 }
-fn ancestors<'a>(record: &'a Record, collections: &HashMap<&str, &'a Record>) -> Vec<&'a Record> {
+fn ancestors<'a>(
+    record: &'a Record,
+    collections: &HashMap<&str, &'a Record>,
+) -> Result<Vec<&'a Record>, String> {
     let mut path = Vec::new();
-    let mut seen = HashSet::new();
     let mut at = parent(record);
     while let Some(id) = at {
-        if !seen.insert(id) {
-            break;
+        let record = *collections
+            .get(id)
+            .ok_or_else(|| format!("list tree: missing ancestor collection {id}"))?;
+        // The index validates ancestry at load time; never render a partial path
+        // if that invariant is broken.
+        if path.len() == collections.len() {
+            return Err(format!("list tree: ancestor cycle for collection {id}"));
         }
-        let Some(record) = collections.get(id) else {
-            break;
-        };
-        path.push(*record);
+        path.push(record);
         at = parent(record);
     }
     path.reverse();
-    path
+    Ok(path)
 }
 
 fn tree_row(out: &mut String, record: &Record, path: &[&Record], previous: &[&str]) {
@@ -77,17 +81,10 @@ fn tree_row(out: &mut String, record: &Record, path: &[&Record], previous: &[&st
     );
 }
 
-pub(super) fn list(
-    records: &[&Entry],
-    idx: &Index,
-    total: usize,
-    args: &Args,
-    view: ListView,
-) -> String {
+pub(super) fn list(page: &ListPage<'_>, idx: &Index, view: ListView) -> Result<String, String> {
     let mut out = format!(
-        "total={total} offset={} limit={} freshness=unchecked\n",
-        args.offset,
-        args.limit.unwrap_or(50)
+        "total={} offset={} limit={} freshness={}\n",
+        page.total, page.offset, page.limit, page.freshness
     );
     if matches!(view, ListView::Tree) {
         let collections: HashMap<_, _> = idx
@@ -99,16 +96,16 @@ pub(super) fn list(
             })
             .collect();
         let mut previous: Vec<&str> = Vec::new();
-        for entry in records {
-            let path = ancestors(&entry.record, &collections);
+        for entry in &page.records {
+            let path = ancestors(&entry.record, &collections)?;
             tree_row(&mut out, &entry.record, &path, &previous);
             previous = path.iter().map(|r| r.id()).collect();
         }
     } else {
-        for entry in records {
+        for entry in &page.records {
             let _ = writeln!(out, "[match] {}", details(&entry.record));
         }
     }
     out.pop();
-    out
+    Ok(out)
 }

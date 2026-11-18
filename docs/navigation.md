@@ -29,7 +29,7 @@
 | 排查 Gate 运行结果或输入证明 | [项目验证模型](validation-model.md)、[Gate 运行结果与诊断](gate-runtime.md) | [权威 Vibe 门禁](gate-execution.md#权威-vibe-门禁)的执行范围与 [Gate 项目运行与质量政策](gate-policy.md)的精确政策；需要修改 Check 时进入其编写路由 |
 | 新增、修改或移除 Gate Check | [项目验证模型](validation-model.md)、[Gate Check 编写与接入](gate-check-authoring.md) | [项目工具链的权威 Vibe 门禁](gate-execution.md#权威-vibe-门禁)、[Gate 项目运行与质量政策](gate-policy.md)、[类型接入](gate-check-types.md)及[编码规范](coding-style.md)；涉及测试实现或 Case 时读 [Test Evidence Review](../skills/test-evidence-review/SKILL.md) |
 | 成批审阅或持续纠正记录 | [记录维护入口](record-maintenance-workflow.md) | 按对象选择[决策流程](record-maintenance/decisions.md)或[调查流程](record-maintenance/investigations.md)及其领域 skill；明确使用 JEV 时读取 [Lightweight Judgment](../skills/lightweight-judgment/SKILL.md) |
-| 登记或查询资源版本、文件、来源和用途选择 | [Resource Records](../skills/resource-records/SKILL.md) | 记录模型与 CLI 契约；原始调用和媒体保管由所属项目维护 |
+| 登记或查找可变目录／文档入口，或按确切版本选用、追溯文件 | [Resource Records](../skills/resource-records/SKILL.md) | 记录模型与 CLI 契约；原始调用和媒体保管由所属项目维护 |
 | 恢复、审阅或维护长期决策 | [Decision Records](../skills/decision-records/SKILL.md)，按需使用 show、list、search 或 trace 查询 | 相关决策 Markdown、领域规则和所选 CLI 操作或恢复章节；索引位置见下方 owner 表 |
 | 创建、更新或审阅调查报告 | [Investigation Report](../skills/investigation-report/SKILL.md)，按需使用 show、list、search 或 trace 查询 | 相关调查报告、领域规则和所选 CLI 操作或恢复章节；索引位置见下方 owner 表 |
 | 整理并创建 Git 提交 | [Git Commit Organizer](../skills/git-commit-organizer/SKILL.md) | 当前 Git 状态、diff 和目标改动的验证结果 |

@@ -56,6 +56,80 @@ fn literal_search_matches_across_lines() {
     );
 }
 
+fn assert_parameter_error(output: Output, json_command: Option<&str>, diagnostic: &str) {
+    assert_eq!(output.status.code(), Some(2), "{output:?}");
+    if let Some(command) = json_command {
+        assert!(output.stderr.is_empty(), "{output:?}");
+        let envelope: Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert_eq!(envelope["command"], command, "{envelope}");
+        assert_eq!(envelope["ok"], false, "{envelope}");
+        assert!(
+            envelope["error"]["message"]
+                .as_str()
+                .is_some_and(|message| message.contains(diagnostic)),
+            "{envelope}"
+        );
+    } else {
+        assert!(output.stdout.is_empty(), "{output:?}");
+        assert!(
+            String::from_utf8_lossy(&output.stderr).contains(diagnostic),
+            "{output:?}"
+        );
+    }
+}
+
+#[test]
+fn parameter_errors_use_parsed_output_mode_and_command() {
+    let binary = env!("CARGO_BIN_EXE_resource-records");
+    let plain = Command::new(binary)
+        .args(["list", "--collection", "--json", "--not-an-option"])
+        .output()
+        .unwrap();
+    assert_parameter_error(plain, None, "unknown option --not-an-option");
+
+    let json = Command::new(binary)
+        .args(["--not-an-option", "--root", "show", "list", "--json"])
+        .output()
+        .unwrap();
+    assert_parameter_error(json, Some("list"), "unknown option --not-an-option");
+
+    let empty_command = Command::new(binary)
+        .args(["", "list", "--json"])
+        .output()
+        .unwrap();
+    assert_parameter_error(empty_command, Some(""), "unknown or missing command");
+}
+
+#[cfg(any(unix, windows))]
+#[test]
+fn non_unicode_arguments_use_normal_parameter_diagnostics() {
+    #[cfg(unix)]
+    let invalid = {
+        use std::os::unix::ffi::OsStringExt;
+        std::ffi::OsString::from_vec(vec![0xff])
+    };
+    #[cfg(windows)]
+    let invalid = {
+        use std::os::windows::ffi::OsStringExt;
+        std::ffi::OsString::from_wide(&[0xd800])
+    };
+    let binary = env!("CARGO_BIN_EXE_resource-records");
+    let json = Command::new(binary)
+        .args(["--root", "show", "list", "--tag"])
+        .arg(&invalid)
+        .arg("--json")
+        .output()
+        .unwrap();
+    assert_parameter_error(json, Some("list"), "--tag value must be valid Unicode");
+
+    let plain = Command::new(binary)
+        .args(["show", "--"])
+        .arg(invalid)
+        .output()
+        .unwrap();
+    assert_parameter_error(plain, None, "argument must be valid Unicode");
+}
+
 #[test]
 fn closed_stdout_after_sync_reports_committed_state_without_panic() {
     use std::process::Stdio;

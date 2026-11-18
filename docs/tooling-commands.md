@@ -41,14 +41,13 @@
 | `bun run lightweight-judgment -- <command> [参数]` | 单次结构化判断、本地前置诊断、离线预览与调用统计；外发、配置与结果按 [CLI 操作契约](../skills/lightweight-judgment/references/cli.md) |
 | `bun run change-plan -- <arguments>` | 维护 change proposal、design、tasks 与生命周期 |
 | `bun run decision-records -- <arguments>` | 查询和维护长期决策及其派生索引 |
+| `bun run resource-records -- <arguments>` | 查找逻辑入口、核对精确文件与用途选择，维护资源索引；见 [Resource Records](../skills/resource-records/SKILL.md) |
 | `bun run investigation-report -- <arguments>` | 检查、同步或查询调查报告索引 |
 | `bun run task-graph -- <arguments>` | 默认操作当前项目中央 task graph，或显式切换目标项目 |
 | `bun run test-evidence -- <arguments>` | 校验、同步和查询显式测试证据 case |
 | `bun run validate-skill -- <skill-directory>` | 校验单个 skill 的可移植结构 |
 
-资源记录可按 [Record CLI](../tools/record-cli/README.md#构建与调用)构建后直接调用 `resource-records`；构建、安装和平台验收分别核对。
-
-项目内 agent、维护说明和日常人工操作使用上表入口。Decision Records 和 Investigation Report 经 Node 轻量调度器调用已准备的原生程序；先运行 `bun run prepare:record-native`，可用 `bun run prepare:record-native -- --check` 核对。其他入口除 task-graph 外委托对应 `skills/*/scripts/` 生成 CLI；参数、输出、退出状态和事务逻辑仍由该领域 CLI 定义。只有以下场景直接调用 `tools/` 源码或 `skills/*/scripts/` 完整路径：
+项目内 agent、维护说明和日常人工操作使用上表入口。Decision Records、Investigation Report 和 Resource Records 经 Node 轻量调度器调用已准备的原生程序；先运行 `bun run prepare:record-native`，可用 `bun run prepare:record-native -- --check` 核对。其他工具入口除 task-graph 外委托对应 `skills/*/scripts/` 生成 CLI；参数、输出、退出状态和事务逻辑仍由该领域 CLI 定义。只有以下场景直接调用 `tools/` 源码或 `skills/*/scripts/` 完整路径：
 
 1. 验证工具源码与生成制品的一致性。
 2. 调试 package 入口或领域 CLI 实现。
@@ -77,9 +76,10 @@ task-graph 短命令另外承担项目 root 选择。省略 `--root` 时，它�
 | Video Understanding | `test:video-understanding-cli` | `sync:video-understanding-cli` | `check:video-understanding-cli` |
 | Lightweight Judgment | `test:lightweight-judgment-cli` | `sync:lightweight-judgment-cli` | `check:lightweight-judgment-cli` |
 | Change Plan | `test:change-plan-cli` | `sync:change-plan-cli` | `check:change-plan-cli` |
-| Decision Records | `test:decision-records-cli` | `sync:decision-records-cli` | `check:decision-records-cli`、`check:decisions` |
+| Resource Records | `test:record-rust` | `sync:resource-records-cli` | `check:resource-records-cli` |
+| Decision Records | `test:record-rust` | `sync:decision-records-cli` | `check:decision-records-cli`、`check:decisions` |
 | Skill Validator | `test:skill-validator` | `sync:skill-validator` | `check:skill-validator` |
-| Investigation Report | `test:investigation-report-check` | `sync:investigation-report-check` | `check:investigation-report-check`、`check:investigations` |
+| Investigation Report | `test:record-rust` | `sync:investigation-report-check` | `check:investigation-report-check`、`check:investigations` |
 | Record 原生 CLI | `prepare:record-native`、`test:record-native-runtime`、`test:record-rust`、`test:record-delivery`、`smoke:record-rust`（构建前置见[原生维护](../tools/record-cli/README.md#构建与调用)） | — | `bun run check -- --scope record-rust` |
 | Task Graph | `test:task-graph-cli` | `sync:task-graph-cli` | `check:task-graph-cli`、`check:task-graph-index` |
 | Test Evidence | `test:test-evidence-cli`、`test:test-evidence-project` | `sync:test-evidence-cli`、`sync:test-evidence-catalog` | `check:test-evidence-cli`、`check:test-evidence-catalog` |
