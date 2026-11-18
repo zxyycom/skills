@@ -5,6 +5,15 @@
   "metadata": {},
   "sourceRevision": {
     "entries": {
+      "AGENT-MEMORY-ATOMIC-001": "sha256:9abdab2be467f945a19e8e77e1f83d100b0564bb51edea598225c6fca794f2ae",
+      "AGENT-MEMORY-BINDING-001": "sha256:998691c50073012920b3d199df3ba96a3b132b597e55d7a6850e3375f3c6a6b4",
+      "AGENT-MEMORY-CONTROL-001": "sha256:977f5f7fe1ff009ffa4619225e478137302ffe05c1c7fde12e7ad3211220eb0b",
+      "AGENT-MEMORY-DEPENDENCIES-001": "sha256:c6d650680d1738bb38fe8ddcc4d7cc6a8728601b89f22477a46059a4a8760631",
+      "AGENT-MEMORY-DISTRIBUTION-001": "sha256:17333f9d2db636b912ae3a0772fa4bf435fad780d2c1bc79b615f7bbebf7f2f5",
+      "AGENT-MEMORY-EVOLUTION-001": "sha256:bd69bdd113cef4a624e5ca80a65b7d5fb872be727aacb7bb5555a008e5fdb25f",
+      "AGENT-MEMORY-INTENT-001": "sha256:e65ae13a641e6f5d166f9696070389f532be7425bdc8143a6758602c3ede7fa2",
+      "AGENT-MEMORY-PURGE-001": "sha256:35a1b1fb955ff2033dd193f7cc70c8b20f7df4d67ed684535cd6f6807fb7a1fd",
+      "AGENT-MEMORY-RECALL-001": "sha256:9d95caa4f786a286f819b6ea93f12d05d934b22c0c7242e5d08ea7ee82176e31",
       "AUTO-PUSH-BRANCH-001": "sha256:20c898b6bd5abacce38e2b43f8287a85c3131309c90a0566ef8ff693e448598d",
       "AUTO-PUSH-CONCURRENCY-001": "sha256:f6bc44d8e72386226acdc7c029ddeb90a4fa9f7f9bb2df45fa221781ef61f92a",
       "AUTO-PUSH-CONFLICT-001": "sha256:0e219640c21513be36a23c42f9aa040df82d20f8627319b809218127b393aece",
@@ -1433,6 +1442,96 @@
     "metadata": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
   },
   "entries": {
+    "AGENT-MEMORY-ATOMIC-001": {
+      "title": "请求重放和事务失败回滚",
+      "sourcePath": "cases/agent-memory-atomic.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:6b7decdd0f1d6f230116ab922ce848a8333bdf080d6adcdd667150b074cf6ed2"
+      ]
+    },
+    "AGENT-MEMORY-BINDING-001": {
+      "title": "项目绑定和查询不建库",
+      "sourcePath": "cases/agent-memory-binding.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:9d1a529e3d299f16e8c4f66da2dc390ed3222d5b822a62d1c3ae80d32b433898"
+      ]
+    },
+    "AGENT-MEMORY-CONTROL-001": {
+      "title": "停用和隐藏不删除历史",
+      "sourcePath": "cases/agent-memory-control.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:6eec0316d4502a901a7d5435b3f189ca06660fc00641681c65bef6615c82836f"
+      ]
+    },
+    "AGENT-MEMORY-DEPENDENCIES-001": {
+      "title": "纠正传播与依赖复核",
+      "sourcePath": "cases/agent-memory-dependencies.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:2d182357ed2cf2c151f764db8f7267f2c44d3d1f0499140cbd320aca793ce4af"
+      ]
+    },
+    "AGENT-MEMORY-DISTRIBUTION-001": {
+      "title": "随包 Node CLI 可独立运行",
+      "sourcePath": "cases/agent-memory-distribution.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:e294528ff55cf185cd43d87039935d59975962711b81f9a23056fa87117a8249"
+      ]
+    },
+    "AGENT-MEMORY-EVOLUTION-001": {
+      "title": "演进后仍须满足组合有效性",
+      "sourcePath": "cases/agent-memory-evolution.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:a3572018c8974a27b295b337fdd5c9e419ae26420ffe5b164388096551a14688"
+      ]
+    },
+    "AGENT-MEMORY-INTENT-001": {
+      "title": "取消待复核意图并保留原证据",
+      "sourcePath": "cases/agent-memory-intent.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:239cb4556dd838ab70ebe323c26b05ba70070e7a6bcb80acb4c19553af088de1"
+      ]
+    },
+    "AGENT-MEMORY-PURGE-001": {
+      "title": "清除预览、库内数据与防重放",
+      "sourcePath": "cases/agent-memory-purge.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:c22d02cf82705d94d386bedbf061e53fc62600acca683c57a6bcd2080d4291d9"
+      ]
+    },
+    "AGENT-MEMORY-RECALL-001": {
+      "title": "中文原文与精确标签召回",
+      "sourcePath": "cases/agent-memory-recall.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:486e531f31ba1f514c95ed8137f3ead086153b16f45238d0891e9097abf88f54"
+      ]
+    },
     "AUTO-PUSH-BRANCH-001": {
       "title": "自动推送只接受 Main 提交",
       "sourcePath": "cases/auto-push-branch-001.md",

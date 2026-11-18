@@ -83,6 +83,7 @@ pnpm --dir "<skill-directory>" install \
 
 | 维护源码 | 分发目标 |
 | --- | --- |
+| `tools/agent-memory/` | `skills/agent-memory/scripts/agent-memory.ts` 与包内运行时；构建适配为 `scripts/build/agent-memory.ts` |
 | `tools/novel-cards/` | `skills/novel-cards/scripts/novel-cards.ts` 与包内运行时；构建适配为 `scripts/build/novel-cards.ts` |
 | `tools/video-understanding/` | `skills/video-understanding/scripts/video.ts`、包内运行时及媒体辅助／安装资源；构建适配为 `scripts/build/video-understanding.ts` |
 | `tools/lightweight-judgment/` | `skills/lightweight-judgment/scripts/lightweight-judgment.ts` 与包内运行时；`migrations/` 下的版本迁移 SQL 同步到该 skill 对应迁移目录，迁移记录手工维护；支持的转换见[迁移清单](../skills/lightweight-judgment/migrations/README.md)；构建适配为 `scripts/build/lightweight-judgment.ts` |

@@ -5,8 +5,10 @@ import test from "node:test";
 import * as v from "valibot";
 import { run } from "@zxyycom/vibe-check";
 import { runVibeCheck } from "../../../vibe-check.ts";
+import { createGateDefinition } from "../../../lib/vibe-gate.ts";
 import { fixtureGateWorkspaceSnapshot } from "../../../lib/vibe-gate/test-support.ts";
 import { passedDefinition } from "./vibe-check-cli-test-support.ts";
+import { expectedReleaseOnlyCheckIds } from "../vibe-check-catalog-fixture.ts";
 import {
   noOutput,
   withTemporaryDirectory
@@ -29,6 +31,8 @@ const incrementalSummarySchema = v.looseObject({
 });
 
 test("CLI enforces only quick budgets including entry and late report overhead", async () => {
+  const total = createGateDefinition(["release"]).checks.length;
+  const base = total - expectedReleaseOnlyCheckIds.length;
   await withTemporaryDirectory("gate-cli-performance-", async (directory) => {
     for (const mode of [
       "quick",
@@ -112,7 +116,11 @@ test("CLI enforces only quick budgets including entry and late report overhead",
       );
       assert.equal(summary.nativeResult.aggregate, "passed", mode);
       const eligible =
-        mode === "quick" || mode === "late" ? 6 : mode === "release" ? 63 : 60;
+        mode === "quick" || mode === "late"
+          ? 6
+          : mode === "release"
+            ? total
+            : base;
       assert.deepEqual(
         summary.selection,
         {
@@ -120,7 +128,7 @@ test("CLI enforces only quick budgets including entry and late report overhead",
           eligible,
           execute: eligible,
           reuse: 0,
-          disabled: 63 - eligible
+          disabled: total - eligible
         },
         mode
       );

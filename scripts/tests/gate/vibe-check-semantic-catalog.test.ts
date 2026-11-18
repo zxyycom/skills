@@ -216,21 +216,13 @@ test("record native runtime check registers every package script test", async ()
 
 test("semantic commands retain native store, version-control and retired performance entry policies", async () => {
   assert.deepEqual(
-    semanticGateChecks
-      .filter(({ command }) => command.command === "node")
-      .map(({ checkId }) => checkId),
-    [
-      "test:record-rust:delivery",
-      "test:record-rust:contracts",
-      "test:record-rust:runtime",
-      "test:task-graph:native-store"
-    ]
-  );
-  assert.deepEqual(
     semanticGateChecks.find(
       ({ checkId }) => checkId === "test:task-graph:native-store"
-    )?.command.args,
-    ["--test", "./tools/task-graph/tests/store/native-store.test.ts"]
+    )?.command,
+    {
+      command: "node",
+      args: ["--test", "./tools/task-graph/tests/store/native-store.test.ts"]
+    }
   );
   const manifest = v.parse(
     v.object({ scripts: v.record(v.string(), v.string()) }),
@@ -238,6 +230,19 @@ test("semantic commands retain native store, version-control and retired perform
       await fs.readFile(path.join(repositoryRoot, "package.json"), "utf8")
     ) as unknown
   );
+  const agentMemoryScript = manifest.scripts["test:agent-memory-cli"];
+  assert.ok(agentMemoryScript);
+  const [runner, testFlag, ...files] = agentMemoryScript.split(" ");
+  assert.equal(runner, "node");
+  assert.equal(testFlag, "--test");
+  const dispatchedFiles = semanticGateChecks
+    .filter(({ checkId }) => checkId.startsWith("test:agent-memory:"))
+    .flatMap(({ command }) => {
+      assert.equal(command.command, "node");
+      assert.equal(command.args[0], "--test");
+      return command.args.slice(1);
+    });
+  assert.deepEqual(dispatchedFiles.sort(), files.sort());
   assert.equal(manifest.scripts["test:index-runtime-performance"], undefined);
   assert.equal(
     new Set<string>(releaseRequiredPackageScripts).has(

@@ -84,7 +84,11 @@
     "novel-cards": "node skills/novel-cards/scripts/novel-cards.ts",
     "test:novel-cards-cli": "bun test ./tools/novel-cards/tests/run.ts",
     "sync:novel-cards-cli": "bun scripts/build/novel-cards.ts --write",
-    "check:novel-cards-cli": "bun scripts/build/novel-cards.ts --check"
+    "check:novel-cards-cli": "bun scripts/build/novel-cards.ts --check",
+    "agent-memory": "node skills/agent-memory/scripts/agent-memory.ts",
+    "test:agent-memory-cli": "node --test ./tools/agent-memory/tests/behavior.test.ts ./tools/agent-memory/tests/user-control.test.ts ./scripts/tests/agent-memory-distribution.test.ts",
+    "sync:agent-memory-cli": "bun scripts/build/agent-memory.ts --write",
+    "check:agent-memory-cli": "bun scripts/build/agent-memory.ts --check"
   },
   "devDependencies": {
     "@ast-grep/cli": "0.45.1",

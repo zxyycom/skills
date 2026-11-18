@@ -157,6 +157,38 @@ export const semanticGateChecks = [
     )
   },
   {
+    checkId: "test:agent-memory:behavior",
+    toolIds: ["agent-memory"],
+    displayName: "Agent Memory transactions and dependency behavior",
+    requiredTag: undefined,
+    command: {
+      command: "node",
+      args: ["--test", "./tools/agent-memory/tests/behavior.test.ts"]
+    }
+  },
+  {
+    checkId: "test:agent-memory:user-control",
+    toolIds: ["agent-memory"],
+    displayName: "Agent Memory user controls and purge",
+    requiredTag: undefined,
+    command: {
+      command: "node",
+      args: ["--test", "./tools/agent-memory/tests/user-control.test.ts"]
+    }
+  },
+  {
+    checkId: "test:agent-memory:public-distribution",
+    toolIds: ["agent-memory"],
+    dependsOn: ["script:check:skill-updaters"],
+    generationSkillNames: ["agent-memory"],
+    displayName: "Agent Memory Node distribution",
+    requiredTag: undefined,
+    command: {
+      command: "node",
+      args: ["--test", "./scripts/tests/agent-memory-distribution.test.ts"]
+    }
+  },
+  {
     checkId: "test:novel-cards:card-and-query-contract",
     toolIds: ["novel-cards"],
     dependsOn: ["script:check:skill-updaters"],
