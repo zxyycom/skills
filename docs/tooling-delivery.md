@@ -60,7 +60,7 @@ Git 调用 hook 时会注入当前 worktree 的 `GIT_DIR`、`GIT_INDEX_FILE` 等
 | --- | --- |
 | `package`（Ubuntu） | 固定工具链下的完整 release Gate，覆盖全仓质量、结构、类型、Case/index、联合同步、事件基线版本/hash 与全部 skill 打包；上传 `skills` artifact。 |
 | `video-windows`（Windows） | 依赖 `package`，checkout 其输出的 `tested_revision`，下载同次 workflow 的 `skills` artifact，以 `accept:video-windows` 验收视频源码和其中的实际视频 zip。 |
-| `native-build`（Ubuntu 22.04 / Windows 2022） | 同 revision 的冻结原生源码构建两个平台资产并上传，发布前核对来源与身份。 |
+| `native-build`（Ubuntu 22.04 / Windows 2022） | 从与 `package` 相同的事件 revision 检出，分别运行原生测试、构建并上传两个平台资产。Windows 另运行 `check:test-evidence-catalog`，与 Linux release Gate 分别核对[平台声明与 Case](test-maintenance.md#平台限定节点)。 |
 | `publish` | 同时依赖 `package`、`video-windows` 与 `native-build`，保留既有发布触发条件；任一门禁失败、取消或缺失成功结果均不能发布整批 skills。 |
 
 产品门禁覆盖每次现有 PR、main push 和手动打包 workflow，包括仅修改共享依赖或其他 skill 的情形。必需验收保持实际执行，不以路径过滤或成功跳过替代。Windows 视频失败也阻断未改动 skill 的聚合发布，以沿用一条发布链；取舍见[平台验收决策](decisions/require-windows-video-acceptance-for-aggregate-release.md)。

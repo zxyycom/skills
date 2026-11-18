@@ -14,9 +14,8 @@ import {
 } from "./snapshot/snapshot.ts";
 
 import {
-  cargoSourceFingerprint,
   classifyPlatformReferences,
-  readPlatformEntityProof
+  readPlatformEntities
 } from "./platform-entities.ts";
 
 const snapshotMaximumBytes = 67_108_864;
@@ -145,8 +144,8 @@ export async function checkRepositoryTestEvidence(
   );
   const outputPath = path.join(outputDirectory, "snapshot.json");
   try {
-    const platformProof = await readPlatformEntityProof(root);
     const expectedBefore = await repositoryTestEvidenceSource(root);
+    const platformEntities = await readPlatformEntities(root);
     let generatedEntityCount = 0;
     let snapshot = await readCachedSnapshot(root, expectedBefore.revision);
     let references =
@@ -197,7 +196,7 @@ export async function checkRepositoryTestEvidence(
         ? references.diagnostics.map((diagnostic) => diagnostic.testId ?? "")
         : [];
     const classified = classifyPlatformReferences(
-      platformProof.entities,
+      platformEntities,
       process.platform,
       new Set(typedSnapshot.entities.map((entity) => entity.id)),
       missing
@@ -254,22 +253,6 @@ export async function checkRepositoryTestEvidence(
           projectDiagnostic(
             "project.source-drift",
             "repository source inputs changed while checking Case coverage"
-          )
-        ],
-        entityCount: typedSnapshot.entities.length,
-        status: "error"
-      };
-    }
-    if (
-      platformProof.sourceHash !== null &&
-      (await cargoSourceFingerprint(path.join(root, "tools/record-cli"))) !==
-        platformProof.sourceHash
-    ) {
-      return {
-        diagnostics: [
-          projectDiagnostic(
-            "project.cargo-source-drift",
-            "Cargo source closure changed while checking platform evidence"
           )
         ],
         entityCount: typedSnapshot.entities.length,

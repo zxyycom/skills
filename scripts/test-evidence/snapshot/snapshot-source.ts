@@ -16,24 +16,13 @@ import {
   repositoryTestScopeId
 } from "./snapshot-types.ts";
 
-async function trackedSourceFiles(
+async function listGitSourceFiles(
   workspaceRoot: string,
-  excludedSourcePaths: ReadonlySet<string>
+  args: readonly string[]
 ): Promise<readonly string[]> {
   const result = await runSnapshotCommand(
     "git",
-    [
-      "ls-files",
-      "-z",
-      "--cached",
-      "--others",
-      "--exclude-standard",
-      "--",
-      "scripts",
-      "tools",
-      "skills",
-      ".cargo"
-    ],
+    ["ls-files", "-z", "--exclude-standard", ...args],
     workspaceRoot
   );
   if (result.exitCode !== 0) {
@@ -41,16 +30,42 @@ async function trackedSourceFiles(
       `git ls-files failed while fingerprinting source inputs: ${result.output.trim()}`
     );
   }
-  return result.output
-    .split("\0")
-    .filter((entry) => entry.length > 0)
-    .filter((entry) => !excludedSourcePaths.has(entry.replaceAll("\\", "/")))
-    .filter(
+  return result.output.split("\0").filter(Boolean);
+}
+
+async function repositorySourceFiles(
+  workspaceRoot: string,
+  excludedSourcePaths: ReadonlySet<string>
+): Promise<readonly string[]> {
+  const [visible, ignoredCargo] = await Promise.all([
+    listGitSourceFiles(workspaceRoot, [
+      "--cached",
+      "--others",
+      "--",
+      "scripts",
+      "tools",
+      "skills",
+      ".cargo"
+    ]),
+    // Cargo can use source ignored by Git. Build output and delivery tooling
+    // are not part of this extra Cargo-only source projection.
+    listGitSourceFiles(workspaceRoot, [
+      "--others",
+      "--ignored",
+      "--",
+      "tools/record-cli",
+      ":(exclude)tools/record-cli/target",
+      ":(exclude)tools/record-cli/delivery"
+    ])
+  ]);
+  return [
+    ...visible.filter(
       (entry) =>
         entry.startsWith("tools/record-cli/") ||
         /\.(?:[cm]?[jt]s|json|rs|toml|lock)$/u.test(entry)
-    )
-    .sort();
+    ),
+    ...ignoredCargo
+  ].filter((entry) => !excludedSourcePaths.has(entry.replaceAll("\\", "/")));
 }
 
 function outputSourcePath(
@@ -107,7 +122,7 @@ export async function sourceFingerprint(
   const sources = [
     ...new Set([
       ...fixedInputs,
-      ...(await trackedSourceFiles(workspaceRoot, excludedSourcePaths))
+      ...(await repositorySourceFiles(workspaceRoot, excludedSourcePaths))
     ])
   ].sort();
   const digest = createHash("sha256");
