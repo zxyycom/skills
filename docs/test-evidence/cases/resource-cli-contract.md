@@ -1,6 +1,7 @@
 ### Case RESOURCE-CLI-CONTRACT-001: CLI 输出与结构错误
 
 Tests:
+- `test:40c5f0c6b8d4cf21d9b6c7de4d4c1c53e2cab3f6a7cc55f8d1e33e031c37dacc`
 - `test:4a577f6e01c50cd06a63c798a8270dd198d64b90364047cbbc3aafd548e926a0`
 - `test:b8af7d351ea327ff0361f87620175f88cfde67754d012e22e1e000f293690b7d`
 
@@ -12,3 +13,4 @@ Contract:
 
 Proves:
 - 真实进程检查帮助、stderr 和退出码、JSON 错误 envelope，并拒绝缺字段、非法角色、重复 YAML 键及多目标。
+- `list` 同时指定两种视图，或在 `show` 指定任一视图，均返回退出码 2 和对应的参数错误原因。

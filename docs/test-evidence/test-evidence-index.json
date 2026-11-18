@@ -1045,20 +1045,26 @@
       "REPO-VALIDATION-SKILL-STRUCTURE-001": "sha256:5247acf37bb72e1643ca57848a5c98bc5d42125b3e9bcac12a226fb7d2f7da75",
       "RESOLVED-FIRST-PARENT-ENDPOINTS-REUSE-001": "sha256:367ffda6641e1626a673b3cc4a171ee185bd4f657b2ba52f1d79bf6d72f3b036",
       "RESOLVED-FIRST-PARENT-ENDPOINTS-VALIDATION-001": "sha256:ab7d384d0f3c4456c465331b86422278b8aff05f4d43e580085f691460e9428b",
+      "RESOURCE-BRIEF-DASH-PARENT-001": "sha256:140399be5dd724a6f5f367d9470f416b0e8c2c4a3355b00fe0512c0f8e3402c6",
       "RESOURCE-BROKEN-PIPE-001": "sha256:5d5d4ead2958c44b355587445523021f35c8b7dbf331cf9352a6ec971ce2e93f",
-      "RESOURCE-CLI-CONTRACT-001": "sha256:1bb064ba1ee30bd0aabe710492b827a6949aa5cc06034411e0b42c5004edf036",
+      "RESOURCE-CLI-CONTRACT-001": "sha256:2b6605c4c17ed90e29ae286b774967ca1ac9d5d17e33c4e4ac3face1935c28c1",
       "RESOURCE-DEEP-CHAIN-001": "sha256:249f3aeace7cd7be3ab4a060573a6317b9652986b64978980982fb1490b86d82",
       "RESOURCE-GRAPH-VALIDATION-001": "sha256:100b211b6fb466b95480493a8a70ae7029d5d240d5661ac69aa4374e845ecf84",
       "RESOURCE-INDEX-FAILURES-001": "sha256:d85743839bf889c3ac10dfc63b57e51b4aa8c036836a5dc35f39680b7d63d38a",
       "RESOURCE-INDEX-ROUNDTRIP-001": "sha256:d4941764591977b70a86e1d38e8e2d01e016d61d6ad41c82fb36b38fd0029adc",
       "RESOURCE-LINEAGE-CASE-001": "sha256:2fe6b70002d1fd12422717e8b96019aaaf55d401ce1c3a10611e431a6630e2cd",
+      "RESOURCE-LIST-VIEW-WINDOW-001": "sha256:da9f58a35ffa06cf688990c3533e40effb05391030dc7a577a4d367c3b4078f2",
       "RESOURCE-LITERAL-ARGUMENTS-001": "sha256:380a75420d95349303213fdb7bf91f766ff61893a9b59ae78a3b045bca60b65b",
+      "RESOURCE-LOGICAL-ENTRY-MEMBER-001": "sha256:518a1ddeb5082e0c6f7ba393b3a43639df526a658fb68850bfd3fcfc0d08e74b",
+      "RESOURCE-LOGICAL-ENTRY-QUERIES-001": "sha256:d9dd7f8584b21437803850c2f8a87ea679daf38f3beb35a930677a3d8e18800f",
+      "RESOURCE-LOGICAL-ENTRY-VALIDATION-001": "sha256:e081d8dc0395e52443ded507bbe7db19d18abcb55a00984cd2e4aca0cf458e31",
       "RESOURCE-MEDIA-PACK-001": "sha256:a859517044b2c057835a29ef661ec42790dadaef9fb7a54b0e78ccc03d45b725",
       "RESOURCE-PATH-SAFETY-001": "sha256:12a130b3bb169503f41e04f6f47a63f6b1c93adeb81740c12cabff126df3be66",
       "RESOURCE-PLATFORM-EVIDENCE-001": "sha256:177ef27d823fb7bf0c4b56a3ea8bc1ce720749f6ba0d9a97234b2ba5e4cb29cd",
       "RESOURCE-QUERIES-CASE-001": "sha256:a3502ff4b0bdc92fee382caa933384df0908e9757558439acf90b2e6e340b42d",
       "RESOURCE-SCHEMA-CASE-001": "sha256:398c37b8586cd1370ac49d3b3a30b506e844d0449417882018ade99f52de2069",
       "RESOURCE-SELECTION-TRACE-001": "sha256:ae5601d83fde437c27128b929e5b2ce5c1a30076d6df678ed4fce911504913db",
+      "RESOURCE-TREE-DEEP-CONTEXT-001": "sha256:2b6f167b01768b1aec260ba92345bea5fc390e6fc9346426dd4d3580692c478c",
       "RESOURCE-VALIDATION-DIAGNOSTICS-001": "sha256:7eec3fa1baf2ef01ae37e35d8234303d1751ef2af62356b222efd6aad942e947",
       "RESOURCE-WINDOWS-CASE-ALIAS-001": "sha256:1d247cb191bcbcea9d1ff556cb765de5af3e72cb562dc50e417c8fb730166e4b",
       "RETIRED-PUBLISHER-ENTRY-001": "sha256:6d2998412a34ef32f7e0008d4a02bb62272f65a5c4537a161f14453b92dd970a",
@@ -12300,6 +12306,16 @@
         "test:e26613086fc9c7f8b454d877116eb8ff09a7047a9412cb9e1d66643bfce67e5c"
       ]
     },
+    "RESOURCE-BRIEF-DASH-PARENT-001": {
+      "title": "摘要区分短横线父集合与顶层",
+      "sourcePath": "cases/resource-brief-dash-parent.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:e9461605a066ebcf786d134480ee206bdf4aa22d7d4da5b6b9b399a1f109c29e"
+      ]
+    },
     "RESOURCE-BROKEN-PIPE-001": {
       "title": "输出断管后的索引状态",
       "sourcePath": "cases/resource-broken-pipe.md",
@@ -12317,6 +12333,7 @@
         "resource-records"
       ],
       "testIds": [
+        "test:40c5f0c6b8d4cf21d9b6c7de4d4c1c53e2cab3f6a7cc55f8d1e33e031c37dacc",
         "test:4a577f6e01c50cd06a63c798a8270dd198d64b90364047cbbc3aafd548e926a0",
         "test:b8af7d351ea327ff0361f87620175f88cfde67754d012e22e1e000f293690b7d"
       ]
@@ -12377,6 +12394,16 @@
         "test:ef6611c63a93826434029206bb5969662beb163166cc50ad8682edfc9635c581"
       ]
     },
+    "RESOURCE-LIST-VIEW-WINDOW-001": {
+      "title": "摘要与树保留同一筛选分页窗口",
+      "sourcePath": "cases/resource-list-view-window.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:23800131f1ec20286bc61fa851e5f8c5ae5e22f9987c0ec205880b0a2ec46a48"
+      ]
+    },
     "RESOURCE-LITERAL-ARGUMENTS-001": {
       "title": "真实参数与字面搜索",
       "sourcePath": "cases/resource-literal-arguments.md",
@@ -12387,6 +12414,36 @@
         "test:0e7f976a83fad6bd8709200f637aed567ae45241af8f565ce38fc69edde6635f",
         "test:160a11950dfc5bd5f4f262296db7dfdd2564e787502b6e386019ba2abdce3f03",
         "test:c0f9f991f4110d6b1c0f777cadec7fa8b189f97632a2bd6e283f98465256499b"
+      ]
+    },
+    "RESOURCE-LOGICAL-ENTRY-MEMBER-001": {
+      "title": "逻辑入口不具备精确成员身份",
+      "sourcePath": "cases/resource-logical-entry-member-boundary.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:811105576088452ed8e00b35420e0327f1eccc724a698ec89875000842030877"
+      ]
+    },
+    "RESOURCE-LOGICAL-ENTRY-QUERIES-001": {
+      "title": "逻辑入口与旧精确引用共存",
+      "sourcePath": "cases/resource-logical-entry-queries.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:a222aa2d74e311a496d51b2ea7420f49d16146db41f914633790f1a152b8eccd"
+      ]
+    },
+    "RESOURCE-LOGICAL-ENTRY-VALIDATION-001": {
+      "title": "逻辑入口结构和路径约束",
+      "sourcePath": "cases/resource-logical-entry-validation.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:e55ab075125be861a3a0f77ac692e461d00227f252634ce51f8ef91cdaf62ea1"
       ]
     },
     "RESOURCE-MEDIA-PACK-001": {
@@ -12455,6 +12512,16 @@
       ],
       "testIds": [
         "test:e90c0d0b989113856f537432952c2d066faf03785cc250300014ffe22a21b910"
+      ]
+    },
+    "RESOURCE-TREE-DEEP-CONTEXT-001": {
+      "title": "深层树保留实际祖先及深度",
+      "sourcePath": "cases/resource-tree-deep-context.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:2b46235e13163617def47b7facc8b2583bdedea1247361b4e6fb34c35d6d83d5"
       ]
     },
     "RESOURCE-VALIDATION-DIAGNOSTICS-001": {

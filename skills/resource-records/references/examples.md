@@ -102,6 +102,8 @@ versions:
 
 ```sh
 resource-records list --slot appearance --root .
+resource-records list --brief --root .
+resource-records list --tree --root .
 resource-records show demo-form --root .
 resource-records show demo-image --version v2 --member main --root .
 resource-records trace demo-image --version v2 --type version-parent --direction upstream --depth 2 --max-nodes 20 --max-edges 20 --root .
@@ -109,4 +111,40 @@ resource-records trace demo-image --version v2 --member main --type input --dire
 resource-records trace demo-pack --version v1 --member main-view --type member --direction upstream --depth 2 --max-nodes 20 --max-edges 20 --root .
 ```
 
-第一条返回声明 slot 的集合及索引中的选择快照，第二条回读当前源记录并核对新鲜度；后三条分别追踪版本沿革、文件输入和图包别名。检查 `truncated`、`unexpandedTerminals`、证据及 `freshness`，不要把有限结果当全图。
+slot 查询返回声明该 slot 的集合及索引中的选择快照；两种视图用于浏览，`show` 回读当前源记录并核对新鲜度；三条 `trace` 分别追踪版本沿革、文件输入和图包别名。检查 `truncated`、`unexpandedTerminals`、证据及 `freshness`，不要把有限结果当全图。
+
+## 逻辑入口示例
+
+另存以下独立资源记录；集合需存在。路径仅为占位，不证明目录或文档存在。此版本代表可演进入口，不是确切文件快照；需要精确选用的文件仍另行登记。
+
+```yaml
+---
+schemaVersion: 1
+kind: resource
+id: demo-batch
+title: 示例实验批次
+collection: demo-form
+versions:
+  - id: v1
+    files: []
+    members: []
+    entries:
+      - {kind: directory, path: projects/demo/experiment}
+      - {kind: document, path: projects/demo/experiment/README.md}
+---
+
+实验入口；实际调用和观察保留在原说明中。
+```
+
+将该记录加入同一隔离工作区，在获准维护时重新运行 `sync-index` 和 `check`。下面分别找实验批次和精确选用，再回读源记录：
+
+```sh
+resource-records search demo-batch --metadata --root .
+resource-records show demo-batch --version v1 --root .
+resource-records list --collection demo-form --descendants --tree --root .
+resource-records list --slot appearance --root .
+resource-records show demo-form --root .
+resource-records show demo-image --version v1 --member main --root .
+```
+
+批次的 `entries` 指向可变入口；集合的 `appearance` 选择指向 `demo-image@v1#main`。树中 `[match depth=...]` 是命中，`[context depth=...]` 仅为祖先；索引查询的 `freshness: unchecked` 不证明源记录新鲜，分别以 `show` 核对。目录新增过程文件不必改卡，也不使已有精确文件选择漂移。

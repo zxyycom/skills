@@ -338,6 +338,13 @@
           "items": {
             "$ref": "#/$defs/versionReference"
           }
+        },
+        "entries": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/logicalEntry"
+          }
         }
       },
       "required": [
@@ -345,22 +352,46 @@
         "files",
         "members"
       ],
-      "anyOf": [
+      "oneOf": [
         {
+          "required": [
+            "entries"
+          ],
           "properties": {
             "files": {
-              "minItems": 1,
+              "maxItems": 0,
+              "type": "array"
+            },
+            "members": {
+              "maxItems": 0,
               "type": "array"
             }
           }
         },
         {
-          "properties": {
-            "members": {
-              "minItems": 1,
-              "type": "array"
+          "not": {
+            "required": [
+              "entries"
+            ]
+          },
+          "anyOf": [
+            {
+              "properties": {
+                "files": {
+                  "minItems": 1,
+                  "type": "array"
+                }
+              }
+            },
+            {
+              "properties": {
+                "members": {
+                  "minItems": 1,
+                  "type": "array"
+                }
+              }
             }
-          }
+          ]
         }
       ]
     },
@@ -416,6 +447,25 @@
     "relativePath": {
       "type": "string",
       "pattern": "^(?!\\.{1,2}(?:/|$))[^/\\\\:\\u0000]+(?:/(?!\\.{1,2}(?:/|$))[^/\\\\:\\u0000]+)*$"
+    },
+    "logicalEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "directory",
+            "document"
+          ]
+        },
+        "path": {
+          "$ref": "#/$defs/relativePath"
+        }
+      },
+      "required": [
+        "kind",
+        "path"
+      ]
     }
   },
   "oneOf": [

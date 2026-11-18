@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "role": "resource-records",
-  "runtimeVersion": "0.2.11",
-  "sourceHash": "537c7c60b2e3f2b99948764b7856cc31197cbd7bc0825eded6d8a86835d8356a",
+  "runtimeVersion": "0.2.12",
+  "sourceHash": "c8644f6b40c571de5606c03f270f68847ff12d570820b7e846c7b6e73b419c06",
   "targets": [
     "x86_64-unknown-linux-gnu",
     "x86_64-pc-windows-msvc"

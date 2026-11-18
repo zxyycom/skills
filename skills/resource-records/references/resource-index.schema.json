@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://skills.local/schemas/resource-index.schema.json",
-  "$comment": "记录文本的派生投影；指纹与实际内容、关系一致性由 CLI check 验证。",
+  "$comment": "记录文本的派生投影；记录结构引用同版本 resource-record schema，指纹与实际内容、关系一致性由 CLI check 验证。",
   "type": "object",
   "additionalProperties": false,
   "required": [

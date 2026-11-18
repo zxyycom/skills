@@ -3,6 +3,7 @@ use serde_json::{Value, json};
 use std::{fs, path::Path};
 mod args;
 mod entry;
+mod render;
 mod storage;
 mod trace;
 use args::Args;
@@ -71,18 +72,7 @@ fn search_body(a: &Args, root: &Path, dir: &str) -> Result<Value, String> {
 fn list(a: &Args, idx: &model::Index) -> Result<Value, String> {
     let mut out = Vec::new();
     for e in &idx.records {
-        let r = &e.record;
-        if a.kind.as_ref().is_some_and(|k| k != r.kind())
-            || a.tags.iter().any(|t| !r.tags().contains(t))
-        {
-            continue;
-        }
-        if !in_collection(r, idx, a.collection.as_deref(), a.descendants) {
-            continue;
-        }
-        if let Some(slot) = &a.slot
-            && !matches!(r,Record::Collection{selections,..} if selections.iter().any(|s|&s.slot==slot))
-        {
+        if !matches_list(a, idx, &e.record) {
             continue;
         }
         out.push(e);
@@ -93,9 +83,24 @@ fn list(a: &Args, idx: &model::Index) -> Result<Value, String> {
         .skip(a.offset)
         .take(a.limit.unwrap_or(50))
         .collect();
+    if !a.json && (a.brief || a.tree) {
+        return Ok(Value::String(render::list(&records, idx, total, a)));
+    }
     Ok(
         json!({"records":records,"total":total,"offset":a.offset,"limit":a.limit.unwrap_or(50),"freshness":"unchecked"}),
     )
+}
+
+fn matches_list(a: &Args, idx: &model::Index, r: &Record) -> bool {
+    if a.kind.as_ref().is_some_and(|k| k != r.kind())
+        || a.tags.iter().any(|t| !r.tags().contains(t))
+        || !in_collection(r, idx, a.collection.as_deref(), a.descendants)
+    {
+        return false;
+    }
+    !a.slot.as_ref().is_some_and(|slot| {
+        !matches!(r, Record::Collection { selections, .. } if selections.iter().any(|s| &s.slot == slot))
+    })
 }
 
 fn show(a: &Args, idx: &model::Index, root: &Path, dir: &str) -> Result<Value, String> {

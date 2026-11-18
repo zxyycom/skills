@@ -6,7 +6,7 @@
 
 ## 查询与维护命令
 
-- `list [--collection <id>] [--descendants] [--kind <collection|resource>] [--tag <tag> ...] [--slot <slot>] [--offset <n>] [--limit <n>]`：按索引组合筛选，标签精确 AND；按 ID 稳定排序，返回 total 和窗口。
+- `list [--collection <id>] [--descendants] [--kind <collection|resource>] [--tag <tag> ...] [--slot <slot>] [--offset <n>] [--limit <n>] [--brief|--tree]`：按索引组合筛选，标签精确 AND；按 ID 稳定排序，返回 total 和窗口。
 - `show <id> [--version <id>] [--member <id>]`：索引定位、读取当前文件并核对该记录来源指纹。member 必须与 version 一同指定。
 - `search <text> [--metadata] [--offset <n>] [--limit <n>]`：默认扫描当前正文，metadata 查询索引；字面量匹配，正文支持跨行查询，返回命中字段或位置、实际覆盖；跨行命中的 text 为匹配文本，line 为起始行。
 - `trace <id> [--version <id>] [--member <id>] [--type <type> ...] [--direction <upstream|downstream>] [--depth <n>] [--max-nodes <n>] [--max-edges <n>]`：默认上游直接来源，深度 1、节点 100、边 200；所有上限为正整数。返回终点、截断与证据。
@@ -34,6 +34,8 @@
 
 分页默认为 offset 0、limit 50。查询索引标记 `freshness: unchecked`；show 对所选记录标记 `current` 或 `stale`；正文搜索标明当前文件来源。
 
+`--brief` 和 `--tree` 互斥，输出文本视图；省略时保留原有完整 JSON 输出，指定 `--json` 时即使带视图选项也返回完整机器 envelope。两种视图先使用相同筛选、ID 排序及分页窗口，头部显示 total、offset、limit 和 freshness；`--brief` 的 `[match]` 和 `--tree` 的 `[match depth=...]` 是窗口内命中，含 ID、标题和归属定位；tree 的 depth 是从根集合起的层级深度，根为 0。`--tree` 额外显示 `[context depth=...]` 祖先集合，可能跨页或在不相邻分支重复；context 不计入命中、total 或分页，同一集合既可作为命中也可作为其他行的上下文。集合有父集合时显示 `parent=...`，根集合不显示 parent；资源显示 `collection=...`。树只表达集合归属，不表达文件层次或制作依赖。用 `show` 回读当前源记录。
+
 ## 机器协议
 
 JSON envelope 为 `{version: 1, command, ok, result, diagnostics}` 或 `{version: 1, command, ok: false, error, diagnostics}`；error 至少含 code 和 message，可带 path、field、recovery。JSON 输出到 stdout，普通错误到 stderr；退出码 0 成功、1 领域或系统错误、2 参数错误。协议版本独立于索引 schemaVersion。help 和 version 是文本入口。
@@ -53,7 +55,7 @@ JSON envelope 为 `{version: 1, command, ok, result, diagnostics}` 或 `{version
 
 ## 结果字段
 
-下列字段属于 `result`。列表顺序按记录 ID，版本和成员保持声明顺序。普通成功输出为该对象的缩进 JSON；`--json` 输出单行 envelope。可选筛选没有匹配时是合法空列表，不表示来源缺失。
+下列字段属于 `result`。列表顺序按记录 ID，版本和成员保持声明顺序。未选择文本视图时普通成功输出为该对象的缩进 JSON；`--json` 输出单行 envelope。可选筛选没有匹配时是合法空列表，不表示来源缺失。
 
 | 命令 | 结果字段 |
 | --- | --- |

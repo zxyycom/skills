@@ -6,6 +6,8 @@ pub(super) struct Args {
     pub(super) root: Option<String>,
     pub(super) dir: Option<String>,
     pub(super) json: bool,
+    pub(super) brief: bool,
+    pub(super) tree: bool,
     pub(super) positionals: Vec<String>,
     pub(super) collection: Option<String>,
     pub(super) descendants: bool,
@@ -23,7 +25,7 @@ pub(super) struct Args {
     pub(super) nodes: Option<usize>,
     pub(super) edges: Option<usize>,
 }
-pub(super) const HELP: &str = "resource-records <list|show|search|trace|check|sync-index> [options]\n  --root <path> --resources-dir <path> --json\n  list: --collection <id> --descendants --kind <collection|resource> --tag <tag> --slot <slot> --offset <n> --limit <n>\n  show: <id> [--version <id>] [--member <id>]\n  search: <text> [--metadata] [--offset <n>] [--limit <n>]\n  trace: <id> [--version <id>] [--member <id>] [--type <type>] [--direction <upstream|downstream>] [--depth <n>] [--max-nodes <n>] [--max-edges <n>]";
+pub(super) const HELP: &str = "resource-records <list|show|search|trace|check|sync-index> [options]\n  --root <path> --resources-dir <path> --json\n  list: --collection <id> --descendants --kind <collection|resource> --tag <tag> --slot <slot> --offset <n> --limit <n> [--brief|--tree]\n  show: <id> [--version <id>] [--member <id>]\n  search: <text> [--metadata] [--offset <n>] [--limit <n>]\n  trace: <id> [--version <id>] [--member <id>] [--type <type>] [--direction <upstream|downstream>] [--depth <n>] [--max-nodes <n>] [--max-edges <n>]";
 pub(super) fn parse_args(args: Vec<String>) -> Result<Args, String> {
     let mut a = Args::default();
     let mut seen = HashSet::new();
@@ -50,6 +52,9 @@ pub(super) fn parse_args(args: Vec<String>) -> Result<Args, String> {
 
 fn validate_args(a: &Args, seen: &HashSet<String>) -> Result<(), String> {
     validate_shape(a)?;
+    if a.brief && a.tree {
+        return Err("--brief and --tree are mutually exclusive".into());
+    }
     validate_options(a, seen)?;
     if a.command == "search" && a.positionals[0].is_empty() {
         return Err("search text must not be empty".into());
@@ -211,7 +216,9 @@ fn validate_limits(a: &Args) -> Result<(), String> {
 }
 
 fn has_list_options(a: &Args) -> bool {
-    a.collection.is_some()
+    a.brief
+        || a.tree
+        || a.collection.is_some()
         || a.descendants
         || a.kind.is_some()
         || !a.tags.is_empty()
@@ -228,6 +235,8 @@ fn has_trace_options(a: &Args) -> bool {
 fn set_flag(a: &mut Args, name: &str) -> bool {
     match name {
         "--json" => a.json = true,
+        "--brief" => a.brief = true,
+        "--tree" => a.tree = true,
         "--descendants" => a.descendants = true,
         "--metadata" => a.metadata = true,
         _ => return false,

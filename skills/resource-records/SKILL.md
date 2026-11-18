@@ -4,7 +4,7 @@ description: >-
   在资产留用、复用或迭代时组织资源集合、精确版本、文件和图包，维护用途选择；
   查询已登记来源、制作关系与选择，并用记录索引验收。
 metadata:
-  version: "4"
+  version: "5"
 ---
 
 # Resource Records
@@ -17,14 +17,14 @@ metadata:
 
 - 查询、同步和恢复：读 [CLI 操作](references/cli-operations.md)，参数以实际 `--help` 为准。
 - 判断对象粒度和用途选择：读 [组织与选择](references/organization.md)。
-- 填写或审阅记录：读 [记录模型](references/record-model.md) 和链接的 schema；按需复制[集合模板](templates/collection.md)或[资源模板](templates/resource.md)，替换占位内容。
+- 填写或审阅记录：读 [记录模型](references/record-model.md) 和链接的 schema；按需复制[集合模板](templates/collection.md)、[资源模板](templates/resource.md)或[逻辑入口模板](templates/logical-resource.md)，替换占位内容。
 - 学习完整记录和查询：读[共享示例](references/examples.md)。
 
 CLI 不可用时，可直接读取源 Markdown 回答只读问题，或在授权范围内按模型起草记录；说明没有机械校验、索引及查询覆盖的局限，不声称工具验收。
 
 ## 查询：找到并交付
 
-1. 确定工作区、用途和需要的精度。按集合、标签或 slot 用 `list` 找候选；名称、ID 或标签线索用 `search --metadata`，正文线索用默认 `search`。空命中不等于资源不存在，必要时换范围或回读源记录；以 `show` 回读确切对象。
+1. 确定工作区、用途和需要的精度。按集合、标签或 slot 用 `list` 找候选；需要紧凑浏览用 `list --brief`，需要集合归属上下文用 `list --tree`；区分树中命中和祖先上下文。名称、ID 或标签线索用 `search --metadata`，正文线索用默认 `search`。空命中不等于资源不存在，必要时换范围或回读源记录；以 `show` 回读确切对象。
 2. 需要来源时用 `trace`，明确所需类型、方向及范围，检查新鲜度、截断与终点。`list --slot` 返回声明该 slot 的集合及索引中的选择快照；用 `show` 回读当前源记录并核对新鲜度。
 3. 交付结果、确切引用、来源及缺口。只读请求不写记录或同步索引；索引缺失或陈旧时按 [失败分流](references/cli-operations.md#失败分流)处理。
 
@@ -34,6 +34,7 @@ CLI 不可用时，可直接读取源 Markdown 回答只读问题，或在授权
 2. 在授权范围内维护权威 Markdown，不手改索引。按[记录模型](references/record-model.md)填写真实身份、位置、关系与证据，保留历史；原始调用、反馈和媒体仍由各自 owner 保管。
 3. 维护用途时在适用集合的 slot 指向确切版本或成员，记录 scope、证据与 basis。代理暂选、用户偏好和用户确认分别表达；改变用户确认的选择须符合当次授权。
 4. 分别报告未知哈希或稳定位置、未知来源和已知媒体缺失；位置或哈希记录本身不证明媒体已核验或备份。
+5. 区分可演进的逻辑入口和精确文件选用；固定文件须另行登记并引用确切版本和成员。
 
 ## 验收与交付
 

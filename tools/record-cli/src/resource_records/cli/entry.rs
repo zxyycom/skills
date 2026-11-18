@@ -62,6 +62,8 @@ fn execute(a: super::args::Args) -> i32 {
             let text = if a.json {
                 json!({"version":1,"command":a.command,"ok":true,"result":result,"diagnostics":[]})
                     .to_string()
+            } else if (a.brief || a.tree) && result.is_string() {
+                result.as_str().unwrap_or_default().to_owned()
             } else {
                 serde_json::to_string_pretty(&result).unwrap_or_default()
             };
