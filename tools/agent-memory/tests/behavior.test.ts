@@ -2,7 +2,14 @@ import assert from "node:assert/strict";
 import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { edge, entries, fixture, id, memory } from "./fixtures.ts";
+import {
+  edge,
+  entries,
+  fixture,
+  id,
+  memory,
+  memoryContent
+} from "./fixtures.ts";
 
 test("project binding rejects wrong roots and never creates a database on recall", async (t) => {
   const { ok, reject, save, dir, root, other, db } = await fixture(t);
@@ -25,6 +32,10 @@ test("project binding rejects wrong roots and never creates a database on recall
   const invalidDb = join(dir, "invalid.sqlite");
   writeFileSync(fileRoot, "synthetic fixture");
   await reject("init", {}, fileRoot, invalidDb);
+  assert.match(
+    await reject("init", { extra: true }, root, invalidDb),
+    /unknown field/u
+  );
   assert.equal(existsSync(invalidDb), false);
   assert.equal((await ok("show", { id: memoryId })).body, "第一项目正文");
   assert.deepEqual((await ok("recall", { terms: ["错库写入"] })).items, []);
@@ -87,10 +98,10 @@ test("request replay, version conflicts and a failed batch leave no partial writ
     body: "新前提"
   };
   await reject("revise", revision);
-  const first = memory("unused-first", "分支甲", {
+  const first = memoryContent("分支甲", {
     edges: [edge(premise, 1, "splits")]
   });
-  const second = memory("unused-second", "分支乙", {
+  const second = memoryContent("分支乙", {
     edges: [edge(premise, 1, "splits")]
   });
   const batch = { requestId: "atomic-split", items: [first, second] };
@@ -113,6 +124,69 @@ test("request replay, version conflicts and a failed batch leave no partial writ
   assert.equal((await ok("show", { id: premise })).status, "blocked");
 });
 
+test("unknown fields cannot create or revise memories", async (t) => {
+  const { ok, reject } = await fixture(t);
+  const input = memory("typo-save", "待保存");
+  assert.match(await reject("save", { ...input, edegs: [] }), /unknown field/u);
+  assert.deepEqual((await ok("recall", { terms: ["待保存"] })).items, []);
+  const saved = await ok("save", input);
+  const update = { id: id(saved), expectedVersion: 1, reason: "修正" };
+  const revision = {
+    ...update,
+    requestId: "typo-revise",
+    semanticChange: true
+  };
+  assert.match(
+    await reject("revise", { ...revision, boby: "修订正文" }),
+    /unknown field/u
+  );
+  const review = { ...update, requestId: "typo-review", outcome: "changed" };
+  assert.match(
+    await reject("review", { ...review, boby: "复核正文" }),
+    /unknown field/u
+  );
+  const current = await ok("show", { id: update.id });
+  assert.equal(current.version, 1);
+  assert.equal(current.body, "待保存正文");
+  const edited = await ok("revise", { ...revision, body: "修订正文" });
+  assert.equal(edited.version, 2);
+  const reviewed = await ok("review", {
+    ...review,
+    expectedVersion: 2,
+    body: "复核正文"
+  });
+  assert.equal(reviewed.version, 3);
+  assert.match(
+    await reject("save", { ...input, edegs: [] }),
+    /request ID conflict/u
+  );
+  assert.deepEqual(await ok("save", input), saved);
+});
+
+test("unknown batch or edge fields cannot partially commit a split", async (t) => {
+  const { ok, reject, save } = await fixture(t);
+  const original = await save(memory("original", "原认识"));
+  const link = edge(original, 1, "splits");
+  const first = memoryContent("分支甲", { edges: [link] });
+  const second = memoryContent("分支乙", { edges: [link] });
+  const batch = { requestId: "typo-batch", items: [first, second] };
+  for (const invalid of [
+    { ...batch, tags: ["不能添加到批次外层"] },
+    { ...batch, items: [first, { ...second, requestId: "misplaced" }] },
+    {
+      ...batch,
+      items: [first, { ...second, edges: [{ ...link, roel: "拆分" }] }]
+    },
+    { ...batch, items: [first, { ...second, constructor: "未知" }] }
+  ]) {
+    assert.match(await reject("save", invalid), /unknown field/u);
+  }
+  assert.equal((await ok("show", { id: original })).status, "current");
+  assert.deepEqual((await ok("recall", { terms: ["分支"] })).items, []);
+  assert.equal(entries(await ok("save", batch)).length, 2);
+  assert.equal((await ok("show", { id: original })).reason, "superseded");
+});
+
 test("evolution cannot publish a new combination that its own write invalidates", async (t) => {
   const { ok, reject, save } = await fixture(t);
   const a = await save(memory("evolution-a", "演进前提"));
@@ -120,8 +194,8 @@ test("evolution cannot publish a new combination that its own write invalidates"
   await reject("save", {
     requestId: "self-invalidating-batch",
     items: [
-      memory("unused-combined", "矛盾联合", { edges: [edge(b)] }),
-      memory("unused-replacement", "矛盾替代", {
+      memoryContent("矛盾联合", { edges: [edge(b)] }),
+      memoryContent("矛盾替代", {
         edges: [edge(a, 1, "replaces")]
       })
     ]

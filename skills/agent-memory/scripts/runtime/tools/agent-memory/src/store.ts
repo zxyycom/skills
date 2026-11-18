@@ -228,8 +228,13 @@ export class Store {
     }
   }
 
-  affected(id: string) {
-    return this.#all("affected_units", affectedRow, id);
+  affected(id: string, scope: "current" | "history") {
+    return this.#all(
+      "affected_units",
+      affectedRow,
+      id,
+      Number(scope === "history")
+    );
   }
 
   removedReferences(ids: readonly string[]) {

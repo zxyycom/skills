@@ -1,10 +1,17 @@
 import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import { test } from "node:test";
-import { edge, entries, fixture, id, memory } from "./fixtures.ts";
+import {
+  edge,
+  entries,
+  fixture,
+  id,
+  memory,
+  memoryContent
+} from "./fixtures.ts";
 
 test("disable and hide preserve explicit history while blocking adoption", async (t) => {
-  const { ok, save } = await fixture(t);
+  const { ok, reject, save } = await fixture(t);
   const a = await save(memory("disable", "停用前提"));
   const b = await save(memory("dependent", "依赖解释", { edges: [edge(a)] }));
   const hidden = await save(memory("hide", "隐藏单元"));
@@ -44,6 +51,10 @@ test("disable and hide preserve explicit history while blocking adoption", async
     assert.equal(history.body, `${title}正文`);
     assert.equal(history.status, "historical");
     assert.equal(history.usable, false);
+    assert.match(
+      await reject("forget", { id: target, action }),
+      /unit is not active or pending/u
+    );
   }
   for (const target of [b, dependent]) {
     const shown = await ok("show", { id: target });
@@ -53,6 +64,91 @@ test("disable and hide preserve explicit history while blocking adoption", async
     (await ok("recall", { terms: ["停用前提", "依赖解释", "隐藏"] })).items,
     []
   );
+});
+
+test("visibility preview shows newly blocked current dependants, not historical ones", async (t) => {
+  const { ok, reject, save } = await fixture(t);
+  const base = await save(memory("base", "目标前提"));
+  const live = await save(memory("live", "直接依赖", { edges: [edge(base)] }));
+  const transitive = await save(
+    memory("transitive", "间接依赖", { edges: [edge(live)] })
+  );
+  const detached = await save(
+    memory("detached", "已解耦", { edges: [edge(base)] })
+  );
+  await ok("revise", {
+    id: detached,
+    expectedVersion: 1,
+    requestId: "detach",
+    reason: "已不构成前提",
+    semanticChange: true,
+    edges: []
+  });
+  const other = await save(memory("other", "另一前提"));
+  const blocked = await save(
+    memory("blocked", "还有别的前提", { edges: [edge(base), edge(other)] })
+  );
+  await ok("review", {
+    id: other,
+    expectedVersion: 1,
+    requestId: "other-pending",
+    outcome: "pending",
+    reason: "等待复核"
+  });
+  for (const target of [base, live, transitive, detached]) {
+    assert.equal((await ok("show", { id: target })).status, "current");
+  }
+  assert.equal((await ok("show", { id: blocked })).status, "blocked");
+  for (const action of ["disable", "hide"]) {
+    const preview = await ok("forget", { id: base, action });
+    assert.deepEqual(
+      entries(preview, "units").map(id),
+      [base, live, transitive].sort()
+    );
+    assert.deepEqual(preview.removedReferences, []);
+  }
+  const hide = { id: base, action: "hide" };
+  const stale = await ok("forget", hide);
+  await ok("revise", {
+    id: live,
+    expectedVersion: 1,
+    requestId: "live-revision",
+    reason: "更新文字",
+    semanticChange: false
+  });
+  const apply = { ...hide, requestId: "visibility", expectedVersion: 1 };
+  assert.match(
+    await reject("forget", { ...apply, confirm: stale.token }),
+    /forget preview conflict/u
+  );
+  const fresh = await ok("forget", hide);
+  await ok("forget", { ...apply, confirm: fresh.token });
+  assert.match(
+    await reject("forget", {
+      ...apply,
+      requestId: "new-attempt-with-old-token",
+      confirm: fresh.token
+    }),
+    /forget preview conflict/u
+  );
+  for (const target of [base, live, transitive]) {
+    assert.equal((await ok("show", { id: target })).status, "blocked");
+  }
+  assert.equal((await ok("show", { id: detached })).status, "current");
+  assert.equal(
+    (await ok("show", { id: detached, version: 1 })).status,
+    "historical"
+  );
+  const stop = { id: blocked, action: "disable" };
+  const preblocked = await ok("forget", stop);
+  assert.deepEqual(entries(preblocked, "units").map(id), [blocked]);
+  await ok("forget", {
+    ...stop,
+    requestId: "stop-already-blocked",
+    expectedVersion: 1,
+    confirm: preblocked.token
+  });
+  assert.equal((await ok("show", { id: blocked })).reason, "disabled");
 });
 
 test("intent cancellation does not rewrite evidence and works after pending review", async (t) => {
@@ -130,8 +226,8 @@ test("purge preview includes historical dependants and rejects stale confirmatio
   const batch = {
     requestId: "partly-purged-batch",
     items: [
-      memory("unused-history", "历史组合", { edges: [edge(a)] }),
-      memory("unused-kept", "独立记录")
+      memoryContent("历史组合", { edges: [edge(a)] }),
+      memoryContent("独立记录")
     ]
   };
   const [b, keep] = entries(await ok("save", batch)).map(id);
@@ -216,4 +312,56 @@ test("purge preview includes historical dependants and rejects stale confirmatio
     "清除请求痕迹",
     "预览后变更"
   ]);
+});
+
+test("forget confirmation is bound to the target and action even for equal scopes", async (t) => {
+  const { ok, reject, save } = await fixture(t);
+  const a = await save(memory("target-a", "目标甲"));
+  const b = await save(memory("target-b", "目标乙", { edges: [edge(a)] }));
+  await ok("revise", {
+    id: b,
+    expectedVersion: 1,
+    requestId: "detach-b",
+    reason: "已不构成前提",
+    semanticChange: true,
+    edges: []
+  });
+  await ok("revise", {
+    id: a,
+    expectedVersion: 1,
+    requestId: "attach-a",
+    reason: "核对新前提",
+    semanticChange: true,
+    edges: [edge(b, 2)]
+  });
+  const first = await ok("forget", { id: a, action: "purge" });
+  const request = { id: b, action: "purge", requestId: "confirmed" };
+  assert.match(
+    await reject("forget", { id: b, action: "purge", extra: true }),
+    /unknown field/u
+  );
+  const second = await ok("forget", { id: b, action: "purge" });
+  const hidden = await ok("forget", { id: b, action: "hide" });
+  assert.deepEqual(first.units, second.units);
+  assert.deepEqual(second.units, hidden.units);
+  for (const preview of [first, hidden]) {
+    assert.match(
+      await reject("forget", { ...request, confirm: preview.token }),
+      /forget preview conflict/u
+    );
+  }
+  const valid = { ...request, expectedVersion: 2, confirm: second.token };
+  assert.match(
+    await reject("forget", { ...valid, confirmAction: "hide" }),
+    /unknown field/u
+  );
+  assert.match(
+    await reject("forget", { ...valid, expectedVersion: 1 }),
+    /version conflict/u
+  );
+  for (const target of [a, b]) {
+    assert.equal((await ok("show", { id: target })).status, "current");
+  }
+  assert.deepEqual((await ok("forget", valid)).purged, [a, b].sort());
+  assert.deepEqual((await ok("forget", valid)).purged, [a, b].sort());
 });

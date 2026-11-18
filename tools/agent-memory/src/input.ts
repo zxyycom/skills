@@ -15,11 +15,22 @@ const number = (field: string) =>
   );
 const object = <const T extends v.ObjectEntries>(fields: T) =>
   v.object(fields, "expected a JSON object");
+function strictObject<const T extends v.ObjectEntries>(
+  fields: T,
+  unknownFieldMessage = "unknown field in JSON object"
+) {
+  // Valibot checks entry membership with `in`; inherited names aren't fields.
+  Object.setPrototypeOf(fields, null);
+  return v.strictObject(fields, (issue) =>
+    issue.expected === "never" ? unknownFieldMessage : "expected a JSON object"
+  );
+}
+const init = strictObject({});
 const reference = {
   id: text("id"),
   expectedVersion: number("expectedVersion")
 };
-const edge = object({
+const edge = strictObject({
   target: text("edge target"),
   version: number("edge version"),
   type: edgeType,
@@ -47,7 +58,7 @@ const contentFields = {
   source: text("source"),
   conditions: text("conditions")
 };
-const content = object({
+const content = strictObject({
   ...contentFields,
   reason: v.pipe(
     v.optional(v.unknown(), ""),
@@ -61,19 +72,19 @@ const changes = {
   tags: v.nullish(strings("tags")),
   edges: v.nullish(edges)
 };
-const batch = object({
+const batch = strictObject({
   items: v.pipe(
     v.array(content, "items must be a nonempty array"),
     v.minLength(1, "items must be a nonempty array")
   )
 });
-const revise = object({
+const revise = strictObject({
   ...reference,
   ...changes,
   reason: text("reason"),
   semanticChange: v.boolean("semanticChange must be boolean")
 });
-const review = object({
+const review = strictObject({
   ...reference,
   ...changes,
   reason: text("reason"),
@@ -82,7 +93,7 @@ const review = object({
     "invalid review outcome"
   )
 });
-const close = v.strictObject(
+const close = strictObject(
   {
     ...reference,
     outcome: closeOutcome,
@@ -102,21 +113,22 @@ const recall = v.pipe(
     "recall needs at least one tag or term"
   )
 );
-const preview = object({ id: text("id"), action: forgetAction });
+const preview = strictObject({ id: text("id"), action: forgetAction });
 const forget = v.variant(
   "action",
   [
-    object({
+    strictObject({
       id: text("id"),
+      expectedVersion: v.optional(number("expectedVersion")),
       confirm: text("confirm"),
       action: v.literal("purge")
     }),
-    object({
+    strictObject({
       ...reference,
       confirm: text("confirm"),
       action: v.literal("disable")
     }),
-    object({
+    strictObject({
       ...reference,
       confirm: text("confirm"),
       action: v.literal("hide")
@@ -195,7 +207,10 @@ function validated<T extends v.GenericSchema>(
   // Valibot default messages may interpolate the actual input. Expose only static issue messages.
   const issue = result.issues[0];
   // An object issue with a quoted expectation identifies a declared required key.
-  if (issue.type === "object" && issue.expected?.startsWith('"')) {
+  if (
+    (issue.type === "object" || issue.type === "strict_object") &&
+    issue.expected?.startsWith('"')
+  ) {
     fail(`missing required field ${issue.expected}`);
   }
   return fail(issue.message);
@@ -218,6 +233,7 @@ export function parseInvocation(name: Command, input: unknown): Invocation {
 function parseObject(name: Command, input: object): Invocation {
   switch (name) {
     case "init":
+      validated(init, input);
       return { name };
     case "show":
       return { name, data: validated(show, input) };

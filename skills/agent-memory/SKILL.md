@@ -4,7 +4,7 @@ description: >-
   当既有项目经验或待回访条件可能影响当前判断时，按任务线索召回并核对依据；
   在用户明确要求时保存、修订或管理项目记忆。
 metadata:
-  version: "1"
+  version: "2"
 ---
 
 # Agent Memory

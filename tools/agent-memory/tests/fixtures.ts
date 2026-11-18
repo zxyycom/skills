@@ -78,8 +78,8 @@ export async function fixture(t: TestContext) {
     input?: Data,
     target?: string,
     database?: string
-  ): Promise<void> {
-    refusal(await call(action, input, target, database));
+  ): Promise<string> {
+    return refusal(await call(action, input, target, database));
   }
   async function save(input: Data): Promise<string> {
     return id(await ok("save", input));
@@ -95,10 +95,11 @@ function success(response: Response): Data {
   return output;
 }
 
-function refusal(response: Response): void {
+function refusal(response: Response): string {
   assert.notEqual(response.code, 0);
   assert.equal(response.stdout, "");
   assert.notEqual(response.stderr.trim(), "");
+  return response.stderr;
 }
 
 export function entries(response: Data, key = "items"): Data[] {
@@ -122,8 +123,11 @@ export function memory(
   title: string,
   extra: Data = {}
 ): Data {
+  return { requestId, ...memoryContent(title, extra) };
+}
+
+export function memoryContent(title: string, extra: Data = {}): Data {
   return {
-    requestId,
     kind: "knowledge",
     title,
     body: `${title}正文`,

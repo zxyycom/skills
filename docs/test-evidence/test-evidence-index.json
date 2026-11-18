@@ -6,13 +6,14 @@
   "sourceRevision": {
     "entries": {
       "AGENT-MEMORY-ATOMIC-001": "sha256:9abdab2be467f945a19e8e77e1f83d100b0564bb51edea598225c6fca794f2ae",
-      "AGENT-MEMORY-BINDING-001": "sha256:998691c50073012920b3d199df3ba96a3b132b597e55d7a6850e3375f3c6a6b4",
-      "AGENT-MEMORY-CONTROL-001": "sha256:977f5f7fe1ff009ffa4619225e478137302ffe05c1c7fde12e7ad3211220eb0b",
+      "AGENT-MEMORY-BINDING-001": "sha256:6c78e095fadcbec07e9f612f583519189184cf3172bed4fdd73f8815c948b688",
+      "AGENT-MEMORY-CONTROL-001": "sha256:cb2575f389c7b55c71df4e2968124d5a92d913dc98e94c841a22f0b771ae7f08",
       "AGENT-MEMORY-DEPENDENCIES-001": "sha256:c6d650680d1738bb38fe8ddcc4d7cc6a8728601b89f22477a46059a4a8760631",
       "AGENT-MEMORY-DISTRIBUTION-001": "sha256:17333f9d2db636b912ae3a0772fa4bf435fad780d2c1bc79b615f7bbebf7f2f5",
       "AGENT-MEMORY-EVOLUTION-001": "sha256:bd69bdd113cef4a624e5ca80a65b7d5fb872be727aacb7bb5555a008e5fdb25f",
+      "AGENT-MEMORY-INPUT-001": "sha256:a991d4a877360b9edb07e5f72851b416db4dba4b929eb2dbfa1818001cc4b8cc",
       "AGENT-MEMORY-INTENT-001": "sha256:e65ae13a641e6f5d166f9696070389f532be7425bdc8143a6758602c3ede7fa2",
-      "AGENT-MEMORY-PURGE-001": "sha256:35a1b1fb955ff2033dd193f7cc70c8b20f7df4d67ed684535cd6f6807fb7a1fd",
+      "AGENT-MEMORY-PURGE-001": "sha256:618a7254d0597e39b20367928b835b52ec2d651a2082a6e18e3a23fa2ed20436",
       "AGENT-MEMORY-RECALL-001": "sha256:9d95caa4f786a286f819b6ea93f12d05d934b22c0c7242e5d08ea7ee82176e31",
       "AUTO-PUSH-BRANCH-001": "sha256:20c898b6bd5abacce38e2b43f8287a85c3131309c90a0566ef8ff693e448598d",
       "AUTO-PUSH-CONCURRENCY-001": "sha256:f6bc44d8e72386226acdc7c029ddeb90a4fa9f7f9bb2df45fa221781ef61f92a",
@@ -1469,6 +1470,7 @@
         "agent-memory"
       ],
       "testIds": [
+        "test:386fad3c73bb9e07e39f215a01b38e517593c4868f74dfe0d1db0e03ec15ef68",
         "test:6eec0316d4502a901a7d5435b3f189ca06660fc00641681c65bef6615c82836f"
       ]
     },
@@ -1502,6 +1504,17 @@
         "test:a3572018c8974a27b295b337fdd5c9e419ae26420ffe5b164388096551a14688"
       ]
     },
+    "AGENT-MEMORY-INPUT-001": {
+      "title": "拒绝写入中的未知字段",
+      "sourcePath": "cases/agent-memory-input.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:524abfba00d353b850f705fd2e146d6f12aec710f8cf2dcdd2097217c544fca4",
+        "test:cda24fbaff57537df2ee711ddab30ecfb5ee4198132d83deafdba1258076c9f2"
+      ]
+    },
     "AGENT-MEMORY-INTENT-001": {
       "title": "取消待复核意图并保留原证据",
       "sourcePath": "cases/agent-memory-intent.md",
@@ -1519,6 +1532,7 @@
         "agent-memory"
       ],
       "testIds": [
+        "test:6e761ae69b2888303ebcbba7f9b3ccfd02df3e6fe48f8c2bab0eddddae647d6b",
         "test:c22d02cf82705d94d386bedbf061e53fc62600acca683c57a6bcd2080d4291d9"
       ]
     },

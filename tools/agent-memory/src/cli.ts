@@ -32,10 +32,15 @@ import { write } from "./writes.ts";
 
 const help = `agent-memory <init|save|revise|recall|show|review|close|forget> --root ABS --db ABS [--json] [--input JSON]
 --db overrides AGENT_MEMORY_DB. JSON input may instead be supplied on stdin.
-init: {}. save: {requestId,kind:"knowledge"|"intent",title,body,source,conditions,tags:[string],edges:[{target,version,type:"composition"|"supports"|"limits"|"conflicts"|"replaces"|"splits",role}]}.
-For atomic split use save {requestId,items:[save fields without requestId]}; each successor uses a splits edge to the current original.
-revise: save fields plus {id,expectedVersion,reason,semanticChange:boolean}; review: {id,expectedVersion,requestId,reason,outcome:"unchanged"|"changed"|"pending",edges:[...]}, optional replacement content fields.
-recall: {tags:[string],terms:[string],limit?:number}; show: {id,version?:number}; close: {id,expectedVersion,requestId,outcome:"completed"|"cancelled",reason}; forget: first {id,action:"disable"|"hide"|"purge"} returns preview; then {id,action,requestId,confirm:token,expectedVersion} executes (expectedVersion not required for purge).
+New writes and forget previews reject unknown JSON fields, including in items and edges.
+init: {}.
+save: {requestId,kind:"knowledge"|"intent",title,body,source,conditions,reason?:string,tags?:[string],edges?:[{target,version,type:"composition"|"supports"|"limits"|"conflicts"|"replaces"|"splits",role}]}.
+Batch save: {requestId,items:[save fields without requestId]}. For atomic split, use a splits edge from each successor to the current original.
+revise: {id,expectedVersion,requestId,reason,semanticChange:boolean} plus optional kind,title,body,source,conditions,tags,edges.
+review: {id,expectedVersion,requestId,reason,outcome:"unchanged"|"changed"|"pending"} plus the same optional content fields.
+recall: {tags:[string],terms:[string],limit?:number}; show: {id,version?:number}; close: {id,expectedVersion,requestId,outcome:"completed"|"cancelled",reason}.
+forget: first {id,action:"disable"|"hide"|"purge"} previews an active/pending target and newly blocked current dependants (disable/hide), or the full historical composition scope (purge).
+Then {id,action,requestId,confirm:token,expectedVersion} executes; expectedVersion is optional for purge and checked when supplied.
 `;
 
 function argumentsFor(args: string[]) {

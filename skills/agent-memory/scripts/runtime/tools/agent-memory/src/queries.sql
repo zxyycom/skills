@@ -60,13 +60,15 @@ GROUP BY m.id
 ORDER BY count(*) DESC, m.id;
 -- name: affected_units
 WITH RECURSIVE affected(id) AS (
-  SELECT id FROM units WHERE id = ?
+  SELECT id FROM units WHERE id = ?1
   UNION
-  SELECT e.id FROM affected a JOIN edges e ON e.target = a.id
-  WHERE e.type = 'composition'
+  SELECT e.id FROM affected a
+  JOIN edges e ON e.target = a.id AND e.type = 'composition'
+  JOIN units u ON u.id = e.id
+  WHERE ?2 OR (e.version = u.current_version AND u.state = 'active')
 )
 SELECT u.id, u.current_version AS version, u.state
-FROM affected a JOIN units u ON u.id = a.id ORDER BY u.id;
+FROM affected a JOIN units u ON u.id = a.id ORDER BY a.id;
 -- name: removed_references
 WITH affected(id) AS (SELECT value FROM json_each(?))
 SELECT e.id, e.version, e.target, e.target_version AS targetVersion, e.type, e.role
