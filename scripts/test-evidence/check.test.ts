@@ -4,6 +4,8 @@ import path from "node:path";
 import test from "node:test";
 import { syncTestEvidenceIndex } from "../../tools/test-evidence/src/cli.ts";
 import { checkRepositoryTestEvidence } from "./check.ts";
+import { cargoTestId } from "./snapshot/snapshot-cargo.ts";
+import { cargoTestCommand } from "./snapshot/snapshot-commands.ts";
 import { createRepositoryTestEvidenceSnapshot } from "./snapshot/snapshot.ts";
 import { withSnapshotFixture } from "./test-fixture.ts";
 
@@ -157,12 +159,9 @@ test("platform-specific reference classification remains strict", async () => {
 });
 
 test("project check reports foreign references but blocks unknown ones", async () => {
-  const { createHash } = await import("node:crypto");
   const foreignPlatform = process.platform === "win32" ? "unix" : "windows";
   const name = "conditional";
-  const id = `test:${createHash("sha256")
-    .update(JSON.stringify(["cargo", "record-cli", "test\0example", name]))
-    .digest("hex")}`;
+  const id = cargoTestId("test\0example", name);
 
   await withSnapshotFixture(
     { "test:fixture": "bun test ./tests/covered.test.ts" },
@@ -172,10 +171,6 @@ test("project check reports foreign references but blocks unknown ones", async (
       "tools/record-cli/src/lib.rs": '[package]\nname = "fixture"\n'
     },
     async (root) => {
-      const { cargoSourceFingerprint } = await import("./platform-entities.ts");
-      const sourceHash = await cargoSourceFingerprint(
-        path.join(root, "tools/record-cli")
-      );
       const registryPath = path.join(
         root,
         "scripts/test-evidence/platform-entities.json"
@@ -184,11 +179,9 @@ test("project check reports foreign references but blocks unknown ones", async (
       await fs.writeFile(
         registryPath,
         JSON.stringify({
-          version: 1,
-          sourceHash,
+          version: 2,
           entities: [
             {
-              id,
               platform: foreignPlatform,
               locator: `cargo:test:example > ${name}`
             }
@@ -225,12 +218,8 @@ test("project check reports foreign references but blocks unknown ones", async (
         "changed"
       );
       const changed = await checkRepositoryTestEvidence(root);
-      assert.equal(changed.status, "error");
-      assert.match(changed.diagnostics[0]!.message, /sourceHash mismatch/);
-      await fs.writeFile(
-        path.join(root, "tools/record-cli/src/lib.rs"),
-        '[package]\nname = "fixture"\n'
-      );
+      assert.equal(changed.status, "ok", JSON.stringify(changed));
+      assert.deepEqual(changed.unavailableTestIds, [id]);
       await write(`test:${"f".repeat(64)}`);
       const invalid = await checkRepositoryTestEvidence(root);
       assert.equal(invalid.status, "error");
@@ -242,76 +231,79 @@ test("project check reports foreign references but blocks unknown ones", async (
   );
 });
 
-test("Cargo platform source identity detects deletion, rename and cfg changes", async () => {
-  const { cargoSourceFingerprint, readPlatformEntities } =
-    await import("./platform-entities.ts");
-  const { createHash } = await import("node:crypto");
-  const { mkdtemp, mkdir, writeFile, rename, rm } =
-    await import("node:fs/promises");
-  const os = await import("node:os");
-  const root = await mkdtemp(path.join(os.tmpdir(), "platform-source-"));
-  try {
-    const dir = path.join(root, "tools/record-cli");
-    const source = path.join(dir, "src/lib.rs");
-    const registry = path.join(
-      root,
-      "scripts/test-evidence/platform-entities.json"
-    );
-    await mkdir(path.dirname(source), { recursive: true });
-    await mkdir(path.dirname(registry), { recursive: true });
-    await writeFile(source, "#[cfg(unix)]\nfn example() {}\n");
-    await writeFile(path.join(dir, "Cargo.toml"), "[package]\n");
-    const sourceHash = await cargoSourceFingerprint(dir);
-    await writeFile(source, "#[cfg(unix)]\r\nfn example() {}\r\n");
-    assert.equal(await cargoSourceFingerprint(dir), sourceHash);
-    const id = `test:${createHash("sha256")
-      .update(
-        JSON.stringify([
-          "cargo",
-          "record-cli",
-          "lib\0record_cli",
-          "tests::example"
-        ])
-      )
-      .digest("hex")}`;
-    const manifest = {
-      version: 1,
-      sourceHash,
+test("project check catches missing and wrongly assigned Cargo declarations from native listings", async () => {
+  const platform = process.platform === "win32" ? "windows" : "unix";
+  const otherPlatform = platform === "unix" ? "windows" : "unix";
+  const registry = "scripts/test-evidence/platform-entities.json";
+  const source = "tools/record-cli/src/lib.rs";
+  const decl = (target: typeof platform) =>
+    JSON.stringify({
+      version: 2,
       entities: [
-        {
-          id,
-          platform: "unix",
-          locator: "cargo:lib:record_cli > tests::example"
-        }
+        { platform: target, locator: "cargo:lib:record_cli > conditional" }
       ]
-    };
-    await writeFile(registry, JSON.stringify(manifest));
-    assert.equal((await readPlatformEntities(root)).length, 1);
-    for (const changed of [
-      "#[cfg(windows)]\nfn example() {}\n",
-      "#[cfg(unix)]\nfn renamed() {}\n"
-    ]) {
-      await writeFile(source, changed);
-      await assert.rejects(readPlatformEntities(root), /sourceHash mismatch/);
+    });
+  const rust = (target: typeof platform) =>
+    `#[test] fn common() {}\n#[cfg(${target})] #[test] fn conditional() {}\n`;
+  await withSnapshotFixture(
+    {
+      "test:fixture": "bun test ./tests/covered.test.ts",
+      "test:record-rust": cargoTestCommand
+    },
+    {
+      [registry]: decl(platform),
+      [source]: rust(platform),
+      "tools/record-cli/.gitignore": "target/\n",
+      "tools/record-cli/Cargo.toml":
+        '[package]\nname = "record-cli"\nversion = "0.1.0"\nedition = "2021"\n',
+      "tools/record-cli/Cargo.lock":
+        'version = 4\n\n[[package]]\nname = "record-cli"\nversion = "0.1.0"\n',
+      "tests/covered.test.ts":
+        'import test from "node:test";\ntest("covered", () => {});\n'
+    },
+    async (root) => {
+      const snapshot = await createRepositoryTestEvidenceSnapshot({
+        workspaceRoot: root
+      });
+      assert.equal(snapshot.entities.length, 3);
+      const cases = path.join(root, "docs/test-evidence/cases");
+      await fs.mkdir(cases, { recursive: true });
+      const tests = snapshot.entities.map(({ id }) => `- \`${id}\``).join("\n");
+      await fs.writeFile(
+        path.join(cases, "fixture.md"),
+        `### Case PROJECT-PLATFORM-TEST-002: native platform declarations\n\nTests:\n${tests}\n\nContract:\n- The current platform must expose its own declared Cargo node.\n\nProves:\n- The declaration agrees with Cargo's native listing.\n`
+      );
+      assert.equal(
+        (await syncTestEvidenceIndex({ mode: "write", workspaceRoot: root }))
+          .status,
+        "ok"
+      );
+      assert.deepEqual(await checkRepositoryTestEvidence(root), {
+        diagnostics: [],
+        entityCount: 3,
+        status: "ok"
+      });
+      await fs.writeFile(path.join(root, registry), decl(otherPlatform));
+      const unexpected = await checkRepositoryTestEvidence(root);
+      assert.equal(unexpected.status, "error");
+      assert.match(
+        unexpected.diagnostics[0]!.message,
+        /foreign platform entity unexpectedly present/
+      );
+
+      await fs.writeFile(path.join(root, registry), decl(platform));
+      await fs.writeFile(path.join(root, source), rust(otherPlatform));
+      const stale = await checkRepositoryTestEvidence(root);
+      assert.equal(stale.status, "error");
+      assert.match(
+        stale.diagnostics[0]!.message,
+        /declared local platform entity missing/
+      );
     }
-    await writeFile(source, "#[cfg(unix)]\nfn example() {}\n");
-    await rename(source, path.join(dir, "src/renamed.rs"));
-    await assert.rejects(readPlatformEntities(root), /sourceHash mismatch/);
-    await rm(path.join(dir, "src/renamed.rs"));
-    await assert.rejects(readPlatformEntities(root), /sourceHash mismatch/);
-    await writeFile(
-      registry,
-      JSON.stringify({ ...manifest, sourceHash: null })
-    );
-    await assert.rejects(readPlatformEntities(root), /sourceHash is pending/);
-  } finally {
-    await rm(root, { recursive: true, force: true });
-  }
+  );
 });
 
 test("project check rejects ignored Cargo source drift on cold and cached snapshots", async () => {
-  const { createHash } = await import("node:crypto");
-  const { cargoSourceFingerprint } = await import("./platform-entities.ts");
   await withSnapshotFixture(
     { "test:fixture": "bun test ./tests/covered.test.ts" },
     {
@@ -324,33 +316,6 @@ test("project check rejects ignored Cargo source drift on cold and cached snapsh
       const ignored = path.join(root, "tools/record-cli/ignored.rs");
       const original = "fn before() {}\n";
       await fs.writeFile(ignored, original);
-      const sourceHash = await cargoSourceFingerprint(
-        path.join(root, "tools/record-cli")
-      );
-      const id = `test:${createHash("sha256")
-        .update(
-          JSON.stringify(["cargo", "record-cli", "test\0example", "foreign"])
-        )
-        .digest("hex")}`;
-      const registry = path.join(
-        root,
-        "scripts/test-evidence/platform-entities.json"
-      );
-      await fs.mkdir(path.dirname(registry), { recursive: true });
-      await fs.writeFile(
-        registry,
-        JSON.stringify({
-          version: 1,
-          sourceHash,
-          entities: [
-            {
-              id,
-              platform: process.platform === "win32" ? "unix" : "windows",
-              locator: "cargo:test:example > foreign"
-            }
-          ]
-        })
-      );
       const snapshot = await createRepositoryTestEvidenceSnapshot({
         workspaceRoot: root
       });
@@ -358,14 +323,14 @@ test("project check rejects ignored Cargo source drift on cold and cached snapsh
       await fs.mkdir(cases, { recursive: true });
       await fs.writeFile(
         path.join(cases, "fixture.md"),
-        `### Case PROJECT-CARGO-DRIFT-001: ignored source\n\nTests:\n- \`${snapshot.entities[0]!.id}\`\n\nContract:\n- Cargo identity remains stable.\n\nProves:\n- Ignored source drift is rejected.\n`
+        `### Case PROJECT-CARGO-DRIFT-001: ignored source\n\nTests:\n- \`${snapshot.entities[0]!.id}\`\n\nContract:\n- Each snapshot is checked against current Cargo inputs.\n\nProves:\n- Ignored source drift is rejected.\n`
       );
       assert.equal(
         (await syncTestEvidenceIndex({ mode: "write", workspaceRoot: root }))
           .status,
         "ok"
       );
-      const runWithDrift = async () => {
+      const runWithDrift = async (expectedCode: string) => {
         const read = fs.readFile;
         const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile")!;
         let changed = false;
@@ -388,15 +353,12 @@ test("project check rejects ignored Cargo source drift on cold and cached snapsh
           const result = await checkRepositoryTestEvidence(root);
           assert.equal(changed, true, "drift was not injected");
           assert.equal(result.status, "error", JSON.stringify(result));
-          assert.equal(
-            result.diagnostics[0]?.code,
-            "project.cargo-source-drift"
-          );
+          assert.equal(result.diagnostics[0]?.code, expectedCode);
         } finally {
           Object.defineProperty(fs, "readFile", descriptor);
         }
       };
-      await runWithDrift();
+      await runWithDrift("project.snapshot-failed");
       await fs.writeFile(ignored, original);
       assert.equal((await checkRepositoryTestEvidence(root)).status, "ok");
       const cache = path.join(
@@ -404,7 +366,7 @@ test("project check rejects ignored Cargo source drift on cold and cached snapsh
         ".log/vibe-check/cache/test-evidence-snapshots-v1"
       );
       assert.equal((await fs.readdir(cache)).length, 1);
-      await runWithDrift();
+      await runWithDrift("project.source-drift");
     }
   );
 });

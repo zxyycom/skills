@@ -56,6 +56,7 @@
 - `file-lifecycle-hygiene`：管理 agent 主导的文件输出、移动和留存。
 - `skill-maintainer`：维护 skill 的能力归属、组成与交付边界。
 - `git-commit-organizer`：整理改动并创建范围清楚、信息可追踪的提交。
+- `agent-memory`：维护跨任务认识、依赖及待回访意图。
 - `change-plan`：维护明确 Change 的提案、设计、实施任务与结项。
 - `task-graph`：维护当前工作的非线性关系、协调状态与执行租约。
 - `codex-shell-permissions`：选择 shell 失败后的执行路径，按用户要求维护权限规则。

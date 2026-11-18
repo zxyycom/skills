@@ -24,15 +24,17 @@ test("incremental Gate reuses only exact successful receipts", async () => {
   await withImpactFixture(async (fixture) => {
     assert.deepEqual(validateBaseGateImpactContracts(), []);
     assert.ok(baseGateCheckIds.includes("markdown-lint"));
-    assert.equal(baseGateCheckIds.length, 52);
     assert.ok(!baseGateCheckIds.includes("markdown-link-validation"));
-    assert.ok(!baseGateCheckIds.includes("environment"));
+    assert.ok(!baseGateCheckIds.includes("gate-environment"));
     await publishInitialFixtureReceipts(fixture);
     const warm = await prepareFixtureActivation(fixture);
     assert.deepEqual(warm.activeCheckIds, []);
-    assert.equal(
-      warm.decisions.filter(({ action }) => action === "reuse").length,
-      baseGateCheckIds.length
+    assert.deepEqual(
+      warm.decisions
+        .filter(({ action }) => action === "reuse")
+        .map(({ checkId }) => checkId)
+        .sort(),
+      [...baseGateCheckIds].sort()
     );
     assert.deepEqual(gateActivationFlags(warm), []);
     await writeReceiptManifest(

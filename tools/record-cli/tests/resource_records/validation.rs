@@ -241,7 +241,13 @@ fn cli_help_text_channels_and_parameter_failures() {
         .output()
         .unwrap();
     assert!(help.status.success());
-    assert!(String::from_utf8_lossy(&help.stdout).contains("--max-nodes"));
+    let text = String::from_utf8_lossy(&help.stdout);
+    assert!(text.contains("--max-nodes"));
+    assert!(text.lines().any(|line| {
+        line.trim_start().starts_with("list:")
+            && line.contains("--brief")
+            && line.contains("--tree")
+    }));
     assert!(help.stderr.is_empty());
     let err = Command::new(env!("CARGO_BIN_EXE_resource-records"))
         .args(["show", "--root"])

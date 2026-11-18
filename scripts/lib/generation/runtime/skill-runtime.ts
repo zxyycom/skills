@@ -56,6 +56,7 @@ const domainAdapters: Readonly<Record<string, string>> = {
   "skill-maintainer": "skill-validator",
   "lightweight-judgment": "lightweight-judgment",
   "novel-cards": "novel-cards",
+  "agent-memory": "agent-memory",
   "mcpshell-workspace-tools": "mcpshell-workspace-bridge"
 };
 

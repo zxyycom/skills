@@ -1,4 +1,5 @@
 use super::{
+    Output,
     args::{HELP, parse_args},
     run,
 };
@@ -59,11 +60,18 @@ fn report_error(command: &str, message: String, json_mode: bool, code: i32) -> i
 fn execute(a: super::args::Args) -> i32 {
     match run(&a) {
         Ok(result) => {
+            let result = match result {
+                Output::Text(text) => return status_output(&text, false),
+                Output::Json(value) => value,
+            };
             let text = if a.json {
                 json!({"version":1,"command":a.command,"ok":true,"result":result,"diagnostics":[]})
                     .to_string()
             } else {
-                serde_json::to_string_pretty(&result).unwrap_or_default()
+                match serde_json::to_string_pretty(&result) {
+                    Ok(text) => text,
+                    Err(error) => return report_error(&a.command, error.to_string(), false, 1),
+                }
             };
             status_output(&text, a.command == "sync-index")
         }
@@ -81,20 +89,8 @@ pub fn main_entry() -> i32 {
             false,
         );
     }
-    let options: Vec<_> = args.iter().take_while(|s| *s != "--").collect();
-    let wants_json = options.iter().any(|s| s.as_str() == "--json");
-    let command = options
-        .iter()
-        .find(|s| {
-            matches!(
-                s.as_str(),
-                "list" | "show" | "search" | "trace" | "check" | "sync-index"
-            )
-        })
-        .map(|s| (*s).clone())
-        .unwrap_or_default();
     match parse_args(args) {
         Ok(a) => execute(a),
-        Err(e) => report_error(&command, e, wants_json, 2),
+        Err(e) => report_error(&e.command, e.message, e.json, 2),
     }
 }

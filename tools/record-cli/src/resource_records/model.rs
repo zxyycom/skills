@@ -101,11 +101,23 @@ pub struct Member {
     pub locations: Vec<Location>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(tag = "kind", rename_all = "lowercase", deny_unknown_fields)]
+pub enum LogicalEntry {
+    Directory { path: String },
+    Document { path: String },
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Version {
     pub id: String,
     pub files: Vec<File>,
     pub members: Vec<Member>,
+    #[serde(
+        default,
+        deserialize_with = "non_null_option",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub entries: Option<Vec<LogicalEntry>>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub parents: Vec<Reference>,
 }

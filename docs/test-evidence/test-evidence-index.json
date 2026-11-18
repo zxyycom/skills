@@ -5,6 +5,16 @@
   "metadata": {},
   "sourceRevision": {
     "entries": {
+      "AGENT-MEMORY-ATOMIC-001": "sha256:9abdab2be467f945a19e8e77e1f83d100b0564bb51edea598225c6fca794f2ae",
+      "AGENT-MEMORY-BINDING-001": "sha256:6c78e095fadcbec07e9f612f583519189184cf3172bed4fdd73f8815c948b688",
+      "AGENT-MEMORY-CONTROL-001": "sha256:cb2575f389c7b55c71df4e2968124d5a92d913dc98e94c841a22f0b771ae7f08",
+      "AGENT-MEMORY-DEPENDENCIES-001": "sha256:c6d650680d1738bb38fe8ddcc4d7cc6a8728601b89f22477a46059a4a8760631",
+      "AGENT-MEMORY-DISTRIBUTION-001": "sha256:17333f9d2db636b912ae3a0772fa4bf435fad780d2c1bc79b615f7bbebf7f2f5",
+      "AGENT-MEMORY-EVOLUTION-001": "sha256:bd69bdd113cef4a624e5ca80a65b7d5fb872be727aacb7bb5555a008e5fdb25f",
+      "AGENT-MEMORY-INPUT-001": "sha256:a991d4a877360b9edb07e5f72851b416db4dba4b929eb2dbfa1818001cc4b8cc",
+      "AGENT-MEMORY-INTENT-001": "sha256:e65ae13a641e6f5d166f9696070389f532be7425bdc8143a6758602c3ede7fa2",
+      "AGENT-MEMORY-PURGE-001": "sha256:618a7254d0597e39b20367928b835b52ec2d651a2082a6e18e3a23fa2ed20436",
+      "AGENT-MEMORY-RECALL-001": "sha256:9d95caa4f786a286f819b6ea93f12d05d934b22c0c7242e5d08ea7ee82176e31",
       "AUTO-PUSH-BRANCH-001": "sha256:20c898b6bd5abacce38e2b43f8287a85c3131309c90a0566ef8ff693e448598d",
       "AUTO-PUSH-CONCURRENCY-001": "sha256:f6bc44d8e72386226acdc7c029ddeb90a4fa9f7f9bb2df45fa221781ef61f92a",
       "AUTO-PUSH-CONFLICT-001": "sha256:0e219640c21513be36a23c42f9aa040df82d20f8627319b809218127b393aece",
@@ -1045,20 +1055,26 @@
       "REPO-VALIDATION-SKILL-STRUCTURE-001": "sha256:5247acf37bb72e1643ca57848a5c98bc5d42125b3e9bcac12a226fb7d2f7da75",
       "RESOLVED-FIRST-PARENT-ENDPOINTS-REUSE-001": "sha256:367ffda6641e1626a673b3cc4a171ee185bd4f657b2ba52f1d79bf6d72f3b036",
       "RESOLVED-FIRST-PARENT-ENDPOINTS-VALIDATION-001": "sha256:ab7d384d0f3c4456c465331b86422278b8aff05f4d43e580085f691460e9428b",
+      "RESOURCE-BRIEF-DASH-PARENT-001": "sha256:140399be5dd724a6f5f367d9470f416b0e8c2c4a3355b00fe0512c0f8e3402c6",
       "RESOURCE-BROKEN-PIPE-001": "sha256:5d5d4ead2958c44b355587445523021f35c8b7dbf331cf9352a6ec971ce2e93f",
-      "RESOURCE-CLI-CONTRACT-001": "sha256:1bb064ba1ee30bd0aabe710492b827a6949aa5cc06034411e0b42c5004edf036",
+      "RESOURCE-CLI-CONTRACT-001": "sha256:796a21d4a986c51fc0a46b611aa5873e9b6a3e3b29f7c984c2475a6d6a442237",
       "RESOURCE-DEEP-CHAIN-001": "sha256:249f3aeace7cd7be3ab4a060573a6317b9652986b64978980982fb1490b86d82",
       "RESOURCE-GRAPH-VALIDATION-001": "sha256:100b211b6fb466b95480493a8a70ae7029d5d240d5661ac69aa4374e845ecf84",
       "RESOURCE-INDEX-FAILURES-001": "sha256:d85743839bf889c3ac10dfc63b57e51b4aa8c036836a5dc35f39680b7d63d38a",
       "RESOURCE-INDEX-ROUNDTRIP-001": "sha256:d4941764591977b70a86e1d38e8e2d01e016d61d6ad41c82fb36b38fd0029adc",
       "RESOURCE-LINEAGE-CASE-001": "sha256:2fe6b70002d1fd12422717e8b96019aaaf55d401ce1c3a10611e431a6630e2cd",
+      "RESOURCE-LIST-VIEW-WINDOW-001": "sha256:56cfaf30ec66314b1be0545f423708390db904fca2b65706243a7f7ecfb67dd7",
       "RESOURCE-LITERAL-ARGUMENTS-001": "sha256:380a75420d95349303213fdb7bf91f766ff61893a9b59ae78a3b045bca60b65b",
+      "RESOURCE-LOGICAL-ENTRY-MEMBER-001": "sha256:6cf37db8d81ce86ef0de44d2e887723533423b34f75122fbe10208c35b5a680a",
+      "RESOURCE-LOGICAL-ENTRY-QUERIES-001": "sha256:edd1ffc755cdf6ac8743236d7b62ccb33f414a44c7d104fd34055fc4ad9b8d51",
+      "RESOURCE-LOGICAL-ENTRY-VALIDATION-001": "sha256:66f7cf329f2c12e3af42e016de6155b183f73b7af29532864a163ee5628b79f8",
       "RESOURCE-MEDIA-PACK-001": "sha256:a859517044b2c057835a29ef661ec42790dadaef9fb7a54b0e78ccc03d45b725",
       "RESOURCE-PATH-SAFETY-001": "sha256:12a130b3bb169503f41e04f6f47a63f6b1c93adeb81740c12cabff126df3be66",
-      "RESOURCE-PLATFORM-EVIDENCE-001": "sha256:177ef27d823fb7bf0c4b56a3ea8bc1ce720749f6ba0d9a97234b2ba5e4cb29cd",
+      "RESOURCE-PLATFORM-EVIDENCE-001": "sha256:0c1c908e69e460e737e3adc7faf2e3f11b2b077b8a69958585eaaf82157ecd25",
       "RESOURCE-QUERIES-CASE-001": "sha256:a3502ff4b0bdc92fee382caa933384df0908e9757558439acf90b2e6e340b42d",
-      "RESOURCE-SCHEMA-CASE-001": "sha256:398c37b8586cd1370ac49d3b3a30b506e844d0449417882018ade99f52de2069",
+      "RESOURCE-SCHEMA-CASE-001": "sha256:2ea08d1b0dbb0227d29496e657048ff42bfa8719afdf2b48b19154614d5bca4e",
       "RESOURCE-SELECTION-TRACE-001": "sha256:ae5601d83fde437c27128b929e5b2ce5c1a30076d6df678ed4fce911504913db",
+      "RESOURCE-TREE-DEEP-CONTEXT-001": "sha256:044dfa8cf6fa2d2f1d2da6ba33106f39312a4d740cc02000560d328ebef9097f",
       "RESOURCE-VALIDATION-DIAGNOSTICS-001": "sha256:7eec3fa1baf2ef01ae37e35d8234303d1751ef2af62356b222efd6aad942e947",
       "RESOURCE-WINDOWS-CASE-ALIAS-001": "sha256:1d247cb191bcbcea9d1ff556cb765de5af3e72cb562dc50e417c8fb730166e4b",
       "RETIRED-PUBLISHER-ENTRY-001": "sha256:6d2998412a34ef32f7e0008d4a02bb62272f65a5c4537a161f14453b92dd970a",
@@ -1427,6 +1443,109 @@
     "metadata": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
   },
   "entries": {
+    "AGENT-MEMORY-ATOMIC-001": {
+      "title": "请求重放和事务失败回滚",
+      "sourcePath": "cases/agent-memory-atomic.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:6b7decdd0f1d6f230116ab922ce848a8333bdf080d6adcdd667150b074cf6ed2"
+      ]
+    },
+    "AGENT-MEMORY-BINDING-001": {
+      "title": "项目绑定和查询不建库",
+      "sourcePath": "cases/agent-memory-binding.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:9d1a529e3d299f16e8c4f66da2dc390ed3222d5b822a62d1c3ae80d32b433898"
+      ]
+    },
+    "AGENT-MEMORY-CONTROL-001": {
+      "title": "停用和隐藏不删除历史",
+      "sourcePath": "cases/agent-memory-control.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:386fad3c73bb9e07e39f215a01b38e517593c4868f74dfe0d1db0e03ec15ef68",
+        "test:6eec0316d4502a901a7d5435b3f189ca06660fc00641681c65bef6615c82836f"
+      ]
+    },
+    "AGENT-MEMORY-DEPENDENCIES-001": {
+      "title": "纠正传播与依赖复核",
+      "sourcePath": "cases/agent-memory-dependencies.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:2d182357ed2cf2c151f764db8f7267f2c44d3d1f0499140cbd320aca793ce4af"
+      ]
+    },
+    "AGENT-MEMORY-DISTRIBUTION-001": {
+      "title": "随包 Node CLI 可独立运行",
+      "sourcePath": "cases/agent-memory-distribution.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:e294528ff55cf185cd43d87039935d59975962711b81f9a23056fa87117a8249"
+      ]
+    },
+    "AGENT-MEMORY-EVOLUTION-001": {
+      "title": "演进后仍须满足组合有效性",
+      "sourcePath": "cases/agent-memory-evolution.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:a3572018c8974a27b295b337fdd5c9e419ae26420ffe5b164388096551a14688"
+      ]
+    },
+    "AGENT-MEMORY-INPUT-001": {
+      "title": "拒绝写入中的未知字段",
+      "sourcePath": "cases/agent-memory-input.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:524abfba00d353b850f705fd2e146d6f12aec710f8cf2dcdd2097217c544fca4",
+        "test:cda24fbaff57537df2ee711ddab30ecfb5ee4198132d83deafdba1258076c9f2"
+      ]
+    },
+    "AGENT-MEMORY-INTENT-001": {
+      "title": "取消待复核意图并保留原证据",
+      "sourcePath": "cases/agent-memory-intent.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:239cb4556dd838ab70ebe323c26b05ba70070e7a6bcb80acb4c19553af088de1"
+      ]
+    },
+    "AGENT-MEMORY-PURGE-001": {
+      "title": "清除预览、库内数据与防重放",
+      "sourcePath": "cases/agent-memory-purge.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:6e761ae69b2888303ebcbba7f9b3ccfd02df3e6fe48f8c2bab0eddddae647d6b",
+        "test:c22d02cf82705d94d386bedbf061e53fc62600acca683c57a6bcd2080d4291d9"
+      ]
+    },
+    "AGENT-MEMORY-RECALL-001": {
+      "title": "中文原文与精确标签召回",
+      "sourcePath": "cases/agent-memory-recall.md",
+      "tags": [
+        "agent-memory"
+      ],
+      "testIds": [
+        "test:486e531f31ba1f514c95ed8137f3ead086153b16f45238d0891e9097abf88f54"
+      ]
+    },
     "AUTO-PUSH-BRANCH-001": {
       "title": "自动推送只接受 Main 提交",
       "sourcePath": "cases/auto-push-branch-001.md",
@@ -12300,6 +12419,16 @@
         "test:e26613086fc9c7f8b454d877116eb8ff09a7047a9412cb9e1d66643bfce67e5c"
       ]
     },
+    "RESOURCE-BRIEF-DASH-PARENT-001": {
+      "title": "摘要区分短横线父集合与顶层",
+      "sourcePath": "cases/resource-brief-dash-parent.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:e9461605a066ebcf786d134480ee206bdf4aa22d7d4da5b6b9b399a1f109c29e"
+      ]
+    },
     "RESOURCE-BROKEN-PIPE-001": {
       "title": "输出断管后的索引状态",
       "sourcePath": "cases/resource-broken-pipe.md",
@@ -12317,6 +12446,7 @@
         "resource-records"
       ],
       "testIds": [
+        "test:40c5f0c6b8d4cf21d9b6c7de4d4c1c53e2cab3f6a7cc55f8d1e33e031c37dacc",
         "test:4a577f6e01c50cd06a63c798a8270dd198d64b90364047cbbc3aafd548e926a0",
         "test:b8af7d351ea327ff0361f87620175f88cfde67754d012e22e1e000f293690b7d"
       ]
@@ -12377,6 +12507,18 @@
         "test:ef6611c63a93826434029206bb5969662beb163166cc50ad8682edfc9635c581"
       ]
     },
+    "RESOURCE-LIST-VIEW-WINDOW-001": {
+      "title": "摘要与树保留同一筛选分页窗口",
+      "sourcePath": "cases/resource-list-view-window.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:23800131f1ec20286bc61fa851e5f8c5ae5e22f9987c0ec205880b0a2ec46a48",
+        "test:450020d2066a3c2c321c0d15e3fd7ce1785cb341aadf14305274559024fa4314",
+        "test:dcb9e6406f43ad2d495555c0f269cd88541a32b4598298913841411659543bbe"
+      ]
+    },
     "RESOURCE-LITERAL-ARGUMENTS-001": {
       "title": "真实参数与字面搜索",
       "sourcePath": "cases/resource-literal-arguments.md",
@@ -12387,6 +12529,43 @@
         "test:0e7f976a83fad6bd8709200f637aed567ae45241af8f565ce38fc69edde6635f",
         "test:160a11950dfc5bd5f4f262296db7dfdd2564e787502b6e386019ba2abdce3f03",
         "test:c0f9f991f4110d6b1c0f777cadec7fa8b189f97632a2bd6e283f98465256499b"
+      ]
+    },
+    "RESOURCE-LOGICAL-ENTRY-MEMBER-001": {
+      "title": "逻辑版本与精确成员的引用边界",
+      "sourcePath": "cases/resource-logical-entry-member-boundary.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:4b7261dcdc92d56615578ea8cda513dcb0c22cb57e7dffc97fcc34173aadf038",
+        "test:96437365e09c6c9a65acf56661c626cb8ff813a61a93030d69d34dc2531e53b8",
+        "test:dbd600dd58eb2382c3085b15bfb0d573c8eed20d7e25a8374ba69a75d03145f9",
+        "test:fe146b9a848d0e8af9a1b276b0bf2d6a4d0a24f88763cbb05858095ba4053b3b"
+      ]
+    },
+    "RESOURCE-LOGICAL-ENTRY-QUERIES-001": {
+      "title": "逻辑入口可查询并与旧精确版本共存",
+      "sourcePath": "cases/resource-logical-entry-queries.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:e3445e30405e4f291c7952b575a499162901fee3d25b593fe931032df86a3d8a",
+        "test:f53d44dde77c6230d5a31963f20646b0a72c4445422c27f1cb71eeebc1d8f990",
+        "test:fe146b9a848d0e8af9a1b276b0bf2d6a4d0a24f88763cbb05858095ba4053b3b"
+      ]
+    },
+    "RESOURCE-LOGICAL-ENTRY-VALIDATION-001": {
+      "title": "逻辑入口的版本形态与路径拒绝",
+      "sourcePath": "cases/resource-logical-entry-validation.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:209b6494ef46c1ceeb1733f3d8e11e0814422fea70dd809a0dc90d1f2f09f88f",
+        "test:2df6c0feb447e2a612a8a30b20db7e695c44913c0afaf980eeb9e7b65ce55e4b",
+        "test:72efe911d4bd213ecd63a90f4e018fb48d555e5119769af9bcf81a92aceef408"
       ]
     },
     "RESOURCE-MEDIA-PACK-001": {
@@ -12420,8 +12599,8 @@
       "testIds": [
         "test:1ad4938264d33700977f3c893fb4fa64538c2f38ced8f2d4f4ad2119694ece36",
         "test:3398979ce653c672574e66a2631bac4cc24caaf01edcc8894cda624d3ad13d76",
-        "test:6b3352d02c1389b8200f46dd78c2ab22b0bea711f143385b2db0a50ede7c2e04",
-        "test:e28ba02338b8a9057b6148f4617c546ede96d30762e3332c82cfa02bb3ddba87"
+        "test:e28ba02338b8a9057b6148f4617c546ede96d30762e3332c82cfa02bb3ddba87",
+        "test:f292d84b0e582bc7268bfa3647b483f863678dbaf6c0b856555b78c9b3379f75"
       ]
     },
     "RESOURCE-QUERIES-CASE-001": {
@@ -12455,6 +12634,16 @@
       ],
       "testIds": [
         "test:e90c0d0b989113856f537432952c2d066faf03785cc250300014ffe22a21b910"
+      ]
+    },
+    "RESOURCE-TREE-DEEP-CONTEXT-001": {
+      "title": "深层树保留实际祖先及深度",
+      "sourcePath": "cases/resource-tree-deep-context.md",
+      "tags": [
+        "resource-records"
+      ],
+      "testIds": [
+        "test:2b46235e13163617def47b7facc8b2583bdedea1247361b4e6fb34c35d6d83d5"
       ]
     },
     "RESOURCE-VALIDATION-DIAGNOSTICS-001": {

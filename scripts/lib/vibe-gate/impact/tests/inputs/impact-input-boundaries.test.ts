@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import { createGateDefinition } from "../../../definition.ts";
 import { baseGateCheckIds, prepareGateActivation } from "../../impact.ts";
 import {
   captureFixtureCommand,
@@ -75,18 +76,26 @@ test(
 
 test("release full execution does not acquire or publish project input proofs", async () => {
   await withImpactFixture(async (fixture) => {
+    let probeCalls = 0;
     const plan = await prepareGateActivation({
       release: true,
       workspaceRoot: fixture.directory,
       captureDependencies: {
         async captureCommand() {
+          probeCalls += 1;
           throw new Error("release must not probe receipts");
         }
       }
     });
     assert.equal(plan.kind, "release");
     assert.equal(plan.snapshot, null);
-    assert.equal(plan.activeCheckIds.length, 63);
+    assert.equal(probeCalls, 0);
+    assert.deepEqual(
+      [...plan.activeCheckIds].sort(),
+      createGateDefinition(["release"])
+        .checks.map(({ checkId }) => checkId)
+        .sort()
+    );
     assert.deepEqual(await publishFixtureReceipts(fixture, plan), {
       published: false,
       reason: "not-incremental"

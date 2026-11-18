@@ -24,7 +24,7 @@ Case 使用 Tests、可选 tags、Contract 与 Proves，由测试改动显式维
 项目快照与校验按以下边界衔接：
 
 1. `snapshot:test-evidence` 产生 schema v2 实体快照；引用检查必须同时接收独立的 expected source。
-2. `check:test-evidence-catalog` 先检查 Case/index，再计算当前项目测试来源 revision。若 `.log/vibe-check/cache/test-evidence-snapshots-v1/<revision>.json` 是通过 schema、expected source 与引用校验的完整 snapshot fact，则复用实体集合；否则重新生成，并以同一 revision 发布可丢弃 cache。
+2. `check:test-evidence-catalog` 先检查 Case/index，再根据工作树测试输入、当前平台与工具链自动计算本机快照 revision。除 Git 可见输入（包括平台声明）外，还读取 Cargo 源目录中被 Git 忽略的文件，排除根 `target/` 和 `delivery/`。若 `.log/vibe-check/cache/test-evidence-snapshots-v1/<revision>.json` 是通过 schema、expected source 与引用校验的完整 snapshot fact，则复用实体集合；否则重新生成，并以同一 revision 发布可丢弃 cache。
 3. 无论是否命中缓存，Case 引用、实体覆盖和结束来源漂移都在本次重新判断。快照引用有效不等同于测试执行通过，未引用实体在通用核心中合法。
 4. Case 正文变化后运行 `sync:test-evidence-catalog`；完整检查中的 `check:test-evidence-catalog` 不写回版本管理文件。
 
@@ -32,6 +32,8 @@ Case 使用 Tests、可选 tags、Contract 与 Proves，由测试改动显式维
 
 ### 平台限定节点
 
-`scripts/test-evidence/platform-entities.json` 是项目集成层的显式 Cargo 条件节点声明，不改变通用 Case 或快照协议。声明仅能依据两平台相同冻结源码的真实 Cargo 原生枚举结果维护；每项记录目标与完整测试名，ID 按 Cargo 快照身份规则核对，不能通过扫描或人工推测补造。`sourceHash` 绑定整个 `tools/record-cli` 源码闭包，范围与 `workingSourceDigest` 相同（排除根 `target/`、`delivery/`）；有效 UTF-8 文本的 CRLF 归一为 LF，含 NUL 或非 UTF-8 文件按原始字节计算。缺失、待确认或不匹配时阻断，须重新在两平台枚举并人工核对差集后再更新，不能自动刷新。任何测试、模块、Cargo 定义或条件变化均使此证明失效。
+`scripts/test-evidence/platform-entities.json` 只声明平台限定 Cargo 节点的 locator（原生目标与完整测试名）及所属平台。检查器与 Cargo 枚举使用同一规则从 locator 派生 Case 所引用的节点 ID，不改变通用 Case 或快照协议。只有平台限定节点新增、删除、改名、移动目标或改变所属平台时才更新声明；普通 Rust 改动不需要更新声明或手工填写指纹。
 
-检查器先由核心校验本机快照来源、完整性与引用，仅当源码身份一致时，才把声明为其他平台的缺失引用列为 `platform unavailable`；未知引用、本平台声明未枚举、或外平台声明在本机出现均阻断。本机实际枚举节点仍全部要求 Case。声明仅证明冻结源码的异平台引用资格，不是跨平台测试执行或通过证据；每个平台须分别运行测试与本机检查。不可用条目不会补入本机快照。
+本地只校验本机快照与 Case：所有本机枚举节点均须有 Case；未知引用、本平台声明未枚举、外平台声明在本机出现均阻断。声明为其他平台的缺失引用报告为 `platform unavailable`，不补入本机快照、不记作通过，也无需维护者在另一系统重跑。
+
+[CI](tooling-delivery.md#ci-与发布) 在同一提交的 Linux 和 Windows 分别执行该检查，以实际原生枚举核对平台声明和 Case。任一端失败都会阻断；例如漏登记的单平台节点会在一端报告无 Case 或在另一端报告未知引用。快照和声明都不证明测试执行通过；原生测试由两平台单独执行。

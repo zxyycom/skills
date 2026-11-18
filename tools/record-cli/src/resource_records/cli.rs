@@ -3,33 +3,39 @@ use serde_json::{Value, json};
 use std::{fs, path::Path};
 mod args;
 mod entry;
+mod render;
 mod storage;
 mod trace;
 use args::Args;
 pub use entry::main_entry;
 use storage::{encode, load_index, read_file, safe_dir, scan, sync};
 
-fn run(a: &Args) -> Result<Value, String> {
+enum Output {
+    Text(String),
+    Json(Value),
+}
+
+fn run(a: &Args) -> Result<Output, String> {
     let root = fs::canonicalize(a.root.as_deref().unwrap_or(".")).map_err(|e| e.to_string())?;
     let dir = a.dir.as_deref().unwrap_or("resources");
     match a.command.as_str() {
-        "sync-index" => return sync(&root, dir),
-        "check" => return check(&root, dir),
+        "sync-index" => return sync(&root, dir).map(Output::Json),
+        "check" => return check(&root, dir).map(Output::Json),
         _ => {}
     }
     query(a, &root, dir)
 }
 
-fn query(a: &Args, root: &Path, dir: &str) -> Result<Value, String> {
+fn query(a: &Args, root: &Path, dir: &str) -> Result<Output, String> {
     if a.command == "search" && !a.metadata {
-        return search_body(a, root, dir);
+        return search_body(a, root, dir).map(Output::Json);
     }
     let idx = load_index(root, dir)?;
     match a.command.as_str() {
-        "list" => list(a, &idx),
-        "show" => show(a, &idx, root, dir),
-        "search" => search_metadata(a, &idx),
-        "trace" => trace::run(a, &idx),
+        "list" => Ok(list(a, &idx)),
+        "show" => show(a, &idx, root, dir).map(Output::Json),
+        "search" => search_metadata(a, &idx).map(Output::Json),
+        "trace" => trace::run(a, &idx).map(Output::Json),
         _ => Err("unsupported command".into()),
     }
 }
@@ -68,34 +74,39 @@ fn search_body(a: &Args, root: &Path, dir: &str) -> Result<Value, String> {
     )
 }
 
-fn list(a: &Args, idx: &model::Index) -> Result<Value, String> {
-    let mut out = Vec::new();
-    for e in &idx.records {
-        let r = &e.record;
-        if a.kind.as_ref().is_some_and(|k| k != r.kind())
-            || a.tags.iter().any(|t| !r.tags().contains(t))
-        {
-            continue;
+fn list(a: &Args, index: &model::Index) -> Output {
+    let mut total = 0;
+    let mut records = Vec::new();
+    let limit = a.limit.unwrap_or(50);
+    for entry in &index.records {
+        if matches_list(a, index, &entry.record) {
+            if total >= a.offset && records.len() < limit {
+                records.push(entry);
+            }
+            total += 1;
         }
-        if !in_collection(r, idx, a.collection.as_deref(), a.descendants) {
-            continue;
-        }
-        if let Some(slot) = &a.slot
-            && !matches!(r,Record::Collection{selections,..} if selections.iter().any(|s|&s.slot==slot))
-        {
-            continue;
-        }
-        out.push(e);
     }
-    let total = out.len();
-    let records: Vec<_> = out
-        .into_iter()
-        .skip(a.offset)
-        .take(a.limit.unwrap_or(50))
-        .collect();
-    Ok(
-        json!({"records":records,"total":total,"offset":a.offset,"limit":a.limit.unwrap_or(50),"freshness":"unchecked"}),
-    )
+    if !a.json
+        && let Some(view) = a.view
+    {
+        Output::Text(render::list(&records, index, total, a, view))
+    } else {
+        Output::Json(
+            json!({"records":records,"total":total,"offset":a.offset,"limit":limit,"freshness":"unchecked"}),
+        )
+    }
+}
+
+fn matches_list(a: &Args, idx: &model::Index, r: &Record) -> bool {
+    if a.kind.as_ref().is_some_and(|k| k != r.kind())
+        || a.tags.iter().any(|t| !r.tags().contains(t))
+        || !in_collection(r, idx, a.collection.as_deref(), a.descendants)
+    {
+        return false;
+    }
+    !a.slot.as_ref().is_some_and(|slot| {
+        !matches!(r, Record::Collection { selections, .. } if selections.iter().any(|s| &s.slot == slot))
+    })
 }
 
 fn show(a: &Args, idx: &model::Index, root: &Path, dir: &str) -> Result<Value, String> {

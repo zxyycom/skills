@@ -3,8 +3,8 @@
 Tests:
 - `test:1ad4938264d33700977f3c893fb4fa64538c2f38ced8f2d4f4ad2119694ece36`
 - `test:3398979ce653c672574e66a2631bac4cc24caaf01edcc8894cda624d3ad13d76`
-- `test:6b3352d02c1389b8200f46dd78c2ab22b0bea711f143385b2db0a50ede7c2e04`
 - `test:e28ba02338b8a9057b6148f4617c546ede96d30762e3332c82cfa02bb3ddba87`
+- `test:f292d84b0e582bc7268bfa3647b483f863678dbaf6c0b856555b78c9b3379f75`
 
 Tags:
 - `test-evidence`
@@ -14,6 +14,6 @@ Contract:
 
 Proves:
 - 双平台分类分别识别不可用、未知、本机缺失和反常出现；未知平台不豁免缺失引用。
-- 私有项目实际生成本机快照并检查 Case：外平台引用报告为不可用，未知引用阻断；该检查不执行被枚举测试。
-- 源码的删除、改名、cfg 变化和待确认指纹阻断；纯 CRLF 差异不改变身份。
-- 冷快照与缓存命中时，检查期间 Git ignored Cargo 文件变化都会阻断成功，且无需依赖 Git 可见来源 revision。
+- 私有项目实际生成本机快照并检查 Case：普通 Rust 源文件改动不使外平台声明失效；对应引用仍报告为不可用，未知引用阻断。
+- 真实 Cargo 枚举确认按 locator 派生的声明身份；本机节点误标为外平台、cfg 切换导致本机声明缺失均阻断。
+- 冷快照与缓存命中时，检查期间 Git 忽略的 Cargo 源文件变化都由同一自动快照 revision 检出并阻断。

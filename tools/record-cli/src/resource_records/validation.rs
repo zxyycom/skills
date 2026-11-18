@@ -155,12 +155,7 @@ fn validate_collection(parent: Option<&str>, selections: &[Selection]) -> Result
 
 fn validate_version(v: &Version) -> Result<(), String> {
     validate_id(&v.id, "versions.id")?;
-    if v.files.is_empty() && v.members.is_empty() {
-        return Err(format!(
-            "versions.{} must contain at least one file or member",
-            v.id
-        ));
-    }
+    validate_version_contents(v)?;
     if !unique(
         v.files
             .iter()
@@ -177,6 +172,27 @@ fn validate_version(v: &Version) -> Result<(), String> {
 
     for f in &v.files {
         validate_file(v, f)?;
+    }
+    Ok(())
+}
+
+fn validate_version_contents(v: &Version) -> Result<(), String> {
+    if let Some(entries) = &v.entries {
+        if entries.is_empty() || !v.files.is_empty() || !v.members.is_empty() {
+            return Err(format!(
+                "versions.{} entries must be nonempty and exclusive of files and members",
+                v.id
+            ));
+        }
+        for (index, entry) in entries.iter().enumerate() {
+            let (LogicalEntry::Directory { path } | LogicalEntry::Document { path }) = entry;
+            validate_path(path, &format!("versions.{}.entries[{index}].path", v.id))?;
+        }
+    } else if v.files.is_empty() && v.members.is_empty() {
+        return Err(format!(
+            "versions.{} must contain at least one file or member",
+            v.id
+        ));
     }
     Ok(())
 }

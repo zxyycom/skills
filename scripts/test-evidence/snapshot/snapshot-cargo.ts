@@ -11,6 +11,11 @@ import { cargoTestCommand } from "./snapshot-commands.ts";
 import { runSnapshotCommand, snapshotFailure } from "./snapshot-files.ts";
 import type { RepositoryTestEntity } from "./snapshot-types.ts";
 
+export function cargoTestId(targetKey: string, name: string): string {
+  const identity = ["cargo", "record-cli", targetKey, name];
+  return `test:${createHash("sha256").update(JSON.stringify(identity)).digest("hex")}`;
+}
+
 export function cargoTestNames(output: string): readonly string[] {
   const names: string[] = [];
   for (const line of output.split(/\r?\n/u)) {
@@ -109,10 +114,8 @@ async function listCargoEntities(
     if (selector === null)
       throw snapshotFailure(`unsupported Cargo target kind: ${key}`);
     for (const name of cargoTestNames(listed.output)) {
-      const identity = ["cargo", "record-cli", key, name];
-      const id = `test:${createHash("sha256").update(JSON.stringify(identity)).digest("hex")}`;
       entities.push({
-        id,
+        id: cargoTestId(key, name),
         name,
         locators: [
           `cargo:${key.replace("\0", ":")} > ${name}`,

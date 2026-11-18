@@ -1,3 +1,9 @@
+export const expectedReleaseOnlyCheckIds = [
+  "release:skill-prepare",
+  "release:skill-version",
+  "pack:skills"
+] as const;
+
 export const expectedSemanticChecks: readonly (readonly [
   checkId: string,
   command: "bun" | "node" | "cargo",
@@ -35,6 +41,21 @@ export const expectedSemanticChecks: readonly (readonly [
     "test:video-understanding:public-distribution",
     "bun",
     "./tools/video-understanding/tests/checks/public-distribution.ts"
+  ],
+  [
+    "test:agent-memory:behavior",
+    "node",
+    "./tools/agent-memory/tests/behavior.test.ts"
+  ],
+  [
+    "test:agent-memory:user-control",
+    "node",
+    "./tools/agent-memory/tests/user-control.test.ts"
+  ],
+  [
+    "test:agent-memory:public-distribution",
+    "node",
+    "./scripts/tests/agent-memory-distribution.test.ts"
   ],
   [
     "test:novel-cards:card-and-query-contract",
@@ -152,6 +173,7 @@ export const expectedSemanticPrerequisites: ReadonlyMap<
   string,
   readonly string[]
 > = new Map([
+  ["test:agent-memory:public-distribution", ["script:check:skill-updaters"]],
   ["test:test-evidence:public-boundary", ["script:check:skill-updaters"]],
   [
     "test:lightweight-judgment:request-and-response",

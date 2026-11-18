@@ -4,14 +4,13 @@ use std::{
     path::Path,
     process::{Command, Output},
 };
+fn command(root: &Path) -> Command {
+    let mut command = Command::new(env!("CARGO_BIN_EXE_resource-records"));
+    command.arg("--root").arg(root);
+    command
+}
 fn run(root: &Path, args: &[&str]) -> (Output, Value) {
-    let o = Command::new(env!("CARGO_BIN_EXE_resource-records"))
-        .args(args)
-        .arg("--root")
-        .arg(root)
-        .arg("--json")
-        .output()
-        .unwrap();
+    let o = command(root).arg("--json").args(args).output().unwrap();
     let v = serde_json::from_slice(&o.stdout).unwrap_or_else(|_| {
         panic!(
             "stdout {:?}, stderr {:?}",
@@ -21,9 +20,31 @@ fn run(root: &Path, args: &[&str]) -> (Output, Value) {
     });
     (o, v)
 }
-fn fixture() -> tempfile::TempDir {
+fn successful_result(root: &Path, args: &[&str]) -> Value {
+    let (output, mut envelope) = run(root, args);
+    assert!(output.status.success(), "{args:?}: {envelope}");
+    assert_eq!(envelope["ok"], true, "{args:?}: {envelope}");
+    envelope["result"].take()
+}
+fn assert_error(root: &Path, args: &[&str], code: i32, fragments: &[&str]) {
+    let (output, envelope) = run(root, args);
+    assert_eq!(output.status.code(), Some(code), "{args:?}: {envelope}");
+    assert_eq!(envelope["ok"], false, "{envelope}");
+    let message = envelope["error"]["message"].as_str().unwrap();
+    for fragment in fragments {
+        assert!(
+            message.contains(fragment),
+            "expected {fragment:?} in {message:?}"
+        );
+    }
+}
+fn empty_fixture() -> tempfile::TempDir {
     let d = tempfile::tempdir().unwrap();
     fs::create_dir_all(d.path().join("resources/records")).unwrap();
+    d
+}
+fn fixture() -> tempfile::TempDir {
+    let d = empty_fixture();
     write(
         d.path(),
         "collection",
@@ -103,6 +124,8 @@ fn write(root: &Path, name: &str, text: &str) {
 mod cli_regressions;
 #[path = "resource_records/lineage.rs"]
 mod lineage;
+#[path = "resource_records/logical_entries.rs"]
+mod logical_entries;
 #[path = "resource_records/queries.rs"]
 mod queries;
 #[path = "resource_records/regressions.rs"]

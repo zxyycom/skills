@@ -33,16 +33,36 @@ export async function withSnapshotFixture<T>(
       await fs.mkdir(path.dirname(filePath), { recursive: true });
       await fs.writeFile(filePath, source, "utf8");
     }
-    const projectAstGrep = await fs.realpath(
-      path.join(process.cwd(), "node_modules", "@ast-grep", "cli", "ast-grep")
+    const installed = path.join(
+      process.cwd(),
+      "node_modules",
+      "@ast-grep",
+      "cli"
     );
-    const astGrep = path.join(root, "node_modules", ".bin", "ast-grep");
-    await fs.writeFile(
-      astGrep,
-      `#!/bin/sh\nexec ${JSON.stringify(projectAstGrep)} "$@"\n`,
-      "utf8"
-    );
-    await fs.chmod(astGrep, 0o755);
+    if (process.platform === "win32") {
+      const nativeDirectory = path.join(
+        root,
+        "node_modules",
+        "@ast-grep",
+        "cli"
+      );
+      await fs.mkdir(nativeDirectory, { recursive: true });
+      await fs.copyFile(
+        path.join(installed, "ast-grep.exe"),
+        path.join(nativeDirectory, "ast-grep.exe")
+      );
+    } else {
+      const projectAstGrep = await fs.realpath(
+        path.join(installed, "ast-grep")
+      );
+      const astGrep = path.join(root, "node_modules", ".bin", "ast-grep");
+      await fs.writeFile(
+        astGrep,
+        `#!/bin/sh\nexec ${JSON.stringify(projectAstGrep)} "$@"\n`,
+        "utf8"
+      );
+      await fs.chmod(astGrep, 0o755);
+    }
     execFileSync("git", ["init", "--quiet"], { cwd: root });
     execFileSync("git", ["add", "."], { cwd: root });
     execFileSync(
@@ -59,25 +79,6 @@ export async function withSnapshotFixture<T>(
       ],
       { cwd: root }
     );
-    if (process.platform === "win32") {
-      const nativeDirectory = path.join(
-        root,
-        "node_modules",
-        "@ast-grep",
-        "cli"
-      );
-      await fs.mkdir(nativeDirectory, { recursive: true });
-      await fs.copyFile(
-        path.join(
-          process.cwd(),
-          "node_modules",
-          "@ast-grep",
-          "cli",
-          "ast-grep.exe"
-        ),
-        path.join(nativeDirectory, "ast-grep.exe")
-      );
-    }
     return await operation(root);
   } finally {
     await fs.rm(parent, { force: true, recursive: true });

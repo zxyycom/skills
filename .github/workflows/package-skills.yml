@@ -59,6 +59,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
+          ref: ${{ github.sha }}
           fetch-depth: 0
 
       - name: Record tested revision
@@ -192,6 +193,11 @@ jobs:
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
+      - name: Setup Bun for Windows test evidence
+        if: runner.os == 'Windows'
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
       - uses: actions/setup-node@v7
         with:
           node-version: 24.18.0
@@ -203,6 +209,9 @@ jobs:
         run: rustup toolchain install 1.98.1 --profile minimal
       - name: Run native tests on this platform
         run: cargo +1.98.1 test --manifest-path tools/record-cli/Cargo.toml --locked --all-targets -- --include-ignored
+      - name: Check Windows test evidence
+        if: runner.os == 'Windows'
+        run: bun run check:test-evidence-catalog
       - name: Run native updater tests on this platform
         run: node --test scripts/lib/record-native/tests/runtime.test.ts tools/skill-updater/tests/native-archive.test.ts tools/skill-updater/tests/native-bundle.test.ts tools/skill-updater/tests/native-frozen-consumer.test.ts tools/skill-updater/tests/native-overlay.test.ts tools/skill-updater/tests/native-cli.test.ts tools/skill-updater/tests/native-manifest.test.ts tools/skill-updater/tests/native-release.test.ts tools/skill-updater/tests/native-updater-dependencies.test.ts
       - name: Build formal frozen inputs
