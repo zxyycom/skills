@@ -15,7 +15,7 @@
 
 ## 测试证据账本
 
-本仓库使用固定的 `docs/test-evidence/` 根目录、其中的 `cases/` 单 Case 文件和固定派生索引维护测试账本。账本覆盖 `test:*` 稳定入口保留的全部最小原生测试入口；每个 Case 按同一测试意图承接一个或多个可独立选择、单独报告的最小原生测试节点。框架不限：普通 JavaScript/TypeScript 测试沿用 `node:test` API 并通过 `bun test` 执行，task-graph 原生 lock 集成测试与候选交付测试使用 Node.js `--test`；Record Rust 候选使用 Cargo 原生测试节点。测试文件、package script 和完整检查仍只是聚合容器。
+本仓库使用固定的 `docs/test-evidence/` 根目录、其中的 `cases/` 单 Case 文件和固定派生索引维护测试账本。账本覆盖 `test:*` 稳定入口保留的全部最小原生测试入口；每个 Case 按同一测试意图承接一个或多个可独立选择、单独报告的最小原生测试节点。框架不限：普通 JavaScript/TypeScript 测试沿用 `node:test` API 并通过 `bun test` 执行，依赖原生 Node 的测试（如 Agent Memory 的 SQLite 行为与 Task Graph 的原生 lock）及候选交付测试使用 Node.js `--test`；Record Rust 候选使用 Cargo 原生测试节点。测试文件、package script 和完整检查仍只是聚合容器。
 
 Cargo 快照针对 `test:record-rust` 的固定命令，以 metadata 核对 target，再通过各测试二进制 `--list` 枚举原生节点（含 ignored），以 target 和完整测试名区分实体；doc test 不作为该入口的账本实体。缺失 target、空集合或采集失败须失败，平台条件节点只代表本机枚举结果，不代表另一平台的覆盖。
 
@@ -24,16 +24,16 @@ Case 使用 Tests、可选 tags、Contract 与 Proves，由测试改动显式维
 项目快照与校验按以下边界衔接：
 
 1. `snapshot:test-evidence` 产生 schema v2 实体快照；引用检查必须同时接收独立的 expected source。
-2. `check:test-evidence-catalog` 先检查 Case/index，再根据工作树测试输入、当前平台与工具链自动计算本机快照 revision。除 Git 可见输入（包括平台声明）外，还读取 Cargo 源目录中被 Git 忽略的文件，排除根 `target/` 和 `delivery/`。若 `.log/vibe-check/cache/test-evidence-snapshots-v1/<revision>.json` 是通过 schema、expected source 与引用校验的完整 snapshot fact，则复用实体集合；否则重新生成，并以同一 revision 发布可丢弃 cache。
-3. 无论是否命中缓存，Case 引用、实体覆盖和结束来源漂移都在本次重新判断。快照引用有效不等同于测试执行通过，未引用实体在通用核心中合法。
+2. `check:test-evidence-catalog` 先检验 Case/index，再从工作树测试输入、当前平台与工具链计算本机快照 revision。输入包括平台声明和 Cargo 源目录中被 Git 忽略的文件；额外的 Cargo 采集排除根 `target/` 和 `delivery/`。
+3. `.log/vibe-check/cache/test-evidence-snapshots-v1/<revision>.json` 只缓存机器枚举的实体集合。快照必须结构有效、完整且与独立来源一致才能复用，否则重新枚举。是否命中不影响 Case 引用、平台声明、实体覆盖和结束来源漂移的当次判断；外平台引用和其他 Case 结果都不会写入缓存。
 4. Case 正文变化后运行 `sync:test-evidence-catalog`；完整检查中的 `check:test-evidence-catalog` 不写回版本管理文件。
 
-项目快照生产和旧账本迁移不属于 `bun run test-evidence` 的常规 Case CLI。需要人工检查或交接快照时，使用 `bun run snapshot:test-evidence -- --output <new-file>`；`migrate:test-evidence` 的 expected source 必须从生成快照所用的同一项目输入边界独立计算或核验，不能直接抄录待验证快照的 source 三字段。迁移命令默认只预演，只有明确追加 `--write` 才写入；支持范围、映射阻断和恢复边界由 [Case 账本契约](../skills/test-evidence-review/references/catalog-contract.md#迁移) 承接。日常查询、同步和检查不得把旧 topic/`Entry:` 当作 fallback 输入。
+需要交接本机实体快照时，用 `bun run snapshot:test-evidence -- --output <new-file>`。已有旧格式账本需要升级时，按[账本迁移契约](../skills/test-evidence-review/references/catalog-contract.md#迁移)另行预演和验证；日常查询与同步使用现行 Case。
 
 ### 平台限定节点
 
-`scripts/test-evidence/platform-entities.json` 只声明平台限定 Cargo 节点的 locator（原生目标与完整测试名）及所属平台。检查器与 Cargo 枚举使用同一规则从 locator 派生 Case 所引用的节点 ID，不改变通用 Case 或快照协议。只有平台限定节点新增、删除、改名、移动目标或改变所属平台时才更新声明；普通 Rust 改动不需要更新声明或手工填写指纹。
+`scripts/test-evidence/platform-entities.json` 声明平台限定 Cargo 节点的 locator（原生目标与完整测试名）及所属平台。Case 引用的 ID 由 Cargo 枚举和声明按同一规则派生。只有平台限定节点新增、删除、改名、移动目标或改变所属平台时才更新声明。
 
 本地只校验本机快照与 Case：所有本机枚举节点均须有 Case；未知引用、本平台声明未枚举、外平台声明在本机出现均阻断。声明为其他平台的缺失引用报告为 `platform unavailable`，不补入本机快照、不记作通过，也无需维护者在另一系统重跑。
 
-[CI](tooling-delivery.md#ci-与发布) 在同一提交的 Linux 和 Windows 分别执行该检查，以实际原生枚举核对平台声明和 Case。任一端失败都会阻断；例如漏登记的单平台节点会在一端报告无 Case 或在另一端报告未知引用。快照和声明都不证明测试执行通过；原生测试由两平台单独执行。
+[CI](tooling-delivery.md#ci-与发布) 在同一提交的 Linux 和 Windows 分别从本机枚举核对平台声明和 Case；两端均须通过。快照检查与实际测试执行分别提供证据。

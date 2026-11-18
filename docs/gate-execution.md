@@ -31,9 +31,9 @@ CLI 使用以下执行范围；所有范围保持同一完整 Definition，实�
 | --- | --- |
 | quick（默认） | 执行六项公共基线：`gate-environment`、`secret-detection`、`json-validation`、`json-schema-validation`、`markdown-link-validation`、`markdown-lint`。不预采集全工作区指纹或使用项目 receipt。 |
 | selected（显式能力组） | quick 基线，加上所选能力订阅的 Check、按显式 `kind` 带入的质量检查及其传递成功前置；合并去重。文件/函数指标只读取所选 `code` 领域的维护代码投影。直接执行，不采集全域指纹或读取/发布项目 receipt；其他工作区变更不自动增加组。 |
-| changed | 完整 base 的变更相关验收。环境与除 Markdown 内容外的七项原生材料每轮结算；57 项项目命令与 Markdown 内容共 58 项按完整输入证明、共享工具 flag 与成功前置选择。 |
-| full / CI base | 全部 63 项 base 实际执行，不使用 receipt；CI 将 quick/selected/changed 提升到 full，显式组不缩小 CI。 |
-| release | 全部 63 项 base 与 3 项发布事务实际执行，不使用 receipt；版本授权与打包消费同一快照。 |
+| changed | 完整 base 的变更相关验收。环境与除 Markdown 内容外的原生材料每轮结算；维护脚本、语义测试与 Markdown 内容按完整输入证明、共享工具 flag 与成功前置选择。 |
+| full / CI base | 完整 base 实际执行，不使用 receipt；CI 将 quick/selected/changed 提升到 full，显式组不缩小 CI。 |
+| release | 完整 base 与发布事务实际执行，不使用 receipt；版本授权与打包消费同一快照。 |
 
 各 Check 独立验收；精确命令由失败重跑提示和 catalog 提供。显式选择以任务责任为依据，自动 changed 则根据共享输入变化带入其他订阅者；成功前置均须实际通过。局部成功只证明所选范围，未运行或复用与本轮实际通过分别报告。
 
@@ -85,7 +85,7 @@ release 打包只写入本次独占新建的 `dist/skill-release/package-*/packa
 release DAG 固定为环境前置通过后：
 
 1. `release:skill-prepare` 解析基线 revision，一次捕获 pending snapshot、hash、版本和 version issues。捕获或解析失败为 unavailable；存在版本问题仍完成 prepare。
-2. `release:skill-version` 依赖 prepare 与全部 63 项普通 Check，只有它们可信 passed 才授权；版本问题使 authorization failed。
+2. `release:skill-version` 依赖 prepare 与完整 base，只有它们可信 passed 才授权；版本问题使 authorization failed。
 3. `pack:skills` 依赖 authorization，从已授权的同一内存 snapshot 恰好打包一次，不重读 index。
 
 同一快照限于本次 Run；公开 machine data 只保存 baseline、问题计数等摘要。`hash:skills` 仍为独立 CLI，pre-commit 仍独立按 `HEAD` 校验待提交版本。

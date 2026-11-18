@@ -188,10 +188,7 @@ export const gateToolScopes = {
     commonGateInputPatterns,
     "material"
   ),
-  "test-evidence-project": toolScope(
-    ["scripts/test-evidence/**"],
-    [...commonGateInputPatterns, "scripts/lib/record-native/runtime.ts"]
-  ),
+  "test-evidence-project": toolScope(["scripts/test-evidence/**"]),
   "test-evidence": toolScope(
     [
       "tools/test-evidence/**",
@@ -208,14 +205,11 @@ export const gateToolScopes = {
     ["tools/task-graph/**", "skills/task-graph/**", "docs/task-graph/**"],
     [...domainRuntimeInputs, "scripts/**/{build,lib}/**"]
   ),
-  "agent-memory": toolScope(
-    [
-      "tools/agent-memory/**",
-      "skills/agent-memory/**",
-      "scripts/tests/agent-memory-distribution.test.ts"
-    ],
-    domainRuntimeInputs
-  ),
+  "agent-memory": toolScope([
+    "tools/agent-memory/**",
+    "skills/agent-memory/**",
+    "scripts/tests/agent-memory-distribution.test.ts"
+  ]),
   "novel-cards": toolScope(
     ["tools/novel-cards/**", "skills/novel-cards/**"],
     domainRuntimeInputs

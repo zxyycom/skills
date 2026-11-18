@@ -51,8 +51,8 @@ export function classifyPlatformReferences(
 ): {
   unavailable: string[];
   invalid: string[];
-  stale: string[];
-  unexpected: string[];
+  stale: PlatformEntity[];
+  unexpected: PlatformEntity[];
 } {
   const currentPlatform =
     current === "win32"
@@ -87,8 +87,7 @@ export function classifyPlatformReferences(
           entry.platform !== currentPlatform &&
           observed.has(entry.id)
       )
-      .map((entry) => entry.id)
-      .sort(),
+      .sort((left, right) => left.id.localeCompare(right.id)),
     stale: entries
       .filter(
         (entry) =>
@@ -96,7 +95,6 @@ export function classifyPlatformReferences(
           entry.platform === currentPlatform &&
           !observed.has(entry.id)
       )
-      .map((entry) => entry.id)
-      .sort()
+      .sort((left, right) => left.id.localeCompare(right.id))
   };
 }

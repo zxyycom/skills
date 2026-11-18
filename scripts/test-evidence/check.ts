@@ -1,15 +1,16 @@
 import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
+import * as v from "valibot";
 import {
   queryTestEvidence,
   validateTestEvidence,
   validateTestEvidenceReferences
 } from "../../tools/test-evidence/src/cli.ts";
+import { snapshotSchema } from "../../tools/test-evidence/src/core-schemas.ts";
 import {
+  createRepositoryTestEvidenceSnapshot,
   repositoryTestEvidenceSource,
-  writeRepositoryTestEvidenceSnapshot,
   type RepositoryTestSnapshot
 } from "./snapshot/snapshot.ts";
 
@@ -58,12 +59,28 @@ function snapshotCachePath(workspaceRoot: string, revision: string): string {
 async function readCachedSnapshot(
   workspaceRoot: string,
   revision: string
-): Promise<unknown> {
+): Promise<RepositoryTestSnapshot | null> {
   try {
-    return await readSnapshot(snapshotCachePath(workspaceRoot, revision));
+    const cached = v.parse(
+      snapshotSchema,
+      await readSnapshot(snapshotCachePath(workspaceRoot, revision))
+    );
+    return cached.completeness === "complete"
+      ? { ...cached, completeness: cached.completeness }
+      : null;
   } catch {
     return null;
   }
+}
+
+function hasUsableInventory(
+  references: Awaited<ReturnType<typeof validateTestEvidenceReferences>>
+): boolean {
+  // Both states mean the snapshot passed shape, source and completeness checks.
+  // Missing Case references do not invalidate the inventory itself.
+  return (
+    references.state === "valid" || references.state === "references-invalid"
+  );
 }
 
 async function publishCachedSnapshot(
@@ -139,14 +156,9 @@ export async function checkRepositoryTestEvidence(
     };
   }
 
-  const outputDirectory = await fs.mkdtemp(
-    path.join(os.tmpdir(), "skills-test-evidence-")
-  );
-  const outputPath = path.join(outputDirectory, "snapshot.json");
   try {
     const expectedBefore = await repositoryTestEvidenceSource(root);
     const platformEntities = await readPlatformEntities(root);
-    let generatedEntityCount = 0;
     let snapshot = await readCachedSnapshot(root, expectedBefore.revision);
     let references =
       snapshot === null
@@ -156,27 +168,26 @@ export async function checkRepositoryTestEvidence(
             snapshot,
             expectedSource: expectedBefore
           });
-    if (references?.status !== "ok") {
-      const written = await writeRepositoryTestEvidenceSnapshot(
-        root,
-        outputPath,
-        { expectedSource: expectedBefore }
-      );
-      generatedEntityCount = written.entities.length;
-      snapshot = await readSnapshot(outputPath);
+    if (
+      snapshot === null ||
+      references === null ||
+      !hasUsableInventory(references)
+    ) {
+      snapshot = await createRepositoryTestEvidenceSnapshot({
+        workspaceRoot: root,
+        expectedSource: expectedBefore
+      });
       references = await validateTestEvidenceReferences({
         workspaceRoot: root,
         snapshot,
         expectedSource: expectedBefore
       });
-      if (references.status === "ok") {
-        await publishCachedSnapshot(root, written);
+      if (hasUsableInventory(references)) {
+        await publishCachedSnapshot(root, snapshot);
       }
     }
-    if (
-      references.status !== "ok" &&
-      references.state !== "references-invalid"
-    ) {
+    const entityCount = snapshot.entities.length;
+    if (!hasUsableInventory(references)) {
       return {
         diagnostics: [
           projectDiagnostic(
@@ -186,11 +197,10 @@ export async function checkRepositoryTestEvidence(
               .join("; ")
           )
         ],
-        entityCount: generatedEntityCount,
+        entityCount,
         status: "error"
       };
     }
-    const typedSnapshot = snapshot as RepositoryTestSnapshot;
     const missing =
       references.state === "references-invalid"
         ? references.diagnostics.map((diagnostic) => diagnostic.testId ?? "")
@@ -198,40 +208,50 @@ export async function checkRepositoryTestEvidence(
     const classified = classifyPlatformReferences(
       platformEntities,
       process.platform,
-      new Set(typedSnapshot.entities.map((entity) => entity.id)),
+      new Set(snapshot.entities.map((entity) => entity.id)),
       missing
     );
-    if (
-      classified.invalid.length ||
-      classified.stale.length ||
-      classified.unexpected.length
-    ) {
+    const diagnostics: CheckDiagnostic[] = [];
+    if (classified.invalid.length) {
+      diagnostics.push(
+        projectDiagnostic(
+          "project.references-references-invalid",
+          references.diagnostics
+            .filter(
+              (diagnostic) =>
+                !classified.unavailable.includes(diagnostic.testId ?? "")
+            )
+            .map((diagnostic) => diagnostic.message)
+            .join("; ")
+        )
+      );
+    }
+    if (classified.stale.length || classified.unexpected.length) {
+      diagnostics.push(
+        projectDiagnostic(
+          "project.platform-declaration-invalid",
+          [
+            ...classified.unexpected.map(
+              ({ locator }) =>
+                `foreign platform entity unexpectedly present: ${locator}`
+            ),
+            ...classified.stale.map(
+              ({ locator }) =>
+                `declared local platform entity missing: ${locator}`
+            )
+          ].join("; ")
+        )
+      );
+    }
+    if (diagnostics.length) {
       return {
-        diagnostics: [
-          projectDiagnostic(
-            `project.references-${references.state}`,
-            [
-              ...references.diagnostics
-                .filter(
-                  (diagnostic) =>
-                    !classified.unavailable.includes(diagnostic.testId ?? "")
-                )
-                .map((diagnostic) => diagnostic.message),
-              ...classified.unexpected.map(
-                (id) => `foreign platform entity unexpectedly present: ${id}`
-              ),
-              ...classified.stale.map(
-                (id) => `declared local platform entity missing: ${id}`
-              )
-            ].join("; ")
-          )
-        ],
-        entityCount: generatedEntityCount,
+        diagnostics,
+        entityCount,
         status: "error"
       };
     }
     const referenced = await allReferencedTestIds(root);
-    const uncovered = typedSnapshot.entities
+    const uncovered = snapshot.entities
       .map((entity) => entity.id)
       .filter((id) => !referenced.has(id));
     if (uncovered.length > 0) {
@@ -242,7 +262,7 @@ export async function checkRepositoryTestEvidence(
             `repository test entities require a Case: ${uncovered.join(", ")}`
           )
         ],
-        entityCount: typedSnapshot.entities.length,
+        entityCount,
         status: "error"
       };
     }
@@ -255,13 +275,13 @@ export async function checkRepositoryTestEvidence(
             "repository source inputs changed while checking Case coverage"
           )
         ],
-        entityCount: typedSnapshot.entities.length,
+        entityCount,
         status: "error"
       };
     }
     return {
       diagnostics: [],
-      entityCount: typedSnapshot.entities.length,
+      entityCount,
       ...(classified.unavailable.length
         ? { unavailableTestIds: classified.unavailable }
         : {}),
@@ -278,8 +298,6 @@ export async function checkRepositoryTestEvidence(
       entityCount: 0,
       status: "error"
     };
-  } finally {
-    await fs.rm(outputDirectory, { force: true, recursive: true });
   }
 }
 

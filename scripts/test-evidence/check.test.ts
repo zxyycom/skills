@@ -4,7 +4,6 @@ import path from "node:path";
 import test from "node:test";
 import { syncTestEvidenceIndex } from "../../tools/test-evidence/src/cli.ts";
 import { checkRepositoryTestEvidence } from "./check.ts";
-import { cargoTestId } from "./snapshot/snapshot-cargo.ts";
 import { cargoTestCommand } from "./snapshot/snapshot-commands.ts";
 import { createRepositoryTestEvidenceSnapshot } from "./snapshot/snapshot.ts";
 import { withSnapshotFixture } from "./test-fixture.ts";
@@ -58,17 +57,7 @@ test("project check rejects a registered test without a Case", async () => {
         (entity) => entity.name === "covered"
       );
       assert.ok(covered);
-      const cases = path.join(root, "docs", "test-evidence", "cases");
-      await fs.mkdir(cases, { recursive: true });
-      await fs.writeFile(
-        path.join(cases, "fixture.md"),
-        `### Case PROJECT-TEST-COVERAGE-001: only one test has a Case\n\nTests:\n- \`${covered.id}\`\n\nContract:\n- test coverage is checked\n\nProves:\n- an uncovered test blocks the project check\n`
-      );
-      const synced = await syncTestEvidenceIndex({
-        mode: "write",
-        workspaceRoot: root
-      });
-      assert.equal(synced.status, "ok", JSON.stringify(synced));
+      await writeFixtureReferences(root, [covered.id]);
       const result = await checkRepositoryTestEvidence(root);
       assert.equal(result.status, "error");
       assert.equal(result.entityCount, 2);
@@ -88,15 +77,7 @@ test("project check rejects a registered test without a Case", async () => {
         (entity) => entity.name === "uncovered"
       );
       assert.ok(uncovered);
-      await fs.writeFile(
-        path.join(cases, "uncovered.md"),
-        `### Case PROJECT-TEST-COVERAGE-002: the remaining test has a Case\n\nTests:\n- \`${uncovered.id}\`\n\nContract:\n- every registered test has a Case\n\nProves:\n- complete coverage passes the project check\n`
-      );
-      assert.equal(
-        (await syncTestEvidenceIndex({ mode: "write", workspaceRoot: root }))
-          .status,
-        "ok"
-      );
+      await writeFixtureReferences(root, [covered.id, uncovered.id]);
       assert.deepEqual(await checkRepositoryTestEvidence(root), {
         diagnostics: [],
         entityCount: 2,
@@ -143,8 +124,8 @@ test("platform-specific reference classification remains strict", async () => {
     {
       unavailable: [],
       invalid: ["windows-node"],
-      stale: ["windows-node"],
-      unexpected: ["unix-node"]
+      stale: [entries[1]],
+      unexpected: [entries[0]]
     }
   );
   assert.deepEqual(
@@ -158,17 +139,40 @@ test("platform-specific reference classification remains strict", async () => {
   );
 });
 
+async function writeFixtureReferences(root: string, ids: readonly string[]) {
+  const cases = path.join(root, "docs/test-evidence/cases");
+  await fs.mkdir(cases, { recursive: true });
+  const tests = [...ids]
+    .sort()
+    .map((id) => `- \`${id}\``)
+    .join("\n");
+  await fs.writeFile(
+    path.join(cases, "fixture.md"),
+    `### Case PROJECT-INVENTORY-FIXTURE-001: test node references\n\nTests:\n${tests}\n\nContract:\n- Case references identify test nodes.\n\nProves:\n- The checker evaluates this set of references.\n`
+  );
+  const synced = await syncTestEvidenceIndex({
+    mode: "write",
+    workspaceRoot: root
+  });
+  assert.equal(synced.status, "ok", JSON.stringify(synced));
+}
+
 test("project check reports foreign references but blocks unknown ones", async () => {
   const foreignPlatform = process.platform === "win32" ? "unix" : "windows";
   const name = "conditional";
-  const id = cargoTestId("test\0example", name);
+  const id =
+    "test:a59d6f64848e46fd4b28955dde4ab690f6be7cf1fb5a0b7fa0fc9c3054d2f600";
 
   await withSnapshotFixture(
     { "test:fixture": "bun test ./tests/covered.test.ts" },
     {
-      "tests/covered.test.ts":
-        'import test from "node:test";\ntest("covered", () => {});\n',
-      "tools/record-cli/src/lib.rs": '[package]\nname = "fixture"\n'
+      "tests/covered.test.ts": [
+        'import { appendFileSync } from "node:fs";',
+        'import test from "node:test";',
+        'appendFileSync("registration-trace.txt", "registered\\n");',
+        'test("covered", () => {});'
+      ].join("\n"),
+      "tools/record-cli/src/lib.rs": "fn before() {}\n"
     },
     async (root) => {
       const registryPath = path.join(
@@ -192,40 +196,35 @@ test("project check reports foreign references but blocks unknown ones", async (
         workspaceRoot: root
       });
       const local = snapshot.entities[0]!.id;
-      const cases = path.join(root, "docs/test-evidence/cases");
-      await fs.mkdir(cases, { recursive: true });
-      const write = async (foreign: string) => {
-        const tests = [foreign, local]
-          .sort()
-          .map((value) => `- \`${value}\``)
-          .join("\n");
-        await fs.writeFile(
-          path.join(cases, "fixture.md"),
-          `### Case PROJECT-PLATFORM-TEST-001: platform references\n\nTests:\n${tests}\n\nContract:\n- References must be known.\n\nProves:\n- Foreign platform references are identified.\n`
-        );
-        assert.equal(
-          (await syncTestEvidenceIndex({ mode: "write", workspaceRoot: root }))
-            .status,
-          "ok"
-        );
-      };
-      await write(id);
+      await writeFixtureReferences(root, [local, id]);
       const result = await checkRepositoryTestEvidence(root);
       assert.equal(result.status, "ok", JSON.stringify(result));
       assert.deepEqual(result.unavailableTestIds, [id]);
-      await fs.writeFile(
-        path.join(root, "tools/record-cli/src/lib.rs"),
-        "changed"
-      );
-      const changed = await checkRepositoryTestEvidence(root);
-      assert.equal(changed.status, "ok", JSON.stringify(changed));
-      assert.deepEqual(changed.unavailableTestIds, [id]);
-      await write(`test:${"f".repeat(64)}`);
+      const trace = path.join(root, "registration-trace.txt");
+      const coldRegistrations = await fs.readFile(trace, "utf8");
+      assert.deepEqual(await checkRepositoryTestEvidence(root), result);
+      assert.equal(await fs.readFile(trace, "utf8"), coldRegistrations);
+
+      await writeFixtureReferences(root, [local, `test:${"f".repeat(64)}`]);
       const invalid = await checkRepositoryTestEvidence(root);
       assert.equal(invalid.status, "error");
       assert.equal(
         invalid.diagnostics[0]?.code,
         "project.references-references-invalid"
+      );
+      assert.equal(await fs.readFile(trace, "utf8"), coldRegistrations);
+
+      await writeFixtureReferences(root, [local, id]);
+      await fs.writeFile(
+        path.join(root, "tools/record-cli/src/lib.rs"),
+        "fn after() {}\n"
+      );
+      const changed = await checkRepositoryTestEvidence(root);
+      assert.equal(changed.status, "ok", JSON.stringify(changed));
+      assert.deepEqual(changed.unavailableTestIds, [id]);
+      assert.equal(
+        await fs.readFile(trace, "utf8"),
+        `${coldRegistrations}registered\n`
       );
     }
   );
@@ -266,17 +265,9 @@ test("project check catches missing and wrongly assigned Cargo declarations from
         workspaceRoot: root
       });
       assert.equal(snapshot.entities.length, 3);
-      const cases = path.join(root, "docs/test-evidence/cases");
-      await fs.mkdir(cases, { recursive: true });
-      const tests = snapshot.entities.map(({ id }) => `- \`${id}\``).join("\n");
-      await fs.writeFile(
-        path.join(cases, "fixture.md"),
-        `### Case PROJECT-PLATFORM-TEST-002: native platform declarations\n\nTests:\n${tests}\n\nContract:\n- The current platform must expose its own declared Cargo node.\n\nProves:\n- The declaration agrees with Cargo's native listing.\n`
-      );
-      assert.equal(
-        (await syncTestEvidenceIndex({ mode: "write", workspaceRoot: root }))
-          .status,
-        "ok"
+      await writeFixtureReferences(
+        root,
+        snapshot.entities.map(({ id }) => id)
       );
       assert.deepEqual(await checkRepositoryTestEvidence(root), {
         diagnostics: [],
@@ -286,9 +277,13 @@ test("project check catches missing and wrongly assigned Cargo declarations from
       await fs.writeFile(path.join(root, registry), decl(otherPlatform));
       const unexpected = await checkRepositoryTestEvidence(root);
       assert.equal(unexpected.status, "error");
+      assert.equal(
+        unexpected.diagnostics[0]?.code,
+        "project.platform-declaration-invalid"
+      );
       assert.match(
-        unexpected.diagnostics[0]!.message,
-        /foreign platform entity unexpectedly present/
+        unexpected.diagnostics[0]?.message ?? "",
+        /foreign platform entity unexpectedly present: cargo:lib:record_cli > conditional/u
       );
 
       await fs.writeFile(path.join(root, registry), decl(platform));
@@ -296,8 +291,10 @@ test("project check catches missing and wrongly assigned Cargo declarations from
       const stale = await checkRepositoryTestEvidence(root);
       assert.equal(stale.status, "error");
       assert.match(
-        stale.diagnostics[0]!.message,
-        /declared local platform entity missing/
+        stale.diagnostics.find(
+          ({ code }) => code === "project.platform-declaration-invalid"
+        )?.message ?? "",
+        /declared local platform entity missing: cargo:lib:record_cli > conditional/u
       );
     }
   );
@@ -319,17 +316,7 @@ test("project check rejects ignored Cargo source drift on cold and cached snapsh
       const snapshot = await createRepositoryTestEvidenceSnapshot({
         workspaceRoot: root
       });
-      const cases = path.join(root, "docs/test-evidence/cases");
-      await fs.mkdir(cases, { recursive: true });
-      await fs.writeFile(
-        path.join(cases, "fixture.md"),
-        `### Case PROJECT-CARGO-DRIFT-001: ignored source\n\nTests:\n- \`${snapshot.entities[0]!.id}\`\n\nContract:\n- Each snapshot is checked against current Cargo inputs.\n\nProves:\n- Ignored source drift is rejected.\n`
-      );
-      assert.equal(
-        (await syncTestEvidenceIndex({ mode: "write", workspaceRoot: root }))
-          .status,
-        "ok"
-      );
+      await writeFixtureReferences(root, [snapshot.entities[0]!.id]);
       const runWithDrift = async (expectedCode: string) => {
         const read = fs.readFile;
         const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile")!;

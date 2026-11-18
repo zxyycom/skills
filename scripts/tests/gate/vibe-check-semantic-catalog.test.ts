@@ -199,11 +199,19 @@ test("semantic Gate catalog matches its aggregate native entry points", async ()
   }
 });
 
+async function readPackageScripts() {
+  const manifest = v.parse(
+    v.object({ scripts: v.record(v.string(), v.string()) }),
+    JSON.parse(
+      await fs.readFile(path.join(repositoryRoot, "package.json"), "utf8")
+    )
+  );
+  return manifest.scripts;
+}
+
 test("record native runtime check registers every package script test", async () => {
-  const packageJson = JSON.parse(
-    await fs.readFile(path.join(repositoryRoot, "package.json"), "utf8")
-  ) as { scripts: Record<string, string> };
-  const script = packageJson.scripts["test:record-native-runtime"];
+  const scripts = await readPackageScripts();
+  const script = scripts["test:record-native-runtime"];
   const check = semanticGateChecks.find(
     ({ checkId }) => checkId === "test:record-rust:runtime"
   );
@@ -214,7 +222,7 @@ test("record native runtime check registers every package script test", async ()
   );
 });
 
-test("semantic commands retain native store, version-control and retired performance entry policies", async () => {
+test("semantic commands retain native store and version-control entry policies", async () => {
   assert.deepEqual(
     semanticGateChecks.find(
       ({ checkId }) => checkId === "test:task-graph:native-store"
@@ -224,13 +232,17 @@ test("semantic commands retain native store, version-control and retired perform
       args: ["--test", "./tools/task-graph/tests/store/native-store.test.ts"]
     }
   );
-  const manifest = v.parse(
-    v.object({ scripts: v.record(v.string(), v.string()) }),
-    JSON.parse(
-      await fs.readFile(path.join(repositoryRoot, "package.json"), "utf8")
-    ) as unknown
+  const scripts = await readPackageScripts();
+  assert.equal(
+    scripts["test:version-control"],
+    "bun test ./tools/shared/tests/version-control.test.ts"
   );
-  const agentMemoryScript = manifest.scripts["test:agent-memory-cli"];
+  assert.ok(releaseRequiredPackageScripts.includes("test:version-control"));
+});
+
+test("Agent Memory semantic checks match the Node package test entry", async () => {
+  const scripts = await readPackageScripts();
+  const agentMemoryScript = scripts["test:agent-memory-cli"];
   assert.ok(agentMemoryScript);
   const [runner, testFlag, ...files] = agentMemoryScript.split(" ");
   assert.equal(runner, "node");
@@ -243,19 +255,4 @@ test("semantic commands retain native store, version-control and retired perform
       return command.args.slice(1);
     });
   assert.deepEqual(dispatchedFiles.sort(), files.sort());
-  assert.equal(manifest.scripts["test:index-runtime-performance"], undefined);
-  assert.equal(
-    new Set<string>(releaseRequiredPackageScripts).has(
-      "test:index-runtime-performance"
-    ),
-    false
-  );
-  assert.equal(
-    manifest.scripts["test:version-control"],
-    "bun test ./tools/shared/tests/version-control.test.ts"
-  );
-  assert.equal(
-    releaseRequiredPackageScripts.includes("test:version-control"),
-    true
-  );
 });

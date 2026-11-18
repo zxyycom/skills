@@ -151,17 +151,12 @@ test("record native runtime and build inputs invalidate affected delivery checks
       assert.equal(plan.kind, "incremental");
       assert.deepEqual(plan.snapshot.unclassifiedPaths, []);
       if (input === "scripts/lib/record-native/runtime.ts") {
-        assert.ok(
-          gateToolScopes["test-evidence-project"].additionalInputs.includes(
-            input
-          )
-        );
         assert.equal(
           plan.decisions.find(
             (item) =>
               item.checkId === "test:test-evidence:project-reference-check"
           )?.action,
-          "execute"
+          "reuse"
         );
       }
       for (const checkId of [
@@ -174,6 +169,38 @@ test("record native runtime and build inputs invalidate affected delivery checks
           "execute",
           `${input}: ${checkId}`
         );
+    }
+  });
+});
+
+test("Agent Memory receipts track SQL inputs without consuming Index Runtime", async () => {
+  await withImpactFixture(async (fixture) => {
+    const sql = await prepareChangedFixtureActivation(
+      fixture,
+      "tools/agent-memory/src/queries.sql"
+    );
+    assert.equal(sql.kind, "incremental");
+    assert.deepEqual(sql.snapshot.unclassifiedPaths, []);
+    const unrelated = await prepareChangedFixtureActivation(
+      fixture,
+      "tools/index-runtime/src/index.ts"
+    );
+    assert.equal(unrelated.kind, "incremental");
+    for (const id of [
+      "test:agent-memory:behavior",
+      "test:agent-memory:user-control",
+      "test:agent-memory:public-distribution"
+    ]) {
+      assert.equal(
+        sql.decisions.find(({ checkId }) => checkId === id)?.action,
+        "execute",
+        id
+      );
+      assert.equal(
+        unrelated.decisions.find(({ checkId }) => checkId === id)?.action,
+        "reuse",
+        id
+      );
     }
   });
 });

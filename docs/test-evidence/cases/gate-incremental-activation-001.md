@@ -1,6 +1,7 @@
 ### Case GATE-INCREMENTAL-ACTIVATION-001: 项目增量 Gate 只省略输入闭合且精确命中成功证明的 Check
 
 Tests:
+- `test:0870b616d06c913bd29603c4b743979623c9bbed83c5a6829c6d3940e3a062d5`
 - `test:0e6174025a63b00d62e9817747cf354e3e563f656eb00d11b517d025e329ff68`
 - `test:4576387f82bd117c6c48a19b7333fd21c998cd404b83041740624f24b0930aca`
 - `test:497fab508cc1fb5f4dd8ef935d27dcdeb5612ca42be1c4d3964610e03e919539`
@@ -24,14 +25,15 @@ Tags:
 - `repository-tooling`
 
 Contract:
-- changed 完整变更验收为 51 项项目命令与 markdown-lint 共 52 项 Check 维护输入成功 receipt；其余七项原生材料与环境 Check 每轮实际执行。只有声明输入闭合、工具与环境身份精确、所选命令通过、最终 Run 成功且起止快照一致时才发布证明；release 全量执行，原生 dependsOn 负责必要前置激活。
+- changed 为维护脚本、语义测试和 Markdown 内容检查维护输入成功 receipt；环境及其余原生材料每轮执行。只有声明输入闭合、工具与环境身份精确、所选命令通过、最终 Run 成功且起止快照一致时才发布证明；release 全量执行，原生依赖负责激活前置。
 
 Proves:
 - 首次完整输入执行全部 receipt-managed Check；稳定输入复用，单项 receipt 缺失激活其工具订阅者与必要生成前置，实际 Check 全部通过且最终 Run 成功才发布。
 - Git 与磁盘事实覆盖源码、测试/fixtures、runtime、manifest/lock/config，ignored TS/MTS 与 fixture node_modules 不漏；dirty→相同 clean 可复用，删除与另路径重建重新执行。
 - 原生记录、共享、skill-package 与 build 输入归实际 consumer；不因无关 scripts 内容给所有领域加宽订阅。
 - Novel Cards 对代表性 runtime/分发/manifest/lock/fixture 输入失效；构建适配只使统一生成 provider 执行而 source card/query consumer 可复用。
+- Agent Memory 的 SQL 修改使三项语义检查重新执行；只修改不属于其输入的 Index Runtime 时仍可复用。
 - 未知 owner、symlink/越界/非 UTF-8 路径、预算超限与读取失败保守 fallback；不缓存部分或 unavailable 身份。
-- 工具/环境身份改变使相关证明失效，shell 记账变量排除仍准确；非仓库 fallback 选择全部 receipt-managed base 项，release 选择完整 63 项。
+- 工具/环境身份改变使相关证明失效，shell 记账变量不影响身份；非仓库 fallback 选择全部可复用 base 项，release 选择完整 catalog 且不采集、发布成功证明。
 - 损坏 receipt manifest、未成功 Run、命令失败、不可写 cache、结束采集失败或起止漂移均不得发布成功证明。
 - updater 与公共 runtime 测试按实际消费者失效。
