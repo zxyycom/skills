@@ -183,6 +183,8 @@
       "261110-preserve-source-query-boundaries-with-shared-config": "sha256:00220fb866b0a3e0edba4e5ee4093b430725d1776599f21b7e6779ebc6c6b34d",
       "261111-retain-only-narrative-critical-investigation-materials": "sha256:a6b9e37cd334c60ab82020c0d346f34d9e8ed57830a174b2fc5ae43101e9944d",
       "261118-agent-memory-sqlite-fact-source": "sha256:a667fe624febe7984d2f935ee6e69b008d9563eef61d9531fb038ae7d17812e5",
+      "261127-embed-review-checks-in-ai-ready-stages": "sha256:dc9e360f2c5f05b5f900bc88a3d3d15aeb9300fd70540586c4f5d8eb43fe368d",
+      "261127-prefer-portable-markdown-unless-html-required": "sha256:118708b5c8fbd8c479990fe481b11cdd634c88b45ba2b7eb99c8244ce01ade79",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -4187,6 +4189,38 @@
       "tags": [
         "agent-memory",
         "repository-model"
+      ],
+      "relations": []
+    },
+    "261127-embed-review-checks-in-ai-ready-stages": {
+      "name": "embed-review-checks-in-ai-ready-stages",
+      "sourcePath": "261127-embed-review-checks-in-ai-ready-stages.md",
+      "title": "将分层检查清单嵌入 AI-Ready Docs 的五阶段流程",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-11-27T02:39:15Z",
+      "purpose": "让整体复看主动覆盖常见误读，不依赖用户逐项提醒。",
+      "background": "单用流程容易漏看具体问题，脱离任务顺序的清单又容易诱发机械套用。",
+      "decision": "按阶段组织默认复看的检查项；局部任务按影响选择，只报告有依据的发现。",
+      "tags": [
+        "ai-ready-docs",
+        "document-structure"
+      ],
+      "relations": []
+    },
+    "261127-prefer-portable-markdown-unless-html-required": {
+      "name": "prefer-portable-markdown-unless-html-required",
+      "sourcePath": "261127-prefer-portable-markdown-unless-html-required.md",
+      "title": "Markdown 默认保持可移植，仅按明确要求嵌入 HTML",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-11-27T02:39:15Z",
+      "purpose": "使同一份 Markdown 的结构在源码阅读和不同预览环境中仍可辨认。",
+      "background": "一个预览器能显示 HTML，不足以证明同一文档的其他读者也能恢复其结构。",
+      "decision": "AI-Ready Docs 默认选用可移植的 Markdown，只有用户或交付契约明确要求时才嵌入 HTML。",
+      "tags": [
+        "ai-ready-docs",
+        "document-structure"
       ],
       "relations": []
     },
